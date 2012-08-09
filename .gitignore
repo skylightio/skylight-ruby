@@ -1,0 +1,13 @@
+
+# Ignore the bundle config
+/.bundle
+
+# Ignore the temporary directory
+/tmp
+
+# Ignore any build artifacts
+*.bundle
+
+# Ignore OS artifacts
+.DS_Store
+/b/*
