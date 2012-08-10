@@ -7,7 +7,9 @@ module Tilde
     require 'tilde/notifications'
   end
 
+  require 'tilde/instrumenter'
   require 'tilde/subscriber'
+  require 'tilde/tracer'
   require 'tilde/util'
 
   # Require the juicy bits

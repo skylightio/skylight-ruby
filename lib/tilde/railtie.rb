@@ -4,8 +4,8 @@ require 'rails'
 module Tilde
   class Railtie < Rails::Railtie
 
-    initialize :notifications do
-      p [ :ZOMG ]
+    initializer :notifications do
+      Subscriber.register! Instrumenter.new
     end
 
   end

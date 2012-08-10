@@ -15,14 +15,18 @@ module ActiveSupport
       # and publish it. Notice that events get sent even if an error occurs
       # in the passed-in block
       def instrument(name, payload={})
-        @notifier.start(name, @id, payload)
-        begin
-          yield
-        rescue Exception => e
-          payload[:exception] = [e.class.name, e.message]
-          raise e
-        ensure
-          @notifier.finish(name, @id, payload)
+        if block_given?
+          @notifier.start(name, @id, payload)
+          begin
+            yield payload
+          rescue Exception => e
+            payload[:exception] = [e.class.name, e.message]
+            raise e
+          ensure
+            @notifier.finish(name, @id, payload)
+          end
+        else
+          @notifier.measure(name, @id, payload)
         end
       end
 

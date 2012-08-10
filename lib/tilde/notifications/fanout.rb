@@ -39,6 +39,10 @@ module ActiveSupport
         listeners_for(name).each { |s| s.finish(name, id, payload) }
       end
 
+      def measure(name, id, payload)
+        listeners_for(name).each { |s| s.measure(name, id, payload) }
+      end
+
       def publish(name, *args)
         listeners_for(name).each { |s| s.publish(name, *args) }
       end
@@ -61,8 +65,10 @@ module ActiveSupport
         def self.new(pattern, listener)
           if listener.respond_to?(:call)
             subscriber = Timed.new pattern, listener
-          else
+          elsif listener.respond_to?(:measure)
             subscriber = Evented.new pattern, listener
+          else
+            subscriber = LegacyEvented.new pattern, listener
           end
 
           unless pattern
@@ -86,6 +92,10 @@ module ActiveSupport
             @delegate.finish name, id, payload
           end
 
+          def measure(name, id, payload)
+            @delegate.measure(name, id, payload)
+          end
+
           def subscribed_to?(name)
             @pattern === name.to_s
           end
@@ -96,7 +106,14 @@ module ActiveSupport
           end
         end
 
-        class Timed < Evented
+        class LegacyEvented < Evented
+          def measure(name, id, payload)
+            start(name, id, payload)
+            finish(name, id, payload)
+          end
+        end
+
+        class Timed < LegacyEvented
           def initialize(pattern, delegate)
             @timestack = []
             super
@@ -127,6 +144,10 @@ module ActiveSupport
 
           def finish(name, id, payload)
             @delegate.finish name, id, payload
+          end
+
+          def measure(name, id, payload)
+            @delegate.measure name, id, payload
           end
 
           def publish(name, *args)
