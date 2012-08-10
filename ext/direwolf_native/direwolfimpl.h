@@ -42,7 +42,8 @@ class Tracer {
     int stop();
 };
 
-/***
+/*
+ *
  * Uniformly samples values using Vitter's Algorithm R to produce a
  * statistically representative sample.
  *

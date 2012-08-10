@@ -10,6 +10,12 @@ using namespace std;
  */
 class Span
 {
+  // The elapsed time (in units of 0.1ms) since the previous sibling
+  // event in the trace
+  uint64_t _started_at;
+
+  // The duration of the span (in units of 0.1ms)
+  uint64_t _ended_at;
 
   // The category of the span
   string _category;
@@ -29,13 +35,14 @@ class Span
     Span(Span *, const dw_span_t *);
     ~Span();
 
-    // Accessors
-    Span *parent();
-
     void push(Span *);
+
+    friend class Tracer;
 };
 
 Span::Span(Span *p, const dw_span_t *s) :
+  _started_at(0),
+  _ended_at(0),
   _category(s->category, s->category_len),
   _parent(p),
   _first_child(NULL),
@@ -61,22 +68,17 @@ Span::push(Span *child)
   }
 }
 
-Span *
-Span::parent()
-{
-  return _parent;
-}
-
 Tracer::Tracer() :
   _valid(true),
   _root(NULL),
   _current(NULL)
-{
-}
+{}
 
 int
 Tracer::record(dw_span_t *s)
 {
+  Span *span;
+
   if (!_valid)
     return 1;
 
@@ -85,8 +87,11 @@ Tracer::record(dw_span_t *s)
     return 1;
   }
 
+  span = new Span(_current, s);
+  span->_started_at = current_time_nanos();
+
   // Push the node
-  _current->push(new Span(_current, s));
+  _current->push(span);
 
   return 0;
 }
@@ -94,10 +99,13 @@ Tracer::record(dw_span_t *s)
 int
 Tracer::start(dw_span_t *s)
 {
+  Span *span;
+
   if (!_valid)
     return 1;
 
-  Span *span = new Span(_current, s);
+  span = new Span(_current, s);
+  span->_started_at = current_time_nanos();
 
   if (_current) {
     _current->push(span);
@@ -122,7 +130,8 @@ Tracer::stop()
     return 1;
   }
 
-  _current = _current->parent();
+  _current->_ended_at = current_time_nanos();
+  _current = _current->_parent;
 
   return 0;
 }
