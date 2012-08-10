@@ -3,7 +3,7 @@
 
 VALUE rb_mTilde;
 VALUE rb_cInstrumenter;
-VALUE rb_cTracer;
+VALUE rb_cTrace;
 VALUE rb_eTildeError;
 VALUE rb_mUtil;
 
@@ -22,26 +22,26 @@ Instrumenter_allocate(VALUE self) {
   return Data_Wrap_Struct(rb_cInstrumenter, 0, Instrumenter_dealloc, inst);
 }
 
-static dw_tracer_t
-Tracer_get(VALUE v) {
-  dw_tracer_t t;
+static dw_trace_t
+Trace_get(VALUE v) {
+  dw_trace_t t;
   Data_Get_Struct(v, void, t);
   return t;
 }
 
 static void
-Tracer_dealloc(dw_tracer_t tracer) {
-  dw_tracer_destroy(tracer);
+Trace_dealloc(dw_trace_t trace) {
+  dw_trace_destroy(trace);
 }
 
 static VALUE
-Tracer_allocate(VALUE self) {
-  dw_tracer_t tracer = dw_tracer_init();
-  return Data_Wrap_Struct(rb_cTracer, 0, Tracer_dealloc, tracer);
+Trace_allocate(VALUE self) {
+  dw_trace_t trace = dw_trace_init();
+  return Data_Wrap_Struct(rb_cTrace, 0, Trace_dealloc, trace);
 }
 
 static VALUE
-Tracer_record(VALUE self, VALUE cat, VALUE desc, VALUE annot) {
+Trace_record(VALUE self, VALUE cat, VALUE desc, VALUE annot) {
   dw_span_t span;
 
   if (TYPE(cat) != T_STRING) {
@@ -57,18 +57,18 @@ Tracer_record(VALUE self, VALUE cat, VALUE desc, VALUE annot) {
   span.category = RSTRING_PTR(cat);
   span.category_len = RSTRING_LEN(cat);
 
-  dw_tracer_record(Tracer_get(self), &span);
+  dw_trace_record(Trace_get(self), &span);
 
   return Qnil;
 }
 
 static VALUE
-Tracer_start(VALUE self, VALUE c, VALUE desc, VALUE annot) {
+Trace_start(VALUE self, VALUE c, VALUE desc, VALUE annot) {
   return Qnil;
 }
 
 static VALUE
-Tracer_stop(VALUE self) {
+Trace_stop(VALUE self) {
   return Qnil;
 }
 
@@ -96,14 +96,14 @@ Init_direwolf_native() {
   rb_define_singleton_method(rb_cInstrumenter, "__allocate", Instrumenter_allocate, 0);
 
   /*
-   * Define methods on Tracer
+   * Define methods on Trace
    */
-  rb_cTracer = rb_define_class_under(rb_mTilde, "Tracer", rb_cObject);
-  rb_define_singleton_method(rb_cTracer, "__allocate", Tracer_allocate, 0);
+  rb_cTrace = rb_define_class_under(rb_mTilde, "Trace", rb_cObject);
+  rb_define_singleton_method(rb_cTrace, "__allocate", Trace_allocate, 0);
 
-  rb_define_method(rb_cTracer, "__record", Tracer_record, 3);
-  rb_define_method(rb_cTracer, "__start",  Tracer_start,  3);
-  rb_define_method(rb_cTracer, "__stop",   Tracer_stop,   0);
+  rb_define_method(rb_cTrace, "__record", Trace_record, 3);
+  rb_define_method(rb_cTrace, "__start",  Trace_start,  3);
+  rb_define_method(rb_cTrace, "__stop",   Trace_stop,   0);
 
   /*
    * Define methods on Util

@@ -37,7 +37,7 @@ class Span
 
     void push(Span *);
 
-    friend class Tracer;
+    friend class Trace;
 };
 
 Span::Span(Span *p, const dw_span_t *s) :
@@ -68,14 +68,14 @@ Span::push(Span *child)
   }
 }
 
-Tracer::Tracer() :
+Trace::Trace() :
   _valid(true),
   _root(NULL),
   _current(NULL)
 {}
 
 int
-Tracer::record(dw_span_t *s)
+Trace::record(dw_span_t *s)
 {
   Span *span;
 
@@ -97,7 +97,7 @@ Tracer::record(dw_span_t *s)
 }
 
 int
-Tracer::start(dw_span_t *s)
+Trace::start(dw_span_t *s)
 {
   Span *span;
 
@@ -120,7 +120,7 @@ Tracer::start(dw_span_t *s)
 }
 
 int
-Tracer::stop()
+Trace::stop()
 {
   if (!_valid)
     return 1;
@@ -142,33 +142,33 @@ Tracer::stop()
  *
  */
 
-dw_tracer_t
-dw_tracer_init()
+dw_trace_t
+dw_trace_init()
 {
-  return new Tracer();
+  return new Trace();
 }
 
 int
-dw_tracer_destroy(dw_tracer_t tr)
+dw_trace_destroy(dw_trace_t tr)
 {
   delete tr;
   return 0;
 }
 
 int
-dw_tracer_record(dw_tracer_t tr, dw_span_t *span)
+dw_trace_record(dw_trace_t tr, dw_span_t *span)
 {
   return tr->record(span);
 }
 
 int
-dw_tracer_record_range_start(dw_tracer_t tr, dw_span_t *span)
+dw_trace_record_range_start(dw_trace_t tr, dw_span_t *span)
 {
   return tr->record(span);
 }
 
 int
-dw_tracer_record_range_stop(dw_tracer_t tr)
+dw_trace_record_range_stop(dw_trace_t tr)
 {
   return tr->stop();
 }

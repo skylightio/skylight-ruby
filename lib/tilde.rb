@@ -13,6 +13,6 @@ module Tilde
 
   require 'tilde/instrumenter'
   require 'tilde/subscriber'
-  require 'tilde/tracer'
+  require 'tilde/trace'
   require 'tilde/util'
 end

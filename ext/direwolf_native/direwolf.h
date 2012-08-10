@@ -23,7 +23,7 @@ extern "C" {
  */
 
 typedef struct Instrumenter* dw_instrumenter_t;
-typedef struct Tracer* dw_tracer_t;
+typedef struct Trace* dw_trace_t;
 typedef uuid_t dw_request_id_t;
 
 /*
@@ -51,29 +51,29 @@ int dw_instrumenter_destroy(dw_instrumenter_t instrumenter);
  */
 
 /*
- * Initialize a new tracer.
+ * Initialize a new trace.
  */
-dw_tracer_t dw_tracer_init();
+dw_trace_t dw_trace_init();
 
 /*
- * Destroy a tracer
+ * Destroy a trace
  */
-int dw_tracer_destroy(dw_tracer_t tracer);
+int dw_trace_destroy(dw_trace_t trace);
 
 /*
  * Record a single event.
  */
-int dw_tracer_record(dw_tracer_t tracer, dw_span_t *span);
+int dw_trace_record(dw_trace_t trace, dw_span_t *span);
 
 /*
  * Start recording a range
  */
-int dw_tracer_record_range_start(dw_tracer_t tracer, dw_span_t *span);
+int dw_trace_record_range_start(dw_trace_t trace, dw_span_t *span);
 
 /*
  * Finish recording the current range
  */
-int dw_tracer_record_range_stop(dw_tracer_t tracer);
+int dw_trace_record_range_stop(dw_trace_t trace);
 
 
 /*

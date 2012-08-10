@@ -23,9 +23,9 @@ class Instrumenter {
 
 class Span;
 
-class Tracer {
+class Trace {
 
-  // Whether the tracer is valid
+  // Whether the trace is valid
   bool _valid;
 
   // The root of the tree
@@ -36,7 +36,7 @@ class Tracer {
 
   public:
 
-    Tracer();
+    Trace();
     int record(dw_span_t *span);
     int start(dw_span_t *span);
     int stop();

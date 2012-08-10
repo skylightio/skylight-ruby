@@ -1,5 +1,5 @@
 module Tilde
-  class Tracer
+  class Trace
     def self.new
       __allocate
     end
