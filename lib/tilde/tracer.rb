@@ -4,11 +4,21 @@ module Tilde
       __allocate
     end
 
-    # Alias public methods to the native implementations
-    #
-    alias record __record
-    alias start  __start
-    alias stop   __stop
+    def record(category, description = nil, annotations = nil)
+      __record(category, description, annotations)
+    end
+
+    def start(category, description = nil, annotations = nil)
+      # stuff
+    end
+
+    alias stop __stop
+
+  private
+
+    def record?(category, description)
+      String === category
+    end
 
   end
 end
