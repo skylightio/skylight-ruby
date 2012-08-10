@@ -42,6 +42,8 @@ Tracer_allocate(VALUE self) {
 
 static VALUE
 Tracer_record(VALUE self, VALUE cat, VALUE desc, VALUE annot) {
+  dw_span_t span;
+
   if (TYPE(cat) != T_STRING) {
     rb_raise(rb_eTildeError, "trace category must instance of String");
     return Qnil;
@@ -52,7 +54,10 @@ Tracer_record(VALUE self, VALUE cat, VALUE desc, VALUE annot) {
     return Qnil;
   }
 
-  dw_tracer_record(Tracer_get(self), RSTRING_PTR(cat), NULL);
+  span.category = RSTRING_PTR(cat);
+  span.category_len = RSTRING_LEN(cat);
+
+  dw_tracer_record(Tracer_get(self), &span);
 
   return Qnil;
 }

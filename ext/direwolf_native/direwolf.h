@@ -1,11 +1,12 @@
 #ifndef __DIREWOLF_H__
 #define __DIREWOLF_H__
 
-#import <uuid/uuid.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#import <uuid/uuid.h>
+#import <stddef.h>
 
 /***
  *
@@ -24,6 +25,15 @@ extern "C" {
 typedef struct Instrumenter* dw_instrumenter_t;
 typedef struct Tracer* dw_tracer_t;
 typedef uuid_t dw_request_id_t;
+
+/*
+ * Arguments to create a span
+ */
+typedef struct
+{
+  char *category;
+  size_t category_len;
+} dw_span_t;
 
 /*
  *
@@ -53,12 +63,12 @@ int dw_tracer_destroy(dw_tracer_t tracer);
 /*
  * Record a single event.
  */
-int dw_tracer_record(dw_tracer_t tracer, const char *category, const char *description);
+int dw_tracer_record(dw_tracer_t tracer, dw_span_t *span);
 
 /*
  * Start recording a range
  */
-int dw_tracer_record_range_start(dw_tracer_t tracer, const char *category, const char *description);
+int dw_tracer_record_range_start(dw_tracer_t tracer, dw_span_t *span);
 
 /*
  * Finish recording the current range
