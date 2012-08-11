@@ -27,13 +27,12 @@ class Span
   Span *_first_child;
   Span *_last_child;
 
-  // Next sibling
-  Span *_next_sibling;
+  // Next
+  Span *_next;
 
   public:
 
     Span(Span *, const dw_span_t *);
-    ~Span();
 
     void push(Span *);
 
@@ -47,10 +46,7 @@ Span::Span(Span *p, const dw_span_t *s) :
   _parent(p),
   _first_child(NULL),
   _last_child(NULL),
-  _next_sibling(NULL)
-{}
-
-Span::~Span()
+  _next(NULL)
 {}
 
 void
@@ -59,7 +55,7 @@ Span::push(Span *child)
   if (_last_child) {
     // If there is a last child, then we are appending the node to the
     // linked list
-    _last_child->_next_sibling = child;
+    _last_child->_next = child;
     _last_child = child;
   }
   else {
@@ -73,6 +69,27 @@ Trace::Trace() :
   _root(NULL),
   _current(NULL)
 {}
+
+Trace::~Trace()
+{
+  Span *curr = _root, *tmp;
+
+  while (curr) {
+    if (curr->_first_child) {
+      tmp  = curr;
+      curr = curr->_first_child;
+
+      tmp->_first_child = NULL;
+
+      continue;
+    }
+
+    tmp  = curr;
+    curr = curr->_next ? curr->_next : curr->_parent;
+
+    delete tmp;
+  }
+}
 
 int
 Trace::record(dw_span_t *s)

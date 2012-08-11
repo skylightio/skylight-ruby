@@ -1,8 +1,7 @@
 require 'mkmf'
 
-unless have_library('uuid')
-  abort "libuuid not found"
-end
+abort "libuuid not found"    unless have_library('uuid')
+abort "libpthread not found" unless have_library('pthread')
 
 CONFIG['warnflags'].gsub!('-Wdeclaration-after-statement',   '')
 CONFIG['warnflags'].gsub!('-Wimplicit-function-declaration', '')

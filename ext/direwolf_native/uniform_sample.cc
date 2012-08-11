@@ -1,19 +1,21 @@
 #import "direwolf.h"
 #import "direwolfimpl.h"
 
-template <class T>
-UniformSample<T>::UniformSample(int s) {
-  _size   = s;
-  _count  = 0;
-  _values = new T[s];
-}
+UniformSample::UniformSample(int s) :
+  _values(s),
+  _size(s),
+  _count(0)
+{}
 
-template <class T>
-UniformSample<T>::~UniformSample() {
-  delete _values;
-}
-
-template <class T>
-int UniformSample<T>::size() {
-  return _size;
+void
+UniformSample::update(Trace *t)
+{
+  // If capacity has not been reached yet, then just track the trace
+  if (_size >= ++_count)
+  {
+    _values[_count - 1] = t;
+  }
+  else
+  {
+  }
 }
