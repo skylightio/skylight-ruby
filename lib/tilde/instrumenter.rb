@@ -5,5 +5,8 @@ module Tilde
       __allocate
     end
 
+    alias start    __start
+    alias shutdown __shutdown
+
   end
 end

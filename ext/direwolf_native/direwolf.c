@@ -12,18 +12,45 @@ VALUE rb_mUtil;
  * garbage collected.
  */
 static void
-Instrumenter_dealloc(dw_instrumenter_t inst) {
+Instrumenter_dealloc(dw_instrumenter_t inst)
+{
   dw_instrumenter_destroy(inst);
 }
 
+static dw_instrumenter_t
+Instrumenter_get(VALUE v)
+{
+  dw_instrumenter_t inst;
+  Data_Get_Struct(v, void, inst);
+  return inst;
+}
+
 static VALUE
-Instrumenter_allocate(VALUE self) {
+Instrumenter_allocate(VALUE self)
+{
   dw_instrumenter_t inst = dw_instrumenter_init();
   return Data_Wrap_Struct(rb_cInstrumenter, 0, Instrumenter_dealloc, inst);
 }
 
+static VALUE
+Instrumenter_start(VALUE self)
+{
+  dw_instrumenter_t inst = Instrumenter_get(self);
+  dw_instrumenter_start(inst);
+  return Qnil;
+}
+
+static VALUE
+Instrumenter_shutdown(VALUE self)
+{
+  dw_instrumenter_t inst = Instrumenter_get(self);
+  dw_instrumenter_shutdown(inst);
+  return Qnil;
+}
+
 static dw_trace_t
-Trace_get(VALUE v) {
+Trace_get(VALUE v)
+{
   dw_trace_t t;
   Data_Get_Struct(v, void, t);
   return t;
@@ -94,6 +121,9 @@ Init_direwolf_native() {
    */
   rb_cInstrumenter = rb_define_class_under(rb_mTilde, "Instrumenter", rb_cObject);
   rb_define_singleton_method(rb_cInstrumenter, "__allocate", Instrumenter_allocate, 0);
+
+  rb_define_method(rb_cInstrumenter, "__start",    Instrumenter_start,    0);
+  rb_define_method(rb_cInstrumenter, "__shutdown", Instrumenter_shutdown, 0);
 
   /*
    * Define methods on Trace

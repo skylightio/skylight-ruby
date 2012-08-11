@@ -42,6 +42,8 @@ typedef struct
  */
 
 dw_instrumenter_t dw_instrumenter_init();
+int dw_instrumenter_start(dw_instrumenter_t instrumenter);
+int dw_instrumenter_shutdown(dw_instrumenter_t instrumenter);
 int dw_instrumenter_destroy(dw_instrumenter_t instrumenter);
 
 /*
