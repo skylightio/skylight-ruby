@@ -31,7 +31,7 @@ typedef uuid_t dw_request_id_t;
  */
 typedef struct
 {
-  char *category;
+  char* category;
   size_t category_len;
 } dw_span_t;
 
@@ -65,12 +65,12 @@ int dw_trace_destroy(dw_trace_t trace);
 /*
  * Record a single event.
  */
-int dw_trace_record(dw_trace_t trace, dw_span_t *span);
+int dw_trace_record(dw_trace_t trace, dw_span_t* span);
 
 /*
  * Start recording a range
  */
-int dw_trace_record_range_start(dw_trace_t trace, dw_span_t *span);
+int dw_trace_record_range_start(dw_trace_t trace, dw_span_t* span);
 
 /*
  * Finish recording the current range
@@ -85,8 +85,8 @@ int dw_trace_record_range_stop(dw_trace_t trace);
  */
 
 void dw_generate_request_id(dw_request_id_t out);
-void dw_request_id_to_string(dw_request_id_t reqid, char *out);
-void dw_request_id_from_string(char *in, dw_request_id_t reqid);
+void dw_request_id_to_string(dw_request_id_t reqid, char* out);
+void dw_request_id_from_string(char* in, dw_request_id_t reqid);
 
 #ifdef __cplusplus
 }

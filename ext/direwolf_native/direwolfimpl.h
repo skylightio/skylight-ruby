@@ -24,8 +24,14 @@ class Worker;
 // Return the current time in nanoseconds using a monotonic clock
 uint64_t current_time_nanos();
 
+// Worker thread state
+typedef struct worker_thread_t* worker_thread_p;
+
 // Start the worker thread
-void start_worker_thread(Worker &w);
+int start_worker_thread(worker_thread_p*, Worker &w);
+
+// Cleans up the state.
+int destroy_worker_thread(worker_thread_p*);
 
 /*
  *
@@ -70,13 +76,18 @@ class Random
 
 class Worker
 {
+  worker_thread_p _th;
+
   public:
+
+    Worker();
 
     // Called from the main thread to launch the worker
     void start();
 
     // Internal: called once the new thread has started running.
     void work();
+
 };
 
 /*
@@ -115,46 +126,6 @@ class Trace
     int record(dw_span_t *span);
     int start(dw_span_t *span);
     int stop();
-};
-
-/*
- *
- * Uniformly samples values using Vitter's Algorithm R to produce a
- * statistically representative sample.
- *
- */
-class UniformSample
-{
-  /*
-   * Sample size
-   */
-  int _size;
-
-  /*
-   * Number currently contained elements
-   */
-  int _count;
-
-  // Traces
-  std::vector<Trace*> _values;
-
-  public:
-
-    /*
-     * Constructors and destructors
-     */
-    UniformSample(int s = 128);
-    // ~UniformSample() {}
-
-    /*
-     * returns the size of the sample
-     */
-    int size() const { return _size; }
-
-    /*
-     * Updates the sample with a new trace
-     */
-    void update(Trace *t);
 };
 
 #endif

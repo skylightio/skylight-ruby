@@ -1,10 +1,14 @@
 #import "direwolfimpl.h"
 
+/*
+ *
+ * ===== Timer =====
+ *
+ */
+
 #if __APPLE__
 #include <mach/mach_time.h>
 #endif
-
-#include "pthread.h"
 
 uint64_t
 current_time_nanos()
@@ -29,17 +33,43 @@ current_time_nanos()
 #endif
 }
 
-extern "C" void *
-handle_start_worker_thread(void *arg)
+/*
+ *
+ * ===== Threading =====
+ *
+ */
+
+#include "pthread.h"
+
+struct worker_thread_t
 {
-  Worker *w = static_cast<Worker*>(arg);
+  pthread_t thread_id;
+};
+
+int
+init_worker_thread(worker_thread_t** thp)
+{
+  worker_thread_t* th;
+ 
+  th = (worker_thread_t*) malloc(sizeof(worker_thread_t));
+  th->thread_id = NULL;
+
+  *thp = th;
+
+  return 0;
+}
+
+extern "C" void*
+handle_start_worker_thread(void* arg)
+{
+  Worker* w = static_cast<Worker*>(arg);
   w->work();
   pthread_exit(NULL);
 }
 
-
-void
-start_worker_thread(Worker &w)
+// TODO: Consider locking
+int
+start_worker_thread(worker_thread_t** thp, Worker &w)
 {
   pthread_t thread;
   pthread_attr_t attr;
@@ -48,9 +78,27 @@ start_worker_thread(Worker &w)
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
   // Create the thread
-  if (0 != pthread_create(&thread, &attr, handle_start_worker_thread, &w))
+  if (0 != pthread_create(&thread, &attr, handle_start_worker_thread, (void*) &w))
     throw Exception("could not create worker thread");
 
   // Cleanup the attributes
   pthread_attr_destroy(&attr);
+
+  return 0;
+}
+
+int
+destroy_worker_thread(worker_thread_t** thp)
+{
+  // Return if the pointer is NULL
+  if (!*thp)
+    return 0;
+
+  // Join the worker thread
+
+  // Cleanup
+  free(*thp);
+  *thp = NULL;
+
+  return 0;
 }

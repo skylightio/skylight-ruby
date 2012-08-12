@@ -1,9 +1,19 @@
 #import "direwolfimpl.h"
 
+Worker::Worker() :
+  _th(NULL)
+{}
+
 void
 Worker::start()
 {
-  start_worker_thread(*this);
+  int res = start_worker_thread(&_th, *this);
+
+  if (!res)
+    return;
+
+  // TODO: add more detail
+  throw Exception("somethign went wrong starting worker thread");
 }
 
 void
