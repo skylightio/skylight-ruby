@@ -46,7 +46,7 @@ struct worker_thread_t
   pthread_t thread_id;
 };
 
-int
+void
 init_worker_thread(worker_thread_t** thp)
 {
   worker_thread_t* th;
@@ -55,8 +55,6 @@ init_worker_thread(worker_thread_t** thp)
   th->thread_id = NULL;
 
   *thp = th;
-
-  return 0;
 }
 
 extern "C" void*
@@ -68,37 +66,38 @@ handle_start_worker_thread(void* arg)
 }
 
 // TODO: Consider locking
-int
+void
 start_worker_thread(worker_thread_t** thp, Worker &w)
 {
-  pthread_t thread;
+  worker_thread_t* th;
   pthread_attr_t attr;
+
+  // struct not initialized
+  if (!*thp)
+    throw Exception("worker thread struct not initialized");
+
+  th = *thp;
 
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
   // Create the thread
-  if (0 != pthread_create(&thread, &attr, handle_start_worker_thread, (void*) &w))
+  if (0 != pthread_create(&(th->thread_id), &attr, handle_start_worker_thread, (void*) &w))
     throw Exception("could not create worker thread");
 
   // Cleanup the attributes
   pthread_attr_destroy(&attr);
-
-  return 0;
 }
 
-int
+void
 destroy_worker_thread(worker_thread_t** thp)
 {
   // Return if the pointer is NULL
   if (!*thp)
-    return 0;
+    return;
 
   // Join the worker thread
 
   // Cleanup
   free(*thp);
-  *thp = NULL;
-
-  return 0;
 }

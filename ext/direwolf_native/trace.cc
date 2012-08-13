@@ -91,6 +91,12 @@ Trace::~Trace()
   }
 }
 
+void
+Trace::release()
+{
+  delete this;
+}
+
 int
 Trace::record(dw_span_t *s)
 {
@@ -168,7 +174,7 @@ dw_trace_init()
 int
 dw_trace_destroy(dw_trace_t tr)
 {
-  delete tr;
+  tr->release();
   return 0;
 }
 

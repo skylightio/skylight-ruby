@@ -27,11 +27,13 @@ uint64_t current_time_nanos();
 // Worker thread state
 typedef struct worker_thread_t* worker_thread_p;
 
+void init_worker_thread(worker_thread_p*);
+
 // Start the worker thread
-int start_worker_thread(worker_thread_p*, Worker &w);
+void start_worker_thread(worker_thread_p*, Worker &w);
 
 // Cleans up the state.
-int destroy_worker_thread(worker_thread_p*);
+void destroy_worker_thread(worker_thread_p*);
 
 /*
  *
@@ -84,10 +86,10 @@ class Worker
 
     // Called from the main thread to launch the worker
     void start();
+    void shutdown();
 
     // Internal: called once the new thread has started running.
     void work();
-
 };
 
 /*
@@ -122,10 +124,15 @@ class Trace
   public:
 
     Trace();
-    ~Trace();
+
+    void release();
     int record(dw_span_t *span);
     int start(dw_span_t *span);
     int stop();
+
+  private:
+
+    ~Trace();
 };
 
 #endif

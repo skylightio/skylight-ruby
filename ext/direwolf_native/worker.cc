@@ -2,18 +2,21 @@
 
 Worker::Worker() :
   _th(NULL)
-{}
+{
+  init_worker_thread(&_th);
+}
 
 void
 Worker::start()
 {
-  int res = start_worker_thread(&_th, *this);
+  start_worker_thread(&_th, *this);
+}
 
-  if (!res)
-    return;
-
-  // TODO: add more detail
-  throw Exception("somethign went wrong starting worker thread");
+void
+Worker::shutdown()
+{
+  destroy_worker_thread(&_th);
+  _th = NULL;
 }
 
 void
