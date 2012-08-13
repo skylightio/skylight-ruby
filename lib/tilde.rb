@@ -1,3 +1,4 @@
+require 'thread'
 require 'active_support/notifications'
 
 module Tilde
@@ -9,7 +10,9 @@ module Tilde
   end
 
   require 'tilde/instrumenter'
+  require 'tilde/middleware'
   require 'tilde/subscriber'
   require 'tilde/trace'
   require 'tilde/util'
+  require 'tilde/worker'
 end

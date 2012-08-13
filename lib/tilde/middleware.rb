@@ -1,11 +1,12 @@
 module Tilde
   class Middleware
-    def initialize(app)
+    def initialize(app, instrumenter)
+      @instrumenter = instrumenter
       @app = app
     end
 
     def call(env)
-      @app.call(env)
+      @instrumenter.trace { @app.call(env) }
     end
   end
 end

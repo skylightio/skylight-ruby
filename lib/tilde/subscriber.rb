@@ -1,36 +1,23 @@
 module Tilde
   class Subscriber
 
-    def self.register!(instrumenter)
-      ActiveSupport::Notifications.subscribe nil, new(instrumenter)
-    end
-
-    def initialize(instrumenter)
-      @instrumenter = instrumenter
+    def self.register!
+      ActiveSupport::Notifications.subscribe nil, new
     end
 
     def start(name, id, payload)
-      process(name, payload, false)
+      return unless trace = Trace.current
+      trace.start(name, id, payload)
     end
 
     def finish(name, id, payload)
-      # p [ :GOT, name ]
+      return unless trace = Trace.current
+      trace.stop
     end
 
     def measure(name, id, payload)
-      process(name, payload, true)
-    end
-
-  private
-
-    def process(name, payload, is_leaf)
-      if name == 'sql.active_record'
-        return if payload[:name] == 'SCHEMA'
-      end
-
-      puts "~~~~~~~~~~~~~~~~~~ [#{is_leaf ? "LEAF" : "BRANCH"}] #{name} ~~~~~~~~~~~~~~~~~~~~~"
-      p payload
-      puts
+      return unless trace = Trace.current
+      trace.record(name, id, payload)
     end
 
   end
