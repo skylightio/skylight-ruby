@@ -1,5 +1,5 @@
-require 'tilde/notifications/instrumenter'
-require 'tilde/notifications/fanout'
+require 'tilde/compat/notifications/instrumenter'
+require 'tilde/compat/notifications/fanout'
 
 module ActiveSupport
   # = Notifications

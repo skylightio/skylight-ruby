@@ -46,8 +46,6 @@ module Tilde
         if msg == :SHUTDOWN
           return
         end
-
-        p [ :MSG, msg ]
       end
     rescue Exception => e
       # TODO: Restart the worker

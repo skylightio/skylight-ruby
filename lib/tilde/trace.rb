@@ -15,8 +15,10 @@ module Tilde
       :annotations)
     end
 
-    def initialize
-      @spans = []
+    def initialize(ident = SecureRandom.uuid, endpoint = nil)
+      @ident    = ident
+      @endpoint = endpoint
+      @spans    = []
 
       # Tracks the ID of the current parent
       @parent = nil
@@ -56,12 +58,6 @@ module Tilde
       raise "trace unbalanced" if @parent
       freeze
       self
-    end
-
-  private
-
-    def record?(category, description)
-      String === category
     end
 
   end
