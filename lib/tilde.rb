@@ -7,6 +7,8 @@ module Tilde
   require 'tilde/compat'
   require 'tilde/instrumenter'
   require 'tilde/middleware'
+  require 'tilde/queue'
+  require 'tilde/sample'
   require 'tilde/subscriber'
   require 'tilde/trace'
   require 'tilde/util'

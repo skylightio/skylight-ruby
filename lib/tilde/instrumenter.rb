@@ -21,7 +21,12 @@ module Tilde
         yield
       ensure
         Thread.current[Trace::KEY] = nil
-        process(trace)
+        begin
+          process(trace)
+        rescue Exception => e
+          p [ :EXCEPTION, e ]
+          puts e.backtrace
+        end
       end
     end
 

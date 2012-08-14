@@ -1,4 +1,5 @@
 module Tilde
+  # TODO: Handle filtering out notifications that we don't care about
   class Subscriber
 
     def self.register!

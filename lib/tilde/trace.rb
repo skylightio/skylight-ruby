@@ -15,6 +15,8 @@ module Tilde
       :annotations)
     end
 
+    attr_reader :spans
+
     def initialize(ident = SecureRandom.uuid, endpoint = nil)
       @ident    = ident
       @endpoint = endpoint
