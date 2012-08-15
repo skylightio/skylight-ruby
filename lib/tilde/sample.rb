@@ -1,17 +1,17 @@
 module Tilde
   class Sample
 
-    attr_reader :size, :count
+    attr_reader :from, :size, :count
 
-    def initialize(size)
-      @size   = size
-      @values = []
-      clear
+    def initialize(from, size)
+      @size     = size
+      @values   = []
+      @pending  = 0
+      @from     = from
     end
 
-    def clear
-      @values.clear
-      @count = 0
+    def length
+      @size < @count ? @size : @count
     end
 
     def empty?
@@ -20,27 +20,71 @@ module Tilde
 
     def each
       i  = 0
-      to = [@size, @count].min
+      to = @size < @count ? @size : @count
 
       while i < to
-        yield @values[i]
+        v = @values[i]
+
+        unless Slot === v
+          yield v
+        end
+
         i += 1
       end
 
       self
     end
 
-    def <<(val)
-      @count += 1
-
-      if (count <= @size)
-        @values[@count - 1] = val
-      else
-        r = rand(@count)
-        @values[r] = val if r < @size
+    def <<(v)
+      if idx = increment!
+        @values[idx] = v
       end
 
       self
+    end
+
+    class Slot < Struct.new(:sample, :index)
+      def commit(val)
+        sample.commit(self, val)
+      end
+    end
+
+    def reserve
+      if idx = increment!
+        slot = Slot.new(self, idx)
+
+        unless Slot === @values[idx]
+          @pending += 1
+        end
+
+        @values[idx] = slot
+      end
+    end
+
+    def commit(slot, val)
+      if slot == @values[slot.index]
+        @values[slot.index] = val
+        @pending -= 1
+      end
+
+      self
+    end
+
+    def completed?
+      @pending == 0
+    end
+
+  private
+
+    def increment!
+      c = (@count += 1)
+
+      if (c <= @size)
+        c - 1
+      else
+        r = rand(@count)
+        r if r < @size
+      end
     end
 
   end

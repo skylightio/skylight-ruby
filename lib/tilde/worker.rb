@@ -4,19 +4,19 @@ module Tilde
     SAMPLE_SIZE = 100
     INTERVAL    = 5
 
-    def self.start
-      new.start
-    end
+    attr_reader :instrumenter, :connection
 
-    def initialize
-      @sample = Sample.new(SAMPLE_SIZE)
-      @flush_at = Time.at(0)
+    def initialize(instrumenter)
+      @instrumenter = instrumenter
+      @runnable = true
+      # @serializer = Serializer.new
+      # @flush_at = Time.at(0)
     end
 
     def start
       shutdown if @thread
 
-      @queue  = Queue.new(MAX_PENDING)
+      # @connection = Connection.open(@config.host, @config.port, @config.ssl?)
       @thread = Thread.new { work }
 
       self
@@ -26,9 +26,17 @@ module Tilde
       # Don't do anything if the worker isn't running
       return self unless @thread
 
-      @queue << :SHUTDOWN
+      synchronize do
+        @runnable = false
 
-      unless @thread.join(0.5)
+        begin
+          @thread.wakeup
+        rescue ThreadError
+        end
+      end
+
+      unless @thread.join(1)
+        # FORCE KILL!!
         @thread.kill
       end
 
@@ -37,15 +45,22 @@ module Tilde
       self
     end
 
-    def submit(trace)
-      return unless @thread
-      @queue.push trace
+  private
+
+    def synchronize
+      @instrumenter.synchronize { yield }
     end
 
-  private
+    def runnable?
+      synchronize { @runnable }
+    end
 
     def work
       loop do
+        return unless runnable?
+
+        sleep 0.1
+
         msg = @queue.pop(INTERVAL)
         now = Time.now
 
@@ -71,7 +86,7 @@ module Tilde
       return if @sample.empty?
 
       @sample.each do |v|
-        # p [ v.from, v.spans.length ]
+        p [ :ENDPOINT, v.endpoint ]
       end
 
       @sample.clear

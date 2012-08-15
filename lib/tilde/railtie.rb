@@ -5,13 +5,14 @@ module Tilde
   class Railtie < Rails::Railtie
 
     def instrumenter
-      @instrumenter ||= Instrumenter.new
+      @instrumenter ||= Instrumenter.start!(config)
+    end
+
+    def config
+      @config ||= Config.new
     end
 
     initializer "tilde.configure" do |app|
-      # Register the notifications subscriber
-      Subscriber.register!
-
       # Prepend the middleware
       app.middleware.insert 0, Middleware, instrumenter
     end

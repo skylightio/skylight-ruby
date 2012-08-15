@@ -15,9 +15,11 @@ module Tilde
       :annotations)
     end
 
-    attr_reader :spans
+    attr_reader :endpoint, :spans
+    attr_writer :endpoint
 
-    def initialize(ident = SecureRandom.uuid, endpoint = nil)
+    def initialize(slot, endpoint = nil, ident = SecureRandom.uuid)
+      @slot     = slot
       @ident    = ident
       @endpoint = endpoint
       @spans    = []
@@ -56,9 +58,16 @@ module Tilde
       self
     end
 
-    def finalize!
+    # Requires global synchronization
+    def commit
       raise "trace unbalanced" if @parent
+
+      # No more changes should be made
       freeze
+
+      # Commit the trace to the sample
+      @slot.commit
+
       self
     end
 

@@ -6,7 +6,9 @@ module Tilde
     end
 
     def call(env)
-      @instrumenter.trace { @app.call(env) }
+      @instrumenter.trace("Rack") do
+        @app.call(env)
+      end
     end
   end
 end

@@ -14,3 +14,7 @@ An conceptual overview of a trace.
       * Category (multi-level, example: cache.redis)
       * Description
       * Annotations
+
+## TODO
+
+* Sample traces from the start
