@@ -15,15 +15,12 @@ module Tilde
     attr_reader :config, :worker, :samples
 
     def initialize(config)
-      @config  = config
-      @worker  = Worker.new(self)
-      @samples = []
-      @current = nil
-      @mutex   = Mutex.new
+      @config = config
+      @worker = Worker.new(self)
     end
 
     def start!
-      @worker = Worker.start
+      @worker.start!
       Subscriber.register!
       self
     end
@@ -47,7 +44,7 @@ module Tilde
         Thread.current[Trace::KEY] = nil
 
         begin
-          synchronize { trace.commit }
+          process(trace)
         rescue Exception => e
           p [ :EXCEPTION, e ]
           puts e.backtrace
@@ -55,41 +52,14 @@ module Tilde
       end
     end
 
-    def completed_samples(now)
-      synchronize do
-        @samples.delete_if { }
-      end
-    end
-
-    # Global synchronization
-    def synchronize
-      @mutex.synchronize { yield }
-    end
-
   private
 
     def create_trace(endpoint)
-      now = Time.now
-
-      slot = synchronize do
-        # Ensure that we are using the correct sample
-        if !@current || @current.from + INTERVAL <= now
-          # Prevent the worker from being overloaded
-          return if @samples.length >= 10
-
-          # We're good, create the trace
-          @current = Sample.new interval_for(now), SAMPLE_SIZE
-          @samples << @current
-        end
-
-        @current.reserve
-      end
-
-      Trace.new(slot, endpoint) if slot
+      Trace.new(endpoint)
     end
 
-    def interval_for(time)
-      Time.at INTERVAL * (time / INTERVAL + 1)
+    def process(trace)
+      @worker.submit(trace)
     end
 
   end

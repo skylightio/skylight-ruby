@@ -1,20 +1,18 @@
 module Tilde
   class Worker
-    MAX_PENDING = 1_000
-    SAMPLE_SIZE = 100
-    INTERVAL    = 5
-
     attr_reader :instrumenter, :connection
 
     def initialize(instrumenter)
       @instrumenter = instrumenter
-      @runnable = true
+      @sample       = Util::UniformSample.new(config.samples_per_interval)
+      @interval     = config.interval
       # @serializer = Serializer.new
-      # @flush_at = Time.at(0)
+
+      reset
     end
 
-    def start
-      shutdown if @thread
+    def start!
+      shutdown! if @thread
 
       # @connection = Connection.open(@config.host, @config.port, @config.ssl?)
       @thread = Thread.new { work }
@@ -22,64 +20,78 @@ module Tilde
       self
     end
 
-    def shutdown
+    def shutdown!
       # Don't do anything if the worker isn't running
       return self unless @thread
 
-      synchronize do
-        @runnable = false
+      thread  = @thread
+      @thread = nil
 
+      @queue.push(:SHUTDOWN)
+
+      unless thread.join(1)
         begin
-          @thread.wakeup
+          # FORCE KILL!!
+          thread.kill
         rescue ThreadError
         end
       end
 
-      unless @thread.join(1)
-        # FORCE KILL!!
-        @thread.kill
-      end
+      reset
+      self
+    end
 
-      @thread = nil
-
+    def submit(trace)
+      return unless @thread
+      @queue.push(trace)
       self
     end
 
   private
 
-    def synchronize
-      @instrumenter.synchronize { yield }
+    def config
+      @instrumenter.config
     end
 
-    def runnable?
-      synchronize { @runnable }
+    def reset
+      @queue = Util::Queue.new(config.max_pending_traces)
+      @sample_starts_at = Time.at(0)
+      @sample.clear
     end
 
     def work
       loop do
-        return unless runnable?
-
-        sleep 0.1
-
-        msg = @queue.pop(INTERVAL)
-        now = Time.now
+        msg = @queue.pop(@interval.to_f / 20)
 
         if msg == :SHUTDOWN
           flush
           return
         end
 
-        if now >= @flush_at
+        now = Time.now
+
+        if now >= flush_at
           flush
+          tick(now)
           @flush_at = next_flush_at(now)
         end
 
-        # Push the message into the sample
-        @sample << msg if msg
+        if Trace === msg
+          # Push the message into the sample
+          @sample << msg
+        end
       end
     rescue Exception => e
       p [ :WORKER, e ]
       puts e.backtrace
+    end
+
+    def flush_at
+      @sample_starts_at + @interval
+    end
+
+    def tick(now)
+      @sample_starts_at = Time.at(@interval * (now.to_i / @interval))
     end
 
     def flush
@@ -90,10 +102,6 @@ module Tilde
       end
 
       @sample.clear
-    end
-
-    def next_flush_at(now)
-      Time.at(INTERVAL * (now.to_i / INTERVAL + 1))
     end
 
   end

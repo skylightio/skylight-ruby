@@ -18,8 +18,7 @@ module Tilde
     attr_reader :endpoint, :spans
     attr_writer :endpoint
 
-    def initialize(slot, endpoint = nil, ident = SecureRandom.uuid)
-      @slot     = slot
+    def initialize(endpoint = nil, ident = SecureRandom.uuid)
       @ident    = ident
       @endpoint = endpoint
       @spans    = []
@@ -64,9 +63,6 @@ module Tilde
 
       # No more changes should be made
       freeze
-
-      # Commit the trace to the sample
-      @slot.commit
 
       self
     end
