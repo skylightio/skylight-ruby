@@ -9,7 +9,7 @@ module Tilde
         @usec_mult  = MICROSEC_PER_SEC / resolution
       end
 
-      def get
+      def now
         now  = Time.now
         sec  = now.to_i / @resolution
         usec = now.usec * @usec_mult

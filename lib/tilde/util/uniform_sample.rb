@@ -1,6 +1,7 @@
 module Tilde
   module Util
     class UniformSample
+      include Enumerable
 
       attr_reader :size, :count
 

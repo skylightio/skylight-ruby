@@ -8,17 +8,22 @@ module Tilde
 
     # Struct to track each span
     class Span < Struct.new(
-      :recorded_at,
       :parent,
+      :started_at,
+      :ended_at,
       :category,
       :description,
       :annotations)
+
+      def key
+        @key ||= [category, description]
+      end
     end
 
-    attr_reader :endpoint, :spans
+    attr_reader :endpoint, :ident, :spans
     attr_writer :endpoint
 
-    def initialize(endpoint = nil, ident = SecureRandom.uuid)
+    def initialize(endpoint = nil, ident = Util::UUID.gen)
       @ident    = ident
       @endpoint = endpoint
       @spans    = []
@@ -38,12 +43,12 @@ module Tilde
     end
 
     def record(cat, desc = nil, annot = nil)
-      @spans << Span.new(Time.now, @parent, cat, desc, annot)
+      @spans << build_span(cat, desc, annot)
       self
     end
 
     def start(cat, desc = nil, annot = nil)
-      span = Span.new(Time.now, @parent, cat, desc, annot)
+      span = build_span(cat, desc, annot)
       @parent = @spans.length
 
       @spans << span
@@ -53,7 +58,12 @@ module Tilde
 
     def stop
       raise "trace unbalanced" unless @parent
+
+      # Track the time it ended
+      @spans.last.ended_at = now
+      # Update the parent
       @parent = @spans[@parent].parent
+
       self
     end
 
@@ -65,6 +75,17 @@ module Tilde
       freeze
 
       self
+    end
+
+  private
+
+    def now
+      Util.clock.now
+    end
+
+    def build_span(cat, desc, annot)
+      n = now
+      Span.new(@parent, n, n, cat, desc || "", annot)
     end
 
   end

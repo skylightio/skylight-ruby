@@ -17,4 +17,4 @@ An conceptual overview of a trace.
 
 ## TODO
 
-* Sample traces from the start
+  * Cap the max number of spans per trace (2048k?)
