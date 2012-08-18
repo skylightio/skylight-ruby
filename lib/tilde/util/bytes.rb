@@ -1,6 +1,14 @@
 module Tilde
   module Util
+    class OutOfRangeError < RuntimeError; end
+
     module Bytes
+      # Helper consts
+      MinUint64 =  0
+      MaxUint64 =  (1<<64)-1
+      MinInt64  = -(1<<63)
+      MaxInt64  =  (1<<63)-1
+
       # varints
       def append_uint64(buf, n)
         if n < MinUint64 || n > MaxUint64

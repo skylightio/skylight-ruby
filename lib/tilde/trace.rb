@@ -34,12 +34,12 @@ module Tilde
 
     def from
       return unless span = @spans.first
-      span.recorded_at
+      span.started_at
     end
 
     def to
       return unless span = @spans.last
-      span.recorded_at
+      span.ended_at
     end
 
     def record(cat, desc = nil, annot = nil)

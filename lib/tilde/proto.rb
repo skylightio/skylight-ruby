@@ -1,76 +1,168 @@
+require 'digest/md5'
+
 module Tilde
-  class Serializer
-    PROTO_VERSION    = 1
-    TRACE_MESSAGE_ID = [0].pack('C').freeze
+  # TODO: Handle string encodings
+  #
+  class Proto
+    include Util::Bytes
 
-    # Helper consts
-    MinUint64 =  0
-    MaxUint64 =  (1<<64)-1
-    MinInt64  = -(1<<63)
-    MaxInt64  =  (1<<63)-1
+    MAX_STRINGS    = 250
+    UNKNOWN_STRING = 0xff
 
-    class OutOfRangeError < RuntimeError; end
+    # Protocol constants
+    PROTO_VERSION        = 1
+    SAMPLE_MESSAGE_ID    = 0x00
+    ENDPOINTS_MESSAGE_ID = 0x01
 
-    class Iterator
-      attr_reader :sample
+    class SpanTupleCache
+      include Util::Bytes
 
-      def initialize(serializer, sample)
-        @serialize = serializer
-        @sample = sample
+      attr_reader :md5, :bytes
+
+      def initialize(endpoint)
+        @endpoint = endpoint
+        @tuples   = {}
+        @sorted   = []
+        @dirty    = false
+        @bytes    = nil
+        @md5      = nil
       end
 
-      def each
-        yield trace_message_header
+      def push(tuple)
+        return if @tuples[tuple]
+        return if @tuples.length > MAX_STRINGS
 
-        sample.each do |trace|
-
-        end
+        @md5   = nil
+        @bytes = nil
+        @tuples[tuple] = true
+        @sorted << tuple
+        @sorted.sort!
 
         self
       end
 
-    private
-
-      def trace_message_header
-        s = TRACE_MESSAGE_ID.dup
-        append_uint64(s, sample.length)
+      def index(tuple)
+        @sorted.index(tuple)
       end
 
-      # varints
-      def append_uint64(buf, n)
-        if n < MinUint64 || n > MaxUint64
-          raise OutOfRangeError, n
+      # Doesn't support NULL bytes embedded in the string
+      def generate!
+        return self if md5
+
+        puts "~~~~~~~~~~~~~~ SEGMENT (#{@endpoint}) #{@sorted.length} ~~~~~~~~~~~~~~"
+        @sorted.each do |cat, desc|
+          puts "  * #{cat} #{desc}"
         end
 
-        while true
-          bits = n & 0x7F
-          n >>= 7
+        b = ''
 
-          if n == 0
-            return buf << bits
-          end
+        append_string(b, @endpoint)
 
-          buf << (bits | 0x80)
+        # Append the number of tuples
+        append_uint64(b, @sorted.length)
+
+        @sorted.each do |cat, desc|
+          append_string(b, cat)
+          append_string(b, desc)
         end
+
+        @bytes = b
+        @md5 = Digest::MD5.digest(b)
+
+        self
       end
-
     end
-
-    attr_reader :strings
 
     def initialize
-      @strings = {}
+      @tuples = Hash.new { |h,k| h[k] = SpanTupleCache.new(k) }
     end
 
-    def serialize(sample)
-      Iterator.new(self, sample)
+    def write(out, sample)
+      traces = Hash.new { |h,k| h[k] = [] }
+      start  = nil
+
+      # First ensure that all the strings are cached
+      sample.each do |trace|
+        tuples = @tuples[trace.endpoint]
+
+        if start.nil? || start > trace.from
+          start = trace.from
+        end
+
+        trace.spans.each do |span|
+          tuples.push(span.key)
+        end
+
+        traces[trace.endpoint] << trace
+      end
+
+      puts "~~~~~~~~ SEGMENTS: #{traces.length} ~~~~~~~~~"
+
+      # Write header
+      out << [
+        SAMPLE_MESSAGE_ID, # Sample set message ID
+        traces.length      # Number of segments
+      ].pack("C")
+
+      # Track any strings that we have to send to the server
+      missing = []
+
+      # Write the segments
+      traces.each do |endpoint, vals|
+        tuples = @tuples[endpoint]
+
+        missing << tuples.generate! unless tuples.md5
+
+        # Write the segment head
+        out << [tuples.md5, vals.length].pack('A*C')
+
+        puts "~~~~~~~~ TRACES: #{vals.length} ~~~~~~~~~"
+
+        vals.each do |trace|
+          write_trace(out, trace, start, tuples)
+        end
+
+      end
+
+      puts "~~~~~~~~ MISSING: #{missing.length} ~~~~~~~~~"
+
+      unless missing.empty?
+        out << [
+          ENDPOINTS_MESSAGE_ID,
+          missing.length
+        ].pack('CC')
+
+        missing.each do |cache|
+          out << cache.bytes
+        end
+      end
+
+      out
     end
 
   private
 
-    def zomg
-      # stuff
-    end
+    def write_trace(out, trace, sample_start, tuples)
+      out << trace.ident.bytes
 
+      trace_start = trace.from
+
+      # The time offset from the start of the trace group
+      append_uint64(out, trace_start - sample_start)
+
+      puts "~~~~~~~~ SPANS: #{trace.spans.length} ~~~~~~~~~"
+
+      # Number of spans in the trace
+      append_uint64(out, trace.spans.length)
+
+      trace.spans.each_with_index do |s, idx|
+        # The offset in the string table
+        out << tuples.index(s.key) || UNKNOWN_STRING
+
+        append_uint64(out, s.parent || idx)
+        append_uint64(out, s.started_at - trace_start)
+        append_uint64(out, s.ended_at - s.started_at)
+      end
+    end
   end
 end

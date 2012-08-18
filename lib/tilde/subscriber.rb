@@ -14,7 +14,7 @@ module Tilde
         trace.endpoint = controller_action(payload)
       end
 
-      trace.start(name, id, payload)
+      trace.start(name, nil, payload)
     end
 
     def finish(name, id, payload)
@@ -24,7 +24,7 @@ module Tilde
 
     def measure(name, id, payload)
       return unless trace = Trace.current
-      trace.record(name, id, payload)
+      trace.record(name, nil, payload)
     end
 
   private

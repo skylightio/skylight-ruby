@@ -6,7 +6,7 @@ module Tilde
       @instrumenter = instrumenter
       @sample       = Util::UniformSample.new(config.samples_per_interval)
       @interval     = config.interval
-      # @serializer = Serializer.new
+      @protocol     = Proto.new
 
       reset
     end
@@ -60,6 +60,8 @@ module Tilde
     end
 
     def work
+      http_connect
+
       loop do
         msg = @queue.pop(@interval.to_f / 20)
 
@@ -73,7 +75,6 @@ module Tilde
         if now >= flush_at
           flush
           tick(now)
-          @flush_at = next_flush_at(now)
         end
 
         if Trace === msg
@@ -97,11 +98,47 @@ module Tilde
     def flush
       return if @sample.empty?
 
-      @sample.each do |v|
-        p [ :ENDPOINT, v.endpoint ]
-      end
+      body = ''
+      # write the body
+      @protocol.write(body, @sample)
+
+      puts "~~~~~~~~~~~~~~~~ BODY SIZE ~~~~~~~~~~~~~~~~"
+      puts "  Before: #{body.bytesize}"
+      # compress
+      body = Zlib::Deflate.deflate(body)
+      puts "  After:  #{body.bytesize}"
+      # send
+      http_post(body)
 
       @sample.clear
+    end
+
+    def http_connect
+      @http = Net::HTTP.new 'localhost', 3001
+      @http.read_timeout = 60
+    end
+
+    def http_post(body)
+      req = http_request
+      req.body = body
+
+      resp = @http.request req
+
+      puts "~~~~~~~~~~~~~~~~~ RESPONSE ~~~~~~~~~~~"
+      puts "Status: #{resp.code}"
+      puts "Headers:"
+      resp.each_header do |key, val|
+        puts "  #{key}: #{val}"
+      end
+    end
+
+    def http_request
+      Net::HTTPGenericRequest.new \
+        'POST',  # Request method
+        true,    # There is a request body
+        true,    # There is a response body
+        "/zomg", # Endpoint
+        {}
     end
 
   end
