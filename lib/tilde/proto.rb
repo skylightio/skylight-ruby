@@ -7,6 +7,7 @@ module Tilde
     include Util::Bytes
 
     MAX_STRINGS    = 250
+    MASK_32        = 0xffffffff
     UNKNOWN_STRING = 0xff
 
     # Protocol constants
@@ -56,8 +57,6 @@ module Tilde
 
         b = ''
 
-        append_string(b, @endpoint)
-
         # Append the number of tuples
         append_uint64(b, @sorted.length)
 
@@ -77,7 +76,7 @@ module Tilde
       @tuples = Hash.new { |h,k| h[k] = SpanTupleCache.new(k) }
     end
 
-    def write(out, sample)
+    def write(out, counts, sample)
       traces = Hash.new { |h,k| h[k] = [] }
       start  = nil
 
@@ -101,8 +100,10 @@ module Tilde
       # Write header
       out << [
         SAMPLE_MESSAGE_ID, # Sample set message ID
+        (start & MASK_32),
+        (start >> 32),
         traces.length      # Number of segments
-      ].pack("C")
+      ].pack("CVCC")
 
       # Track any strings that we have to send to the server
       missing = []
@@ -114,14 +115,19 @@ module Tilde
         missing << tuples.generate! unless tuples.md5
 
         # Write the segment head
-        out << [tuples.md5, vals.length].pack('A*C')
+        append_string(out, endpoint)
+        append_uint64(out, counts[endpoint])
+
+        segment << [tuples.md5, vals.length].pack('A*C')
 
         puts "~~~~~~~~ TRACES: #{vals.length} ~~~~~~~~~"
 
         vals.each do |trace|
-          write_trace(out, trace, start, tuples)
+          write_trace(segment, trace, start, tuples)
         end
 
+        out << append_uint64(segment.bytesize)
+        out << segment
       end
 
       puts "~~~~~~~~ MISSING: #{missing.length} ~~~~~~~~~"
@@ -146,6 +152,7 @@ module Tilde
       out << trace.ident.bytes
 
       trace_start = trace.from
+      diff_from = trace_start
 
       # The time offset from the start of the trace group
       append_uint64(out, trace_start - sample_start)
@@ -160,8 +167,10 @@ module Tilde
         out << tuples.index(s.key) || UNKNOWN_STRING
 
         append_uint64(out, s.parent || idx)
-        append_uint64(out, s.started_at - trace_start)
+        append_uint64(out, s.started_at - diff_from)
         append_uint64(out, s.ended_at - s.started_at)
+
+        diff_from = s.started_at
       end
     end
   end

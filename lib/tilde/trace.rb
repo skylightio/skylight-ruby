@@ -23,7 +23,7 @@ module Tilde
     attr_reader :endpoint, :ident, :spans
     attr_writer :endpoint
 
-    def initialize(endpoint = nil, ident = Util::UUID.gen)
+    def initialize(endpoint = "Unknown", ident = nil)
       @ident    = ident
       @endpoint = endpoint
       @spans    = []
@@ -71,6 +71,8 @@ module Tilde
     def commit
       raise "trace unbalanced" if @parent
 
+      @ident ||= gen_ident
+
       # No more changes should be made
       freeze
 
@@ -81,6 +83,10 @@ module Tilde
 
     def now
       Util.clock.now
+    end
+
+    def gen_ident
+      Util::UUID.gen Digest::MD5.digest(@endpoint)[0, 2]
     end
 
     def build_span(cat, desc, annot)

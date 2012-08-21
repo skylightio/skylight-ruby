@@ -1,5 +1,13 @@
 module Tilde
   class Worker
+    CONTENT_ENCODING = 'content-encoding'.freeze
+    CONTENT_LENGTH   = 'content-length'.freeze
+    CONTENT_TYPE     = 'content-type'.freeze
+    DIREWOLF_REPORT  = 'application/x-direwolf-report'.freeze
+    AUTHORIZATION    = 'authorization'.freeze
+    ENDPOINT         = '/agent/report'.freeze
+    DEFLATE          = 'deflate'.freeze
+
     attr_reader :instrumenter, :connection
 
     def initialize(instrumenter)
@@ -59,7 +67,12 @@ module Tilde
       @sample.clear
     end
 
+    def reset_counts
+      @counts = Hash.new { |h,k| h[k] = 0 }
+    end
+
     def work
+      reset_counts
       http_connect
 
       loop do
@@ -78,6 +91,8 @@ module Tilde
         end
 
         if Trace === msg
+          # Count it
+          @counts[msg.endpoint] += 1
           # Push the message into the sample
           @sample << msg
         end
@@ -100,26 +115,30 @@ module Tilde
 
       body = ''
       # write the body
-      @protocol.write(body, @sample)
+      @protocol.write(body, @counts, @sample)
 
       puts "~~~~~~~~~~~~~~~~ BODY SIZE ~~~~~~~~~~~~~~~~"
       puts "  Before: #{body.bytesize}"
-      # compress
-      body = Zlib::Deflate.deflate(body)
-      puts "  After:  #{body.bytesize}"
+
+      if config.deflate?
+        body = Zlib::Deflate.deflate(body)
+        puts "  After:  #{body.bytesize}"
+      end
+
       # send
       http_post(body)
 
       @sample.clear
+      reset_counts
     end
 
     def http_connect
-      @http = Net::HTTP.new 'localhost', 3001
+      @http = Net::HTTP.new config.host, config.port
       @http.read_timeout = 60
     end
 
     def http_post(body)
-      req = http_request
+      req = http_request(body.bytesize)
       req.body = body
 
       resp = @http.request req
@@ -132,13 +151,23 @@ module Tilde
       end
     end
 
-    def http_request
+    def http_request(length)
+      hdrs = {}
+
+      hdrs[CONTENT_LENGTH] = length.to_s
+      hdrs[AUTHORIZATION]  = "OAuth #{config.authentication_token}"
+      hdrs[CONTENT_TYPE]   = DIREWOLF_REPORT
+
+      if config.deflate?
+        hdrs[CONTENT_ENCODING] = DEFLATE
+      end
+
       Net::HTTPGenericRequest.new \
-        'POST',  # Request method
-        true,    # There is a request body
-        true,    # There is a response body
-        "/zomg", # Endpoint
-        {}
+        'POST',   # Request method
+        true,     # There is a request body
+        true,     # There is a response body
+        ENDPOINT, # Endpoint
+        hdrs
     end
 
   end

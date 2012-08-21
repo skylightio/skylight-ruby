@@ -5,8 +5,16 @@ module Tilde
       new
     end
 
+    def authentication_token
+      "AcfPGMFrxrw2TER08b0HYgn1LGpcAAAAAAfrGCxlLGmz20oUr+F6CSgA+OvQvCdNdA=="
+    end
+
     def ssl?
       false
+    end
+
+    def deflate?
+      true
     end
 
     def host
