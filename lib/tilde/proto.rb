@@ -139,6 +139,8 @@ module Tilde
         ].pack('CC')
 
         missing.each do |cache|
+          out << cache.md5
+          append_uint64(cache.bytes.bytesize)
           out << cache.bytes
         end
       end
