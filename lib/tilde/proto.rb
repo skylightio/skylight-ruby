@@ -95,42 +95,11 @@ module Tilde
         traces[trace.endpoint] << trace
       end
 
-      puts "~~~~~~~~ SEGMENTS: #{traces.length} ~~~~~~~~~"
-
-      # Write header
-      out << [
-        SAMPLE_MESSAGE_ID, # Sample set message ID
-        (start & MASK_32),
-        (start >> 32),
-        traces.length      # Number of segments
-      ].pack("CVCC")
-
-      # Track any strings that we have to send to the server
       missing = []
 
-      # Write the segments
-      traces.each do |endpoint, vals|
-        tuples = @tuples[endpoint]
-
-        missing << tuples.generate! unless tuples.md5
-
-        # Write the segment head
-        append_string(out, endpoint)
-        append_uint64(out, counts[endpoint])
-
-        segment << [tuples.md5, vals.length].pack('A*C')
-
-        puts "~~~~~~~~ TRACES: #{vals.length} ~~~~~~~~~"
-
-        vals.each do |trace|
-          write_trace(segment, trace, start, tuples)
-        end
-
-        out << append_uint64(segment.bytesize)
-        out << segment
+      @tuples.each do |endpoint, cache|
+        missing << cache.generate! unless cache.md5
       end
-
-      puts "~~~~~~~~ MISSING: #{missing.length} ~~~~~~~~~"
 
       unless missing.empty?
         out << [
@@ -140,8 +109,35 @@ module Tilde
 
         missing.each do |cache|
           out << cache.md5
-          append_uint64(cache.bytes.bytesize)
           out << cache.bytes
+        end
+      end
+
+      start = 5 * (start / 50_000)
+
+      puts "~~~~~~~~ SEGMENTS: #{traces.length} ~~~~~~~~~"
+
+      # Write header
+      out << [
+        SAMPLE_MESSAGE_ID, # Sample set message ID
+        start,
+        traces.length      # Number of segments
+      ].pack("CVC")
+
+      # Write the segments
+      traces.each do |endpoint, vals|
+        tuples = @tuples[endpoint]
+
+        # Write the segment head
+        append_string(out, endpoint)
+        append_uint64(out, counts[endpoint])
+
+        out << [tuples.md5, vals.length].pack('A*C')
+
+        puts "~~~~~~~~ TRACES: #{vals.length} ~~~~~~~~~"
+
+        vals.each do |trace|
+          write_trace(out, trace, start, tuples)
         end
       end
 
@@ -153,11 +149,7 @@ module Tilde
     def write_trace(out, trace, sample_start, tuples)
       out << trace.ident.bytes
 
-      trace_start = trace.from
-      diff_from = trace_start
-
-      # The time offset from the start of the trace group
-      append_uint64(out, trace_start - sample_start)
+      diff_from = sample_start * 10_000
 
       puts "~~~~~~~~ SPANS: #{trace.spans.length} ~~~~~~~~~"
 

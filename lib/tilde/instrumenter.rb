@@ -44,6 +44,7 @@ module Tilde
         Thread.current[Trace::KEY] = nil
 
         begin
+          trace.commit
           process(trace)
         rescue Exception => e
           p [ :EXCEPTION, e ]

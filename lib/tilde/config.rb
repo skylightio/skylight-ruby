@@ -14,7 +14,7 @@ module Tilde
     end
 
     def deflate?
-      true
+      # true
     end
 
     def host
@@ -22,7 +22,7 @@ module Tilde
     end
 
     def port
-      3000
+      8080
     end
 
     def samples_per_interval
