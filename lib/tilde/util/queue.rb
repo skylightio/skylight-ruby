@@ -31,7 +31,7 @@ module Tilde
         @mutex.synchronize do
           return false if __length == @max
           @values[@produce] = obj
-          @produce += 1
+          @produce = (@produce + 1) % @max
 
           # Wakeup a blocked thread
           begin
@@ -70,11 +70,11 @@ module Tilde
     private
 
       def __length
-        ((@produce - @consume) % @max) + 1
+        ((@produce - @consume) % @max)
       end
 
       def __empty?
-        @produce - @consume == 0
+        @produce == @consume
       end
 
       def __pop

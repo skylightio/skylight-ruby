@@ -76,7 +76,7 @@ module Tilde
       http_connect
 
       loop do
-        msg = @queue.pop(@interval.to_f / 20)
+        next unless msg = @queue.pop(@interval.to_f / 20)
 
         if msg == :SHUTDOWN
           flush
