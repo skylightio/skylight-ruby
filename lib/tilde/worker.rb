@@ -4,7 +4,7 @@ module Tilde
     CONTENT_LENGTH   = 'content-length'.freeze
     CONTENT_TYPE     = 'content-type'.freeze
     DIREWOLF_REPORT  = 'application/x-direwolf-report'.freeze
-    AUTHORIZATION    = 'authorization'.freeze
+    AUTHENTICATION   = 'authentication'.freeze
     ENDPOINT         = '/agent/report'.freeze
     DEFLATE          = 'deflate'.freeze
 
@@ -155,7 +155,7 @@ module Tilde
       hdrs = {}
 
       hdrs[CONTENT_LENGTH] = length.to_s
-      hdrs[AUTHORIZATION]  = "OAuth #{config.authentication_token}"
+      hdrs[AUTHENTICATION]  = config.authentication_token
       hdrs[CONTENT_TYPE]   = DIREWOLF_REPORT
 
       if config.deflate?

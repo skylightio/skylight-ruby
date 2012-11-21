@@ -6,7 +6,7 @@ module Tilde
     end
 
     def authentication_token
-      "AcfPGMFrxrw2TER08b0HYgn1LGpcAAAAAAfrGCxlLGmz20oUr+F6CSgA+OvQvCdNdA=="
+      "8yagFhG61tYeY4j18K8+VpI0CyG4sht5J2Oj7RQL05RhcHBsaWNhdGlvbl9pZHM9Zm9vJnJvbGU9YWdlbnQ="
     end
 
     def ssl?
