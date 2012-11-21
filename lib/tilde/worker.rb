@@ -91,6 +91,11 @@ module Tilde
         end
 
         if Trace === msg
+          if msg.from >= sample_ends_at.to_i * 10_000
+            flush
+            tick(now)
+          end
+
           # Count it
           @counts[msg.endpoint] += 1
           # Push the message into the sample
@@ -102,8 +107,15 @@ module Tilde
       puts e.backtrace
     end
 
+    attr_reader :sample_starts_at, :interval
+
+    def sample_ends_at
+      sample_starts_at + interval
+    end
+
+    # Add a delay to (hopefully) account for threading delays
     def flush_at
-      @sample_starts_at + @interval
+      sample_ends_at + 0.5
     end
 
     def tick(now)

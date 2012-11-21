@@ -115,7 +115,7 @@ module Tilde
 
       start = 5 * (start / 50_000)
 
-      puts "~~~~~~~~ SEGMENTS: #{traces.length} ~~~~~~~~~"
+      puts "~~~~~~~~ SEGMENTS: #{traces.length} - #{start} ~~~~~~~~~"
 
       # Write header
       out << [
