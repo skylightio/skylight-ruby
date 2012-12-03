@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    tilde-agent (0.0.1)
+    skylight-agent (0.0.1)
       activesupport (>= 3.0.0)
 
 GEM
@@ -27,4 +27,4 @@ PLATFORMS
 
 DEPENDENCIES
   rspec
-  tilde-agent!
+  skylight-agent!

@@ -1,4 +1,4 @@
-module Tilde
+module Skylight
   class Instrumenter
     # Maximum number of traces to sample for each interval
     SAMPLE_SIZE = 100

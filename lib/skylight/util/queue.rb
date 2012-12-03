@@ -1,6 +1,6 @@
 require 'thread'
 
-module Tilde
+module Skylight
   module Util
     # Blocking sized queue implemented as a ring buffer
     class Queue

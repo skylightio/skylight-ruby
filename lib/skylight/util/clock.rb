@@ -1,4 +1,4 @@
-module Tilde
+module Skylight
   module Util
     class Clock
       MICROSEC_PER_SEC = 1.to_f / 1_000_000

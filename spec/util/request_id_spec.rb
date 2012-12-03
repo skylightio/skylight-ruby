@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Tilde
+module Skylight
   describe Util do
 
     let :request_id_format do

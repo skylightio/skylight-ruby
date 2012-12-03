@@ -1,4 +1,4 @@
-module Tilde
+module Skylight
   module Util
     class UniformSample
       include Enumerable

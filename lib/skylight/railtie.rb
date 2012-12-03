@@ -1,7 +1,7 @@
-require 'tilde'
+require 'skylight'
 require 'rails'
 
-module Tilde
+module Skylight
   class Railtie < Rails::Railtie
 
     def instrumenter
@@ -12,7 +12,7 @@ module Tilde
       @config ||= Config.new
     end
 
-    initializer "tilde.configure" do |app|
+    initializer "skylight.configure" do |app|
       # Prepend the middleware
       app.middleware.insert 0, Middleware, instrumenter
     end

@@ -1,5 +1,5 @@
-require 'tilde/compat/notifications/instrumenter'
-require 'tilde/compat/notifications/fanout'
+require 'skylight/compat/notifications/instrumenter'
+require 'skylight/compat/notifications/fanout'
 
 module ActiveSupport
   # = Notifications

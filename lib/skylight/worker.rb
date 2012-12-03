@@ -1,4 +1,4 @@
-module Tilde
+module Skylight
   class Worker
     CONTENT_ENCODING = 'content-encoding'.freeze
     CONTENT_LENGTH   = 'content-length'.freeze

@@ -1,6 +1,6 @@
 require 'digest/md5'
 
-module Tilde
+module Skylight
   # TODO: Handle string encodings
   #
   class Proto

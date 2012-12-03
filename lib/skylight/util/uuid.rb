@@ -1,4 +1,4 @@
-module Tilde
+module Skylight
   module Util
     class UUID
       BYTE_SIZE   = 16

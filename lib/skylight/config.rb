@@ -1,4 +1,4 @@
-module Tilde
+module Skylight
   class Config
 
     def self.load_from_yaml(path)

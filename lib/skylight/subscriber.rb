@@ -1,4 +1,4 @@
-module Tilde
+module Skylight
   # TODO: Handle filtering out notifications that we don't care about
   class Subscriber
     PROCESS_ACTION = "process_action.action_controller"

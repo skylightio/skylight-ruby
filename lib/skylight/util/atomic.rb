@@ -1,4 +1,4 @@
-module Tilde
+module Skylight
   module Util
     class AtomicRef
       def initialize(v = nil)

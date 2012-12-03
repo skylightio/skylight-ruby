@@ -2,10 +2,10 @@ $:.unshift File.expand_path('../gen',    __FILE__)
 $:.unshift File.expand_path('../../lib', __FILE__)
 
 module Gen
-  require 'tilde'
+  require 'skylight'
   require 'basic'
 
-  include Tilde
+  include Skylight
 
   PARALLELISM = 50
 

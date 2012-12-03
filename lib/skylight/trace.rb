@@ -1,6 +1,6 @@
-module Tilde
+module Skylight
   class Trace
-    KEY = :__tilde_current_trace
+    KEY = :__skylight_current_trace
 
     def self.current
       Thread.current[KEY]

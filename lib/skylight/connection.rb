@@ -1,4 +1,4 @@
-module Tilde
+module Skylight
   class Connection
 
     def self.open(host, port, ssl)

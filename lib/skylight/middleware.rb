@@ -1,4 +1,4 @@
-module Tilde
+module Skylight
   class Middleware
     def initialize(app, instrumenter)
       @instrumenter = instrumenter
