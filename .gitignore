@@ -11,3 +11,6 @@
 # Ignore OS artifacts
 .DS_Store
 /b/*
+
+# Ignore RSpec config
+.rspec
