@@ -21,6 +21,7 @@ module Skylight
       @samples_per_interval = 100
       @interval = 5
       @max_pending_traces = 1_000
+      @protocol = BinaryProto.new
 
       yield self if block_given?
     end
@@ -42,6 +43,15 @@ module Skylight
     attr_accessor :interval
 
     attr_accessor :max_pending_traces
+
+    attr_reader :protocol
+    def protocol=(val)
+      if val.is_a?(String) || val.is_a?(Symbol)
+        class_name = val.to_s.capitalize+"Proto"
+        val = Skylight.const_get(class_name).new
+      end
+      @protocol = val
+    end
 
   end
 end

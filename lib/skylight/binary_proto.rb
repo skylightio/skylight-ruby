@@ -3,7 +3,7 @@ require 'digest/md5'
 module Skylight
   # TODO: Handle string encodings
   #
-  class Proto
+  class BinaryProto
     include Util::Bytes
 
     MAX_STRINGS    = 250

@@ -14,7 +14,6 @@ module Skylight
       @instrumenter = instrumenter
       @sample       = Util::UniformSample.new(config.samples_per_interval)
       @interval     = config.interval
-      @protocol     = Proto.new
 
       reset
     end
@@ -127,7 +126,7 @@ module Skylight
 
       body = ''
       # write the body
-      @protocol.write(body, @counts, @sample)
+      config.protocol.write(body, @counts, @sample)
 
       puts "~~~~~~~~~~~~~~~~ BODY SIZE ~~~~~~~~~~~~~~~~"
       puts "  Before: #{body.bytesize}"

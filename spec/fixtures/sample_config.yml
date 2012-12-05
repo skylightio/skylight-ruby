@@ -7,3 +7,4 @@ port: 8080
 samples_per_interval: 50
 interval: 10
 max_pending_traces: 500
+protocol: json
