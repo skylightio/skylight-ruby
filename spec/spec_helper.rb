@@ -1,6 +1,7 @@
 require 'rspec'
 require 'skylight'
 require 'capybara/rspec'
+require 'rack/test'
 
 require 'dummy/config/environment.rb'
 

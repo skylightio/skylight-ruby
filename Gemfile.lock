@@ -122,6 +122,7 @@ PLATFORMS
 
 DEPENDENCIES
   capybara
+  rack-test
   rails
   rspec
   skylight-agent!
