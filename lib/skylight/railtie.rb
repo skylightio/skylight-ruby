@@ -12,6 +12,8 @@ module Skylight
       @config ||= Config.new
     end
 
+    attr_writer :config
+
     initializer "skylight.configure" do |app|
       # Prepend the middleware
       app.middleware.insert 0, Middleware, instrumenter
