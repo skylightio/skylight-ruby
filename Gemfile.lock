@@ -124,6 +124,7 @@ DEPENDENCIES
   capybara
   rack-test
   rails
+  rake
   rspec
   skylight-agent!
   sqlite3
