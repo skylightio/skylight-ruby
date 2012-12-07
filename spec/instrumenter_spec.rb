@@ -79,7 +79,14 @@ module Skylight
         end
       end
 
-      it "can have multiple traces for multiple threads"
+      it "can have multiple traces for multiple threads" do
+        trace = Trace.new
+        Trace.should_receive(:new).twice.and_return(trace)
+
+        instrumenter.trace do
+          Thread.new { run_trace }.join
+        end
+      end
 
     end
   end
