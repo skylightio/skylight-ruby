@@ -27,7 +27,7 @@ module Skylight
 
     def trace(endpoint = nil)
       # If there already is a trace going on, then just continue
-      if t = Thread.current[Trace::KEY]
+      if Thread.current[Trace::KEY]
         return yield
       end
 
