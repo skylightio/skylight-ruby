@@ -4,8 +4,8 @@ module Skylight
   class JsonProto
     def write(out, counts, sample)
       json = {
-        counts: counts,
-        sample: sample
+        :counts => counts,
+        :sample => sample
       }.to_json
       out << json
     end
