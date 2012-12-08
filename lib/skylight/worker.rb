@@ -37,7 +37,7 @@ module Skylight
 
       @queue.push(:SHUTDOWN)
 
-      unless thread.join(1)
+      unless thread.join(5)
         begin
           # FORCE KILL!!
           thread.kill
@@ -63,7 +63,7 @@ module Skylight
 
     def reset
       @queue = Util::Queue.new(config.max_pending_traces)
-      @sample_starts_at = Time.at(0)
+      @sample_starts_at = Time.now
       @sample.clear
     end
 
@@ -76,35 +76,41 @@ module Skylight
       http_connect
 
       loop do
-        next unless msg = @queue.pop(@interval.to_f / 20)
-
-        if msg == :SHUTDOWN
-          flush
-          return
-        end
-
-        now = Time.now
-
-        if now >= flush_at
-          flush
-          tick(now)
-        end
-
-        if Trace === msg
-          if msg.from >= sample_ends_at.to_i * 10_000
-            flush
-            tick(now)
-          end
-
-          # Count it
-          @counts[msg.endpoint] += 1
-          # Push the message into the sample
-          @sample << msg
-        end
+        iter ? next : return
       end
     rescue Exception => e
       p [ :WORKER, e ]
       puts e.backtrace
+    end
+
+    def iter
+      return true unless msg = @queue.pop(@interval.to_f / 20)
+
+      if msg == :SHUTDOWN
+        flush
+        return false
+      end
+
+      now = Time.now
+
+      if now >= flush_at
+        flush
+        tick(now)
+      end
+
+      if Trace === msg
+        if msg.from >= sample_ends_at.to_i * 10_000
+          flush
+          tick(now)
+        end
+
+        # Count it
+        @counts[msg.endpoint] += 1
+        # Push the message into the sample
+        @sample << msg
+      end
+
+      true
     end
 
     attr_reader :sample_starts_at, :interval
