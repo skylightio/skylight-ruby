@@ -50,7 +50,7 @@ module Skylight
     end
 
     def submit(trace)
-      return unless @thread
+      return self unless @thread
       @queue.push(trace)
       self
     end
