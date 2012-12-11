@@ -2,6 +2,10 @@ require 'spec_helper'
 
 module Skylight
   describe Worker do
+    let :clock do
+      Util.clock
+    end
+
     let :config do
       Config.new do |c|
         c.samples_per_interval = 27
@@ -154,6 +158,27 @@ module Skylight
         Trace.new(endpoint).record("testcat")
       end
 
+      def do_iter(iters)
+        batches = []
+
+        worker.stub(:flush) do |batch|
+          batches << batch
+        end
+
+        iters.each do |iter|
+          if iter[:trace].is_a?(Hash)
+            trace = Trace.new
+            trace.stub(iter[:trace])
+          else
+            trace = iter[:trace]
+          end
+
+          worker.iter(trace, iter[:received] || (trace && trace.to))
+        end
+
+        batches
+      end
+
       it "flushes if msg is shutdown" do
         # Once for each batch
         worker.should_receive(:flush).twice
@@ -168,76 +193,48 @@ module Skylight
         # Trace 2 - Starts in Batch 1 ends <0.5s into Batch 2
         # Both should end up in Batch 2
 
-        flushed_batches = []
+        batches = do_iter([
+          { :trace => {
+              :from => clock.at(now + config.interval),
+              :to => clock.at(now + config.interval + 0.1) } },
+          { :trace => {
+              :from => clock.at(now + config.interval + 0.1),
+              :to => clock.at(now + config.interval + 0.1) } },
+          { :trace => nil,
+            :received => clock.at(now + (config.interval * 2)) + Worker::FLUSH_DELAY }
+        ])
 
-        worker.stub(:flush) do |batch|
-          flushed_batches << batch
-        end
-
-        interval = Util.clock.convert(config.interval)
-        gap = Util.clock.convert(0.1) # less than hardcoded 0.5s buffer
-
-        trace1 = Trace.new
-        trace1.stub(:from => Util.clock.now + interval,
-                    :to => Util.clock.now + interval + gap)
-
-        trace2 = Trace.new
-        trace2.stub(:from => Util.clock.now + gap,
-                    :to => Util.clock.now + interval + gap)
-
-        worker.iter(trace1, Util.clock.now + interval + gap)
-        worker.iter(trace2, Util.clock.now + interval + gap)
-        worker.iter(nil, Util.clock.now + (interval * 2))
-
-        flushed_batches.length.should == 2
-        flushed_batches[0].sample.length.should == 0
-        flushed_batches[1].sample.length.should == 2
-      end
-
-      it "flushes at interval with small gap" do
-        worker.stub(:flush) # so we can spy
-
-        # Make sure interval is set, not ideal way to do it
-        worker.send(:reset)
-
-        # We just started the batch
-        worker.iter("trace1", Util.clock.at(now))
-        worker.should_not have_received(:flush)
-
-        # Batch is over but we have a small gap
-        worker.iter("trace2", Util.clock.at(now + config.interval))
-        worker.should_not have_received(:flush)
-
-        # Gap is completed, we should flush now
-        worker.iter("trace3", Util.clock.at(now + config.interval + 0.6))
-        worker.should have_received(:flush)
+        batches.length.should == 2
+        batches[0].sample.length.should == 0
+        batches[1].sample.length.should == 2
       end
 
       it "handles traces for previous batch within window" do
-        flushed_batches = []
+        window = Worker::FLUSH_DELAY
 
-        worker.stub(:flush) do |batch|
-          flushed_batches << batch
-        end
+        batches = do_iter([
+          # Should be in Batch 2
+          { :trace => {
+              :from => clock.at(now + config.interval),
+              :to   => clock.at(now + config.interval + 0.1) } },
+          # Should be in Batch 1
+          { :trace => {
+              :from => clock.at(now),
+              :to   => clock.at(now + 0.1) },
+            :received => clock.at(now + config.interval - 0.1) + window },
+          # Would have been in Batch 1, but now out of window
+          { :trace => {
+              :from => clock.at(now),
+              :to   => clock.at(now + 0.1) },
+            :received  => clock.at(now + config.interval) + window },
+          # Force a flush
+          { :trace => nil,
+            :received => clock.at(now + (config.interval * 2)) + window }
+        ])
 
-        interval = Util.clock.convert(config.interval)
-        gap = Util.clock.convert(0.1) # less than hardcoded 0.5s buffer
-
-        trace1 = Trace.new
-        trace1.stub(:from => Util.clock.now + interval,
-                    :to => Util.clock.now + interval + gap)
-
-        trace2 = Trace.new
-        trace2.stub(:from => Util.clock.now + gap,
-                    :to => Util.clock.now + interval + gap)
-
-        worker.iter(trace1, Util.clock.now + interval + gap)
-        worker.iter(trace2, Util.clock.now + interval + gap)
-        worker.iter(nil, Util.clock.now + (interval * 2))
-
-        flushed_batches.length.should == 2
-        flushed_batches[0].sample.length.should == 0
-        flushed_batches[1].sample.length.should == 2
+        batches.length.should == 2
+        batches[0].sample.length.should == 1
+        batches[1].sample.length.should == 1
       end
 
       it "sends correct data" do
@@ -252,7 +249,7 @@ module Skylight
         worker.iter(build_trace("Endpoint1"))
         worker.iter(build_trace("Endpoint2"))
         worker.iter(build_trace("Endpoint1"))
-        worker.iter(nil, Util.clock.at(now + config.interval + Worker::FLUSH_DELAY))
+        worker.iter(nil, clock.at(now + config.interval + Worker::FLUSH_DELAY))
 
         request.with do |req|
           json = JSON.parse(req.body)

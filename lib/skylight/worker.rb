@@ -99,7 +99,7 @@ module Skylight
 
         # If we're still accepting traces from the previous batch
         # Create the previous interval instead
-        if now >= from + FLUSH_DELAY
+        if now < from + FLUSH_DELAY
           from -= interval
         end
 
@@ -113,6 +113,12 @@ module Skylight
         return false
       end
 
+      while @current_batch && @current_batch.should_flush?(now)
+        flush(@current_batch)
+        @current_batch = @next_batch
+        @next_batch = @current_batch.next_batch
+      end
+
       if Trace === msg
         if @current_batch.wants?(msg)
           @current_batch.push(msg)
@@ -121,12 +127,6 @@ module Skylight
         else
           # Seems bad bro
         end
-      end
-
-      while @current_batch && @current_batch.should_flush?(now)
-        flush(@current_batch)
-        @current_batch = @next_batch
-        @next_batch = @current_batch.next_batch
       end
 
       true
@@ -146,9 +146,11 @@ module Skylight
       http_connect
 
       loop do
-        # FIXME: A bit obtuse
         msg = @queue.pop(@interval.to_f / 20)
-        return if msg && !iter(msg)
+        if msg
+          success = iter(msg)
+          return if !success
+        end
       end
     rescue Exception => e
       p [ :WORKER, e ]
