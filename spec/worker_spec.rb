@@ -45,14 +45,6 @@ module Skylight
         w.instrumenter.should == instrumenter
       end
 
-      it "sets up a sample based on config" do
-        sample = Util::UniformSample.new(27)
-        Util::UniformSample.should_receive(:new).with(27).and_return(sample)
-        sample.should_receive(:clear).once
-
-        worker
-      end
-
       it "sets up a queue based on config" do
         Util::Queue.should_receive(:new).with(1337)
 
@@ -122,7 +114,6 @@ module Skylight
 
       it "resets" do
         Util::Queue.should_receive(:new).once.with(1337)
-        Util::UniformSample.any_instance.should_receive(:clear).once
 
         worker.shutdown!
       end
@@ -149,8 +140,6 @@ module Skylight
       end
     end
 
-    # Normally we would not test private methods, but I think
-    # this deserves an exception
     describe "iter" do
 
       before(:each) do
@@ -161,67 +150,81 @@ module Skylight
         Timecop.return
       end
 
+      let :now do
+        Time.at((Time.now.to_i / config.interval) * config.interval);
+      end
+
       def build_trace(endpoint)
         Trace.new(endpoint).record("testcat")
       end
 
-      def process_trace(trace)
-        worker.submit(trace)
-        worker.send(:iter)
-      end
-
-      # Not satisfied with the amount this knows about internals
-      it "waits for items in the queue" do
-        queue.should_receive(:pop).with(13.to_f / 20)
-
-        worker.send(:iter)
-      end
-
-      it "returns true if queue is empty" do
-        Timecop.scale(3600) # Reduce wait
-
-        worker.send(:iter).should be_true
-      end
-
       it "flushes if msg is shutdown" do
-        Timecop.scale(3600) # Reduce wait
+        # Once for each batch
+        worker.should_receive(:flush).twice
 
-        worker.should_receive(:flush)
-
-        worker.shutdown!
-
-        worker.send(:iter).should be_false
+        worker.iter(:SHUTDOWN).should be_false
       end
 
-      it "batches traces by end time"
+      it "batches traces by end time" do
+        # Batch 1
+        # Batch 2
+        # Trace 1 - Starts in Batch 2 ends in Batch 2
+        # Trace 2 - Starts in Batch 1 ends <0.5s into Batch 2
+        # Both should end up in Batch 2
+
+        flushed_batches = []
+
+        worker.stub(:flush) do |batch|
+          flushed_batches << batch
+        end
+
+        interval = Util.clock.convert(config.interval)
+        gap = Util.clock.convert(0.1) # less than hardcoded 0.5s buffer
+
+        trace1 = Trace.new
+        trace1.stub(:from => Util.clock.now + interval,
+                    :to => Util.clock.now + interval + gap)
+
+        trace2 = Trace.new
+        trace2.stub(:from => Util.clock.now + gap,
+                    :to => Util.clock.now + interval + gap)
+
+        worker.iter(trace1, Util.clock.now + interval + gap)
+        worker.iter(trace2, Util.clock.now + interval + gap)
+        worker.iter(nil, Util.clock.now + (interval * 2))
+
+        flushed_batches.length.should == 2
+        flushed_batches[0].sample.length.should == 0
+        flushed_batches[1].sample.length.should == 2
+      end
 
       it "doesn't flush until next batch started"
 
       it "flushes at interval with small gap" do
         worker.stub(:flush) # so we can spy
 
-        now = Time.now()
+        # Round to match actual intervals
         Timecop.freeze(now)
 
         # Make sure interval is set, not ideal way to do it
         worker.send(:reset)
 
         # We just started the batch
-        process_trace("trace1")
+        worker.iter("trace1")
         worker.should_not have_received(:flush)
 
         # Batch is over but we have a small gap
         Timecop.freeze(now + config.interval)
-        process_trace("trace2")
+        worker.iter("trace2")
         worker.should_not have_received(:flush)
 
         # Gap is completed, we should flush now
         Timecop.freeze(now + config.interval + 0.5)
-        process_trace("trace3")
+        worker.iter("trace3")
         worker.should have_received(:flush)
       end
 
-      it "flushes after timeout if no new iters"
+      it "flushes after timeout if no new messages"
 
       it "sends correct data" do
         request = stub_request(:post, "http://#{config.host}:#{config.port}/agent/report")
@@ -233,18 +236,17 @@ module Skylight
         worker.send(:reset)
 
         # This stuff would be done in the work method
-        worker.send(:reset_counts)
         worker.send(:http_connect)
 
-        process_trace(build_trace("Endpoint1"))
-        process_trace(build_trace("Endpoint2"))
-        process_trace(build_trace("Endpoint1"))
+        worker.iter(build_trace("Endpoint1"))
+        worker.iter(build_trace("Endpoint2"))
+        worker.iter(build_trace("Endpoint1"))
 
         # Make sure we flush
         Timecop.freeze(now + config.interval + 0.5)
         # This final trace should not get included in the request
         # since we flush first
-        process_trace(build_trace("Endpoint3"))
+        worker.iter(build_trace("Endpoint3"))
 
         request.with do |req|
           json = JSON.parse(req.body)
@@ -255,6 +257,12 @@ module Skylight
           }
         end.should have_been_made
       end
+    end
+
+    # Normally we would not test private methods, but I think
+    # this deserves an exception
+    describe "work" do
+      it "waits for items in the queue"
     end
   end
 end

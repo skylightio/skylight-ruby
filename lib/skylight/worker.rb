@@ -7,12 +7,49 @@ module Skylight
     AUTHENTICATION   = 'authentication'.freeze
     ENDPOINT         = '/agent/report'.freeze
     DEFLATE          = 'deflate'.freeze
+    FLUSH_DELAY      = Util.clock.convert(0.5)
+
+    class Batch
+      attr_reader :counts, :sample
+
+      def initialize(config, from, interval)
+        @config = config
+        @interval = interval
+        @from = from
+        @to = from + interval
+        @flush_at = @to + FLUSH_DELAY
+        @sample = Util::UniformSample.new(config.samples_per_interval)
+        @counts = Hash.new { |h,k| h[k] = 0 }
+      end
+
+      def should_flush?(now)
+        now >= @flush_at
+      end
+
+      def next_batch
+        Batch.new(@config, @to, @interval)
+      end
+
+      def empty?
+        @sample.empty?
+      end
+
+      def wants?(trace)
+        return trace.to >= @from && trace.to < @to
+      end
+
+      def push(trace)
+        # Count it
+        @counts[trace.endpoint] += 1
+        # Push the trace into the sample
+        @sample << trace
+      end
+    end
 
     attr_reader :instrumenter, :connection
 
     def initialize(instrumenter)
       @instrumenter = instrumenter
-      @sample       = Util::UniformSample.new(config.samples_per_interval)
       @interval     = config.interval
       @protocol     = config.protocol
 
@@ -55,6 +92,46 @@ module Skylight
       self
     end
 
+    def iter(msg, now=Util.clock.now)
+      unless @current_batch
+        interval = Util.clock.convert(@interval)
+        from = (now / interval) * interval
+
+        # If we're still accepting traces from the previous batch
+        # Create the previous interval instead
+        if now >= from + FLUSH_DELAY
+          from -= interval
+        end
+
+        @current_batch = Batch.new(config, from, interval)
+        @next_batch    = @current_batch.next_batch
+      end
+
+      if msg == :SHUTDOWN
+        flush(@current_batch) if @current_batch
+        flush(@next_batch)    if @next_batch
+        return false
+      end
+
+      if Trace === msg
+        if @current_batch.wants?(msg)
+          @current_batch.push(msg)
+        elsif @next_batch.wants?(msg)
+          @next_batch.push(msg)
+        else
+          # Seems bad bro
+        end
+      end
+
+      while @current_batch && @current_batch.should_flush?(now)
+        flush(@current_batch)
+        @current_batch = @next_batch
+        @next_batch = @current_batch.next_batch
+      end
+
+      true
+    end
+
   private
 
     def config
@@ -63,77 +140,29 @@ module Skylight
 
     def reset
       @queue = Util::Queue.new(config.max_pending_traces)
-      @sample_starts_at = Time.now
-      @sample.clear
-    end
-
-    def reset_counts
-      @counts = Hash.new { |h,k| h[k] = 0 }
     end
 
     def work
-      reset_counts
       http_connect
 
       loop do
-        iter ? next : return
+        # FIXME: A bit obtuse
+        msg = @queue.pop(@interval.to_f / 20)
+        return if msg && !iter(msg)
       end
     rescue Exception => e
       p [ :WORKER, e ]
       puts e.backtrace
     end
 
-    def iter
-      return true unless msg = @queue.pop(@interval.to_f / 20)
-
-      if msg == :SHUTDOWN
-        flush
-        return false
-      end
-
-      now = Time.now
-
-      if now >= flush_at
-        flush
-        tick(now)
-      end
-
-      if Trace === msg
-        if msg.from >= sample_ends_at.to_i * 10_000
-          flush
-          tick(now)
-        end
-
-        # Count it
-        @counts[msg.endpoint] += 1
-        # Push the message into the sample
-        @sample << msg
-      end
-
-      true
-    end
-
     attr_reader :sample_starts_at, :interval
 
-    def sample_ends_at
-      sample_starts_at + interval
-    end
-
-    # Add a delay to (hopefully) account for threading delays
-    def flush_at
-      sample_ends_at + 0.5
-    end
-
-    def tick(now)
-      @sample_starts_at = Time.at(@interval * (now.to_i / @interval))
-    end
-
-    def flush
-      return if @sample.empty?
+    def flush(batch)
+      return if batch.empty?
 
       body = ''
       # write the body
-      @protocol.write(body, @counts, @sample)
+      @protocol.write(body, batch.counts, batch.sample)
 
       puts "~~~~~~~~~~~~~~~~ BODY SIZE ~~~~~~~~~~~~~~~~"
       puts "  Before: #{body.bytesize}"
@@ -145,9 +174,6 @@ module Skylight
 
       # send
       http_post(body)
-
-      @sample.clear
-      reset_counts
     end
 
     def http_connect
