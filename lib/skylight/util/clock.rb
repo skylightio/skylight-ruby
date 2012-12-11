@@ -10,10 +10,17 @@ module Skylight
       end
 
       def now
-        now  = Time.now
-        sec  = now.to_i / @resolution
-        usec = now.usec * @usec_mult
+        at(Time.now)
+      end
+
+      def at(time)
+        sec  = time.to_i / @resolution
+        usec = time.usec * @usec_mult
         (sec + usec).floor
+      end
+
+      def convert(secs)
+        (secs / @resolution).floor
       end
     end
 
