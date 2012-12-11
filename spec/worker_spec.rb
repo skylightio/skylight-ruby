@@ -146,10 +146,6 @@ module Skylight
         worker.start!
       end
 
-      after(:each) do
-        Timecop.return
-      end
-
       let :now do
         Time.at((Time.now.to_i / config.interval) * config.interval);
       end
@@ -198,39 +194,54 @@ module Skylight
         flushed_batches[1].sample.length.should == 2
       end
 
-      it "doesn't flush until next batch started"
-
       it "flushes at interval with small gap" do
         worker.stub(:flush) # so we can spy
-
-        # Round to match actual intervals
-        Timecop.freeze(now)
 
         # Make sure interval is set, not ideal way to do it
         worker.send(:reset)
 
         # We just started the batch
-        worker.iter("trace1")
+        worker.iter("trace1", Util.clock.at(now))
         worker.should_not have_received(:flush)
 
         # Batch is over but we have a small gap
-        Timecop.freeze(now + config.interval)
-        worker.iter("trace2")
+        worker.iter("trace2", Util.clock.at(now + config.interval))
         worker.should_not have_received(:flush)
 
         # Gap is completed, we should flush now
-        Timecop.freeze(now + config.interval + 0.5)
-        worker.iter("trace3")
+        worker.iter("trace3", Util.clock.at(now + config.interval + 0.6))
         worker.should have_received(:flush)
       end
 
-      it "flushes after timeout if no new messages"
+      it "handles traces for previous batch within window" do
+        flushed_batches = []
+
+        worker.stub(:flush) do |batch|
+          flushed_batches << batch
+        end
+
+        interval = Util.clock.convert(config.interval)
+        gap = Util.clock.convert(0.1) # less than hardcoded 0.5s buffer
+
+        trace1 = Trace.new
+        trace1.stub(:from => Util.clock.now + interval,
+                    :to => Util.clock.now + interval + gap)
+
+        trace2 = Trace.new
+        trace2.stub(:from => Util.clock.now + gap,
+                    :to => Util.clock.now + interval + gap)
+
+        worker.iter(trace1, Util.clock.now + interval + gap)
+        worker.iter(trace2, Util.clock.now + interval + gap)
+        worker.iter(nil, Util.clock.now + (interval * 2))
+
+        flushed_batches.length.should == 2
+        flushed_batches[0].sample.length.should == 0
+        flushed_batches[1].sample.length.should == 2
+      end
 
       it "sends correct data" do
         request = stub_request(:post, "http://#{config.host}:#{config.port}/agent/report")
-
-        now = Time.now()
-        Timecop.freeze(now)
 
         # Make sure interval is set, not ideal way to do it
         worker.send(:reset)
@@ -241,12 +252,7 @@ module Skylight
         worker.iter(build_trace("Endpoint1"))
         worker.iter(build_trace("Endpoint2"))
         worker.iter(build_trace("Endpoint1"))
-
-        # Make sure we flush
-        Timecop.freeze(now + config.interval + 0.5)
-        # This final trace should not get included in the request
-        # since we flush first
-        worker.iter(build_trace("Endpoint3"))
+        worker.iter(nil, Util.clock.at(now + config.interval + Worker::FLUSH_DELAY))
 
         request.with do |req|
           json = JSON.parse(req.body)
