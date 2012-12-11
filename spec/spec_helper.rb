@@ -3,7 +3,6 @@ require 'skylight'
 require 'capybara/rspec'
 require 'rack/test'
 require 'webmock/rspec'
-require 'timecop'
 
 require 'dummy/config/environment.rb'
 
