@@ -12,18 +12,18 @@ module Skylight
     end
 
     it "has a default config" do
-      railtie.config.should be_an_instance_of(Config)
+      railtie.config.skylight.should be_an_instance_of(Config)
     end
 
     it "can use a custom config" do
       new_config = Config.new
-      railtie.config = new_config
-      railtie.config.should == new_config
+      railtie.config.skylight = new_config
+      railtie.config.skylight.should == new_config
     end
 
     it "sets up an instrumenter with the config" do
       railtie.instrumenter.should be_an_instance_of(Instrumenter)
-      railtie.instrumenter.config.should == railtie.config
+      railtie.instrumenter.config.should == railtie.config.skylight
     end
 
   end

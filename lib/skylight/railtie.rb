@@ -3,16 +3,11 @@ require 'rails'
 
 module Skylight
   class Railtie < Rails::Railtie
+    config.skylight = Config.new
 
     def instrumenter
-      @instrumenter ||= Instrumenter.start!(config)
+      @instrumenter ||= Instrumenter.start!(config.skylight)
     end
-
-    def config
-      @config ||= Config.new
-    end
-
-    attr_writer :config
 
     initializer "skylight.configure" do |app|
       # Prepend the middleware
