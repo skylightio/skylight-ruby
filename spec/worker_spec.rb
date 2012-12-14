@@ -254,10 +254,9 @@ module Skylight
         request.with do |req|
           json = JSON.parse(req.body)
 
-          json['counts'] == {
-            "Endpoint1" => 2,
-            "Endpoint2" => 1
-          }
+          # TODO: Make a more detailed test
+          json['batch']['timestamp'] == now.to_i &&
+            json['batch']['endpoints'].length == 2
         end.should have_been_made
       end
     end

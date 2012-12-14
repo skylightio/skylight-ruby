@@ -10,7 +10,7 @@ module Skylight
     FLUSH_DELAY      = Util.clock.convert(0.5)
 
     class Batch
-      attr_reader :counts, :sample
+      attr_reader :from, :counts, :sample
 
       def initialize(config, from, interval)
         @config = config
@@ -164,7 +164,7 @@ module Skylight
 
       body = ''
       # write the body
-      @protocol.write(body, batch.counts, batch.sample)
+      @protocol.write(body, batch.from, batch.counts, batch.sample)
 
       puts "~~~~~~~~~~~~~~~~ BODY SIZE ~~~~~~~~~~~~~~~~"
       puts "  Before: #{body.bytesize}"

@@ -76,7 +76,7 @@ module Skylight
       @tuples = Hash.new { |h,k| h[k] = SpanTupleCache.new(k) }
     end
 
-    def write(out, counts, sample)
+    def write(out, from, counts, sample)
       traces = Hash.new { |h,k| h[k] = [] }
       start  = nil
 

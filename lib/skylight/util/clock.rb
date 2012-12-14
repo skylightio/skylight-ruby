@@ -22,6 +22,10 @@ module Skylight
       def convert(secs)
         (secs / @resolution).floor
       end
+
+      def to_seconds(clock_val)
+        (clock_val * @resolution).floor
+      end
     end
 
     @clock = Clock.new(0.0001)
