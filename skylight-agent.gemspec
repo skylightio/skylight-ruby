@@ -1,6 +1,11 @@
+$:.push File.expand_path("../lib", __FILE__)
+
+# Maintain your gem's version:
+require "skylight/version"
+
 Gem::Specification.new do |s|
   s.name        = "skylight-agent"
-  s.version     = "0.0.1"
+  s.version     = Skylight::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Tilde, Inc."]
   s.email       = ["info@tilde.io"]
