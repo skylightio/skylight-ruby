@@ -95,21 +95,21 @@ module Skylight
 
         trace.spans[0].parent.should == nil
         trace.spans[0].started_at.should == now
-        trace.spans[0].ended_at.should == now
+        trace.spans[0].ended_at.should == nil
         trace.spans[0].category.should == "cat1"
         trace.spans[0].description.should == "desc1"
         trace.spans[0].annotations.should == "annot1"
 
         trace.spans[1].parent.should == 0
         trace.spans[1].started_at.should == now + 1
-        trace.spans[1].ended_at.should == now + 1
+        trace.spans[1].ended_at.should == nil
         trace.spans[1].category.should == "cat2"
         trace.spans[1].description.should == "desc2"
         trace.spans[1].annotations.should == "annot2"
 
         trace.spans[2].parent.should == 1
         trace.spans[2].started_at.should == now + 2
-        trace.spans[2].ended_at.should == now + 2
+        trace.spans[2].ended_at.should == nil
         trace.spans[2].category.should == "cat3"
         trace.spans[2].description.should == "desc3"
         trace.spans[2].annotations.should == "annot3"
@@ -147,11 +147,43 @@ module Skylight
         trace.spans[4].parent.should == nil
       end
 
-      it "raises if unbalanced" do
+      it "sets ended_at on last unclosed span" do
+        now = Util.clock.now
+
+        Util.clock.stub(:now => now)
+        trace.start("cat1")
+        Util.clock.stub(:now => now+10)
+        trace.start("cat2")
+        Util.clock.stub(:now => now+20)
+        trace.start("cat3")
+        Util.clock.stub(:now => now+30)
+        trace.stop
+        Util.clock.stub(:now => now+40)
+        trace.stop
+        Util.clock.stub(:now => now+50)
+        trace.stop
+
+        trace.spans[0].started_at.should == now
+        trace.spans[0].ended_at.should == now+50
+
+        trace.spans[1].started_at.should == now+10
+        trace.spans[1].ended_at.should == now+40
+
+        trace.spans[2].started_at.should == now+20
+        trace.spans[2].ended_at.should == now+30
+      end
+
+      it "raises if no spans" do
         trace.start("cat1", "desc1", "annot1")
         trace.stop
         lambda{ trace.stop }.should raise_error("trace unbalanced")
       end
+
+      it "raise if all spans are closed" do
+        trace.record("cat")
+        lambda { trace.stop }.should raise_error("trace unbalanced")
+      end
+
     end
   end
 end

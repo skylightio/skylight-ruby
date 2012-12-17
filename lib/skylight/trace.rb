@@ -43,12 +43,17 @@ module Skylight
     end
 
     def record(cat, desc = nil, annot = nil)
-      @spans << build_span(cat, desc, annot)
+      span = build_span(cat, desc, annot)
+      span.ended_at = span.started_at
+
+      @spans << span
+
       self
     end
 
     def start(cat, desc = nil, annot = nil)
       span = build_span(cat, desc, annot)
+
       @parent = @spans.length
 
       @spans << span
@@ -57,10 +62,17 @@ module Skylight
     end
 
     def stop
-      raise "trace unbalanced" unless @parent
+      # Find last unclosed span
+      span = @spans.last
+      while span && span.ended_at
+        span = span.parent ? @spans[span.parent] : nil
+      end
 
-      # Track the time it ended
-      @spans.last.ended_at = now
+      raise "trace unbalanced" unless span
+
+      # Set ended_at
+      span.ended_at = now
+
       # Update the parent
       @parent = @spans[@parent].parent
 
@@ -90,8 +102,7 @@ module Skylight
     end
 
     def build_span(cat, desc, annot)
-      n = now
-      Span.new(@parent, n, n, cat, desc || "", annot)
+      Span.new(@parent, now, nil, cat, desc || "", annot)
     end
 
   end
