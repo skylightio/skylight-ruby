@@ -238,7 +238,7 @@ module Skylight
       end
 
       it "sends correct data" do
-        request = stub_request(:post, "http://#{config.host}:#{config.port}/agent/report")
+        request = stub_request(:post, "http://#{config.host}:#{config.port}/report")
 
         # Make sure interval is set, not ideal way to do it
         worker.send(:reset)

@@ -20,7 +20,7 @@ module Skylight
       config.samples_per_interval.should == 100
       config.interval.should == 5
       config.max_pending_traces.should == 1_000
-      config.protocol.should be_an_instance_of(BinaryProto)
+      config.protocol.should be_an_instance_of(JsonProto)
     end
 
     it "has boolean aliases" do
@@ -29,8 +29,8 @@ module Skylight
     end
 
     it "can set protocols by name" do
-      config.protocol = "json"
-      config.protocol.should be_an_instance_of(JsonProto)
+      config.protocol = "binary"
+      config.protocol.should be_an_instance_of(BinaryProto)
     end
 
     it "can be loaded from YAML" do
@@ -42,7 +42,7 @@ module Skylight
       yaml_config.samples_per_interval.should == 50
       yaml_config.interval.should == 10
       yaml_config.max_pending_traces.should == 500
-      yaml_config.protocol.should be_an_instance_of(JsonProto)
+      yaml_config.protocol.should be_an_instance_of(BinaryProto)
     end
 
   end

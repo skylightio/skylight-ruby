@@ -44,7 +44,7 @@ module Skylight
               :count => 2,
               :traces => [
                 {
-                  :uuid => trace1.ident,
+                  :uuid => 'TODO',
                   :spans => [
                     [
                       nil,
@@ -69,7 +69,7 @@ module Skylight
               :count => 5,
               :traces => [
                 {
-                  :uuid => trace2.ident,
+                  :uuid => 'TODO',
                   :spans => [
                     [
                       nil,
