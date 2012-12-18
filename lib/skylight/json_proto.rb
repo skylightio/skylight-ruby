@@ -54,7 +54,8 @@ module Skylight
         traces = sample.select{|t| t.endpoint == endpoint }
 
         ehash[:traces] = traces.map do |t|
-          thash = { :uuid => t.ident }
+          # thash = { :uuid => t.ident }
+          thash = { :uuid => "TODO" }
 
           thash[:spans] = t.spans.map do |s|
             [s.parent,

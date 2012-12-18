@@ -3,10 +3,12 @@ module Skylight
     CONTENT_ENCODING = 'content-encoding'.freeze
     CONTENT_LENGTH   = 'content-length'.freeze
     CONTENT_TYPE     = 'content-type'.freeze
+    APPLICATION_JSON = 'application/json'.freeze
     DIREWOLF_REPORT  = 'application/x-direwolf-report'.freeze
-    AUTHENTICATION   = 'authentication'.freeze
-    ENDPOINT         = '/agent/report'.freeze
+    AUTHORIZATION    = 'authorization'.freeze
+    ENDPOINT         = '/report'.freeze
     DEFLATE          = 'deflate'.freeze
+    GZIP             = 'gzip'.freeze
     FLUSH_DELAY      = Util.clock.convert(0.5)
 
     class Batch
@@ -170,7 +172,7 @@ module Skylight
       puts "  Before: #{body.bytesize}"
 
       if config.deflate?
-        body = Zlib::Deflate.deflate(body)
+        body = Util::Gzip.compress(body)
         puts "  After:  #{body.bytesize}"
       end
 
@@ -195,17 +197,20 @@ module Skylight
       resp.each_header do |key, val|
         puts "  #{key}: #{val}"
       end
+      puts "BODY:"
+      puts resp.body
+      puts "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     end
 
     def http_request(length)
       hdrs = {}
 
       hdrs[CONTENT_LENGTH] = length.to_s
-      hdrs[AUTHENTICATION]  = config.authentication_token
-      hdrs[CONTENT_TYPE]   = DIREWOLF_REPORT
+      hdrs[AUTHORIZATION]  = config.authentication_token
+      hdrs[CONTENT_TYPE]   = APPLICATION_JSON
 
       if config.deflate?
-        hdrs[CONTENT_ENCODING] = DEFLATE
+        hdrs[CONTENT_ENCODING] = GZIP
       end
 
       Net::HTTPGenericRequest.new \

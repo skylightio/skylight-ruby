@@ -21,7 +21,7 @@ module Skylight
       @samples_per_interval = 100
       @interval = 5
       @max_pending_traces = 1_000
-      @protocol = BinaryProto.new
+      @protocol = JsonProto.new
 
       yield self if block_given?
     end
