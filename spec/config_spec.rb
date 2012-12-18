@@ -21,6 +21,8 @@ module Skylight
       config.interval.should == 5
       config.max_pending_traces.should == 1_000
       config.protocol.should be_an_instance_of(JsonProto)
+      config.logger.should be_an_instance_of(Logger)
+      config.logger.level.should == Logger::INFO
     end
 
     it "has boolean aliases" do
@@ -33,6 +35,12 @@ module Skylight
       config.protocol.should be_an_instance_of(BinaryProto)
     end
 
+    it "can get and set log_level" do
+      config.log_level = Logger::INFO
+      config.log_level.should == Logger::INFO
+      config.logger.level.should == Logger::INFO
+    end
+
     it "can be loaded from YAML" do
       yaml_config.authentication_token.should == "abc123"
       yaml_config.ssl.should == false
@@ -43,6 +51,7 @@ module Skylight
       yaml_config.interval.should == 10
       yaml_config.max_pending_traces.should == 500
       yaml_config.protocol.should be_an_instance_of(BinaryProto)
+      yaml_config.log_level.should == Logger::INFO
     end
 
   end

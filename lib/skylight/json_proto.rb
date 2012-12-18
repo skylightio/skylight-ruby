@@ -2,6 +2,10 @@ require 'json'
 
 module Skylight
   class JsonProto
+    def initialize(config)
+      @config = config
+    end
+
     def write(out, from, counts, sample)
 
 # {

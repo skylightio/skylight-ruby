@@ -2,10 +2,12 @@ require 'spec_helper'
 
 module Skylight
   describe JsonProto do
+    subject do
+      JsonProto.new(Config.new)
+    end
+
     it "writes JSON" do
       now = Util.clock.now
-      puts "now: #{now}"
-
       out = ''
 
       trace1 = Trace.new('endpoint1')

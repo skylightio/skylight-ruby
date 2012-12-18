@@ -47,8 +47,8 @@ module Skylight
           trace.commit
           process(trace)
         rescue Exception => e
-          p [ :EXCEPTION, e ]
-          puts e.backtrace
+          config.logger.error [ :EXCEPTION, e ]
+          config.logger.error e.backtrace
         end
       end
     end

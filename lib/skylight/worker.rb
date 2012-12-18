@@ -140,6 +140,10 @@ module Skylight
       @instrumenter.config
     end
 
+    def logger
+      config.logger
+    end
+
     def reset
       @queue = Util::Queue.new(config.max_pending_traces)
     end
@@ -155,8 +159,8 @@ module Skylight
         end
       end
     rescue Exception => e
-      p [ :WORKER, e ]
-      puts e.backtrace
+      logger.error [ :WORKER, e ]
+      logger.error(e.backtrace)
     end
 
     attr_reader :sample_starts_at, :interval
@@ -168,12 +172,12 @@ module Skylight
       # write the body
       @protocol.write(body, batch.from, batch.counts, batch.sample)
 
-      puts "~~~~~~~~~~~~~~~~ BODY SIZE ~~~~~~~~~~~~~~~~"
-      puts "  Before: #{body.bytesize}"
+      logger.debug "~~~~~~~~~~~~~~~~ BODY SIZE ~~~~~~~~~~~~~~~~"
+      logger.debug "  Before: #{body.bytesize}"
 
       if config.deflate?
         body = Util::Gzip.compress(body)
-        puts "  After:  #{body.bytesize}"
+        logger.debug "  After:  #{body.bytesize}"
       end
 
       # send
@@ -191,15 +195,15 @@ module Skylight
 
       resp = @http.request req
 
-      puts "~~~~~~~~~~~~~~~~~ RESPONSE ~~~~~~~~~~~"
-      puts "Status: #{resp.code}"
-      puts "Headers:"
+      logger.debug "~~~~~~~~~~~~~~~~~ RESPONSE ~~~~~~~~~~~"
+      logger.debug "Status: #{resp.code}"
+      logger.debug "Headers:"
       resp.each_header do |key, val|
-        puts "  #{key}: #{val}"
+        logger.debug "  #{key}: #{val}"
       end
-      puts "BODY:"
-      puts resp.body
-      puts "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      logger.debug "BODY:"
+      logger.debug resp.body
+      logger.debug "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     end
 
     def http_request(length)

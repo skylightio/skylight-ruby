@@ -21,7 +21,10 @@ module Skylight
       @samples_per_interval = 100
       @interval = 5
       @max_pending_traces = 1_000
-      @protocol = JsonProto.new
+      @protocol = JsonProto.new(self)
+
+      @logger = Logger.new(STDOUT)
+      @logger.level = Logger::INFO
 
       yield self if block_given?
     end
@@ -48,9 +51,24 @@ module Skylight
     def protocol=(val)
       if val.is_a?(String) || val.is_a?(Symbol)
         class_name = val.to_s.capitalize+"Proto"
-        val = Skylight.const_get(class_name).new
+        val = Skylight.const_get(class_name).new(self)
       end
       @protocol = val
+    end
+
+    attr_accessor :logger
+
+    def log_level
+      logger && logger.level
+    end
+
+    def log_level=(level)
+      if logger
+        if level.is_a?(String) || level.is_a?(Symbol)
+          level = Logger.const_get(level.to_s.upcase)
+        end
+        logger.level = level
+      end
     end
 
   end

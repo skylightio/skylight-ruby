@@ -50,9 +50,9 @@ module Skylight
       def generate!
         return self if md5
 
-        puts "~~~~~~~~~~~~~~ SEGMENT (#{@endpoint}) #{@sorted.length} ~~~~~~~~~~~~~~"
+        logger.debug "~~~~~~~~~~~~~~ SEGMENT (#{@endpoint}) #{@sorted.length} ~~~~~~~~~~~~~~"
         @sorted.each do |cat, desc|
-          puts "  * #{cat} #{desc}"
+          logger.debug "  * #{cat} #{desc}"
         end
 
         b = ''
@@ -72,7 +72,8 @@ module Skylight
       end
     end
 
-    def initialize
+    def initialize(config)
+      @config = config
       @tuples = Hash.new { |h,k| h[k] = SpanTupleCache.new(k) }
     end
 
@@ -115,7 +116,7 @@ module Skylight
 
       start = 5 * (start / 50_000)
 
-      puts "~~~~~~~~ SEGMENTS: #{traces.length} - #{start} ~~~~~~~~~"
+      logger.debug "~~~~~~~~ SEGMENTS: #{traces.length} - #{start} ~~~~~~~~~"
 
       # Write header
       out << [
@@ -134,7 +135,7 @@ module Skylight
 
         out << [tuples.md5, vals.length].pack('A*C')
 
-        puts "~~~~~~~~ TRACES: #{vals.length} ~~~~~~~~~"
+        logger.debug "~~~~~~~~ TRACES: #{vals.length} ~~~~~~~~~"
 
         vals.each do |trace|
           write_trace(out, trace, start, tuples)
@@ -146,12 +147,16 @@ module Skylight
 
   private
 
+    def logger
+      @config.logger
+    end
+
     def write_trace(out, trace, sample_start, tuples)
       out << trace.ident.bytes
 
       diff_from = sample_start * 10_000
 
-      puts "~~~~~~~~ SPANS: #{trace.spans.length} ~~~~~~~~~"
+      logger.debug "~~~~~~~~ SPANS: #{trace.spans.length} ~~~~~~~~~"
 
       # Number of spans in the trace
       append_uint64(out, trace.spans.length)
