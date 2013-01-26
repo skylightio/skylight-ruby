@@ -8,10 +8,10 @@ Gem::Specification.new do |s|
   s.version     = Skylight::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Tilde, Inc."]
-  s.email       = ["info@tilde.io"]
-  s.homepage    = "http://www.tilde.io"
-  s.summary     = "Don't ship blind"
-  s.description = "It's awesome"
+  s.email       = ["engineering@tilde.io"]
+  s.homepage    = "http://www.skylight.io"
+  s.summary     = ""
+  s.description = ""
 
   s.required_ruby_version = ">= 1.8.7"
 
