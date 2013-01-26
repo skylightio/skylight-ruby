@@ -60,10 +60,7 @@ module Skylight
 
     def start!
       shutdown! if @thread
-
-      # @connection = Connection.open(@config.host, @config.port, @config.ssl?)
       @thread = Thread.new { work }
-
       self
     end
 
@@ -89,11 +86,11 @@ module Skylight
     end
 
     def submit(trace)
-      return self unless @thread
+      return unless @thread
       @queue.push(trace)
-      self
     end
 
+    # A worker iteration
     def iter(msg, now=Util.clock.now)
       unless @current_batch
         interval = Util.clock.convert(@interval)
@@ -149,8 +146,6 @@ module Skylight
     end
 
     def work
-      http_connect
-
       loop do
         msg = @queue.pop(@interval.to_f / 20)
         if msg
@@ -159,8 +154,10 @@ module Skylight
         end
       end
     rescue Exception => e
-      logger.error [ :WORKER, e ]
-      logger.error(e.backtrace)
+      logger.error "[SKYLIGHT] #{e.message} - #{e.class} - #{e.backtrace.first}"
+      if logger.debug?
+        logger.debug(e.backtrace.join("\n"))
+      end
     end
 
     attr_reader :sample_starts_at, :interval
@@ -172,38 +169,26 @@ module Skylight
       # write the body
       @protocol.write(body, batch.from, batch.counts, batch.sample)
 
-      logger.debug "~~~~~~~~~~~~~~~~ BODY SIZE ~~~~~~~~~~~~~~~~"
-      logger.debug "  Before: #{body.bytesize}"
-
       if config.deflate?
         body = Util::Gzip.compress(body)
-        logger.debug "  After:  #{body.bytesize}"
       end
 
       # send
       http_post(body)
     end
 
-    def http_connect
-      @http = Net::HTTP.new config.host, config.port
-      @http.read_timeout = 60
-    end
-
     def http_post(body)
       req = http_request(body.bytesize)
       req.body = body
 
-      resp = @http.request req
-
-      logger.debug "~~~~~~~~~~~~~~~~~ RESPONSE ~~~~~~~~~~~"
-      logger.debug "Status: #{resp.code}"
-      logger.debug "Headers:"
-      resp.each_header do |key, val|
-        logger.debug "  #{key}: #{val}"
+      Net::HTTP.start config.host, config.port do |http|
+        http.request req
       end
-      logger.debug "BODY:"
-      logger.debug resp.body
-      logger.debug "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    rescue => e
+      logger.error "[SKYLIGHT] #{e.message} - #{e.class} - #{e.backtrace.first}"
+      if logger.debug?
+        logger.debug(e.backtrace.join("\n"))
+      end
     end
 
     def http_request(length)

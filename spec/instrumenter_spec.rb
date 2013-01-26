@@ -62,7 +62,7 @@ module Skylight
         Trace.any_instance.stub(:commit).and_raise
 
         # This is not a very good way to test
-        instrumenter.config.logger.should_receive(:error).twice
+        instrumenter.config.logger.should_receive(:error).once
 
         run_trace
       end

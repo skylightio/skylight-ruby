@@ -138,10 +138,6 @@ module Skylight
         queue.should_not_receive(:push)
         worker.submit("trace")
       end
-
-      it "is chainable" do
-        worker.submit("trace").should == worker
-      end
     end
 
     describe "iter" do
@@ -242,9 +238,6 @@ module Skylight
 
         # Make sure interval is set, not ideal way to do it
         worker.send(:reset)
-
-        # This stuff would be done in the work method
-        worker.send(:http_connect)
 
         worker.iter(build_trace("Endpoint1"))
         worker.iter(build_trace("Endpoint2"))

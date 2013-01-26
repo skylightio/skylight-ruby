@@ -1,12 +1,11 @@
 module Skylight
   class Instrumenter
+
     # Maximum number of traces to sample for each interval
     SAMPLE_SIZE = 100
 
     # Time interval for each sample in seconds
     INTERVAL = 5
-
-    #
 
     def self.start!(config = Config.new)
       new(config).start!
@@ -22,6 +21,10 @@ module Skylight
     def start!
       @worker.start!
       Subscriber.register!
+
+      # Ensure properly configured
+      return unless config
+
       self
     end
 
@@ -47,8 +50,10 @@ module Skylight
           trace.commit
           process(trace)
         rescue Exception => e
-          config.logger.error [ :EXCEPTION, e ]
-          config.logger.error e.backtrace
+          if logger = config.logger
+            line = e.backtrace && e.backtrace.first
+            logger.error "[SKYLIGHT] #{e.message} - #{line}"
+          end
         end
       end
     end
@@ -57,10 +62,15 @@ module Skylight
 
     def create_trace(endpoint)
       Trace.new(endpoint)
+    # Paranoia
+    rescue
+      nil
     end
 
     def process(trace)
-      @worker.submit(trace)
+      unless @worker.submit(trace)
+        config.logger.warn("[SKYLIGHT] Could not submit trace to worker")
+      end
     end
 
   end

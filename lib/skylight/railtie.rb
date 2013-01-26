@@ -7,11 +7,17 @@ module Skylight
 
     def instrumenter
       @instrumenter ||= Instrumenter.start!(config.skylight)
+    # Paranoia
+    rescue
+      nil
     end
 
     initializer "skylight.configure" do |app|
-      # Prepend the middleware
-      app.middleware.insert 0, Middleware, instrumenter
+      # Paranoia
+      if instrumenter
+        # Prepend the middleware
+        app.middleware.insert 0, Middleware, instrumenter
+      end
     end
 
   end

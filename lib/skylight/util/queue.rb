@@ -2,7 +2,8 @@ require 'thread'
 
 module Skylight
   module Util
-    # Blocking sized queue implemented as a ring buffer
+    # Simple thread-safe queue backed by a ring buffer. Will only block when
+    # poping.
     class Queue
 
       def initialize(max)
