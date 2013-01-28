@@ -4,7 +4,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "skylight/version"
 
 Gem::Specification.new do |s|
-  s.name        = "skylight-agent"
+  s.name        = "skylight"
   s.version     = Skylight::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Tilde, Inc."]
