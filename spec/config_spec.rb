@@ -19,7 +19,7 @@ module Skylight
       config.port.should == 443
       config.samples_per_interval.should == 100
       config.interval.should == 5
-      config.max_pending_traces.should == 1_000
+      config.max_pending_traces.should == 500
       config.protocol.should be_an_instance_of(JsonProto)
       config.logger.should be_an_instance_of(Logger)
       config.logger.level.should == Logger::INFO
@@ -44,7 +44,7 @@ module Skylight
       yaml_config.port.should == 8080
       yaml_config.samples_per_interval.should == 50
       yaml_config.interval.should == 10
-      yaml_config.max_pending_traces.should == 500
+      yaml_config.max_pending_traces.should == 700
       yaml_config.protocol.should be_an_instance_of(JsonProto)
       yaml_config.log_level.should == Logger::INFO
     end

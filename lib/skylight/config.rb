@@ -20,7 +20,7 @@ module Skylight
       @port = 443
       @samples_per_interval = 100
       @interval = 5
-      @max_pending_traces = 1_000
+      @max_pending_traces = 500
       @protocol = JsonProto.new(self)
 
       @logger = Logger.new(STDOUT)
