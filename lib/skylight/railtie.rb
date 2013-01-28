@@ -26,6 +26,7 @@ module Skylight
     def load_instrumenter
       if environments.include?(Rails.env.to_s)
         if c = load_config
+          Rails.logger.debug "[SKYLIGHT] Starting instrumenter"
           Instrumenter.start!(c)
         end
       end
@@ -44,6 +45,7 @@ module Skylight
 
       unless File.exist?(path)
         Rails.logger.warn "[SKYLIGHT] Config does not exist at `#{path}`"
+        return
       end
 
       ret = Config.load_from_yaml(path)
