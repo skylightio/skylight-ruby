@@ -30,11 +30,6 @@ module Skylight
       config.deflate?.should == true
     end
 
-    it "can set protocols by name" do
-      config.protocol = "binary"
-      config.protocol.should be_an_instance_of(BinaryProto)
-    end
-
     it "can get and set log_level" do
       config.log_level = Logger::INFO
       config.log_level.should == Logger::INFO
@@ -50,7 +45,7 @@ module Skylight
       yaml_config.samples_per_interval.should == 50
       yaml_config.interval.should == 10
       yaml_config.max_pending_traces.should == 500
-      yaml_config.protocol.should be_an_instance_of(BinaryProto)
+      yaml_config.protocol.should be_an_instance_of(JsonProto)
       yaml_config.log_level.should == Logger::INFO
     end
 

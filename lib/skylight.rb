@@ -22,7 +22,6 @@ module Skylight
   require 'skylight/config'
   require 'skylight/instrumenter'
   require 'skylight/middleware'
-  require 'skylight/binary_proto'
   require 'skylight/json_proto'
   require 'skylight/subscriber'
   require 'skylight/trace'
