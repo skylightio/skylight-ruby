@@ -12,7 +12,7 @@ module Skylight
     end
 
     it "has correct defaults" do
-      config.authentication_token.should == "8yagFhG61tYeY4j18K8+VpI0CyG4sht5J2Oj7RQL05RhcHBsaWNhdGlvbl9pZHM9Zm9vJnJvbGU9YWdlbnQ="
+      config.authentication_token.should be_nil
       config.ssl.should == true
       config.deflate.should == true
       config.host.should == "agent.skylight.io"

@@ -8,11 +8,12 @@ module Skylight
 
     let :config do
       Config.new do |c|
+        c.authentication_token = "foobarbaz"
         c.samples_per_interval = 27
-        c.interval = 13
-        c.max_pending_traces = 1337
-        c.protocol = 'json'
-        c.deflate = false
+        c.interval             = 13
+        c.max_pending_traces   = 1337
+        c.protocol             = 'json'
+        c.deflate              = false
       end
     end
 
@@ -251,6 +252,22 @@ module Skylight
           json['batch']['timestamp'] == now.to_i &&
             json['batch']['endpoints'].length == 2
         end.should have_been_made
+      end
+
+      it "does not make HTTP requests if there is no authentication_token" do
+        config.authentication_token = nil
+
+        request = stub_request(:post, "http://#{config.host}:#{config.port}/report")
+
+        # Make sure interval is set, not ideal way to do it
+        worker.send(:reset)
+
+        worker.iter(build_trace("Endpoint1"))
+        worker.iter(build_trace("Endpoint2"))
+        worker.iter(build_trace("Endpoint1"))
+        worker.iter(nil, clock.at(now + config.interval + Worker::FLUSH_DELAY))
+
+        request.should_not have_been_made
       end
     end
 

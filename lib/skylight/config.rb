@@ -7,21 +7,22 @@ module Skylight
       new do |config|
         data = YAML.load_file(path)
         data.each do |key, value|
-          config.send("#{key}=", value)
+          if config.respond_to?("#{key}=")
+            config.send("#{key}=", value)
+          end
         end
       end
     end
 
     def initialize
-      @authentication_token = "8yagFhG61tYeY4j18K8+VpI0CyG4sht5J2Oj7RQL05RhcHBsaWNhdGlvbl9pZHM9Zm9vJnJvbGU9YWdlbnQ="
-      @ssl = true
-      @deflate = true
-      @host = "agent.skylight.io"
-      @port = 443
-      @samples_per_interval = 100
+      @ssl      = true
+      @deflate  = true
+      @host     = "agent.skylight.io"
+      @port     = 443
       @interval = 5
-      @max_pending_traces = 500
       @protocol = JsonProto.new(self)
+      @max_pending_traces = 500
+      @samples_per_interval = 100
 
       @logger = Logger.new(STDOUT)
       @logger.level = Logger::INFO

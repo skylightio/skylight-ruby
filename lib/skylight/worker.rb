@@ -164,6 +164,8 @@ module Skylight
 
     def flush(batch)
       return if batch.empty?
+      # Skip if there is no authentication token
+      return unless config.authentication_token
 
       body = ''
       # write the body
