@@ -10,8 +10,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Tilde, Inc."]
   s.email       = ["engineering@tilde.io"]
   s.homepage    = "http://www.skylight.io"
-  s.summary     = ""
-  s.description = ""
+  s.summary     = "Skylight is a ruby application monitoring tool."
+  s.description = "Currently in pre-alpha."
 
   s.required_ruby_version = ">= 1.8.7"
 
