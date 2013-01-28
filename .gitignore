@@ -12,8 +12,5 @@
 .DS_Store
 /b/*
 
-# Ignore RSpec config
-.rspec
-
 # Ignore logs
 /spec/dummy/log/*.log
