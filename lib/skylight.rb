@@ -27,3 +27,7 @@ module Skylight
   require 'skylight/trace'
   require 'skylight/worker'
 end
+
+if defined?(Rails)
+  require 'skylight/railtie'
+end

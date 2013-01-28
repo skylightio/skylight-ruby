@@ -5,7 +5,7 @@ module Skylight
     include Rack::Test::Methods
 
     let :instrumenter do
-      Instrumenter.start!
+      Instrumenter.start! authentication_token: "foobarbaz"
     end
 
     let :app do

@@ -8,6 +8,11 @@ module Skylight
     INTERVAL = 5
 
     def self.start!(config = Config.new)
+      # Convert a hash to a config object
+      if Hash === config
+        config = Config.new config
+      end
+
       new(config).start!
     end
 
@@ -24,6 +29,15 @@ module Skylight
 
       # Ensure properly configured
       return unless config
+
+      # Ensure that there is an API token
+      unless config.authentication_token
+        if logger = config.logger
+          logger.warn "[SKYLIGHT] No authentication token provided; cannot start agent."
+        end
+
+        return
+      end
 
       self
     end

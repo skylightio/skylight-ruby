@@ -7,7 +7,7 @@ require "action_view/railtie"
 require "action_mailer/railtie"
 
 Bundler.require
-require "skylight/railtie"
+require "skylight"
 
 module Dummy
   class Application < Rails::Application

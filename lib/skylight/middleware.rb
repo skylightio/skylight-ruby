@@ -2,6 +2,11 @@ module Skylight
   class Middleware
     attr_reader :instrumenter
 
+    def self.new(app, instrumenter)
+      return app unless instrumenter
+      super
+    end
+
     def initialize(app, instrumenter)
       @instrumenter = instrumenter
       @app = app

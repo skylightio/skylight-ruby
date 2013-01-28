@@ -8,22 +8,19 @@ module Skylight
   describe Railtie do
     let :railtie do
       # Not sure this is the correct way
-      Railtie.send(:new)
+      Railtie
     end
 
-    it "has a default config" do
-      railtie.config.skylight.should be_an_instance_of(Config)
+    it "has a default set of run environments" do
+      railtie.config.environments.should == ['production']
     end
 
-    it "can use a custom config" do
-      new_config = Config.new
-      railtie.config.skylight = new_config
-      railtie.config.skylight.should == new_config
+    it "has a default config path" do
+      railtie.config.skylight_config_path.should == "config/skylight.yml"
     end
 
     it "sets up an instrumenter with the config" do
       railtie.instrumenter.should be_an_instance_of(Instrumenter)
-      railtie.instrumenter.config.should == railtie.config.skylight
     end
 
   end

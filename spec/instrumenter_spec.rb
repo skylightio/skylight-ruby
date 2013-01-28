@@ -3,16 +3,16 @@ require 'spec_helper'
 module Skylight
   describe Instrumenter do
     let :instrumenter do
-      Instrumenter.new(Config.new)
+      Instrumenter.new(Config.new authentication_token: "foobarbaz")
     end
 
     it "starts with a default config" do
-      i = Instrumenter.start!
+      i = Instrumenter.start! authentication_token: "foobarbaz"
       i.config.should be_an_instance_of(Config)
     end
 
     it "starts with passed config" do
-      c = Config.new
+      c = Config.new authentication_token: "foobarbaz"
       i = Instrumenter.start!(c)
       i.config.should == c
     end

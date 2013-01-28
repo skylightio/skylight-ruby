@@ -14,7 +14,7 @@ module Skylight
       end
     end
 
-    def initialize
+    def initialize(attrs = {})
       @ssl      = true
       @deflate  = true
       @host     = "agent.skylight.io"
@@ -26,6 +26,12 @@ module Skylight
 
       @logger = Logger.new(STDOUT)
       @logger.level = Logger::INFO
+
+      attrs.each do |k, v|
+        if respond_to?("#{k}=")
+          send("#{k}=", v)
+        end
+      end
 
       yield self if block_given?
     end

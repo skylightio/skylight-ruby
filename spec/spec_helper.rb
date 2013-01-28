@@ -1,4 +1,7 @@
+ENV['RAILS_ENV'] = 'production'
+
 require 'rspec'
+require 'rails'
 require 'skylight'
 require 'capybara/rspec'
 require 'rack/test'
