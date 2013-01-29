@@ -235,7 +235,7 @@ module Skylight
       end
 
       it "sends correct data" do
-        request = stub_request(:post, "http://#{config.host}:#{config.port}/report")
+        request = stub_request(:post, "https://#{config.host}/report")
 
         # Make sure interval is set, not ideal way to do it
         worker.send(:reset)

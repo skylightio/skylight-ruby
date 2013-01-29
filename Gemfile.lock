@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    skylight-agent (0.0.1)
+    skylight (0.0.1)
       activesupport (>= 3.0.0)
 
 GEM
@@ -133,6 +133,6 @@ DEPENDENCIES
   rake
   rspec
   rspec-spies
-  skylight-agent!
+  skylight!
   sqlite3
   webmock
