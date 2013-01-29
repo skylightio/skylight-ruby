@@ -13,6 +13,7 @@ module Skylight
 
     initializer "skylight.configure" do |app|
       if self.instrumenter = load_instrumenter
+        Rails.logger.debug "[SKYLIGHT] Installing middleware"
         app.middleware.insert 0, Middleware, instrumenter
       end
     end
@@ -54,6 +55,8 @@ module Skylight
         Rails.logger.warn "[SKYLIGHT] Config does not include an authentication token"
         return
       end
+
+      ret.logger = Rails.logger
 
       ret
     rescue => e

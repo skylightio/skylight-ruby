@@ -64,10 +64,7 @@ module Skylight
           trace.commit
           process(trace)
         rescue Exception => e
-          if logger = config.logger
-            line = e.backtrace && e.backtrace.first
-            logger.error "[SKYLIGHT] #{e.message} - #{line}"
-          end
+          error(e)
         end
       end
     end
@@ -77,14 +74,32 @@ module Skylight
     def create_trace(endpoint)
       Trace.new(endpoint)
     # Paranoia
-    rescue
+    rescue => e
+      error e
       nil
     end
 
     def process(trace)
+      debug "Submitting trace to worker"
       unless @worker.submit(trace)
         config.logger.warn("[SKYLIGHT] Could not submit trace to worker")
       end
+    end
+
+    def error(msg)
+      return unless l = config.logger
+
+      if Error == msg
+        msg = "#{e.message} (#{e.class}) - #{e.backtrace && e.backtrace.first}"
+      end
+
+      l.error "[SKYLIGHT] #{msg}"
+    rescue
+    end
+
+    def debug(msg)
+      return unless l = config.logger
+      l.debug "[SKYLIGHT] #{msg}"
     end
 
   end

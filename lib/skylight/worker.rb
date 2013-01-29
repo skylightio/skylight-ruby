@@ -119,6 +119,7 @@ module Skylight
       end
 
       if Trace === msg
+        debug "Received trace"
         if @current_batch.wants?(msg)
           @current_batch.push(msg)
         elsif @next_batch.wants?(msg)
@@ -148,10 +149,8 @@ module Skylight
     def work
       loop do
         msg = @queue.pop(@interval.to_f / 20)
-        if msg
-          success = iter(msg)
-          return if !success
-        end
+        success = iter(msg)
+        return if !success
       end
     rescue Exception => e
       logger.error "[SKYLIGHT] #{e.message} - #{e.class} - #{e.backtrace.first}"
@@ -166,6 +165,8 @@ module Skylight
       return if batch.empty?
       # Skip if there is no authentication token
       return unless config.authentication_token
+
+      debug "Flushing: #{batch}"
 
       body = ''
       # write the body
@@ -183,9 +184,19 @@ module Skylight
       req = http_request(body.bytesize)
       req.body = body
 
-      Net::HTTP.start config.host, config.port do |http|
-        http.request req
+      debug "Posting report to server"
+      http = Net::HTTP.new config.host, config.port
+      http.use_ssl = true if config.ssl?
+
+      http.start do |http|
+        resp = http.request req
+
+        unless resp.code == '200'
+          debug "Server responded with #{resp.code}"
+        end
       end
+
+      true
     rescue => e
       logger.error "[SKYLIGHT] #{e.message} - #{e.class} - #{e.backtrace.first}"
       if logger.debug?
@@ -210,6 +221,11 @@ module Skylight
         true,     # There is a response body
         ENDPOINT, # Endpoint
         hdrs
+    end
+
+    def debug(msg)
+      return unless logger && logger.debug?
+      logger.debug "[SKYLIGHT] #{msg}"
     end
 
   end
