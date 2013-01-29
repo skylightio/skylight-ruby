@@ -1,4 +1,6 @@
-$:.push File.expand_path("../lib", __FILE__)
+Dir.chdir File.expand_path('..', __FILE__)
+
+$:.push "lib"
 
 # Maintain your gem's version:
 require "skylight/version"
@@ -13,8 +15,13 @@ Gem::Specification.new do |s|
   s.summary     = "Skylight is a ruby application monitoring tool."
   s.description = "Currently in pre-alpha."
 
-  s.required_ruby_version = ">= 1.8.7"
+  s.required_ruby_version = ">= 1.9.2"
 
+  files  = `git ls-files`.split("\n") rescue ''
+  files &= Dir['lib/**/*.rb']
+  files |= Dir['*.md']
+
+  s.files         = files
   s.require_paths = ["lib"]
 
   # Dependencies
