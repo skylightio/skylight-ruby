@@ -3,11 +3,13 @@ require 'rails'
 
 module Skylight
   class Railtie < Rails::Railtie
+    config.skylight = ActiveSupport::OrderedOptions.new
+
     # The environments in which skylight should be inabled
-    config.environments = ['production']
+    config.skylight.environments = ['production']
 
     # The path to the configuration file
-    config.skylight_config_path = "config/skylight.yml"
+    config.skylight.config_path = "config/skylight.yml"
 
     attr_accessor :instrumenter
 
@@ -21,7 +23,7 @@ module Skylight
   private
 
     def environments
-      Array(config.environments).map { |e| e && e.to_s }.compact
+      Array(config.skylight.environments).map { |e| e && e.to_s }.compact
     end
 
     def load_instrumenter
@@ -37,7 +39,7 @@ module Skylight
     end
 
     def load_config
-      unless path = config.skylight_config_path
+      unless path = config.skylight.config_path
         Rails.logger.warn "[SKYLIGHT] Path to config YAML file unset"
         return
       end

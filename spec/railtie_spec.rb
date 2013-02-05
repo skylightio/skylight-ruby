@@ -12,11 +12,11 @@ module Skylight
     end
 
     it "has a default set of run environments" do
-      railtie.config.environments.should == ['production']
+      railtie.config.skylight.environments.should == ['production']
     end
 
     it "has a default config path" do
-      railtie.config.skylight_config_path.should == "config/skylight.yml"
+      railtie.config.skylight.config_path.should == "config/skylight.yml"
     end
 
     it "sets up an instrumenter with the config" do
