@@ -44,7 +44,7 @@ module Skylight
         return
       end
 
-      path = File.expand_path(Rails.root.join(path))
+      path = File.expand_path(path, Rails.root)
 
       unless File.exist?(path)
         Rails.logger.warn "[SKYLIGHT] Config does not exist at `#{path}`"
