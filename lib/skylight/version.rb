@@ -1,3 +1,3 @@
 module Skylight
-  VERSION = '0.0.4.pre'
+  VERSION = '0.0.5'
 end
