@@ -1,14 +1,11 @@
 require 'thread'
 require 'socket'
 require 'openssl'
+require 'net/http'
 require 'active_support/notifications'
 
 module Skylight
   class Error < RuntimeError; end
-
-  require 'skylight/vendor/excon'
-
-  Excon = Vendor::Excon
 
   # First require all util files
   require 'skylight/util/atomic'

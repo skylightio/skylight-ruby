@@ -15,15 +15,6 @@ WebMock.disable_net_connect!
 
 RSpec.configure do |config|
 
-  config.include SpecHelpers
-
   # Add configuration here
-  config.before :all do
-    Skylight::Excon.defaults[:mock] = true
-  end
-
-  config.before :each do
-    Skylight::Excon.stubs.clear
-  end
 
 end

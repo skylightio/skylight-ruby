@@ -181,20 +181,19 @@ module Skylight
     end
 
     def http_post(body)
-      hdrs = {}
-      hdrs[CONTENT_TYPE]  = body.bytesize
-      hdrs[AUTHORIZATION] = config.authentication_token
-      hdrs[CONTENT_TYPE]  = APPLICATION_JSON
-
-      if config.deflate?
-        hdrs[CONTENT_ENCODING] = GZIP
-      end
+      req = http_request(body.bytesize)
+      req.body = body
 
       debug "Posting report to server"
-      res = Excon.post(post_url, :headers => hdrs, :body => body)
+      http = Net::HTTP.new config.host, config.port
+      http.use_ssl = true if config.ssl?
 
-      unless res.status == 200
-        debug "Server responded with #{res.status}"
+      http.start do |http|
+        resp = http.request req
+
+        unless resp.code == '200'
+          debug "Server responded with #{resp.code}"
+        end
       end
 
       true
@@ -205,23 +204,23 @@ module Skylight
       end
     end
 
-    DEFAULT_PORT = {
-      'http'  => 80,
-      'https' => 443
-    }
+    def http_request(length)
+      hdrs = {}
 
-    def post_url
-      @post_url ||=
-        begin
-          proto = config.ssl?? 'https' : 'http'
-          host  = config.host
+      hdrs[CONTENT_LENGTH] = length.to_s
+      hdrs[AUTHORIZATION]  = config.authentication_token
+      hdrs[CONTENT_TYPE]   = APPLICATION_JSON
 
-          if DEFAULT_PORT[proto] != config.port
-            host << ":#{config.port}"
-          end
+      if config.deflate?
+        hdrs[CONTENT_ENCODING] = GZIP
+      end
 
-          "#{proto}://#{host}#{ENDPOINT}"
-        end
+      Net::HTTPGenericRequest.new \
+        'POST',   # Request method
+        true,     # There is a request body
+        true,     # There is a response body
+        ENDPOINT, # Endpoint
+        hdrs
     end
 
     def debug(msg)
