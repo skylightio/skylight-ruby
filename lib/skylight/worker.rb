@@ -186,10 +186,13 @@ module Skylight
 
       debug "Posting report to server"
       http = Net::HTTP.new config.host, config.port
-      http.use_ssl = true if config.ssl?
 
-      http.start do |http|
-        resp = http.request req
+      if config.ssl?
+        http.use_ssl = true
+      end
+
+      http.start do |client|
+        resp = client.request req
 
         unless resp.code == '200'
           debug "Server responded with #{resp.code}"
@@ -198,7 +201,7 @@ module Skylight
 
       true
     rescue => e
-      logger.error "[SKYLIGHT] #{e.message} - #{e.class} - #{e.backtrace.first}"
+      logger.error "[SKYLIGHT] POST #{config.host}:#{config.port}(ssl=#{config.ssl?}) - #{e.message} - #{e.class} - #{e.backtrace.first}"
       if logger.debug?
         logger.debug(e.backtrace.join("\n"))
       end

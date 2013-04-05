@@ -23,10 +23,10 @@ module Skylight
     LOCK = Mutex.new
 
     def instrumenter
-      return @instrumenter if @instrumenter
+      return @instrumenter if defined?(@instrumenter)
 
       LOCK.synchronize do
-        return @instrumeter if @instrumenter
+        return @instrumeter if defined?(@instrumenter)
         @instrumenter = @instrumenter_class.start!(@config)
         return @instrumenter
       end
