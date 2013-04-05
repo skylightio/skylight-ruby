@@ -4,31 +4,40 @@ module Skylight
   describe Middleware do
     include Rack::Test::Methods
 
-    let :config do
-      Config.new authentication_token: "foobarbaz"
-    end
-
     def app
       @app
     end
 
-    it "calls the instrumenter and passes through" do
-      instrumenter = Object.new
+    def instrumenter_class(instrumenter)
+      config = config_object
 
-      instrumenter_class = Class.new do
+      Class.new do
         @instrumenter = instrumenter
+        @config = config
 
-        def self.start!(*)
+        def self.start!(cfg)
+          cfg.should == @config
           @instrumenter
         end
       end
+    end
 
-      c = config
+    def config_object
+      @config_object ||= Config.new authentication_token: "foobarbaz"
+    end
+
+    def build_app(klass)
+      config = config_object
 
       @app = Rack::Builder.new do
-        use Middleware, c, instrumenter_class
+        use Middleware, config, klass
         run lambda{|env| [200, {'Content-Type' => 'text/plain'}, ["Hello world!"]]}
       end
+    end
+
+    it "calls the instrumenter and passes through" do
+      instrumenter = Object.new
+      build_app(instrumenter_class(instrumenter))
 
       instrumenter.should_receive(:trace).with("Rack").and_yield
 
@@ -45,12 +54,7 @@ module Skylight
         end
       end
 
-      c = config
-
-      @app = Rack::Builder.new do
-        use Middleware, c, instrumenter_class
-        run lambda{|env| [200, {'Content-Type' => 'text/plain'}, ["Hello world!"]]}
-      end
+      build_app(instrumenter_class)
 
       get '/'
 
