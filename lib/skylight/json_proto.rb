@@ -25,7 +25,9 @@ module Skylight
 #                 0292352, // Span start timestamp in 0.1ms granularity
 #                 20, // Duration of the span in 0.1ms granularity
 #                 "action_controller.process", // Span category
-#                 "Processing WidgetsController#index" // Span description
+#                 "Processing WidgetsController#index", // Span title, max 60 chars (optional)
+#                 "", // Span description, string any size (optional)
+#                 {}, // Map String->String
 #               ],
 #               [
 #                 0, // The previous span is this span's parent
