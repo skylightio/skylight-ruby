@@ -1,6 +1,4 @@
-Dir.chdir File.expand_path('..', __FILE__)
-
-$:.push "lib"
+$:.push "#{File.expand_path('..', __FILE__)}/lib"
 
 # Maintain your gem's version:
 require "skylight/version"
