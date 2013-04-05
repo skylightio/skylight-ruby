@@ -5,10 +5,10 @@ module Skylight
       super
     end
 
-    def initialize(app, config, instrumenter=nil)
+    def initialize(app, config, instrumenter_class=Instrumenter)
       @app = app
       @config = config
-      @instrumenter = instrumenter
+      @instrumenter_class = instrumenter_class
     end
 
     def call(env)
@@ -27,7 +27,7 @@ module Skylight
 
       LOCK.synchronize do
         return @instrumeter if @instrumenter
-        @instrumenter = Instrumenter.start!(@config)
+        @instrumenter = @instrumenter_class.start!(@config)
         return @instrumenter
       end
     rescue Exception
@@ -39,7 +39,7 @@ module Skylight
         def trace(*)
           yield
         end
-      end
+      end.new
     end
   end
 end
