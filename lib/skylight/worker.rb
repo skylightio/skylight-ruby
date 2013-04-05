@@ -189,6 +189,7 @@ module Skylight
 
       if config.ssl?
         http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
       end
 
       http.start do |client|
