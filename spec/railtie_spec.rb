@@ -19,9 +19,5 @@ module Skylight
       railtie.config.skylight.config_path.should == "config/skylight.yml"
     end
 
-    it "sets up an instrumenter with the config" do
-      railtie.instrumenter.should be_an_instance_of(Instrumenter)
-    end
-
   end
 end

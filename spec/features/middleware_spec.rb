@@ -13,10 +13,5 @@ module Skylight
     it "is the first middleware" do
       middleware.should == Middleware
     end
-
-    it "has the instrumenter from the Railtie" do
-      m = middleware.build(Rails.application)
-      m.instrumenter.should be_an_instance_of(Instrumenter)
-    end
   end
 end

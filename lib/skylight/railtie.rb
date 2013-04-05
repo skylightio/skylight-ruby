@@ -14,10 +14,8 @@ module Skylight
     attr_accessor :instrumenter
 
     initializer "skylight.configure" do |app|
-      if self.instrumenter = load_instrumenter
-        Rails.logger.debug "[SKYLIGHT] Installing middleware"
-        app.middleware.insert 0, Middleware, instrumenter
-      end
+      Rails.logger.debug "[SKYLIGHT] Installing middleware"
+      app.middleware.insert 0, Middleware, load_config
     end
 
   private
