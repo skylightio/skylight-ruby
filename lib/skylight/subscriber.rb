@@ -1,8 +1,6 @@
 module Skylight
   # TODO: Handle filtering out notifications that we don't care about
   class Subscriber
-    PROCESS_ACTION = "process_action.action_controller"
-
     def self.register!(config=Config.new)
       ActiveSupport::Notifications.subscribe nil, new(config)
     end
