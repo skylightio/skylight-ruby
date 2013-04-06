@@ -3,7 +3,7 @@ require 'spec_helper'
 module Skylight
   describe Subscriber do
     let :subscriber do
-      Subscriber.new
+      Subscriber.new(Config.new)
     end
 
     it "should register" do

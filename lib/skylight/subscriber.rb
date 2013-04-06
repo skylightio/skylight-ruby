@@ -3,8 +3,12 @@ module Skylight
   class Subscriber
     PROCESS_ACTION = "process_action.action_controller"
 
-    def self.register!
-      ActiveSupport::Notifications.subscribe nil, new
+    def self.register!(config=Config.new)
+      ActiveSupport::Notifications.subscribe nil, new(config)
+    end
+
+    def initialize(config)
+      @config = config
     end
 
     def start(name, id, payload)
@@ -14,16 +18,21 @@ module Skylight
         trace.endpoint = controller_action(payload)
       end
 
+      logger.debug("[SKYLIGHT] START: #{name} - #{payload.inspect}")
       trace.start(name, nil, payload)
     end
 
     def finish(name, id, payload)
       return unless trace = Trace.current
+
+      logger.debug("[SKYLIGHT] END: #{name} - #{payload.inspect}")
       trace.stop
     end
 
     def measure(name, id, payload)
       return unless trace = Trace.current
+
+      logger.debug("[SKYLIGHT] MEASURE: #{name} - #{payload.inspect}")
       trace.record(name, nil, payload)
     end
 
@@ -33,5 +42,8 @@ module Skylight
       "#{payload[:controller]}##{payload[:action]}"
     end
 
+    def logger
+      @config.logger
+    end
   end
 end

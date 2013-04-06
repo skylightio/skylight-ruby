@@ -25,7 +25,7 @@ module Skylight
 
     def start!
       @worker.start!
-      Subscriber.register!
+      Subscriber.register!(config)
 
       # Ensure properly configured
       return unless config
