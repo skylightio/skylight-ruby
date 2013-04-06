@@ -5,6 +5,7 @@ module Skylight
 
       def normalize
         @trace.endpoint = controller_action(@payload)
+        [ @name, @payload ]
       end
 
     private

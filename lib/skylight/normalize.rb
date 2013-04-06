@@ -7,6 +7,8 @@ module Skylight
 
       if klass
         klass.new(trace, name, payload).normalize
+      else
+        [ name, payload ]
       end
     end
 

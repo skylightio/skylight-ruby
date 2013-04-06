@@ -14,9 +14,7 @@ module Skylight
     def start(name, id, payload)
       return unless trace = Trace.current
 
-      if name == PROCESS_ACTION
-        trace.endpoint = controller_action(payload)
-      end
+      name, payload = Normalize.normalize(trace, name, payload)
 
       logger.debug("[SKYLIGHT] START: #{name} - #{payload.inspect}")
       trace.start(name, nil, payload)
