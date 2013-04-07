@@ -14,14 +14,20 @@ module Skylight
 
       name, title, desc, payload = Normalize.normalize(trace, name, payload)
 
-      logger.debug("[SKYLIGHT] START: #{name} - #{payload.inspect}")
+      if name != :skip
+        logger.debug("[SKYLIGHT] START: #{name} (#{title}, \"#{desc}\")")
+        logger.debug("[SKYLIGHT] > #{payload.inspect}")
+      else
+        logger.debug("[SKYLIGHT] START: skipped")
+      end
+
       trace.start(name, title, desc, payload)
     end
 
     def finish(name, id, payload)
       return unless trace = Trace.current
 
-      logger.debug("[SKYLIGHT] END: #{name} - #{payload.inspect}")
+      logger.debug("[SKYLIGHT] END")
       trace.stop
     end
 
@@ -30,7 +36,13 @@ module Skylight
 
       name, title, desc, payload = Normalize.normalize(trace, name, payload)
 
-      logger.debug("[SKYLIGHT] MEASURE: #{name} - #{payload.inspect}")
+      if name != :skip
+        logger.debug("[SKYLIGHT] MEASURE: #{name} (#{title}, \"#{desc}\")")
+        logger.debug("[SKYLIGHT] > #{payload.inspect}")
+      else
+        logger.debug("[SKYLIGHT] MEASURE: skipped")
+      end
+
       trace.record(name, title, desc, payload)
     end
 
