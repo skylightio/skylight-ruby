@@ -127,6 +127,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  actionpack (>= 3.0.0)
   capybara
   rack-test
   rails

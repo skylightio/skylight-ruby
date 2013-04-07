@@ -1,14 +1,5 @@
 require 'spec_helper'
 
-shared_context "normalizer" do
-  let(:trace) { Struct.new(:endpoint).new }
-
-  def normalize(payload)
-    name = self.class.metadata[:example_group][:description_args][1]
-    Skylight::Normalize.normalize(trace, name, payload)
-  end
-end
-
 module Skylight
   describe Normalize, "render_collection.action_view" do
     include_context "normalizer"
