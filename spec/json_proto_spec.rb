@@ -12,17 +12,17 @@ module Skylight
 
       trace1 = Trace.new('endpoint1')
       Util.clock.stub(:now => now)
-      trace1.start("cat1", "desc1", "annot1")
+      trace1.start("cat1", "title1", "desc1", "annot1")
       Util.clock.stub(:now => now+10)
-      trace1.record("cat1.1", "desc1.1", "annot1.1")
+      trace1.record("cat1.1", "title1.1", "desc1.1", "annot1.1")
       Util.clock.stub(:now => now+20)
       trace1.stop
 
       trace2 = Trace.new('endpoint2')
       Util.clock.stub(:now => now+30)
-      trace2.start("cat2", "desc2", "annot2")
+      trace2.start("cat2", "title2", "desc2", "annot2")
       Util.clock.stub(:now => now+45)
-      trace2.record("cat2.1", "desc2.1", "annot2.1")
+      trace2.record("cat2.1", "title2.1", "desc2.1", "annot2.1")
       Util.clock.stub(:now => now+60)
       trace2.stop
 

@@ -9,21 +9,23 @@ module Skylight
 
     def create_span(opts = {})
       opts = {
-        :parent     => "parent",
-        :started_at => "started_at",
-        :ended_at   => "ended_at",
-        :category   => "category",
+        :parent      => "parent",
+        :started_at  => "started_at",
+        :category    => "category",
+        :title       => "title",
         :description => "description",
-        :annotations => "annotations"
+        :annotations => "annotations",
+        :ended_at    => "ended_at"
       }.merge(opts)
 
       Trace::Span.new(
         opts[:parent],
         opts[:started_at],
-        opts[:ended_at],
         opts[:category],
+        opts[:title],
         opts[:description],
-        opts[:annotations]
+        opts[:annotations],
+        opts[:ended_at]
       )
     end
 
@@ -85,18 +87,19 @@ module Skylight
       it "creates spans" do
         now = Util.clock.now
         Util.clock.stub(:now).and_return(now)
-        trace.start("cat1", "desc1", "annot1")
+        trace.start("cat1", "title1", "desc1", "annot1")
 
         Util.clock.stub(:now).and_return(now+1)
-        trace.start("cat2", "desc2", "annot2")
+        trace.start("cat2", "title2", "desc2", "annot2")
 
         Util.clock.stub(:now).and_return(now+2)
-        trace.start("cat3", "desc3", "annot3")
+        trace.start("cat3", "title3","desc3", "annot3")
 
         trace.spans[0].parent.should == nil
         trace.spans[0].started_at.should == now
         trace.spans[0].ended_at.should == nil
         trace.spans[0].category.should == "cat1"
+        trace.spans[0].title.should == "title1"
         trace.spans[0].description.should == "desc1"
         trace.spans[0].annotations.should == "annot1"
 
@@ -104,6 +107,7 @@ module Skylight
         trace.spans[1].started_at.should == now + 1
         trace.spans[1].ended_at.should == nil
         trace.spans[1].category.should == "cat2"
+        trace.spans[1].title.should == "title2"
         trace.spans[1].description.should == "desc2"
         trace.spans[1].annotations.should == "annot2"
 
@@ -111,6 +115,7 @@ module Skylight
         trace.spans[2].started_at.should == now + 2
         trace.spans[2].ended_at.should == nil
         trace.spans[2].category.should == "cat3"
+        trace.spans[2].title.should == "title3"
         trace.spans[2].description.should == "desc3"
         trace.spans[2].annotations.should == "annot3"
       end
@@ -120,7 +125,7 @@ module Skylight
       it "sets ended_at" do
         now = Util.clock.now
         Util.clock.stub(:now).and_return(now)
-        trace.start("cat", "desc", "annot")
+        trace.start("cat", "title", "desc", "annot")
 
         Util.clock.stub(:now).and_return(now+1)
         trace.stop
@@ -130,15 +135,15 @@ module Skylight
       end
 
       it "adjusts parent" do
-        trace.start("cat1", "desc1", "annot1")
-        trace.start("cat2", "desc2", "annot2")
-        trace.start("cat3", "desc3", "annot3")
+        trace.start("cat1", "title1", "desc1", "annot1")
+        trace.start("cat2", "title2", "desc2", "annot2")
+        trace.start("cat3", "title3", "desc3", "annot3")
         trace.stop
         trace.stop
-        trace.start("cat4", "desc4", "annot4")
+        trace.start("cat4", "title4", "desc4", "annot4")
         trace.stop
         trace.stop
-        trace.start("cat5", "desc5", "annot5")
+        trace.start("cat5", "title5", "desc5", "annot5")
 
         trace.spans[0].parent.should == nil
         trace.spans[1].parent.should == 0
@@ -151,11 +156,11 @@ module Skylight
         now = Util.clock.now
 
         Util.clock.stub(:now => now)
-        trace.start("cat1")
+        trace.start("cat1", nil, nil, nil)
         Util.clock.stub(:now => now+10)
-        trace.start("cat2")
+        trace.start("cat2", nil, nil, nil)
         Util.clock.stub(:now => now+20)
-        trace.start("cat3")
+        trace.start("cat3", nil, nil, nil)
         Util.clock.stub(:now => now+30)
         trace.stop
         Util.clock.stub(:now => now+40)
@@ -174,13 +179,13 @@ module Skylight
       end
 
       it "raises if no spans" do
-        trace.start("cat1", "desc1", "annot1")
+        trace.start("cat1", "title1", "desc1", "annot1")
         trace.stop
         lambda{ trace.stop }.should raise_error("trace unbalanced")
       end
 
       it "raise if all spans are closed" do
-        trace.record("cat")
+        trace.record("cat", "title", "desc", "annot")
         lambda { trace.stop }.should raise_error("trace unbalanced")
       end
 

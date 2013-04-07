@@ -12,10 +12,10 @@ module Skylight
     def start(name, id, payload)
       return unless trace = Trace.current
 
-      name, payload = Normalize.normalize(trace, name, payload)
+      name, title, desc, payload = Normalize.normalize(trace, name, payload)
 
       logger.debug("[SKYLIGHT] START: #{name} - #{payload.inspect}")
-      trace.start(name, nil, payload)
+      trace.start(name, title, desc, payload)
     end
 
     def finish(name, id, payload)
@@ -28,8 +28,10 @@ module Skylight
     def measure(name, id, payload)
       return unless trace = Trace.current
 
+      name, title, desc, payload = Normalize.normalize(trace, name, payload)
+
       logger.debug("[SKYLIGHT] MEASURE: #{name} - #{payload.inspect}")
-      trace.record(name, nil, payload)
+      trace.record(name, title, desc, payload)
     end
 
   private

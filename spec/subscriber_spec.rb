@@ -26,7 +26,7 @@ module Skylight
 
       describe "start" do
         it "handles basic actions" do
-          trace.should_receive(:start).with("test", nil, payload)
+          trace.should_receive(:start).with("test", "unknown", "unknown", payload)
           subscriber.start("test", 1, payload)
         end
 

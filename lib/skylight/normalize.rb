@@ -8,7 +8,7 @@ module Skylight
       if klass
         klass.new(trace, name, payload).normalize
       else
-        [ name, payload ]
+        [ name, "unknown", "unknown", payload ]
       end
     end
 
@@ -29,3 +29,5 @@ module Skylight
 end
 
 require "skylight/normalize/process_action"
+require "skylight/normalize/render_collection"
+require "skylight/normalize/render_template"

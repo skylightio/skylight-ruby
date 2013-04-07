@@ -10,10 +10,11 @@ module Skylight
     class Span < Struct.new(
       :parent,
       :started_at,
-      :ended_at,
       :category,
+      :title,
       :description,
-      :annotations)
+      :annotations,
+      :ended_at)
 
       def key
         @key ||= [category, description]
@@ -42,8 +43,8 @@ module Skylight
       span.ended_at
     end
 
-    def record(cat, desc = nil, annot = nil)
-      span = build_span(cat, desc, annot)
+    def record(cat, title, desc, annot)
+      span = build_span(cat, title, desc, annot)
       span.ended_at = span.started_at
 
       @spans << span
@@ -51,8 +52,8 @@ module Skylight
       self
     end
 
-    def start(cat, desc = nil, annot = nil)
-      span = build_span(cat, desc, annot)
+    def start(cat, title, desc, annot)
+      span = build_span(cat, title, desc, annot)
 
       @parent = @spans.length
 
@@ -101,8 +102,8 @@ module Skylight
       Util::UUID.gen Digest::MD5.digest(@endpoint)[0, 2]
     end
 
-    def build_span(cat, desc, annot)
-      Span.new(@parent, now, nil, cat, desc || "", annot)
+    def build_span(cat, title, desc, annot)
+      Span.new(@parent, now, cat, title, desc, annot)
     end
 
   end

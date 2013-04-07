@@ -152,7 +152,7 @@ module Skylight
       end
 
       def build_trace(endpoint)
-        Trace.new(endpoint).record("testcat")
+        Trace.new(endpoint).record("testcat", nil, nil, nil)
       end
 
       def do_iter(iters)
