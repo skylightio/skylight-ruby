@@ -4,13 +4,13 @@ module Skylight
       register "process_action.action_controller"
 
       def normalize
-        @trace.endpoint = controller_action(@payload)
-        [ "app.controller.request", nil, nil, @payload ]
+        @trace.endpoint = controller_action
+        [ "app.controller.request", controller_action, controller_action, @payload ]
       end
 
     private
-      def controller_action(payload)
-        "#{payload[:controller]}##{payload[:action]}"
+      def controller_action
+        "#{@payload[:controller]}##{@payload[:action]}"
       end
     end
   end

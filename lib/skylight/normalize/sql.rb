@@ -14,9 +14,11 @@ module Skylight
           title = @payload[:name]
         end
 
+        binds = @payload[:binds]
+
         annotations = {
           sql: @payload[:sql],
-          binds: @payload[:binds].map(&:last)
+          binds: binds ? binds.map(&:last) : []
         }
 
         [ name, title, nil, annotations ]

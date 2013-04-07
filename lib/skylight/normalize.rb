@@ -28,6 +28,7 @@ module Skylight
   end
 end
 
+require "skylight/normalize/start_processing"
 require "skylight/normalize/process_action"
 require "skylight/normalize/render_collection"
 require "skylight/normalize/render_template"
