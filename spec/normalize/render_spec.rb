@@ -33,5 +33,17 @@ module Skylight
       payload.should == { partial: false }
     end
   end
+
+  describe Normalize, "render_partial.action_view" do
+    include_context "normalizer"
+
+    it "normalizes the notification name" do
+      name, title, desc, payload = normalize(identifier: "foo/bar")
+      name.should == "view.render.template"
+      title.should == "foo/bar"
+      desc.should == "foo/bar"
+      payload.should == { partial: true }
+    end
+  end
 end
 

@@ -31,3 +31,4 @@ end
 require "skylight/normalize/process_action"
 require "skylight/normalize/render_collection"
 require "skylight/normalize/render_template"
+require "skylight/normalize/render_partial"
