@@ -22,7 +22,7 @@ module Skylight
 #             spans: [
 #               [
 #                 null, // parent-id -- index of the parent span or null if root node
-#                 0292352, // Span start timestamp in 0.1ms granularity
+#                 0292352, // Span start timestamp in 0.1ms granularity, relative to the start of the trace
 #                 20, // Duration of the span in 0.1ms granularity
 #                 "action_controller.process", // Span category
 #                 "Processing WidgetsController#index", // Span title, max 60 chars (optional)
@@ -33,8 +33,10 @@ module Skylight
 #                 0, // The previous span is this span's parent
 #                 1340923,
 #                 0, // No duration
-#                 "log.info", // category
+#                 "log.info", // category "foo" "\"foo\"
+#                 "Title", // Title
 #                 "Doing some stuff..." // Span description
+#                 {}, // Map String->String
 #               ]
 #             ]
 #           }

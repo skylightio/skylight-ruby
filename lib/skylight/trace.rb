@@ -1,4 +1,8 @@
 module Skylight
+  # The first span will always have a timestamp of 0, which other
+  # spans will report times relative to.
+  #
+  # build_span will lazily start the timestamp at 0
   class Trace
     KEY = :__skylight_current_trace
 
@@ -25,22 +29,23 @@ module Skylight
     attr_writer :endpoint
 
     def initialize(endpoint = "Unknown", ident = nil)
-      @ident    = ident
-      @endpoint = endpoint
-      @spans    = []
+      @ident      = ident
+      @endpoint   = endpoint
+      @spans      = []
+      @timestamp  = nil
+      @finish     = nil
 
       # Tracks the ID of the current parent
       @parent = nil
     end
 
     def from
-      return unless span = @spans.first
-      span.started_at
+      return unless @finish
+      @timestamp
     end
 
     def to
-      return unless span = @spans.last
-      span.ended_at
+      @finish
     end
 
     def record(cat, title, desc, annot)
@@ -72,7 +77,7 @@ module Skylight
       raise "trace unbalanced" unless span
 
       # Set ended_at
-      span.ended_at = now
+      span.ended_at = now - @timestamp
 
       # Update the parent
       @parent = @spans[@parent].parent
@@ -85,6 +90,7 @@ module Skylight
       raise "trace unbalanced" if @parent
 
       @ident ||= gen_ident
+      @finish = now
 
       # No more changes should be made
       freeze
@@ -103,7 +109,10 @@ module Skylight
     end
 
     def build_span(cat, title, desc, annot)
-      Span.new(@parent, now, cat, title, desc, annot)
+      n = now
+      @timestamp ||= n
+
+      Span.new(@parent, n - @timestamp, cat, title, desc, annot)
     end
 
   end

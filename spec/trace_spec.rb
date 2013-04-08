@@ -61,9 +61,13 @@ module Skylight
 
     describe "from" do
       it "returns the first started_at" do
-        trace.spans << create_span(:started_at => "one")
-        trace.spans << create_span(:started_at => "two")
-        trace.from.should == "one"
+        now = Util.clock.now
+        Util.clock.stub(:now).and_return(now)
+        trace.record("foo", nil, nil, nil)
+        Util.clock.stub(:now).and_return(now + 1)
+        trace.record("foo", nil, nil, nil)
+        trace.commit
+        trace.from.should == now
       end
 
       it "returns nil if no spans" do
@@ -73,9 +77,13 @@ module Skylight
 
     describe "to" do
       it "returns the last ended_at" do
-        trace.spans << create_span(:ended_at => "one")
-        trace.spans << create_span(:ended_at => "two")
-        trace.to.should == "two"
+        now = Util.clock.now
+        Util.clock.stub(:now).and_return(now)
+        trace.record("foo", nil, nil, nil)
+        Util.clock.stub(:now).and_return(now + 1)
+        trace.record("foo", nil, nil, nil)
+        trace.commit
+        trace.to.should == now + 1
       end
 
       it "returns nil if no spans" do
@@ -96,7 +104,7 @@ module Skylight
         trace.start("cat3", "title3","desc3", "annot3")
 
         trace.spans[0].parent.should == nil
-        trace.spans[0].started_at.should == now
+        trace.spans[0].started_at.should == 0
         trace.spans[0].ended_at.should == nil
         trace.spans[0].category.should == "cat1"
         trace.spans[0].title.should == "title1"
@@ -104,7 +112,7 @@ module Skylight
         trace.spans[0].annotations.should == "annot1"
 
         trace.spans[1].parent.should == 0
-        trace.spans[1].started_at.should == now + 1
+        trace.spans[1].started_at.should == 1
         trace.spans[1].ended_at.should == nil
         trace.spans[1].category.should == "cat2"
         trace.spans[1].title.should == "title2"
@@ -112,7 +120,7 @@ module Skylight
         trace.spans[1].annotations.should == "annot2"
 
         trace.spans[2].parent.should == 1
-        trace.spans[2].started_at.should == now + 2
+        trace.spans[2].started_at.should == 2
         trace.spans[2].ended_at.should == nil
         trace.spans[2].category.should == "cat3"
         trace.spans[2].title.should == "title3"
@@ -130,8 +138,8 @@ module Skylight
         Util.clock.stub(:now).and_return(now+1)
         trace.stop
 
-        trace.spans[0].started_at.should == now
-        trace.spans[0].ended_at.should == now + 1
+        trace.spans[0].started_at.should == 0
+        trace.spans[0].ended_at.should == 1
       end
 
       it "adjusts parent" do
@@ -168,14 +176,14 @@ module Skylight
         Util.clock.stub(:now => now+50)
         trace.stop
 
-        trace.spans[0].started_at.should == now
-        trace.spans[0].ended_at.should == now+50
+        trace.spans[0].started_at.should == 0
+        trace.spans[0].ended_at.should == 50
 
-        trace.spans[1].started_at.should == now+10
-        trace.spans[1].ended_at.should == now+40
+        trace.spans[1].started_at.should == 10
+        trace.spans[1].ended_at.should == 40
 
-        trace.spans[2].started_at.should == now+20
-        trace.spans[2].ended_at.should == now+30
+        trace.spans[2].started_at.should == 20
+        trace.spans[2].ended_at.should == 30
       end
 
       it "raises if no spans" do

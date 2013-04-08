@@ -50,14 +50,14 @@ module Skylight
                   :spans => [
                     [
                       nil,
-                      now,
+                      0,
                       20,
                       'cat1',
                       'desc1'
                     ],
                     [
                       0,
-                      now+10,
+                      10,
                       0,
                       'cat1.1',
                       'desc1.1'
@@ -75,14 +75,14 @@ module Skylight
                   :spans => [
                     [
                       nil,
-                      now+30,
+                      0,
                       30,
                       'cat2',
                       'desc2'
                     ],
                     [
                       0,
-                      now+45,
+                      15,
                       0,
                       'cat2.1',
                       'desc2.1'
