@@ -53,14 +53,16 @@ module Skylight
                       0,
                       20,
                       'cat1',
-                      'desc1'
+                      'desc1',
+                      'annot1'
                     ],
                     [
                       0,
                       10,
                       0,
                       'cat1.1',
-                      'desc1.1'
+                      'desc1.1',
+                      'annot1.1'
                     ]
                   ]
                 }
@@ -78,14 +80,16 @@ module Skylight
                       0,
                       30,
                       'cat2',
-                      'desc2'
+                      'desc2',
+                      'annot2'
                     ],
                     [
                       0,
                       15,
                       0,
                       'cat2.1',
-                      'desc2.1'
+                      'desc2.1',
+                      'annot2.1'
                     ]
                   ]
                 }

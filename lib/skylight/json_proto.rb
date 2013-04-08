@@ -70,7 +70,8 @@ module Skylight
              s.started_at,
              s.ended_at - s.started_at,
              s.category,
-             s.description
+             s.description,
+             s.annotations
             ]
           end
 
@@ -79,6 +80,9 @@ module Skylight
 
         ehash
       end
+
+      require "pp"
+      @config.logger.debug PP.pp(hash, "")
 
       out << hash.to_json
     end
