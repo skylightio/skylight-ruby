@@ -142,6 +142,21 @@ module Skylight
         trace.spans[0].ended_at.should == 1
       end
 
+      it "skips skipped traces" do
+        trace.start("cat1", nil, nil, nil)
+        trace.record(:skip, nil, nil, nil)
+        trace.start(:skip, nil, nil, nil)
+        trace.start("cat2", nil, nil, nil)
+        trace.stop # cat2
+        trace.stop # :skip
+        trace.stop # cat1
+
+        trace.spans[0].category.should == "cat1"
+        trace.spans[0].parent.should == nil
+        trace.spans[1].category.should == "cat2"
+        trace.spans[1].parent.should == 0
+      end
+
       it "adjusts parent" do
         trace.start("cat1", "title1", "desc1", "annot1")
         trace.start("cat2", "title2", "desc2", "annot2")

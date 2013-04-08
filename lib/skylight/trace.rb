@@ -34,6 +34,7 @@ module Skylight
       @spans      = []
       @timestamp  = nil
       @finish     = nil
+      @stack      = []
 
       # Tracks the ID of the current parent
       @parent = nil
@@ -49,6 +50,8 @@ module Skylight
     end
 
     def record(cat, title, desc, annot)
+      return self if cat == :skip
+
       span = build_span(cat, title, desc, annot)
       span.ended_at = span.started_at
 
@@ -58,6 +61,9 @@ module Skylight
     end
 
     def start(cat, title, desc, annot)
+      @stack.push cat
+      return self if cat == :skip
+
       span = build_span(cat, title, desc, annot)
 
       @parent = @spans.length
@@ -68,6 +74,9 @@ module Skylight
     end
 
     def stop
+      last = @stack.pop
+      return self if last == :skip
+
       # Find last unclosed span
       span = @spans.last
       while span && span.ended_at
