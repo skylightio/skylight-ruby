@@ -15,29 +15,18 @@ module Skylight
       attr_reader :from, :counts, :sample
 
       def initialize(config, from, interval)
-        @config = config
-        @interval = interval
-        @from = from
-        @to = from + interval
-        @flush_at = @to + FLUSH_DELAY
-        @sample = Util::UniformSample.new(config.samples_per_interval)
-        @counts = Hash.new { |h,k| h[k] = 0 }
+        @from     = from
+        @flush_at = from + interval + FLUSH_DELAY
+        @sample   = Util::UniformSample.new(config.samples_per_interval)
+        @counts   = Hash.new(0)
       end
 
       def should_flush?(now)
         now >= @flush_at
       end
 
-      def next_batch
-        Batch.new(@config, @to, @interval)
-      end
-
       def empty?
         @sample.empty?
-      end
-
-      def wants?(trace)
-        return trace.to >= @from && trace.to < @to
       end
 
       def push(trace)
@@ -92,41 +81,28 @@ module Skylight
 
     # A worker iteration
     def iter(msg, now=Util.clock.now)
-      unless @current_batch
-        interval = Util.clock.convert(@interval)
-        from = (now / interval) * interval
+      interval = Util.clock.convert(@interval)
 
-        # If we're still accepting traces from the previous batch
-        # Create the previous interval instead
-        if now < from + FLUSH_DELAY
-          from -= interval
-        end
-
-        @current_batch = Batch.new(config, from, interval)
-        @next_batch    = @current_batch.next_batch
-      end
+      @current_batch ||= Batch.new(config, start(now, interval), interval)
 
       if msg == :SHUTDOWN
         flush(@current_batch) if @current_batch
-        flush(@next_batch)    if @next_batch
+        @current_batch = nil
         return false
       end
 
-      while @current_batch && @current_batch.should_flush?(now)
+      if @current_batch.should_flush?(now)
         flush(@current_batch)
-        @current_batch = @next_batch
-        @next_batch = @current_batch.next_batch
+        @current_batch = Batch.new(config, start(now, interval), interval)
       end
+
+      return true if msg.nil?
 
       if Trace === msg
         debug "Received trace"
-        if @current_batch.wants?(msg)
-          @current_batch.push(msg)
-        elsif @next_batch.wants?(msg)
-          @next_batch.push(msg)
-        else
-          # Seems bad bro
-        end
+        @current_batch.push(msg)
+      else
+        debug "Received something other than a trace: #{msg.inspect}"
       end
 
       true
@@ -136,6 +112,10 @@ module Skylight
 
     def config
       @instrumenter.config
+    end
+
+    def start(now, interval)
+      (now / interval) * interval
     end
 
     def logger

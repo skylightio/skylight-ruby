@@ -180,7 +180,7 @@ module Skylight
 
       it "flushes if msg is shutdown" do
         # Once for each batch
-        worker.should_receive(:flush).twice
+        worker.should_receive(:flush).once
 
         worker.iter(:SHUTDOWN).should be_false
       end
@@ -203,25 +203,21 @@ module Skylight
             :received => clock.at(now + (config.interval * 2)) + Worker::FLUSH_DELAY }
         ])
 
-        batches.length.should == 2
-        batches[0].sample.length.should == 0
-        batches[1].sample.length.should == 2
+        batches.length.should == 1
+        batches[0].sample.length.should == 2
       end
 
       it "handles traces for previous batch within window" do
         window = Worker::FLUSH_DELAY
 
         batches = do_iter([
-          # Should be in Batch 2
           { :trace => {
               :from => clock.at(now + config.interval),
               :to   => clock.at(now + config.interval + 0.1) } },
-          # Should be in Batch 1
           { :trace => {
               :from => clock.at(now),
               :to   => clock.at(now + 0.1) },
             :received => clock.at(now + config.interval - 0.1) + window },
-          # Would have been in Batch 1, but now out of window
           { :trace => {
               :from => clock.at(now),
               :to   => clock.at(now + 0.1) },
@@ -231,9 +227,8 @@ module Skylight
             :received => clock.at(now + (config.interval * 2)) + window }
         ])
 
-        batches.length.should == 2
-        batches[0].sample.length.should == 1
-        batches[1].sample.length.should == 1
+        batches.length.should == 1
+        batches[0].sample.length.should == 3
       end
 
       it "sends correct data" do
