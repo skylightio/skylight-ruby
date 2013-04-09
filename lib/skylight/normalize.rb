@@ -8,7 +8,7 @@ module Skylight
       if klass
         klass.new(trace, name, payload).normalize
       else
-        [ name, "unknown", "unknown", payload ]
+        :skip
       end
     end
 

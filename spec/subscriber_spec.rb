@@ -17,7 +17,7 @@ module Skylight
       end
 
       let :payload do
-        { :key => :value }
+        { controller: "foo", action: "bar" }
       end
 
       before(:each) do
@@ -26,8 +26,8 @@ module Skylight
 
       describe "start" do
         it "handles basic actions" do
-          trace.should_receive(:start).with("test", "unknown", "unknown", payload)
-          subscriber.start("test", 1, payload)
+          trace.should_receive(:start).with("app.controller.request", "foo#bar", "foo#bar", payload)
+          subscriber.start("process_action.action_controller", 1, payload)
         end
 
         it "sets endpoint for process action" do
