@@ -8,7 +8,7 @@ module Skylight
       if klass
         klass.new(trace, name, payload).normalize
       else
-        :skip
+        Default.new(trace, name, payload).normalize
       end
     end
 
@@ -28,6 +28,7 @@ module Skylight
   end
 end
 
+require "skylight/normalize/default"
 require "skylight/normalize/start_processing"
 require "skylight/normalize/process_action"
 require "skylight/normalize/render_collection"

@@ -13,7 +13,7 @@ module Skylight
 
     def call(env)
       instrumenter.trace("Rack") do
-        ActiveSupport::Notifications.instrument("rack.request") do
+        ActiveSupport::Notifications.instrument("app.rack.request") do
           @app.call(env)
         end
       end

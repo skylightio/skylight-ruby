@@ -7,6 +7,12 @@ require 'active_support/notifications'
 module Skylight
   class Error < RuntimeError; end
 
+  TIERS = %w(
+    app
+    view
+    db
+    gc)
+
   # First require all util files
   require 'skylight/util/atomic'
   require 'skylight/util/bytes'

@@ -18,8 +18,13 @@ RSpec.configure do |config|
   shared_context "normalizer" do
     let(:trace) { Struct.new(:endpoint).new }
 
-    def normalize(payload)
+    def normalize(*args)
+      payload = {}
+      payload = args.pop if Hash === args.last
+
       name = self.class.metadata[:example_group][:description_args][1]
+      name = args.pop if String === args.last
+
       Skylight::Normalize.normalize(trace, name, payload)
     end
   end
