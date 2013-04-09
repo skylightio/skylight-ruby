@@ -70,6 +70,7 @@ module Skylight
              s.started_at,
              s.ended_at - s.started_at,
              s.category,
+             s.title,
              s.description,
              s.annotations
             ]

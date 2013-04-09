@@ -37,22 +37,23 @@ module Skylight
 
       subject.write(out, 123456789, counts, sample)
 
-      out.should == {
-        :batch => {
-          :timestamp => 12345,
-          :endpoints => [
+      JSON.parse(out).should == {
+        "batch" => {
+          "timestamp" => 12345,
+          "endpoints" => [
             {
-              :name => 'endpoint1',
-              :count => 2,
-              :traces => [
+              "name" => 'endpoint1',
+              "count" => 2,
+              "traces" => [
                 {
-                  :uuid => 'TODO',
-                  :spans => [
+                  "uuid" => 'TODO',
+                  "spans" => [
                     [
                       nil,
                       0,
                       20,
                       'cat1',
+                      'title1',
                       'desc1',
                       'annot1'
                     ],
@@ -61,6 +62,7 @@ module Skylight
                       10,
                       0,
                       'cat1.1',
+                      'title1.1',
                       'desc1.1',
                       'annot1.1'
                     ]
@@ -69,17 +71,18 @@ module Skylight
               ]
             },
             {
-              :name => 'endpoint2',
-              :count => 5,
-              :traces => [
+              "name" => 'endpoint2',
+              "count" => 5,
+              "traces" => [
                 {
-                  :uuid => 'TODO',
-                  :spans => [
+                  "uuid" => 'TODO',
+                  "spans" => [
                     [
                       nil,
                       0,
                       30,
                       'cat2',
+                      'title2',
                       'desc2',
                       'annot2'
                     ],
@@ -88,6 +91,7 @@ module Skylight
                       15,
                       0,
                       'cat2.1',
+                      'title2.1',
                       'desc2.1',
                       'annot2.1'
                     ]
@@ -97,7 +101,7 @@ module Skylight
             }
           ]
         }
-      }.to_json
+      }
     end
   end
 end
