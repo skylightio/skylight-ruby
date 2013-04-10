@@ -24,6 +24,7 @@ module Skylight
   require 'skylight/util/uuid'
 
   # Then require the rest
+  require 'skylight/sanity_checker'
   require 'skylight/compat'
   require 'skylight/config'
   require 'skylight/instrumenter'

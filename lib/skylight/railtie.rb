@@ -13,6 +13,16 @@ module Skylight
 
     attr_accessor :instrumenter
 
+    initializer "skylight.sanity_check" do |app|
+      problems = SanityChecker.new(app.root, load_config).sanity_check
+
+      problems.each do |group, problem_list|
+        problem_list.each do |problem|
+          puts "[SKYLIGHT] PROBLEM: #{group} #{problem}"
+        end
+      end
+    end
+
     initializer "skylight.configure" do |app|
       Rails.logger.debug "[SKYLIGHT] Installing middleware"
       app.middleware.insert 0, Middleware, load_config
@@ -37,28 +47,30 @@ module Skylight
     end
 
     def load_config
-      unless path = config.skylight.config_path
-        Rails.logger.warn "[SKYLIGHT] Path to config YAML file unset"
-        return
+      @skylight_config ||= begin
+        unless path = config.skylight.config_path
+          Rails.logger.warn "[SKYLIGHT] Path to config YAML file unset"
+          return
+        end
+
+        path = File.expand_path(path, Rails.root)
+
+        unless File.exist?(path)
+          Rails.logger.warn "[SKYLIGHT] Config does not exist at `#{path}`"
+          return
+        end
+
+        ret = Config.load_from_yaml(path)
+
+        unless ret.authentication_token
+          Rails.logger.warn "[SKYLIGHT] Config does not include an authentication token"
+          return
+        end
+
+        ret.logger = Rails.logger
+
+        ret
       end
-
-      path = File.expand_path(path, Rails.root)
-
-      unless File.exist?(path)
-        Rails.logger.warn "[SKYLIGHT] Config does not exist at `#{path}`"
-        return
-      end
-
-      ret = Config.load_from_yaml(path)
-
-      unless ret.authentication_token
-        Rails.logger.warn "[SKYLIGHT] Config does not include an authentication token"
-        return
-      end
-
-      ret.logger = Rails.logger
-
-      ret
     rescue => e
       Rails.logger.error "[SKYLIGHT] #{e.message} (#{e.class}) - #{e.backtrace.first}"
     end

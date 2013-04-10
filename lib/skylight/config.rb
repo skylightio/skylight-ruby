@@ -37,6 +37,7 @@ module Skylight
     end
 
     attr_accessor :authentication_token
+    attr_accessor :app_id
 
     attr_accessor :ssl
     alias_method :ssl?, :ssl
