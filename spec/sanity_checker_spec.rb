@@ -19,30 +19,23 @@ module Skylight
       it "should report a problem if skylight.yml doesn't exist" do
         FileUtils.rm(yaml)
 
-        problems = SanityChecker.new(app, Config.new).sanity_check
+        problems = SanityChecker.new.smoke_test(yaml)
         problems["skylight.yml"].should include("does not exist")
       end
 
       it "should report a problem if skylight.yml doesn't contain an app ID" do
-        problems = SanityChecker.new(app, Config.new).sanity_check
+        problems = SanityChecker.new.sanity_check(Config.new)
         problems["skylight.yml"].should include("does not contain an app id - please run `skylight create`")
       end
 
-      it "should not report a problem if skylight.yml contains an app ID" do
-        File.write(yaml, YAML.dump({ "app_id" => "helloworld" }))
-
-        problems = SanityChecker.new(app, Config.new(app_id: "helloworld")).sanity_check
-        problems["skylight.yml"].should_not include("does not contain an app id - please run `skylight create`")
-      end
-
       it "should report a problem if skylight.yml doesn't contain an app token" do
-        problems = SanityChecker.new(app, Config.new).sanity_check
+        problems = SanityChecker.new.sanity_check(Config.new("app_id" => "helloworld"))
         problems["skylight.yml"].should include("does not contain an app token - please run `skylight create`")
       end
 
       it "should not report a problem if skylight.yml contains an app token" do
-        problems = SanityChecker.new(app, Config.new(authentication_token: "helloworld")).sanity_check
-        problems["skylight.yml"].should_not include("does not contain an app token - please run `skylight create`")
+        problems = SanityChecker.new.sanity_check(Config.new(app_id: "123", authentication_token: "helloworld"))
+        problems.should be_nil
       end
     end
   end
