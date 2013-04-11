@@ -3,14 +3,34 @@ require 'yaml'
 module Skylight
   class Config
 
-    def self.load_from_yaml(path)
-      new do |config|
-        data = YAML.load_file(path)
-        data.each do |key, value|
-          if config.respond_to?("#{key}=")
-            config.send("#{key}=", value)
+    class << self
+      def load_from_yaml(path, env=ENV)
+        new do |config|
+          data = YAML.load_file(path)
+
+          data.each do |key, value|
+            apply_config(config, key, value)
           end
+
+          apply_env(config, env)
         end
+      end
+
+    private
+      def apply_env(config, env)
+        env.each do |key, value|
+          name = normalize_env(key)
+          apply_config(config, name, value) if name
+        end
+      end
+
+      def normalize_env(key)
+        match = key.match(/^SKYLIGHT_(\w+)$/)
+        match && match[1].downcase
+      end
+
+      def apply_config(config, key, value)
+        config.send("#{key}=", value) if config.respond_to?("#{key}=")
       end
     end
 

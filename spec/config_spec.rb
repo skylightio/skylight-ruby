@@ -7,6 +7,10 @@ module Skylight
       Config.new
     end
 
+    let :yaml_file do
+      File.expand_path("../fixtures/sample_config.yml", __FILE__)
+    end
+
     let :yaml_config do
       Config.load_from_yaml(File.expand_path("../fixtures/sample_config.yml", __FILE__))
     end
@@ -47,6 +51,11 @@ module Skylight
       yaml_config.max_pending_traces.should == 700
       yaml_config.protocol.should be_an_instance_of(JsonProto)
       yaml_config.log_level.should == Logger::INFO
+    end
+
+    it "can get configuration from environment variables, which override the yaml" do
+      config = Config.load_from_yaml(yaml_file, "SKYLIGHT_AUTHENTICATION_TOKEN" => "helloworld")
+      config.authentication_token.should == "helloworld"
     end
 
   end

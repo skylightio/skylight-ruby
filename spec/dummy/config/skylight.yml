@@ -1,2 +1,3 @@
 ---
 authentication_token: "foobarbaz"
+app_id: "helloworld"
