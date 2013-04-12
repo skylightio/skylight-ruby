@@ -8,7 +8,7 @@ module Skylight
       name, title, desc, payload = normalize(identifier: "foo/bar", count: 10)
       name.should == "view.render.collection"
       title.should == "foo/bar"
-      desc.should == "foo/bar"
+      desc.should == nil
       payload.should == { count: 10 }
     end
   end
@@ -20,7 +20,7 @@ module Skylight
       name, title, desc, payload = normalize(identifier: "foo/bar")
       name.should == "view.render.template"
       title.should == "foo/bar"
-      desc.should == "foo/bar"
+      desc.should == nil
       payload.should == { partial: false }
     end
   end
@@ -32,7 +32,7 @@ module Skylight
       name, title, desc, payload = normalize(identifier: "foo/bar")
       name.should == "view.render.template"
       title.should == "foo/bar"
-      desc.should == "foo/bar"
+      desc.should == nil
       payload.should == { partial: true }
     end
   end

@@ -7,7 +7,7 @@ module Skylight
         path = @payload[:identifier]
         annotations = { count: @payload[:count] }
 
-        [ "view.render.collection", path, path, annotations ]
+        [ "view.render.collection", path, nil, annotations ]
       end
     end
   end

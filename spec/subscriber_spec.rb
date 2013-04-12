@@ -26,7 +26,7 @@ module Skylight
 
       describe "start" do
         it "handles basic actions" do
-          trace.should_receive(:start).with("app.controller.request", "foo#bar", "foo#bar", payload)
+          trace.should_receive(:start).with("app.controller.request", "foo#bar", nil, payload)
           subscriber.start("process_action.action_controller", 1, payload)
         end
 

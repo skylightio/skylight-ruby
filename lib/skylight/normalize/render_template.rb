@@ -7,7 +7,7 @@ module Skylight
         path = @payload[:identifier]
         annotations = { partial: false }
 
-        [ "view.render.template", path, path, annotations ]
+        [ "view.render.template", path, nil, annotations ]
       end
     end
   end
