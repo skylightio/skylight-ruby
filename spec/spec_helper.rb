@@ -21,11 +21,14 @@ RSpec.configure do |config|
     def normalize(*args)
       payload = {}
       payload = args.pop if Hash === args.last
+      config = Object.new
+      config = args.shift if Struct === args.first
 
-      name = self.class.metadata[:example_group][:description_args][1]
+      description = self.class.metadata[:example_group][:description_args]
+      name = description[1] ? description[1] : description[0]
       name = args.pop if String === args.last
 
-      Skylight::Normalize.normalize(trace, name, payload)
+      Skylight::Normalize.normalize(trace, name, payload, config)
     end
   end
 

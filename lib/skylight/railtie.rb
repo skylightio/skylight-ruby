@@ -47,9 +47,12 @@ module Skylight
 
     def load_config(app)
       @skylight_config ||= begin
-        Config.load_from_yaml(config_path(app), ENV).tap do |config|
-          config.logger = Rails.logger
+        config = Config.load_from_yaml(config_path(app), ENV).tap do |c|
+          c.logger = Rails.logger
         end
+
+        config.normalizer.view_paths = app.config.paths["app/views"].existent
+        config
       end
     rescue => e
       raise

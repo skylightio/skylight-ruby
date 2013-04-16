@@ -1,13 +1,10 @@
 module Skylight
   module Normalize
-    class RenderPartial < Normalizer
+    class RenderPartial < RenderNormalizer
       register "render_partial.action_view"
 
       def normalize
-        path = @payload[:identifier]
-        annotations = { partial: true }
-
-        [ "view.render.template", path, nil, annotations ]
+        normalize_render "view.render.template", partial: true
       end
     end
   end

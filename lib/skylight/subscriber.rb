@@ -12,7 +12,7 @@ module Skylight
     def start(name, id, payload)
       return unless trace = Trace.current
 
-      name, title, desc, payload = Normalize.normalize(trace, name, payload)
+      name, title, desc, payload = Normalize.normalize(trace, name, payload, @config.normalizer)
 
       if name != :skip
         logger.debug("[SKYLIGHT] START: #{name} (#{title}, \"#{desc}\")")

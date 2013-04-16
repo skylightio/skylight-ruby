@@ -2,6 +2,8 @@ require 'yaml'
 
 module Skylight
   class Config
+    class Normalizer < Struct.new(:view_paths)
+    end
 
     class << self
       def load_from_yaml(path, env=ENV)
@@ -47,6 +49,8 @@ module Skylight
       @logger = Logger.new(STDOUT)
       @logger.level = Logger::INFO
 
+      @normalizer = Normalizer.new
+
       attrs.each do |k, v|
         if respond_to?("#{k}=")
           send("#{k}=", v)
@@ -75,6 +79,8 @@ module Skylight
 
     attr_accessor :max_pending_traces
 
+    attr_reader :normalizer
+
     attr_reader :protocol
     def protocol=(val)
       if val.is_a?(String) || val.is_a?(Symbol)
@@ -98,6 +104,5 @@ module Skylight
         logger.level = level
       end
     end
-
   end
 end

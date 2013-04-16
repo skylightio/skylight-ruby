@@ -1,15 +1,11 @@
 module Skylight
   module Normalize
-    class RenderCollection < Normalizer
+    class RenderCollection < RenderNormalizer
       register "render_collection.action_view"
 
       def normalize
-        path = @payload[:identifier]
-        annotations = { count: @payload[:count] }
-
-        [ "view.render.collection", path, nil, annotations ]
+        normalize_render "view.render.collection", count: @payload[:count]
       end
     end
   end
 end
-
