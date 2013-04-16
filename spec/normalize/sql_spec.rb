@@ -9,17 +9,9 @@ module Skylight
     end
 
     it "Processes cached queries" do
-      name, title, desc, annotations =
-        normalize(name: "CACHE", sql: "select * from query", binds: [])
+      name, * = normalize(name: "CACHE", sql: "select * from query", binds: [])
 
-      name.should == "db.sql.cache"
-      title.should == "Cached Load"
-      desc.should == nil
-
-      annotations.should == {
-        sql: "select * from query",
-        binds: []
-      }
+      name.should == :skip
     end
 
     it "Processes uncached queries" do
