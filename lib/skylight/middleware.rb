@@ -8,6 +8,7 @@ module Skylight
     def initialize(app, config, instrumenter_class=Instrumenter)
       @app = app
       @config = config
+      @config.gc_profiler = GC::Profiler
       @instrumenter_class = instrumenter_class
     end
 

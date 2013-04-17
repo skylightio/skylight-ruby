@@ -92,7 +92,7 @@ module Skylight
 
       raise "trace unbalanced" unless span
 
-      @cumulative_gc += @config.gc_profiler.total_time
+      @cumulative_gc += convert(@config.gc_profiler.total_time)
       @config.gc_profiler.clear
 
       span.ended_at = now - @timestamp - @cumulative_gc
@@ -107,8 +107,16 @@ module Skylight
     def commit
       raise "trace unbalanced" if @parent
 
+      n = now
+
+      if @cumulative_gc > 0
+        span = Span.new(0, n - @timestamp - @cumulative_gc, "noise.gc", nil, nil, nil)
+        span.ended_at = n - @timestamp
+        @spans << span
+      end
+
       @ident ||= gen_ident
-      @finish = now
+      @finish = n
 
       # No more changes should be made
       freeze
@@ -120,6 +128,11 @@ module Skylight
 
     def now
       Util.clock.now
+    end
+
+    def convert(ms)
+      # TODO: Ruby 2.0 uses seconds here :(
+      Util.clock.convert(ms / 1000.0)
     end
 
     def gen_ident

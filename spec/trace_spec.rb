@@ -4,7 +4,7 @@ module Skylight
   describe Trace do
 
     let :trace do
-      Trace.new
+      Trace.new(@config || Config.new)
     end
 
     def create_span(opts = {})
@@ -140,6 +140,43 @@ module Skylight
 
         trace.spans[0].started_at.should == 0
         trace.spans[0].ended_at.should == 1
+      end
+
+      it "updates the cumulative GC time" do
+        @config = Config.new
+        profiler = Struct.new(:enable, :disable, :total_time).new
+
+        def profiler.clear
+          self.total_time = 0
+        end
+
+        @config.gc_profiler = profiler
+
+        now = Util.clock.now
+        Util.clock.stub(:now).and_return(now)
+
+        trace.start("cat", "title", "desc", "annot")
+        Util.clock.stub(:now).and_return(now+2)
+        profiler.total_time = 0.1
+
+        trace.stop
+
+        Util.clock.stub(:now).and_return(now+3)
+        trace.start("cat2", "title2", "desc2", "annot2")
+        Util.clock.stub(:now).and_return(now+5)
+        profiler.total_time = 0.1
+
+        trace.stop
+        trace.commit
+
+        trace.spans[0].started_at.should == 0
+        trace.spans[0].ended_at.should == 1
+
+        trace.spans[1].started_at.should == 2
+        trace.spans[1].ended_at.should == 3
+
+        trace.spans[2].started_at.should == 3
+        trace.spans[2].ended_at.should == 5
       end
 
       it "skips skipped traces" do
