@@ -232,7 +232,16 @@ module Skylight
       end
 
       it "sends correct data" do
-        request = stub_request(:post, "https://#{config.host}/report")
+        http = mock("http service")
+        http.should_receive(:post) do |endpoint, body|
+          endpoint.should == "/report"
+
+          json = JSON.parse(body)
+          json['batch']['timestamp'].should == now.to_i
+          json['batch']['endpoints'].length.should == 2
+        end
+
+        config.http = http
 
         # Make sure interval is set, not ideal way to do it
         worker.send(:reset)
@@ -241,14 +250,6 @@ module Skylight
         worker.iter(build_trace("Endpoint2"))
         worker.iter(build_trace("Endpoint1"))
         worker.iter(nil, clock.at(now + config.interval + Worker::FLUSH_DELAY))
-
-        request.with do |req|
-          json = JSON.parse(req.body)
-
-          # TODO: Make a more detailed test
-          json['batch']['timestamp'] == now.to_i &&
-            json['batch']['endpoints'].length == 2
-        end.should have_been_made
       end
 
       it "does not make HTTP requests if there is no authentication_token" do

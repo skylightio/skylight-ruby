@@ -37,10 +37,11 @@ module Skylight
       end
     end
 
-    attr_reader :instrumenter, :connection
+    attr_reader :instrumenter, :connection, :config
 
     def initialize(instrumenter)
       @instrumenter = instrumenter
+      @config       = instrumenter.config
       @interval     = config.interval
       @protocol     = config.protocol
 
@@ -110,10 +111,6 @@ module Skylight
 
   private
 
-    def config
-      @instrumenter.config
-    end
-
     def start(now, interval)
       (now / interval) * interval
     end
@@ -152,59 +149,7 @@ module Skylight
       # write the body
       @protocol.write(body, batch.from, batch.counts, batch.sample)
 
-      if config.deflate?
-        body = Util::Gzip.compress(body)
-      end
-
-      # send
-      http_post(body)
-    end
-
-    def http_post(body)
-      req = http_request(body.bytesize)
-      req.body = body
-
-      debug "Posting report to server"
-      http = Net::HTTP.new config.host, config.port
-
-      if config.ssl?
-        http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      end
-
-      http.start do |client|
-        resp = client.request req
-
-        unless resp.code == '200'
-          debug "Server responded with #{resp.code}"
-        end
-      end
-
-      true
-    rescue => e
-      logger.error "[SKYLIGHT] POST #{config.host}:#{config.port}(ssl=#{config.ssl?}) - #{e.message} - #{e.class} - #{e.backtrace.first}"
-      if logger.debug?
-        logger.debug(e.backtrace.join("\n"))
-      end
-    end
-
-    def http_request(length)
-      hdrs = {}
-
-      hdrs[CONTENT_LENGTH] = length.to_s
-      hdrs[AUTHORIZATION]  = config.authentication_token
-      hdrs[CONTENT_TYPE]   = APPLICATION_JSON
-
-      if config.deflate?
-        hdrs[CONTENT_ENCODING] = GZIP
-      end
-
-      Net::HTTPGenericRequest.new \
-        'POST',   # Request method
-        true,     # There is a request body
-        true,     # There is a response body
-        ENDPOINT, # Endpoint
-        hdrs
+      @config.http.post(ENDPOINT, body)
     end
 
     def debug(msg)

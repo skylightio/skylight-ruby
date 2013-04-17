@@ -52,6 +52,7 @@ module Skylight
         end
 
         config.normalizer.view_paths = app.config.paths["app/views"].existent
+        config.http = Util::HTTP.new(config)
         config
       end
     rescue => e

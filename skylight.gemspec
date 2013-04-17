@@ -24,5 +24,6 @@ Gem::Specification.new do |s|
 
   # Dependencies
   s.add_dependency('activesupport', '>= 3.0.0')
+  s.add_dependency('thor', '~> 0.18.1')
   s.add_development_dependency('actionpack', '>= 3.0.0')
 end

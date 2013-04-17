@@ -73,6 +73,8 @@ module Skylight
 
     attr_accessor :port
 
+    attr_accessor :http
+
     attr_accessor :samples_per_interval
 
     attr_accessor :interval

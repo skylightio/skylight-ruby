@@ -19,6 +19,7 @@ module Skylight
   require 'skylight/util/clock'
   require 'skylight/util/ewma'
   require 'skylight/util/gzip'
+  require 'skylight/util/http'
   require 'skylight/util/queue'
   require 'skylight/util/uniform_sample'
   require 'skylight/util/uuid'
