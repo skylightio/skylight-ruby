@@ -20,6 +20,7 @@ module Skylight
 
     def initialize(config)
       @config = config
+
       @worker = Worker.new(self)
     end
 
@@ -38,6 +39,8 @@ module Skylight
 
         return
       end
+
+      config.gc_profiler.enable
 
       self
     end
@@ -72,7 +75,7 @@ module Skylight
   private
 
     def create_trace(endpoint)
-      Trace.new(endpoint)
+      Trace.new(config, endpoint)
     # Paranoia
     rescue => e
       error e

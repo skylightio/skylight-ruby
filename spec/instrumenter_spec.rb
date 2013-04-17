@@ -38,7 +38,7 @@ module Skylight
       end
 
       it "starts a new trace" do
-        Trace.should_receive(:new).with("Test")
+        Trace.should_receive(:new).with(an_instance_of(Config), "Test")
         run_trace
       end
 

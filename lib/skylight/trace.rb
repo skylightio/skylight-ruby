@@ -28,7 +28,8 @@ module Skylight
     attr_reader :endpoint, :ident, :spans
     attr_writer :endpoint
 
-    def initialize(endpoint = "Unknown", ident = nil)
+    def initialize(config = Config.new, endpoint = "Unknown", ident = nil)
+      @config     = config
       @ident      = ident
       @endpoint   = endpoint
       @spans      = []
@@ -38,6 +39,9 @@ module Skylight
 
       # Tracks the ID of the current parent
       @parent = nil
+
+      # Track the cumulative amount of GC removed from traces
+      @cumulative_gc = 0
     end
 
     def from
@@ -64,6 +68,9 @@ module Skylight
       @stack.push cat
       return self if cat == :skip
 
+      # TODO: Allocate GC time to all running threads
+      @config.gc_profiler.clear
+
       span = build_span(cat, title, desc, annot)
 
       @parent = @spans.length
@@ -85,8 +92,10 @@ module Skylight
 
       raise "trace unbalanced" unless span
 
-      # Set ended_at
-      span.ended_at = now - @timestamp
+      @cumulative_gc += @config.gc_profiler.total_time
+      @config.gc_profiler.clear
+
+      span.ended_at = now - @timestamp - @cumulative_gc
 
       # Update the parent
       @parent = @spans[@parent].parent
@@ -118,7 +127,7 @@ module Skylight
     end
 
     def build_span(cat, title, desc, annot)
-      n = now
+      n = now - @cumulative_gc
       @timestamp ||= n
 
       Span.new(@parent, n - @timestamp, cat, title, desc, annot)

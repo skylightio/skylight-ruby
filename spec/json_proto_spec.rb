@@ -6,11 +6,13 @@ module Skylight
       JsonProto.new(Config.new)
     end
 
+    let(:config) { Config.new }
+
     it "writes JSON" do
       now = Util.clock.now
       out = ''
 
-      trace1 = Trace.new('endpoint1')
+      trace1 = Trace.new(config, 'endpoint1')
       Util.clock.stub(:now => now)
       trace1.start("cat1", "title1", "desc1", "annot1")
       Util.clock.stub(:now => now+10)
@@ -18,7 +20,7 @@ module Skylight
       Util.clock.stub(:now => now+20)
       trace1.stop
 
-      trace2 = Trace.new('endpoint2')
+      trace2 = Trace.new(config, 'endpoint2')
       Util.clock.stub(:now => now+30)
       trace2.start("cat2", "title2", "desc2", "annot2")
       Util.clock.stub(:now => now+45)

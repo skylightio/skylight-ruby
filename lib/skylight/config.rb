@@ -104,5 +104,11 @@ module Skylight
         logger.level = level
       end
     end
+
+    attr_writer :gc_profiler
+
+    def gc_profiler
+      @gc_profiler ||= Struct.new(:enable, :disable, :clear, :total_time).new(nil, nil, nil, 0)
+    end
   end
 end

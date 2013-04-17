@@ -152,7 +152,7 @@ module Skylight
       end
 
       def build_trace(endpoint)
-        t = Trace.new(endpoint).record("testcat", nil, nil, nil)
+        t = Trace.new(config, endpoint).record("testcat", nil, nil, nil)
         t.commit
         t
       end
@@ -166,7 +166,7 @@ module Skylight
 
         iters.each do |iter|
           if iter[:trace].is_a?(Hash)
-            trace = Trace.new
+            trace = Trace.new(config)
             trace.stub(iter[:trace])
           else
             trace = iter[:trace]
