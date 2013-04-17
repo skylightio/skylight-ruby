@@ -69,7 +69,7 @@ module Skylight
       return self if cat == :skip
 
       # TODO: Allocate GC time to all running threads
-      @config.gc_profiler.clear
+      update_cumulative_gc
 
       span = build_span(cat, title, desc, annot)
 
@@ -92,8 +92,7 @@ module Skylight
 
       raise "trace unbalanced" unless span
 
-      @cumulative_gc += convert(@config.gc_profiler.total_time)
-      @config.gc_profiler.clear
+      update_cumulative_gc
 
       span.ended_at = now - @timestamp - @cumulative_gc
 
@@ -130,9 +129,13 @@ module Skylight
       Util.clock.now
     end
 
-    def convert(ms)
-      # TODO: Ruby 2.0 uses seconds here :(
-      Util.clock.convert(ms / 1000.0)
+    def convert(secs)
+      Util.clock.convert(secs)
+    end
+
+    def update_cumulative_gc
+      @cumulative_gc += convert(@config.gc_profiler.total_time)
+      @config.gc_profiler.clear
     end
 
     def gen_ident

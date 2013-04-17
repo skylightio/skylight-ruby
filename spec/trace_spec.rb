@@ -144,7 +144,7 @@ module Skylight
 
       it "updates the cumulative GC time" do
         @config = Config.new
-        profiler = Struct.new(:enable, :disable, :total_time).new
+        profiler = Struct.new(:enable, :disable, :total_time).new(nil, nil, 0)
 
         def profiler.clear
           self.total_time = 0
@@ -157,14 +157,14 @@ module Skylight
 
         trace.start("cat", "title", "desc", "annot")
         Util.clock.stub(:now).and_return(now+2)
-        profiler.total_time = 0.1
+        profiler.total_time = 0.0001
 
         trace.stop
 
         Util.clock.stub(:now).and_return(now+3)
         trace.start("cat2", "title2", "desc2", "annot2")
         Util.clock.stub(:now).and_return(now+5)
-        profiler.total_time = 0.1
+        profiler.total_time = 0.0001
 
         trace.stop
         trace.commit
