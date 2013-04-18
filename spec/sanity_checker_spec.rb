@@ -38,5 +38,25 @@ module Skylight
         problems.should be_nil
       end
     end
+
+    describe "~/.skylight" do
+      let(:file) do
+        mock("File").tap { |file| file.should_receive(:expand_path).with('~/.skylight').and_return("/path/to/skylight") }
+      end
+
+      it "should not report a problem if ~/.skylight exists" do
+        file.should_receive(:exist?).with("/path/to/skylight").and_return(true)
+
+        problems = SanityChecker.new(file).user_credentials('~/.skylight')
+        problems.should be_nil
+      end
+
+      it "should report a problem if ~/.skylight doesn't exist" do
+        file.should_receive(:exist?).with("/path/to/skylight").and_return(false)
+
+        problems = SanityChecker.new(file).user_credentials('~/.skylight')
+        problems['~/.skylight'].should include("does not exist")
+      end
+    end
   end
 end

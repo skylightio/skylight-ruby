@@ -2,8 +2,16 @@ require "yaml"
 
 module Skylight
   class SanityChecker
-    def initialize
+    def initialize(file=File)
       @problems = Hash.new { |h,k| h[k] = [] }
+      @file = file
+    end
+
+    def needs_credentials?(yaml_file)
+      return true if smoke_test(yaml_file)
+      config = Config.load_from_yaml(yaml_file)
+      return true if sanity_check(config)
+      false
     end
 
     def smoke_test(yaml_file)
@@ -13,6 +21,10 @@ module Skylight
 
     def sanity_check(config)
       return @problems unless check_config_contents(config)
+    end
+
+    def user_credentials(filename)
+      return @problems unless check_user_credentials(filename)
     end
 
   private
@@ -47,6 +59,15 @@ module Skylight
       end
 
       true
+    end
+
+    def check_user_credentials(filename)
+      path = @file.expand_path(filename)
+      exists = @file.exist?(path)
+      return true if exists
+
+      @problems[filename] << "does not exist"
+      false
     end
   end
 end
