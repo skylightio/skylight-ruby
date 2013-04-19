@@ -1,4 +1,5 @@
 require 'yaml'
+require 'logger'
 
 module Skylight
   class Config
@@ -13,6 +14,8 @@ module Skylight
           data.each do |key, value|
             apply_config(config, key, value)
           end
+
+          config.yaml_file = path
 
           apply_env(config, env)
         end
@@ -60,6 +63,7 @@ module Skylight
       yield self if block_given?
     end
 
+    attr_accessor :yaml_file
     attr_accessor :authentication_token
     attr_accessor :app_id
 
@@ -111,6 +115,15 @@ module Skylight
 
     def gc_profiler
       @gc_profiler ||= Struct.new(:enable, :disable, :clear, :total_time).new(nil, nil, nil, 0)
+    end
+
+    def save(filename=yaml_file)
+      File.open(filename, "w") do |file|
+        config = {}
+        config["authentication_token"] = authentication_token if authentication_token
+        config["app_id"] = app_id if app_id
+        file.puts YAML.dump(config)
+      end
     end
   end
 end
