@@ -82,9 +82,6 @@ module Skylight
         ehash
       end
 
-      require "pp"
-      @config.logger.debug PP.pp(hash, "")
-
       out << hash.to_json
     end
   end
