@@ -22,6 +22,12 @@ module Skylight
         end
       end
 
+      def load_from_env(opts={}, env=ENV)
+        new(opts) do |config|
+          apply_env(config, env)
+        end
+      end
+
     private
 
       def apply_env(config, env)
