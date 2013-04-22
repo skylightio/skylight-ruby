@@ -14,15 +14,17 @@ module Skylight
     attr_accessor :instrumenter
 
     initializer "skylight.configure" do |app|
-      config = load_config(app)
+      if environments.include?(Rails.env.to_s)
+        config = load_config(app)
 
-      if good_to_go?(app, config)
-        @instrumenter = Instrumenter.new(config)
+        if good_to_go?(app, config)
+          @instrumenter = Instrumenter.new(config)
 
-        Rails.logger.debug "[SKYLIGHT] Installing middleware"
-        app.middleware.insert 0, Middleware, @instrumenter
-      else
-        puts "[SKYLIGHT] Skipping Skylight boot"
+          Rails.logger.debug "[SKYLIGHT] Installing middleware"
+          app.middleware.insert 0, Middleware, @instrumenter
+        else
+          puts "[SKYLIGHT] Skipping Skylight boot"
+        end
       end
     end
 
