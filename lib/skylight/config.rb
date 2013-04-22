@@ -1,5 +1,6 @@
 require 'yaml'
 require 'logger'
+require 'fileutils'
 
 module Skylight
   class Config
@@ -22,6 +23,7 @@ module Skylight
       end
 
     private
+
       def apply_env(config, env)
         env.each do |key, value|
           name = normalize_env(key)
@@ -46,7 +48,7 @@ module Skylight
       @port     = 443
       @interval = 5
       @protocol = JsonProto.new(self)
-      @max_pending_traces = 500
+      @max_pending_traces   = 500
       @samples_per_interval = 100
 
       @logger = Logger.new(STDOUT)
@@ -59,6 +61,9 @@ module Skylight
           send("#{k}=", v)
         end
       end
+
+      @http ||= Util::HTTP.new(self)
+      @gc_profiler ||= GC::Profiler
 
       yield self if block_given?
     end
@@ -88,6 +93,7 @@ module Skylight
     attr_reader :normalizer
 
     attr_reader :protocol
+
     def protocol=(val)
       if val.is_a?(String) || val.is_a?(Symbol)
         class_name = val.to_s.capitalize+"Proto"
@@ -114,10 +120,13 @@ module Skylight
     attr_writer :gc_profiler
 
     def gc_profiler
+      # TODO: Move this into tests
       @gc_profiler ||= Struct.new(:enable, :disable, :clear, :total_time).new(nil, nil, nil, 0)
     end
 
     def save(filename=yaml_file)
+      FileUtils.mkdir_p File.dirname(filename)
+
       File.open(filename, "w") do |file|
         config = {}
         config["authentication_token"] = authentication_token if authentication_token

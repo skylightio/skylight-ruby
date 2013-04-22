@@ -159,24 +159,26 @@ module Skylight
         Util.clock.stub(:now).and_return(now+2)
         profiler.total_time = 0.0001
 
-        trace.stop
-
         Util.clock.stub(:now).and_return(now+3)
         trace.start("cat2", "title2", "desc2", "annot2")
         Util.clock.stub(:now).and_return(now+5)
         profiler.total_time = 0.0001
 
         trace.stop
+
+        Util.clock.stub(:now).and_return(now+6)
+
+        trace.stop
         trace.commit
 
         trace.spans[0].started_at.should == 0
-        trace.spans[0].ended_at.should == 1
+        trace.spans[0].ended_at.should == 6
 
         trace.spans[1].started_at.should == 2
         trace.spans[1].ended_at.should == 3
 
-        trace.spans[2].started_at.should == 3
-        trace.spans[2].ended_at.should == 5
+        trace.spans[2].started_at.should == 4
+        trace.spans[2].ended_at.should == 6
       end
 
       it "skips skipped traces" do

@@ -19,8 +19,6 @@ module Skylight
 
     def finish(name, id, payload)
       return unless trace = Trace.current
-
-      logger.debug("[SKYLIGHT] END")
       trace.stop
     end
 

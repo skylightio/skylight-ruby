@@ -94,7 +94,14 @@ module Skylight
 
       update_cumulative_gc
 
-      span.ended_at = now - @timestamp - @cumulative_gc
+      ended_at = now - @timestamp
+
+      # If it's not the root node
+      if span.parent
+        ended_at -= @cumulative_gc
+      end
+
+      span.ended_at = ended_at
 
       # Update the parent
       @parent = @spans[@parent].parent

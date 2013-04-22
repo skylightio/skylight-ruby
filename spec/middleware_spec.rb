@@ -8,37 +8,36 @@ module Skylight
       @app
     end
 
-    def instrumenter_class(instrumenter)
-      config = config_object
+    # def instrumenter_class(instrumenter)
+    #   config = config_object
 
-      Class.new do
-        @instrumenter = instrumenter
-        @config = config
+    #   Class.new do
+    #     @instrumenter = instrumenter
+    #     @config = config
 
-        def self.start!(cfg)
-          cfg.should == @config
-          @instrumenter
-        end
-      end
-    end
+    #     def self.start!(cfg)
+    #       cfg.should == @config
+    #       @instrumenter
+    #     end
+    #   end
+    # end
 
     def config_object
       @config_object ||= Config.new authentication_token: "foobarbaz"
     end
 
-    def build_app(klass)
-      config = config_object
-
+    def build_app(instrumenter)
       @app = Rack::Builder.new do
-        use Middleware, config, klass
+        use Middleware, instrumenter
         run lambda{|env| [200, {'Content-Type' => 'text/plain'}, ["Hello world!"]]}
       end
     end
 
     it "calls the instrumenter and passes through" do
       instrumenter = Object.new
-      build_app(instrumenter_class(instrumenter))
+      build_app(instrumenter)
 
+      instrumenter.should_receive(:start!)
       instrumenter.should_receive(:trace).with("Rack").and_yield
 
       get '/'
@@ -48,13 +47,10 @@ module Skylight
     end
 
     it "uses a stub middleware if starting the instrumenter throws an exception" do
-      instrumenter_class = Class.new do
-        def self.start!(*)
-          raise "FAIL"
-        end
-      end
+      inst = Instrumenter.new(config_object)
+      inst.should_receive(:start!).and_return(nil)
 
-      build_app(instrumenter_class)
+      build_app(inst)
 
       get '/'
 

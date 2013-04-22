@@ -3,7 +3,8 @@ require 'spec_helper'
 module Skylight
   describe Instrumenter do
     let :instrumenter do
-      Instrumenter.new(Config.new authentication_token: "foobarbaz")
+      inst = Instrumenter.new(Config.new authentication_token: "foobarbaz")
+      inst
     end
 
     it "starts with a default config" do
@@ -31,6 +32,10 @@ module Skylight
     end
 
     describe "tracing" do
+
+      before :each do
+        instrumenter.instance_variable_set(:@started, true)
+      end
 
       def run_trace(&block)
         block ||= Proc.new{ a = 1; a }

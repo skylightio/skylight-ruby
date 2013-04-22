@@ -4,6 +4,7 @@ $:.unshift File.expand_path('../vendor', __FILE__)
 require "skylight"
 require "thor"
 require "highline"
+require "active_support/inflector"
 
 module Skylight
   class CLI < Thor
@@ -77,8 +78,15 @@ module Skylight
     end
 
     def app_name
-      require "./config/application"
-      Rails.application.class.name.split("::").first.underscore
+      @app_name ||=
+        begin
+          if File.exist?("config/application.rb")
+            require "./config/application"
+            Rails.application.class.name.split("::").first.underscore.humanize
+          else
+            File.basename(File.expand_path('.')).humanize
+          end
+        end
     end
   end
 end

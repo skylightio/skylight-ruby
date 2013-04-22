@@ -1,6 +1,9 @@
 module Skylight
   class Instrumenter
 
+    # Guards starting the instrumenter
+    LOCK = Mutex.new
+
     # Maximum number of traces to sample for each interval
     SAMPLE_SIZE = 100
 
@@ -8,44 +11,63 @@ module Skylight
     INTERVAL = 5
 
     def self.start!(config = Config.new)
-      # Convert a hash to a config object
-      if Hash === config
-        config = Config.new config
-      end
-
       new(config).start!
     end
 
     attr_reader :config, :worker, :samples
 
     def initialize(config)
-      @config = config
+      # Convert a hash to a config object
+      if Hash === config
+        config = Config.new(config)
+      end
 
-      @worker = Worker.new(self)
+      @config  = config
+      @started = false
+      @worker  = Worker.new(self)
     end
 
     def start!
-      @worker.start!
-      Subscriber.register!(config)
+      # Quick check
+      return self if @started
 
-      # Ensure properly configured
-      return unless config
+      LOCK.synchronize do
+        # Ensure that the instrumenter has not been started now that the lock
+        # as been acquired
+        return self if @started
 
-      # Ensure that there is an API token
-      unless config.authentication_token
-        if logger = config.logger
-          logger.warn "[SKYLIGHT] No authentication token provided; cannot start agent."
+        @worker.start!
+        Subscriber.register!(config)
+
+        # Ensure properly configured
+        return unless config
+
+        # Ensure that there is an API token
+        unless config.authentication_token
+          if logger = config.logger
+            logger.warn "[SKYLIGHT] No authentication token provided; cannot start agent."
+          end
+
+          return
         end
 
-        return
+        config.gc_profiler.enable
+
+        @started = true
       end
 
-      config.gc_profiler.enable
-
       self
+
+    rescue
+      nil
     end
 
     def trace(endpoint = nil)
+      # Ignore everything unless the instrumenter has been started
+      unless @started
+        return yield
+      end
+
       # If there already is a trace going on, then just continue
       if Thread.current[Trace::KEY]
         return yield
