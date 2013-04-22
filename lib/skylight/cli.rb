@@ -1,3 +1,6 @@
+# Use vendored thor / highline
+$:.unshift File.expand_path('../vendor', __FILE__)
+
 require "skylight"
 require "thor"
 require "highline"
