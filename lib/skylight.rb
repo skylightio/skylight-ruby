@@ -35,6 +35,18 @@ module Skylight
   require 'skylight/subscriber'
   require 'skylight/trace'
   require 'skylight/worker'
+
+  # Some helper functions
+  def self.current_endpoint=(name)
+    if t = Trace.current
+      t.endpoint = name
+    end
+
+    name
+  rescue
+    nil
+  ensure
+  end
 end
 
 if defined?(Rails)
