@@ -16,9 +16,9 @@ module Skylight
         @config = config
       end
 
-      def auth(username, password)
+      def auth(email, password)
         req = Net::HTTP::Get.new("/login")
-        req.basic_auth username, password
+        req.basic_auth email, password
         response = make_request(req, nil, ACCEPT => APPLICATION_JSON)
         JSON.parse(response)
       end

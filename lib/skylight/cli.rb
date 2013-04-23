@@ -53,12 +53,12 @@ module Skylight
 
       loop do
         h = HighLine.new
-        username = h.ask("Username: ")
+        email = h.ask("Email: ")
         password = h.ask("Password: ") { |q| q.echo = "*" }
 
-        response = Util::HTTP.new(http_config).auth(username, password)
+        response = Util::HTTP.new(http_config).auth(email, password)
         if response["authenticated"] == false
-          say "Sorry. That username and password was invalid. Please try again", :red
+          say "Sorry. That email and password was invalid. Please try again", :red
           puts
         else
           token = response["token"]
