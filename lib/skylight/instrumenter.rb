@@ -58,7 +58,8 @@ module Skylight
 
       self
 
-    rescue
+    rescue Exception => e
+      error(e.message)
       nil
     end
 

@@ -83,10 +83,10 @@ module Skylight
       @http ||= Util::HTTP.new(self)
 
       unless @gc_profiler
-        if enable_gc_profiler
+        if enable_gc_profiler && GC::Profiler.respond_to?(:enable)
           @gc_profiler = GC::Profiler
         else
-          @gc_profiler == GC_PROFILER_STUB
+          @gc_profiler = GC_PROFILER_STUB
         end
       end
     end
