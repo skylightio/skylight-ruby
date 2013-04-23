@@ -8,8 +8,8 @@ require "active_support/inflector"
 
 module Skylight
   class CLI < Thor
-    desc "create", "Create a new app"
-    def create
+    desc "setup", "Sets up a new app"
+    def setup
       if !SanityChecker.new.smoke_test(File.expand_path("config/skylight.yml"))
         say "Your app is already on Skylight. http://www.skylight.io", :green
         return
