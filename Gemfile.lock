@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    skylight (0.0.14)
+    skylight (0.0.15)
       activesupport (>= 3.0.0)
 
 GEM
