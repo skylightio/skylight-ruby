@@ -7,6 +7,14 @@ module Skylight
     class Normalizer < Struct.new(:view_paths)
     end
 
+    # Stub out the GC Profiler in cases when it is not requested
+    GC_PROFILER_STUB = Struct.new(
+      :enable,
+      :disable,
+      :clear,
+      :total_time).
+      new(nil, nil, nil, 0)
+
     class << self
       def load_from_yaml(path, env=ENV)
         new do |config|
@@ -48,12 +56,14 @@ module Skylight
     end
 
     def initialize(attrs = {})
+      # Set defaults
       @ssl      = true
       @deflate  = true
       @host     = "agent.skylight.io"
       @port     = 443
       @interval = 5
       @protocol = JsonProto.new(self)
+      @enable_gc_profiler   = true
       @max_pending_traces   = 500
       @samples_per_interval = 100
 
@@ -68,47 +78,47 @@ module Skylight
         end
       end
 
-      @http ||= Util::HTTP.new(self)
-      @gc_profiler ||= GC::Profiler
-
       yield self if block_given?
+
+      @http ||= Util::HTTP.new(self)
+
+      unless @gc_profiler
+        if enable_gc_profiler
+          @gc_profiler = GC::Profiler
+        else
+          @gc_profiler == GC_PROFILER_STUB
+        end
+      end
     end
 
-    attr_accessor :yaml_file
-    attr_accessor :authentication_token
-    attr_accessor :app_id
+    attr_accessor :yaml_file,
+      :authentication_token,
+      :app_id,
+      :ssl,
+      :deflate,
+      :host,
+      :port,
+      :http,
+      :samples_per_interval,
+      :interval,
+      :max_pending_traces,
+      :normalizer,
+      :protocol,
+      :logger,
+      :enable_gc_profiler,
+      :gc_profiler
 
-    attr_accessor :ssl
-    alias_method :ssl?, :ssl
-
-    attr_accessor :deflate
+    alias_method :ssl?,     :ssl
     alias_method :deflate?, :deflate
-
-    attr_accessor :host
-
-    attr_accessor :port
-
-    attr_accessor :http
-
-    attr_accessor :samples_per_interval
-
-    attr_accessor :interval
-
-    attr_accessor :max_pending_traces
-
-    attr_reader :normalizer
-
-    attr_reader :protocol
 
     def protocol=(val)
       if val.is_a?(String) || val.is_a?(Symbol)
         class_name = val.to_s.capitalize+"Proto"
         val = Skylight.const_get(class_name).new(self)
       end
+
       @protocol = val
     end
-
-    attr_accessor :logger
 
     def log_level
       logger && logger.level
@@ -121,13 +131,6 @@ module Skylight
         end
         logger.level = level
       end
-    end
-
-    attr_writer :gc_profiler
-
-    def gc_profiler
-      # TODO: Move this into tests
-      @gc_profiler ||= Struct.new(:enable, :disable, :clear, :total_time).new(nil, nil, nil, 0)
     end
 
     def save(filename=yaml_file)
