@@ -11,7 +11,8 @@ module Skylight
     app
     view
     db
-    gc)
+    noise
+    other)
 
   # First require all util files
   require 'skylight/util/atomic'

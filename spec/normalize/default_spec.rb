@@ -16,9 +16,9 @@ module Skylight
       end
 
       it 'grabs title from the payload' do
-        name, title, desc, annot = normalize('gc', title: 'Garbage')
+        name, title, desc, annot = normalize('noise.gc', title: 'Garbage')
 
-        name.should == 'gc'
+        name.should == 'noise.gc'
         title.should == 'Garbage'
         desc.should be_nil
         annot.should == {}
@@ -34,9 +34,9 @@ module Skylight
       end
 
       it 'keeps the payload' do
-        name, title, desc, annot = normalize('gc', foo: "bar", title: "Junk")
+        name, title, desc, annot = normalize('noise.gc', foo: "bar", title: "Junk")
 
-        name.should == 'gc'
+        name.should == 'noise.gc'
         title.should == 'Junk'
         desc.should be_nil
         annot.should == { foo: "bar" }
