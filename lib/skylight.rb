@@ -4,6 +4,7 @@ module Skylight
   autoload :Worker, 'skylight/worker'
 
   module Messages
+    autoload :Base,  'skylight/messages/base'
     autoload :Pid,   'skylight/messages/pid'
     autoload :Trace, 'skylight/messages/trace'
   end
@@ -11,6 +12,9 @@ module Skylight
   module Util
     autoload :Logging, 'skylight/util/logging'
   end
+
+  # ==== Vendor ====
+  autoload :Beefcake, 'skylight/vendor/beefcake'
 
   # Called by the standalone agent
   if ENV[Worker::STANDALONE_ENV_KEY] == Worker::STANDALONE_ENV_VAL

@@ -1,19 +1,10 @@
 module Skylight
   module Messages
-    class Pid
-      def read
-        raise NotImplementedError
-      end
+    class Pid < Base
 
-      attr_reader :pid
+      required :pid,     :uint32, 1
+      optional :version, :string, 2
 
-      def initialize(pid)
-        @pid = pid
-      end
-
-      def to_bytes
-        [ pid ].pack('L')
-      end
     end
   end
 end

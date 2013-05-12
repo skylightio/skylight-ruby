@@ -12,7 +12,7 @@ module Skylight
         @pid    = nil
         @srv    = nil
         @conns  = nil
-        @parent = Messages::Pid.new(Process.pid)
+        @parent = Messages::Pid.new(Process.pid, VERSION)
         spawn
       end
 
@@ -27,6 +27,7 @@ module Skylight
       def spawn
         check_permissions
 
+        # Why 90? Why not...
         90.times do |i|
           begin
             if f = maybe_acquire_lock

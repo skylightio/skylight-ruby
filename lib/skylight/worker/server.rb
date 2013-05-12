@@ -45,24 +45,35 @@ module Skylight
       def work
         @socks << @server
 
+        next_sanity_check_at = Time.now.to_i + sanity_check_int
+
         # IO loop
         begin
+          # Wait for something to do
           r, _, _ = IO.select(@socks, [], [], timeout)
 
           if r
             r.each do |sock|
               if sock == @server
+                # If the server socket, accept
+                # the incoming connection
                 if client = accept
                   connect(client)
                 end
               else
+                # Client socket, lookup the associated connection
+                # state machine.
                 unless conn = @connections[sock]
-                  # Connection missing, weird
+                  # No associated connection, weird.. bail
+                  sock.close rescue nil
                   next
                 end
 
                 begin
-                  conn.read
+                  # Pop em while we got em
+                  while msg = conn.read
+                    handle(msg)
+                  end
                 rescue EOFError
                   @socks.delete(sock)
                   sock.close rescue nil
@@ -70,6 +81,14 @@ module Skylight
               end
             end
           end
+
+          now = Time.now.to_i
+
+          if next_sanity_check_at <= now
+            next_sanity_check_at = now + sanity_check_int
+            sanity_check
+          end
+
         rescue SignalException => e
           error "Did not handle: #{e.class}"
           @run = false
@@ -82,6 +101,17 @@ module Skylight
         end while @run
 
         true # Successful return
+      end
+
+      # Handles an incoming message. Will be instances from
+      # the Messages namespace
+      def handle(msg)
+        case msg
+        when Messages::Pid
+          debug "Got pid message: %s", msg
+        else
+          debug "GOT: %s", msg
+        end
       end
 
       def accept
@@ -135,6 +165,15 @@ module Skylight
         Dir["#{sockfile_path}/skylight-*.sock"].each do |sockfile|
           File.unlink(sockfile) rescue nil
         end
+      end
+
+      # TODO: implement
+      def sanity_check
+        debug "sanity check"
+      end
+
+      def sanity_check_int
+        1
       end
 
       def timeout

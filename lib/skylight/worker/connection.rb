@@ -5,6 +5,8 @@ module Skylight
 
       def initialize(sock)
         @sock = sock
+        @rem  = nil
+        @buf  = nil
       end
 
       def read
