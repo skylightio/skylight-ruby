@@ -41,8 +41,6 @@ module Skylight
       fail "missing lockfile path"
     end
 
-    p lockfile
-
     server = Skylight::Worker::Server.new(
       lockfile,
       lockfile_path,

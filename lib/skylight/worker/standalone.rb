@@ -23,39 +23,43 @@ module Skylight
     private
 
       # Handle exceptions from file opening here
+      # TODO: handle invalid exiting
       def spawn
         check_permissions
 
-        begin
-          if f = maybe_acquire_lock
-            trace "standalone process lock acquired"
-            @pid = spawn_worker(f)
-          else
-            trace "standalone process lock failed"
-            @pid = read_lockfile
-          end
+        90.times do |i|
+          begin
+            if f = maybe_acquire_lock
+              trace "standalone process lock acquired"
+              @pid = spawn_worker(f)
+            else
+              @pid = read_lockfile
+            end
 
-          # Try reading the pid from the lockfile
-          if @pid
-            # Check if the sockfile has been created yet
-            if sockfile?
-              if sock = connect
-                @conns = [sock]
-                sock.write(@parent.to_bytes)
-                return
+            # Try reading the pid from the lockfile
+            if @pid
+              # Check if the sockfile has been created yet
+              if sockfile?
+                if sock = connect
+                  trace "connected to worker; attempt=%d", i
+                  @conns = [sock]
+                  sock.write(@parent.to_bytes)
+                  return true
+                end
               end
+            end
+
+          ensure
+            if f
+              trace "closing lockfile"
+              f.close rescue nil
             end
           end
 
-        ensure
-          if f
-            trace "closing lockfile"
-            f.close rescue nil
-          end
-        end # while true
+          sleep 0.01
+        end
 
-        # TMP
-        Process.wait(@pid)
+        false
       end
 
       def connect
@@ -82,49 +86,9 @@ module Skylight
 
         fork do
           exec(*args)
-
-          # Track the current pid
-          # @pid = Process.pid
-
-          # begin
-          #   # Cleanup old sockfiles
-          #   cleanup_sockfiles
-
-          #   # Open the new socket
-          #   @srv = create_server
-
-          #   # Write the lockfile
-          #   write_lockfile(lockfile, pid)
-
-          #   # Start the work loop
-          #   work
-
-          # ensure
-          #   # Cleanup the current sockfile
-          #   cleanup_curr_sockfile
-
-          #   # Clear the pid file
-          #   File.unlink lockfile rescue nil
-
-          #   # Release the file lock
-          #   lockfile.close
-          # end
         end
       ensure
         lockfile.close rescue nil
-      end
-
-      def work
-        begin
-          r, _, _ = IO.select([@srv], [], [], 1)
-
-          if r
-            s = r[0].accept_nonblock
-            p s
-          end
-        rescue Exception => e
-          error e.message
-        end while true # TODO: better exit condition
       end
 
       def check_permissions
@@ -147,22 +111,6 @@ module Skylight
         if pid =~ /^\d+$/
           pid.to_i
         end
-      end
-
-      def write_lockfile(file, pid)
-        file.truncate(0)
-        file.write(pid.to_s)
-        file.flush
-      end
-
-
-
-      def cleanup_curr_sockfile
-        File.unlink(sockfile) rescue nil
-      end
-
-      def create_server
-        UNIXServer.new sockfile
       end
 
       def sockfile
