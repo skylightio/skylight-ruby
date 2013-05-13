@@ -3,21 +3,66 @@ require 'rbconfig'
 
 module Skylight
   module Worker
+
+    # Handle to the agent subprocess. Manages creation, communication, and
+    # shutdown.
     class Standalone
       include Util::Logging
+
+      PARENT = Messages::Pid.new(pid: Process.pid, version: VERSION)
 
       attr_reader :pid
 
       def initialize
-        @pid    = nil
-        @srv    = nil
-        @conns  = nil
-        @parent = Messages::Pid.new(Process.pid, VERSION)
-        spawn
+        @pid = nil
+        @srv = nil
+
+        # Socket to the agent
+        @sock = nil
+
+        # Track master thread
+        @master = Thread.current
+
+        # Spawn (or detect) agent process immediately
+        unless spawn
+          raise "could not spawn agent"
+        end
       end
 
-      def submit(data)
-        # stuff
+      # Optimize for the common case: a single threaded rails server writing on
+      # the main thread.
+      #
+      # Two edge cases:
+      #
+      # a) Multi threaded rails server. Spawn a worker thread and push all
+      # messages to the thread.
+      #
+      #   - Unset master thread ID
+      #
+      # b) Single threaded rails server. Write fails, reopen connection (might
+      # require spawning a new agent subprocess). Do this in a thread.
+      #
+      def send(msg)
+        # Must be encodable
+        return unless msg.respond_to?(:encode)
+
+        if Thread.current == @master
+          if @sock
+            write(@sock, msg.encode)
+          end
+        end
+
+        # TODO: implement
+      end
+
+      # Shutdown any side task threads. Let the agent process die on it's own.
+      def shutdown
+        # TODO: implement
+      end
+
+      # Shutdown any side task threads as well as the agent process
+      def shutdown_all
+        # TODO: implement
       end
 
     private
@@ -43,8 +88,8 @@ module Skylight
               if sockfile?
                 if sock = connect
                   trace "connected to worker; attempt=%d", i
-                  @conns = [sock]
-                  sock.write(@parent.to_bytes)
+                  write(sock, PARENT.encode)
+                  @sock = sock
                   return true
                 end
               end
@@ -63,10 +108,42 @@ module Skylight
         false
       end
 
+      SOCK_TIMEOUT_VAL = [ 0, 0.01 * 1_000_000 ].pack("l_2")
+
+      # TODO: Handle configuring the socket with proper timeouts
       def connect
-        UNIXSocket.new(sockfile) rescue nil
+        sock = UNIXSocket.new(sockfile) rescue nil
+        if sock
+          sock.setsockopt Socket::SOL_SOCKET, Socket::SO_SNDTIMEO, SOCK_TIMEOUT_VAL
+          sock
+        end
       end
 
+      def write(sock, msg, timeout = 0.01)
+        msg = msg.to_s
+        ret = sock.syswrite msg
+
+        if ret < msg.bytesize
+          warn "write(...); expected=%d; got=%d", msg.bytesize, ret
+        end
+
+        ret
+        # LOLW0T
+        # n = 0
+        # while true
+        #   begin
+        #     n = io.syswrite str
+        #   rescue Errno::EAGAIN, Errno::EWOULDBLOCK
+        #     IO.select(nil, [io], nil, 1)
+        #     retry
+        #   end
+
+        #   return if n == str.bytesize
+        #   str = str.byteslice(n..-1)
+        # end
+      end
+
+      # Spawn the worker process.
       def spawn_worker(f)
         # Before forking, truncate the file
         f.truncate(0)

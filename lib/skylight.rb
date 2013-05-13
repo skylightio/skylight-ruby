@@ -11,6 +11,7 @@ module Skylight
 
   module Util
     autoload :Logging, 'skylight/util/logging'
+    autoload :Queue,   'skylight/util/queue'
   end
 
   # ==== Vendor ====

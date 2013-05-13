@@ -11,7 +11,7 @@ module Skylight
 
       def read
         chunk = @sock.read_nonblock(CHUNK_SIZE)
-        p [ chunk ]
+        p [ :CHUNK, chunk ]
         nil
       rescue Errno::EAGAIN
       end

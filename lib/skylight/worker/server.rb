@@ -167,9 +167,8 @@ module Skylight
         end
       end
 
-      # TODO: implement
       def sanity_check
-        debug "sanity check"
+        # TODO: implement
       end
 
       def sanity_check_int
