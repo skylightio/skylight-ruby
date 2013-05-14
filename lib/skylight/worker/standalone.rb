@@ -1,11 +1,14 @@
 require 'socket'
+require 'thread'
 require 'rbconfig'
+require 'fileutils'
 
 module Skylight
   module Worker
 
     # Handle to the agent subprocess. Manages creation, communication, and
-    # shutdown.
+    # shutdown. Lazily spawns a thread that handles writing messages to the
+    # unix domain socket
     class Standalone
       include Util::Logging
 
@@ -14,14 +17,12 @@ module Skylight
       attr_reader :pid
 
       def initialize
-        @pid = nil
-        @srv = nil
-
-        # Socket to the agent
-        @sock = nil
-
-        # Track master thread
-        @master = Thread.current
+        @pid    = nil
+        @srv    = nil
+        @sock   = nil
+        @queue  = Util::Queue.new(100)
+        @lock   = Mutex.new
+        @writer = nil
 
         # Spawn (or detect) agent process immediately
         unless spawn
@@ -45,14 +46,20 @@ module Skylight
       def send(msg)
         # Must be encodable
         return unless msg.respond_to?(:encode)
+        return unless q = @queue
 
-        if Thread.current == @master
-          if @sock
-            write(@sock, msg.encode)
+        unless writer_spawned?
+          spawn_writer
+        end
+
+        if ret = q.push(msg)
+          # Them checks
+          if ret == 30 || ret == 60 || ret == 90
+            check_writer_status
           end
         end
 
-        # TODO: implement
+        true
       end
 
       # Shutdown any side task threads. Let the agent process die on it's own.
@@ -88,7 +95,7 @@ module Skylight
               if sockfile?
                 if sock = connect
                   trace "connected to worker; attempt=%d", i
-                  write(sock, PARENT.encode)
+                  write_msg(sock, PARENT)
                   @sock = sock
                   return true
                 end
@@ -108,6 +115,70 @@ module Skylight
         false
       end
 
+      def writer_spawned?
+        !!@writer
+      end
+
+      def spawn_writer
+        @lock.synchronize do
+          return if writer_spawned?
+
+          trace "Standlone#spawn_writer - Spawning writer"
+
+          @writer = Thread.new do
+            unless writer_loop
+              # TODO: Something went wrong :'(
+            end
+          end
+        end
+      end
+
+      def writer_loop
+        # Loop as long as there is a queue to pop off of
+        while q = @queue
+          if msg = q.pop(0.1)
+            unless writer_tick(msg)
+              return false
+            end
+          end
+        end
+
+        trace "Standalone#writer_loop - ending gracefully"
+        true
+      end
+
+      def writer_tick(msg)
+        2.times do
+          unless sock = @sock
+            # TODO: respawn the agent
+          end
+
+          if write_msg(sock, msg)
+            return true
+          end
+
+          @sock = nil
+          sock.close
+
+          # TODO: Respawn the agent
+          raise NotImplementedError
+        end
+
+        false
+      end
+
+      def write_msg(sock, msg)
+        buf   = msg.encode.to_s
+        frame = [ msg.message_id, buf.bytesize ].pack("LL")
+
+        write(sock, frame) &&
+          write(sock, buf)
+      end
+
+      def check_writer_status
+        # TODO: implement
+      end
+
       SOCK_TIMEOUT_VAL = [ 0, 0.01 * 1_000_000 ].pack("l_2")
 
       # TODO: Handle configuring the socket with proper timeouts
@@ -121,26 +192,21 @@ module Skylight
 
       def write(sock, msg, timeout = 0.01)
         msg = msg.to_s
-        ret = sock.syswrite msg
+        cnt = 50
 
-        if ret < msg.bytesize
-          warn "write(...); expected=%d; got=%d", msg.bytesize, ret
+        while 0 <= (cnt -= 1)
+          ret = sock.syswrite msg rescue nil
+
+          return true unless ret
+
+          if ret == msg.bytesize
+            return true
+          elsif ret > 0
+            msg = msg.byteslice(ret..-1)
+          end
         end
 
-        ret
-        # LOLW0T
-        # n = 0
-        # while true
-        #   begin
-        #     n = io.syswrite str
-        #   rescue Errno::EAGAIN, Errno::EWOULDBLOCK
-        #     IO.select(nil, [io], nil, 1)
-        #     retry
-        #   end
-
-        #   return if n == str.bytesize
-        #   str = str.byteslice(n..-1)
-        # end
+        return false
       end
 
       # Spawn the worker process.
@@ -170,6 +236,7 @@ module Skylight
       end
 
       def check_permissions
+        FileUtils.mkdir_p File.dirname(lockfile)
         # stuff
       end
 

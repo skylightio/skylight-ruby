@@ -1,3 +1,5 @@
+require 'skylight/messages/base'
+
 module Skylight
   module Messages
     class Trace < Base

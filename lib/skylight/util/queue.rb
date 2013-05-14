@@ -27,12 +27,16 @@ module Skylight
         @mutex.synchronize { __length }
       end
 
-      # Returns true if the item was queued, false otherwise
+      # Returns the number of items in the queue or nil if the queue is full
       def push(obj)
+        ret = nil
+
         @mutex.synchronize do
-          return false if __length == @max
+          return if __length == @max
           @values[@produce] = obj
           @produce = (@produce + 1) % @max
+
+          ret = __length
 
           # Wakeup a blocked thread
           begin
@@ -43,7 +47,7 @@ module Skylight
           end
         end
 
-        true
+        ret
       end
 
       def pop(timeout = nil)

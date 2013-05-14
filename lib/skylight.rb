@@ -1,13 +1,8 @@
 require 'skylight/version'
 
 module Skylight
-  autoload :Worker, 'skylight/worker'
-
-  module Messages
-    autoload :Base,  'skylight/messages/base'
-    autoload :Pid,   'skylight/messages/pid'
-    autoload :Trace, 'skylight/messages/trace'
-  end
+  autoload :Messages, 'skylight/messages'
+  autoload :Worker,   'skylight/worker'
 
   module Util
     autoload :Logging, 'skylight/util/logging'

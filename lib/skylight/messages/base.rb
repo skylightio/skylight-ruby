@@ -12,7 +12,12 @@ module Skylight
         end
 
         klass.message_id = (@count ||= 0)
+        Messages.set(klass.message_id, klass)
         @count += 1
+      end
+
+      def message_id
+        self.class.message_id
       end
     end
   end

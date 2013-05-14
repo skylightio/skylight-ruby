@@ -74,7 +74,7 @@ module Skylight
                   while msg = conn.read
                     handle(msg)
                   end
-                rescue EOFError
+                rescue SystemCallError
                   @socks.delete(sock)
                   sock.close rescue nil
                 end
@@ -93,7 +93,7 @@ module Skylight
           error "Did not handle: #{e.class}"
           @run = false
         rescue Exception => e
-          error e.message
+          error "Loop exception: %s", e.message
           return false
         rescue Object => o
           error "Unknown object thrown: `%s`", o.to_s
@@ -109,6 +109,8 @@ module Skylight
         case msg
         when Messages::Pid
           debug "Got pid message: %s", msg
+        when :unknown
+          debug "Got unknown message"
         else
           debug "GOT: %s", msg
         end
