@@ -5,24 +5,24 @@ require 'fileutils'
 
 module Skylight
   module Worker
-
     # Handle to the agent subprocess. Manages creation, communication, and
     # shutdown. Lazily spawns a thread that handles writing messages to the
     # unix domain socket
     class Standalone
       include Util::Logging
 
-      PARENT = Messages::Pid.new(pid: Process.pid, version: VERSION)
+      HELLO = Messages::Hello.new(version: VERSION)
 
       attr_reader :pid
 
       def initialize
-        @pid    = nil
-        @srv    = nil
-        @sock   = nil
-        @queue  = Util::Queue.new(100)
-        @lock   = Mutex.new
-        @writer = nil
+        @pid  = nil
+        @srv  = nil
+        @sock = nil
+
+        # Writer background processor will accept messages and write them to
+        # the IPC socket
+        @writer = Util::Task.new(100) { |m| writer_tick(m) }
 
         # Spawn (or detect) agent process immediately
         unless spawn
@@ -46,30 +46,19 @@ module Skylight
       def send(msg)
         # Must be encodable
         return unless msg.respond_to?(:encode)
-        return unless q = @queue
-
-        unless writer_spawned?
-          spawn_writer
-        end
-
-        if ret = q.push(msg)
-          # Them checks
-          if ret == 30 || ret == 60 || ret == 90
-            check_writer_status
-          end
-        end
-
-        true
+        @writer.submit(msg)
       end
 
       # Shutdown any side task threads. Let the agent process die on it's own.
       def shutdown
         # TODO: implement
+        @writer.shutdown
       end
 
       # Shutdown any side task threads as well as the agent process
       def shutdown_all
         # TODO: implement
+        shutdown
       end
 
     private
@@ -95,7 +84,7 @@ module Skylight
               if sockfile?
                 if sock = connect
                   trace "connected to worker; attempt=%d", i
-                  write_msg(sock, PARENT)
+                  write_msg(sock, HELLO)
                   @sock = sock
                   return true
                 end
@@ -113,38 +102,6 @@ module Skylight
         end
 
         false
-      end
-
-      def writer_spawned?
-        !!@writer
-      end
-
-      def spawn_writer
-        @lock.synchronize do
-          return if writer_spawned?
-
-          trace "Standlone#spawn_writer - Spawning writer"
-
-          @writer = Thread.new do
-            unless writer_loop
-              # TODO: Something went wrong :'(
-            end
-          end
-        end
-      end
-
-      def writer_loop
-        # Loop as long as there is a queue to pop off of
-        while q = @queue
-          if msg = q.pop(0.1)
-            unless writer_tick(msg)
-              return false
-            end
-          end
-        end
-
-        trace "Standalone#writer_loop - ending gracefully"
-        true
       end
 
       def writer_tick(msg)
@@ -173,10 +130,6 @@ module Skylight
 
         write(sock, frame) &&
           write(sock, buf)
-      end
-
-      def check_writer_status
-        # TODO: implement
       end
 
       SOCK_TIMEOUT_VAL = [ 0, 0.01 * 1_000_000 ].pack("l_2")

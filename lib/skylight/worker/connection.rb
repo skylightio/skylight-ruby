@@ -48,7 +48,9 @@ module Skylight
           data  = @buf[FRAME_HDR_LEN, @len]
           @buf  = @buf[(FRAME_HDR_LEN + @len)..-1] || ""
 
-          p [ mid, klass ]
+          unless klass
+            raise IpcProtoError, "unknown message `#{mid}`"
+          end
 
           if @buf.bytesize >= FRAME_HDR_LEN
             @len = read_len
@@ -56,7 +58,12 @@ module Skylight
             @len = nil
           end
 
-          return klass ? klass.decode(data) : :unknown
+          begin
+            return klass.decode(data)
+          rescue Exception => e
+            # reraise protobuf decoding exceptions
+            raise IpcProtoError, e.message
+          end
         end
       end
 

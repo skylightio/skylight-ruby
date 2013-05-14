@@ -2,6 +2,8 @@ require 'socket'
 
 module Skylight
   module Worker
+    # TODO:
+    #   - Shutdown if no connections for over a minute
     class Server
 
       include Util::Logging
@@ -75,8 +77,10 @@ module Skylight
                     handle(msg)
                   end
                 rescue SystemCallError
-                  @socks.delete(sock)
-                  sock.close rescue nil
+                  client_close(sock)
+                rescue IpcProtoError => e
+                  error "Server#work - IPC protocol exception: %s", e.message
+                  client_close(sock)
                 end
               end
             end
@@ -107,8 +111,8 @@ module Skylight
       # the Messages namespace
       def handle(msg)
         case msg
-        when Messages::Pid
-          debug "Got pid message: %s", msg
+        when Messages::Hello
+          debug "Got Hello message: %s", msg
         when :unknown
           debug "Got unknown message"
         else
@@ -140,6 +144,12 @@ module Skylight
 
       def close
         @server.close if @server
+        @socks.keys.each { |sock| client_close(sock) }
+      end
+
+      def client_close(sock)
+        @socks.delete(sock)
+        sock.close rescue nil
       end
 
       def write_pid

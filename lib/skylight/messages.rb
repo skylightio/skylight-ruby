@@ -8,7 +8,7 @@ module Skylight
       (@id_map ||= {})[id] = klass
     end
 
-    require 'skylight/messages/pid'
+    require 'skylight/messages/hello'
     require 'skylight/messages/trace'
   end
 end
