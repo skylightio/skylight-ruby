@@ -22,6 +22,22 @@ module Skylight
         @sockfile_path = sockfile_path
       end
 
+      def self.spawn(*args)
+        fork do
+          # We be daemonizing
+          Process.setsid
+          exit if fork
+
+          # TODO: Send logs to proper location
+          # null = File.open "/dev/null"
+          # STDIN.reopen null
+          # STDOUT.reopen null
+          # STDERR.reopen null
+
+          exec(*args)
+        end
+      end
+
       def self.exec(cmd, lockfile, srv, lockfile_path, sockfile_path)
         env = {
           STANDALONE_ENV_KEY => STANDALONE_ENV_VAL,
@@ -124,7 +140,7 @@ module Skylight
         rescue SignalException => e
           error "Did not handle: #{e.class}"
           @run = false
-        rescue ServerStateError => e
+        rescue WorkerStateError => e
           info "#{e.message} - shutting down"
           @run = false
         rescue Exception => e
@@ -221,17 +237,17 @@ module Skylight
 
       def sanity_check
         if !File.exist?(lockfile_path)
-          raise ServerStateError, "lockfile gone"
+          raise WorkerStateError, "lockfile gone"
         end
 
         pid = File.read(lockfile_path) rescue nil
 
         unless pid
-          raise ServerStateError, "could not read lockfile"
+          raise WorkerStateError, "could not read lockfile"
         end
 
         unless pid == Process.pid.to_s
-          raise ServerStateError, "lockfile points to different process"
+          raise WorkerStateError, "lockfile points to different process"
         end
       end
 

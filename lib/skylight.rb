@@ -14,6 +14,10 @@ module Skylight
   # ==== Vendor ====
   autoload :Beefcake, 'skylight/vendor/beefcake'
 
+  # ==== Exceptions ====
+  class IpcProtoError < RuntimeError; end
+  class WorkerStateError < RuntimeError; end
+
   # Called by the standalone agent
   if ENV[Worker::STANDALONE_ENV_KEY] == Worker::STANDALONE_ENV_VAL
     def fail(msg, code = 1)

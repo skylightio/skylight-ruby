@@ -18,9 +18,6 @@ module Skylight
     autoload :Server,     'skylight/worker/server'
     autoload :Standalone, 'skylight/worker/standalone'
 
-    class IpcProtoError < RuntimeError; end
-    class ServerStateError < RuntimeError; end
-
     def self.spawn
       Standalone.new
     end

@@ -2,45 +2,97 @@ require 'spec_helper'
 
 describe 'Standalone worker' do
 
-  def spawn_worker
-    Skylight::Worker::Builder.new(sockfile_path: tmp).spawn
-  end
-
   let :pid do
     File.read(tmp('skylight.pid')).to_i
   end
 
-  context 'spawning the worker' do
+  let :worker do
+    spawn_worker
+  end
 
-    let! :worker do
-      spawn_worker
-    end
+  context 'initial spawning' do
 
     it 'sets a pid file' do
+      worker
       tmp('skylight.pid').should exist
     end
 
     it 'creates the unix domain socket' do
+      worker
       tmp("skylight-#{pid}.sock").should exist
     end
 
     it 'sets the value to a different pid than the current process' do
+      worker
       pid.should be > 0
       pid.should_not be == Process.pid
     end
 
     it 'creates a new agent process' do
-      lambda { Process.getpgid(pid) }.should_not raise_error
+      worker
+      pid_exists?(pid).should be_true
+      # lambda { Process.getpgid(pid) }.should_not raise_error
     end
 
     it 'provides the pid' do
+      worker
       spawn_worker.pid.should == pid
     end
 
     it 'only spawns one worker' do
+      worker
       other = spawn_worker
       worker.pid.should == other.pid
     end
+
+    it 'aborts if the lockfile location is not writable' do
+      tmp.mkdir_p
+      tmp.chmod(0555)
+      lambda {
+        worker
+      }.should raise_error(Skylight::WorkerStateError)
+    end
+
+    it 'aborts if the lockfile exists but is not writable' do
+      lockfile.touch
+      lockfile.chmod(0444)
+      lambda {
+        spawn_worker
+      }.should raise_error(Skylight::WorkerStateError)
+    end
+
+    it 'aborts if the sockfile location is not writable' do
+      sockfile_path = tmp('socks')
+      sockfile_path.mkdir_p
+      sockfile_path.chmod(0555)
+      lambda {
+        spawn_worker sockfile_path: sockfile_path
+      }.should raise_error(Skylight::WorkerStateError)
+    end
+
+  end
+
+  context 'restarting' do
+
+    it 'restarts the worker when the domain socket is not writable'
+
+    it 'restarts the worker when the lockfile is deleted' do
+      pid = worker.pid
+      lockfile.rm
+      lambda { !pid_exists?(pid) }.should happen(5)
+    end
+
+    it 'restarts the worker when the lockfile changes'
+
+    it 'restarts the worker when the sockfile is deleted'
+
+  end
+
+  context 'throttling restarts' do
+
+    it 'restarts the worker at most 3 times per 5 minutes'
+
+    it 'starts the throttled worker after 5 minutes'
 
   end
 

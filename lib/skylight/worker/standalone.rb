@@ -8,6 +8,9 @@ module Skylight
     # Handle to the agent subprocess. Manages creation, communication, and
     # shutdown. Lazily spawns a thread that handles writing messages to the
     # unix domain socket
+    #
+    # TODO:
+    #   - Handle the sock file changing
     class Standalone
       include Util::Logging
 
@@ -20,11 +23,16 @@ module Skylight
 
       attr_reader :pid, :lockfile, :sockfile_path
 
-      def initialize(lockfile, sockfile_path)
+      def initialize(lockfile, sockfile_path, spawner)
         @pid  = nil
         @srv  = nil
         @sock = nil
 
+        unless lockfile && sockfile_path && spawner
+          raise ArgumentError, "all arguments are required"
+        end
+
+        @spawner = spawner
         @lockfile = lockfile
         @sockfile_path = sockfile_path
 
@@ -172,25 +180,31 @@ module Skylight
         # Before forking, truncate the file
         f.truncate(0)
 
-        fork do
-          # We be daemonizing
-          Process.setsid
-          exit if fork
-
-          # null = File.open "/dev/null"
-          # STDIN.reopen null
-          # STDOUT.reopen null
-          # STDERR.reopen null
-
-          Server.exec(SUBPROCESS_CMD, f, nil, lockfile, sockfile_path)
-        end
+        # Spawns new process and returns PID
+        @spawner.spawn(SUBPROCESS_CMD, f, nil, lockfile, sockfile_path)
       ensure
         lockfile.close rescue nil
       end
 
       def check_permissions
-        FileUtils.mkdir_p File.dirname(lockfile)
-        # stuff
+        lockfile_root = File.dirname(lockfile)
+
+        FileUtils.mkdir_p lockfile_root
+        FileUtils.mkdir_p sockfile_path
+
+        if File.exist?(lockfile)
+          if !FileTest.writable?(lockfile)
+            raise WorkerStateError, "`#{lockfile}` not writable"
+          end
+        else
+          if !FileTest.writable?(lockfile_root)
+            raise WorkerStateError, "`#{lockfile_root}` not writable"
+          end
+        end
+
+        unless FileTest.writable?(sockfile_path)
+          raise WorkerStateError, "`#{sockfile_path}` not writable"
+        end
       end
 
       # Edgecases:

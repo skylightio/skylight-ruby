@@ -14,6 +14,27 @@ module SpecHelper
       tmp("skylight.pid")
     end
 
+    def sockfile_path
+      tmp
+    end
+
     extend self
+  end
+
+  include Path
+end
+
+class Pathname
+  def mkdir_p
+    FileUtils.mkdir_p(self)
+  end
+
+  def touch
+    dirname.mkdir_p
+    FileUtils.touch(self)
+  end
+
+  def rm
+    unlink
   end
 end

@@ -31,17 +31,35 @@ module Skylight
         !!@thread
       end
 
-      def shutdown(timeout = nil)
+      def shutdown(timeout = 5)
         t = nil
+        m = false
+
         @lock.synchronize do
           t = @thread
-          @queue = nil
+
+          if q = @queue
+            m = true
+            q.push(:SHUTDOWN)
+            @queue = nil
+          end
         end
 
         return true if timeout && timeout < 0
         return true unless t
 
-        !!t.join(timeout)
+        ret = !!t.join(timeout)
+
+        unless ret
+          begin
+            t.kill # FORCE KILL!!!
+          rescue ThreadError
+          end
+        end
+
+        @thread = nil
+
+        ret
       end
 
     private
@@ -59,11 +77,18 @@ module Skylight
       end
 
       def work
-        while q = @queue
+        return unless q = @queue
+
+        while true
           if msg = q.pop(@timeout)
+            return true if msg == :SHUTDOWN
+
             unless tick(msg)
               return false
             end
+          else
+            # Handle lost :SHUTDOWN message
+            return unless @queue
           end
         end
 
