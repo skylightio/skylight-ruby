@@ -16,11 +16,15 @@ module Skylight
       def submit(msg)
         return unless q = @queue
 
-        unless spawned?
-          spawn
-        end
+        spawn
 
         !!q.push(msg)
+      end
+
+      def spawn
+        unless spawned?
+          __spawn
+        end
       end
 
       def spawned?
@@ -42,7 +46,7 @@ module Skylight
 
     private
 
-      def spawn
+      def __spawn
         @lock.synchronize do
           return if spawned?
 

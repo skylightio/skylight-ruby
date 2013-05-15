@@ -8,12 +8,13 @@ module Skylight
     LOCKFILE_PATH      = 'SK_LOCKFILE_PATH'.freeze
     LOCKFILE_ENV_KEY   = 'SK_LOCKFILE_FD'.freeze
     SOCKFILE_PATH_KEY  = 'SK_SOCKFILE_PATH'.freeze
+    UDS_SRV_FD_KEY     = 'SK_UDS_FD'.freeze
 
     # === Modules
     autoload :Builder,    'skylight/worker/builder'
+    autoload :Collector,  'skylight/worker/collector'
     autoload :Connection, 'skylight/worker/connection'
     autoload :Embedded,   'skylight/worker/embedded'
-    autoload :Loop,       'skylight/worker/loop'
     autoload :Server,     'skylight/worker/server'
     autoload :Standalone, 'skylight/worker/standalone'
 

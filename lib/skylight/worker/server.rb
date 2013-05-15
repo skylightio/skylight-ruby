@@ -10,15 +10,41 @@ module Skylight
 
       attr_reader :pid, :lockfile_path, :sockfile_path
 
-      def initialize(lockfile, lockfile_path, sockfile_path)
+      def initialize(lockfile, srv, lockfile_path, sockfile_path)
         @pid           = Process.pid
         @run           = true
         @socks         = []
-        @server        = nil
+        @server        = srv
         @lockfile      = lockfile
+        @collector     = Collector.new
         @connections   = {}
         @lockfile_path = lockfile_path
         @sockfile_path = sockfile_path
+      end
+
+      def self.exec(cmd, lockfile, srv, lockfile_path, sockfile_path)
+        env = {
+          STANDALONE_ENV_KEY => STANDALONE_ENV_VAL,
+          LOCKFILE_PATH      => lockfile_path,
+          LOCKFILE_ENV_KEY   => lockfile.fileno.to_s,
+          SOCKFILE_PATH_KEY  => sockfile_path }
+
+        if srv
+          env[UDS_SRV_FD_KEY] = srv.fileno.to_s
+        end
+
+        opts = {}
+        args = [env] + cmd + [opts]
+
+        unless RUBY_VERSION < '1.9'
+          [lockfile, srv].each do |io|
+            next unless io
+            fd = io.fileno.to_i
+            opts[fd] = fd
+          end
+        end
+
+        Kernel.exec(*args)
       end
 
       def run
@@ -42,6 +68,8 @@ module Skylight
 
         trap('TERM') { @run = false }
         trap('INT')  { @run = false }
+
+        @collector.spawn
       end
 
       def work
@@ -67,7 +95,7 @@ module Skylight
                 # state machine.
                 unless conn = @connections[sock]
                   # No associated connection, weird.. bail
-                  sock.close rescue nil
+                  client_close(sock)
                   next
                 end
 
@@ -76,7 +104,7 @@ module Skylight
                   while msg = conn.read
                     handle(msg)
                   end
-                rescue SystemCallError
+                rescue SystemCallError, EOFError
                   client_close(sock)
                 rescue IpcProtoError => e
                   error "Server#work - IPC protocol exception: %s", e.message
@@ -97,7 +125,8 @@ module Skylight
           error "Did not handle: #{e.class}"
           @run = false
         rescue Exception => e
-          error "Loop exception: %s", e.message
+          error "Loop exception: %s (%s)", e.message, e.class
+          puts e.backtrace
           return false
         rescue Object => o
           error "Unknown object thrown: `%s`", o.to_s
@@ -112,12 +141,20 @@ module Skylight
       def handle(msg)
         case msg
         when Messages::Hello
-          debug "Got Hello message: %s", msg
+          if msg.newer?
+            info "newer version of agent deployed - restarting; curr=%s; new=%s", VERSION, msg.version
+            reload(msg)
+          end
+        when Messages::Trace
+          @collector.submit(msg)
         when :unknown
           debug "Got unknown message"
         else
           debug "GOT: %s", msg
         end
+      end
+
+      def reload(hello)
       end
 
       def accept
@@ -144,10 +181,13 @@ module Skylight
 
       def close
         @server.close if @server
-        @socks.keys.each { |sock| client_close(sock) }
+        @connections.keys.each do |sock|
+          client_close(sock)
+        end
       end
 
       def client_close(sock)
+        @connections.delete(sock)
         @socks.delete(sock)
         sock.close rescue nil
       end

@@ -1,3 +1,4 @@
+require 'socket'
 require 'skylight/version'
 
 module Skylight
@@ -42,8 +43,14 @@ module Skylight
       fail "missing lockfile path"
     end
 
+    srv = nil
+    if fd = ENV[Worker::UDS_SRV_FD_KEY]
+      srv = UNIXServer.from_fd(fd.to_i)
+    end
+
     server = Skylight::Worker::Server.new(
       lockfile,
+      srv,
       lockfile_path,
       sockfile_path)
 

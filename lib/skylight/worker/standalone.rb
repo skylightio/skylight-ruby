@@ -11,14 +11,22 @@ module Skylight
     class Standalone
       include Util::Logging
 
-      HELLO = Messages::Hello.new(version: VERSION)
+      SUBPROCESS_CMD = [
+        File.join(RbConfig::CONFIG['bindir'], "#{RbConfig::CONFIG['ruby_install_name']}#{RbConfig::CONFIG['EXEEXT']}"),
+        '-I', File.expand_path('../../..', __FILE__),
+        File.expand_path('../../../skylight.rb', __FILE__) ]
 
-      attr_reader :pid
+      HELLO = Messages::Hello.new(version: VERSION, cmd: SUBPROCESS_CMD)
 
-      def initialize
+      attr_reader :pid, :lockfile, :sockfile_path
+
+      def initialize(lockfile, sockfile_path)
         @pid  = nil
         @srv  = nil
         @sock = nil
+
+        @lockfile = lockfile
+        @sockfile_path = sockfile_path
 
         # Writer background processor will accept messages and write them to
         # the IPC socket
@@ -167,22 +175,8 @@ module Skylight
         # Before forking, truncate the file
         f.truncate(0)
 
-        args = []
-        args << {
-          STANDALONE_ENV_KEY => STANDALONE_ENV_VAL,
-          LOCKFILE_PATH      => lockfile,
-          LOCKFILE_ENV_KEY   => f.fileno.to_s,
-          SOCKFILE_PATH_KEY  => sockfile_path }
-
-        args << rubybin << '-I' << include_path << skylight_rb
-
-        unless RUBY_VERSION < '1.9'
-          fd = f.fileno.to_i
-          args << { fd => fd }
-        end
-
         fork do
-          exec(*args)
+          Server.exec(SUBPROCESS_CMD, f, nil, lockfile, sockfile_path)
         end
       ensure
         lockfile.close rescue nil
@@ -219,28 +213,6 @@ module Skylight
         File.exist?(sockfile)
       end
 
-      def lockfile
-        "tmp/skylight.pid"
-      end
-
-      def sockfile_path
-        "tmp"
-      end
-
-      def include_path
-        File.expand_path('../../..', __FILE__)
-      end
-
-      def skylight_rb
-        File.expand_path('../../../skylight.rb', __FILE__)
-      end
-
-      def rubybin
-        c = RbConfig::CONFIG
-        File.join(
-          c['bindir'],
-          "#{c['ruby_install_name']}#{c['EXEEXT']}")
-      end
     end
   end
 end
