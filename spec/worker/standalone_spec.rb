@@ -20,6 +20,10 @@ describe 'Standalone worker' do
       tmp('skylight.pid').should exist
     end
 
+    it 'creates the unix domain socket' do
+      tmp("skylight-#{pid}.sock").should exist
+    end
+
     it 'sets the value to a different pid than the current process' do
       pid.should be > 0
       pid.should_not be == Process.pid
@@ -27,6 +31,15 @@ describe 'Standalone worker' do
 
     it 'creates a new agent process' do
       lambda { Process.getpgid(pid) }.should_not raise_error
+    end
+
+    it 'provides the pid' do
+      spawn_worker.pid.should == pid
+    end
+
+    it 'only spawns one worker' do
+      other = spawn_worker
+      worker.pid.should == other.pid
     end
 
   end

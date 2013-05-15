@@ -76,8 +76,8 @@ module Skylight
       def spawn
         check_permissions
 
-        # Why 90? Why not...
-        90.times do |i|
+        # Why 50? Why not...
+        50.times do |i|
           begin
             if f = maybe_acquire_lock
               trace "standalone process lock acquired"
@@ -100,13 +100,10 @@ module Skylight
             end
 
           ensure
-            if f
-              trace "closing lockfile"
-              f.close rescue nil
-            end
+            f.close rescue nil if f
           end
 
-          sleep 0.01
+          sleep 0.1
         end
 
         false
@@ -176,6 +173,15 @@ module Skylight
         f.truncate(0)
 
         fork do
+          # We be daemonizing
+          Process.setsid
+          exit if fork
+
+          # null = File.open "/dev/null"
+          # STDIN.reopen null
+          # STDOUT.reopen null
+          # STDERR.reopen null
+
           Server.exec(SUBPROCESS_CMD, f, nil, lockfile, sockfile_path)
         end
       ensure

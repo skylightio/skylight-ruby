@@ -124,6 +124,9 @@ module Skylight
         rescue SignalException => e
           error "Did not handle: #{e.class}"
           @run = false
+        rescue ServerStateError => e
+          info "#{e.message} - shutting down"
+          @run = false
         rescue Exception => e
           error "Loop exception: %s (%s)", e.message, e.class
           puts e.backtrace
@@ -169,9 +172,10 @@ module Skylight
       end
 
       def cleanup
+        # The lockfile is never deleted, there is no way to atomically delete
+        # the file if it still points to the current process
         cleanup_curr_sockfile
         close
-        cleanup_lockfile
         @lockfile.close
       end
 
@@ -205,10 +209,6 @@ module Skylight
         File.exist?(sockfile)
       end
 
-      def cleanup_lockfile
-        File.unlink(lockfile_path) rescue nil
-      end
-
       def cleanup_curr_sockfile
         File.unlink(sockfile) rescue nil
       end
@@ -220,7 +220,19 @@ module Skylight
       end
 
       def sanity_check
-        # TODO: implement
+        if !File.exist?(lockfile_path)
+          raise ServerStateError, "lockfile gone"
+        end
+
+        pid = File.read(lockfile_path) rescue nil
+
+        unless pid
+          raise ServerStateError, "could not read lockfile"
+        end
+
+        unless pid == Process.pid.to_s
+          raise ServerStateError, "lockfile points to different process"
+        end
       end
 
       def sanity_check_int
