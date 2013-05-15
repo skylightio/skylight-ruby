@@ -6,8 +6,10 @@ module Skylight
         super(1000)
       end
 
-      def tick(msg)
-        p [ :COLLECTOR, msg ]
+      def handle(msg)
+        if msg
+          p [ :COLLECTOR, msg ]
+        end
         true
       end
 

@@ -18,4 +18,8 @@ module SpecHelper
     end
   end
 
+  def kill(sig, pid)
+    Process.kill(sig, pid)
+  end
+
 end

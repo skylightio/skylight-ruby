@@ -25,7 +25,6 @@ module Skylight
 
       def initialize(lockfile, sockfile_path, spawner)
         @pid  = nil
-        @srv  = nil
         @sock = nil
 
         unless lockfile && sockfile_path && spawner
@@ -38,27 +37,16 @@ module Skylight
 
         # Writer background processor will accept messages and write them to
         # the IPC socket
-        @writer = Util::Task.new(100) { |m| writer_tick(m) }
+        @writer = Util::Task.new(100, 1) { |m| writer_tick(m) }
 
         # Spawn (or detect) agent process immediately
         unless spawn
           raise "could not spawn agent"
         end
+
+        @writer.spawn
       end
 
-      # Optimize for the common case: a single threaded rails server writing on
-      # the main thread.
-      #
-      # Two edge cases:
-      #
-      # a) Multi threaded rails server. Spawn a worker thread and push all
-      # messages to the thread.
-      #
-      #   - Unset master thread ID
-      #
-      # b) Single threaded rails server. Write fails, reopen connection (might
-      # require spawning a new agent subprocess). Do this in a thread.
-      #
       def send(msg)
         # Must be encodable
         return unless msg.respond_to?(:encode)
@@ -86,22 +74,26 @@ module Skylight
 
         # Why 50? Why not...
         50.times do |i|
+          pid = nil
+
           begin
             if f = maybe_acquire_lock
               trace "standalone process lock acquired"
-              @pid = spawn_worker(f)
+              pid = spawn_worker(f)
             else
-              @pid = read_lockfile
+              pid = read_lockfile
             end
 
             # Try reading the pid from the lockfile
-            if @pid
+            if pid
               # Check if the sockfile has been created yet
-              if sockfile?
-                if sock = connect
+              if sockfile?(pid)
+                trace "attempting socket connection"
+                if sock = connect(pid)
                   trace "connected to worker; attempt=%d", i
                   write_msg(sock, HELLO)
                   @sock = sock
+                  @pid  = pid
                   return true
                 end
               end
@@ -117,7 +109,42 @@ module Skylight
         false
       end
 
+      def repair
+        # Attempt to reconnect to the currently known agent PID
+        if sock = connect(@pid)
+          trace "reconnected to worker"
+          @sock = sock
+          return true
+        end
+
+        # Attempt to respawn the agent process
+        spawn
+      end
+
       def writer_tick(msg)
+        if msg
+          handle(msg)
+        else
+          trace "Testing socket"
+
+          begin
+            @sock.read_nonblock(1)
+          rescue Errno::EWOULDBLOCK, Errno::EAGAIN, Errno::EINTR
+          rescue Exception => e
+            trace "bad socket: #{e}"
+            unless repair
+              raise WorkerStateError, "could not repair connection to agent"
+            end
+          end
+
+          true
+        end
+      rescue WorkerStateError => e
+        error "skylight shutting down: %s", e.message
+        false
+      end
+
+      def handle(msg)
         2.times do
           unless sock = @sock
             # TODO: respawn the agent
@@ -148,8 +175,8 @@ module Skylight
       SOCK_TIMEOUT_VAL = [ 0, 0.01 * 1_000_000 ].pack("l_2")
 
       # TODO: Handle configuring the socket with proper timeouts
-      def connect
-        sock = UNIXSocket.new(sockfile) rescue nil
+      def connect(pid)
+        sock = UNIXSocket.new(sockfile(pid)) rescue nil
         if sock
           sock.setsockopt Socket::SOL_SOCKET, Socket::SO_SNDTIMEO, SOCK_TIMEOUT_VAL
           sock
@@ -225,12 +252,12 @@ module Skylight
         end
       end
 
-      def sockfile
+      def sockfile(pid)
         "#{sockfile_path}/skylight-#{pid}.sock"
       end
 
-      def sockfile?
-        File.exist?(sockfile)
+      def sockfile?(pid)
+        File.exist?(sockfile(pid))
       end
 
     end

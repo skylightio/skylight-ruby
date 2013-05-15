@@ -9,7 +9,6 @@ module Skylight
         @queue   = Util::Queue.new(size)
         @lock    = Mutex.new
         @timeout = timeout
-        @checks  = []
         @blk     = blk
       end
 
@@ -31,6 +30,10 @@ module Skylight
         !!@thread
       end
 
+      def running?
+        spawned? && !!@queue
+      end
+
       def shutdown(timeout = 5)
         t = nil
         m = false
@@ -48,16 +51,18 @@ module Skylight
         return true if timeout && timeout < 0
         return true unless t
 
-        ret = !!t.join(timeout)
+        ret = nil
 
-        unless ret
-          begin
-            t.kill # FORCE KILL!!!
-          rescue ThreadError
+        begin
+          ret = !!t.join(timeout)
+        ensure
+          if !ret && m
+            begin
+              t.kill # FORCE KILL!!!
+            rescue ThreadError
+            end
           end
         end
-
-        @thread = nil
 
         ret
       end
@@ -70,7 +75,7 @@ module Skylight
 
           @thread = Thread.new do
             unless work
-              # TODO: Something went wrong :'(
+              @queue = nil
             end
           end
         end
@@ -83,25 +88,30 @@ module Skylight
           if msg = q.pop(@timeout)
             return true if msg == :SHUTDOWN
 
-            unless tick(msg)
+            unless handle(msg)
               return false
             end
           else
             # Handle lost :SHUTDOWN message
             return unless @queue
+            # just a tick
+            begin
+              unless handle(nil)
+                return false
+              end
+            rescue Exception => e
+              puts e.message
+              sleep 1 # Throttle
+            end
           end
         end
 
         true
       end
 
-      def tick(msg)
+      def handle(msg)
         return true unless @blk
-        begin
-          @blk.call(msg)
-        rescue Exception => e
-          puts e.message
-        end
+        @blk.call(msg)
       end
 
     end

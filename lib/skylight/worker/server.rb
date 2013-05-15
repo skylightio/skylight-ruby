@@ -73,18 +73,22 @@ module Skylight
     private
 
       def init
+        info "starting skylight daemon"
         # Start by cleaning up old sockfiles
         cleanup_sockfiles
 
+        trace "binding unix server socket"
         # Create the UNIX domain socket
         bind
 
+        trace "writing pid"
         # Write the PID file
         write_pid
 
         trap('TERM') { @run = false }
         trap('INT')  { @run = false }
 
+        trace "spawning collector task"
         @collector.spawn
       end
 
@@ -93,7 +97,7 @@ module Skylight
 
         next_sanity_check_at = Time.now.to_i + sanity_check_int
 
-        # IO loop
+        trace "starting IO loop"
         begin
           # Wait for something to do
           r, _, _ = IO.select(@socks, [], [], timeout)
@@ -159,6 +163,8 @@ module Skylight
       # the Messages namespace
       def handle(msg)
         case msg
+        when nil
+          return
         when Messages::Hello
           if msg.newer?
             info "newer version of agent deployed - restarting; curr=%s; new=%s", VERSION, msg.version

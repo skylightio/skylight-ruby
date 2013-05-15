@@ -31,7 +31,6 @@ describe 'Standalone worker' do
     it 'creates a new agent process' do
       worker
       pid_exists?(pid).should be_true
-      # lambda { Process.getpgid(pid) }.should_not raise_error
     end
 
     it 'provides the pid' do
@@ -74,15 +73,25 @@ describe 'Standalone worker' do
 
   context 'restarting' do
 
-    it 'restarts the worker when the domain socket is not writable'
+    it 'restarts the worker when the domain socket is closed' do
+      pid = worker.pid
+      kill 9, pid # The ultimate sacrifice
+      lambda { worker.pid != pid }.should happen(5)
+    end
 
     it 'restarts the worker when the lockfile is deleted' do
       pid = worker.pid
+      worker.shutdown
       lockfile.rm
       lambda { !pid_exists?(pid) }.should happen(5)
     end
 
-    it 'restarts the worker when the lockfile changes'
+    it 'restarts the worker when the lockfile changes' do
+      pid = worker.pid
+      worker.shutdown
+      File.open(lockfile, 'w') { |f| f.write "123345" }
+      lambda { !pid_exists?(pid) }.should happen(5)
+    end
 
     it 'restarts the worker when the sockfile is deleted'
 
