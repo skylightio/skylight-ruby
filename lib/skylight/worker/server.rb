@@ -11,6 +11,10 @@ module Skylight
       attr_reader :pid, :lockfile_path, :sockfile_path
 
       def initialize(lockfile, srv, lockfile_path, sockfile_path)
+        unless lockfile && srv
+          raise ArgumentError, "lockfile and unix domain server socket are required"
+        end
+
         @pid           = Process.pid
         @run           = true
         @socks         = []
@@ -20,22 +24,6 @@ module Skylight
         @connections   = {}
         @lockfile_path = lockfile_path
         @sockfile_path = sockfile_path
-      end
-
-      def self.spawn(*args)
-        fork do
-          # We be daemonizing
-          Process.setsid
-          exit if fork
-
-          # TODO: Send logs to proper location
-          # null = File.open "/dev/null"
-          # STDIN.reopen null
-          # STDOUT.reopen null
-          # STDERR.reopen null
-
-          exec(*args)
-        end
       end
 
       def self.exec(cmd, lockfile, srv, lockfile_path, sockfile_path)
@@ -73,22 +61,10 @@ module Skylight
     private
 
       def init
-        info "starting skylight daemon"
-        # Start by cleaning up old sockfiles
-        cleanup_sockfiles
-
-        trace "binding unix server socket"
-        # Create the UNIX domain socket
-        bind
-
-        trace "writing pid"
-        # Write the PID file
-        write_pid
-
         trap('TERM') { @run = false }
         trap('INT')  { @run = false }
 
-        trace "spawning collector task"
+        info "starting skylight daemon"
         @collector.spawn
       end
 
@@ -194,15 +170,15 @@ module Skylight
       end
 
       def cleanup
-        # The lockfile is never deleted, there is no way to atomically delete
-        # the file if it still points to the current process
-        cleanup_curr_sockfile
+        # Neither the lockfile nor the sockfile are deleted. There is no atomic
+        # way to delete the lockfile in the case that somebody manually removed
+        # the lockfile and a new agent process created a new one.
+        #
+        # The sockfile is left around as well in order to provide a hint to
+        # rails processes that the agent is dead. That way, when they attempt
+        # to connect to the unix domain socket, it will faill quickly.
         close
         @lockfile.close
-      end
-
-      def bind
-        @server ||= UNIXServer.new sockfile
       end
 
       def close
@@ -218,11 +194,6 @@ module Skylight
         sock.close rescue nil
       end
 
-      def write_pid
-        @lockfile.write(pid.to_s)
-        @lockfile.flush
-      end
-
       def sockfile
         "#{sockfile_path}/skylight-#{pid}.sock"
       end
@@ -235,11 +206,12 @@ module Skylight
         File.unlink(sockfile) rescue nil
       end
 
-      def cleanup_sockfiles
-        Dir["#{sockfile_path}/skylight-*.sock"].each do |sockfile|
-          File.unlink(sockfile) rescue nil
-        end
-      end
+      # def cleanup_sockfiles
+      #   Dir["#{sockfile_path}/skylight-*.sock"].each do |f|
+      #     next if File.expand_path(f) == 
+      #     File.unlink(f) rescue nil
+      #   end
+      # end
 
       def sanity_check
         if !File.exist?(lockfile_path)
@@ -254,6 +226,10 @@ module Skylight
 
         unless pid == Process.pid.to_s
           raise WorkerStateError, "lockfile points to different process"
+        end
+
+        unless sockfile?
+          raise WorkerStateError, "sockfile gone"
         end
       end
 

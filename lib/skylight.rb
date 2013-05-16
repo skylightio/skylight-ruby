@@ -49,7 +49,7 @@ module Skylight
 
     srv = nil
     if fd = ENV[Worker::UDS_SRV_FD_KEY]
-      srv = UNIXServer.from_fd(fd.to_i)
+      srv = UNIXServer.for_fd(fd.to_i)
     end
 
     server = Skylight::Worker::Server.new(

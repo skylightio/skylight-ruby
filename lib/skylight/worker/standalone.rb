@@ -9,8 +9,6 @@ module Skylight
     # shutdown. Lazily spawns a thread that handles writing messages to the
     # unix domain socket
     #
-    # TODO:
-    #   - Handle the sock file changing
     class Standalone
       include Util::Logging
 
@@ -23,15 +21,15 @@ module Skylight
 
       attr_reader :pid, :lockfile, :sockfile_path
 
-      def initialize(lockfile, sockfile_path, spawner)
+      def initialize(lockfile, sockfile_path, server)
         @pid  = nil
         @sock = nil
 
-        unless lockfile && sockfile_path && spawner
+        unless lockfile && sockfile_path && server
           raise ArgumentError, "all arguments are required"
         end
 
-        @spawner = spawner
+        @server = server
         @lockfile = lockfile
         @sockfile_path = sockfile_path
 
@@ -39,17 +37,19 @@ module Skylight
         # the IPC socket
         @writer = Util::Task.new(100, 1) { |m| writer_tick(m) }
 
-        # Spawn (or detect) agent process immediately
-        unless spawn
-          raise "could not spawn agent"
-        end
+        # @writer.spawn
+      end
 
-        @writer.spawn
+      def spawn(*args)
+        return if @pid
+        __spawn(*args)
       end
 
       def send(msg)
-        # Must be encodable
-        return unless msg.respond_to?(:encode)
+        unless msg.respond_to?(:encode)
+          raise ArgumentError, "message not encodable"
+        end
+
         @writer.submit(msg)
       end
 
@@ -69,44 +69,105 @@ module Skylight
 
       # Handle exceptions from file opening here
       # TODO: handle invalid exiting
-      def spawn
-        check_permissions
-
-        # Why 50? Why not...
-        50.times do |i|
-          pid = nil
-
-          begin
-            if f = maybe_acquire_lock
-              trace "standalone process lock acquired"
-              pid = spawn_worker(f)
-            else
-              pid = read_lockfile
-            end
-
-            # Try reading the pid from the lockfile
-            if pid
-              # Check if the sockfile has been created yet
-              if sockfile?(pid)
-                trace "attempting socket connection"
-                if sock = connect(pid)
-                  trace "connected to worker; attempt=%d", i
-                  write_msg(sock, HELLO)
-                  @sock = sock
-                  @pid  = pid
-                  return true
-                end
-              end
-            end
-
-          ensure
-            f.close rescue nil if f
-          end
-
-          sleep 0.1
+      #
+      # Cases:
+      #   - No lockfile
+      #     * Create lockfile, on fail -> start over
+      #
+      #   - Lockfile empty
+      #
+      #   - Lockfile has pid, no sock
+      #
+      #   - Lockfile + agent booted
+      #
+      #   - Lockfile + no agent
+      #
+      def __spawn(timeout = 5)
+        if timeout < 2
+          raise ArgumentError, "at least 2 seconds required"
         end
 
-        false
+        check_permissions
+
+        r = true
+        s = Time.now
+        f = File.open lockfile, File::RDWR | File::CREAT | File::EXCL rescue nil
+
+        while r
+          # Only run once when there is an open handle to the lockfile
+          r = false if f
+
+          if f
+            trace "spawning worker"
+            # TODO: Track spawning
+            spawn_worker(f)
+          end
+
+          pid = read_lockfile
+
+          until pid && sockfile?(pid)
+            elapsed = Time.now - s
+
+            # If this is the last run, allow 5 seconds, otherwise allow 1
+            break if r && elapsed > 1 || !r && elapsed > timeout
+
+            sleep 0.1
+            pid = read_lockfile
+          end
+
+          if sock = connect(pid)
+            trace "connected to worker"
+            write_msg(sock, HELLO)
+            @sock = sock
+            @pid = pid
+            return true
+          elsif r
+            # We're going to try again
+            f = File.open lockfile, File::RDWR | File::CREAT
+          end
+        end
+
+        return false
+
+      ensure
+        f.close rescue nil if f
+
+
+        # Why 50? Why not...
+        # 50.times do |i|
+        #   pid = nil
+
+        #   begin
+        #     if f = maybe_acquire_lock
+        #       trace "standalone process lock acquired"
+        #       pid = spawn_worker(f)
+        #     else
+        #       pid = read_lockfile
+        #     end
+
+        #     # Try reading the pid from the lockfile
+        #     if pid
+        #       # Check if the sockfile has been created yet
+        #       if sockfile?(pid)
+        #         trace "attempting socket connection"
+        #         if sock = connect(pid)
+        #           trace "connected to worker; attempt=%d", i
+        #           write_msg(sock, HELLO)
+        #           @sock = sock
+        #           @pid  = pid
+        #           return true
+        #         end
+        #       end
+        #     end
+
+        #   ensure
+        #     f.close rescue nil if f
+        #   end
+
+        #   sleep 0.1
+        # end
+
+        # false
       end
 
       def repair
@@ -118,7 +179,7 @@ module Skylight
         end
 
         # Attempt to respawn the agent process
-        spawn
+        __spawn
       end
 
       def writer_tick(msg)
@@ -204,13 +265,35 @@ module Skylight
 
       # Spawn the worker process.
       def spawn_worker(f)
-        # Before forking, truncate the file
-        f.truncate(0)
+        fork do
+          Process.setsid
+          exit if fork
 
-        # Spawns new process and returns PID
-        @spawner.spawn(SUBPROCESS_CMD, f, nil, lockfile, sockfile_path)
-      ensure
-        lockfile.close rescue nil
+          # Acquire exclusive file lock, exit otherwise
+          unless f.flock(File::LOCK_EX | File::LOCK_NB)
+            exit
+          end
+
+          pid = Process.pid.to_s
+
+          # Write the pid
+          f.truncate(0)
+          f.write(pid)
+          f.flush
+
+          sf = sockfile(pid)
+          File.unlink(sf) rescue nil
+
+          srv = UNIXServer.new(sf)
+
+          # TODO: Send logs to proper location
+          # null = File.open "/dev/null"
+          # STDIN.reopen null
+          # STDOUT.reopen null
+          # STDERR.reopen null
+
+          @server.exec(SUBPROCESS_CMD, f, srv, lockfile, sockfile_path)
+        end
       end
 
       def check_permissions
@@ -231,17 +314,6 @@ module Skylight
 
         unless FileTest.writable?(sockfile_path)
           raise WorkerStateError, "`#{sockfile_path}` not writable"
-        end
-      end
-
-      # Edgecases:
-      # - directory missing
-      # - invalid permissions
-      def maybe_acquire_lock
-        f = File.open lockfile, File::RDWR | File::CREAT
-
-        if f.flock(File::LOCK_EX | File::LOCK_NB)
-          f
         end
       end
 

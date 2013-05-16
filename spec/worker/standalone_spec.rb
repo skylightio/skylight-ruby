@@ -93,7 +93,12 @@ describe 'Standalone worker' do
       lambda { !pid_exists?(pid) }.should happen(5)
     end
 
-    it 'restarts the worker when the sockfile is deleted'
+    it 'restarts the worker when the sockfile is deleted' do
+      pid = worker.pid
+      worker.shutdown
+      sockfile_path("skylight-#{pid}.sock").rm
+      lambda { !pid_exists?(pid) }.should happen(5)
+    end
 
   end
 

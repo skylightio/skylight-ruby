@@ -5,11 +5,13 @@ module Skylight
         @config = config
       end
 
-      def spawn
+      def spawn(*args)
         if jruby?
           raise NotImplementedError
         else
-          Standalone.new(lockfile, sockfile_path, spawner)
+          inst = Standalone.new(lockfile, sockfile_path, server)
+          inst.spawn(*args)
+          inst
         end
       end
 
@@ -23,8 +25,8 @@ module Skylight
         config(:sockfile_path) { "tmp" }.to_s
       end
 
-      def spawner
-        config(:spawner) { Server }
+      def server
+        config(:server) { Server }
       end
 
       def jruby?

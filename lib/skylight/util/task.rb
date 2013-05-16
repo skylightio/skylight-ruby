@@ -9,10 +9,12 @@ module Skylight
         @queue   = Util::Queue.new(size)
         @lock    = Mutex.new
         @timeout = timeout
+        @run     = true
         @blk     = blk
       end
 
       def submit(msg)
+        return unless @run
         return unless q = @queue
 
         spawn
@@ -31,7 +33,7 @@ module Skylight
       end
 
       def running?
-        spawned? && !!@queue
+        spawned? && @run
       end
 
       def shutdown(timeout = 5)
@@ -44,7 +46,7 @@ module Skylight
           if q = @queue
             m = true
             q.push(:SHUTDOWN)
-            @queue = nil
+            @run = false
           end
         end
 
@@ -84,9 +86,9 @@ module Skylight
       def work
         return unless q = @queue
 
-        while true
+        while @run
           if msg = q.pop(@timeout)
-            return true if msg == :SHUTDOWN
+            return true if :SHUTDOWN == msg
 
             unless handle(msg)
               return false
@@ -103,6 +105,15 @@ module Skylight
               puts e.message
               sleep 1 # Throttle
             end
+          end
+        end
+
+        # Drain the queue
+        while msg = q.pop(0)
+          return true if :SHUTDOWN == msg
+
+          unless handle(msg)
+            return false
           end
         end
 

@@ -14,8 +14,8 @@ module SpecHelper
       tmp("skylight.pid")
     end
 
-    def sockfile_path
-      tmp
+    def sockfile_path(*args)
+      tmp(*args)
     end
 
     extend self
