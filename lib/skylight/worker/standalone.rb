@@ -19,7 +19,7 @@ module Skylight
 
       HELLO = Messages::Hello.new(version: VERSION, cmd: SUBPROCESS_CMD)
 
-      attr_reader :pid, :lockfile, :sockfile_path
+      attr_reader :pid, :lockfile, :sockfile_path, :spawn_window, :max_spawns
 
       def initialize(lockfile, sockfile_path, server)
         @pid  = nil
@@ -29,23 +29,32 @@ module Skylight
           raise ArgumentError, "all arguments are required"
         end
 
+        @spawns = []
         @server = server
         @lockfile = lockfile
         @sockfile_path = sockfile_path
 
+        # Should be configurable
+        @max_spawns = 3
+        @spawn_window = 5 * 60
+
         # Writer background processor will accept messages and write them to
         # the IPC socket
         @writer = Util::Task.new(100, 1) { |m| writer_tick(m) }
-
-        # @writer.spawn
       end
 
       def spawn(*args)
         return if @pid
-        __spawn(*args)
+
+        if __spawn(*args)
+          @writer.spawn
+          true
+        end
       end
 
       def send(msg)
+        return unless @pid
+
         unless msg.respond_to?(:encode)
           raise ArgumentError, "message not encodable"
         end
@@ -67,107 +76,51 @@ module Skylight
 
     private
 
-      # Handle exceptions from file opening here
-      # TODO: handle invalid exiting
-      #
-      # Cases:
-      #   - No lockfile
-      #     * Create lockfile, on fail -> start over
-      #
-      #   - Lockfile empty
-      #
-      #   - Lockfile has pid, no sock
-      #
-      #   - Lockfile + agent booted
-      #
-      #   - Lockfile + no agent
-      #
       def __spawn(timeout = 5)
         if timeout < 2
           raise ArgumentError, "at least 2 seconds required"
         end
 
-        check_permissions
+        start = Time.now
 
-        r = true
-        s = Time.now
-        f = File.open lockfile, File::RDWR | File::CREAT | File::EXCL rescue nil
-
-        while r
-          # Only run once when there is an open handle to the lockfile
-          r = false if f
-
-          if f
-            trace "spawning worker"
-            # TODO: Track spawning
-            spawn_worker(f)
+        if @spawns.length >= @max_spawns
+          if @spawn_window >= (start - @spawns.first)
+            trace "too many spawns in window"
+            return false
           end
 
-          pid = read_lockfile
-
-          until pid && sockfile?(pid)
-            elapsed = Time.now - s
-
-            # If this is the last run, allow 5 seconds, otherwise allow 1
-            break if r && elapsed > 1 || !r && elapsed > timeout
-
-            sleep 0.1
-            pid = read_lockfile
-          end
-
-          if sock = connect(pid)
-            trace "connected to worker"
-            write_msg(sock, HELLO)
-            @sock = sock
-            @pid = pid
-            return true
-          elsif r
-            # We're going to try again
-            f = File.open lockfile, File::RDWR | File::CREAT
-          end
+          @spawns.unshift
         end
 
+        @spawns << start
+
+        check_permissions
+
+        lockf = File.open lockfile, File::RDWR | File::CREAT
+
+        spawn_worker(lockf)
+
+        while timeout >= (Time.now - start)
+          if pid = read_lockfile
+            if sockfile?(pid)
+              if sock = connect(pid)
+                trace "connected to unix socket; pid=%s", pid
+                write_msg(sock, HELLO)
+                @sock = sock
+                @pid  = pid
+                return true
+              end
+            end
+          end
+
+          sleep 0.1
+        end
+
+        trace "failed to spawn worker"
         return false
 
       ensure
-        f.close rescue nil if f
-
-
-        # Why 50? Why not...
-        # 50.times do |i|
-        #   pid = nil
-
-        #   begin
-        #     if f = maybe_acquire_lock
-        #       trace "standalone process lock acquired"
-        #       pid = spawn_worker(f)
-        #     else
-        #       pid = read_lockfile
-        #     end
-
-        #     # Try reading the pid from the lockfile
-        #     if pid
-        #       # Check if the sockfile has been created yet
-        #       if sockfile?(pid)
-        #         trace "attempting socket connection"
-        #         if sock = connect(pid)
-        #           trace "connected to worker; attempt=%d", i
-        #           write_msg(sock, HELLO)
-        #           @sock = sock
-        #           @pid  = pid
-        #           return true
-        #         end
-        #       end
-        #     end
-
-        #   ensure
-        #     f.close rescue nil if f
-        #   end
-
-        #   sleep 0.1
-        # end
-
-        # false
+        lockf.close rescue nil if lockf
       end
 
       def repair
@@ -179,7 +132,13 @@ module Skylight
         end
 
         # Attempt to respawn the agent process
-        __spawn
+        unless __spawn
+          @pid  = nil
+          @sock = nil
+          return false
+        end
+
+        true
       end
 
       def writer_tick(msg)
@@ -271,13 +230,19 @@ module Skylight
 
           # Acquire exclusive file lock, exit otherwise
           unless f.flock(File::LOCK_EX | File::LOCK_NB)
-            exit
+            exit 1
+          end
+
+          f.truncate(0)
+
+          # Lock acquired, cleanup old sock files
+          Dir["#{sockfile_path}/skylight-*.sock"].each do |sf|
+            File.unlink(sf) rescue nil
           end
 
           pid = Process.pid.to_s
 
           # Write the pid
-          f.truncate(0)
           f.write(pid)
           f.flush
 

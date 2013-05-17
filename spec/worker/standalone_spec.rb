@@ -75,6 +75,7 @@ describe 'Standalone worker' do
 
     it 'restarts the worker when the domain socket is closed' do
       pid = worker.pid
+      pid.should_not be_nil
       kill 9, pid # The ultimate sacrifice
       lambda { worker.pid != pid }.should happen(5)
     end
@@ -104,7 +105,20 @@ describe 'Standalone worker' do
 
   context 'throttling restarts' do
 
-    it 'restarts the worker at most 3 times per 5 minutes'
+    it 'restarts the worker at most 3 times per 5 minutes' do
+      pid = worker.pid
+
+      2.times do
+        kill 9, pid
+        lambda { worker.pid != pid }.should happen(5)
+        pid = worker.pid
+        pid.should_not be_nil
+      end
+
+      kill 9, pid
+      lambda { worker.pid != pid }.should happen(5)
+      worker.pid.should be_nil
+    end
 
     it 'starts the throttled worker after 5 minutes'
 
