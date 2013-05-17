@@ -1,3 +1,4 @@
+require 'rbconfig'
 require 'socket'
 require 'skylight/version'
 
@@ -17,6 +18,10 @@ module Skylight
   # ==== Exceptions ====
   class IpcProtoError < RuntimeError; end
   class WorkerStateError < RuntimeError; end
+
+  RUBYBIN = File.join(
+    RbConfig::CONFIG['bindir'],
+    "#{RbConfig::CONFIG['ruby_install_name']}#{RbConfig::CONFIG['EXEEXT']}")
 
   # Called by the standalone agent
   Worker::Server.boot

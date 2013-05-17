@@ -1,6 +1,5 @@
 require 'socket'
 require 'thread'
-require 'rbconfig'
 require 'fileutils'
 
 module Skylight
@@ -13,7 +12,7 @@ module Skylight
       include Util::Logging
 
       SUBPROCESS_CMD = [
-        File.join(RbConfig::CONFIG['bindir'], "#{RbConfig::CONFIG['ruby_install_name']}#{RbConfig::CONFIG['EXEEXT']}"),
+        RUBYBIN,
         '-I', File.expand_path('../../..', __FILE__),
         File.expand_path('../../../skylight.rb', __FILE__) ]
 

@@ -133,4 +133,24 @@ describe 'Standalone worker' do
 
   end
 
+  context 'reloading' do
+
+    it 'reloads the agent when there is a new version' do
+      testfile = tmp('reloading-test')
+      version  = "#{Skylight::VERSION}.1"
+
+      tmp("test.rb").write <<-RUBY
+        require 'fileutils'
+        FileUtils.touch("#{testfile}")
+      RUBY
+
+      worker.send Skylight::Messages::Hello.new(
+        version: version,
+        cmd: [Skylight::RUBYBIN, tmp("test.rb").to_s])
+
+      lambda { testfile.exist? }.should happen(5)
+    end
+
+  end
+
 end

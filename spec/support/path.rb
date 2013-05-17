@@ -37,4 +37,9 @@ class Pathname
   def rm
     unlink
   end
+
+  def write(content)
+    dirname.mkdir_p
+    File.open(self, 'w') { |f| f.write(content) }
+  end
 end

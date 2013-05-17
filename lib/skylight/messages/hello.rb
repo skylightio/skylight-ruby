@@ -14,7 +14,7 @@ module Skylight
         curr  = split(version)
 
         [other.length, curr.length].max.times do |i|
-          next if other[i].strip == curr[i].strip
+          next if other[i] == curr[i]
           return true unless other[i]
 
           if other[i] =~ DIGITS
