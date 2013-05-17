@@ -17,11 +17,10 @@ module Skylight
 
       attr_reader \
         :pid,
-        :timeout,
+        :tick,
         :keepalive,
         :lockfile_path,
-        :sockfile_path,
-        :sanity_check_int
+        :sockfile_path
 
       def initialize(lockfile, srv, lockfile_path, sockfile_path, keepalive)
 
@@ -31,16 +30,15 @@ module Skylight
 
         @pid              = Process.pid
         @run              = true
+        @tick             = 1
         @socks            = []
         @server           = srv
-        @timeout          = 1
         @lockfile         = lockfile
         @collector        = Collector.new
         @keepalive        = keepalive
         @connections      = {}
         @lockfile_path    = lockfile_path
         @sockfile_path    = sockfile_path
-        @sanity_check_int = 1
       end
 
       # Called from skylight.rb on require
@@ -144,13 +142,13 @@ module Skylight
         @socks << @server
 
         now = Time.now.to_i
-        next_sanity_check_at = now + sanity_check_int
+        next_sanity_check_at = now + tick
         had_client_at = now
 
         trace "starting IO loop"
         begin
           # Wait for something to do
-          r, _, _ = IO.select(@socks, [], [], timeout)
+          r, _, _ = IO.select(@socks, [], [], tick)
 
           if r
             r.each do |sock|
@@ -194,7 +192,7 @@ module Skylight
             info "no clients for #{keepalive} sec - shutting down"
             @run = false
           elsif next_sanity_check_at <= now
-            next_sanity_check_at = now + sanity_check_int
+            next_sanity_check_at = now + tick
             sanity_check
           end
 
