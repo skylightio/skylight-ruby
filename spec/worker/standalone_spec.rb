@@ -120,8 +120,6 @@ describe 'Standalone worker' do
       worker.pid.should be_nil
     end
 
-    it 'starts the throttled worker after 5 minutes'
-
   end
 
 end
