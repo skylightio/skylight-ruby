@@ -10,11 +10,11 @@ module Skylight
       end
 
       def info(msg, *args)
-        printf("[INFO]  #{msg}\n", *args)
+        printf(" [INFO] #{msg}\n", *args)
       end
 
       def warn(msg, *args)
-        printf("[WARN]  #{msg}\n", *args)
+        printf(" [WARN] #{msg}\n", *args)
       end
 
       def error(msg, *args)

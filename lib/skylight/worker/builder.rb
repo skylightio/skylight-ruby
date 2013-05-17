@@ -9,7 +9,12 @@ module Skylight
         if jruby?
           raise NotImplementedError
         else
-          inst = Standalone.new(lockfile, sockfile_path, server)
+          inst = Standalone.new(
+            lockfile,
+            sockfile_path,
+            server,
+            keepalive.to_i)
+
           inst.spawn(*args)
           inst
         end
@@ -27,6 +32,10 @@ module Skylight
 
       def server
         config(:server) { Server }
+      end
+
+      def keepalive
+        config(:keepalive) { 60 }
       end
 
       def jruby?

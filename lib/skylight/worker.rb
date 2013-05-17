@@ -2,13 +2,7 @@ module Skylight
   module Worker
 
     # === Constants
-    CHUNK_SIZE         = 16 * 1024
-    STANDALONE_ENV_KEY = 'SK_STANDALONE'.freeze
-    STANDALONE_ENV_VAL = 'server'.freeze
-    LOCKFILE_PATH      = 'SK_LOCKFILE_PATH'.freeze
-    LOCKFILE_ENV_KEY   = 'SK_LOCKFILE_FD'.freeze
-    SOCKFILE_PATH_KEY  = 'SK_SOCKFILE_PATH'.freeze
-    UDS_SRV_FD_KEY     = 'SK_UDS_FD'.freeze
+    CHUNK_SIZE = 16 * 1024
 
     # === Modules
     autoload :Builder,    'skylight/worker/builder'

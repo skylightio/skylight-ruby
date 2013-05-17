@@ -3,6 +3,7 @@ require 'thread'
 module Skylight
   module Util
     class Task
+      SHUTDOWN = :__SK_TASK_SHUTDOWN
 
       def initialize(size, timeout = 0.1, &blk)
         @thread  = nil
@@ -45,7 +46,7 @@ module Skylight
 
           if q = @queue
             m = true
-            q.push(:SHUTDOWN)
+            q.push(SHUTDOWN)
             @run = false
           end
         end
@@ -88,13 +89,12 @@ module Skylight
 
         while @run
           if msg = q.pop(@timeout)
-            return true if :SHUTDOWN == msg
+            return true if SHUTDOWN == msg
 
             unless handle(msg)
               return false
             end
           else
-            # Handle lost :SHUTDOWN message
             return unless @queue
             # just a tick
             begin
@@ -110,7 +110,7 @@ module Skylight
 
         # Drain the queue
         while msg = q.pop(0)
-          return true if :SHUTDOWN == msg
+          return true if SHUTDOWN == msg
 
           unless handle(msg)
             return false

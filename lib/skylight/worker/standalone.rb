@@ -19,9 +19,15 @@ module Skylight
 
       HELLO = Messages::Hello.new(version: VERSION, cmd: SUBPROCESS_CMD)
 
-      attr_reader :pid, :lockfile, :sockfile_path, :spawn_window, :max_spawns
+      attr_reader \
+        :pid,
+        :lockfile,
+        :keepalive,
+        :max_spawns,
+        :spawn_window,
+        :sockfile_path
 
-      def initialize(lockfile, sockfile_path, server)
+      def initialize(lockfile, sockfile_path, server, keepalive)
         @pid  = nil
         @sock = nil
 
@@ -32,6 +38,7 @@ module Skylight
         @spawns = []
         @server = server
         @lockfile = lockfile
+        @keepalive = keepalive
         @sockfile_path = sockfile_path
 
         # Should be configurable
@@ -65,6 +72,7 @@ module Skylight
       # Shutdown any side task threads. Let the agent process die on it's own.
       def shutdown
         # TODO: implement
+        @writer.submit(:SHUTDOWN)
         @writer.shutdown
       end
 
@@ -124,10 +132,13 @@ module Skylight
       end
 
       def repair
-        # Attempt to reconnect to the currently known agent PID
+        # Attempt to reconnect to the currently known agent PID. If the agent
+        # is still healthy but is simply reloading itself, this should work
+        # just fine.
         if sock = connect(@pid)
           trace "reconnected to worker"
           @sock = sock
+          # TODO: Should HELLO be sent again?
           return true
         end
 
@@ -142,7 +153,11 @@ module Skylight
       end
 
       def writer_tick(msg)
-        if msg
+        if :SHUTDOWN == msg
+          trace "shuting down agent connection"
+          @sock.close if @sock
+          @pid = nil
+        elsif msg
           handle(msg)
         else
           trace "Testing socket"
@@ -257,7 +272,7 @@ module Skylight
           # STDOUT.reopen null
           # STDERR.reopen null
 
-          @server.exec(SUBPROCESS_CMD, f, srv, lockfile, sockfile_path)
+          @server.exec(SUBPROCESS_CMD, f, srv, lockfile, sockfile_path, keepalive)
         end
       end
 

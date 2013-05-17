@@ -5,33 +5,105 @@ module Skylight
     # TODO:
     #   - Shutdown if no connections for over a minute
     class Server
+      STANDALONE_ENV_KEY = 'SK_STANDALONE'.freeze
+      STANDALONE_ENV_VAL = 'server'.freeze
+      LOCKFILE_PATH      = 'SK_LOCKFILE_PATH'.freeze
+      LOCKFILE_ENV_KEY   = 'SK_LOCKFILE_FD'.freeze
+      SOCKFILE_PATH_KEY  = 'SK_SOCKFILE_PATH'.freeze
+      UDS_SRV_FD_KEY     = 'SK_UDS_FD'.freeze
+      KEEPALIVE_KEY      = 'SK_KEEPALIVE'.freeze
 
       include Util::Logging
 
-      attr_reader :pid, :lockfile_path, :sockfile_path
+      attr_reader \
+        :pid,
+        :timeout,
+        :keepalive,
+        :lockfile_path,
+        :sockfile_path,
+        :sanity_check_int
 
-      def initialize(lockfile, srv, lockfile_path, sockfile_path)
+      def initialize(lockfile, srv, lockfile_path, sockfile_path, keepalive)
+
         unless lockfile && srv
           raise ArgumentError, "lockfile and unix domain server socket are required"
         end
 
-        @pid           = Process.pid
-        @run           = true
-        @socks         = []
-        @server        = srv
-        @lockfile      = lockfile
-        @collector     = Collector.new
-        @connections   = {}
-        @lockfile_path = lockfile_path
-        @sockfile_path = sockfile_path
+        @pid              = Process.pid
+        @run              = true
+        @socks            = []
+        @server           = srv
+        @timeout          = 1
+        @lockfile         = lockfile
+        @collector        = Collector.new
+        @keepalive        = keepalive
+        @connections      = {}
+        @lockfile_path    = lockfile_path
+        @sockfile_path    = sockfile_path
+        @sanity_check_int = 1
       end
 
-      def self.exec(cmd, lockfile, srv, lockfile_path, sockfile_path)
+      # Called from skylight.rb on require
+      def self.boot
+        if ENV[STANDALONE_ENV_KEY] == STANDALONE_ENV_VAL
+          def fail(msg, code = 1)
+            STDERR.ptus msg
+            exit code
+          end
+
+          unless fd = ENV[LOCKFILE_ENV_KEY]
+            fail "missing lockfile FD"
+          end
+
+          unless fd =~ /^\d+$/
+            fail "invalid lockfile FD"
+          end
+
+          begin
+            lockfile = IO.open(fd.to_i)
+          rescue Exception => e
+            fail "invalid lockfile FD: #{e.message}"
+          end
+
+          unless sockfile_path = ENV[SOCKFILE_PATH_KEY]
+            fail "missing sockfile path"
+          end
+
+          unless lockfile_path = ENV[LOCKFILE_PATH]
+            fail "missing lockfile path"
+          end
+
+          unless keepalive = ENV[KEEPALIVE_KEY]
+            fail "missing keepalive"
+          end
+
+          unless keepalive =~ /^\d+$/
+            fail "invalid keepalive"
+          end
+
+          srv = nil
+          if fd = ENV[UDS_SRV_FD_KEY]
+            srv = UNIXServer.for_fd(fd.to_i)
+          end
+
+          server = new(
+            lockfile,
+            srv,
+            lockfile_path,
+            sockfile_path,
+            keepalive.to_i)
+
+          server.run
+        end
+      end
+
+      def self.exec(cmd, lockfile, srv, lockfile_path, sockfile_path, keepalive)
         env = {
           STANDALONE_ENV_KEY => STANDALONE_ENV_VAL,
           LOCKFILE_PATH      => lockfile_path,
           LOCKFILE_ENV_KEY   => lockfile.fileno.to_s,
-          SOCKFILE_PATH_KEY  => sockfile_path }
+          SOCKFILE_PATH_KEY  => sockfile_path,
+          KEEPALIVE_KEY      => keepalive.to_s }
 
         if srv
           env[UDS_SRV_FD_KEY] = srv.fileno.to_s
@@ -71,7 +143,9 @@ module Skylight
       def work
         @socks << @server
 
-        next_sanity_check_at = Time.now.to_i + sanity_check_int
+        now = Time.now.to_i
+        next_sanity_check_at = now + sanity_check_int
+        had_client_at = now
 
         trace "starting IO loop"
         begin
@@ -112,7 +186,14 @@ module Skylight
 
           now = Time.now.to_i
 
-          if next_sanity_check_at <= now
+          if @socks.length > 1
+            had_client_at = now
+          end
+
+          if keepalive < now - had_client_at
+            info "no clients for #{keepalive} sec - shutting down"
+            @run = false
+          elsif next_sanity_check_at <= now
             next_sanity_check_at = now + sanity_check_int
             sanity_check
           end
@@ -149,13 +230,20 @@ module Skylight
         when Messages::Trace
           @collector.submit(msg)
         when :unknown
-          debug "Got unknown message"
+          debug "received unknown message"
         else
-          debug "GOT: %s", msg
+          debug "recieved: %s", msg
         end
       end
 
       def reload(hello)
+        # Close all client connections
+        trace "closing all client connections"
+        clients_close
+
+        # Re-exec the process
+        trace "re-exec"
+        Server.exec(hello.cmd, @lockfile, @server, lockfile_path, sockfile_path, keepalive)
       end
 
       def accept
@@ -170,25 +258,26 @@ module Skylight
       end
 
       def cleanup
-        # Neither the lockfile nor the sockfile are deleted. There is no atomic
-        # way to delete the lockfile in the case that somebody manually removed
-        # the lockfile and a new agent process created a new one.
-        #
-        # The sockfile is left around as well in order to provide a hint to
-        # rails processes that the agent is dead. That way, when they attempt
-        # to connect to the unix domain socket, it will faill quickly.
+        # The lockfile is not deleted. There is no way to atomically ensure
+        # that we are deleting the lockfile for the current process.
+        cleanup_curr_sockfile
         close
         @lockfile.close
       end
 
       def close
         @server.close if @server
+        clients_close
+      end
+
+      def clients_close
         @connections.keys.each do |sock|
           client_close(sock)
         end
       end
 
       def client_close(sock)
+        trace "closing client connection; fd=%d", sock.fileno
         @connections.delete(sock)
         @socks.delete(sock)
         sock.close rescue nil
@@ -205,13 +294,6 @@ module Skylight
       def cleanup_curr_sockfile
         File.unlink(sockfile) rescue nil
       end
-
-      # def cleanup_sockfiles
-      #   Dir["#{sockfile_path}/skylight-*.sock"].each do |f|
-      #     next if File.expand_path(f) == 
-      #     File.unlink(f) rescue nil
-      #   end
-      # end
 
       def sanity_check
         if !File.exist?(lockfile_path)
@@ -231,14 +313,6 @@ module Skylight
         unless sockfile?
           raise WorkerStateError, "sockfile gone"
         end
-      end
-
-      def sanity_check_int
-        1
-      end
-
-      def timeout
-        1
       end
     end
   end

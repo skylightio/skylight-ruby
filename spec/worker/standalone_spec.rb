@@ -122,4 +122,15 @@ describe 'Standalone worker' do
 
   end
 
+  context 'handling inactivity' do
+
+    it 'shutsdown when there are no client connections' do
+      worker = spawn_worker keepalive: 1
+      pid = worker.pid
+      worker.shutdown
+      lambda { !pid_exists?(pid) }.should happen(5)
+    end
+
+  end
+
 end
