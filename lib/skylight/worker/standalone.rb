@@ -167,8 +167,6 @@ module Skylight
         elsif msg
           handle(msg)
         else
-          trace "Testing socket"
-
           begin
             @sock.read_nonblock(1)
           rescue Errno::EWOULDBLOCK, Errno::EAGAIN, Errno::EINTR
@@ -247,7 +245,7 @@ module Skylight
 
       # Spawn the worker process.
       def spawn_worker(f)
-        fork do
+        pid = fork do
           Process.setsid
           exit if fork
 
@@ -282,6 +280,8 @@ module Skylight
 
           @server.exec(SUBPROCESS_CMD, f, srv, lockfile, sockfile_path, keepalive)
         end
+
+        Process.detach(pid)
       end
 
       # If the process was forked, create a new queue and restart the worker
