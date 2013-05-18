@@ -137,6 +137,8 @@ module Skylight
       end
 
       def repair
+        @sock.close rescue nil if @sock
+
         # Attempt to reconnect to the currently known agent PID. If the agent
         # is still healthy but is simply reloading itself, this should work
         # just fine.
@@ -196,7 +198,7 @@ module Skylight
           end
 
           @sock = nil
-          sock.close
+          sock.close rescue nil
 
           # TODO: Respawn the agent
           repair
@@ -287,8 +289,14 @@ module Skylight
         LOCK.synchronize do
           if @me != Process.pid
             trace "process forked; recovering"
+            # Update the current process ID
             @me = Process.pid
+
+            # Deal w/ the inherited socket
+            @sock.close rescue nil if @sock
             @sock = nil
+
+            # Reset the queue
             @writer = build_queue
             @writer.spawn
           end
