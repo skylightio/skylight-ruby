@@ -17,6 +17,7 @@ module Skylight
         File.expand_path('../../../skylight.rb', __FILE__) ]
 
       HELLO = Messages::Hello.new(version: VERSION, cmd: SUBPROCESS_CMD)
+      LOCK  = Mutex.new
 
       attr_reader \
         :pid,
@@ -34,6 +35,7 @@ module Skylight
           raise ArgumentError, "all arguments are required"
         end
 
+        @me = Process.pid
         @spawns = []
         @server = server
         @lockfile = lockfile
@@ -46,7 +48,7 @@ module Skylight
 
         # Writer background processor will accept messages and write them to
         # the IPC socket
-        @writer = Util::Task.new(100, 1) { |m| writer_tick(m) }
+        @writer = build_queue
       end
 
       def spawn(*args)
@@ -59,10 +61,14 @@ module Skylight
       end
 
       def send(msg)
-        return unless @pid
-
         unless msg.respond_to?(:encode)
           raise ArgumentError, "message not encodable"
+        end
+
+        return unless @pid
+
+        if @me != Process.pid
+          handle_fork
         end
 
         @writer.submit(msg)
@@ -181,7 +187,8 @@ module Skylight
       def handle(msg)
         2.times do
           unless sock = @sock
-            # TODO: respawn the agent
+            return false unless repair
+            sock = @sock
           end
 
           if write_msg(sock, msg)
@@ -192,7 +199,7 @@ module Skylight
           sock.close
 
           # TODO: Respawn the agent
-          raise NotImplementedError
+          repair
         end
 
         false
@@ -275,6 +282,19 @@ module Skylight
         end
       end
 
+      # If the process was forked, create a new queue and restart the worker
+      def handle_fork
+        LOCK.synchronize do
+          if @me != Process.pid
+            trace "process forked; recovering"
+            @me = Process.pid
+            @sock = nil
+            @writer = build_queue
+            @writer.spawn
+          end
+        end
+      end
+
       def check_permissions
         lockfile_root = File.dirname(lockfile)
 
@@ -294,6 +314,10 @@ module Skylight
         unless FileTest.writable?(sockfile_path)
           raise WorkerStateError, "`#{sockfile_path}` not writable"
         end
+      end
+
+      def build_queue
+        Util::Task.new(100, 1) { |m| writer_tick(m) }
       end
 
       def read_lockfile
