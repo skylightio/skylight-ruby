@@ -1,6 +1,8 @@
 require 'rbconfig'
 require 'socket'
 require 'skylight/version'
+require 'active_support/notifications'
+require 'skylight/compat' # Require after AS::N
 
 module Skylight
   autoload :Messages, 'skylight/messages'
