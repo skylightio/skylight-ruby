@@ -6,6 +6,12 @@ module Skylight
       'SK_APPLICATION' => :application,
       'SK_TOKEN'       => :token }
 
+    DEFAULTS = {
+      :'report.host'    => 'agent.skylight.io'.freeze,
+      :'report.port'    => 443,
+      :'report.ssl'     => true,
+      :'report.deflate' => true }.freeze
+
     def self.load(path = nil, environment = nil, env = ENV)
       attrs = {}
 
@@ -43,11 +49,7 @@ module Skylight
       @priority = {}
       @regexp   = nil
 
-      if p = attrs.delete(:priority)
-        p.each do |k, v|
-          @priority[k.to_sym] = v
-        end
-      end
+      p = attrs.delete(:priority)
 
       if @environment = args[0]
         @regexp = /^#{Regexp.escape(@environment)}\.(.+)$/
@@ -56,6 +58,12 @@ module Skylight
       attrs.each do |k, v|
         self[k] = v
       end
+
+      if p
+        p.each do |k, v|
+          @priority[k.to_sym] = v
+        end
+      end
     end
 
     def get(key, default = nil, &blk)
@@ -63,6 +71,7 @@ module Skylight
 
       return @priority[key] if @priority.key?(key)
       return @values[key]   if @values.key?(key)
+      return DEFAULTS[key]  if DEFAULTS.key?(key)
 
       if default && blk
         raise ArgumentError, "cannot pass in both a default value and block"
@@ -84,7 +93,7 @@ module Skylight
         end
       else
         if @regexp && key =~ @regexp
-          @priority[$1.to_sym] ||= val
+          @priority[$1.to_sym] = val
         end
 
         @values[key.to_sym] = val

@@ -180,6 +180,25 @@ describe Skylight::Config do
 
   end
 
+  context 'defaults' do
+
+    it 'uses defaults' do
+      config = Skylight::Config.new
+      config['report.ssl'].should be_true
+    end
+
+    it 'uses values over defaults' do
+      config = Skylight::Config.new report: { ssl: false }
+      config['report.ssl'].should be_false
+    end
+
+    it 'uses nil values over defaults' do
+      config = Skylight::Config.new report: { ssl: nil }
+      config['report.ssl'].should be_nil
+    end
+
+  end
+
   context 'loading from YAML' do
 
     let :file do
