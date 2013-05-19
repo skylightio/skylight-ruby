@@ -73,11 +73,13 @@ module Skylight
       return @values[key]   if @values.key?(key)
       return DEFAULTS[key]  if DEFAULTS.key?(key)
 
-      if default && blk
-        raise ArgumentError, "cannot pass in both a default value and block"
+      if default
+        return default
+      elsif blk
+        return blk.call(key)
       end
 
-      default || blk.call(key)
+      nil
     end
 
     alias [] get
@@ -101,6 +103,16 @@ module Skylight
     end
 
     alias []= set
+
+    #
+    #
+    # ===== Helpers =====
+    #
+    #
+
+    def worker
+      Worker::Builder.new(self)
+    end
 
   end
 end

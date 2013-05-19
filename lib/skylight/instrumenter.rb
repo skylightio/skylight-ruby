@@ -1,6 +1,47 @@
+require 'thread'
+
 module Skylight
   class Instrumenter
     include Util::Logging
+
+    def self.start!(config = Config.new)
+      new(config).start!
+    end
+
+    attr_reader :config
+
+    def initialize(config)
+      if Hash === config
+        config = Config.new(config)
+      end
+
+      @lock    = Mutex.new
+      @config  = config
+      @started = false
+      @worker  = config.worker.build
+    end
+
+    def start!
+      # Quick check
+      return self if @started
+      return unless config
+
+      @lock.synchronize do
+        # Ensure that the instrumenter has not been started now that the lock
+        # has been acquired.
+        return self if @started
+
+        @worker.spawn
+
+        @started = true
+      end
+
+      self
+
+    rescue Exception => e
+      error "failed to start instrumenter; msg=%s", e.message
+      nil
+    end
 
     def trace(endpoint = nil)
       # Ignore everything unless the instrumenter has been started

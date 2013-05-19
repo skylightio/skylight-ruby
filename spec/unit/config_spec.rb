@@ -89,16 +89,6 @@ describe Skylight::Config do
 
     end
 
-    context 'with a value and block' do
-
-      it 'raises an error' do
-        lambda {
-          config.get('bar', 'missing') { 'missing' }
-        }.should raise_error(ArgumentError)
-      end
-
-    end
-
   end
 
   context 'environment scopes' do

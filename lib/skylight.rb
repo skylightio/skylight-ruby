@@ -8,6 +8,7 @@ module Skylight
   autoload :Config,       'skylight/config'
   autoload :Instrumenter, 'skylight/instrumenter'
   autoload :Messages,     'skylight/messages'
+  autoload :Normalizers,  'skylight/normalizers'
   autoload :Trace,        'skylight/trace'
   autoload :Worker,       'skylight/worker'
 
@@ -23,6 +24,13 @@ module Skylight
   # ==== Exceptions ====
   class IpcProtoError < RuntimeError; end
   class WorkerStateError < RuntimeError; end
+
+  TIERS = %w(
+    app
+    view
+    db
+    noise
+    other)
 
   RUBYBIN = File.join(
     RbConfig::CONFIG['bindir'],

@@ -7,8 +7,11 @@ module SpecHelper
   def spawn_worker(opts = {})
     @spawned ||= []
     opts = { sockfile_path: sockfile_path }.merge(opts)
-    ret  = Skylight::Worker::Builder.new(opts).spawn
+    ret  = Skylight::Worker::Builder.new(agent: opts).build
+
+    ret.spawn
     @spawned << ret
+
     ret
   end
 

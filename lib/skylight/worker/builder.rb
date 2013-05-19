@@ -1,51 +1,50 @@
 module Skylight
   module Worker
     class Builder
-      def initialize(config = nil)
+      attr_reader :config
+
+      def initialize(config = Config.new)
+        if Hash === config
+          config = Config.new(config)
+        end
+
         @config = config
       end
 
-      def spawn(*args)
+      def build
         if jruby?
           raise NotImplementedError
         else
-          inst = Standalone.new(
+          Standalone.new(
             lockfile,
             sockfile_path,
             server,
             keepalive.to_i)
-
-          inst.spawn(*args)
-          inst
         end
       end
 
     private
 
       def lockfile
-        config(:lockfile) { File.join(sockfile_path, "skylight.pid") }.to_s
+        config.get('agent.lockfile') { File.join(sockfile_path, "skylight.pid") }.to_s
       end
 
       def sockfile_path
-        config(:sockfile_path) { "tmp" }.to_s
+        config.get('agent.sockfile_path') { raise ArgumentError, "sockfile_path required" }.to_s
       end
 
       def server
-        config(:server) { Server }
+        config.get('agent.server', Server)
       end
 
       def keepalive
-        config(:keepalive) { 60 }
+        config.get('agent.keepalive', 60).to_i
       end
 
       def jruby?
         defined?(RUBY_ENGINE) && RUBY_ENGINE == 'jruby'
       end
 
-      def config(key, &blk)
-        return blk.call unless @config
-        @config[key] || blk.call
-      end
     end
   end
 end
