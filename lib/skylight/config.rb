@@ -3,8 +3,8 @@ require 'yaml'
 module Skylight
   class Config
     ENV_TO_KEY = {
-      'SK_APPLICATION' => :application,
-      'SK_TOKEN'       => :token }
+      'SK_APPLICATION'    => :application,
+      'SK_AUTHENTICATION' => :authentication }
 
     DEFAULTS = {
       :'report.host'    => 'agent.skylight.io'.freeze,

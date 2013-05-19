@@ -207,16 +207,16 @@ describe Skylight::Config do
 
     let :config do
       Skylight::Config.load(file, 'production', {
-        'foo'            => 'fail',
-        'application'    => 'no',
-        'SK_TOKEN'       => 'my-token',
-        'SK_APPLICATION' => 'my-app'})
+        'foo'               => 'fail',
+        'application'       => 'no',
+        'SK_AUTHENTICATION' => 'my-token',
+        'SK_APPLICATION'    => 'my-app'})
     end
 
     before :each do
       file.write <<-YML
 application: nope
-token: nope
+authentication: nope
 zomg: hello
 foo: bar
 stuff: nope
@@ -237,7 +237,7 @@ production:
     end
 
     it 'can load the token from an environment variable' do
-      config['token'].should == 'my-token'
+      config['authentication'].should == 'my-token'
     end
 
     it 'ignores unknown env keys' do
