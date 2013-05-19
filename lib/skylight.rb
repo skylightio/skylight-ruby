@@ -5,8 +5,11 @@ require 'active_support/notifications'
 require 'skylight/compat' # Require after AS::N
 
 module Skylight
-  autoload :Messages, 'skylight/messages'
-  autoload :Worker,   'skylight/worker'
+  autoload :Config,       'skylight/config'
+  autoload :Instrumenter, 'skylight/instrumenter'
+  autoload :Messages,     'skylight/messages'
+  autoload :Trace,        'skylight/trace'
+  autoload :Worker,       'skylight/worker'
 
   module Util
     autoload :Logging, 'skylight/util/logging'

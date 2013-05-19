@@ -8,3 +8,16 @@ module Skylight
     require 'skylight/vendor/active_support/notifications'
   end
 end
+
+if defined?(ActiveSupport::Notifications::Fanout::Subscribers::Evented)
+  # Handle early RCs of rails 4.0
+  class ActiveSupport::Notifications::Fanout::Subscribers::Evented
+    unless method_defined?(:publish)
+      def publish(name, *args)
+        if @delegate.respond_to?(:publish)
+          @delegate.publish name, *args
+        end
+      end
+    end
+  end
+end
