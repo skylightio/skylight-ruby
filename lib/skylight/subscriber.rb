@@ -13,7 +13,7 @@ module Skylight
     end
 
     def start(name, id, payload)
-      return unless trace = Trace.current
+      return unless trace = Instrumenter.current_trace
 
       cat, title, desc, annot = normalize(trace, name, payload)
       trace.start(now - gc_time, cat, title, desc, annot)
@@ -22,7 +22,7 @@ module Skylight
     end
 
     def finish(name, id, payload)
-      return unless trace = Trace.current
+      return unless trace = Instrumenter.current_trace
       trace.stop(now - gc_time)
     end
 

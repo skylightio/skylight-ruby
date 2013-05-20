@@ -2,7 +2,17 @@ require 'thread'
 
 module Skylight
   class Instrumenter
+    KEY = :__skylight_current_trace
+
     include Util::Logging
+
+    def self.current_trace
+      Thread.current[KEY]
+    end
+
+    def self.current_trace=(trace)
+      Thread.current[KEY] = trace
+    end
 
     def self.start!(config = Config.new)
       new(config).start!
@@ -51,17 +61,17 @@ module Skylight
       end
 
       # If a trace is already in progress, continue with that one
-      if Trace.current
+      if Instrumenter.current_trace
         return yield
       end
 
       trace = Trace.new(endpoint, Util::Clock.now)
 
       begin
-        Thread.current = trace
+        Instrumenter.current_trace = trace
         yield trace
       ensure
-        Trace.current = nil
+        Instrumenter.current_trace = nil
 
         begin
           trace.commit

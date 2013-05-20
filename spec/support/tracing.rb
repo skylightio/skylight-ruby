@@ -1,7 +1,7 @@
 module SpecHelper
 
   def trace
-    @trace ||= Skylight::Trace.new
+    @trace ||= Skylight::Messages::Trace::Builder.new
   end
 
   def span(i)

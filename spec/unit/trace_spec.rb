@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Skylight
-  describe Trace do
+  describe Messages::Trace do
 
     context 'defaults' do
 
@@ -23,7 +23,7 @@ module Skylight
     context 'building' do
 
       let :trace do
-        Trace.new 'Zomg', 10
+        Messages::Trace::Builder.new 'Zomg', 10
       end
 
       it 'does not track the span when it is started' do
@@ -54,7 +54,7 @@ module Skylight
         trace.stop   15
         trace.stop   17
         trace.stop   19
-        trace.commit
+        trace.build
 
         trace.spans.should have(5).item
 
@@ -87,21 +87,21 @@ module Skylight
       it 'raises an exception on stop when the trace is unbalanced' do
         lambda {
           trace.stop 10
-        }.should raise_error(TraceError)
+        }.should raise_error(Messages::TraceError)
       end
 
       it 'raises an exception on commit when the trace is unbalanced' do
         trace.start 10, :foo
         lambda {
-          trace.commit
-        }.should raise_error(TraceError)
+          trace.build
+        }.should raise_error(Messages::TraceError)
       end
 
       it 'tracks the title' do
         trace.start  10, :foo, 'How a foo is formed?'
         trace.record 13, :bar, 'How a bar is formed?'
         trace.stop   15
-        trace.commit
+        trace.build
 
         span(0).title.should == 'How a bar is formed?'
         span(1).title.should == 'How a foo is formed?'

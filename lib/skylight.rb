@@ -10,7 +10,6 @@ module Skylight
   autoload :Messages,     'skylight/messages'
   autoload :Normalizers,  'skylight/normalizers'
   autoload :Subscriber,   'skylight/subscriber'
-  autoload :Trace,        'skylight/trace'
   autoload :Worker,       'skylight/worker'
 
   module Util
