@@ -13,11 +13,12 @@ module Skylight
     attr_accessor :endpoint
     attr_reader   :spans
 
-    def initialize(endpoint = "Unknown", start = Time.now)
+    def initialize(endpoint = "Unknown", start = Util::Clock.default.now)
       @endpoint = endpoint
       @start    = start
       @spans    = []
       @stack    = []
+      @parents  = []
     end
 
     class Annotation
@@ -43,32 +44,33 @@ module Skylight
 
       # Optimization
       def initialize(attrs = nil)
-        super if attr
+        super if attrs
       end
     end
 
-    def record(time, cat, title, desc, annot)
+    def record(time, cat, title = nil, desc = nil, annot = {})
       span = build(time, cat, title, desc, annot)
 
+      return self if :skip == span
+
       inc_children
-      @stack << span
+      @spans << span
 
       self
     end
 
-    def start(time, cat, title, desc, annot)
+    def start(time, cat, title = nil, desc = nil, annot = {})
       span = build(time, cat, title, desc, annot)
 
-      inc_children
-      @stack << span
+      push(span)
 
       self
     end
 
     def stop(time)
-      unless span = @stack.pop
-        raise "trace unbalanced"
-      end
+      span = pop
+
+      return self if :skip == span
 
       span.ended_at = relativize(time)
       @spans << span
@@ -76,19 +78,47 @@ module Skylight
       self
     end
 
+    def commit
+      raise "trace unbalanced" unless @stack.empty?
+      freeze
+      self
+    end
+
   private
 
     def build(time, cat, title, desc, annot)
+      return cat if :skip == cat
+
       sp = Span.new
-      sp.category    = cat
+      sp.category    = cat.to_s
       sp.title       = title
       sp.description = desc
       sp.annotations = to_annotations(annot)
       sp.started_at  = relativize(time)
+      sp
+    end
+
+    def push(span)
+      @stack << span
+
+      unless :skip == span
+        inc_children
+        @parents << span
+      end
+    end
+
+    def pop
+      unless span = @stack.pop
+        raise "trace unbalanced"
+      end
+
+      @parents.pop if :skip != span
+
+      span
     end
 
     def inc_children
-      return  unless span = @stack.last
+      return unless span = @parents.last
       span.children = (span.children || 0) + 1
     end
 
@@ -97,7 +127,7 @@ module Skylight
     end
 
     def relativize(time)
-      (1_000_000 * (time - now)).to_i
+      (1_000_000 * (time - @start)).to_i
     end
 
   end

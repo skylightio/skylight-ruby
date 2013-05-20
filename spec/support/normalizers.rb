@@ -4,10 +4,6 @@ module SpecHelper
     @normalizers ||= Skylight::Normalizers.build(config)
   end
 
-  def trace
-    @trace ||= Skylight::Trace.new
-  end
-
   def normalize(*args)
     payload = Hash === args.last ? args.pop : {}
 
