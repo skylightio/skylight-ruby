@@ -8,7 +8,7 @@ module Skylight
       new(config).start!
     end
 
-    attr_reader :config
+    attr_reader :config, :gc
 
     def initialize(config)
       if Hash === config
@@ -19,6 +19,7 @@ module Skylight
       @config  = config
       @started = false
       @worker  = config.worker.build
+      @gc      = config.gc
     end
 
     def start!
@@ -54,7 +55,7 @@ module Skylight
         return yield
       end
 
-      trace = Trace.new(endpoint)
+      trace = Trace.new(endpoint, Util::Clock.now)
 
       begin
         Thread.current = trace

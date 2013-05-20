@@ -13,9 +13,9 @@ module Skylight
     end
 
     attr_accessor :endpoint
-    attr_reader   :spans
+    attr_reader   :spans, :start
 
-    def initialize(endpoint = "Unknown", start = Util::Clock.default.now)
+    def initialize(endpoint = "Unknown", start = Util::Clock.now)
       @endpoint = endpoint
       @start    = start
       @spans    = []

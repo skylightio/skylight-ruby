@@ -7,6 +7,10 @@ module Skylight
         n.to_i + n.usec.to_f / 1_000_000
       end
 
+      def self.now
+        default.now
+      end
+
       def self.default
         @clock ||= Clock.new
       end

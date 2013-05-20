@@ -9,6 +9,7 @@ module Skylight
   autoload :Instrumenter, 'skylight/instrumenter'
   autoload :Messages,     'skylight/messages'
   autoload :Normalizers,  'skylight/normalizers'
+  autoload :Subscriber,   'skylight/subscriber'
   autoload :Trace,        'skylight/trace'
   autoload :Worker,       'skylight/worker'
 

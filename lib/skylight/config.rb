@@ -114,5 +114,9 @@ module Skylight
       Worker::Builder.new(self)
     end
 
+    def gc
+      GC.new(get('gc.profiler', GC::Profiler))
+    end
+
   end
 end
