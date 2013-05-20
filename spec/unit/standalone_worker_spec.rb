@@ -144,7 +144,7 @@ describe 'Standalone worker' do
         FileUtils.touch("#{testfile}")
       RUBY
 
-      worker.send Skylight::Messages::Hello.new(
+      worker.submit Skylight::Messages::Hello.new(
         version: version,
         cmd: [Skylight::RUBYBIN, tmp("test.rb").to_s])
 

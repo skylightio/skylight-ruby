@@ -60,7 +60,7 @@ module Skylight
         end
       end
 
-      def send(msg)
+      def submit(msg)
         unless msg.respond_to?(:encode)
           raise ArgumentError, "message not encodable"
         end
