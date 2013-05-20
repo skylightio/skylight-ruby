@@ -1,4 +1,6 @@
 module Skylight
+  class TraceError < RuntimeError; end
+
   class Trace
     KEY = :__skylight_current_trace
 
@@ -79,7 +81,7 @@ module Skylight
     end
 
     def commit
-      raise "trace unbalanced" unless @stack.empty?
+      raise TraceError, "trace unbalanced" unless @stack.empty?
       freeze
       self
     end
@@ -109,7 +111,7 @@ module Skylight
 
     def pop
       unless span = @stack.pop
-        raise "trace unbalanced"
+        raise TraceError, "trace unbalanced"
       end
 
       @parents.pop if :skip != span

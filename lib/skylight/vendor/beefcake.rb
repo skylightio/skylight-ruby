@@ -211,6 +211,7 @@ module Skylight
 
       def ==(o)
         return false if (o == nil) || (o == false)
+        return false unless o.respond_to?(:[])
         fields.values.all? {|fld| self[fld.name] == o[fld.name] }
       end
 

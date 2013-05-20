@@ -60,23 +60,62 @@ module Skylight
 
         span(0).category.should   == 'cat4'
         span(0).started_at.should == 2_000_000
+        span(0).ended_at.should   be_nil
         span(0).children.should   be_nil
 
         span(1).category.should   == 'cat5'
         span(1).started_at.should == 4_000_000
+        span(1).ended_at.should   be_nil
         span(1).children.should   be_nil
 
         span(2).category.should   == 'cat3'
         span(2).started_at.should == 1_000_000
+        span(2).ended_at.should   == 4_000_000
         span(2).children.should   == 2
 
         span(3).category.should   == 'cat2'
         span(3).started_at.should == 1_000_000
+        span(3).ended_at.should   == 7_000_000
         span(3).children.should   == 1
 
         span(4).category.should   == 'cat1'
         span(4).started_at.should == 0
+        span(4).ended_at.should   == 9_000_000
         span(4).children.should   == 1
+      end
+
+      it 'raises an exception on stop when the trace is unbalanced' do
+        lambda {
+          trace.stop 10
+        }.should raise_error(TraceError)
+      end
+
+      it 'raises an exception on commit when the trace is unbalanced' do
+        trace.start 10, :foo
+        lambda {
+          trace.commit
+        }.should raise_error(TraceError)
+      end
+
+      it 'tracks the title' do
+        trace.start  10, :foo, 'How a foo is formed?'
+        trace.record 13, :bar, 'How a bar is formed?'
+        trace.stop   15
+        trace.commit
+
+        span(0).title.should == 'How a bar is formed?'
+        span(1).title.should == 'How a foo is formed?'
+      end
+
+      it 'tracks the description' do
+        trace.start  10, :foo, 'FOO', 'How a foo is formed?'
+        trace.record 13, :bar, 'BAR', 'How a bar is formed?'
+        trace.stop   15
+
+        span(0).title.should       == 'BAR'
+        span(0).description.should == 'How a bar is formed?'
+        span(1).title.should       == 'FOO'
+        span(1).description.should == 'How a foo is formed?'
       end
 
     end
