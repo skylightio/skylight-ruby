@@ -5,15 +5,16 @@ module Skylight
 
     # Map environment variable keys with Skylight configuration keys
     ENV_TO_KEY = {
-      'SK_APPLICATION'       => :'application',
-      'SK_AUTHENTICATION'    => :'authentication',
-      'SK_AGENT_INTERVAL'    => :'agent.interval',
-      'SK_AGENT_KEEPALIVE'   => :'agent.keepalive',
-      'SK_AGENT_SAMPLE_SIZE' => :'agent.sample',
-      'SK_REPORT_HOST'       => :'report.host',
-      'SK_REPORT_PORT'       => :'report.port',
-      'SK_REPORT_SSL'        => :'report.ssl',
-      'SK_REPORT_DEFLATE'    => :'report.deflate' }
+      'SK_APPLICATION'         => :'application',
+      'SK_AUTHENTICATION'      => :'authentication',
+      'SK_AGENT_INTERVAL'      => :'agent.interval',
+      'SK_AGENT_KEEPALIVE'     => :'agent.keepalive',
+      'SK_AGENT_SAMPLE_SIZE'   => :'agent.sample',
+      'SK_AGENT_SOCKFILE_PATH' => :'agent.sockfile_path',
+      'SK_REPORT_HOST'         => :'report.host',
+      'SK_REPORT_PORT'         => :'report.port',
+      'SK_REPORT_SSL'          => :'report.ssl',
+      'SK_REPORT_DEFLATE'      => :'report.deflate' }
 
     # Default values for Skylight configuration keys
     DEFAULTS = {
@@ -62,6 +63,8 @@ module Skylight
 
       ret
     end
+
+    attr_reader :environment
 
     def initialize(*args)
       attrs = {}

@@ -9,7 +9,6 @@ module Skylight
       STANDALONE_ENV_VAL = 'server'.freeze
       LOCKFILE_PATH      = 'SK_LOCKFILE_PATH'.freeze
       LOCKFILE_ENV_KEY   = 'SK_LOCKFILE_FD'.freeze
-      SOCKFILE_PATH_KEY  = 'SK_SOCKFILE_PATH'.freeze
       UDS_SRV_FD_KEY     = 'SK_UDS_FD'.freeze
       KEEPALIVE_KEY      = 'SK_KEEPALIVE'.freeze
 
@@ -22,7 +21,7 @@ module Skylight
         :lockfile_path,
         :sockfile_path
 
-      def initialize(config, lockfile, srv, lockfile_path, sockfile_path)
+      def initialize(config, lockfile, srv, lockfile_path)
 
         unless lockfile && srv
           raise ArgumentError, "lockfile and unix domain server socket are required"
@@ -39,37 +38,39 @@ module Skylight
         @keepalive     = @config[:'agent.keepalive']
         @connections   = {}
         @lockfile_path = lockfile_path
-        @sockfile_path = sockfile_path
+        @sockfile_path = @config[:'agent.sockfile_path']
       end
 
       # Called from skylight.rb on require
       def self.boot
         if ENV[STANDALONE_ENV_KEY] == STANDALONE_ENV_VAL
-          def fail(msg, code = 1)
-            STDERR.ptus msg
-            exit code
+          fail = lambda do |msg|
+            STDERR.puts msg
+            exit 1
           end
 
+          config = Config.load_from_env
+
           unless fd = ENV[LOCKFILE_ENV_KEY]
-            fail "missing lockfile FD"
+            fail.call "missing lockfile FD"
           end
 
           unless fd =~ /^\d+$/
-            fail "invalid lockfile FD"
+            fail.call "invalid lockfile FD"
           end
 
           begin
             lockfile = IO.open(fd.to_i)
           rescue Exception => e
-            fail "invalid lockfile FD: #{e.message}"
-          end
-
-          unless sockfile_path = ENV[SOCKFILE_PATH_KEY]
-            fail "missing sockfile path"
+            fail.call "invalid lockfile FD: #{e.message}"
           end
 
           unless lockfile_path = ENV[LOCKFILE_PATH]
-            fail "missing lockfile path"
+            fail.call "missing lockfile path"
+          end
+
+          unless config[:'agent.sockfile_path']
+            fail.call "missing sockfile path"
           end
 
           srv = nil
@@ -78,23 +79,21 @@ module Skylight
           end
 
           server = new(
-            Config.load_from_env,
+            config,
             lockfile,
             srv,
-            lockfile_path,
-            sockfile_path)
+            lockfile_path)
 
           server.run
         end
       end
 
-      def self.exec(cmd, config, lockfile, srv, lockfile_path, sockfile_path)
+      def self.exec(cmd, config, lockfile, srv, lockfile_path)
         env = config.to_env
         env.merge!(
           STANDALONE_ENV_KEY => STANDALONE_ENV_VAL,
           LOCKFILE_PATH      => lockfile_path,
-          LOCKFILE_ENV_KEY   => lockfile.fileno.to_s,
-          SOCKFILE_PATH_KEY  => sockfile_path)
+          LOCKFILE_ENV_KEY   => lockfile.fileno.to_s)
 
         if srv
           env[UDS_SRV_FD_KEY] = srv.fileno.to_s
@@ -234,7 +233,7 @@ module Skylight
 
         # Re-exec the process
         trace "re-exec"
-        Server.exec(hello.cmd, @config, @lockfile, @server, lockfile_path, sockfile_path)
+        Server.exec(hello.cmd, @config, @lockfile, @server, lockfile_path)
       end
 
       def accept

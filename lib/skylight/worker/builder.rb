@@ -15,10 +15,13 @@ module Skylight
         if jruby?
           raise NotImplementedError
         else
+          unless config[:'agent.sockfile_path']
+            raise ArgumentError, 'agent.sockfile_path config required'
+          end
+
           Standalone.new(
             config,
             lockfile,
-            sockfile_path,
             server)
         end
       end
@@ -26,15 +29,14 @@ module Skylight
     private
 
       def lockfile
-        config.get('agent.lockfile') { File.join(sockfile_path, "skylight.pid") }.to_s
-      end
-
-      def sockfile_path
-        config.get('agent.sockfile_path') { raise ArgumentError, "sockfile_path required" }.to_s
+        config.get(:'agent.lockfile') do
+          name = [ 'skylight', config.environment ].compact.join('-')
+          File.join(config[:'agent.sockfile_path'], "#{name}.pid")
+        end.to_s
       end
 
       def server
-        config.get('agent.server', Server)
+        config.get(:'agent.server', Server)
       end
 
       def jruby?

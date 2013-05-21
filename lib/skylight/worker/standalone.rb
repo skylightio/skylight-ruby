@@ -27,11 +27,11 @@ module Skylight
         :spawn_window,
         :sockfile_path
 
-      def initialize(config, lockfile, sockfile_path, server)
+      def initialize(config, lockfile, server)
         @pid  = nil
         @sock = nil
 
-        unless lockfile && sockfile_path && server
+        unless config && lockfile && server
           raise ArgumentError, "all arguments are required"
         end
 
@@ -41,7 +41,7 @@ module Skylight
         @server = server
         @lockfile = lockfile
         @keepalive = config[:'agent.keepalive']
-        @sockfile_path = sockfile_path
+        @sockfile_path = config[:'agent.sockfile_path']
 
         # Should be configurable
         @max_spawns = 3
@@ -279,7 +279,7 @@ module Skylight
           # STDOUT.reopen null
           # STDERR.reopen null
 
-          @server.exec(SUBPROCESS_CMD, @config, f, srv, lockfile, sockfile_path)
+          @server.exec(SUBPROCESS_CMD, @config, f, srv, lockfile)
         end
 
         Process.detach(pid)

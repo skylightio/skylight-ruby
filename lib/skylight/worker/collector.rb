@@ -1,7 +1,7 @@
 module Skylight
   module Worker
     class Collector < Util::Task
-      ENDPOINT     = '/report'.freeze
+      ENDPOINT     = '/agent/report'.freeze
       FLUSH_DELAY  = 0.5
       CONTENT_TYPE = 'content-type'.freeze
       SKYLIGHT_V1  = 'x-skylight-report-v1'.freeze
