@@ -27,10 +27,12 @@ module Skylight
       :'report.deflate'  => true }.freeze
 
     def self.load(path = nil, environment = nil, env = ENV)
-      attrs = {}
+      attrs   = {}
+      version = nil
 
       if path
-        attrs = YAML.load_file(path)
+        attrs   = YAML.load_file(path)
+        version = File.mtime(path).to_i
       end
 
       if env

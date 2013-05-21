@@ -14,6 +14,7 @@ module Skylight
 
   module Util
     autoload :Clock,         'skylight/util/clock'
+    autoload :Gzip,          'skylight/util/gzip'
     autoload :HTTP,          'skylight/util/http'
     autoload :Logging,       'skylight/util/logging'
     autoload :Queue,         'skylight/util/queue'

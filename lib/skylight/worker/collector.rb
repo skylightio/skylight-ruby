@@ -4,7 +4,7 @@ module Skylight
       ENDPOINT     = '/agent/report'.freeze
       FLUSH_DELAY  = 0.5
       CONTENT_TYPE = 'content-type'.freeze
-      SKYLIGHT_V1  = 'x-skylight-report-v1'.freeze
+      SKYLIGHT_V1  = 'application/x-skylight-report-v1'.freeze
 
       include Util::Logging
 
@@ -47,11 +47,7 @@ module Skylight
         return if batch.empty?
 
         trace "flushing batch"
-        resp = @http.post(ENDPOINT, batch.encode, CONTENT_TYPE => SKYLIGHT_V1)
-
-        if resp.code.to_i != 200
-          warn "report failed; code=%s", resp.code
-        end
+        @http.post(ENDPOINT, batch.encode, CONTENT_TYPE => SKYLIGHT_V1)
       end
 
       def new_batch(now)
@@ -59,7 +55,7 @@ module Skylight
       end
 
       def round(time)
-        (time / @interval) * @interval
+        (time.to_i / @interval) * @interval
       end
 
       class Batch
@@ -102,7 +98,7 @@ module Skylight
 
           Messages::Batch.new(
             timestamp: from,
-            endpoints: ep.values).
+            endpoints: endpoints.values).
             encode.to_s
         end
       end

@@ -3,8 +3,8 @@ module Skylight
     class Endpoint
       include Beefcake::Message
 
-      required :name,   String, 1
-      repeated :traces, Trace,  2
+      required :name,   :string, 1
+      repeated :traces, Trace,   2
 
     end
   end

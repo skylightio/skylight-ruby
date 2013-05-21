@@ -16,8 +16,7 @@ module Skylight
         '-I', File.expand_path('../../..', __FILE__),
         File.expand_path('../../../skylight.rb', __FILE__) ]
 
-      HELLO = Messages::Hello.new(version: VERSION, cmd: SUBPROCESS_CMD)
-      LOCK  = Mutex.new
+      LOCK = Mutex.new
 
       attr_reader \
         :pid,
@@ -119,7 +118,7 @@ module Skylight
             if sockfile?(pid)
               if sock = connect(pid)
                 trace "connected to unix socket; pid=%s", pid
-                write_msg(sock, HELLO)
+                write_msg(sock, build_hello)
                 @sock = sock
                 @pid  = pid
                 return true
@@ -319,6 +318,13 @@ module Skylight
         unless FileTest.writable?(sockfile_path)
           raise WorkerStateError, "`#{sockfile_path}` not writable"
         end
+      end
+
+      def build_hello(config_version = nil)
+        Messages::Hello.new(
+          version: VERSION,
+          cmd:     SUBPROCESS_CMD,
+          config:  config_version)
       end
 
       def build_queue

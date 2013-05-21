@@ -212,7 +212,13 @@ module Skylight
       def ==(o)
         return false if (o == nil) || (o == false)
         return false unless o.respond_to?(:[])
-        fields.values.all? {|fld| self[fld.name] == o[fld.name] }
+        fields.values.all? do |fld|
+          if fld.rule == :repeated
+            Array(self[fld.name]) == Array(o[fld.name])
+          else
+            self[fld.name] == o[fld.name]
+          end
+        end
       end
 
       def inspect

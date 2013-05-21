@@ -22,13 +22,20 @@ module Skylight
         @host = config[:'report.host']
         @port = config[:'report.port']
         @deflate = config[:'report.deflate']
-        @authentication = config[:'report.deflate']
+        @authentication = config[:'authentication']
       end
 
       def post(endpoint, body, hdrs = {})
         request = build_request(Net::HTTP::Post, endpoint, body.bytesize)
+
+        hdrs.each do |k, v|
+          request[k] = v
+        end
+
         execute(request, body)
-      rescue
+      rescue Exception => e
+        error "http post failed; msg=%s", e.message
+        puts e.backtrace
       end
 
     private
@@ -46,6 +53,8 @@ module Skylight
       end
 
       def execute(req, body=nil, headers={})
+        trace "executing HTTP request; host=%s; port=%s", @host, @port
+
         if body
           body = Gzip.compress(body) if @deflate
           req.body = body
@@ -55,9 +64,9 @@ module Skylight
           req[name] = value
         end
 
-        http = Net::HTTP.new @config.host, @config.port
+        http = Net::HTTP.new @host, @port
 
-        if @config.ssl?
+        if @ssl
           http.use_ssl = true
           http.verify_mode = OpenSSL::SSL::VERIFY_PEER
         end

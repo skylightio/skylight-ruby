@@ -12,9 +12,12 @@ module Skylight
       end
 
       def build
-        if jruby?
-          raise NotImplementedError
-        else
+        s = strategy
+
+        case s
+        when 'embedded'
+          Collector.new(config)
+        when 'standalone'
           unless config[:'agent.sockfile_path']
             raise ArgumentError, 'agent.sockfile_path config required'
           end
@@ -23,10 +26,24 @@ module Skylight
             config,
             lockfile,
             server)
+        else
+          raise "unknown strategy: `#{strat}`"
         end
       end
 
     private
+
+      def strategy
+        ret = config.get(:'agent.strategy') do
+          if jruby?
+            'embedded'
+          else
+            'standalone'
+          end
+        end
+
+        ret.downcase.strip
+      end
 
       def lockfile
         config.get(:'agent.lockfile') do

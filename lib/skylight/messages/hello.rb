@@ -7,7 +7,8 @@ module Skylight
       DIGITS = /^\s*\d+\s*$/
 
       required :version, :string, 1
-      repeated :cmd,     :string, 2
+      optional :config,  :uint32, 2
+      repeated :cmd,     :string, 3
 
       def newer?(other = VERSION)
         other = split(other)

@@ -3,9 +3,9 @@ module Skylight
     class Span
       include Beefcake::Message
 
-      optional :category,    String,     1
-      optional :title,       String,     2
-      optional :description, String,     3
+      optional :category,    :string,    1
+      optional :title,       :string,    2
+      optional :description, :string,    3
       repeated :annotations, Annotation, 4
       required :started_at,  :uint32,    5
       optional :duration,    :uint32,    6

@@ -3,10 +3,10 @@ module Skylight
     class Annotation
       include Beefcake::Message
 
-      optional :key,    String,     1
+      optional :key,    :string,    1
       optional :int,    :int64,     2
       optional :double, :double,    3
-      optional :string, String,     4
+      optional :string, :string,    4
       repeated :nested, Annotation, 5
     end
   end

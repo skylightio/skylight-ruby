@@ -3,7 +3,7 @@ module Skylight
     class Batch
       include Beefcake::Message
 
-      required :timestamp, :unit32,  1
+      required :timestamp, :uint32,  1
       repeated :endpoints, Endpoint, 2
 
     end
