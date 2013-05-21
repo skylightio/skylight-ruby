@@ -19,6 +19,9 @@ module Skylight
         server.should have(1).requests
         server.should have(1).reports
 
+        req = server.requests[0]
+        req['CONTENT_TYPE'].should == 'application/x-skylight-report-v1'
+
         batch = server.reports[0]
         batch.timestamp.should be_within(1).of(Time.now.to_i)
 
