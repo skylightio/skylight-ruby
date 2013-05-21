@@ -20,6 +20,7 @@ module Skylight
 
       attr_reader \
         :pid,
+        :config,
         :lockfile,
         :keepalive,
         :max_spawns,
@@ -273,10 +274,10 @@ module Skylight
           srv = UNIXServer.new(sf)
 
           # TODO: Send logs to proper location
-          # null = File.open "/dev/null"
-          # STDIN.reopen null
-          # STDOUT.reopen null
-          # STDERR.reopen null
+          null = File.open "/dev/null", File::RDWR
+          STDIN.reopen null
+          STDOUT.reopen null
+          STDERR.reopen null
 
           @server.exec(SUBPROCESS_CMD, @config, f, srv, lockfile)
         end

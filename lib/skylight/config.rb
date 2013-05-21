@@ -1,10 +1,13 @@
 require 'yaml'
+require 'logger'
 
 module Skylight
   class Config
 
     # Map environment variable keys with Skylight configuration keys
     ENV_TO_KEY = {
+      'SK_LOG'                 => :'log',
+      'SK_LOG_LEVEL'           => :'log_level',
       'SK_APPLICATION'         => :'application',
       'SK_AUTHENTICATION'      => :'authentication',
       'SK_AGENT_INTERVAL'      => :'agent.interval',
@@ -18,6 +21,8 @@ module Skylight
 
     # Default values for Skylight configuration keys
     DEFAULTS = {
+      :'log'             => '-'.freeze,
+      :'log_level'       => 'INFO'.freeze,
       :'agent.keepalive' => 60,
       :'agent.interval'  => 5,
       :'agent.sample'    => 200,
@@ -158,6 +163,27 @@ module Skylight
 
     def gc
       GC.new(get('gc.profiler', GC::Profiler))
+    end
+
+    def logger
+      @logger ||=
+        begin
+          out = get(:'log')
+          out = STDOUT if out == '-'
+          l = Logger.new(out)
+          l.level =
+            case get(:'log_level')
+            when /^debug$/i then Logger::DEBUG
+            when /^info$/i  then Logger::INFO
+            when /^warn$/i  then Logger::WARN
+            when /^error$/i then Logger::ERROR
+            end
+          l
+        end
+    end
+
+    def logger=(logger)
+      @logger = logger
     end
 
   private

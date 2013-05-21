@@ -10,7 +10,7 @@ module Skylight
         worker.spawn
       end
 
-      it 'has tests' do
+      it 'submits the batch to the server' do
         t = trace.build
 
         worker.submit t

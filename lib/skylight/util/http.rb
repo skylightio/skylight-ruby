@@ -76,6 +76,7 @@ module Skylight
 
           unless response.code == '200'
             debug "Server responded with #{response.code}"
+            trace response.body
           end
 
           return response.body
