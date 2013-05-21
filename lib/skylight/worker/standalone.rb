@@ -27,7 +27,7 @@ module Skylight
         :spawn_window,
         :sockfile_path
 
-      def initialize(lockfile, sockfile_path, server, keepalive)
+      def initialize(config, lockfile, sockfile_path, server)
         @pid  = nil
         @sock = nil
 
@@ -36,10 +36,11 @@ module Skylight
         end
 
         @me = Process.pid
+        @config = config
         @spawns = []
         @server = server
         @lockfile = lockfile
-        @keepalive = keepalive
+        @keepalive = config[:'agent.keepalive']
         @sockfile_path = sockfile_path
 
         # Should be configurable
@@ -71,7 +72,7 @@ module Skylight
           handle_fork
         end
 
-        @writer.submit(msg)
+        @writer.submit(msg, @me)
       end
 
       # Shutdown any side task threads. Let the agent process die on it's own.
@@ -278,7 +279,7 @@ module Skylight
           # STDOUT.reopen null
           # STDERR.reopen null
 
-          @server.exec(SUBPROCESS_CMD, f, srv, lockfile, sockfile_path, keepalive)
+          @server.exec(SUBPROCESS_CMD, @config, f, srv, lockfile, sockfile_path)
         end
 
         Process.detach(pid)
@@ -295,10 +296,6 @@ module Skylight
             # Deal w/ the inherited socket
             @sock.close rescue nil if @sock
             @sock = nil
-
-            # Reset the queue
-            @writer = build_queue
-            @writer.spawn
           end
         end
       end

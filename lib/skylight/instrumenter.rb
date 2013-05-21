@@ -68,8 +68,10 @@ module Skylight
       trace = Trace.new(endpoint, Util::Clock.now)
 
       begin
+
         Instrumenter.current_trace = trace
         yield trace
+
       ensure
         Instrumenter.current_trace = nil
 
@@ -85,7 +87,11 @@ module Skylight
   private
 
     def process(trace)
-      p trace
+      trace "submitting trace to worker"
+
+      unless @worker.submit(trace)
+        warn "failed to submit trace to worker"
+      end
     end
 
   end

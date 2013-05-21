@@ -60,27 +60,27 @@ module Skylight
 
         span(0).category.should   == 'cat4'
         span(0).started_at.should == 2_000_000
-        span(0).ended_at.should   be_nil
+        span(0).duration.should   be_nil
         span(0).children.should   be_nil
 
         span(1).category.should   == 'cat5'
         span(1).started_at.should == 4_000_000
-        span(1).ended_at.should   be_nil
+        span(1).duration.should   be_nil
         span(1).children.should   be_nil
 
         span(2).category.should   == 'cat3'
         span(2).started_at.should == 1_000_000
-        span(2).ended_at.should   == 4_000_000
+        span(2).duration.should   == 3_000_000
         span(2).children.should   == 2
 
         span(3).category.should   == 'cat2'
         span(3).started_at.should == 1_000_000
-        span(3).ended_at.should   == 7_000_000
+        span(3).duration.should   == 6_000_000
         span(3).children.should   == 1
 
         span(4).category.should   == 'cat1'
         span(4).started_at.should == 0
-        span(4).ended_at.should   == 9_000_000
+        span(4).duration.should   == 9_000_000
         span(4).children.should   == 1
       end
 

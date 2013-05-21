@@ -16,10 +16,10 @@ module Skylight
           raise NotImplementedError
         else
           Standalone.new(
+            config,
             lockfile,
             sockfile_path,
-            server,
-            keepalive.to_i)
+            server)
         end
       end
 
@@ -35,10 +35,6 @@ module Skylight
 
       def server
         config.get('agent.server', Server)
-      end
-
-      def keepalive
-        config.get('agent.keepalive', 60).to_i
       end
 
       def jruby?

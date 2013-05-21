@@ -6,27 +6,30 @@ module Skylight
       SHUTDOWN = :__SK_TASK_SHUTDOWN
 
       def initialize(size, timeout = 0.1, &blk)
+        @pid     = Process.pid
         @thread  = nil
-        @queue   = Util::Queue.new(size)
+        @size    = size
         @lock    = Mutex.new
         @timeout = timeout
-        @run     = true
         @blk     = blk
       end
 
-      def submit(msg)
-        return unless @run
-        return unless q = @queue
+      def submit(msg, pid = Process.pid)
+        return unless @pid
 
-        spawn
+        spawn(pid)
+
+        return unless q = @queue
 
         !!q.push(msg)
       end
 
-      def spawn
+      def spawn(pid = Process.pid)
         unless spawned?
-          __spawn
+          __spawn(pid)
         end
+
+        true
       end
 
       def spawned?
@@ -34,7 +37,7 @@ module Skylight
       end
 
       def running?
-        spawned? && @run
+        spawned? && @pid
       end
 
       def shutdown(timeout = 5)
@@ -47,7 +50,7 @@ module Skylight
           if q = @queue
             m = true
             q.push(SHUTDOWN)
-            @run = false
+            @pid = nil
           end
         end
 
@@ -72,22 +75,27 @@ module Skylight
 
     private
 
-      def __spawn
+      def __spawn(pid)
         @lock.synchronize do
-          return if spawned?
-
+          return if spawned? && @pid == pid
+          @pid    = Process.pid
+          @queue  = Util::Queue.new(@size)
           @thread = Thread.new do
             unless work
               @queue = nil
             end
+
+            finish
           end
         end
+
+        true
       end
 
       def work
         return unless q = @queue
 
-        while @run
+        while @pid
           if msg = q.pop(@timeout)
             return true if SHUTDOWN == msg
 
@@ -123,6 +131,9 @@ module Skylight
       def handle(msg)
         return true unless @blk
         @blk.call(msg)
+      end
+
+      def finish
       end
 
     end

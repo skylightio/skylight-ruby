@@ -2,15 +2,28 @@ require 'yaml'
 
 module Skylight
   class Config
-    ENV_TO_KEY = {
-      'SK_APPLICATION'    => :application,
-      'SK_AUTHENTICATION' => :authentication }
 
+    # Map environment variable keys with Skylight configuration keys
+    ENV_TO_KEY = {
+      'SK_APPLICATION'       => :'application',
+      'SK_AUTHENTICATION'    => :'authentication',
+      'SK_AGENT_INTERVAL'    => :'agent.interval',
+      'SK_AGENT_KEEPALIVE'   => :'agent.keepalive',
+      'SK_AGENT_SAMPLE_SIZE' => :'agent.sample',
+      'SK_REPORT_HOST'       => :'report.host',
+      'SK_REPORT_PORT'       => :'report.port',
+      'SK_REPORT_SSL'        => :'report.ssl',
+      'SK_REPORT_DEFLATE'    => :'report.deflate' }
+
+    # Default values for Skylight configuration keys
     DEFAULTS = {
-      :'report.host'    => 'agent.skylight.io'.freeze,
-      :'report.port'    => 443,
-      :'report.ssl'     => true,
-      :'report.deflate' => true }.freeze
+      :'agent.keepalive' => 60,
+      :'agent.interval'  => 5,
+      :'agent.sample'    => 200,
+      :'report.host'     => 'agent.skylight.io'.freeze,
+      :'report.port'     => 443,
+      :'report.ssl'      => true,
+      :'report.deflate'  => true }.freeze
 
     def self.load(path = nil, environment = nil, env = ENV)
       attrs = {}
@@ -26,12 +39,24 @@ module Skylight
       new(environment, attrs)
     end
 
+    def self.load_from_env(env = ENV)
+      self.load(nil, nil, env)
+    end
+
     def self.remap_env(env)
       ret = {}
 
       env.each do |k, val|
         if key = ENV_TO_KEY[k]
-          ret[key] = val
+          ret[key] =
+            case val
+            when /^false$/i      then false
+            when /^true$/i       then true
+            when /^(nil|null)$/i then nil
+            when /^\d+$/         then val.to_i
+            when /^\d+\.\d+$/    then val.to_f
+            else val
+            end
         end
       end if env
 
@@ -104,6 +129,18 @@ module Skylight
 
     alias []= set
 
+    def to_env
+      ret = {}
+
+      ENV_TO_KEY.each do |k, v|
+        if (c = get(v)) != DEFAULTS[v]
+          ret[k] = cast_for_env(c)
+        end
+      end
+
+      ret
+    end
+
     #
     #
     # ===== Helpers =====
@@ -116,6 +153,17 @@ module Skylight
 
     def gc
       GC.new(get('gc.profiler', GC::Profiler))
+    end
+
+  private
+
+    def cast_for_env(v)
+      case v
+      when true  then 'true'
+      when false then 'false'
+      when nil   then 'nil'
+      else v.to_s
+      end
     end
 
   end

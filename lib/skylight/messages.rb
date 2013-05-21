@@ -9,8 +9,10 @@ module Skylight
     end
 
     require 'skylight/messages/annotation'
-    require 'skylight/messages/hello'
     require 'skylight/messages/span'
     require 'skylight/messages/trace'
+    require 'skylight/messages/endpoint'
+    require 'skylight/messages/batch'
+    require 'skylight/messages/hello'
   end
 end

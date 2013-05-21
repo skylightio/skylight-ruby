@@ -22,23 +22,24 @@ module Skylight
         :lockfile_path,
         :sockfile_path
 
-      def initialize(lockfile, srv, lockfile_path, sockfile_path, keepalive)
+      def initialize(config, lockfile, srv, lockfile_path, sockfile_path)
 
         unless lockfile && srv
           raise ArgumentError, "lockfile and unix domain server socket are required"
         end
 
-        @pid              = Process.pid
-        @run              = true
-        @tick             = 1
-        @socks            = []
-        @server           = srv
-        @lockfile         = lockfile
-        @collector        = Collector.new
-        @keepalive        = keepalive
-        @connections      = {}
-        @lockfile_path    = lockfile_path
-        @sockfile_path    = sockfile_path
+        @pid           = Process.pid
+        @run           = true
+        @tick          = 1
+        @socks         = []
+        @config        = config
+        @server        = srv
+        @lockfile      = lockfile
+        @collector     = Collector.new(config)
+        @keepalive     = @config[:'agent.keepalive']
+        @connections   = {}
+        @lockfile_path = lockfile_path
+        @sockfile_path = sockfile_path
       end
 
       # Called from skylight.rb on require
@@ -71,37 +72,29 @@ module Skylight
             fail "missing lockfile path"
           end
 
-          unless keepalive = ENV[KEEPALIVE_KEY]
-            fail "missing keepalive"
-          end
-
-          unless keepalive =~ /^\d+$/
-            fail "invalid keepalive"
-          end
-
           srv = nil
           if fd = ENV[UDS_SRV_FD_KEY]
             srv = UNIXServer.for_fd(fd.to_i)
           end
 
           server = new(
+            Config.load_from_env,
             lockfile,
             srv,
             lockfile_path,
-            sockfile_path,
-            keepalive.to_i)
+            sockfile_path)
 
           server.run
         end
       end
 
-      def self.exec(cmd, lockfile, srv, lockfile_path, sockfile_path, keepalive)
-        env = {
+      def self.exec(cmd, config, lockfile, srv, lockfile_path, sockfile_path)
+        env = config.to_env
+        env.merge!(
           STANDALONE_ENV_KEY => STANDALONE_ENV_VAL,
           LOCKFILE_PATH      => lockfile_path,
           LOCKFILE_ENV_KEY   => lockfile.fileno.to_s,
-          SOCKFILE_PATH_KEY  => sockfile_path,
-          KEEPALIVE_KEY      => keepalive.to_s }
+          SOCKFILE_PATH_KEY  => sockfile_path)
 
         if srv
           env[UDS_SRV_FD_KEY] = srv.fileno.to_s
@@ -241,7 +234,7 @@ module Skylight
 
         # Re-exec the process
         trace "re-exec"
-        Server.exec(hello.cmd, @lockfile, @server, lockfile_path, sockfile_path, keepalive)
+        Server.exec(hello.cmd, @config, @lockfile, @server, lockfile_path, sockfile_path)
       end
 
       def accept

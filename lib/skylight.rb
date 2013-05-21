@@ -13,10 +13,12 @@ module Skylight
   autoload :Worker,       'skylight/worker'
 
   module Util
-    autoload :Clock,   'skylight/util/clock'
-    autoload :Logging, 'skylight/util/logging'
-    autoload :Queue,   'skylight/util/queue'
-    autoload :Task,    'skylight/util/task'
+    autoload :Clock,         'skylight/util/clock'
+    autoload :HTTP,          'skylight/util/http'
+    autoload :Logging,       'skylight/util/logging'
+    autoload :Queue,         'skylight/util/queue'
+    autoload :Task,          'skylight/util/task'
+    autoload :UniformSample, 'skylight/util/uniform_sample'
   end
 
   # ==== Vendor ====

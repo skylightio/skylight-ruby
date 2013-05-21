@@ -7,7 +7,7 @@ module Skylight
     class Trace < Base
 
       required :uuid,     :string, 1
-      required :endpoint, :string, 2
+      optional :endpoint, :string, 2
       repeated :spans,    Span,    3
 
       class Builder
@@ -46,7 +46,7 @@ module Skylight
 
           return self if :skip == sp
 
-          sp.ended_at = relativize(time)
+          sp.duration = relativize(time) - sp.started_at
           @spans << sp
 
           self
