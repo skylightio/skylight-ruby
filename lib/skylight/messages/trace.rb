@@ -104,7 +104,8 @@ module Skylight
         end
 
         def relativize(time)
-          (1_000_000 * (time - @start)).to_i
+          # 1/10th ms
+          (10_000 * (time - @start)).to_i
         end
 
       end

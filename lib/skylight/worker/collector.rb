@@ -1,16 +1,19 @@
 module Skylight
   module Worker
     class Collector < Util::Task
-      ENDPOINT     = '/agent/report'.freeze
+      ENDPOINT     = '/report'.freeze
       FLUSH_DELAY  = 0.5
       CONTENT_TYPE = 'content-type'.freeze
       SKYLIGHT_V1  = 'application/x-skylight-report-v1'.freeze
 
       include Util::Logging
 
+      attr_reader :config
+
       def initialize(config)
         super(1000)
 
+        @config   = config
         @http     = Util::HTTP.new(config)
         @size     = config[:'agent.sample']
         @batch    = nil

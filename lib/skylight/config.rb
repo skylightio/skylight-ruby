@@ -31,12 +31,22 @@ module Skylight
       :'report.ssl'      => true,
       :'report.deflate'  => true }.freeze
 
+    REQUIRED = {
+      :'authentication' => "authentication token",
+      :'agent.host'     => "skylight remote host",
+      :'agent.port'     => "skylight remote port" }
+
     def self.load(path = nil, environment = nil, env = ENV)
       attrs   = {}
       version = nil
 
       if path
-        attrs   = YAML.load_file(path)
+        begin
+          attrs = YAML.load_file(path)
+        rescue Exception => e
+          raise ConfigError, "could not load config file; msg=#{e.message}"
+        end
+
         version = File.mtime(path).to_i
       end
 
@@ -99,6 +109,16 @@ module Skylight
           @priority[k.to_sym] = v
         end
       end
+    end
+
+    def validate!
+      REQUIRED.each do |k, v|
+        unless get(k)
+          raise ConfigError, v
+        end
+      end
+
+      true
     end
 
     def get(key, default = nil, &blk)

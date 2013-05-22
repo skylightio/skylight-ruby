@@ -18,7 +18,9 @@ module SpecHelper
       ssl:     false,
       deflate: false }
 
-    ret  = Skylight::Worker::Builder.new(agent: opts, report: report).build
+    ret = Skylight::Worker::Builder.new(
+      log_level: 'debug', agent: opts, report: report).
+      build
 
     ret.spawn
     @spawned << ret

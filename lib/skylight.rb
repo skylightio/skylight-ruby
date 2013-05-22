@@ -26,8 +26,9 @@ module Skylight
   autoload :Beefcake, 'skylight/vendor/beefcake'
 
   # ==== Exceptions ====
-  class IpcProtoError < RuntimeError; end
+  class IpcProtoError    < RuntimeError; end
   class WorkerStateError < RuntimeError; end
+  class ConfigError      < RuntimeError; end
 
   TIERS = %w(
     app
@@ -42,4 +43,8 @@ module Skylight
 
   # Called by the standalone agent
   Worker::Server.boot
+
+  if defined?(Rails)
+    require 'skylight/railtie'
+  end
 end

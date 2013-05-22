@@ -57,7 +57,7 @@ module SpecHelper
 
     def reports
       requests.
-        select { |env| env['PATH_INFO'] == '/agent/report' }.
+        select { |env| env['PATH_INFO'] == '/report' }.
         map { |env| Skylight::Messages::Batch.decode(env['rack.input'].dup) }
     end
 
