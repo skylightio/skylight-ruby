@@ -153,4 +153,4 @@ describe 'Standalone worker' do
 
   end
 
-end
+end unless defined?(JRUBY_VERSION)

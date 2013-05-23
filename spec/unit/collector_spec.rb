@@ -53,7 +53,7 @@ module Skylight
 
       it_behaves_like "a worker"
 
-    end
+    end unless defined?(JRUBY_VERSION)
 
   end
 end
