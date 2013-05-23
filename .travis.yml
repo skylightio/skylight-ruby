@@ -1,7 +1,7 @@
 language: ruby
 
 install: bundle install --binstubs=b
-script: b/rspec -cfs spec/
+script: $PWD/b/rspec -cfs spec/
 
 rvm:
   - 1.9.3
