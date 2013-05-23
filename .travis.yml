@@ -6,6 +6,7 @@ rvm:
   - jruby
 
 gemfile:
+  - gemfiles/Gemfile.rails-3.2.x
   - gemfiles/Gemfile.rails-edge
 
 notifications:
