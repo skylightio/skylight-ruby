@@ -25,11 +25,12 @@ module Skylight
         config = Config.new(config)
       end
 
-      @lock    = Mutex.new
-      @config  = config
+      @gc = config.gc
+      @lock = Mutex.new
+      @config = config
+      @worker = config.worker.build
       @started = false
-      @worker  = config.worker.build
-      @gc      = config.gc
+      @subscriber = Subscriber.new(config)
     end
 
     def start!
@@ -42,10 +43,10 @@ module Skylight
         # has been acquired.
         return self if @started
 
+        t { "starting instrumenter" }
         @config.validate!
         @worker.spawn
-
-        Subscriber.register!(config)
+        @subscriber.register!
 
         @started = true
       end
@@ -57,15 +58,24 @@ module Skylight
       nil
     end
 
-    def trace(endpoint = nil)
+    def shutdown
+      @lock.synchronize do
+        return unless @started
+        @subscriber.unregister!
+        @worker.shutdown
+      end
+    end
+
+    def trace(endpoint = 'Unknown')
       # Ignore everything unless the instrumenter has been started
       unless @started
         return yield
       end
 
       # If a trace is already in progress, continue with that one
-      if Instrumenter.current_trace
-        return yield
+      if trace = Instrumenter.current_trace
+        t { "already tracing" }
+        return yield(trace)
       end
 
       trace = Messages::Trace::Builder.new(endpoint, Util::Clock.now, @config)
@@ -95,6 +105,7 @@ module Skylight
   private
 
     def process(trace)
+      t { fmt "processing trace; spans=%d", trace.spans.length }
       unless @worker.submit(trace)
         warn "failed to submit trace to worker"
       end

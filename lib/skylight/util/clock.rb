@@ -15,6 +15,10 @@ module Skylight
         @clock ||= Clock.new
       end
 
+      def self.default=(clock)
+        @clock = clock
+      end
+
     end
   end
 end

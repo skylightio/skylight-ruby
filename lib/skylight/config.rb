@@ -1,4 +1,5 @@
 require 'yaml'
+require 'fileutils'
 require 'logger'
 
 module Skylight
@@ -35,6 +36,10 @@ module Skylight
       :'authentication' => "authentication token",
       :'report.host'    => "skylight remote host",
       :'report.port'    => "skylight remote port" }
+
+    VALIDATORS = {
+      :'agent.interval' => lambda { |v, c| Integer === v && v > 0 }
+    }
 
     def self.load(path = nil, environment = nil, env = ENV)
       attrs   = {}
@@ -87,7 +92,7 @@ module Skylight
       attrs = {}
 
       if Hash === args.last
-        attrs = args.pop
+        attrs = args.pop.dup
       end
 
       @values   = {}
@@ -149,11 +154,19 @@ module Skylight
           set(k, v, key)
         end
       else
+        k = key.to_sym
+
+        if validator = VALIDATORS[k]
+          unless validator.call(val, self)
+            raise ConfigError, "invalid value for #{k} (#{val})"
+          end
+        end
+
         if @regexp && key =~ @regexp
           @priority[$1.to_sym] = val
         end
 
-        @values[key.to_sym] = val
+        @values[k] = val
       end
     end
 
@@ -190,6 +203,11 @@ module Skylight
         begin
           out = get(:'log')
           out = STDOUT if out == '-'
+
+          unless IO === out
+            FileUtils.mkdir_p(File.dirname(out))
+          end
+
           l = Logger.new(out)
           l.level =
             case get(:'log_level')

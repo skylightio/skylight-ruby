@@ -88,6 +88,7 @@ module SpecHelper
     opts[:AccessLog]   ||= []
 
     Server.start(opts)
+    server.reset
   end
 
   def port

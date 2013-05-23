@@ -7,8 +7,15 @@ module Skylight
         def trace(msg, *args)
           log :DEBUG, msg, *args
         end
+
+        def t
+          log :DEBUG, yield
+        end
       else
         def trace(*)
+        end
+
+        def t
         end
       end
 
@@ -28,6 +35,8 @@ module Skylight
         log :ERROR, msg, *args
       end
 
+      alias fmt sprintf
+
       MAP = {
         :DEBUG => Logger::DEBUG,
         :INFO  => Logger::INFO,
@@ -39,7 +48,7 @@ module Skylight
         return unless c = config
 
         if logger = c.logger
-          logger.log MAP[level], sprintf("[SKYLIGHT] #{msg}\n", *args)
+          logger.log MAP[level], sprintf("[SKYLIGHT] #{msg}", *args)
         end
       rescue Exception => e
         if ENV[TRACE_ENV_KEY]

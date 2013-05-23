@@ -5,6 +5,8 @@ module Skylight
     class Task
       SHUTDOWN = :__SK_TASK_SHUTDOWN
 
+      include Util::Logging
+
       def initialize(size, timeout = 0.1, &blk)
         @pid     = Process.pid
         @thread  = nil
@@ -88,10 +90,8 @@ module Skylight
 
               finish
             rescue Exception => e
-              if ENV[TRACE_ENV_KEY]
-                puts e.message
-                puts e.backtrace
-              end
+              error "failed to execute task; msg=%s", e.message
+              t { e.backtrace.join("\n") }
             end
           end
         end
@@ -134,10 +134,8 @@ module Skylight
         begin
           handle(msg)
         rescue Exception => e
-          if ENV[TRACE_ENV_KEY]
-            puts e.message
-            puts e.backtrace
-          end
+          error "error handling event; msg=%s; event=%p", e.message, msg
+          t { e.backtrace.join("\n") }
           sleep 1
           true
         end

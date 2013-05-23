@@ -17,6 +17,7 @@ module Skylight
       attr_reader \
         :pid,
         :tick,
+        :config,
         :keepalive,
         :lockfile_path,
         :sockfile_path
@@ -218,6 +219,7 @@ module Skylight
             reload(msg)
           end
         when Messages::Trace
+          t { fmt "received trace; t=%p", msg }
           @collector.submit(msg)
         when :unknown
           debug "received unknown message"

@@ -18,6 +18,8 @@ module Skylight
         @size     = config[:'agent.sample']
         @batch    = nil
         @interval = config[:'agent.interval']
+
+        t { fmt "starting collector; interval=%d; size=%d", @interval, @size }
       end
 
       def handle(msg, now = Util::Clock.now)
@@ -31,6 +33,7 @@ module Skylight
         return true unless msg
 
         if Messages::Trace === msg
+          t { fmt "collector received trace" }
           @batch.push(msg)
         else
           debug "Received unknown message; class=%s", msg.class.to_s
@@ -42,6 +45,7 @@ module Skylight
     private
 
       def finish
+        t { fmt "collector finishing up" }
         flush(@batch) if @batch
         @batch = nil
       end
@@ -54,7 +58,7 @@ module Skylight
       end
 
       def new_batch(now)
-        Batch.new(@size, round(now), @interval)
+        Batch.new(config, @size, round(now), @interval)
       end
 
       def round(time)
@@ -62,9 +66,12 @@ module Skylight
       end
 
       class Batch
-        attr_reader :from, :counts, :sample
+        include Util::Logging
 
-        def initialize(size, from, interval)
+        attr_reader :config, :from, :counts, :sample
+
+        def initialize(config, size, from, interval)
+          @config   = config
           @from     = from
           @flush_at = from + interval + FLUSH_DELAY
           @sample   = Util::UniformSample.new(size)
@@ -90,7 +97,11 @@ module Skylight
           endpoints = {}
 
           sample.each do |trace|
-            next unless name = trace.endpoint
+            unless name = trace.endpoint
+              debug "trace missing name -- dropping"
+              next
+            end
+
             trace.endpoint = nil
 
             ep = (endpoints[name] ||= Messages::Endpoint.new(
@@ -98,6 +109,8 @@ module Skylight
 
             ep.traces << trace
           end
+
+          t { fmt "encoding batch; endpoints=%p", endpoints }
 
           Messages::Batch.new(
             timestamp: from,

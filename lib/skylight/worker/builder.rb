@@ -39,12 +39,14 @@ module Skylight
     private
 
       def strategy
-        ret = config.get(:'agent.strategy') do
-          if jruby?
-            'embedded'
-          else
-            'standalone'
-          end
+        config.get(:'agent.strategy') || default_strategy
+      end
+
+      def default_strategy
+        ret = if jruby?
+          'embedded'
+        else
+          'standalone'
         end
 
         ret.downcase.strip

@@ -7,21 +7,10 @@ module SpecHelper
   def spawn_worker(opts = {})
     @spawned ||= []
 
-    opts = {
-      sockfile_path: sockfile_path,
-      interval: 1
-    }.merge(opts)
+    c = test_config_values.dup
+    c[:agent] = c[:agent].merge(opts)
 
-    report = {
-      host:    'localhost',
-      port:    port,
-      ssl:     false,
-      deflate: false }
-
-    ret = Skylight::Worker::Builder.new(
-      log_level: 'debug', agent: opts, report: report).
-      build
-
+    ret = Skylight::Worker::Builder.new(c).build
     ret.spawn
     @spawned << ret
 

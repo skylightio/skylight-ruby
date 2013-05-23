@@ -1,12 +1,11 @@
 require 'spec_helper'
 
 module Skylight
-  describe Worker::Collector do
+  describe Worker::Collector, :http do
 
     shared_examples "a worker" do
 
       before :each do
-        start_server
         worker.spawn
       end
 
