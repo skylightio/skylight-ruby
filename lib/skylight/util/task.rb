@@ -81,11 +81,18 @@ module Skylight
           @pid    = Process.pid
           @queue  = Util::Queue.new(@size)
           @thread = Thread.new do
-            unless work
-              @queue = nil
-            end
+            begin
+              unless work
+                @queue = nil
+              end
 
-            finish
+              finish
+            rescue Exception => e
+              if ENV[TRACE_ENV_KEY]
+                puts e.message
+                puts e.backtrace
+              end
+            end
           end
         end
 
@@ -99,19 +106,14 @@ module Skylight
           if msg = q.pop(@timeout)
             return true if SHUTDOWN == msg
 
-            unless handle(msg)
+            unless __handle(msg)
               return false
             end
           else
             return unless @queue
             # just a tick
-            begin
-              unless handle(nil)
-                return false
-              end
-            rescue Exception => e
-              puts e.message
-              sleep 1 # Throttle
+            unless __handle(msg)
+              return false
             end
           end
         end
@@ -120,12 +122,25 @@ module Skylight
         while msg = q.pop(0)
           return true if SHUTDOWN == msg
 
-          unless handle(msg)
+          unless __handle(msg)
             return false
           end
         end
 
         true
+      end
+
+      def __handle(msg)
+        begin
+          handle(msg)
+        rescue Exception => e
+          if ENV[TRACE_ENV_KEY]
+            puts e.message
+            puts e.backtrace
+          end
+          sleep 1
+          true
+        end
       end
 
       def handle(msg)

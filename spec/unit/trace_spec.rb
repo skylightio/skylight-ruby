@@ -37,7 +37,7 @@ module Skylight
 
         trace.spans.should have(1).item
         span = trace.spans[0]
-        span.category.should   == 'foo'
+        span.event.category.should   == 'foo'
         span.started_at.should == 10_000
       end
 
@@ -58,43 +58,43 @@ module Skylight
 
         trace.spans.should have(5).item
 
-        span(0).category.should   == 'cat4'
-        span(0).started_at.should == 20_000
-        span(0).duration.should   be_nil
-        span(0).children.should   be_nil
+        span(0).event.category.should == 'cat4'
+        span(0).started_at.should     == 10_000
+        span(0).duration.should       be_nil
+        span(0).children.should       be_nil
 
-        span(1).category.should   == 'cat5'
-        span(1).started_at.should == 40_000
-        span(1).duration.should   be_nil
-        span(1).children.should   be_nil
+        span(1).event.category.should == 'cat5'
+        span(1).started_at.should     == 30_000
+        span(1).duration.should       be_nil
+        span(1).children.should       be_nil
 
-        span(2).category.should   == 'cat3'
-        span(2).started_at.should == 10_000
-        span(2).duration.should   == 30_000
-        span(2).children.should   == 2
+        span(2).event.category.should == 'cat3'
+        span(2).started_at.should     == 0
+        span(2).duration.should       == 30_000
+        span(2).children.should       == 2
 
-        span(3).category.should   == 'cat2'
-        span(3).started_at.should == 10_000
-        span(3).duration.should   == 60_000
-        span(3).children.should   == 1
+        span(3).event.category.should == 'cat2'
+        span(3).started_at.should     == 10_000
+        span(3).duration.should       == 60_000
+        span(3).children.should       == 1
 
-        span(4).category.should   == 'cat1'
-        span(4).started_at.should == 0
-        span(4).duration.should   == 90_000
-        span(4).children.should   == 1
+        span(4).event.category.should == 'cat1'
+        span(4).started_at.should     == 0
+        span(4).duration.should       == 90_000
+        span(4).children.should       == 1
       end
 
       it 'raises an exception on stop when the trace is unbalanced' do
         lambda {
           trace.stop 10
-        }.should raise_error(Messages::TraceError)
+        }.should raise_error(TraceError)
       end
 
       it 'raises an exception on commit when the trace is unbalanced' do
         trace.start 10, :foo
         lambda {
           trace.build
-        }.should raise_error(Messages::TraceError)
+        }.should raise_error(TraceError)
       end
 
       it 'tracks the title' do
@@ -103,8 +103,8 @@ module Skylight
         trace.stop   15
         trace.build
 
-        span(0).title.should == 'How a bar is formed?'
-        span(1).title.should == 'How a foo is formed?'
+        span(0).event.title.should == 'How a bar is formed?'
+        span(1).event.title.should == 'How a foo is formed?'
       end
 
       it 'tracks the description' do
@@ -112,10 +112,10 @@ module Skylight
         trace.record 13, :bar, 'BAR', 'How a bar is formed?'
         trace.stop   15
 
-        span(0).title.should       == 'BAR'
-        span(0).description.should == 'How a bar is formed?'
-        span(1).title.should       == 'FOO'
-        span(1).description.should == 'How a foo is formed?'
+        span(0).event.title.should       == 'BAR'
+        span(0).event.description.should == 'How a bar is formed?'
+        span(1).event.title.should       == 'FOO'
+        span(1).event.description.should == 'How a foo is formed?'
       end
 
     end

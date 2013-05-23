@@ -49,7 +49,7 @@ module Skylight
       def flush(batch)
         return if batch.empty?
 
-        trace "flushing batch"
+        trace "flushing batch; size=%d", batch.sample.count
         @http.post(ENDPOINT, batch.encode, CONTENT_TYPE => SKYLIGHT_V1)
       end
 
@@ -94,7 +94,7 @@ module Skylight
             trace.endpoint = nil
 
             ep = (endpoints[name] ||= Messages::Endpoint.new(
-              name: name, traces: []))
+              name: name, traces: [], count: @counts[name]))
 
             ep.traces << trace
           end

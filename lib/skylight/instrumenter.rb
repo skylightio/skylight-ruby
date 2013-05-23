@@ -42,7 +42,10 @@ module Skylight
         # has been acquired.
         return self if @started
 
+        @config.validate!
         @worker.spawn
+
+        Subscriber.register!(config)
 
         @started = true
       end
@@ -65,7 +68,7 @@ module Skylight
         return yield
       end
 
-      trace = Trace.new(endpoint, Util::Clock.now)
+      trace = Messages::Trace::Builder.new(endpoint, Util::Clock.now, @config)
 
       begin
 
@@ -76,8 +79,13 @@ module Skylight
         Instrumenter.current_trace = nil
 
         begin
-          trace.commit
-          process(trace)
+          built = trace.build
+
+          if built.valid?
+            process(built)
+          else
+            debug "trace invalid -- dropping"
+          end
         rescue Exception => e
           error e
         end
@@ -87,8 +95,6 @@ module Skylight
   private
 
     def process(trace)
-      trace "submitting trace to worker"
-
       unless @worker.submit(trace)
         warn "failed to submit trace to worker"
       end

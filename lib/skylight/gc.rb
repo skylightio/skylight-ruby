@@ -28,32 +28,39 @@ module Skylight
       end
     end
 
+    def start_track
+      return if Thread.current[TH_KEY]
+
+      unless @profiler
+        win = Window.new(nil)
+      else
+        win = Window.new(self)
+
+        @lock.synchronize do
+          @listeners << win
+        end
+      end
+
+      Thread.current[TH_KEY] = win
+    end
+
+    def stop_track
+      if win = Thread.current[TH_KEY]
+        Thread.current[TH_KEY] = nil
+        win.release
+      end
+    end
+
     def track
       return unless block_given?
 
-      old = Thread.current[TH_KEY]
-      ret = nil
+      start_track
 
       begin
-        unless @profiler
-          win = Window.new(nil)
-        else
-          win = Window.new(self)
-
-          @lock.synchronize do
-            @listeners << win
-          end
-        end
-
-        Thread.current[TH_KEY] = win
-        ret = yield
-
+        yield
       ensure
-        win.release if win
-        Thread.current[TH_KEY] = old
+        stop_track
       end
-
-      ret
     end
 
     def release(win)

@@ -9,6 +9,7 @@ module Skylight
     end
 
     require 'skylight/messages/annotation'
+    require 'skylight/messages/event'
     require 'skylight/messages/span'
     require 'skylight/messages/trace'
     require 'skylight/messages/endpoint'

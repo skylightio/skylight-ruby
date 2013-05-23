@@ -1,6 +1,8 @@
 module Skylight
   module Worker
     class Builder
+      include Util::Logging
+
       attr_reader :config
 
       def initialize(config = Config.new)
@@ -16,8 +18,11 @@ module Skylight
 
         case s
         when 'embedded'
+          trace "building embedded worker"
           Collector.new(config)
         when 'standalone'
+          trace "building standalone worker"
+
           unless config[:'agent.sockfile_path']
             raise ArgumentError, 'agent.sockfile_path config required'
           end

@@ -3,13 +3,14 @@ module Skylight
     class Span
       include Beefcake::Message
 
-      optional :category,    :string,    1
-      optional :title,       :string,    2
-      optional :description, :string,    3
-      repeated :annotations, Annotation, 4
-      required :started_at,  :uint32,    5
-      optional :duration,    :uint32,    6
-      optional :children,    :uint32,    7
+      required :event,       Event,      1
+      repeated :annotations, Annotation, 2
+      required :started_at,  :uint32,    3
+      optional :duration,    :uint32,    4
+      optional :children,    :uint32,    5
+
+      # Bit of a hack
+      attr_accessor :absolute_time
 
       # Optimization
       def initialize(attrs = nil)

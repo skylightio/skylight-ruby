@@ -18,6 +18,7 @@ module Skylight
       attr_accessor :authentication, :config
 
       def initialize(config)
+        @config = config
         @ssl  = config[:'report.ssl']
         @host = config[:'report.host']
         @port = config[:'report.port']
@@ -53,7 +54,8 @@ module Skylight
       end
 
       def execute(req, body=nil, headers={})
-        trace "executing HTTP request; host=%s; port=%s", @host, @port
+        trace "executing HTTP request; host=%s; port=%s; body=%s",
+          @host, @port, body && body.bytesize
 
         if body
           body = Gzip.compress(body) if @deflate

@@ -33,8 +33,8 @@ module Skylight
 
     REQUIRED = {
       :'authentication' => "authentication token",
-      :'agent.host'     => "skylight remote host",
-      :'agent.port'     => "skylight remote port" }
+      :'report.host'    => "skylight remote host",
+      :'report.port'    => "skylight remote port" }
 
     def self.load(path = nil, environment = nil, env = ENV)
       attrs   = {}
@@ -114,7 +114,7 @@ module Skylight
     def validate!
       REQUIRED.each do |k, v|
         unless get(k)
-          raise ConfigError, v
+          raise ConfigError, "#{v} required"
         end
       end
 
@@ -182,7 +182,7 @@ module Skylight
     end
 
     def gc
-      GC.new(get('gc.profiler', GC::Profiler))
+      GC.new(get('gc.profiler', ::GC::Profiler))
     end
 
     def logger

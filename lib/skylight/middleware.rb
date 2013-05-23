@@ -13,22 +13,8 @@ module Skylight
 
     def call(env)
       @instrumenter.trace("Rack") do |trace|
-        trace.start(trace.start, "app.rack.request")
-        instrumenter.gc.track do
-
-          begin
-            @app.call(env)
-          ensure
-            now = Util::Clock.now
-            gc  = GC.time
-
-            if gc > 0
-              trace.start(now - gc, 'noise.gc')
-              trace.stop(now)
-            end
-
-            trace.stop(now)
-          end
+        trace.root 'app.rack.request' do
+          @app.call(env)
         end
       end
     end

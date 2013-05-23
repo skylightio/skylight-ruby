@@ -2,24 +2,59 @@ require 'skylight/messages/base'
 
 module Skylight
   module Messages
-    class TraceError < RuntimeError; end
-
     class Trace < Base
 
       required :uuid,     :string, 1
       optional :endpoint, :string, 2
       repeated :spans,    Span,    3
 
-      class Builder
-        attr_accessor :endpoint
-        attr_reader   :spans, :start
+      def valid?
+        return false unless spans && spans.length > 0
+        spans[-1].started_at == 0
+      end
 
-        def initialize(endpoint = "Unknown", start = Util::Clock.now)
+      class Builder
+        include Util::Logging
+
+        attr_accessor :endpoint
+        attr_reader   :spans, :config
+
+        def initialize(endpoint = "Unknown", start = Util::Clock.now, config = nil)
           @endpoint = endpoint
+          @config   = config
           @start    = start
           @spans    = []
           @stack    = []
           @parents  = []
+        end
+
+        def root(cat, title = nil, desc = nil, annot = {})
+          return unless block_given?
+          return yield unless @stack == []
+          return yield unless config
+
+          gc = config.gc
+          start(@start, cat, title, desc, annot)
+
+          begin
+            gc.start_track
+
+            begin
+              yield
+            ensure
+              now = Util::Clock.now
+              gc_time = GC.time
+
+              if gc_time > 0
+                start(now - gc_time, 'noise.gc')
+                stop(now)
+              end
+
+              stop(now)
+            end
+          ensure
+            gc.stop_track
+          end
         end
 
         def record(time, cat, title = nil, desc = nil, annot = {})
@@ -67,12 +102,21 @@ module Skylight
           return cat if :skip == cat
 
           sp = Span.new
-          sp.category    = cat.to_s
-          sp.title       = title
-          sp.description = desc
-          sp.annotations = to_annotations(annot)
-          sp.started_at  = relativize(time)
+          sp.event         = event(cat, title, desc)
+          sp.annotations   = to_annotations(annot)
+          sp.started_at    = relativize(time)
+          sp.absolute_time = time
           sp
+        end
+
+        def event(cat, title, desc)
+          title = nil unless title.respond_to?(:to_str)
+          desc  = nil unless desc.respond_to?(:to_str)
+
+          Event.new(
+            category:    cat.to_s,
+            title:       title && title.to_str,
+            description: desc && desc.to_str)
         end
 
         def push(sp)
@@ -104,8 +148,11 @@ module Skylight
         end
 
         def relativize(time)
-          # 1/10th ms
-          (10_000 * (time - @start)).to_i
+          if parent = @parents[-1]
+            (10_000 * (time - parent.absolute_time)).to_i
+          else
+            (10_000 * (time - @start)).to_i
+          end
         end
 
       end

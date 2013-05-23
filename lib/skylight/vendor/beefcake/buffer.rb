@@ -62,6 +62,10 @@ module Skylight
       end
 
       def initialize(buf="")
+        unless String === buf
+          raise ArgumentError, "buf must be a string"
+        end
+
         self.buf = buf
       end
 
@@ -75,8 +79,20 @@ module Skylight
         @buf.respond_to?(:bytesize) ? @buf.bytesize : @buf.length
       end
 
-      def <<(bytes)
-        buf << bytes
+      BINARY = 'BINARY'
+
+      if defined?(JRUBY_VERSION)
+        def <<(bytes)
+          buf.force_encoding(BINARY)
+          buf << bytes
+        rescue
+          p [ buf, bytes ]
+          raise
+        end
+      else
+        def <<(bytes)
+          buf << bytes
+        end
       end
 
       def read(n)

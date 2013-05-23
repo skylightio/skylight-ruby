@@ -3,8 +3,6 @@ require 'logger'
 module Skylight
   module Util
     module Logging
-      TRACE_ENV_KEY = 'SK_ENABLE_TRACE_LOGS'.freeze
-
       if ENV[TRACE_ENV_KEY]
         def trace(msg, *args)
           log :DEBUG, msg, *args

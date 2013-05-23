@@ -5,7 +5,10 @@ require 'active_support/notifications'
 require 'skylight/compat' # Require after AS::N
 
 module Skylight
+  TRACE_ENV_KEY = 'SK_ENABLE_TRACE_LOGS'.freeze
+
   autoload :Config,       'skylight/config'
+  autoload :GC,           'skylight/gc'
   autoload :Instrumenter, 'skylight/instrumenter'
   autoload :Messages,     'skylight/messages'
   autoload :Normalizers,  'skylight/normalizers'
@@ -29,6 +32,7 @@ module Skylight
   class IpcProtoError    < RuntimeError; end
   class WorkerStateError < RuntimeError; end
   class ConfigError      < RuntimeError; end
+  class TraceError       < RuntimeError; end
 
   TIERS = %w(
     app
