@@ -1,11 +1,20 @@
 require 'rbconfig'
 require 'socket'
 require 'skylight/version'
-require 'active_support/notifications'
-require 'skylight/compat' # Require after AS::N
 
 module Skylight
-  TRACE_ENV_KEY = 'SK_ENABLE_TRACE_LOGS'.freeze
+  TRACE_ENV_KEY      = 'SK_ENABLE_TRACE_LOGS'.freeze
+  STANDALONE_ENV_KEY = 'SK_STANDALONE'.freeze
+  STANDALONE_ENV_VAL = 'server'.freeze
+
+  def self.daemon?
+    ENV[STANDALONE_ENV_KEY] == STANDALONE_ENV_VAL
+  end
+
+  unless daemon?
+    require 'active_support/notifications'
+    require 'skylight/compat' # Require after AS::N
+  end
 
   autoload :Api,          'skylight/api'
   autoload :CLI,          'skylight/cli'
@@ -48,7 +57,7 @@ module Skylight
     "#{RbConfig::CONFIG['ruby_install_name']}#{RbConfig::CONFIG['EXEEXT']}")
 
   # Called by the standalone agent
-  Worker::Server.boot
+  Worker::Server.boot if daemon?
 
   if defined?(Rails)
     require 'skylight/railtie'

@@ -5,8 +5,6 @@ module Skylight
     # TODO:
     #   - Shutdown if no connections for over a minute
     class Server
-      STANDALONE_ENV_KEY = 'SK_STANDALONE'.freeze
-      STANDALONE_ENV_VAL = 'server'.freeze
       LOCKFILE_PATH      = 'SK_LOCKFILE_PATH'.freeze
       LOCKFILE_ENV_KEY   = 'SK_LOCKFILE_FD'.freeze
       UDS_SRV_FD_KEY     = 'SK_UDS_FD'.freeze
@@ -44,49 +42,47 @@ module Skylight
 
       # Called from skylight.rb on require
       def self.boot
-        if ENV[STANDALONE_ENV_KEY] == STANDALONE_ENV_VAL
-          fail = lambda do |msg|
-            STDERR.puts msg
-            exit 1
-          end
-
-          config = Config.load_from_env
-
-          unless fd = ENV[LOCKFILE_ENV_KEY]
-            fail.call "missing lockfile FD"
-          end
-
-          unless fd =~ /^\d+$/
-            fail.call "invalid lockfile FD"
-          end
-
-          begin
-            lockfile = IO.open(fd.to_i)
-          rescue Exception => e
-            fail.call "invalid lockfile FD: #{e.message}"
-          end
-
-          unless lockfile_path = ENV[LOCKFILE_PATH]
-            fail.call "missing lockfile path"
-          end
-
-          unless config[:'agent.sockfile_path']
-            fail.call "missing sockfile path"
-          end
-
-          srv = nil
-          if fd = ENV[UDS_SRV_FD_KEY]
-            srv = UNIXServer.for_fd(fd.to_i)
-          end
-
-          server = new(
-            config,
-            lockfile,
-            srv,
-            lockfile_path)
-
-          server.run
+        fail = lambda do |msg|
+          STDERR.puts msg
+          exit 1
         end
+
+        config = Config.load_from_env
+
+        unless fd = ENV[LOCKFILE_ENV_KEY]
+          fail.call "missing lockfile FD"
+        end
+
+        unless fd =~ /^\d+$/
+          fail.call "invalid lockfile FD"
+        end
+
+        begin
+          lockfile = IO.open(fd.to_i)
+        rescue Exception => e
+          fail.call "invalid lockfile FD: #{e.message}"
+        end
+
+        unless lockfile_path = ENV[LOCKFILE_PATH]
+          fail.call "missing lockfile path"
+        end
+
+        unless config[:'agent.sockfile_path']
+          fail.call "missing sockfile path"
+        end
+
+        srv = nil
+        if fd = ENV[UDS_SRV_FD_KEY]
+          srv = UNIXServer.for_fd(fd.to_i)
+        end
+
+        server = new(
+          config,
+          lockfile,
+          srv,
+          lockfile_path)
+
+        server.run
       end
 
       def self.exec(cmd, config, lockfile, srv, lockfile_path)
