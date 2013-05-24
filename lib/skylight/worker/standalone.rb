@@ -90,7 +90,7 @@ module Skylight
 
     private
 
-      def __spawn(timeout = 5)
+      def __spawn(timeout = 10)
         if timeout < 2
           raise ArgumentError, "at least 2 seconds required"
         end
@@ -273,11 +273,12 @@ module Skylight
 
           srv = UNIXServer.new(sf)
 
-          # TODO: Send logs to proper location
-          null = File.open "/dev/null", File::RDWR
-          STDIN.reopen null
-          STDOUT.reopen null
-          STDERR.reopen null
+          unless ENV[TRACE_ENV_KEY]
+            null = File.open "/dev/null", File::RDWR
+            STDIN.reopen null
+            STDOUT.reopen null
+            STDERR.reopen null
+          end
 
           # Cleanup the ENV
           ENV['RUBYOPT'] = nil
