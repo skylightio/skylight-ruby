@@ -96,7 +96,8 @@ module Skylight
     end
 
     def config
-      @config ||= Config.new
+      # Calling .load checks ENV variables
+      @config ||= Config.load
     end
 
   end

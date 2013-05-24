@@ -80,6 +80,8 @@ module SpecHelper
         env['rack.input'] = str
       end
 
+      json = ['application/json', 'application/json; charset=UTF-8'].shuffle.first
+
       LOCK.synchronize do
         @requests << env
 
@@ -100,12 +102,12 @@ module SpecHelper
               body = ret.last
               body = body.to_json if Hash === body
 
-              return [ ret[0], { 'content-type' => 'application/json', 'content-length' => body.bytesize.to_s }, [body] ]
+              return [ ret[0], { 'content-type' => json, 'content-length' => body.bytesize.to_s }, [body] ]
             elsif respond_to?(:to_str)
               return [ 200, { 'content-type' => 'text/plain', 'content-length' => ret.bytesize.to_s }, [ret] ]
             else
               ret = ret.to_json
-              return [ 200, { 'content-type' => "application/json", 'content-length' => ret.bytesize.to_s }, [ret] ]
+              return [ 200, { 'content-type' => json, 'content-length' => ret.bytesize.to_s }, [ret] ]
             end
           rescue Exception => e
             puts e.message

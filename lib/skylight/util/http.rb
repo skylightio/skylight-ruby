@@ -101,7 +101,7 @@ module Skylight
           @status  = status
           @headers = headers
 
-          if headers[CONTENT_TYPE] == APPLICATION_JSON
+          if (headers[CONTENT_TYPE] || "").include?(APPLICATION_JSON)
             @body = JSON.parse(body)
           else
             @body = body
