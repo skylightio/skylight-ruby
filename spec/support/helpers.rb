@@ -31,6 +31,12 @@ module SpecHelper
         port: port,
         ssl: false,
         deflate: false
+      }.freeze,
+      accounts: {
+        host: "localhost",
+        port: port,
+        ssl: false,
+        deflate: false
       }.freeze
     }.freeze
   end

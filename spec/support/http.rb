@@ -48,6 +48,13 @@ module SpecHelper
     def reset
       LOCK.synchronize do
         @requests = []
+        @mocks = []
+      end
+    end
+
+    def mock(path = nil, method = nil, &blk)
+      LOCK.synchronize do
+        @mocks << { path: path, method: method, blk: blk }
       end
     end
 
@@ -66,11 +73,50 @@ module SpecHelper
         str = input.read.dup
         str.freeze
 
+        if env['CONTENT_TYPE'] == 'application/json'
+          str = JSON.parse(str)
+        end
+
         env['rack.input'] = str
       end
 
       LOCK.synchronize do
         @requests << env
+
+        mock = @mocks.find do |m|
+          (!m[:path] || m[:path] == env['PATH_INFO']) &&
+            (!m[:method] || m[:method].to_s.upcase == env['REQUEST_METHOD'])
+        end
+
+        if mock
+          @mocks.delete(mock)
+
+          begin
+            ret = mock[:blk].call(env)
+
+            if Array === ret
+              return ret if ret.length == 3
+
+              body = ret.last
+              body = body.to_json if Hash === body
+
+              return [ ret[0], { 'content-type' => 'application/json', 'content-length' => body.bytesize.to_s }, [body] ]
+            elsif respond_to?(:to_str)
+              return [ 200, { 'content-type' => 'text/plain', 'content-length' => ret.bytesize.to_s }, [ret] ]
+            else
+              ret = ret.to_json
+              return [ 200, { 'content-type' => "application/json", 'content-length' => ret.bytesize.to_s }, [ret] ]
+            end
+          rescue Exception => e
+            puts e.message
+            puts e.backtrace
+            return [
+              500,
+              { 'content-type' => 'text/plain',
+                'content-length' => '4' },
+              ['Fail'] ]
+          end
+        end
       end
 
       [200, {'content-type' => 'text/plain', 'content-length' => '7'}, ['Thanks!']]

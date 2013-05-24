@@ -18,19 +18,27 @@ module Skylight
       'SK_REPORT_HOST'         => :'report.host',
       'SK_REPORT_PORT'         => :'report.port',
       'SK_REPORT_SSL'          => :'report.ssl',
-      'SK_REPORT_DEFLATE'      => :'report.deflate' }
+      'SK_REPORT_DEFLATE'      => :'report.deflate',
+      'SK_ACCOUNTS_HOST'       => :'accounts.host',
+      'SK_ACCOUNTS_PORT'       => :'accounts.port',
+      'SK_ACCOUNTS_SSL'        => :'accounts.ssl',
+      'SK_ACCOUNTS_DEFLATE'    => :'accounts.deflate' }
 
     # Default values for Skylight configuration keys
     DEFAULTS = {
-      :'log'             => '-'.freeze,
-      :'log_level'       => 'INFO'.freeze,
-      :'agent.keepalive' => 60,
-      :'agent.interval'  => 5,
-      :'agent.sample'    => 200,
-      :'report.host'     => 'agent.skylight.io'.freeze,
-      :'report.port'     => 443,
-      :'report.ssl'      => true,
-      :'report.deflate'  => true }.freeze
+      :'log'              => '-'.freeze,
+      :'log_level'        => 'INFO'.freeze,
+      :'agent.keepalive'  => 60,
+      :'agent.interval'   => 5,
+      :'agent.sample'     => 200,
+      :'report.host'      => 'agent.skylight.io'.freeze,
+      :'report.port'      => 443,
+      :'report.ssl'       => true,
+      :'report.deflate'   => true,
+      :'accounts.host'    => 'www.skylight.io'.freeze,
+      :'accounts.port'    => 443,
+      :'accounts.ssl'     => true,
+      :'accounts.deflate' => false }.freeze
 
     REQUIRED = {
       :'authentication' => "authentication token",
@@ -182,6 +190,27 @@ module Skylight
       end
 
       ret
+    end
+
+    #
+    #
+    # ===== Writing =====
+    #
+    #
+
+    def write(path)
+      FileUtils.mkdir_p(File.dirname(path))
+
+      File.open(path, 'w') do |f|
+        f.puts <<-YAML
+---
+# The Skylight ID for the application.
+application: #{self[:application]}
+
+# The authentication token for the application.
+authentication: #{self[:authentication]}
+        YAML
+      end
     end
 
     #

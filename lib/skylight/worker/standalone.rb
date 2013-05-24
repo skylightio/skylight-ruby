@@ -279,6 +279,9 @@ module Skylight
           STDOUT.reopen null
           STDERR.reopen null
 
+          # Cleanup the ENV
+          ENV['RUBYOPT'] = nil
+
           @server.exec(SUBPROCESS_CMD, @config, f, srv, lockfile)
         end
 

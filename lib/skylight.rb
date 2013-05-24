@@ -7,6 +7,8 @@ require 'skylight/compat' # Require after AS::N
 module Skylight
   TRACE_ENV_KEY = 'SK_ENABLE_TRACE_LOGS'.freeze
 
+  autoload :Api,          'skylight/api'
+  autoload :CLI,          'skylight/cli'
   autoload :Config,       'skylight/config'
   autoload :GC,           'skylight/gc'
   autoload :Instrumenter, 'skylight/instrumenter'
