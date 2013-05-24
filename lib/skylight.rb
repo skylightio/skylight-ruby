@@ -22,6 +22,7 @@ module Skylight
   autoload :GC,           'skylight/gc'
   autoload :Instrumenter, 'skylight/instrumenter'
   autoload :Messages,     'skylight/messages'
+  autoload :Middleware,   'skylight/middleware'
   autoload :Normalizers,  'skylight/normalizers'
   autoload :Subscriber,   'skylight/subscriber'
   autoload :Worker,       'skylight/worker'

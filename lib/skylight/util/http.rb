@@ -30,7 +30,7 @@ module Skylight
         request = build_request(Net::HTTP::Get, endpoint, hdrs)
         execute(request)
       rescue Exception => e
-        error "http GET failed; msg=%s", e.message
+        error "http GET failed; error=%s; msg=%s", e.class, e.message
         t { e.backtrace.join("\n") }
         nil
       end
@@ -44,7 +44,7 @@ module Skylight
         request = build_request(Net::HTTP::Post, endpoint, hdrs, body.bytesize)
         execute(request, body)
       rescue Exception => e
-        error "http POST failed; msg=%s", e.message
+        error "http POST failed; error=%s; msg=%s", e.class, e.message
         t { e.backtrace.join("\n") }
         nil
       end
@@ -102,7 +102,11 @@ module Skylight
           @headers = headers
 
           if (headers[CONTENT_TYPE] || "").include?(APPLICATION_JSON)
-            @body = JSON.parse(body)
+            begin
+              @body = JSON.parse(body)
+            rescue JSON::ParserError
+              @body = body # not really JSON I guess
+            end
           else
             @body = body
           end

@@ -140,6 +140,8 @@ module Skylight
       def repair
         @sock.close rescue nil if @sock
 
+        t { "repairing socket" }
+
         # Attempt to reconnect to the currently known agent PID. If the agent
         # is still healthy but is simply reloading itself, this should work
         # just fine.
@@ -150,8 +152,12 @@ module Skylight
           return true
         end
 
+        t { "failed to reconnect -- attempting worker respawn" }
+
         # Attempt to respawn the agent process
         unless __spawn
+          t { "could not respawn -- shutting down" }
+
           @pid  = nil
           @sock = nil
           return false
@@ -300,6 +306,9 @@ module Skylight
             # Deal w/ the inherited socket
             @sock.close rescue nil if @sock
             @sock = nil
+
+            @writer = build_queue
+            @writer.spawn
           end
         end
       end

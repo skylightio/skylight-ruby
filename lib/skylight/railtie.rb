@@ -29,8 +29,14 @@ module Skylight
       path = config_path(app)
       path = nil unless File.exist?(path)
 
+      unless tmp = app.config.paths['tmp'].first
+        Rails.logger.warn "[SKYLIGHT] tmp directory missing from rails configuration"
+        return nil
+      end
+
       config = Config.load(path, Rails.env.to_s, ENV)
       config.logger = Rails.logger
+      config['agent.sockfile_path'] = tmp
       config['normalizers.render.view_paths'] = app.config.paths["app/views"].existent
       config.validate!
       config

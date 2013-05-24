@@ -215,7 +215,7 @@ module Skylight
             reload(msg)
           end
         when Messages::Trace
-          t { fmt "received trace; t=%p", msg }
+          t { "received trace" }
           @collector.submit(msg)
         when :unknown
           debug "received unknown message"
