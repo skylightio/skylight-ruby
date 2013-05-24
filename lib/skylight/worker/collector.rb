@@ -110,7 +110,7 @@ module Skylight
             ep.traces << trace
           end
 
-          t { fmt "encoding batch; endpoints=%p", endpoints }
+          t { fmt "encoding batch; endpoints=%p", endpoints.keys }
 
           Messages::Batch.new(
             timestamp: from,

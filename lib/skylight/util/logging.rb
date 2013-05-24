@@ -48,7 +48,11 @@ module Skylight
         return unless c = config
 
         if logger = c.logger
-          logger.log MAP[level], sprintf("[SKYLIGHT] #{msg}", *args)
+          if args.length > 0
+            logger.log MAP[level], sprintf("[SKYLIGHT] #{msg}", *args)
+          else
+            logger.log MAP[level], "[SKYLIGHT] #{msg}"
+          end
         end
       rescue Exception => e
         if ENV[TRACE_ENV_KEY]
