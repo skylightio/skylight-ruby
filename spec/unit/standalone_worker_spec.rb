@@ -10,6 +10,10 @@ describe 'Standalone worker' do
     spawn_worker
   end
 
+  let :agent_strategy do
+    'standalone'
+  end
+
   context 'initial spawning' do
 
     it 'sets a pid file' do

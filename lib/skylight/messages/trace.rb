@@ -21,6 +21,7 @@ module Skylight
 
         def initialize(endpoint = "Unknown", start = Util::Clock.now, config = nil)
           @endpoint = endpoint
+          @busted   = false
           @config   = config
           @start    = start
           @spans    = []
@@ -42,17 +43,19 @@ module Skylight
             begin
               yield
             ensure
-              now = Util::Clock.now
+              unless @busted
+                now = Util::Clock.now
 
-              GC.update
-              gc_time = GC.time
+                GC.update
+                gc_time = GC.time
 
-              if gc_time > 0
-                start(now - gc_time, 'noise.gc')
+                if gc_time > 0
+                  start(now - gc_time, 'noise.gc')
+                  stop(now)
+                end
+
                 stop(now)
               end
-
-              stop(now)
             end
           ensure
             gc.stop_track
@@ -60,6 +63,8 @@ module Skylight
         end
 
         def record(time, cat, title = nil, desc = nil, annot = {})
+          return if @busted
+
           sp = span(time, cat, title, desc, annot)
 
           return self if :skip == sp
@@ -71,6 +76,8 @@ module Skylight
         end
 
         def start(time, cat, title = nil, desc = nil, annot = {})
+          return if @busted
+
           sp = span(time, cat, title, desc, annot)
 
           push(sp)
@@ -79,6 +86,8 @@ module Skylight
         end
 
         def stop(time)
+          return if @busted
+
           sp = pop
 
           return self if :skip == sp
@@ -90,6 +99,7 @@ module Skylight
         end
 
         def build
+          return if @busted
           raise TraceError, "trace unbalanced" unless @stack.empty?
 
           Trace.new(
@@ -110,7 +120,8 @@ module Skylight
           sp.absolute_time = time
 
           if sp.started_at < 0
-            raise TraceError, "[BUG] span started_at negative"
+            @busted = true
+            raise TraceError, "[BUG] span started_at negative; event=#{cat}"
           end
 
           sp
@@ -137,6 +148,7 @@ module Skylight
 
         def pop
           unless sp = @stack.pop
+            @busted = true
             raise TraceError, "trace unbalanced"
           end
 

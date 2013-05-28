@@ -63,9 +63,7 @@ module Skylight
     context 'when there is GC and a span' do
 
       it 'subtracts GC from the span and adds it at the end' do
-        gc.should_receive(:total_time).and_return(0)
-        gc.should_receive(:total_time).and_return(0.1)
-        gc.should_receive(:total_time).and_return(0)
+        gc.should_receive(:total_time).exactly(3).times.and_return(0, 0.1, 0)
         gc.should_receive(:clear)
 
         instrumenter.trace 'Rack' do |t|

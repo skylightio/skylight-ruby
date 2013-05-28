@@ -91,7 +91,7 @@ module Skylight
         begin
           built = trace.build
 
-          if built.valid?
+          if built && built.valid?
             process(built)
           else
             debug "trace invalid -- dropping"

@@ -5,16 +5,19 @@ module Skylight
     attr_reader :config
 
     def initialize(config)
-      @config = config
+      @config      = config
+      @subscriber  = nil
       @normalizers = Normalizers.build(config)
     end
 
     def register!
-      ActiveSupport::Notifications.subscribe nil, self
+      unregister! if @subscriber
+      @subscriber = ActiveSupport::Notifications.subscribe nil, self
     end
 
     def unregister!
-      ActiveSupport::Notifications.unsubscribe self
+      ActiveSupport::Notifications.unsubscribe @subscriber
+      @subscriber = nil
     end
 
     def start(name, id, payload)
