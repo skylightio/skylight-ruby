@@ -1,5 +1,19 @@
 module SpecHelper
 
+  class MockGC
+
+    def enable
+    end
+
+    def total_time
+      0
+    end
+
+    def clear
+    end
+
+  end
+
   def instrument(cat, *args, &blk)
     ActiveSupport::Notifications.instrument(cat, {}, &blk)
   end
@@ -9,7 +23,7 @@ module SpecHelper
   end
 
   def agent_strategy
-    nil
+    'embedded'
   end
 
   def log_path
@@ -37,8 +51,15 @@ module SpecHelper
         port: port,
         ssl: false,
         deflate: false
+      }.freeze,
+      gc: {
+        profiler: gc
       }.freeze
     }.freeze
+  end
+
+  def gc
+    @gc ||= MockGC.new
   end
 
 end

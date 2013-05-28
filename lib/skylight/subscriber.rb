@@ -1,5 +1,6 @@
 module Skylight
   class Subscriber
+    include Util::Logging
 
     attr_reader :config
 
@@ -23,11 +24,15 @@ module Skylight
       trace.start(now - gc_time, cat, title, desc, annot)
 
       trace
+    rescue Exception => e
+      error "Subscriber#start error; msg=%s", e.message
     end
 
     def finish(name, id, payload)
       return unless trace = Instrumenter.current_trace
       trace.stop(now - gc_time)
+    rescue Exception => e
+      error "Subscriber#finish error; msg=%s", e.message
     end
 
     def publish(name, *args)

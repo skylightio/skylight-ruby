@@ -227,7 +227,7 @@ authentication: #{self[:authentication]}
     end
 
     def gc
-      GC.new(get('gc.profiler', ::GC::Profiler))
+      GC.new(self, get('gc.profiler', ::GC::Profiler))
     end
 
     def logger

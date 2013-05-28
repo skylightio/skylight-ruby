@@ -43,6 +43,8 @@ module Skylight
               yield
             ensure
               now = Util::Clock.now
+
+              GC.update
               gc_time = GC.time
 
               if gc_time > 0
@@ -106,6 +108,11 @@ module Skylight
           sp.annotations   = to_annotations(annot)
           sp.started_at    = relativize(time)
           sp.absolute_time = time
+
+          if sp.started_at < 0
+            raise TraceError, "[BUG] span started_at negative"
+          end
+
           sp
         end
 

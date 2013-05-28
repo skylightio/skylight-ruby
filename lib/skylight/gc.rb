@@ -2,8 +2,10 @@ require 'thread'
 
 module Skylight
   class GC
-    METHODS = [ :enable, :total_time ]
+    METHODS = [ :enable, :total_time, :clear ]
     TH_KEY  = :SK_GC_CURR_WINDOW
+
+    include Util::Logging
 
     def self.update
       if win = Thread.current[TH_KEY]
@@ -19,12 +21,17 @@ module Skylight
       end
     end
 
-    def initialize(profiler)
+    attr_reader :config
+
+    def initialize(config, profiler)
       @listeners = []
+      @config    = config
       @lock      = Mutex.new
 
       if METHODS.all? { |m| profiler.respond_to?(m) }
         @profiler = profiler
+      else
+        debug "disabling GC profiling"
       end
     end
 
