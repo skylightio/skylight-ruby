@@ -22,23 +22,26 @@ module Skylight
       'SK_ACCOUNTS_HOST'       => :'accounts.host',
       'SK_ACCOUNTS_PORT'       => :'accounts.port',
       'SK_ACCOUNTS_SSL'        => :'accounts.ssl',
-      'SK_ACCOUNTS_DEFLATE'    => :'accounts.deflate' }
+      'SK_ACCOUNTS_DEFLATE'    => :'accounts.deflate',
+      'SK_ME_AUTHENTICATION'   => :'me.authentication',
+      'SK_ME_CREDENTIALS_PATH' => :'me.credentials_path' }
 
     # Default values for Skylight configuration keys
     DEFAULTS = {
-      :'log'              => '-'.freeze,
-      :'log_level'        => 'INFO'.freeze,
-      :'agent.keepalive'  => 60,
-      :'agent.interval'   => 5,
-      :'agent.sample'     => 200,
-      :'report.host'      => 'agent.skylight.io'.freeze,
-      :'report.port'      => 443,
-      :'report.ssl'       => true,
-      :'report.deflate'   => true,
-      :'accounts.host'    => 'www.skylight.io'.freeze,
-      :'accounts.port'    => 443,
-      :'accounts.ssl'     => true,
-      :'accounts.deflate' => false }.freeze
+      :'log'                 => '-'.freeze,
+      :'log_level'           => 'INFO'.freeze,
+      :'agent.keepalive'     => 60,
+      :'agent.interval'      => 5,
+      :'agent.sample'        => 200,
+      :'report.host'         => 'agent.skylight.io'.freeze,
+      :'report.port'         => 443,
+      :'report.ssl'          => true,
+      :'report.deflate'      => true,
+      :'accounts.host'       => 'www.skylight.io'.freeze,
+      :'accounts.port'       => 443,
+      :'accounts.ssl'        => true,
+      :'accounts.deflate'    => false,
+      :'me.credentials_path' => '~/.skylight' }.freeze
 
     REQUIRED = {
       :'authentication' => "authentication token",

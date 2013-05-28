@@ -83,8 +83,7 @@ module Skylight
     end
 
     def credentials_path
-      return nil unless ENV['HOME']
-      File.expand_path(".skylight", ENV['HOME'])
+      File.expand_path(config[:'me.credentials_path'])
     end
 
     def api
