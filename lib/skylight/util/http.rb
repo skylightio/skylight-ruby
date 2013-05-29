@@ -1,5 +1,7 @@
 require 'json'
+require 'openssl'
 require 'net/http'
+require 'net/https'
 
 module Skylight
   module Util

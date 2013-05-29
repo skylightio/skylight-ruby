@@ -1,5 +1,7 @@
 ## unreleased ##
 
+* [BUG] Require net/https and openssl
+
 ## 0.1.2 (May 29, 2013)
 
 * [BUG] Disable GC profiling on JRuby
