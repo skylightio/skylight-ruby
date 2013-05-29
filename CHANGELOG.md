@@ -1,5 +1,7 @@
 ## unreleased ##
 
+## 0.1.3 (May 29, 2013)
+
 * [BUG] Require net/https and openssl
 * [BUG] Rails' logger does not respond to #log. Use level methods
   instead.
