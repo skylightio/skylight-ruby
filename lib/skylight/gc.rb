@@ -35,6 +35,10 @@ module Skylight
       end
     end
 
+    def enable
+      @profiler.enable if @profiler
+    end
+
     def start_track
       return if Thread.current[TH_KEY]
 

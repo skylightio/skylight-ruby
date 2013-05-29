@@ -2,7 +2,16 @@ module SpecHelper
 
   class MockGC
 
+    def initialize
+      @enabled = false
+    end
+
     def enable
+      @enabled = true
+    end
+
+    def enabled?
+      @enabled
     end
 
     def total_time

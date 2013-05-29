@@ -45,6 +45,7 @@ module Skylight
 
         t { "starting instrumenter" }
         @config.validate!
+        @config.gc.enable
         @worker.spawn
         @subscriber.register!
 
