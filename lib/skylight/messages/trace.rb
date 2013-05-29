@@ -121,7 +121,9 @@ module Skylight
 
           if sp.started_at < 0
             @busted = true
-            raise TraceError, "[BUG] span started_at negative; event=#{cat}"
+            raise TraceError, "[BUG] span started_at negative; event=#{cat};" \
+              " started_at=#{sp.started_at};" \
+              " duration=#{sp.duration}"
           end
 
           sp

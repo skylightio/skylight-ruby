@@ -14,6 +14,9 @@ module Skylight
   unless daemon?
     require 'active_support/notifications'
     require 'skylight/compat' # Require after AS::N
+
+    # Require VM specific things
+    require 'skylight/vm/gc'
   end
 
   autoload :Api,          'skylight/api'

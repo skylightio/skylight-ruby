@@ -18,9 +18,6 @@ module SpecHelper
       0
     end
 
-    def clear
-    end
-
   end
 
   def instrument(cat, *args, &blk)

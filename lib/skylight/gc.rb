@@ -2,7 +2,7 @@ require 'thread'
 
 module Skylight
   class GC
-    METHODS = [ :enable, :total_time, :clear ]
+    METHODS = [ :enable, :total_time ]
     TH_KEY  = :SK_GC_CURR_WINDOW
 
     include Util::Logging
@@ -27,9 +27,11 @@ module Skylight
       @listeners = []
       @config    = config
       @lock      = Mutex.new
+      @time      = 0.0
 
       if METHODS.all? { |m| profiler.respond_to?(m) }
         @profiler = profiler
+        @time = @profiler.total_time
       else
         debug "disabling GC profiling"
       end
@@ -48,6 +50,7 @@ module Skylight
         win = Window.new(self)
 
         @lock.synchronize do
+          __update
           @listeners << win
         end
       end
@@ -82,17 +85,24 @@ module Skylight
 
     def update
       @lock.synchronize do
-        time = @profiler.total_time
-
-        if time > 0
-          @profiler.clear
-          @listeners.each do |l|
-            l.add(time)
-          end
-        end
+        __update
       end
 
       nil
+    end
+
+  private
+
+    def __update
+      time  = @profiler.total_time
+      diff  = time - @time
+      @time = time
+
+      if diff > 0.0
+        @listeners.each do |l|
+          l.add(diff)
+        end
+      end
     end
 
     class Window
