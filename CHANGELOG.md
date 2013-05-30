@@ -1,5 +1,7 @@
 ## unreleased ##
 
+* Provide a default CA cert when one is not already present
+
 ## 0.1.4 (May 30, 2013)
 
 * [BUG] Fix some errors caused by floating point rounding

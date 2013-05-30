@@ -14,6 +14,7 @@ module Skylight
       AUTHORIZATION    = 'authorization'.freeze
       DEFLATE          = 'deflate'.freeze
       GZIP             = 'gzip'.freeze
+      DEFAULT_CA_FILE  = File.expand_path('../../data/cacert.pem', __FILE__)
 
       include Logging
 
@@ -26,6 +27,21 @@ module Skylight
         @port = config["#{service}.port"]
         @deflate = config["#{service}.deflate"]
         @authentication = config[:'authentication']
+      end
+
+      def self.detect_ca_cert_file!
+        @ca_cert_file = false
+        if defined?(OpenSSL::X509::DEFAULT_CERT_FILE)
+          if OpenSSL::X509::DEFAULT_CERT_FILE
+            @ca_cert_file = File.exist?(OpenSSL::X509::DEFAULT_CERT_FILE)
+          end
+        end
+      end
+
+      detect_ca_cert_file!
+
+      def self.ca_cert_file?
+        @ca_cert_file
       end
 
       def get(endpoint, hdrs = {})
@@ -81,6 +97,7 @@ module Skylight
 
         if @ssl
           http.use_ssl = true
+          http.ca_file = DEFAULT_CA_FILE unless HTTP.ca_cert_file?
           http.verify_mode = OpenSSL::SSL::VERIFY_PEER
         end
 
