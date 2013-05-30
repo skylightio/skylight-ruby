@@ -1,35 +1,35 @@
 module SpecHelper
-  class TestClock
+  class TestClock < Skylight::Util::Clock
     def initialize
       @now  = nil
-      @skew = 0.0
+      @skew = 0
     end
 
-    def now
-      (@now || __now) + @skew
-    end
-
-    def now=(v)
-      @now = v
+    def micros
+      (@now || __micros) + @skew
     end
 
     def skip(val)
-      @skew += val
+      @skew += (val * 1_000_000).to_i
     end
 
     def freeze
-      @now = __now
+      @now = __micros
     end
 
     def unfreeze
       @now = nil
     end
 
+    def now=(v)
+      @now = v
+    end
+
   private
 
-    def __now
+    def __micros
       n = Time.now
-      n.to_i + n.usec.to_f / 1_000_000
+      n.to_i * 1_000_000 + n.usec
     end
   end
 

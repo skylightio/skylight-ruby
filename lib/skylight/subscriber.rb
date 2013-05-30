@@ -54,7 +54,7 @@ module Skylight
     end
 
     def now
-      Util::Clock.default.now
+      Util::Clock.micros
     end
 
   end

@@ -22,7 +22,7 @@ module Skylight
         t { fmt "starting collector; interval=%d; size=%d", @interval, @size }
       end
 
-      def handle(msg, now = Util::Clock.now)
+      def handle(msg, now = Util::Clock.secs)
         @batch ||= new_batch(now)
 
         if @batch.should_flush?(now)

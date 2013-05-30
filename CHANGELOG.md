@@ -1,5 +1,7 @@
 ## unreleased ##
 
+* [BUG] Fix some errors caused by floating point rounding.
+
 ## 0.1.3 (May 29, 2013)
 
 * [BUG] Require net/https and openssl

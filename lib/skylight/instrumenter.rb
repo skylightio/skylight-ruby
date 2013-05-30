@@ -79,7 +79,7 @@ module Skylight
         return yield(trace)
       end
 
-      trace = Messages::Trace::Builder.new(endpoint, Util::Clock.now, @config)
+      trace = Messages::Trace::Builder.new(endpoint, Util::Clock.micros, @config)
 
       begin
 
@@ -112,7 +112,8 @@ module Skylight
   private
 
     def process(trace)
-      t { fmt "processing trace; spans=%d", trace.spans.length }
+      t { fmt "processing trace; spans=%d; duration=%d",
+            trace.spans.length, trace.spans[-1].duration }
       unless @worker.submit(trace)
         warn "failed to submit trace to worker"
       end

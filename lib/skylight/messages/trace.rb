@@ -19,7 +19,7 @@ module Skylight
         attr_accessor :endpoint
         attr_reader   :spans, :config
 
-        def initialize(endpoint = "Unknown", start = Util::Clock.now, config = nil)
+        def initialize(endpoint = "Unknown", start = Util::Clock.micros, config = nil)
           @endpoint = endpoint
           @busted   = false
           @config   = config
@@ -44,12 +44,13 @@ module Skylight
               yield
             ensure
               unless @busted
-                now = Util::Clock.now
+                now = Util::Clock.micros
 
                 GC.update
                 gc_time = GC.time
 
                 if gc_time > 0
+                  t { fmt "tracking GC time; duration=%d", gc_time }
                   start(now - gc_time, 'noise.gc')
                   stop(now)
                 end
@@ -170,9 +171,9 @@ module Skylight
 
         def relativize(time)
           if parent = @parents[-1]
-            (10_000 * (time - parent.absolute_time)).to_i
+            ((time - parent.absolute_time) / 100).to_i
           else
-            (10_000 * (time - @start)).to_i
+            ((time - @start) / 100).to_i
           end
         end
 

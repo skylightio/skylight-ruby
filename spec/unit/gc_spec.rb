@@ -43,7 +43,7 @@ module Skylight
       it 'adds a GC node' do
         gc.should be_enabled
         gc.should_receive(:total_time).
-          exactly(2).times.and_return(0.0, 0.1)
+          exactly(2).times.and_return(0.0, 100_000)
 
         instrumenter.trace 'Rack' do |t|
           t.root 'app.rack' do
@@ -67,7 +67,8 @@ module Skylight
 
       it 'subtracts GC from the span and adds it at the end' do
         gc.should be_enabled
-        gc.should_receive(:total_time).exactly(4).times.and_return(0, 0, 0.1, 0)
+        gc.should_receive(:total_time).
+          exactly(4).times.and_return(0, 0, 100_000, 0)
 
         instrumenter.trace 'Rack' do |t|
           t.root 'app.rack' do

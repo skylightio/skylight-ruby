@@ -17,7 +17,7 @@ module Skylight
       if win = Thread.current[TH_KEY]
         win.time
       else
-        0.0
+        0
       end
     end
 
@@ -27,7 +27,7 @@ module Skylight
       @listeners = []
       @config    = config
       @lock      = Mutex.new
-      @time      = 0.0
+      @time      = 0
 
       if METHODS.all? { |m| profiler.respond_to?(m) }
         @profiler = profiler
@@ -98,7 +98,7 @@ module Skylight
       diff  = time - @time
       @time = time
 
-      if diff > 0.0
+      if diff > 0
         @listeners.each do |l|
           l.add(diff)
         end
@@ -110,7 +110,7 @@ module Skylight
 
       def initialize(global)
         @global = global
-        @time   = 0.0
+        @time   = 0
       end
 
       def update

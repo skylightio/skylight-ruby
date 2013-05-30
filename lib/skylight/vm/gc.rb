@@ -31,7 +31,7 @@ module Skylight
 
       class GC
         def initialize
-          @total = 0.0
+          @total = 0
         end
 
         def enable
@@ -39,7 +39,8 @@ module Skylight
         end
 
         def total_time
-          run = ::GC::Profiler.total_time
+          # Reported in seconds
+          run = (::GC::Profiler.total_time * 1_000_000).to_i
 
           if run > 0
             ::GC::Profiler.clear
@@ -59,7 +60,7 @@ module Skylight
         end
 
         def total_time
-          0.0
+          0
         end
       end
 
