@@ -34,7 +34,7 @@ module SpecHelper
       reset
     end
 
-    def wait(timeout = 2)
+    def wait(timeout = ENV['TRAVIS'] ? 10 : 2)
       now = Time.now
 
       until !requests.empty?

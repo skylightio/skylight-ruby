@@ -4,7 +4,7 @@ install: bundle install --binstubs=b
 script: bundle exec rspec -cfs spec/
 
 env:
-  - SK_ENABLE_TRACE_LOGS=true
+  - SK_ENABLE_TRACE_LOGS=true TRAVIS=true
 
 rvm:
   - 1.9.3
