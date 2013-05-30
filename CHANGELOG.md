@@ -1,5 +1,7 @@
 ## unreleased ##
 
+## 0.1.4 (May 30, 2013)
+
 * [BUG] Fix some errors caused by floating point rounding
 * [BUG] Handle clock skew caused by system clock changes
 
