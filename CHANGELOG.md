@@ -1,12 +1,13 @@
 ## unreleased ##
 
-* [BUG] Fix some errors caused by floating point rounding.
+* [BUG] Fix some errors caused by floating point rounding
+* [BUG] Handle clock skew caused by system clock changes
 
 ## 0.1.3 (May 29, 2013)
 
 * [BUG] Require net/https and openssl
 * [BUG] Rails' logger does not respond to #log. Use level methods
-  instead.
+  instead
 
 ## 0.1.2 (May 29, 2013)
 

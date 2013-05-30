@@ -82,6 +82,22 @@ module Skylight
         span(4).children.should       == 1
       end
 
+      it 'handles clock skew' do
+        trace.start 1000, :cat1
+        trace.start 900,  :cat2
+        trace.stop  1100
+        trace.stop  1000
+        trace.build
+
+        trace.spans.should have(2).item
+
+        span(0).started_at.should == 0
+        span(0).duration.should == 1
+
+        span(1).started_at.should == 0
+        span(1).duration.should == 1
+      end
+
       it 'raises an exception on stop when the trace is unbalanced' do
         lambda {
           trace.stop 10

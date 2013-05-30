@@ -27,6 +27,9 @@ module Skylight
           @spans    = []
           @stack    = []
           @parents  = []
+
+          # Track time
+          @last_seen_time = start
         end
 
         def root(cat, title = nil, desc = nil, annot = {})
@@ -66,6 +69,8 @@ module Skylight
         def record(time, cat, title = nil, desc = nil, annot = {})
           return if @busted
 
+          time = adjust_for_skew(time)
+
           sp = span(time, cat, title, desc, annot)
 
           return self if :skip == sp
@@ -79,6 +84,8 @@ module Skylight
         def start(time, cat, title = nil, desc = nil, annot = {})
           return if @busted
 
+          time = adjust_for_skew(time)
+
           sp = span(time, cat, title, desc, annot)
 
           push(sp)
@@ -88,6 +95,8 @@ module Skylight
 
         def stop(time)
           return if @busted
+
+          time = adjust_for_skew(time)
 
           sp = pop
 
@@ -175,6 +184,17 @@ module Skylight
           else
             ((time - @start) / 100).to_i
           end
+        end
+
+        # Sadely, we don't have access to a pure monotonic clock in ruby, so we
+        # need to cheat a little.
+        def adjust_for_skew(time)
+          if time <= @last_seen_time
+            return @last_seen_time
+          end
+
+          @last_seen_time = time
+          time
         end
 
       end
