@@ -4,21 +4,17 @@ describe Skylight::Instrumenter, :http do
 
   shared_examples 'an instrumenter' do
 
-    let :instrumenter do
-      Skylight::Instrumenter.new config
-    end
-
     before :each do
-      instrumenter.start!
+      Skylight.start! config
       clock.freeze
     end
 
     after :each do
-      instrumenter.shutdown
+      Skylight.stop!
     end
 
     it 'records the trace' do
-      instrumenter.trace 'Testin' do |t|
+      Skylight.trace 'Testin' do |t|
         t.root 'app.rack' do
           clock.skip 1
         end

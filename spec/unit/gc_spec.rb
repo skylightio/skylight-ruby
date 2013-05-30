@@ -3,17 +3,13 @@ require 'spec_helper'
 module Skylight
   describe GC, :http do
 
-    let :instrumenter do
-      Skylight::Instrumenter.new config
-    end
-
     before :each do
       clock.freeze
-      instrumenter.start!
+      Skylight.start! config
     end
 
     after :each do
-      instrumenter.shutdown
+      Skylight.stop!
     end
 
     context 'when there is no GC and no spans' do
@@ -23,7 +19,7 @@ module Skylight
         gc.should_receive(:total_time).
           exactly(2).times.and_return(0.0, 0.0)
 
-        instrumenter.trace 'Rack' do |t|
+        Skylight.trace 'Rack' do |t|
           t.root 'app.rack' do
             clock.skip 1
           end
@@ -45,7 +41,7 @@ module Skylight
         gc.should_receive(:total_time).
           exactly(2).times.and_return(0.0, 100_000)
 
-        instrumenter.trace 'Rack' do |t|
+        Skylight.trace 'Rack' do |t|
           t.root 'app.rack' do
             clock.skip 1
           end
@@ -70,7 +66,7 @@ module Skylight
         gc.should_receive(:total_time).
           exactly(4).times.and_return(0, 0, 100_000, 0)
 
-        instrumenter.trace 'Rack' do |t|
+        Skylight.trace 'Rack' do |t|
           t.root 'app.rack' do
             instrument 'app.test' do
               clock.skip 1

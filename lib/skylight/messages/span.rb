@@ -29,7 +29,9 @@ module Skylight
 
         attr_accessor :children
 
-        def initialize(time, started_at, cat, title, desc, annot)
+        def initialize(trace, time, started_at, cat, title, desc, annot)
+          @trace      = trace
+          @built      = false
           @time       = time
           @started_at = started_at
           @category   = cat.to_s
@@ -38,7 +40,16 @@ module Skylight
           self.description = desc
         end
 
+        def endpoint=(name)
+          @trace.endpoint = name
+        end
+
+        def built?
+          @built
+        end
+
         def build(duration)
+          @built = true
           Span.new(
             event: Event.new(
               category: category,

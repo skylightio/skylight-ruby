@@ -20,6 +20,27 @@ module Skylight
       @subscriber = nil
     end
 
+    def instrument(category, *args)
+      return unless trace = Instrumenter.current_trace
+
+      annot = args.pop if Hash === args
+      title = args.shift
+      desc  = args.shift
+
+      trace.start(now - gc_time, cat, title, desc, annot)
+    end
+
+    def done
+      return unless trace = Instrumenter.current_trace
+      trace.stop(now - gc_time)
+    end
+
+    #
+    #
+    # ===== ActiveSupport::Notifications API
+    #
+    #
+
     def start(name, id, payload)
       return unless trace = Instrumenter.current_trace
 

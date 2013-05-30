@@ -56,6 +56,24 @@ module Skylight
     noise
     other)
 
+  def self.start!(*args)
+    Instrumenter.start!(*args)
+  end
+
+  def self.stop!(*args)
+    Instrumenter.stop!(*args)
+  end
+
+  def self.trace(*args, &blk)
+    return yield unless inst = Instrumenter.instance
+    inst.trace(*args, &blk)
+  end
+
+  def self.instrument(*args, &blk)
+    return yield unless inst = Instrumenter.instance
+    inst.instrument(*args, &blk)
+  end
+
   RUBYBIN = File.join(
     RbConfig::CONFIG['bindir'],
     "#{RbConfig::CONFIG['ruby_install_name']}#{RbConfig::CONFIG['EXEEXT']}")

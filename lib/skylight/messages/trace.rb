@@ -125,7 +125,7 @@ module Skylight
           return cat if :skip == cat
 
           Span::Builder.new(
-            time, relativize(time),
+            self, time, relativize(time),
             cat, title, desc, annot)
         end
 

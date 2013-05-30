@@ -14,9 +14,8 @@ module Skylight
     initializer 'skylight.configure' do |app|
       if activate?
         if config = load_skylight_config(app)
-          @instrumenter = Instrumenter.start!(config)
-
-          app.middleware.insert 0, Middleware, @instrumenter
+          Instrumenter.start!(config)
+          app.middleware.insert 0, Middleware
 
           Rails.logger.info "[SKYLIGHT] Skylight agent enabled"
         end

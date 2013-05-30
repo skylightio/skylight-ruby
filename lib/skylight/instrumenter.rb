@@ -2,7 +2,8 @@ require 'thread'
 
 module Skylight
   class Instrumenter
-    KEY = :__skylight_current_trace
+    KEY  = :__skylight_current_trace
+    LOCK = Mutex.new
 
     include Util::Logging
 
@@ -14,8 +15,25 @@ module Skylight
       Thread.current[KEY] = trace
     end
 
+    def self.instance
+      @instance
+    end
+
     def self.start!(config = Config.new)
-      new(config).start!
+      return @instance if @instance
+
+      LOCK.synchronize do
+        return @instance if @instance
+        @instance = new(config).start!
+      end
+    end
+
+    def self.stop!
+      LOCK.synchronize do
+        return unless @instance
+        @instance.shutdown
+        @instance = nil
+      end
     end
 
     attr_reader :config, :gc
@@ -26,31 +44,19 @@ module Skylight
       end
 
       @gc = config.gc
-      @lock = Mutex.new
       @config = config
       @worker = config.worker.build
-      @started = false
       @subscriber = Subscriber.new(config)
     end
 
     def start!
-      # Quick check
-      return self if @started
       return unless config
 
-      @lock.synchronize do
-        # Ensure that the instrumenter has not been started now that the lock
-        # has been acquired.
-        return self if @started
-
-        t { "starting instrumenter" }
-        @config.validate!
-        @config.gc.enable
-        @worker.spawn
-        @subscriber.register!
-
-        @started = true
-      end
+      t { "starting instrumenter" }
+      @config.validate!
+      @config.gc.enable
+      @worker.spawn
+      @subscriber.register!
 
       self
 
@@ -60,19 +66,11 @@ module Skylight
     end
 
     def shutdown
-      @lock.synchronize do
-        return unless @started
-        @subscriber.unregister!
-        @worker.shutdown
-      end
+      @subscriber.unregister!
+      @worker.shutdown
     end
 
     def trace(endpoint = 'Unknown')
-      # Ignore everything unless the instrumenter has been started
-      unless @started
-        return yield
-      end
-
       # If a trace is already in progress, continue with that one
       if trace = Instrumenter.current_trace
         t { "already tracing" }
@@ -107,6 +105,16 @@ module Skylight
         rescue Exception => e
           error e
         end
+      end
+    end
+
+    def instrument(cat, *args)
+      return yield unless sp = @subscriber.instrument(cat, *args)
+
+      begin
+        yield sp
+      ensure
+        sp.done
       end
     end
 
