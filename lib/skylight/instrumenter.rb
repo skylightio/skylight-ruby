@@ -98,7 +98,8 @@ module Skylight
             if built && built.spans.empty?
               debug "trace invalid -- dropping; spans=0"
             elsif built
-              debug "trace invalid -- dropping; spans=%d; started_at=%d", built.spans, built.spans[-1].started_at
+              debug "trace invalid -- dropping; spans=%d; started_at=%d",
+                built.spans.length, built.spans[-1].started_at
             else
               debug "trace invalid -- dropping; trace=nil"
             end

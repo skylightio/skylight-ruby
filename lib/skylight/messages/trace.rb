@@ -73,12 +73,12 @@ module Skylight
 
           sp = span(time, cat, title, desc, annot)
 
-          return self if :skip == sp
+          return if :skip == sp
 
           inc_children
-          @spans << sp
+          @spans << sp.build(0)
 
-          self
+          nil
         end
 
         def start(time, cat, title = nil, desc = nil, annot = {})
@@ -90,7 +90,9 @@ module Skylight
 
           push(sp)
 
-          self
+          return if :skip == sp
+
+          sp
         end
 
         def stop(time)
@@ -100,12 +102,11 @@ module Skylight
 
           sp = pop
 
-          return self if :skip == sp
+          return if :skip == sp
 
-          sp.duration = relativize(time) - sp.started_at
-          @spans << sp
+          @spans << sp.build(relativize(time) - sp.started_at)
 
-          self
+          nil
         end
 
         def build
@@ -123,30 +124,9 @@ module Skylight
         def span(time, cat, title, desc, annot)
           return cat if :skip == cat
 
-          sp = Span.new
-          sp.event         = event(cat, title, desc)
-          sp.annotations   = to_annotations(annot)
-          sp.started_at    = relativize(time)
-          sp.absolute_time = time
-
-          if sp.started_at < 0
-            @busted = true
-            raise TraceError, "[BUG] span started_at negative; event=#{cat};" \
-              " started_at=#{sp.started_at};" \
-              " duration=#{sp.duration}"
-          end
-
-          sp
-        end
-
-        def event(cat, title, desc)
-          title = nil unless title.respond_to?(:to_str)
-          desc  = nil unless desc.respond_to?(:to_str)
-
-          Event.new(
-            category:    cat.to_s,
-            title:       title && title.to_str,
-            description: desc && desc.to_str)
+          Span::Builder.new(
+            time, relativize(time),
+            cat, title, desc, annot)
         end
 
         def push(sp)
@@ -171,16 +151,12 @@ module Skylight
 
         def inc_children
           return unless sp = @parents.last
-          sp.children = (sp.children || 0) + 1
-        end
-
-        def to_annotations(annot)
-          [] # TODO: Implement
+          sp.children += 1
         end
 
         def relativize(time)
           if parent = @parents[-1]
-            ((time - parent.absolute_time) / 100).to_i
+            ((time - parent.time) / 100).to_i
           else
             ((time - @start) / 100).to_i
           end

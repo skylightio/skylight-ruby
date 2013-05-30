@@ -16,6 +16,57 @@ module Skylight
       def initialize(attrs = nil)
         super if attrs
       end
+
+      class Builder
+
+        attr_reader \
+          :time,
+          :category,
+          :title,
+          :started_at,
+          :description,
+          :annotations
+
+        attr_accessor :children
+
+        def initialize(time, started_at, cat, title, desc, annot)
+          @time       = time
+          @started_at = started_at
+          @category   = cat.to_s
+          @children   = 0
+          self.title  = title
+          self.description = desc
+        end
+
+        def build(duration)
+          Span.new(
+            event: Event.new(
+              category: category,
+              title: title,
+              description: description),
+            annotations: to_annotations(annotations),
+            started_at: @started_at,
+            duration: duration && duration > 0 ? duration : nil,
+            children: @children > 0 ? @children : nil)
+        end
+
+        def title=(val)
+          val = nil unless val.respond_to?(:to_str)
+          @title = val && val.to_str
+        end
+
+        def description=(val)
+          val = nil unless val.respond_to?(:to_str)
+          @description = val && val.to_str
+        end
+
+      private
+
+        def to_annotations(val)
+          [] # TODO: Implement
+        end
+
+      end
     end
   end
 end
