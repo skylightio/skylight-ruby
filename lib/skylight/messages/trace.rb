@@ -14,6 +14,8 @@ module Skylight
       end
 
       class Builder
+        GC_CAT = 'noise.gc'.freeze
+
         include Util::Logging
 
         attr_accessor :endpoint
@@ -38,7 +40,7 @@ module Skylight
           return yield unless config
 
           gc = config.gc
-          start(@start, cat, title, desc, annot)
+          start(@start, cat, cat, title, desc, annot)
 
           begin
             gc.start_track
@@ -54,11 +56,11 @@ module Skylight
 
                 if gc_time > 0
                   t { fmt "tracking GC time; duration=%d", gc_time }
-                  start(now - gc_time, 'noise.gc')
-                  stop(now)
+                  start(now - gc_time, GC_CAT, GC_CAT)
+                  stop(now, GC_CAT)
                 end
 
-                stop(now)
+                stop(now, cat)
               end
             end
           ensure
@@ -68,12 +70,11 @@ module Skylight
 
         def record(time, cat, title = nil, desc = nil, annot = {})
           return if @busted
+          return if :skip == cat
 
           time = adjust_for_skew(time)
 
-          sp = span(time, cat, title, desc, annot)
-
-          return if :skip == sp
+          sp = span(time, nil, cat, title, desc, annot)
 
           inc_children
           @spans << sp.build(0)
@@ -81,28 +82,36 @@ module Skylight
           nil
         end
 
-        def start(time, cat, title = nil, desc = nil, annot = {})
+        def start(time, token, cat, title = nil, desc = nil, annot = {})
           return if @busted
 
           time = adjust_for_skew(time)
 
-          sp = span(time, cat, title, desc, annot)
+          sp = span(time, token, cat, title, desc, annot)
 
           push(sp)
 
-          return if :skip == sp
+          return if Skip === sp
 
           sp
         end
 
-        def stop(time)
+        def stop(time, token)
           return if @busted
 
           time = adjust_for_skew(time)
 
-          sp = pop
+          sp = pop(token)
 
-          return if :skip == sp
+          unless sp.token == token
+            @busted = true
+            remaining = @stack.map { |sp| sp.token }
+            raise TraceError, "#stop -- trace unbalanced; " \
+              "got=#{token}; expected=#{sp.token}; " \
+              "remaining=#{remaining.inspect}"
+          end
+
+          return if Skip === sp
 
           @spans << sp.build(relativize(time) - sp.started_at)
 
@@ -111,7 +120,10 @@ module Skylight
 
         def build
           return if @busted
-          raise TraceError, "trace unbalanced" unless @stack.empty?
+          unless @stack.empty?
+            remaining = @stack.map { |sp| sp.token }
+            raise TraceError, "trace unbalanced; remaining=#{remaining.inspect}"
+          end
 
           Trace.new(
             uuid:     'TODO',
@@ -121,30 +133,38 @@ module Skylight
 
       private
 
-        def span(time, cat, title, desc, annot)
-          return cat if :skip == cat
+        class Skip
+          attr_reader :token
+
+          def initialize(token)
+            @token = token
+          end
+        end
+
+        def span(time, token, cat, title, desc, annot)
+          return Skip.new(token) if :skip == cat
 
           Span::Builder.new(
-            self, time, relativize(time),
+            self, time, token, relativize(time),
             cat, title, desc, annot)
         end
 
         def push(sp)
           @stack << sp
 
-          unless :skip == sp
+          unless Skip === sp
             inc_children
             @parents << sp
           end
         end
 
-        def pop
+        def pop(token)
           unless sp = @stack.pop
             @busted = true
-            raise TraceError, "trace unbalanced"
+            raise TraceError, "closing span -- trace unbalanced; token=#{token}"
           end
 
-          @parents.pop if :skip != sp
+          @parents.pop unless Skip === sp
 
           sp
         end

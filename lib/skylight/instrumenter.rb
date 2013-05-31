@@ -123,7 +123,7 @@ module Skylight
       begin
         yield sp
       ensure
-        @subscriber.done
+        @subscriber.done(cat)
       end
     end
 

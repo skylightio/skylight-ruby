@@ -21,6 +21,7 @@ module Skylight
 
         attr_reader \
           :time,
+          :token,
           :category,
           :title,
           :started_at,
@@ -29,8 +30,9 @@ module Skylight
 
         attr_accessor :children
 
-        def initialize(trace, time, started_at, cat, title, desc, annot)
+        def initialize(trace, time, token, started_at, cat, title, desc, annot)
           @trace      = trace
+          @token      = token
           @built      = false
           @time       = time
           @started_at = started_at

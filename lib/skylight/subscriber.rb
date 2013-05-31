@@ -21,18 +21,25 @@ module Skylight
     end
 
     def instrument(category, *args)
+      return if :skip == category
       return unless trace = Instrumenter.current_trace
 
       annot = args.pop if Hash === args
       title = args.shift
       desc  = args.shift
 
-      trace.start(now - gc_time, category, title, desc, annot)
+      trace.start(now - gc_time, category, category, title, desc, annot)
+    rescue Exception => e
+      error "Subscriber#instrument error; msg=%s", e.message
+      nil
     end
 
-    def done
+    def done(category)
       return unless trace = Instrumenter.current_trace
-      trace.stop(now - gc_time)
+      trace.stop(now - gc_time, category)
+    rescue Exception => e
+      error "Subscriber#done error; msg=%s", e.message
+      nil
     end
 
     #
@@ -45,18 +52,18 @@ module Skylight
       return unless trace = Instrumenter.current_trace
 
       cat, title, desc, annot = normalize(trace, name, payload)
-      trace.start(now - gc_time, cat, title, desc, annot)
-
-      trace
+      trace.start(now - gc_time, name, cat, title, desc, annot)
     rescue Exception => e
       error "Subscriber#start error; msg=%s", e.message
+      nil
     end
 
     def finish(name, id, payload)
       return unless trace = Instrumenter.current_trace
-      trace.stop(now - gc_time)
+      trace.stop(now - gc_time, name)
     rescue Exception => e
       error "Subscriber#finish error; msg=%s", e.message
+      nil
     end
 
     def publish(name, *args)
