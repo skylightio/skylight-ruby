@@ -27,7 +27,7 @@ module Skylight
       title = args.shift
       desc  = args.shift
 
-      trace.start(now - gc_time, cat, title, desc, annot)
+      trace.start(now - gc_time, category, title, desc, annot)
     end
 
     def done

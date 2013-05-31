@@ -109,12 +109,21 @@ module Skylight
     end
 
     def instrument(cat, *args)
+      cat = cat.to_s
+
+      unless cat =~ CATEGORY_REGEX
+        warn "invalid skylight instrumentation category; value=%s", cat
+        return yield
+      end
+
+      cat = "other.#{cat}" unless cat =~ TIER_REGEX
+
       return yield unless sp = @subscriber.instrument(cat, *args)
 
       begin
         yield sp
       ensure
-        sp.done
+        @subscriber.done
       end
     end
 

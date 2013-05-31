@@ -56,6 +56,9 @@ module Skylight
     noise
     other)
 
+  TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/
+  CATEGORY_REGEX = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/i
+
   def self.start!(*args)
     Instrumenter.start!(*args)
   end

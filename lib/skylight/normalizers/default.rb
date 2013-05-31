@@ -1,10 +1,9 @@
 module Skylight
   module Normalizers
     class Default
-      REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/
 
       def normalize(trace, name, payload)
-        if name =~ REGEX
+        if name =~ TIER_REGEX
           annot = payload.dup
           [
             name,
