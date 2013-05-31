@@ -50,6 +50,7 @@ module Skylight
   class TraceError       < RuntimeError; end
 
   TIERS = %w(
+    api
     app
     view
     db
