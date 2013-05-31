@@ -2,10 +2,6 @@ require 'spec_helper'
 
 describe Skylight::Instrumenter, :http do
 
-  let :instrumenter do
-    Skylight::Instrumenter.new config
-  end
-
   let :hello do
     double('hello')
   end
@@ -24,7 +20,7 @@ describe Skylight::Instrumenter, :http do
         end
       end
 
-      instrumenter.should_not_receive(:process)
+      Skylight::Instrumenter.instance.should be_nil
     end
 
   end
