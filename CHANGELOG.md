@@ -1,6 +1,8 @@
 ## unreleased ##
 
 * Provide a default CA cert when one is not already present
+* Expose Skylight.start! and Skylight.trace as APIs
+* Expose Skylight.instrument as an API for custom instrumentation.
 
 ## 0.1.4 (May 30, 2013)
 
