@@ -49,18 +49,22 @@ module Skylight
               yield
             ensure
               unless @busted
-                now = Util::Clock.micros
+                begin
+                  now = Util::Clock.micros
 
-                GC.update
-                gc_time = GC.time
+                  GC.update
+                  gc_time = GC.time
 
-                if gc_time > 0
-                  t { fmt "tracking GC time; duration=%d", gc_time }
-                  start(now - gc_time, GC_CAT, GC_CAT)
-                  stop(now, GC_CAT)
+                  if gc_time > 0
+                    t { fmt "tracking GC time; duration=%d", gc_time }
+                    start(now - gc_time, GC_CAT, GC_CAT)
+                    stop(now, GC_CAT)
+                  end
+
+                  stop(now, cat)
+                rescue Exception => e
+                  error "Trace#root error; msg=%s", e.message
                 end
-
-                stop(now, cat)
               end
             end
           ensure

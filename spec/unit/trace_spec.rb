@@ -21,7 +21,7 @@ module Skylight
     context 'building' do
 
       let :trace do
-        Messages::Trace::Builder.new 'Zomg', 1000
+        Messages::Trace::Builder.new 'Zomg', 1000, config
       end
 
       it 'does not track the span when it is started' do
@@ -118,6 +118,14 @@ module Skylight
         lambda {
           trace.build
         }.should raise_error(TraceError, /foo.*lulz/)
+      end
+
+      it 'does not raise an exception when root throws an error' do
+        lambda {
+          trace.root 'zomg' do
+            trace.start 1000, 'foo', :foo
+          end
+        }.should_not raise_error(TraceError)
       end
 
       it 'tracks the title' do
