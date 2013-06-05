@@ -1,5 +1,7 @@
 ## unreleased ##
 
+* [BUG] Fix unix domain socket write function in standalone agent
+
 ## 0.1.5 (May 31, 2013)
 
 * Provide a default CA cert when one is not already present

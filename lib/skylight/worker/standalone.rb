@@ -236,7 +236,13 @@ module Skylight
         cnt = 50
 
         while 0 <= (cnt -= 1)
-          ret = sock.syswrite msg rescue nil
+          ret = nil
+
+          begin
+            ret = sock.syswrite msg
+          rescue
+            ret = 0
+          end
 
           return true unless ret
 
