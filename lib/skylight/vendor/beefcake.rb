@@ -34,6 +34,13 @@ module Skylight
 
 
       module Dsl
+        def self.extended(base)
+          initializer = Module.new
+          base.instance_variable_set(:@__initializer, initializer)
+          base.__write_initializer
+          base.send(:include, initializer)
+        end
+
         def required(name, type, fn, opts={})
           field(:required, name, type, fn, opts)
         end
@@ -48,11 +55,26 @@ module Skylight
 
         def field(rule, name, type, fn, opts)
           fields[fn] = Field.new(rule, name, type, fn, opts)
+          __write_initializer
           attr_accessor name
         end
 
         def fields
           @fields ||= {}
+        end
+
+        def __write_initializer
+          lines = []
+
+          lines << "def initialize(attrs=nil)"
+          lines << "return unless attrs"
+          fields.values.each do |fld|
+            lines << "@#{fld.name} = attrs[:#{fld.name}]"
+          end
+
+          lines << "end"
+
+          @__initializer.module_eval(lines.join("\n"), __FILE__, __LINE__+1)
         end
       end
 
@@ -133,7 +155,8 @@ module Skylight
 
 
       module Decode
-        def decode(buf, o=self.new)
+        # Use allocate instead of new for performance
+        def decode(buf, o=self.allocate)
           if ! buf.is_a?(Buffer)
             buf = Buffer.new(buf)
           end
@@ -189,12 +212,6 @@ module Skylight
         o.extend Dsl
         o.extend Decode
         o.send(:include, Encode)
-      end
-
-      def initialize(attrs={})
-        fields.values.each do |fld|
-          self[fld.name] = attrs[fld.name]
-        end
       end
 
       def fields
