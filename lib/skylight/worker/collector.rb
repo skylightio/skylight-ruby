@@ -53,7 +53,7 @@ module Skylight
       def flush(batch)
         return if batch.empty?
 
-        trace "flushing batch; size=%d", batch.sample.count
+        debug "flushing batch; size=%d", batch.sample.count
         @http.post(ENDPOINT, batch.encode, CONTENT_TYPE => SKYLIGHT_V1)
       end
 

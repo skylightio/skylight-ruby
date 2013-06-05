@@ -3,7 +3,7 @@ require 'thread'
 module Skylight
   module Util
     # Simple thread-safe queue backed by a ring buffer. Will only block when
-    # poping.
+    # poping. Single consumer only
     class Queue
 
       def initialize(max)
@@ -15,7 +15,7 @@ module Skylight
         @values  = [nil] * max
         @consume = 0
         @produce = 0
-        @waiting = []
+        @waiting = nil
         @mutex   = Mutex.new
       end
 
@@ -39,11 +39,8 @@ module Skylight
           ret = __length
 
           # Wakeup a blocked thread
-          begin
-            t = @waiting.shift
-            t.wakeup if t
-          rescue ThreadError
-            retry
+          if t = @waiting
+            t.run rescue nil
           end
         end
 
@@ -58,11 +55,13 @@ module Skylight
         @mutex.synchronize do
           if __empty?
             if !timeout || timeout > 0
-              t = Thread.current
-              @waiting << t
-              @mutex.sleep(timeout)
-              # Ensure that the thread is not in the waiting list
-              @waiting.delete(t)
+              return if @waiting
+              @waiting = Thread.current
+              begin
+                @mutex.sleep(timeout)
+              ensure
+                @waiting = nil
+              end
             else
               return
             end

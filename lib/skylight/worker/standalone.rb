@@ -2,6 +2,7 @@ require 'socket'
 require 'thread'
 require 'fileutils'
 
+# TODO: Handle cool-off
 module Skylight
   module Worker
     # Handle to the agent subprocess. Manages creation, communication, and
@@ -146,17 +147,17 @@ module Skylight
         # is still healthy but is simply reloading itself, this should work
         # just fine.
         if sock = connect(@pid)
-          trace "reconnected to worker"
+          t { "reconnected to worker" }
           @sock = sock
           # TODO: Should HELLO be sent again?
           return true
         end
 
-        t { "failed to reconnect -- attempting worker respawn" }
+        debug "failed to reconnect -- attempting worker respawn"
 
         # Attempt to respawn the agent process
         unless __spawn
-          t { "could not respawn -- shutting down" }
+          debug "could not respawn -- shutting down"
 
           @pid  = nil
           @sock = nil
@@ -205,9 +206,12 @@ module Skylight
           @sock = nil
           sock.close rescue nil
 
-          # TODO: Respawn the agent
-          repair
+          unless repair
+            return false
+          end
         end
+
+        debug "could not handle message; msg=%s", msg.class
 
         false
       end
@@ -231,29 +235,39 @@ module Skylight
         end
       end
 
-      def write(sock, msg, timeout = 0.01)
+      def write(sock, msg, timeout = 0.2)
         msg = msg.to_s
-        cnt = 50
+        cnt = 10
 
-        while 0 <= (cnt -= 1)
-          ret = nil
+        begin
+          while true
+            res = sock.write_nonblock(msg)
 
-          begin
-            ret = sock.syswrite msg
-          rescue
-            ret = 0
+            if res == msg.bytesize
+              return true
+            elsif res > 0
+              msg = msg.byteslice(res..-1)
+              cnt = 10
+            else
+              if 0 <= (cnt -= 1)
+                t { "write failed -- max attempts" }
+                return false
+              end
+            end
           end
-
-          return true unless ret
-
-          if ret == msg.bytesize
-            return true
-          elsif ret > 0
-            msg = msg.byteslice(ret..-1)
+        rescue Errno::EAGAIN, Errno::EWOULDBLOCK
+          _, socks, = IO.select([], [sock], [], timeout)
+          unless socks == [sock]
+            t { "write timed out" }
+            return false
           end
+          retry
+        rescue Errno::EINTR
+          raise
+        rescue SystemCallError => e
+          t { fmt "write failed; err=%s", e.class }
+          return false
         end
-
-        return false
       end
 
       # Spawn the worker process.
