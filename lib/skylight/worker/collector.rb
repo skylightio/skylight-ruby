@@ -18,6 +18,7 @@ module Skylight
         @size     = config[:'agent.sample']
         @batch    = nil
         @interval = config[:'agent.interval']
+        @buf      = ""
 
         t { fmt "starting collector; interval=%d; size=%d", @interval, @size }
       end
@@ -54,7 +55,9 @@ module Skylight
         return if batch.empty?
 
         debug "flushing batch; size=%d", batch.sample.count
-        @http.post(ENDPOINT, batch.encode, CONTENT_TYPE => SKYLIGHT_V1)
+
+        @buf.clear
+        @http.post(ENDPOINT, batch.encode(@buf), CONTENT_TYPE => SKYLIGHT_V1)
       end
 
       def new_batch(now)
@@ -93,7 +96,7 @@ module Skylight
           @sample << trace
         end
 
-        def encode
+        def encode(buf)
           endpoints = {}
 
           sample.each do |trace|
@@ -115,7 +118,9 @@ module Skylight
           Messages::Batch.new(
             timestamp: from,
             endpoints: endpoints.values).
-            encode.to_s
+            encode(buf)
+
+          buf
         end
       end
 

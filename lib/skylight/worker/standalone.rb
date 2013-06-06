@@ -235,7 +235,7 @@ module Skylight
         end
       end
 
-      def write(sock, msg, timeout = 0.2)
+      def write(sock, msg, timeout = 5)
         msg = msg.to_s
         cnt = 10
 
