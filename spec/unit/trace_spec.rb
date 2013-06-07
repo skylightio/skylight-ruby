@@ -3,6 +3,14 @@ require 'spec_helper'
 module Skylight
   describe Messages::Trace do
 
+    let! :trace do
+      Skylight::Messages::Trace::Builder.new 'Unknown', 1000, config
+    end
+
+    before :each do
+      clock.now = 1000
+    end
+
     context 'defaults' do
 
       it 'defaults endpoint to unknown' do
@@ -10,9 +18,9 @@ module Skylight
       end
 
       it 'defaults the start time to now' do
-        clock.now = 1000
+        clock.skip 2
 
-        trace.record(2_001_000, "foo", nil, nil, nil)
+        trace.record("foo")
         trace.spans[0].started_at.should == 20_000
       end
 
@@ -25,33 +33,36 @@ module Skylight
       end
 
       it 'does not track the span when it is started' do
-        trace.start(2000, 'foo', :foo)
-        trace.spans.should be_empty
+        trace.instrument 'foo' do
+          trace.spans.should be_empty
+        end
       end
 
       it 'tracks the span when it is finished' do
-        trace.start(2000, 'foo', :foo)
-        trace.stop(3000, 'foo')
+        clock.skip 0.1
+        a = trace.instrument 'foo'
+        clock.skip 0.1
+        a.done
 
         trace.spans.should have(1).item
-        span = trace.spans[0]
-        span.event.category.should   == 'foo'
-        span.started_at.should == 10
+        span(0).event.category.should   == 'foo'
+        span(0).started_at.should == 1000
       end
 
       it 'builds the trace' do
-        trace.start  1000,   'cat1', :cat1
-        trace.start  2000,   'cat2', :cat2
-        trace.start  2000,   'lulz', :skip
-        trace.start  2000,   'cat3', :cat3
-        trace.start  3000,   'gree', :skip
-        trace.record 3000,   :cat4
-        trace.stop   4000,   'gree'
-        trace.record 5000,   :cat5
-        trace.stop   5000,   'cat3'
-        trace.stop   6000,   'lulz'
-        trace.stop   8000,   'cat2'
-        trace.stop   10_000, 'cat1'
+        a = trace.instrument 'cat1'
+        clock.skip 0.001
+        b = trace.instrument 'cat2'
+        c = trace.instrument 'cat3'
+        clock.skip 0.001
+        trace.record 'cat4'
+        clock.skip 0.002
+        trace.record 'cat5'
+        c.done
+        clock.skip 0.003
+        b.done
+        clock.skip 0.002
+        a.done
         trace.build
 
         trace.spans.should have(5).item
@@ -83,55 +94,62 @@ module Skylight
       end
 
       it 'handles clock skew' do
-        trace.start 1000, 'cat1', :cat1
-        trace.start 900,  'cat2', :cat2
-        trace.stop  1100, 'cat2'
-        trace.stop  1000, 'cat1'
+        a = trace.instrument 'cat1'
+        clock.skip(-0.001)
+        b = trace.instrument 'cat2'
+        clock.skip 0.002
+        b.done
+        clock.skip(-0.001)
+        a.done
         trace.build
 
         trace.spans.should have(2).item
 
         span(0).started_at.should == 0
-        span(0).duration.should == 1
+        span(0).duration.should == 10
 
         span(1).started_at.should == 0
-        span(1).duration.should == 1
+        span(1).duration.should == 10
       end
 
-      it 'raises an exception on stop when the trace is unbalanced' do
-        lambda {
-          trace.stop 10, 'foo'
-        }.should raise_error(TraceError)
+      it 'force closes any open span on build' do
+        trace.instrument 'foo'
+        clock.skip 0.001
+        trace.build
+
+        trace.should have(1).spans
+        span(0).event.category.should == 'foo'
+        span(0).started_at.should == 0
+        span(0).duration.should == 10
       end
 
-      it 'raises an exception on commit when the trace is unbalanced' do
-        trace.start 1000, 'foo', :foo
-        lambda {
-          trace.build
-        }.should raise_error(TraceError, /remaining/)
-      end
+      it 'closes any spans that were not properly closed' do
+        a = trace.instrument 'foo'
+        clock.skip 0.1
+        b = trace.instrument 'bar'
+        clock.skip 0.1
+        trace.instrument 'baz'
+        clock.skip 0.1
+        a.done
+        clock.skip 0.1
+        b.done
+        clock.skip 0.1
 
-      it 'raises an exception on commit when the trace is unbalanced' do
-        trace.start 1000, 'foo', :foo
-        trace.start 2000, 'lulz', :skip
+        trace.build
 
-        lambda {
-          trace.build
-        }.should raise_error(TraceError, /foo.*lulz/)
-      end
-
-      it 'does not raise an exception when root throws an error' do
-        lambda {
-          trace.root 'zomg' do
-            trace.start 1000, 'foo', :foo
-          end
-        }.should_not raise_error(TraceError)
+        trace.should have(3).spans
+        span(0).event.category.should == 'baz'
+        span(0).duration.should == 1000
+        span(1).event.category.should == 'bar'
+        span(1).duration.should == 2000
+        span(2).event.category.should == 'foo'
+        span(2).duration.should == 3000
       end
 
       it 'tracks the title' do
-        trace.start  1000, 'foo', :foo, 'How a foo is formed?'
-        trace.record 3000, :bar, 'How a bar is formed?'
-        trace.stop   5000, 'foo'
+        a = trace.instrument 'foo', 'How a foo is formed?'
+        trace.record :bar, 'How a bar is formed?'
+        a.done
         trace.build
 
         span(0).event.title.should == 'How a bar is formed?'
@@ -139,9 +157,9 @@ module Skylight
       end
 
       it 'tracks the description' do
-        trace.start  1000, 'foo', :foo, 'FOO', 'How a foo is formed?'
-        trace.record 3000, :bar, 'BAR', 'How a bar is formed?'
-        trace.stop   5000, 'foo'
+        a = trace.instrument 'foo', 'FOO', 'How a foo is formed?'
+        trace.record :bar, 'BAR', 'How a bar is formed?'
+        a.done
 
         span(0).event.title.should       == 'BAR'
         span(0).event.description.should == 'How a bar is formed?'

@@ -109,6 +109,8 @@ module Skylight
     end
 
     def instrument(cat, *args)
+      return yield unless trace = Instrumenter.current_trace
+
       cat = cat.to_s
 
       unless cat =~ CATEGORY_REGEX
@@ -118,12 +120,12 @@ module Skylight
 
       cat = "other.#{cat}" unless cat =~ TIER_REGEX
 
-      return yield unless sp = @subscriber.instrument(cat, *args)
+      return yield unless sp = trace.instrument(cat, *args)
 
       begin
         yield sp
       ensure
-        @subscriber.done(cat)
+        sp.done
       end
     end
 

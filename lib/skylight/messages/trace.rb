@@ -19,16 +19,17 @@ module Skylight
         include Util::Logging
 
         attr_accessor :endpoint
-        attr_reader   :spans, :config
+        attr_reader   :spans, :config, :notifications
 
         def initialize(endpoint = "Unknown", start = Util::Clock.micros, config = nil)
           @endpoint = endpoint
-          @busted   = false
           @config   = config
           @start    = start
           @spans    = []
           @stack    = []
-          @parents  = []
+
+          # Tracks the AS::N stack
+          @notifications = []
 
           # Track time
           @last_seen_time = start
@@ -40,7 +41,7 @@ module Skylight
           return yield unless config
 
           gc = config.gc
-          start(@start, cat, cat, title, desc, annot)
+          sp = start(@start, cat, title, desc, annot)
 
           begin
             gc.start_track
@@ -48,23 +49,20 @@ module Skylight
             begin
               yield
             ensure
-              unless @busted
-                begin
-                  now = Util::Clock.micros
+              begin
+                now  = adjust_for_skew(Util::Clock.micros)
+                time = gc_time
 
-                  GC.update
-                  gc_time = GC.time
-
-                  if gc_time > 0
-                    t { fmt "tracking GC time; duration=%d", gc_time }
-                    start(now - gc_time, GC_CAT, GC_CAT)
-                    stop(now, GC_CAT)
-                  end
-
-                  stop(now, cat)
-                rescue Exception => e
-                  error "Trace#root error; msg=%s", e.message
+                if time > 0
+                  t { fmt "tracking GC time; duration=%d", time }
+                  noise = start(now - time, GC_CAT, nil, nil, {})
+                  stop(noise, now)
                 end
+
+                stop(sp, now)
+              rescue Exception => e
+                error "Trace#root error; msg=%s", e.message
+                t { e.backtrace.join("\n") }
               end
             end
           ensure
@@ -72,61 +70,40 @@ module Skylight
           end
         end
 
-        def record(time, cat, title = nil, desc = nil, annot = {})
-          return if @busted
-          return if :skip == cat
+        def record(cat, *args)
+          annot = args.pop if Hash === args
+          title = args.shift
+          desc  = args.shift
+          now   = adjust_for_skew(Util::Clock.micros)
 
-          time = adjust_for_skew(time)
-
-          sp = span(time, nil, cat, title, desc, annot)
-
+          sp = span(now - gc_time, cat, title, desc, annot)
           inc_children
           @spans << sp.build(0)
 
           nil
         end
 
-        def start(time, token, cat, title = nil, desc = nil, annot = {})
-          return if @busted
+        def instrument(cat, *args)
+          annot = args.pop if Hash === args
+          title = args.shift
+          desc  = args.shift
+          now   = adjust_for_skew(Util::Clock.micros)
 
-          time = adjust_for_skew(time)
-
-          sp = span(time, token, cat, title, desc, annot)
-
-          push(sp)
-
-          return if Skip === sp
-
-          sp
+          start(now - gc_time, cat, title, desc, annot)
         end
 
-        def stop(time, token)
-          return if @busted
-
-          time = adjust_for_skew(time)
-
-          sp = pop(token)
-
-          unless sp.token == token
-            @busted = true
-            remaining = @stack.map { |sp| sp.token }
-            raise TraceError, "#stop -- trace unbalanced; " \
-              "got=#{token}; expected=#{sp.token}; " \
-              "remaining=#{remaining.inspect}"
-          end
-
-          return if Skip === sp
-
-          @spans << sp.build(relativize(time) - sp.started_at)
-
-          nil
+        def done(span)
+          return unless span
+          stop(span, adjust_for_skew(Util::Clock.micros) - gc_time)
         end
 
         def build
-          return if @busted
+          # Force pop all the things
           unless @stack.empty?
-            remaining = @stack.map { |sp| sp.token }
-            raise TraceError, "trace unbalanced; remaining=#{remaining.inspect}"
+            time = adjust_for_skew(Util::Clock.micros)
+            while sp = @stack.pop
+              @spans << sp.build(relativize(time) - sp.started_at)
+            end
           end
 
           Trace.new(
@@ -137,49 +114,43 @@ module Skylight
 
       private
 
-        class Skip
-          attr_reader :token
+        def start(time, cat, title, desc, annot)
+          sp = span(time, cat, title, desc, annot)
 
-          def initialize(token)
-            @token = token
-          end
-        end
-
-        def span(time, token, cat, title, desc, annot)
-          return Skip.new(token) if :skip == cat
-
-          Span::Builder.new(
-            self, time, token, relativize(time),
-            cat, title, desc, annot)
-        end
-
-        def push(sp)
-          @stack << sp
-
-          unless Skip === sp
-            inc_children
-            @parents << sp
-          end
-        end
-
-        def pop(token)
-          unless sp = @stack.pop
-            @busted = true
-            raise TraceError, "closing span -- trace unbalanced; token=#{token}"
-          end
-
-          @parents.pop unless Skip === sp
+          push(sp)
 
           sp
         end
 
+        def stop(span, time)
+          until span == (sp = @stack.pop)
+            return unless sp
+            @spans << sp.build(relativize(time) - sp.started_at)
+          end
+
+          @spans << span.build(relativize(time) - sp.started_at)
+
+          nil
+        end
+
+        def span(time, cat, title, desc, annot)
+          Span::Builder.new(
+            self, time, relativize(time),
+            cat, title, desc, annot)
+        end
+
+        def push(sp)
+          inc_children
+          @stack << sp
+        end
+
         def inc_children
-          return unless sp = @parents.last
+          return unless sp = @stack[-1]
           sp.children += 1
         end
 
         def relativize(time)
-          if parent = @parents[-1]
+          if parent = @stack[-1]
             ((time - parent.time) / 100).to_i
           else
             ((time - @start) / 100).to_i
@@ -197,8 +168,12 @@ module Skylight
           time
         end
 
-      end
+        def gc_time
+          GC.update
+          GC.time
+        end
 
+      end
     end
   end
 end

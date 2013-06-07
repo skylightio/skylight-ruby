@@ -20,39 +20,31 @@ module Skylight
       @subscriber = nil
     end
 
-    def instrument(category, *args)
-      return if :skip == category
-      return unless trace = Instrumenter.current_trace
-
-      annot = args.pop if Hash === args
-      title = args.shift
-      desc  = args.shift
-
-      trace.start(now - gc_time, category, category, title, desc, annot)
-    rescue Exception => e
-      error "Subscriber#instrument error; msg=%s", e.message
-      nil
-    end
-
-    def done(category)
-      return unless trace = Instrumenter.current_trace
-      trace.stop(now - gc_time, category)
-    rescue Exception => e
-      error "Subscriber#done error; msg=%s", e.message
-      nil
-    end
-
     #
     #
     # ===== ActiveSupport::Notifications API
     #
     #
 
+    class Notification
+      attr_reader :name, :span
+
+      def initialize(name, span)
+        @name, @span = name, span
+      end
+    end
+
     def start(name, id, payload)
       return unless trace = Instrumenter.current_trace
 
       cat, title, desc, annot = normalize(trace, name, payload)
-      trace.start(now - gc_time, name, cat, title, desc, annot)
+
+      unless cat == :skip
+        span = trace.instrument(cat, title, desc, annot)
+      end
+
+      trace.notifications << Notification.new(name, span)
+
     rescue Exception => e
       error "Subscriber#start error; msg=%s", e.message
       nil
@@ -60,7 +52,14 @@ module Skylight
 
     def finish(name, id, payload)
       return unless trace = Instrumenter.current_trace
-      trace.stop(now - gc_time, name)
+
+      while curr = trace.notifications.pop
+        if curr.name == name
+          curr.span.done if curr.span
+          return
+        end
+      end
+
     rescue Exception => e
       error "Subscriber#finish error; msg=%s", e.message
       nil
@@ -74,15 +73,6 @@ module Skylight
 
     def normalize(*args)
       @normalizers.normalize(*args)
-    end
-
-    def gc_time
-      GC.update
-      GC.time
-    end
-
-    def now
-      Util::Clock.micros
     end
 
   end
