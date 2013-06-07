@@ -11,7 +11,7 @@ describe Skylight::Instrumenter, :http do
     it 'does not break code' do
       hello.should_receive(:hello)
 
-      Skylight.trace 'Zomg' do |t|
+      Skylight.trace 'Zomg', 'app.rack.request' do |t|
         t.should be_nil
 
         Skylight.instrument 'foo.bar' do |s|
@@ -39,13 +39,11 @@ describe Skylight::Instrumenter, :http do
     it 'tracks custom instrumentation metrics' do
       hello.should_receive(:hello)
 
-      Skylight.trace 'Testin' do |t|
-        t.root 'app.rack' do
+      Skylight.trace 'Testin', 'app.rack.request' do |t|
+        clock.skip 0.1
+        Skylight.instrument 'app.foo' do
           clock.skip 0.1
-          Skylight.instrument 'app.foo' do
-            clock.skip 0.1
-            hello.hello
-          end
+          hello.hello
         end
       end
 
@@ -65,19 +63,17 @@ describe Skylight::Instrumenter, :http do
         started_at: 1_000,
         duration:   1_000)
       t.spans[1].should == span(
-        event:      event('app.rack'),
+        event:      event('app.rack.request'),
         started_at: 0,
         duration:   2_000,
         children:   1)
     end
 
     it 'recategorizes unknown events as other' do
-      Skylight.trace 'Testin' do |t|
-        t.root 'app.rack' do
+      Skylight.trace 'Testin', 'app.rack.request' do |t|
+        clock.skip 0.1
+        Skylight.instrument 'foo' do
           clock.skip 0.1
-          Skylight.instrument 'foo' do
-            clock.skip 0.1
-          end
         end
       end
 

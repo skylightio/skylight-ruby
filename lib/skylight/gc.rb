@@ -2,24 +2,12 @@ require 'thread'
 
 module Skylight
   class GC
-    METHODS = [ :enable, :total_time ]
-    TH_KEY  = :SK_GC_CURR_WINDOW
+    METHODS   = [ :enable, :total_time ]
+    TH_KEY    = :SK_GC_CURR_WINDOW
+    MAX_COUNT = 1000
+    MAX_TIME  = 30_000_000
 
     include Util::Logging
-
-    def self.update
-      if win = Thread.current[TH_KEY]
-        win.update
-      end
-    end
-
-    def self.time
-      if win = Thread.current[TH_KEY]
-        win.time
-      else
-        0
-      end
-    end
 
     attr_reader :config
 
@@ -41,9 +29,7 @@ module Skylight
       @profiler.enable if @profiler
     end
 
-    def start_track
-      return if Thread.current[TH_KEY]
-
+    def track
       unless @profiler
         win = Window.new(nil)
       else
@@ -52,29 +38,19 @@ module Skylight
         @lock.synchronize do
           __update
           @listeners << win
+
+          # Cleanup any listeners that might have leaked
+          until @listeners[0].time < MAX_TIME
+            @listeners.shift
+          end
+
+          if @listeners.length > MAX_COUNT
+            @listeners.shift
+          end
         end
       end
 
-      Thread.current[TH_KEY] = win
-    end
-
-    def stop_track
-      if win = Thread.current[TH_KEY]
-        Thread.current[TH_KEY] = nil
-        win.release
-      end
-    end
-
-    def track
-      return unless block_given?
-
-      start_track
-
-      begin
-        yield
-      ensure
-        stop_track
-      end
+      win
     end
 
     def release(win)

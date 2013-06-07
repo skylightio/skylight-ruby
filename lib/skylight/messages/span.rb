@@ -19,6 +19,8 @@ module Skylight
 
       class Builder
 
+        include Util::Logging
+
         attr_reader \
           :time,
           :category,
@@ -40,12 +42,19 @@ module Skylight
           self.description = desc
         end
 
+        def config
+          @trace.config
+        end
+
         def endpoint=(name)
           @trace.endpoint = name
         end
 
         def done
           @trace.done(self) unless built?
+        rescue Exception => e
+          error e.message
+          t { e.backtrace.join("\n") }
         end
 
         def built?

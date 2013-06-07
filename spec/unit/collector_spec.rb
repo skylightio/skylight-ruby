@@ -3,18 +3,27 @@ require 'spec_helper'
 module Skylight
   describe Worker::Collector, :http do
 
+    before :each do
+      Skylight.start! config
+      clock.freeze
+    end
+
+    after :each do
+      Skylight.stop!
+    end
+
     shared_examples "a worker" do
 
       before :each do
-        worker.spawn
+        Skylight.trace 'Unknown', 'app.rack.request' do
+          clock.skip 0.01
+        end
+
+        clock.unfreeze
+        server.wait
       end
 
       it 'submits the batch to the server' do
-        t = trace.build
-
-        worker.submit t
-        server.wait
-
         server.should have(1).requests
         server.should have(1).reports
 
@@ -26,19 +35,19 @@ module Skylight
 
         batch.should have(1).endpoints
 
-        t.endpoint = nil
         ep = batch.endpoints[0]
         ep.name.should == 'Unknown'
-        ep.traces[0].should == t
+        @trace = ep.traces[0]
+        trace.should have(1).spans
+
+        span(0).event.category.should == 'app.rack.request'
       end
 
     end
 
     context "embedded" do
 
-      let :worker do
-        spawn_worker strategy: 'embedded', interval: 1
-      end
+      let(:agent_strategy) { 'embedded' }
 
       it_behaves_like "a worker"
 
@@ -46,9 +55,7 @@ module Skylight
 
     context "standalone" do
 
-      let :worker do
-        spawn_worker strategy: 'standalone'
-      end
+      let(:agent_strategy) { 'standalone' }
 
       it_behaves_like "a worker"
 

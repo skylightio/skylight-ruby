@@ -1,7 +1,28 @@
 module SpecHelper
 
+  class MockInstrumenter
+    attr_reader :config, :traces
+
+    def initialize(config)
+      @config = config
+      @traces = []
+    end
+
+    def trace
+      traces.last
+    end
+
+    def process(t)
+      @traces << t
+    end
+  end
+
+  def instrumenter
+    @instrumenter ||= MockInstrumenter.new(config)
+  end
+
   def trace
-    @trace ||= Skylight::Messages::Trace::Builder.new
+    @trace ||= Skylight::Messages::Trace::Builder.new instrumenter, 'Rack', clock.micros, 'app.rack.request'
   end
 
   def span(arg)

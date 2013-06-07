@@ -8,66 +8,41 @@ module Skylight
       optional :endpoint, :string, 2
       repeated :spans,    Span,    3
 
-      def valid?
-        return false unless spans && spans.length > 0
-        spans[-1].started_at == 0
-      end
-
       class Builder
         GC_CAT = 'noise.gc'.freeze
 
         include Util::Logging
 
         attr_accessor :endpoint
-        attr_reader   :spans, :config, :notifications
+        attr_reader   :spans, :notifications
 
-        def initialize(endpoint = "Unknown", start = Util::Clock.micros, config = nil)
-          @endpoint = endpoint
-          @config   = config
-          @start    = start
-          @spans    = []
-          @stack    = []
+        def initialize(instrumenter, endpoint, start, cat, *args)
+          raise ArgumentError, 'instrumenter is required' unless instrumenter
+
+          @instrumenter = instrumenter
+          @endpoint     = endpoint
+          @start        = start
+          @spans        = []
+          @stack        = []
+          @submitted    = false
 
           # Tracks the AS::N stack
           @notifications = []
 
           # Track time
           @last_seen_time = start
+
+          annot = args.pop if Hash === args
+          title = args.shift
+          desc  = args.shift
+
+          # Create the root node
+          @root = start(@start, cat, title, desc, annot)
+          @gc   = config.gc.track
         end
 
-        def root(cat, title = nil, desc = nil, annot = {})
-          return unless block_given?
-          return yield unless @stack == []
-          return yield unless config
-
-          gc = config.gc
-          sp = start(@start, cat, title, desc, annot)
-
-          begin
-            gc.start_track
-
-            begin
-              yield
-            ensure
-              begin
-                now  = adjust_for_skew(Util::Clock.micros)
-                time = gc_time
-
-                if time > 0
-                  t { fmt "tracking GC time; duration=%d", time }
-                  noise = start(now - time, GC_CAT, nil, nil, {})
-                  stop(noise, now)
-                end
-
-                stop(sp, now)
-              rescue Exception => e
-                error "Trace#root error; msg=%s", e.message
-                t { e.backtrace.join("\n") }
-              end
-            end
-          ensure
-            gc.stop_track
-          end
+        def config
+          @instrumenter.config
         end
 
         def record(cat, *args)
@@ -97,19 +72,45 @@ module Skylight
           stop(span, adjust_for_skew(Util::Clock.micros) - gc_time)
         end
 
-        def build
-          # Force pop all the things
-          unless @stack.empty?
-            time = adjust_for_skew(Util::Clock.micros)
-            while sp = @stack.pop
-              @spans << sp.build(relativize(time) - sp.started_at)
-            end
+        def release
+          return unless Instrumenter.current_trace == self
+          Instrumenter.current_trace = nil
+        end
+
+        def submit
+          return if @submitted
+
+          release
+          @submitted = true
+
+          now = adjust_for_skew(Util::Clock.micros)
+
+          # Pop everything that is left
+          while sp = pop
+            @spans << sp.build(relativize(now) - sp.started_at)
           end
 
-          Trace.new(
+          time = gc_time
+
+          if time > 0
+            t { fmt "tracking GC time; duration=%d", time }
+            noise = start(now - time, GC_CAT, nil, nil, {})
+            stop(noise, now)
+          end
+
+          if sp = @stack.pop
+            @spans << sp.build(relativize(now) - sp.started_at)
+          end
+
+          t = Trace.new(
             uuid:     'TODO',
             endpoint: endpoint,
             spans:    spans)
+
+          @instrumenter.process(t)
+        rescue Exception => e
+          error e
+          t { e.backtrace.join("\n") }
         end
 
       private
@@ -123,7 +124,7 @@ module Skylight
         end
 
         def stop(span, time)
-          until span == (sp = @stack.pop)
+          until span == (sp = pop)
             return unless sp
             @spans << sp.build(relativize(time) - sp.started_at)
           end
@@ -137,6 +138,11 @@ module Skylight
           Span::Builder.new(
             self, time, relativize(time),
             cat, title, desc, annot)
+        end
+
+        def pop
+          return unless @stack.length > 1
+          @stack.pop
         end
 
         def push(sp)
@@ -169,8 +175,9 @@ module Skylight
         end
 
         def gc_time
-          GC.update
-          GC.time
+          return 0 unless @gc
+          @gc.update
+          @gc.time
         end
 
       end

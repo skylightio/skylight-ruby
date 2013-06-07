@@ -70,57 +70,56 @@ module Skylight
       @worker.shutdown
     end
 
-    def trace(endpoint = 'Unknown')
+    def trace(endpoint, cat, *args)
       # If a trace is already in progress, continue with that one
       if trace = Instrumenter.current_trace
         t { "already tracing" }
-        return yield(trace)
+        return yield(trace) if block_given?
+        return trace
       end
 
-      trace = Messages::Trace::Builder.new(endpoint, Util::Clock.micros, @config)
+      begin
+        trace = Messages::Trace::Builder.new(self, endpoint, Util::Clock.micros, cat, *args)
+      rescue Exception => e
+        error e.message
+        t { e.backtrace.join("\n") }
+        return
+      end
+
+      Instrumenter.current_trace = trace
+      return trace unless block_given?
 
       begin
-
-        Instrumenter.current_trace = trace
         yield trace
 
       ensure
         Instrumenter.current_trace = nil
-
-        begin
-          built = trace.build
-
-          if built && built.valid?
-            process(built)
-          else
-            if built && built.spans.empty?
-              debug "trace invalid -- dropping; spans=0"
-            elsif built
-              debug "trace invalid -- dropping; spans=%d; started_at=%d",
-                built.spans.length, built.spans[-1].started_at
-            else
-              debug "trace invalid -- dropping; trace=nil"
-            end
-          end
-        rescue Exception => e
-          error e
-        end
+        trace.submit
       end
     end
 
     def instrument(cat, *args)
-      return yield unless trace = Instrumenter.current_trace
+      unless trace = Instrumenter.current_trace
+        return yield if block_given?
+        return
+      end
 
       cat = cat.to_s
 
       unless cat =~ CATEGORY_REGEX
         warn "invalid skylight instrumentation category; value=%s", cat
-        return yield
+        return yield if block_given?
+        return
       end
 
       cat = "other.#{cat}" unless cat =~ TIER_REGEX
 
-      return yield unless sp = trace.instrument(cat, *args)
+      unless sp = trace.instrument(cat, *args)
+        return yield if block_given?
+        return
+      end
+
+      return sp unless block_given?
 
       begin
         yield sp
@@ -128,8 +127,6 @@ module Skylight
         sp.done
       end
     end
-
-  private
 
     def process(trace)
       t { fmt "processing trace; spans=%d; duration=%d",

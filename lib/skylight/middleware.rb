@@ -6,10 +6,8 @@ module Skylight
     end
 
     def call(env)
-      Skylight.trace "Rack" do |trace|
-        trace.root 'app.rack.request' do
-          @app.call(env)
-        end
+      Skylight.trace "Rack", 'app.rack.request' do |trace|
+        @app.call(env)
       end
     end
   end

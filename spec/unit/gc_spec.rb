@@ -19,10 +19,8 @@ module Skylight
         gc.should_receive(:total_time).
           exactly(2).times.and_return(0.0, 0.0)
 
-        Skylight.trace 'Rack' do |t|
-          t.root 'app.rack' do
-            clock.skip 1
-          end
+        Skylight.trace 'Rack', 'app.rack' do |t|
+          clock.skip 1
         end
 
         clock.unfreeze
@@ -41,10 +39,8 @@ module Skylight
         gc.should_receive(:total_time).
           exactly(2).times.and_return(0.0, 100_000)
 
-        Skylight.trace 'Rack' do |t|
-          t.root 'app.rack' do
-            clock.skip 1
-          end
+        Skylight.trace 'Rack', 'app.rack' do |t|
+          clock.skip 1
         end
 
         clock.unfreeze
@@ -66,11 +62,9 @@ module Skylight
         gc.should_receive(:total_time).
           exactly(4).times.and_return(0, 0, 100_000, 0)
 
-        Skylight.trace 'Rack' do |t|
-          t.root 'app.rack' do
-            instrument 'app.test' do
-              clock.skip 1
-            end
+        Skylight.trace 'Rack', 'app.rack' do |t|
+          instrument 'app.test' do
+            clock.skip 1
           end
         end
 

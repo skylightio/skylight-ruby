@@ -69,12 +69,20 @@ module Skylight
   end
 
   def self.trace(*args, &blk)
-    return yield unless inst = Instrumenter.instance
+    unless inst = Instrumenter.instance
+      return yield if block_given?
+      return
+    end
+
     inst.trace(*args, &blk)
   end
 
   def self.instrument(*args, &blk)
-    return yield unless inst = Instrumenter.instance
+    unless inst = Instrumenter.instance
+      return yield if block_given?
+      return
+    end
+
     inst.instrument(*args, &blk)
   end
 

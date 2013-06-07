@@ -14,10 +14,8 @@ describe Skylight::Instrumenter, :http do
     end
 
     it 'records the trace' do
-      Skylight.trace 'Testin' do |t|
-        t.root 'app.rack' do
-          clock.skip 1
-        end
+      Skylight.trace 'Testin', 'app.rack' do |t|
+        clock.skip 1
       end
 
       clock.unfreeze
