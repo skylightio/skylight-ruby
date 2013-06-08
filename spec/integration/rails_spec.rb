@@ -13,7 +13,12 @@ end
 if enable
 
   class MyApp < Rails::Application
-    config.secret_token = '095f674153982a9ce59914b561f4522a'
+    if Rails.version =~ /^4\./
+      config.secret_key_base = '095f674153982a9ce59914b561f4522a'
+    else
+      config.secret_token = '095f674153982a9ce59914b561f4522a'
+    end
+
     config.active_support.deprecation = :stderr
 
     config.skylight.environments << 'development'
