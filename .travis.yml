@@ -18,6 +18,6 @@ gemfile:
 notifications:
   campfire:
     rooms:
-      - tilde:6ed3ab6d5f2e138c4c851a3ef8bb87c0fa9bdb99@495970
+      - tilde:6ed3ab6d5f2e138c4c851a3ef8bb87c0fa9bdb99@560032
     on_success: change
     on_failure: always
