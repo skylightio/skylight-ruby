@@ -26,9 +26,12 @@ describe Skylight::Middleware, :http do
       end
 
       env.hello
+
+      [ 200, {}, [] ]
     end)
 
-    app.call(hello)
+    _, _, body = app.call(hello)
+    body.close
 
     clock.unfreeze
     server.wait

@@ -17,7 +17,7 @@ module Skylight
           Instrumenter.start!(config)
           app.middleware.insert 0, Middleware
 
-          Rails.logger.info "[SKYLIGHT] Skylight agent enabled"
+          puts "[SKYLIGHT] Skylight agent enabled"
         end
       end
     end
@@ -29,7 +29,7 @@ module Skylight
       path = nil unless File.exist?(path)
 
       unless tmp = app.config.paths['tmp'].first
-        Rails.logger.warn "[SKYLIGHT] tmp directory missing from rails configuration"
+        puts "[SKYLIGHT] tmp directory missing from rails configuration"
         return nil
       end
 
@@ -41,7 +41,7 @@ module Skylight
       config
 
     rescue ConfigError => e
-      Rails.logger.warn "[SKYLIGHT] #{e.message}; disabling Skylight agent"
+      puts "[SKYLIGHT] #{e.message}; disabling Skylight agent"
       nil
     end
 

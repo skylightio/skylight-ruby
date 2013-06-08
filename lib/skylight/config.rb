@@ -15,6 +15,7 @@ module Skylight
       'SK_AGENT_KEEPALIVE'     => :'agent.keepalive',
       'SK_AGENT_SAMPLE_SIZE'   => :'agent.sample',
       'SK_AGENT_SOCKFILE_PATH' => :'agent.sockfile_path',
+      'SK_AGENT_STRATEGY'      => :'agent.strategy',
       'SK_REPORT_HOST'         => :'report.host',
       'SK_REPORT_PORT'         => :'report.port',
       'SK_REPORT_SSL'          => :'report.ssl',
