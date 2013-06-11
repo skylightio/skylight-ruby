@@ -1,8 +1,11 @@
 ## unreleased ##
 
+## 0.1.6 (June 11, 2013)
+
 * [BUG] Fix unix domain socket write function in standalone agent
 * Performance improvements
 * Tolerate invalid trace building
+* Fix Skylight on Rails 4
 
 ## 0.1.5 (May 31, 2013)
 
