@@ -14,10 +14,13 @@ describe Skylight::Instrumenter, :http do
       Skylight.trace 'Zomg', 'app.rack.request' do |t|
         t.should be_nil
 
-        Skylight.instrument 'foo.bar' do |s|
+        ret = Skylight.instrument 'foo.bar' do |s|
           s.should be_nil
           hello.hello
+          1
         end
+
+        ret.should == 1
       end
 
       Skylight::Instrumenter.instance.should be_nil
@@ -41,10 +44,13 @@ describe Skylight::Instrumenter, :http do
 
       Skylight.trace 'Testin', 'app.rack.request' do |t|
         clock.skip 0.1
-        Skylight.instrument 'app.foo' do
+        ret = Skylight.instrument 'app.foo' do
           clock.skip 0.1
           hello.hello
+          3
         end
+
+        ret.should == 3
       end
 
       clock.unfreeze
