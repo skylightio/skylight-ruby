@@ -1,13 +1,16 @@
 require 'yaml'
 require 'fileutils'
 require 'logger'
+require 'thread'
 
 module Skylight
   class Config
+    MUTEX = Mutex.new
 
     # Map environment variable keys with Skylight configuration keys
     ENV_TO_KEY = {
-      'SK_LOG'                 => :'log',
+      'SK_ROOT'                => :'root',
+      'SK_LOG_FILE'            => :'log_file',
       'SK_LOG_LEVEL'           => :'log_level',
       'SK_APPLICATION'         => :'application',
       'SK_AUTHENTICATION'      => :'authentication',
@@ -29,7 +32,7 @@ module Skylight
 
     # Default values for Skylight configuration keys
     DEFAULTS = {
-      :'log'                 => '-'.freeze,
+      :'log_file'            => '-'.freeze,
       :'log_level'           => 'INFO'.freeze,
       :'agent.keepalive'     => 60,
       :'agent.interval'      => 5,
@@ -138,6 +141,11 @@ module Skylight
       true
     end
 
+    def key?(key)
+      key = key.to_sym
+      @priority.key?(key) || @values.key?(key)
+    end
+
     def get(key, default = nil, &blk)
       key = key.to_sym
 
@@ -231,25 +239,35 @@ authentication: #{self[:authentication]}
       @gc ||= GC.new(self, get('gc.profiler', VM::GC.new))
     end
 
+    def root
+      self[:root] || Dir.pwd
+    end
+
     def logger
       @logger ||=
         begin
-          out = get(:'log')
-          out = STDOUT if out == '-'
+          MUTEX.synchronize do
+            unless l = @logger
+              out = get(:'log_file')
+              out = STDOUT if out == '-'
 
-          unless IO === out
-            FileUtils.mkdir_p(File.dirname(out))
-          end
+              unless IO === out
+                out = File.expand_path(out, root)
+                FileUtils.mkdir_p(File.dirname(out))
+              end
 
-          l = Logger.new(out)
-          l.level =
-            case get(:'log_level')
-            when /^debug$/i then Logger::DEBUG
-            when /^info$/i  then Logger::INFO
-            when /^warn$/i  then Logger::WARN
-            when /^error$/i then Logger::ERROR
+              l = Logger.new(out)
+              l.level =
+                case get(:'log_level')
+                when /^debug$/i then Logger::DEBUG
+                when /^info$/i  then Logger::INFO
+                when /^warn$/i  then Logger::WARN
+                when /^error$/i then Logger::ERROR
+                end
             end
-          l
+
+            l
+          end
         end
     end
 

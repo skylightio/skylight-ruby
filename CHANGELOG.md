@@ -1,5 +1,7 @@
 ## unreleased ##
 
+* Add the ability to configure logging from railtie
+
 ## 0.1.6 (June 11, 2013)
 
 * [BUG] Fix unix domain socket write function in standalone agent
