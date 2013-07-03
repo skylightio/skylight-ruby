@@ -1,6 +1,7 @@
 ## unreleased ##
 
 * Add the ability to configure logging from railtie
+* [BUG] Handle AS::N monkey patching when there are already subscribers
 
 ## 0.1.6 (June 11, 2013)
 
