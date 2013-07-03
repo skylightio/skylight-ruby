@@ -28,6 +28,7 @@ module Skylight
         server.should have(1).reports
 
         req = server.requests[0]
+        req['HTTP_X_SKYLIGHT_AGENT_VERSION'].should == Skylight::VERSION
         req['CONTENT_TYPE'].should == 'application/x-skylight-report-v1'
 
         batch = server.reports[0]

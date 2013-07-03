@@ -10,6 +10,7 @@ module Skylight
       CONTENT_LENGTH   = 'content-length'.freeze
       CONTENT_TYPE     = 'content-type'.freeze
       ACCEPT           = 'Accept'.freeze
+      X_VERSION_HDR    = 'x-skylight-agent-version'.freeze
       APPLICATION_JSON = 'application/json'.freeze
       AUTHORIZATION    = 'authorization'.freeze
       DEFLATE          = 'deflate'.freeze
@@ -75,6 +76,7 @@ module Skylight
         headers[CONTENT_LENGTH]   = length.to_s if length
         headers[AUTHORIZATION]    = authentication if authentication
         headers[ACCEPT]           = APPLICATION_JSON
+        headers[X_VERSION_HDR]    = VERSION
         headers[CONTENT_ENCODING] = GZIP if @deflate
 
         hdrs.each do |k, v|
