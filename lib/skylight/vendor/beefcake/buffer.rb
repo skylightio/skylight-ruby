@@ -80,13 +80,19 @@ module Skylight
 
       BINARY = 'BINARY'
 
-      if defined?(JRUBY_VERSION)
+      # Detect a ruby encodings bug, as far as I know, this exists in
+      # most versions fo JRuby as well as 1.9.2
+      def self.current_ruby_has_encoding_bug?
+        base = "\0\1".force_encoding('BINARY')
+        base << "BUG".encode("UTF-8")
+        base.encoding.to_s == 'UTF-8'
+      end
+
+      if ''.respond_to?(:force_encoding) && current_ruby_has_encoding_bug?
         def <<(bytes)
-          buf.force_encoding(BINARY)
           buf << bytes
-        rescue
-          p [ buf, bytes ]
-          raise
+          buf.force_encoding(BINARY)
+          buf
         end
       else
         def <<(bytes)

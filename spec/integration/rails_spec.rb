@@ -72,6 +72,7 @@ if enable
 
       server.wait
       batch = server.reports[0]
+      batch.should_not be nil
       batch.should have(1).endpoints
       endpoint = batch.endpoints[0]
       endpoint.name.should == "UsersController#index"
