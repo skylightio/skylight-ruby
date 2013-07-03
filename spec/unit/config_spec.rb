@@ -189,6 +189,20 @@ describe Skylight::Config do
 
   end
 
+  context 'hostname' do
+
+    it 'defaults to the current hostname' do
+      config = Skylight::Config.new
+      config[:hostname].should == Socket.gethostname
+    end
+
+    it 'can be overridden' do
+      config = Skylight::Config.new hostname: 'lulz'
+      config[:hostname].should == 'lulz'
+    end
+
+  end
+
   context 'loading from YAML' do
 
     let :file do

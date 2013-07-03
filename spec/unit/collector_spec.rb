@@ -32,6 +32,7 @@ module Skylight
 
         batch = server.reports[0]
         batch.timestamp.should be_within(3).of(Time.now.to_i)
+        batch.hostname.should == Socket.gethostname
 
         batch.should have(1).endpoints
 

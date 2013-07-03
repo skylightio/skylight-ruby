@@ -117,6 +117,7 @@ module Skylight
 
           Messages::Batch.new(
             timestamp: from,
+            hostname:  config[:hostname],
             endpoints: endpoints.values).
             encode(buf)
 

@@ -2,10 +2,20 @@ require 'yaml'
 require 'fileutils'
 require 'logger'
 require 'thread'
+require 'socket'
 
 module Skylight
   class Config
     MUTEX = Mutex.new
+
+    def self.default_hostname
+      if hostname = Socket.gethostname
+        hostname.strip!
+        hostname = nil if hostname == ''
+      end
+
+      hostname || SecureRandom.uuid
+    end
 
     # Map environment variable keys with Skylight configuration keys
     ENV_TO_KEY = {
@@ -14,6 +24,7 @@ module Skylight
       'SK_LOG_LEVEL'           => :'log_level',
       'SK_APPLICATION'         => :'application',
       'SK_AUTHENTICATION'      => :'authentication',
+      'SK_HOSTNAME'            => :'hostname',
       'SK_AGENT_INTERVAL'      => :'agent.interval',
       'SK_AGENT_KEEPALIVE'     => :'agent.keepalive',
       'SK_AGENT_SAMPLE_SIZE'   => :'agent.sample',
@@ -34,6 +45,7 @@ module Skylight
     DEFAULTS = {
       :'log_file'            => '-'.freeze,
       :'log_level'           => 'INFO'.freeze,
+      :'hostname'            => default_hostname,
       :'agent.keepalive'     => 60,
       :'agent.interval'      => 5,
       :'agent.sample'        => 200,
