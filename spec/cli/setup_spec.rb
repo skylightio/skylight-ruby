@@ -24,6 +24,9 @@ describe 'skylight setup', :http do
     cli.should_receive(:say).
       with(/congratulations/i, :green)
 
+    cli.should_receive(:say).
+      with(/config\/skylight\.yml/)
+
     cli.setup
 
     tmp('config/skylight.yml').should exist

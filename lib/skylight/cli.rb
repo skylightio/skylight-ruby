@@ -28,6 +28,20 @@ module Skylight
       config.write(config_path)
 
       say "Congratulations. Your application is on Skylight! http://www.skylight.io", :green
+      say <<-OUT
+
+The application was registered for you and we generated an config file
+containing your API token at:
+
+  #{relative_config_path}
+
+The next step is for you to deploy your application to production. The
+easiest way is to just commit the config file to your source control
+repository and deploy from there. You can learn more about the process at:
+
+  http://docs.skylight.io/getting-started/#deploy
+
+      OUT
     rescue Interrupt
     end
 
@@ -78,8 +92,12 @@ module Skylight
       yaml['token']
     end
 
+    def relative_config_path
+      'config/skylight.yml'
+    end
+
     def config_path
-      File.expand_path('config/skylight.yml')
+      File.expand_path(relative_config_path)
     end
 
     def credentials_path
