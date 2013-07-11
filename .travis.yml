@@ -14,7 +14,13 @@ rvm:
 
 gemfile:
   - gemfiles/Gemfile.rails-3.2.x
-  - gemfiles/Gemfile.rails-edge
+  - gemfiles/Gemfile.rails-4.0.x
+# - gemfiles/Gemfile.rails-edge
+
+matrix:
+  exclude:
+    - rvm: 1.9.2
+    gemfile: gemfiles/Gemfile.rails-4.0.x
 
 notifications:
   campfire:

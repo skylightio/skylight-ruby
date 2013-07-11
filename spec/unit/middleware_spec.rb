@@ -46,7 +46,7 @@ describe Skylight::Middleware, :http do
     t.should have(2).spans
 
     t.spans[0].should == span(
-      event: event('other.hello'),
+      event: event('app.block', 'hello'),
       started_at: 1_000,
       duration:   2_000)
 

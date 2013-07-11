@@ -29,9 +29,9 @@ if enable
 
   class ::UsersController < ActionController::Base
     def index
-      Skylight.instrument 'app.inside' do
+      Skylight.instrument category: 'app.inside' do
         render text: "Hello"
-        Skylight.instrument 'app.zomg' do
+        Skylight.instrument category: 'app.zomg' do
           # nothing
         end
       end

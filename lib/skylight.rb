@@ -60,6 +60,7 @@ module Skylight
 
   TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/
   CATEGORY_REGEX = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/i
+  DEFAULT_CATEGORY = "app.block".freeze
 
   def self.start!(*args)
     Instrumenter.start!(*args)
@@ -78,13 +79,23 @@ module Skylight
     inst.trace(*args, &blk)
   end
 
-  def self.instrument(*args, &blk)
+  def self.instrument(opts = {}, &blk)
     unless inst = Instrumenter.instance
       return yield if block_given?
       return
     end
 
-    inst.instrument(*args, &blk)
+    if Hash === opts
+      category = opts.delete(:category) || DEFAULT_CATEGORY
+      title    = opts.delete(:title)
+      desc     = opts.delete(:description)
+    else
+      category = DEFAULT_CATEGORY
+      title    = opts.to_s
+      desc     = nil
+    end
+
+    inst.instrument(category, title, desc, &blk)
   end
 
   RUBYBIN = File.join(

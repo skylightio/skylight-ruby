@@ -44,9 +44,9 @@ module Skylight
 
           def #{name}(*args, &blk)
             span = Skylight.instrument(
-              :"#{category}",
-              #{title.inspect},
-              #{desc.inspect})
+              category:  :"#{category}",
+              title:       #{title.inspect},
+              description: #{desc.inspect})
 
             begin
               #{name}_before_instrument(*args, &blk)

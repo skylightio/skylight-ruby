@@ -14,7 +14,7 @@ describe Skylight::Instrumenter, :http do
       Skylight.trace 'Zomg', 'app.rack.request' do |t|
         t.should be_nil
 
-        ret = Skylight.instrument 'foo.bar' do |s|
+        ret = Skylight.instrument category: 'foo.bar' do |s|
           s.should be_nil
           hello.hello
           1
@@ -44,7 +44,7 @@ describe Skylight::Instrumenter, :http do
 
       Skylight.trace 'Testin', 'app.rack.request' do |t|
         clock.skip 0.1
-        ret = Skylight.instrument 'app.foo' do
+        ret = Skylight.instrument category: 'app.foo' do
           clock.skip 0.1
           hello.hello
           3
@@ -78,7 +78,7 @@ describe Skylight::Instrumenter, :http do
     it 'recategorizes unknown events as other' do
       Skylight.trace 'Testin', 'app.rack.request' do |t|
         clock.skip 0.1
-        Skylight.instrument 'foo' do
+        Skylight.instrument category: 'foo' do
           clock.skip 0.1
         end
       end
@@ -99,8 +99,9 @@ describe Skylight::Instrumenter, :http do
       include Skylight::Helpers
 
       instrument_method
-      def one
+      def one(arg)
         yield if block_given?
+        arg
       end
 
       def two
@@ -130,14 +131,15 @@ describe Skylight::Instrumenter, :http do
         inst = MyClass.new
 
         clock.skip 0.1
-        ret = inst.one { clock.skip 0.1; :one }
-        ret.should == :one
+        ret = inst.one(:zomg) { clock.skip 0.1; :one }
+        ret.should == :zomg
 
         clock.skip 0.1
         inst.two { clock.skip 0.1 }
 
         clock.skip 0.1
-        inst.three { clock.skip 0.1 }
+        ret = inst.three { clock.skip 0.1; :tres }
+        ret.should == :tres
 
         clock.skip 0.1
         inst.custom { clock.skip 0.1 }
