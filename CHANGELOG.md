@@ -1,8 +1,9 @@
 ## unreleased ##
 
+* Add instrument_method helper
 * Add the ability to configure logging from railtie
-* [BUG] Handle AS::N monkey patching when there are already subscribers
 * Tracks the current host
+* [BUG] Handle AS::N monkey patching when there are already subscribers
 * [BUG] Handle ruby 1.9.2 encoding bug
 
 ## 0.1.6 (June 11, 2013)

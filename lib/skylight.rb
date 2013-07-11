@@ -23,6 +23,7 @@ module Skylight
   autoload :CLI,          'skylight/cli'
   autoload :Config,       'skylight/config'
   autoload :GC,           'skylight/gc'
+  autoload :Helpers,      'skylight/helpers'
   autoload :Instrumenter, 'skylight/instrumenter'
   autoload :Messages,     'skylight/messages'
   autoload :Middleware,   'skylight/middleware'
