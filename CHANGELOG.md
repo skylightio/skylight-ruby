@@ -1,5 +1,7 @@
 ## unreleased ##
 
+## 0.1.7 (July 11, 2013)
+
 * Add instrument_method helper
 * Add the ability to configure logging from railtie
 * Tracks the current host
