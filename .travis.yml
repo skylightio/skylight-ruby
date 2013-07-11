@@ -20,7 +20,7 @@ gemfile:
 matrix:
   exclude:
     - rvm: 1.9.2
-    gemfile: gemfiles/Gemfile.rails-4.0.x
+      gemfile: gemfiles/Gemfile.rails-4.0.x
 
 notifications:
   campfire:
