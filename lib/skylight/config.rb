@@ -19,27 +19,27 @@ module Skylight
 
     # Map environment variable keys with Skylight configuration keys
     ENV_TO_KEY = {
-      'SK_ROOT'                => :'root',
-      'SK_LOG_FILE'            => :'log_file',
-      'SK_LOG_LEVEL'           => :'log_level',
-      'SK_APPLICATION'         => :'application',
-      'SK_AUTHENTICATION'      => :'authentication',
-      'SK_HOSTNAME'            => :'hostname',
-      'SK_AGENT_INTERVAL'      => :'agent.interval',
-      'SK_AGENT_KEEPALIVE'     => :'agent.keepalive',
-      'SK_AGENT_SAMPLE_SIZE'   => :'agent.sample',
-      'SK_AGENT_SOCKFILE_PATH' => :'agent.sockfile_path',
-      'SK_AGENT_STRATEGY'      => :'agent.strategy',
-      'SK_REPORT_HOST'         => :'report.host',
-      'SK_REPORT_PORT'         => :'report.port',
-      'SK_REPORT_SSL'          => :'report.ssl',
-      'SK_REPORT_DEFLATE'      => :'report.deflate',
-      'SK_ACCOUNTS_HOST'       => :'accounts.host',
-      'SK_ACCOUNTS_PORT'       => :'accounts.port',
-      'SK_ACCOUNTS_SSL'        => :'accounts.ssl',
-      'SK_ACCOUNTS_DEFLATE'    => :'accounts.deflate',
-      'SK_ME_AUTHENTICATION'   => :'me.authentication',
-      'SK_ME_CREDENTIALS_PATH' => :'me.credentials_path' }
+      'ROOT'                => :'root',
+      'LOG_FILE'            => :'log_file',
+      'LOG_LEVEL'           => :'log_level',
+      'APPLICATION'         => :'application',
+      'AUTHENTICATION'      => :'authentication',
+      'HOSTNAME'            => :'hostname',
+      'AGENT_INTERVAL'      => :'agent.interval',
+      'AGENT_KEEPALIVE'     => :'agent.keepalive',
+      'AGENT_SAMPLE_SIZE'   => :'agent.sample',
+      'AGENT_SOCKFILE_PATH' => :'agent.sockfile_path',
+      'AGENT_STRATEGY'      => :'agent.strategy',
+      'REPORT_HOST'         => :'report.host',
+      'REPORT_PORT'         => :'report.port',
+      'REPORT_SSL'          => :'report.ssl',
+      'REPORT_DEFLATE'      => :'report.deflate',
+      'ACCOUNTS_HOST'       => :'accounts.host',
+      'ACCOUNTS_PORT'       => :'accounts.port',
+      'ACCOUNTS_SSL'        => :'accounts.ssl',
+      'ACCOUNTS_DEFLATE'    => :'accounts.deflate',
+      'ME_AUTHENTICATION'   => :'me.authentication',
+      'ME_CREDENTIALS_PATH' => :'me.credentials_path' }
 
     # Default values for Skylight configuration keys
     DEFAULTS = {
@@ -98,7 +98,10 @@ module Skylight
       ret = {}
 
       env.each do |k, val|
-        if key = ENV_TO_KEY[k]
+        # Support deprecated SK_ key prefix
+        next unless k =~ /^(?:SK|SKYLIGHT)_(.+)$/
+
+        if key = ENV_TO_KEY[$1]
           ret[key] =
             case val
             when /^false$/i      then false
@@ -210,7 +213,7 @@ module Skylight
 
       ENV_TO_KEY.each do |k, v|
         if (c = get(v)) != DEFAULTS[v]
-          ret[k] = cast_for_env(c)
+          ret["SKYLIGHT_#{k}"] = cast_for_env(c)
         end
       end
 

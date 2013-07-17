@@ -5,10 +5,10 @@ module Skylight
     # TODO:
     #   - Shutdown if no connections for over a minute
     class Server
-      LOCKFILE_PATH      = 'SK_LOCKFILE_PATH'.freeze
-      LOCKFILE_ENV_KEY   = 'SK_LOCKFILE_FD'.freeze
-      UDS_SRV_FD_KEY     = 'SK_UDS_FD'.freeze
-      KEEPALIVE_KEY      = 'SK_KEEPALIVE'.freeze
+      LOCKFILE_PATH      = 'SKYLIGHT_LOCKFILE_PATH'.freeze
+      LOCKFILE_ENV_KEY   = 'SKYLIGHT_LOCKFILE_FD'.freeze
+      UDS_SRV_FD_KEY     = 'SKYLIGHT_UDS_FD'.freeze
+      KEEPALIVE_KEY      = 'SKYLIGHT_KEEPALIVE'.freeze
 
       include Util::Logging
 

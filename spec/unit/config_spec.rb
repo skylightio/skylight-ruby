@@ -211,10 +211,10 @@ describe Skylight::Config do
 
     let :config do
       Skylight::Config.load(file, 'production', {
-        'foo'               => 'fail',
-        'application'       => 'no',
-        'SK_AUTHENTICATION' => 'my-token',
-        'SK_APPLICATION'    => 'my-app'})
+        'foo'                     => 'fail',
+        'application'             => 'no',
+        'SKYLIGHT_AUTHENTICATION' => 'my-token',
+        'SKYLIGHT_APPLICATION'    => 'my-app'})
     end
 
     before :each do
@@ -254,6 +254,37 @@ production:
 
     it 'still overrides' do
       config['stuff'].should == 'waaa'
+    end
+
+  end
+
+  context 'legacy ENV key prefix' do
+
+    let :file do
+      tmp('skylight.yml')
+    end
+
+    before :each do
+      file.write <<-YML
+application: nope
+authentication: nope
+      YML
+    end
+
+    let :config do
+      Skylight::Config.load(file, 'production', {
+        'foo'               => 'fail',
+        'application'       => 'no',
+        'SK_AUTHENTICATION' => 'my-token',
+        'SK_APPLICATION'    => 'my-app'})
+    end
+
+    it 'loads the authentication key' do
+      config[:'authentication'].should == 'my-token'
+    end
+
+    it 'loads the application id' do
+      config[:'application'].should == 'my-app'
     end
 
   end

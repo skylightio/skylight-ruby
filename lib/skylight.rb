@@ -3,8 +3,8 @@ require 'socket'
 require 'skylight/version'
 
 module Skylight
-  TRACE_ENV_KEY      = 'SK_ENABLE_TRACE_LOGS'.freeze
-  STANDALONE_ENV_KEY = 'SK_STANDALONE'.freeze
+  TRACE_ENV_KEY      = 'SKYLIGHT_ENABLE_TRACE_LOGS'.freeze
+  STANDALONE_ENV_KEY = 'SKYLIGHT_STANDALONE'.freeze
   STANDALONE_ENV_VAL = 'server'.freeze
 
   def self.daemon?
