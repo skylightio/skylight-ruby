@@ -41,13 +41,17 @@ if enable
   describe 'Rails integration', :http do
 
     before :all do
-      ENV['SK_AUTHENTICATION'] = 'lulz'
-      ENV['SK_AGENT_INTERVAL'] = '1'
-      ENV['SK_AGENT_STRATEGY'] = 'embedded'
-      ENV['SK_REPORT_HOST']    = 'localhost'
-      ENV['SK_REPORT_PORT']    = port.to_s
-      ENV['SK_REPORT_SSL']     = false.to_s
-      ENV['SK_REPORT_DEFLATE'] = false.to_s
+      ENV['SK_AUTHENTICATION']   = 'lulz'
+      ENV['SK_AGENT_INTERVAL']   = '1'
+      ENV['SK_AGENT_STRATEGY']   = 'embedded'
+      ENV['SK_REPORT_HOST']      = 'localhost'
+      ENV['SK_REPORT_PORT']      = port.to_s
+      ENV['SK_REPORT_SSL']       = false.to_s
+      ENV['SK_REPORT_DEFLATE']   = false.to_s
+      ENV['SK_ACCOUNTS_HOST']    = 'localhost'
+      ENV['SK_ACCOUNTS_PORT']    = port.to_s
+      ENV['SK_ACCOUNTS_SSL']     = false.to_s
+      ENV['SK_ACCOUNTS_DEFLATE'] = false.to_s
 
       MyApp.initialize!
 
@@ -57,20 +61,35 @@ if enable
     end
 
     after :all do
-      ENV['SK_AUTHENTICATION'] = nil
-      ENV['SK_AGENT_INTERVAL'] = nil
-      ENV['SK_AGENT_STRATEGY'] = nil
-      ENV['SK_REPORT_HOST']    = nil
-      ENV['SK_REPORT_PORT']    = nil
-      ENV['SK_REPORT_SSL']     = nil
-      ENV['SK_REPORT_DEFLATE'] = nil
+      ENV['SK_AUTHENTICATION']   = nil
+      ENV['SK_AGENT_INTERVAL']   = nil
+      ENV['SK_AGENT_STRATEGY']   = nil
+      ENV['SK_REPORT_HOST']      = nil
+      ENV['SK_REPORT_PORT']      = nil
+      ENV['SK_REPORT_SSL']       = nil
+      ENV['SK_REPORT_DEFLATE']   = nil
+      ENV['SK_ACCOUNTS_HOST']    = nil
+      ENV['SK_ACCOUNTS_PORT']    = nil
+      ENV['SK_ACCOUNTS_SSL']     = nil
+      ENV['SK_ACCOUNTS_DEFLATE'] = nil
       Skylight.stop!
+    end
+
+    let :token do
+      "hey-guyz-i-am-a-token"
+    end
+
+    before :each do
+      server.mock "/agent/authenticate" do |env|
+        { session: { token: token} }
+      end
     end
 
     it 'successfully calls into rails' do
       call MyApp, env('/users')
 
-      server.wait
+      server.wait count: 2
+
       batch = server.reports[0]
       batch.should_not be nil
       batch.should have(1).endpoints

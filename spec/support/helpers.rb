@@ -42,20 +42,20 @@ module SpecHelper
       log: log_path,
       log_level: :debug,
       agent: {
-        strategy: agent_strategy,
-        interval: 1,
+        strategy:      agent_strategy,
+        interval:      1,
         sockfile_path: tmp
       }.freeze,
       report: {
-        host: "localhost",
-        port: port,
-        ssl: false,
+        host:    "localhost",
+        port:    port,
+        ssl:     false,
         deflate: false
       }.freeze,
       accounts: {
-        host: "localhost",
-        port: port,
-        ssl: false,
+        host:    "localhost",
+        port:    port,
+        ssl:     false,
         deflate: false
       }.freeze,
       gc: {

@@ -34,11 +34,19 @@ module SpecHelper
       reset
     end
 
-    def wait(timeout = ENV['TRAVIS'] ? 15 : 4)
+    def wait(opts = {})
+
+      if Numeric === opts
+        opts = { timeout: opts }
+      end
+
+      opts[:count]   ||= 1
+      opts[:timeout] ||= ENV['TRAVIS'] ? 15 : 4
+
       now = Time.now
 
-      until !requests.empty?
-        return false if timeout <= Time.now - now
+      until requests.length == opts[:count]
+        return false if opts[:timeout] <= Time.now - now
         sleep 0.1
       end
 
@@ -141,6 +149,16 @@ module SpecHelper
 
   def port
     9292
+  end
+
+  def token
+    "hey-guyz-i-am-a-token"
+  end
+
+  def stub_session_request
+    server.mock "/agent/authenticate" do |env|
+      { session: { token: token} }
+    end
   end
 
 end

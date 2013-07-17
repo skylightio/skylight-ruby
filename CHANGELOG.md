@@ -1,5 +1,7 @@
 ## unreleased ##
 
+* Update agent for new authentication scheme
+
 ## 0.1.7 (July 11, 2013)
 
 * Add instrument_method helper

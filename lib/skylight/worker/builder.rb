@@ -14,7 +14,7 @@ module Skylight
       end
 
       def build
-        s = strategy
+        s = strategy.to_s
 
         case s
         when 'embedded'
@@ -32,7 +32,7 @@ module Skylight
             lockfile,
             server)
         else
-          raise "unknown strategy: `#{strat}`"
+          raise "unknown strategy: `#{s}`"
         end
       end
 

@@ -77,7 +77,7 @@ module Skylight
         headers[AUTHORIZATION]    = authentication if authentication
         headers[ACCEPT]           = APPLICATION_JSON
         headers[X_VERSION_HDR]    = VERSION
-        headers[CONTENT_ENCODING] = GZIP if @deflate
+        headers[CONTENT_ENCODING] = GZIP if length && @deflate
 
         hdrs.each do |k, v|
           headers[k] = v

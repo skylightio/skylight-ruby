@@ -15,6 +15,8 @@ module Skylight
     context 'when there is no GC and no spans' do
 
       it 'leaves the GC node out' do
+        stub_session_request
+
         gc.should be_enabled
         gc.should_receive(:total_time).
           exactly(2).times.and_return(0.0, 0.0)
@@ -24,7 +26,7 @@ module Skylight
         end
 
         clock.unfreeze
-        server.wait
+        server.wait count: 2
 
         trace.should have(1).spans
         trace.spans[0].duration.should == 10_000
@@ -35,6 +37,8 @@ module Skylight
     context 'when there is GC and no spans' do
 
       it 'adds a GC node' do
+        stub_session_request
+
         gc.should be_enabled
         gc.should_receive(:total_time).
           exactly(2).times.and_return(0.0, 100_000)
@@ -44,7 +48,7 @@ module Skylight
         end
 
         clock.unfreeze
-        server.wait
+        server.wait count: 2
 
         trace.should have(2).spans
         span(1).duration.should == 10_000
@@ -58,6 +62,8 @@ module Skylight
     context 'when there is GC and a span' do
 
       it 'subtracts GC from the span and adds it at the end' do
+        stub_session_request
+
         gc.should be_enabled
         gc.should_receive(:total_time).
           exactly(4).times.and_return(0, 0, 100_000, 0)
@@ -69,7 +75,7 @@ module Skylight
         end
 
         clock.unfreeze
-        server.wait
+        server.wait count: 2
 
         trace.should have(3).spans
         span(0).event.category.should == 'app.test'

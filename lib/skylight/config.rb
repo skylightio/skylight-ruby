@@ -61,6 +61,7 @@ module Skylight
 
     REQUIRED = {
       :'authentication' => "authentication token",
+      :'hostname'       => "server hostname",
       :'report.host'    => "skylight remote host",
       :'report.port'    => "skylight remote port" }
 

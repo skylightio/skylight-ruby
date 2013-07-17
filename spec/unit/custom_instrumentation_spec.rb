@@ -40,6 +40,7 @@ describe Skylight::Instrumenter, :http do
     end
 
     it 'tracks custom instrumentation metrics' do
+      stub_session_request
       hello.should_receive(:hello)
 
       Skylight.trace 'Testin', 'app.rack.request' do |t|
@@ -54,7 +55,7 @@ describe Skylight::Instrumenter, :http do
       end
 
       clock.unfreeze
-      server.wait
+      server.wait(count: 2)
 
       server.reports[0].should have(1).endpoints
 
@@ -76,6 +77,8 @@ describe Skylight::Instrumenter, :http do
     end
 
     it 'recategorizes unknown events as other' do
+      stub_session_request
+
       Skylight.trace 'Testin', 'app.rack.request' do |t|
         clock.skip 0.1
         Skylight.instrument category: 'foo' do
@@ -84,7 +87,7 @@ describe Skylight::Instrumenter, :http do
       end
 
       clock.unfreeze
-      server.wait
+      server.wait count: 2
 
       ep = server.reports[0].endpoints[0]
       t  = ep.traces[0]
@@ -127,6 +130,8 @@ describe Skylight::Instrumenter, :http do
     end
 
     it 'tracks instrumented methods using the helper' do
+      stub_session_request
+
       Skylight.trace 'Testin', 'app.rack.request' do |t|
         inst = MyClass.new
 
@@ -149,7 +154,7 @@ describe Skylight::Instrumenter, :http do
       end
 
       clock.unfreeze
-      server.wait
+      server.wait count: 2
 
       server.reports[0].should have(1).endpoints
 

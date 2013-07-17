@@ -14,12 +14,14 @@ describe Skylight::Instrumenter, :http do
     end
 
     it 'records the trace' do
+      stub_session_request
+
       Skylight.trace 'Testin', 'app.rack' do |t|
         clock.skip 1
       end
 
       clock.unfreeze
-      server.wait(2)
+      server.wait(timeout: 2, count: 2)
 
       server.reports[0].should have(1).endpoints
 

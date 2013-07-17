@@ -16,6 +16,7 @@ describe Skylight::Middleware, :http do
   end
 
   it 'tracks traces' do
+    stub_session_request
     hello.should_receive(:hello)
 
     app = Skylight::Middleware.new(lambda do |env|
@@ -34,7 +35,7 @@ describe Skylight::Middleware, :http do
     body.close
 
     clock.unfreeze
-    server.wait
+    server.wait count: 2
 
     server.reports[0].should have(1).endpoints
 
