@@ -1,5 +1,7 @@
 ## unreleased ##
 
+## 0.1.8 (July 19, 2013)
+
 * Update agent for new authentication scheme
 * Change ENV variable prefix from SK_ to SKYLIGHT_
 
