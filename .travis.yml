@@ -23,9 +23,6 @@ matrix:
   exclude:
     - rvm: 1.9.2
       gemfile: gemfiles/Gemfile.rails-4.0.x
-      env:
-        - SK_ENABLE_TRACE_LOGS=true
-        - RAILS_ENV=development
 
 notifications:
   campfire:
