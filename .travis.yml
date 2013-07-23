@@ -26,3 +26,10 @@ matrix:
       env:
         - SK_ENABLE_TRACE_LOGS=true
         - RAILS_ENV=development
+
+notifications:
+  campfire:
+    rooms:
+      - secure: "IRhdYUI6TCUTma3JTkv1NSrLuQIuCEyCKjKHVf2hl8VwmxridYfit5ewLs2F\n3kzk0Owh6lsM0eSyIygTGyT+5xIplZgk7N/p8ImvbqvTuNylqmmv7xoBaxKF\nTFmQaXHkSiVOF30EP67uF6zbENMT/n9+IpaXX45wrdu1XCP5SX4="
+    on_success: change
+    on_failure: always
