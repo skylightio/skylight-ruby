@@ -1,0 +1,28 @@
+language: ruby
+
+install: bundle install --binstubs=b
+script: bundle exec rspec -cfs spec/
+
+env:
+  global:
+    - SK_ENABLE_TRACE_LOGS=true
+    - RAILS_ENV=development
+
+rvm:
+  - 1.9.2
+  - 1.9.3
+  - 2.0.0
+  - jruby
+
+gemfile:
+  - gemfiles/Gemfile.rails-3.2.x
+  - gemfiles/Gemfile.rails-4.0.x
+# - gemfiles/Gemfile.rails-edge
+
+matrix:
+  exclude:
+    - rvm: 1.9.2
+      gemfile: gemfiles/Gemfile.rails-4.0.x
+      env:
+        - SK_ENABLE_TRACE_LOGS=true
+        - RAILS_ENV=development
