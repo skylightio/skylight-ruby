@@ -1,0 +1,12 @@
+# Ignore the temporary directory
+/tmp
+
+# Ignore any build artifacts
+*.bundle
+
+# Ignore OS artifacts
+.DS_Store
+/b/*
+
+# Ignore lockfiles from travis Gemfiles
+gemfiles/*.lock
