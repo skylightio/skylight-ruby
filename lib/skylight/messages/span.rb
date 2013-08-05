@@ -75,7 +75,7 @@ module Skylight
       repeated :annotations, Annotation, 2
       required :started_at,  :uint32,    3
       optional :duration,    :uint32,    4
-      optional :children,    :uint32,    5
+      optional :parent_id,   :uint32,    6
 
       # Bit of a hack
       attr_accessor :absolute_time
