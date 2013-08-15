@@ -1,5 +1,73 @@
 module Skylight
   module Messages
+    class AnnotationBuilder
+      def self.build(object)
+        new(object, Annotation.new).build.encode
+      end
+
+      def initialize(object, annotation)
+        @object = object
+        @annotation = annotation
+      end
+
+      def build
+        @annotation.nested = build_nested(@object)
+        @annotation
+      end
+
+    private
+      def build_nested(object)
+        case object
+        when Hash
+          build_hash(object)
+        when Array
+          build_array(object)
+        end
+      end
+
+      def build_hash(object)
+        object.map do |key, value|
+          build_annotation(value, key)
+        end
+      end
+
+      def build_array(array)
+        array.map do |value|
+          build_annotation(value)
+        end
+      end
+
+      def build_annotation(value, key=nil)
+        Annotation.new.tap do |annotation|
+          annotation.key = key.to_s if key
+          annotation[classify(value)] = build_value(value)
+        end
+      end
+
+      def build_value(value)
+        nested?(value) ? build_nested(value) : value
+      end
+
+      def nested?(value)
+        value.is_a?(Array) || value.is_a?(Hash)
+      end
+
+      def classify(value)
+        case value
+        when String
+          :string
+        when Integer
+          :int
+        when Numeric
+          :double
+        when Hash, Array
+          :nested
+        else
+          raise Skylight::SerializeError.new("Annotation values must be Strings or Numeric. You passed #{value.inspect}")
+        end
+      end
+    end
+
     class Span
       include Beefcake::Message
 
@@ -32,13 +100,15 @@ module Skylight
         attr_accessor :children
 
         def initialize(trace, time, started_at, cat, title, desc, annot)
-          @trace      = trace
-          @built      = false
-          @time       = time
-          @started_at = started_at
-          @category   = cat.to_s
-          @children   = 0
-          self.title  = title
+          @trace       = trace
+          @built       = false
+          @time        = time
+          @started_at  = started_at
+          @category    = cat.to_s
+          @children    = 0
+          @annotations = annot
+
+          self.title   = title
           self.description = desc
         end
 

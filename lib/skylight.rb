@@ -49,6 +49,7 @@ module Skylight
   class WorkerStateError < RuntimeError; end
   class ConfigError      < RuntimeError; end
   class TraceError       < RuntimeError; end
+  class SerializeError   < RuntimeError; end
 
   TIERS = %w(
     api
