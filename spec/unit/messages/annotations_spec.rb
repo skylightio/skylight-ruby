@@ -26,45 +26,41 @@ describe "Skylight::Messages::AnnotationBuilder" do
   end
 
   it "takes an empty hash and returns an instance of Annotation" do
-    build({}).should deserialize_to(Skylight::Messages::Annotation.new)
+    build({}).should == Skylight::Messages::Annotation.new
   end
 
   it "takes a hash containing a string value" do
-    build({ foo: "bar" }).should deserialize_to(
+    build({ foo: "bar" }).should ==
       annotation do |nested|
         nested << annotation("foo", :string, "bar")
       end
-    )
   end
 
   it "takes a hash containing a integer value" do
-    build({ foo: 1 }).should deserialize_to(
+    build({ foo: 1 }).should ==
       annotation do |nested|
         nested << annotation("foo", :int, 1)
       end
-    )
   end
 
   it "takes a hash containing a double value" do
-    build({ foo: 1.5 }).should deserialize_to(
+    build({ foo: 1.5 }).should ==
       annotation do |nested|
         nested << annotation("foo", :double, 1.5)
       end
-    )
   end
 
   it "takes a hash containing a nested hash" do
-    build({ foo: { bar: "baz" } }).should deserialize_to(
+    build({ foo: { bar: "baz" } }).should ==
       annotation do |n1|
         n1 << annotation("foo") do |n2|
           n2 << annotation("bar", :string, "baz")
         end
       end
-    )
   end
 
   it "takes a hash containing a nested array" do
-    build({ foo: [ "bar", "baz", 1, 2 ] }).should deserialize_to(
+    build({ foo: [ "bar", "baz", 1, 2 ] }).should ==
       annotation do |n1|
         n1 << annotation("foo") do |n2|
           n2 << annotation(nil, :string, "bar")
@@ -73,11 +69,10 @@ describe "Skylight::Messages::AnnotationBuilder" do
           n2 << annotation(nil, :int, 2)
         end
       end
-    )
   end
 
   it "supports complex nested structures" do
-    build({ foo: { bar: { baz: "bat" }, bam: 1, zomg: 1.5, omg: [ -1.5, { zomg: 2, wat: "foo" } ] } }).should deserialize_to(
+    build({ foo: { bar: { baz: "bat" }, bam: 1, zomg: 1.5, omg: [ -1.5, { zomg: 2, wat: "foo" } ] } }).should ==
       annotation do |n1|
         n1 << annotation("foo") do |n2|
           n2 << annotation("bar") do |n3|
@@ -94,6 +89,5 @@ describe "Skylight::Messages::AnnotationBuilder" do
           end
         end
       end
-    )
   end
 end

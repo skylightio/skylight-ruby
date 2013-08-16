@@ -2,7 +2,7 @@ module Skylight
   module Messages
     class AnnotationBuilder
       def self.build(object)
-        new(object, Annotation.new).build.encode
+        new(object, Annotation.new).build
       end
 
       def initialize(object, annotation)
@@ -157,7 +157,9 @@ module Skylight
       private
 
         def to_annotations(val)
-          [] # TODO: Implement
+          return nil if !val || val.empty?
+
+          AnnotationBuilder.build(val)
         end
 
       end
