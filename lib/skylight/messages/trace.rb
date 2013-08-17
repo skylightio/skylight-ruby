@@ -59,7 +59,7 @@ module Skylight
         end
 
         def instrument(cat, *args)
-          annot = args.pop if Hash === args
+          annot = args.pop if Hash === args.last
           title = args.shift
           desc  = args.shift
           now   = adjust_for_skew(Util::Clock.micros)

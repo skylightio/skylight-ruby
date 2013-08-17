@@ -2,17 +2,15 @@ module Skylight
   module Messages
     class AnnotationBuilder
       def self.build(object)
-        new(object, Annotation.new).build
+        new(object).build
       end
 
-      def initialize(object, annotation)
+      def initialize(object)
         @object = object
-        @annotation = annotation
       end
 
       def build
-        @annotation.nested = build_nested(@object)
-        @annotation
+        build_nested(@object)
       end
 
     private

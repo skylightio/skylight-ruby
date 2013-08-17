@@ -68,4 +68,15 @@ module SpecHelper
     @gc ||= MockGC.new
   end
 
+  def annotation(key=nil, type=nil, value=nil, &block)
+    Skylight::Messages::Annotation.new.tap do |annotation|
+      annotation.key = key if key
+      annotation[type] = value if value
+
+      if block_given?
+        annotation.nested = []
+        yield annotation.nested
+      end
+    end
+  end
 end

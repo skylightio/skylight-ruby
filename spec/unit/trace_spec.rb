@@ -29,7 +29,7 @@ module Skylight
     end
 
     it 'builds the trace' do
-      a = trace.instrument 'cat1'
+      a = trace.instrument 'cat1', { foo: "bar" }
       clock.skip 0.001
       b = trace.instrument 'cat2'
       c = trace.instrument 'cat3'
@@ -70,6 +70,7 @@ module Skylight
       span(4).started_at.should     == 0
       span(4).duration.should       == 90
       span(4).children.should       == 1
+      span(4).annotations.should    == [annotation("foo", :string, "bar")]
 
       span(5).event.category.should == 'app.rack.request'
     end
