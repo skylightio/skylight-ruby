@@ -90,6 +90,11 @@ module Skylight
         res = @http_auth.get("/agent/authenticate?hostname=#{escape(config[:'hostname'])}")
 
         unless res.success?
+          if (400..499).include? @res.status
+            warn "token request rejected; status=%s", res.status
+            @http_report = nil
+          end
+
           warn "could not fetch report session token; status=%s", res.status
           return
         end
