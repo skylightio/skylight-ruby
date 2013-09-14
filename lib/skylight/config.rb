@@ -14,7 +14,7 @@ module Skylight
         hostname = nil if hostname == ''
       end
 
-      hostname || SecureRandom.uuid
+      hostname || "gen-#{SecureRandom.uuid}"
     end
 
     # Map environment variable keys with Skylight configuration keys
