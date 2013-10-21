@@ -1,3 +1,5 @@
+require "sql_lexer"
+
 module Skylight
   module Normalizers
     class SQL < Normalizer
@@ -12,13 +14,18 @@ module Skylight
           title = payload[:name]
         end
 
-        binds = payload[:binds]
+        if payload[:binds].empty?
+          payload[:sql], binds = SqlLexer::Lexer.bindify(payload[:sql])
+        else
+          binds = payload[:binds].map(&:last)
+        end
 
         annotations = {
           sql:   payload[:sql],
-          binds: binds ? binds.map(&:last) : [] }
+          binds: binds,
+        }
 
-        [ name, title, nil, annotations ]
+        [ name, title, payload[:sql], annotations ]
       end
     end
   end

@@ -19,7 +19,7 @@ module Skylight
 
       name.should == "db.sql.query"
       title.should == "Foo Load"
-      desc.should == nil
+      desc.should == "select * from foo"
 
       annotations.should == {
         sql: "select * from foo",
@@ -33,11 +33,25 @@ module Skylight
 
       name.should == "db.sql.query"
       title.should == "Foo Load"
-      desc.should == nil
+      desc.should == "select * from foo where id = ?"
 
       annotations.should == {
         sql: "select * from foo where id = ?",
         binds: [1]
+      }
+    end
+
+    it "Determines embedded binds" do
+      name, title, desc, annotations =
+        normalize(name: "Foo Load", sql: "select * from foo where id = 1", binds: [])
+
+      name.should == "db.sql.query"
+      title.should == "Foo Load"
+      desc.should == "select * from foo where id = ?"
+
+      annotations.should == {
+        sql: "select * from foo where id = ?",
+        binds: ["1"]
       }
     end
   end
