@@ -51,6 +51,8 @@ module Skylight
           desc  = args.shift
           now   = adjust_for_skew(Util::Clock.micros)
 
+          desc = @instrumenter.limited_description(desc)
+
           sp = span(now - gc_time, cat, title, desc, annot)
           inc_children
           @spans << sp.build(0)
@@ -63,6 +65,8 @@ module Skylight
           title = args.shift
           desc  = args.shift
           now   = adjust_for_skew(Util::Clock.micros)
+
+          desc = @instrumenter.limited_description(desc)
 
           start(now - gc_time, cat, title, desc, annot)
         end

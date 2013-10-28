@@ -1,18 +1,32 @@
 require 'thread'
+require 'set'
 
 module Skylight
   class Instrumenter
     KEY  = :__skylight_current_trace
     LOCK = Mutex.new
+    DESC_LOCK = Mutex.new
+
+    TOO_MANY_UNIQUES = "<too many unique descriptions>"
 
     include Util::Logging
 
+    class TraceInfo
+      def current
+        Thread.current[KEY]
+      end
+
+      def current=(trace)
+        Thread.current[KEY] = trace
+      end
+    end
+
     def self.current_trace
-      Thread.current[KEY]
+      TraceInfo.new.current
     end
 
     def self.current_trace=(trace)
-      Thread.current[KEY] = trace
+      TraceInfo.new.current = trace
     end
 
     def self.instance
@@ -47,6 +61,9 @@ module Skylight
       @config = config
       @worker = config.worker.build
       @subscriber = Subscriber.new(config)
+
+      @trace_info = @config[:trace_info] || TraceInfo.new
+      @descriptions = Hash.new { |h,k| h[k] = Set.new }
     end
 
     def start!
@@ -72,7 +89,7 @@ module Skylight
 
     def trace(endpoint, cat, *args)
       # If a trace is already in progress, continue with that one
-      if trace = Instrumenter.current_trace
+      if trace = @trace_info.current
         t { "already tracing" }
         return yield(trace) if block_given?
         return trace
@@ -86,20 +103,20 @@ module Skylight
         return
       end
 
-      Instrumenter.current_trace = trace
+      @trace_info.current = trace
       return trace unless block_given?
 
       begin
         yield trace
 
       ensure
-        Instrumenter.current_trace = nil
+        @trace_info.current = nil
         trace.submit
       end
     end
 
     def instrument(cat, *args)
-      unless trace = Instrumenter.current_trace
+      unless trace = @trace_info.current
         return yield if block_given?
         return
       end
@@ -125,6 +142,21 @@ module Skylight
         yield sp
       ensure
         sp.done
+      end
+    end
+
+    def limited_description(description)
+      endpoint = @trace_info.current.endpoint
+
+      DESC_LOCK.synchronize do
+        set = @descriptions[endpoint]
+
+        if set.size >= 100
+          return TOO_MANY_UNIQUES if set.size >= 100
+        end
+
+        set << description
+        description
       end
     end
 

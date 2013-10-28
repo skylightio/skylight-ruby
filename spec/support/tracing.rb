@@ -15,6 +15,10 @@ module SpecHelper
     def process(t)
       @traces << t
     end
+
+    def limited_description(desc)
+      desc
+    end
   end
 
   def instrumenter

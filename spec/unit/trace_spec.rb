@@ -158,6 +158,21 @@ module Skylight
       span(1).event.description.should == 'How a foo is formed?'
     end
 
+    it 'limits unique descriptions' do
+      def instrumenter.limited_description(desc)
+        return Skylight::Instrumenter::TOO_MANY_UNIQUES
+      end
+
+      a = trace.instrument 'foo', 'FOO', 'How a foo is formed?'
+      trace.record :bar, 'BAR', 'How a bar is formed?'
+      a.done
+      trace.submit
+
+      span(0).event.title.should       == 'BAR'
+      span(0).event.description.should == Skylight::Instrumenter::TOO_MANY_UNIQUES
+      span(1).event.title.should       == 'FOO'
+      span(1).event.description.should == Skylight::Instrumenter::TOO_MANY_UNIQUES
+    end
   end
 
 end
