@@ -36,7 +36,7 @@ module SqlLexer
     String        = %Q<#{StartString}(?:[^']|'')*'>
 
     Digits        = %q<\p{Digit}+>
-    OptDigits     = %Q<(?:#{Digits})?>
+    OptDigits     = %q<\p{Digit}*>
     Exponent      = %Q<e[+\-]?#{Digits}>
     OptExponent   = %Q<(?:#{Exponent})?>
     HeadDecimal   = %Q<#{Digits}\\.#{OptDigits}#{OptExponent}>
