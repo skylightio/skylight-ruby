@@ -24,6 +24,10 @@ module Skylight
 
   private
 
+    def existent_paths(paths)
+      paths.respond_to?(:existent) ? paths.existent : paths.select { |f| File.exists?(f) }
+    end
+
     def load_skylight_config(app)
       path = config_path(app)
       path = nil unless File.exist?(path)
@@ -39,7 +43,7 @@ module Skylight
       configure_logging(config, app)
 
       config['agent.sockfile_path'] = tmp
-      config['normalizers.render.view_paths'] = app.config.paths["app/views"].existent
+      config['normalizers.render.view_paths'] = existent_paths(app.config.paths["app/views"])
       config.validate!
       config
 

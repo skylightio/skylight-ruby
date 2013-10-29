@@ -54,7 +54,7 @@ describe Skylight::Instrumenter, :http do
         clock.unfreeze
         server.wait(timeout: 2, count: 3)
 
-        server.requests[1]["REQUEST_PATH"].should == "/agent/error"
+        server.requests[1]["PATH_INFO"].should == "/agent/error"
         error = server.requests[1]["rack.input"]
         JSON.parse(error).should == { "reason" => "sql_parse", "body" => bad_sql }
 
