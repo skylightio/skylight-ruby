@@ -16,6 +16,8 @@ module SpecHelper
       @traces << t
     end
 
+    attr_accessor :current_trace
+
     def limited_description(desc)
       desc
     end

@@ -4,10 +4,11 @@ module Skylight
 
     attr_reader :config
 
-    def initialize(config)
-      @config      = config
-      @subscriber  = nil
-      @normalizers = Normalizers.build(config)
+    def initialize(config, instrumenter)
+      @config       = config
+      @subscriber   = nil
+      @normalizers  = Normalizers.build(config)
+      @instrumenter = instrumenter
     end
 
     def register!
@@ -35,7 +36,7 @@ module Skylight
     end
 
     def start(name, id, payload)
-      return unless trace = Instrumenter.current_trace
+      return unless trace = @instrumenter.current_trace
 
       cat, title, desc, annot = normalize(trace, name, payload)
 
@@ -51,7 +52,7 @@ module Skylight
     end
 
     def finish(name, id, payload)
-      return unless trace = Instrumenter.current_trace
+      return unless trace = @instrumenter.current_trace
 
       while curr = trace.notifications.pop
         if curr.name == name

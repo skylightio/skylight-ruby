@@ -77,8 +77,8 @@ module Skylight
         end
 
         def release
-          return unless Instrumenter.current_trace == self
-          Instrumenter.current_trace = nil
+          return unless @instrumenter.current_trace == self
+          @instrumenter.current_trace = nil
         end
 
         def submit

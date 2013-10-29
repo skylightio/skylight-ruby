@@ -21,14 +21,6 @@ module Skylight
       end
     end
 
-    def self.current_trace
-      TraceInfo.new.current
-    end
-
-    def self.current_trace=(trace)
-      TraceInfo.new.current = trace
-    end
-
     def self.instance
       @instance
     end
@@ -50,7 +42,7 @@ module Skylight
       end
     end
 
-    attr_reader :config, :gc
+    attr_reader :config, :gc, :trace_info
 
     def initialize(config)
       if Hash === config
@@ -60,10 +52,18 @@ module Skylight
       @gc = config.gc
       @config = config
       @worker = config.worker.build
-      @subscriber = Subscriber.new(config)
+      @subscriber = Subscriber.new(config, self)
 
       @trace_info = @config[:trace_info] || TraceInfo.new
       @descriptions = Hash.new { |h,k| h[k] = Set.new }
+    end
+
+    def current_trace
+      @trace_info.current
+    end
+
+    def current_trace=(trace)
+      @trace_info.current = trace
     end
 
     def start!
