@@ -3,6 +3,7 @@ require 'webrick'
 require 'socket'
 require 'thread'
 require 'timeout'
+require 'active_support'
 
 module SpecHelper
   class Server
@@ -18,8 +19,17 @@ module SpecHelper
 
       @started = true
       @thread = Thread.new do
-        @inst = Server.new
-        @rack = Rack::Server.start(opts.merge(app: @inst))
+        begin
+          @inst = Server.new
+          @rack = Rack::Server.new(opts.merge(app: @inst))
+          # Rack 1.2 (required by Rails 3.0) has a bug that prevents setting the app properly
+          @rack.instance_variable_set('@app', @inst )
+          @rack.start
+        rescue Exception => e
+          # Prevent errors from being silently swallowed
+          puts e.inspect
+          puts e.backtrace
+        end
       end
 
       Timeout.timeout(30) do
