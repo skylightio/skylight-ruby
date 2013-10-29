@@ -15,5 +15,6 @@ module Skylight
     require 'skylight/messages/endpoint'
     require 'skylight/messages/batch'
     require 'skylight/messages/hello'
+    require 'skylight/messages/error'
   end
 end

@@ -40,6 +40,10 @@ module Skylight
 
       cat, title, desc, annot = normalize(trace, name, payload)
 
+      if error = annot[:skylight_error]
+        @instrumenter.error(*error)
+      end
+
       unless cat == :skip
         span = trace.instrument(cat, title, desc, annot)
       end

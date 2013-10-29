@@ -160,6 +160,16 @@ module Skylight
       end
     end
 
+    def error(reason, body)
+      t { fmt "processing error; reason=%s; body=%s", reason, body }
+
+      message = Skylight::Messages::Error.new(reason: reason, body: body)
+
+      unless @worker.submit(message)
+        warn "failed to submit error to worker"
+      end
+    end
+
     def process(trace)
       t { fmt "processing trace; spans=%d; duration=%d",
             trace.spans.length, trace.spans[-1].duration }

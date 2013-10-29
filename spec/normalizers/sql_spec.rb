@@ -54,5 +54,15 @@ module Skylight
         binds: ["1"]
       }
     end
+
+    it "Produces an error if the SQL isn't parsable" do
+      name, title, desc, annotations =
+        normalize(name: "Foo Load", sql: "NOT &REAL& ;;;SQL;;;", binds: [])
+
+      name.should == "db.sql.query"
+      title.should == "Foo Load"
+      desc.should == nil
+      annotations[:skylight_error].should == [:sql_parse, "NOT &REAL& ;;;SQL;;;"]
+    end
   end
 end

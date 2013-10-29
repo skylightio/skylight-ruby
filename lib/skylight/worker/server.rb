@@ -214,6 +214,9 @@ module Skylight
             info "newer version of agent deployed - restarting; curr=%s; new=%s", VERSION, msg.version
             reload(msg)
           end
+        when Messages::Error
+          t { "received error" }
+          @collector.error(msg)
         when Messages::Trace
           t { "received trace" }
           @collector.submit(msg)
