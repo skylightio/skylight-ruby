@@ -2,6 +2,7 @@ require 'rack'
 require 'webrick'
 require 'socket'
 require 'thread'
+require 'timeout'
 
 module SpecHelper
   class Server
@@ -21,12 +22,14 @@ module SpecHelper
         @rack = Rack::Server.start(opts.merge(app: @inst))
       end
 
-      begin
-        sock = TCPSocket.new 'localhost', port
-        sock.close
-      rescue Errno::ECONNREFUSED
-        sleep 1
-        retry
+      Timeout.timeout(30) do
+        begin
+          sock = TCPSocket.new 'localhost', port
+          sock.close
+        rescue Errno::ECONNREFUSED
+          sleep 1
+          retry
+        end
       end
     end
 
