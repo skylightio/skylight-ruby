@@ -49,9 +49,12 @@ module Skylight
 
         return true unless msg
 
-        if Messages::Trace === msg
+        case msg
+        when Messages::Trace
           t { fmt "collector received trace" }
           @batch.push(msg)
+        when Messages::Error
+          send_error(msg)
         else
           debug "Received unknown message; class=%s", msg.class.to_s
         end
@@ -60,6 +63,22 @@ module Skylight
       end
 
     private
+
+      def send_error(msg)
+        res = @http_auth.post("/agent/error?hostname=#{escape(config[:'hostname'])}")
+
+        unless res.success?
+          if (400..499).include? @res.status
+            warn "error wasn't sent successfully; status=%s", res.status
+          end
+
+          warn "could not fetch report session token; status=%s", res.status
+          return
+        end
+      rescue Exception => e
+        error "exception; msg=%s; class=%s", e.message, e.class
+        t { e.backtrace.join("\n") }
+      end
 
       def finish
         t { fmt "collector finishing up" }
