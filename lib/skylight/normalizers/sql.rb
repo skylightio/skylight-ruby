@@ -18,7 +18,7 @@ module Skylight
         if payload[:binds].empty?
           payload[:sql], binds, error = extract_binds(payload)
         else
-          binds = payload[:binds].map { |col, val| JSON.dump(val) }
+          binds = payload[:binds].map { |col, val| val.inspect }
         end
 
 

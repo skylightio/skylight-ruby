@@ -58,7 +58,7 @@ module Skylight
 
       annotations.should == {
         sql: sql,
-        binds: ["\"hello\"", JSON.dump(created_at), "\"localhost\"", "\"sql_parse\""]
+        binds: ["\"hello\"", created_at.inspect, "\"localhost\"", "\"sql_parse\""]
       }
     end
 
