@@ -1,6 +1,9 @@
 language: ruby
 
-install: bundle install --binstubs=b
+# Do we need these bundler args?
+bundler_args: --binstubs=b
+cache: bundler
+
 script: bundle exec rspec -cfs spec/
 
 env:
@@ -24,6 +27,11 @@ matrix:
   exclude:
     - rvm: 1.9.2
       gemfile: gemfiles/Gemfile.rails-4.0.x
+      env:
+        - SK_ENABLE_TRACE_LOGS=true
+        - RAILS_ENV=development
+
+# TODO: We may want to bring back rails-edge and add to allow_failures list
 
 notifications:
   campfire:
