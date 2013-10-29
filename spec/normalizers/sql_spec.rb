@@ -62,7 +62,7 @@ module Skylight
       name.should == "db.sql.query"
       title.should == "Foo Load"
       desc.should == nil
-      annotations[:skylight_error].should == [:sql_parse, "NOT &REAL& ;;;SQL;;;"]
+      annotations[:skylight_error].should == ["sql_parse", "NOT &REAL& ;;;SQL;;;"]
     end
   end
 end

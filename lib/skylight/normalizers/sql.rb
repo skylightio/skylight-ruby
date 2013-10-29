@@ -20,12 +20,17 @@ module Skylight
           binds = payload[:binds].map(&:last)
         end
 
-        annotations = {
-          sql:   payload[:sql],
-          binds: binds,
-        }
 
-        annotations[:skylight_error] = error if error
+        if payload[:sql]
+          annotations = {
+            sql:   payload[:sql],
+            binds: binds,
+          }
+        else
+          annotations = {
+            skylight_error: error
+          }
+        end
 
         [ name, title, payload[:sql], annotations ]
       end
@@ -35,7 +40,7 @@ module Skylight
         sql, binds = SqlLexer::Lexer.bindify(payload[:sql])
         [ sql, binds, nil ]
       rescue
-        [ nil, nil, [:sql_parse, payload[:sql]] ]
+        [ nil, nil, ["sql_parse", payload[:sql]] ]
       end
     end
   end
