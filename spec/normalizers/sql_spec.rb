@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'date'
 
 module Skylight
   describe Normalizers, "sql.active_record" do
@@ -29,15 +30,35 @@ module Skylight
 
     it "Pulls out binds" do
       name, title, desc, annotations =
-        normalize(name: "Foo Load", sql: "select * from foo where id = ?", binds: [[Object.new, 1]])
+        normalize(name: "Foo Load", sql: "select * from foo where id = $1", binds: [[Object.new, 1]])
 
       name.should == "db.sql.query"
       title.should == "Foo Load"
-      desc.should == "select * from foo where id = ?"
+      desc.should == "select * from foo where id = $1"
 
       annotations.should == {
-        sql: "select * from foo where id = ?",
-        binds: [1]
+        sql: "select * from foo where id = $1",
+        binds: ["1"]
+      }
+    end
+
+    it "Handles Rails-style insertions" do
+      sql = %{INSERT INTO "agent_errors" ("body", "created_at", "hostname", "reason") VALUES ($1, $2, $3, $4) RETURNING "id"}
+      body = "hello"
+      hostname = "localhost"
+      reason = "sql_parse"
+      created_at = DateTime.now
+
+      name, title, desc, annotations =
+        normalize(name: "SQL", sql: sql, binds: [[Object.new, body], [Object.new, created_at], [Object.new, hostname], [Object.new, reason]])
+
+      name.should == "db.sql.query"
+      title.should == "SQL"
+      desc.should == sql
+
+      annotations.should == {
+        sql: sql,
+        binds: ["\"hello\"", JSON.dump(created_at), "\"localhost\"", "\"sql_parse\""]
       }
     end
 

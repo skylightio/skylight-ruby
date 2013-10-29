@@ -1,4 +1,5 @@
 require "sql_lexer"
+require "json"
 
 module Skylight
   module Normalizers
@@ -17,7 +18,7 @@ module Skylight
         if payload[:binds].empty?
           payload[:sql], binds, error = extract_binds(payload)
         else
-          binds = payload[:binds].map(&:last)
+          binds = payload[:binds].map { |col, val| JSON.dump(val) }
         end
 
 
