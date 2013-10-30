@@ -56,7 +56,7 @@ describe Skylight::Instrumenter, :http do
 
         server.requests[1]["PATH_INFO"].should == "/agent/error"
         error = server.requests[1]["rack.input"]
-        JSON.parse(error).should == { "reason" => "sql_parse", "body" => bad_sql }
+        error.should == { "reason" => "sql_parse", "body" => bad_sql }
 
         server.reports[0].should have(1).endpoints
 

@@ -65,8 +65,7 @@ module Skylight
     private
 
       def send_error(msg)
-        body = JSON.dump(reason: msg.reason, body: msg.body)
-        res = @http_auth.post("/agent/error?hostname=#{escape(config[:'hostname'])}", body)
+        res = @http_auth.post("/agent/error?hostname=#{escape(config[:'hostname'])}", reason: msg.reason, body: msg.body)
 
         unless res.success?
           if (400..499).include? @res.status
