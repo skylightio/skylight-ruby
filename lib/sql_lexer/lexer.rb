@@ -13,7 +13,7 @@ module SqlLexer
     # possible conflict with future extensions of the standard.
     StartID       = %q<\p{Alpha}_>
     PartID        = %q<\p{Alnum}_$>
-    OpPart        = %q<\+|\-(?!-)|\*|/(?!\*)|\<|\>|=|~|!|@|#|%|\^|&|\||\?|\.|\(|\)>
+    OpPart        = %q<\+|\-(?!-)|\*|/(?!\*)|\<|\>|=|~|!|@|#|%|\^|&|\||\?|\.|,|\(|\)>
     WS            = %q< \t\r\n>
     OptWS         = %Q<[#{WS}]*>
 
