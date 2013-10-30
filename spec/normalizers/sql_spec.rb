@@ -19,7 +19,7 @@ module Skylight
         normalize(name: "Foo Load", sql: "select * from foo", binds: [])
 
       name.should == "db.sql.query"
-      title.should == "Foo Load"
+      title.should == "SELECT FROM foo"
       desc.should == "select * from foo"
 
       annotations.should == {
@@ -33,7 +33,7 @@ module Skylight
         normalize(name: "Foo Load", sql: "select * from foo where id = $1", binds: [[Object.new, 1]])
 
       name.should == "db.sql.query"
-      title.should == "Foo Load"
+      title.should == "SELECT FROM foo"
       desc.should == "select * from foo where id = $1"
 
       annotations.should == {
@@ -49,7 +49,7 @@ module Skylight
         normalize(name: nil, sql: sql, binds: [])
 
       name.should == "db.sql.query"
-      title.should == "SQL"
+      title.should == "SELECT FROM foo"
       desc.should == sql
 
       annotations.should == {
@@ -69,7 +69,7 @@ module Skylight
         normalize(name: "SQL", sql: sql, binds: [[Object.new, body], [Object.new, created_at], [Object.new, hostname], [Object.new, reason]])
 
       name.should == "db.sql.query"
-      title.should == "SQL"
+      title.should == "INSERT INTO agent_errors"
       desc.should == sql
 
       annotations.should == {
@@ -83,7 +83,7 @@ module Skylight
         normalize(name: "Foo Load", sql: "select * from foo where id = 1", binds: [])
 
       name.should == "db.sql.query"
-      title.should == "Foo Load"
+      title.should == "SELECT FROM foo"
       desc.should == "select * from foo where id = ?"
 
       annotations.should == {

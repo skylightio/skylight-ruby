@@ -25,16 +25,19 @@ module SqlLexer
     StartString   = %Q<'>
     StartDigit    = %q<[\p{Digit}\.]>
     StartBind     = %Q<#{StartString}|#{StartDigit}|#{SpecialOps}>
-    StartNonBind  = %Q<#{StartQuotedID}|#{StartTickedID}>
+    StartNonBind  = %Q<#{StartQuotedID}|#{StartTickedID}|\\$(?=\\p{Digit})>
+    TableNext     = %Q<(#{OptWS}((?=#{StartQuotedID})|(?=#{StartTickedID}))|[#{WS}]+(?=[#{StartID}]))>
     StartAnyId    = %Q<"#{StartID}>
+    Placeholder   = %q<\$\p{Digit}+>
 
     AfterID       = %Q<[#{WS};#{StartNonBind}]|(?:#{OpPart})|$>
     ID            = %Q<[#{StartID}][#{PartID}]*(?=#{AfterID})>
-    AfterOp       = %Q<[#{WS}]|[#{StartAnyId}]|[#{StartBind}]|$>
+    AfterOp       = %Q<[#{WS}]|[#{StartAnyId}]|[#{StartBind}]|(#{StartNonBind})|$>
     Op            = %Q<(?:#{OpPart})+(?=#{AfterOp})>
     QuotedID      = %Q<#{StartQuotedID}(?:[^"]|"")*">
     TickedID      = %Q<#{StartTickedID}(?:[^`]|``)*`>
-    NonBind       = %Q<#{ID}|#{Op}|#{QuotedID}|#{TickedID}>
+    NonBind       = %Q<#{ID}|#{Op}|#{QuotedID}|#{TickedID}|#{Placeholder}>
+    QuotedTable   = %Q<#{TickedID}|#{QuotedID}>
 
     String        = %Q<#{StartString}(?:[^']|'')*'>
 
@@ -51,7 +54,13 @@ module SqlLexer
     TkWS          = %r<[#{WS}]+>
     TkOptWS       = %r<[#{WS}]*>
     TkOp          = %r<[#{OpPart}]>
+    TkPlaceholder = %r<#{Placeholder}>
     TkNonBind     = %r<#{NonBind}>
+    TkQuotedTable = %r<#{QuotedTable}>i
+    TkUpdateTable = %r<UPDATE#{TableNext}>i
+    TkInsertTable = %r<INSERT[#{WS}]+INTO#{TableNext}>i
+    TkDeleteTable = %r<DELETE[#{WS}]+FROM#{TableNext}>i
+    TkFromTable   = %r<FROM#{TableNext}>i
     TkID          = %r<#{ID}>
     TkEnd         = %r<;?[#{WS}]*>
     TkBind        = %r<#{String}|#{Number}>
@@ -59,32 +68,37 @@ module SqlLexer
     TkSpecialOp   = %r<#{SpecialOps}>i
 
     STATE_HANDLERS = {
-      begin:    :process_begin,
-      tokens:   :process_tokens,
-      bind:     :process_bind,
-      non_bind: :process_non_bind,
-      end:      :process_end,
-      special:  :process_special,
-      in: :process_in
+      begin:       :process_begin,
+      first_token: :process_first_token,
+      tokens:      :process_tokens,
+      bind:        :process_bind,
+      non_bind:    :process_non_bind,
+      table_name:  :process_table_name,
+      end:         :process_end,
+      special:     :process_special,
+      in:          :process_in
     }
 
     def self.bindify(string)
       new(string).tap do |scanner|
         scanner.process
-        return scanner.output, scanner.binds
+        return scanner.title, scanner.output, scanner.binds
       end
     end
 
-    attr_reader :output, :binds
+    attr_reader :output, :binds, :title
 
     def initialize(string)
       @scanner = StringScanner.new(string)
       @state   = :begin
+      @input   = string
       @output  = string.dup
       @binds   = []
     end
 
     def process
+      @operation = @table = @title = nil
+
       while @state
         if ENV["DEBUG"]
           p @state
@@ -97,6 +111,11 @@ module SqlLexer
       pos = 0
       removed = 0
       extracted_binds = Array.new(@binds.size / 2)
+
+      if @operation && @table
+        table = @input[@table[0], @table[1] - @table[0]]
+        @title = "#{@operation} #{table}"
+      end
 
       while pos < @binds.size
         slice = @output.slice!(@binds[pos] - removed, @binds[pos+1])
@@ -111,13 +130,45 @@ module SqlLexer
 
     def process_begin
       @scanner.scan(TkOptWS)
+      @state = :first_token
+    end
+
+    def process_first_token
+      if @scanner.skip(/SELECT\s+/i)
+        @operation = :"SELECT FROM"
+        @state = :tokens
+        return
+      end
+
+      if @scanner.skip(TkUpdateTable)
+        @operation = :UPDATE
+      elsif @scanner.skip(TkInsertTable)
+        @operation = :"INSERT INTO"
+      elsif @scanner.skip(TkDeleteTable)
+        @operation = :"DELETE FROM"
+      end
+
+      @state = :table_name
+    end
+
+    def process_table_name
+      pos = @scanner.pos
+
+      if @scanner.skip(TkQuotedTable)
+        @table = [pos + 1, @scanner.pos - 1]
+      elsif @scanner.skip(TkID)
+        @table = [pos, @scanner.pos]
+      end
+
       @state = :tokens
     end
 
     def process_tokens
       @scanner.skip(TkOptWS)
 
-      if @scanner.match?(TkSpecialOp)
+      if @operation == :"SELECT FROM" && !@table && @scanner.skip(TkFromTable)
+        @state = :table_name
+      elsif @scanner.match?(TkSpecialOp)
         @state = :special
       elsif @scanner.match?(TkBind)
         @state = :bind
