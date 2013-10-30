@@ -42,6 +42,22 @@ module Skylight
       }
     end
 
+    it "Handles queries without a title" do
+      sql = "SELECT * from foo"
+
+      name, title, desc, annotations =
+        normalize(name: nil, sql: sql, binds: [])
+
+      name.should == "db.sql.query"
+      title.should == "SQL"
+      desc.should == sql
+
+      annotations.should == {
+        sql: sql,
+        binds: []
+      }
+    end
+
     it "Handles Rails-style insertions" do
       sql = %{INSERT INTO "agent_errors" ("body", "created_at", "hostname", "reason") VALUES ($1, $2, $3, $4) RETURNING "id"}
       body = "hello"

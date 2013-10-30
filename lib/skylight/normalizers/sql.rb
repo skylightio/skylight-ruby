@@ -12,7 +12,7 @@ module Skylight
           return :skip
         else
           name  = "db.sql.query"
-          title = payload[:name]
+          title = payload[:name] || "SQL"
         end
 
         if payload[:binds].empty?
