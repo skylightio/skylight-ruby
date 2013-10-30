@@ -17,11 +17,14 @@ module SqlLexer
     WS            = %q< \t\r\n>
     OptWS         = %Q<[#{WS}]*>
 
+    InOp          = %q<IN>
+    SpecialOps    = %Q<#{InOp}>
+
     StartQuotedID = %Q<">
     StartTickedID = %Q<`>
     StartString   = %Q<'>
     StartDigit    = %q<[\p{Digit}\.]>
-    StartBind     = %Q<#{StartString}|#{StartDigit}>
+    StartBind     = %Q<#{StartString}|#{StartDigit}|#{SpecialOps}>
     StartNonBind  = %Q<#{StartQuotedID}|#{StartTickedID}>
     StartAnyId    = %Q<"#{StartID}>
 
@@ -52,13 +55,17 @@ module SqlLexer
     TkID          = %r<#{ID}>
     TkEnd         = %r<;?[#{WS}]*>
     TkBind        = %r<#{String}|#{Number}>
+    TkIn          = %r<#{InOp}>i
+    TkSpecialOp   = %r<#{SpecialOps}>i
 
     STATE_HANDLERS = {
       begin:    :process_begin,
       tokens:   :process_tokens,
       bind:     :process_bind,
       non_bind: :process_non_bind,
-      end:      :process_end
+      end:      :process_end,
+      special:  :process_special,
+      in: :process_in
     }
 
     def self.bindify(string)
@@ -110,13 +117,65 @@ module SqlLexer
     def process_tokens
       @scanner.skip(TkOptWS)
 
-      if @scanner.match?(TkBind)
+      if @scanner.match?(TkSpecialOp)
+        @state = :special
+      elsif @scanner.match?(TkBind)
         @state = :bind
       elsif @scanner.match?(TkNonBind)
         @state = :non_bind
       else
         @state = :end
       end
+    end
+
+    def process_special
+      if @scanner.skip(TkIn)
+        @scanner.skip(TkOptWS)
+        @scanner.skip(/\(/)
+        @state = :in
+      end
+    end
+
+    def process_in
+      nest = 1
+      iterations = 0
+
+      @skip_binds = true
+      pos = @scanner.pos - 1
+
+      while nest > 0
+        iterations += 1
+
+        if iterations > 10_000
+          raise "The SQL '#{@scanner.string}' could not be parsed because of too many iterations in IN"
+        end
+
+        if ENV["DEBUG"]
+          p @state
+          p @scanner
+          p nest
+        end
+
+        if @scanner.skip(/\(/)
+          nest += 1
+          process_tokens
+        elsif @scanner.skip(/\)/)
+          nest -= 1
+          break if nest.zero?
+          process_tokens
+        else
+          process_tokens
+        end
+
+        send STATE_HANDLERS[@state]
+      end
+
+      @binds << pos
+      @binds << @scanner.pos - pos
+
+      @skip_binds = false
+
+      @state = :tokens
     end
 
     def process_non_bind
@@ -128,8 +187,10 @@ module SqlLexer
       pos = @scanner.pos
       size = @scanner.skip(TkBind)
 
-      @binds << pos
-      @binds << size
+      unless @skip_binds
+        @binds << pos
+        @binds << size
+      end
 
       @state = :tokens
     end
