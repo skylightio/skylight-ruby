@@ -7,7 +7,7 @@ module Skylight
         normalize_render(
           "view.render.template",
           payload,
-          partial: true)
+          partial: 1)
       end
     end
   end

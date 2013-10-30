@@ -61,7 +61,7 @@ module Skylight
         when Hash, Array
           :nested
         else
-          raise Skylight::SerializeError.new("Annotation values must be Strings or Numeric. You passed #{value.inspect}")
+          raise Skylight::SerializeError.new("Annotation values must be Strings or Numeric. You passed #{value.inspect} in #{@object.inspect}")
         end
       end
     end

@@ -40,7 +40,7 @@ module Skylight
 
       cat, title, desc, annot = normalize(trace, name, payload)
 
-      if error = annot[:skylight_error]
+      if cat != :skip && error = annot[:skylight_error]
         @instrumenter.error(*error)
       end
 
@@ -49,9 +49,14 @@ module Skylight
       end
 
       trace.notifications << Notification.new(name, span)
-
     rescue Exception => e
       error "Subscriber#start error; msg=%s", e.message
+      debug "trace=%s", trace.inspect
+      debug "in:  name=%s", name.inspect
+      debug "in:  payload=%s", payload.inspect
+      debug "out: cat=%s, title=%s, desc=%s", cat.inspect, name.inspect, desc.inspect
+      debug "out: annot=%s", annot.inspect
+      t { e.backtrace.join("\n") }
       nil
     end
 
@@ -67,6 +72,10 @@ module Skylight
 
     rescue Exception => e
       error "Subscriber#finish error; msg=%s", e.message
+      debug "trace=%s", trace.inspect
+      debug "in:  name=%s", name.inspect
+      debug "in:  payload=%s", payload.inspect
+      t { e.backtrace.join("\n") }
       nil
     end
 

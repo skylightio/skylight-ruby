@@ -33,7 +33,7 @@ module Skylight
         name.should == "view.render.template"
         title.should == "foo/bar"
         desc.should == nil
-        payload.should == { partial: false }
+        payload.should == { partial: 0 }
       end
 
       it "normalizes the title to a relative path" do
@@ -41,7 +41,7 @@ module Skylight
         name.should == "view.render.template"
         title.should == "foo/bar"
         desc.should == "/path/to/views/foo/bar"
-        payload.should == { partial: false }
+        payload.should == { partial: 0 }
       end
     end
 
@@ -52,7 +52,7 @@ module Skylight
         name.should == "view.render.template"
         title.should == "foo/bar"
         desc.should == nil
-        payload.should == { partial: true }
+        payload.should == { partial: 1 }
       end
 
       it "normalizes the title to a relative path" do
@@ -60,7 +60,7 @@ module Skylight
         name.should == "view.render.template"
         title.should == "foo/bar"
         desc.should == "/path/to/views/foo/bar"
-        payload.should == { partial: true }
+        payload.should == { partial: 1 }
       end
     end
   end
