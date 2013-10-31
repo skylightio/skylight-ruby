@@ -4,7 +4,8 @@ module Skylight
   describe Normalizers do
 
     let(:config) do
-      Config.new normalizers: { render: { view_paths: %w(/path/to/views) }}
+      # the second path represents rails root
+      Config.new normalizers: { render: { view_paths: %w(/path/to/views /path/to) }}
     end
 
     describe "render_collection.action_view" do
@@ -17,12 +18,28 @@ module Skylight
         payload.should == { count: 10 }
       end
 
-      it "normalizes the title to a relative path" do
+      it "normalizes the title to a path relative to view paths" do
         name, title, desc, payload = normalize(config, { identifier: "/path/to/views/foo/bar", count: 10 })
         name.should == "view.render.collection"
         title.should == "foo/bar"
-        desc.should == "/path/to/views/foo/bar"
+        desc.should == nil
         payload.should == { count: 10 }
+      end
+
+      it "normalizes the title to a path relative to rails root" do
+        name, title, desc, payload = normalize(config, { identifier: "/path/to/other/path", count: 10 })
+        name.should == "view.render.collection"
+        title.should == "other/path"
+        desc.should == nil
+        payload.should == { count: 10 }
+      end
+
+      it "prints Absolute Path if it's outside the root" do
+        name, title, desc, payload = normalize(config, { identifier: "/other/path/to/stuff", count: 10 })
+        name.should == "view.render.collection"
+        title.should == "Absolute Path"
+        desc.should == nil
+        payload.should == { count: 10, skylight_error: ["absolute_path", "/other/path/to/stuff"] }
       end
     end
 
@@ -37,11 +54,27 @@ module Skylight
       end
 
       it "normalizes the title to a relative path" do
-        name, title, desc, payload = normalize(config, { identifier: "/path/to/views/foo/bar", count: 10 })
+        name, title, desc, payload = normalize(config, { identifier: "/path/to/views/foo/bar" })
         name.should == "view.render.template"
         title.should == "foo/bar"
-        desc.should == "/path/to/views/foo/bar"
+        desc.should == nil 
         payload.should == { partial: 0 }
+      end
+
+      it "normalizes the title to a path relative to rails root" do
+        name, title, desc, payload = normalize(config, { identifier: "/path/to/other/path" })
+        name.should == "view.render.template"
+        title.should == "other/path"
+        desc.should == nil
+        payload.should == { partial: 0 }
+      end
+
+      it "prints Absolute Path if it's outside the root" do
+        name, title, desc, payload = normalize(config, { identifier: "/other/path/to/stuff" })
+        name.should == "view.render.template"
+        title.should == "Absolute Path"
+        desc.should == nil
+        payload.should == { partial: 0, skylight_error: ["absolute_path", "/other/path/to/stuff"] }
       end
     end
 
@@ -56,11 +89,27 @@ module Skylight
       end
 
       it "normalizes the title to a relative path" do
-        name, title, desc, payload = normalize(config, { identifier: "/path/to/views/foo/bar", count: 10 })
+        name, title, desc, payload = normalize(config, { identifier: "/path/to/views/foo/bar" })
         name.should == "view.render.template"
         title.should == "foo/bar"
-        desc.should == "/path/to/views/foo/bar"
+        desc.should == nil
         payload.should == { partial: 1 }
+      end
+
+      it "normalizes the title to a path relative to rails root" do
+        name, title, desc, payload = normalize(config, { identifier: "/path/to/other/path" })
+        name.should == "view.render.template"
+        title.should == "other/path"
+        desc.should == nil
+        payload.should == { partial: 1 }
+      end
+
+      it "prints Absolute Path if it's outside the root" do
+        name, title, desc, payload = normalize(config, { identifier: "/other/path/to/stuff" })
+        name.should == "view.render.template"
+        title.should == "Absolute Path"
+        desc.should == nil
+        payload.should == { partial: 1, skylight_error: ["absolute_path", "/other/path/to/stuff"] }
       end
     end
   end

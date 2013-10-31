@@ -46,14 +46,16 @@ module Skylight
 
       def normalize_render(category, payload, annotations)
         if path = payload[:identifier]
-          title = relative_path(path)
+          title = relative_path(path, annotations)
           path = nil if path == title
         end
 
-        [ category, title, path, annotations ]
+        [ category, title, nil, annotations ]
       end
 
-      def relative_path(path)
+      def relative_path(path, annotations)
+        return path if Pathname.new(path).relative?
+
         root = @paths.find { |p| path.start_with?(p) }
 
         if root
@@ -61,7 +63,8 @@ module Skylight
           relative = relative[1..-1] if relative.start_with?("/")
           relative
         else
-          path
+          annotations[:skylight_error] = ["absolute_path", path]
+          "Absolute Path"
         end
       end
     end

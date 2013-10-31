@@ -76,10 +76,6 @@ describe Skylight::Instrumenter, :http do
 
         t.spans[0].should == span(
           event:      event('db.sql.query', 'Load User'),
-          annotations: annotation('skylight_error', :nested) do |n|
-            n << annotation(nil, :string, "sql_parse")
-            n << annotation(nil, :string, bad_sql)
-          end,
           started_at: 0,
           duration:   10_000 )
       end
