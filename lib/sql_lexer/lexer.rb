@@ -18,7 +18,7 @@ module SqlLexer
     OptWS         = %Q<[#{WS}]*>
 
     InOp          = %q<IN>
-    SpecialOps    = %Q<#{InOp}>
+    SpecialOps    = %Q<#{InOp}(?=[#{WS}])>
 
     StartQuotedID = %Q<">
     StartTickedID = %Q<`>
@@ -39,7 +39,8 @@ module SqlLexer
     NonBind       = %Q<#{ID}|#{Op}|#{QuotedID}|#{TickedID}|#{Placeholder}>
     QuotedTable   = %Q<#{TickedID}|#{QuotedID}>
 
-    String        = %Q<#{StartString}(?:[^']|'')*'>
+    StringBody    = %q<(?:''|\x5C'|[^'])*>
+    String        = %Q<#{StartString}#{StringBody}'>
 
     Digits        = %q<\p{Digit}+>
     OptDigits     = %q<\p{Digit}*>
