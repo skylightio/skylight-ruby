@@ -20,8 +20,12 @@ module Skylight
             disposition: normalize_disposition(payload),
             status:      normalize_status(payload) }
 
-          # These will eventually be different
-          title = desc = "send file: #{path}"
+          title = "send file"
+
+          # depending on normalization, we probably want this to eventually
+          # include the full path, but we need to make sure we have a good
+          # deduping strategy first.
+          desc = nil
 
           [ "app.controller.send_file", title, desc, annotations ]
         end

@@ -8,8 +8,8 @@ module Skylight
         normalize(path: "foo/bar")
 
       name.should == "app.controller.send_file"
-      title.should == "send file: foo/bar"
-      desc.should == "send file: foo/bar"
+      title.should == "send file"
+      desc.should == nil
 
       # Rails defaults
       payload.should == {
