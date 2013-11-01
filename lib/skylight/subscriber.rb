@@ -36,6 +36,7 @@ module Skylight
     end
 
     def start(name, id, payload)
+      return if @instrumenter.disabled?
       return unless trace = @instrumenter.current_trace
 
       cat, title, desc, annot = normalize(trace, name, payload)
@@ -61,6 +62,7 @@ module Skylight
     end
 
     def finish(name, id, payload)
+      return if @instrumenter.disabled?
       return unless trace = @instrumenter.current_trace
 
       while curr = trace.notifications.pop

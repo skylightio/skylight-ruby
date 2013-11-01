@@ -115,6 +115,17 @@ module Skylight
       end
     end
 
+    def disable
+      @disabled = true
+      yield
+    ensure
+      @disabled = false
+    end
+
+    def disabled?
+      @disabled
+    end
+
     def instrument(cat, *args)
       unless trace = @trace_info.current
         return yield if block_given?

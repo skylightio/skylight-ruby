@@ -40,6 +40,35 @@ describe Skylight::Instrumenter, :http do
           duration:   10_000 )
       end
 
+      it 'ignores disabled parts of the trace' do
+        stub_session_request
+
+        Skylight.trace 'Testin', 'app.rack' do |t|
+          Skylight.disable do
+            ActiveSupport::Notifications.instrument('sql.active_record', name: "Load User", sql: "SELECT * FROM posts", binds: []) do
+              clock.skip 1
+            end
+          end
+        end
+
+        clock.unfreeze
+        server.wait(timeout: 2, count: 2)
+
+        server.reports[0].should have(1).endpoints
+
+        ep = server.reports[0].endpoints[0]
+        ep.name.should == 'Testin'
+        ep.should have(1).traces
+
+        t = ep.traces[0]
+        t.should have(1).spans
+        t.uuid.should == 'TODO'
+        t.spans[0].should == span(
+          event:      event('app.rack'),
+          started_at: 0,
+          duration:   10_000 )
+      end
+
       it "sends error messages to the Skylight Rails app" do
         stub_session_request
 

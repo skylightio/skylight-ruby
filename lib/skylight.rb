@@ -99,6 +99,15 @@ module Skylight
     inst.instrument(category, title, desc, &blk)
   end
 
+  def self.disable(&block)
+    unless inst = Instrumenter.instance
+      return yield if block_given?
+      return
+    end
+
+    inst.disable(&block)
+  end
+
   RUBYBIN = File.join(
     RbConfig::CONFIG['bindir'],
     "#{RbConfig::CONFIG['ruby_install_name']}#{RbConfig::CONFIG['EXEEXT']}")
