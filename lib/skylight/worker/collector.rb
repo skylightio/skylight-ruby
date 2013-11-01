@@ -68,7 +68,7 @@ module Skylight
         res = @http_auth.post("/agent/error?hostname=#{escape(config[:'hostname'])}", reason: msg.reason, body: msg.body)
 
         unless res.success?
-          if (400..499).include? @res.status
+          if (400..499).include? res.status
             warn "error wasn't sent successfully; status=%s", res.status
           end
 
@@ -109,7 +109,7 @@ module Skylight
         res = @http_auth.get("/agent/authenticate?hostname=#{escape(config[:'hostname'])}")
 
         unless res.success?
-          if (400..499).include? @res.status
+          if (400..499).include? res.status
             warn "token request rejected; status=%s", res.status
             @http_report = nil
           end
