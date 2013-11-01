@@ -24,7 +24,7 @@ module SqlLexer
     StartTickedID = %Q<`>
     StartString   = %Q<'>
     StartDigit    = %q<[\p{Digit}\.]>
-    StartBind     = %Q<#{StartString}|#{StartDigit}|#{SpecialOps}>
+    StartBind     = %Q<#{StartString}|#{StartDigit}|#{SpecialOps}|N(?=ULL(?:[#{WS}]|#{OpPart}))>
     StartNonBind  = %Q<#{StartQuotedID}|#{StartTickedID}|\\$(?=\\p{Digit})>
     TableNext     = %Q<(#{OptWS}((?=#{StartQuotedID})|(?=#{StartTickedID}))|[#{WS}]+(?=[#{StartID}]))>
     StartAnyId    = %Q<"#{StartID}>
@@ -52,6 +52,8 @@ module SqlLexer
 
     Number        = %Q<#{HeadDecimal}|#{TailDecimal}|#{ExpDecimal}|#{Digits}>
 
+    Null          = %Q<NULL(?=(?:[#{WS}]|#{OpPart}))>
+
     TkWS          = %r<[#{WS}]+>
     TkOptWS       = %r<[#{WS}]*>
     TkOp          = %r<[#{OpPart}]>
@@ -64,7 +66,7 @@ module SqlLexer
     TkFromTable   = %r<FROM#{TableNext}>i
     TkID          = %r<#{ID}>
     TkEnd         = %r<;?[#{WS}]*>
-    TkBind        = %r<#{String}|#{Number}>
+    TkBind        = %r<#{String}|#{Number}|#{Null}>
     TkIn          = %r<#{InOp}>i
     TkSpecialOp   = %r<#{SpecialOps}>i
 
