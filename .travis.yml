@@ -1,7 +1,5 @@
 language: ruby
 
-# Do we need these bundler args?
-bundler_args: --binstubs=b
 cache: bundler
 
 script: bundle exec rspec -cfs spec/
