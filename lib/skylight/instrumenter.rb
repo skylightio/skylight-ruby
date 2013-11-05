@@ -1,5 +1,6 @@
 require 'thread'
 require 'set'
+require 'base64'
 
 module Skylight
   class Instrumenter
@@ -173,6 +174,10 @@ module Skylight
 
     def error(reason, body)
       t { fmt "processing error; reason=%s; body=%s", reason, body }
+
+      if body.encoding == Encoding::BINARY || !body.valid_encoding?
+        body = Base64.encode64(body)
+      end
 
       message = Skylight::Messages::Error.new(reason: reason, body: body)
 
