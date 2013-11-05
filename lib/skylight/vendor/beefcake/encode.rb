@@ -10,7 +10,7 @@ module Skylight
           append_info(fn, wire)
         end
 
-        __send__("append_#{type}", val)
+        __send__(HANDLERS[type], val)
       end
 
       def append_info(fn, wire)
@@ -26,7 +26,7 @@ module Skylight
       end
 
       def append_fixed64(n)
-        if n < MinUint64 || n > MaxUint64
+        if uint64?(n)
           raise OutOfRangeError, n
         end
 
@@ -77,8 +77,18 @@ module Skylight
         append_fixed64((n << 1) ^ (n >> 63))
       end
 
+      def uint64?(n)
+        if n < MinUint64
+          false
+        elsif n < MaxFixnum
+          true
+        else
+          n <= MaxUint64
+        end
+      end
+
       def append_uint64(n)
-        if n < MinUint64 || n > MaxUint64
+        unless uint64?(n)
           raise OutOfRangeError, n
         end
 
@@ -110,6 +120,13 @@ module Skylight
       end
       alias :append_bytes :append_string
 
+      HANDLERS = instance_methods.reduce({}) do |hash, meth|
+        if meth.to_s =~ /^append_(.*)$/
+          hash[$1.to_sym] = meth
+        end
+
+        hash
+      end
     end
   end
 end

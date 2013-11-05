@@ -11,6 +11,8 @@ module Skylight
       MinInt64  = -(1<<63)
       MaxInt64  =  (1<<63)-1
 
+      MaxFixnum =  (1 << (1.size * 8 - 2) - 1)
+
       def self.wire_for(type)
         case type
         when Class
@@ -70,7 +72,7 @@ module Skylight
 
       if ''.respond_to?(:force_encoding)
         def buf=(buf)
-          @buf = buf.force_encoding('BINARY')
+          @buf = buf.force_encoding(BINARY)
         end
       end
 
@@ -78,7 +80,7 @@ module Skylight
         @buf.respond_to?(:bytesize) ? @buf.bytesize : @buf.length
       end
 
-      BINARY = 'BINARY'
+      BINARY = 'BINARY'.freeze
 
       # Detect a ruby encodings bug, as far as I know, this exists in
       # most versions fo JRuby as well as 1.9.2

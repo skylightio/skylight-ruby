@@ -54,13 +54,20 @@ module Skylight
         end
 
         def field(rule, name, type, fn, opts)
-          fields[fn] = Field.new(rule, name, type, fn, opts)
+          field = Field.new(rule, name, type, fn, opts)
+          indexed_fields[fn] = field
+          fields << field
+          fields.sort!
           __write_initializer
           attr_accessor name
         end
 
         def fields
-          @fields ||= {}
+          @fields ||= []
+        end
+
+        def indexed_fields
+          @indexed_fields ||= {}
         end
 
         def __write_initializer
@@ -68,7 +75,7 @@ module Skylight
 
           lines << "def initialize(attrs=nil)"
           lines << "return unless attrs"
-          fields.values.each do |fld|
+          fields.each do |fld|
             lines << "@#{fld.name} = attrs[:#{fld.name}]"
           end
 
@@ -93,7 +100,7 @@ module Skylight
 
           # TODO: Error if any required fields at nil
 
-          fields.values.sort.each do |fld|
+          fields.each do |fld|
             if fld.opts[:packed]
               bytes = encode!(Buffer.new, fld, 0)
               buf.append_info(fld.fn, Buffer.wire_for(fld.type))
@@ -109,25 +116,34 @@ module Skylight
 
         def encode!(buf, fld, fn)
           v = self[fld.name]
-          v = v.is_a?(Array) ? v : [v]
 
-          v.compact.each do |val|
-            case fld.type
-            when Class # encodable
-              # TODO: raise error if type != val.class
-              buf.append(:string, val.encode, fn)
-            when Module # enum
-              if ! valid_enum?(fld.type, val)
-                raise InvalidValueError.new(fld.name, val)
-              end
-
-              buf.append(:int32, val, fn)
-            else
-              buf.append(fld.type, val, fn)
+          if v.is_a?(Array)
+            v.each do |val|
+              encode_field!(buf, fld.type, val, fn)
             end
+          else
+            encode_field!(buf, fld.type, v, fn)
           end
 
           buf
+        end
+
+        def encode_field!(buf, type, val, fn)
+          return if val.nil?
+
+          case type
+          when Class # encodable
+            # TODO: raise error if type != val.class
+            buf.append(:string, val.encode, fn)
+          when Module # enum
+            if ! valid_enum?(type, val)
+              raise InvalidValueError.new(fld.name, val)
+            end
+
+            buf.append(:int32, val, fn)
+          else
+            buf.append(type, val, fn)
+          end
         end
 
         def valid_enum?(mod, val)
@@ -144,13 +160,12 @@ module Skylight
         end
 
         def validate!
-          fields.values.each do |fld|
+          fields.each do |fld|
             if fld.rule == :required && self[fld.name].nil?
               raise RequiredFieldNotSetError, fld.name
             end
           end
         end
-
       end
 
 
@@ -165,7 +180,7 @@ module Skylight
           while buf.length > 0
             fn, wire = buf.read_info
 
-            fld = fields[fn]
+            fld = indexed_fields[fn]
 
             # We don't have a field for with index fn.
             # Ignore this data and move on.
@@ -196,7 +211,7 @@ module Skylight
           end
 
           # Set defaults
-          fields.values.each do |f|
+          fields.each do |f|
             next if o[f.name] == false
             o[f.name] ||= f.opts[:default]
           end
@@ -218,6 +233,10 @@ module Skylight
         self.class.fields
       end
 
+      def indexed_fields
+        self.class.indexed_fields
+      end
+
       def [](k)
         __send__(k)
       end
@@ -229,7 +248,7 @@ module Skylight
       def ==(o)
         return false if (o == nil) || (o == false)
         return false unless o.respond_to?(:[])
-        fields.values.all? do |fld|
+        fields.all? do |fld|
           if fld.rule == :repeated
             Array(self[fld.name]) == Array(o[fld.name])
           else
@@ -239,7 +258,7 @@ module Skylight
       end
 
       def inspect
-        set = fields.values.select {|fld| self[fld.name] != nil }
+        set = fields.select {|fld| self[fld.name] != nil }
 
         flds = set.map do |fld|
           val = self[fld.name]
@@ -259,7 +278,7 @@ module Skylight
       end
 
       def to_hash
-        fields.values.inject({}) do |h, fld|
+        fields.inject({}) do |h, fld|
           if v = self[fld.name]
             h[fld.name] = v
           end
