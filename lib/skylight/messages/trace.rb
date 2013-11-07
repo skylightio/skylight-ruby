@@ -68,6 +68,11 @@ module Skylight
 
           desc = @instrumenter.limited_description(desc)
 
+          if desc == Instrumenter::TOO_MANY_UNIQUES
+            debug "[SKYLIGHT] A payload description produced <too many uniques>"
+            debug "cat=%s, title=%s, desc=%s, annot=%s", cat, title, desc, annot.inspect
+          end
+
           start(now - gc_time, cat, title, desc, annot)
         end
 
