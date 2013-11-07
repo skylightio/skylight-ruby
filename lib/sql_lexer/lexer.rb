@@ -59,21 +59,22 @@ module SqlLexer
 
     Literals      = %Q<(?:NULL|TRUE|FALSE)(?=(?:[#{WS}]|#{OpPart}|#{End}))>
 
-    TkWS          = %r<[#{WS}]+>
-    TkOptWS       = %r<[#{WS}]*>
-    TkOp          = %r<[#{OpPart}]>
-    TkPlaceholder = %r<#{Placeholder}>
-    TkNonBind     = %r<#{NonBind}>
-    TkQuotedTable = %r<#{QuotedTable}>i
-    TkUpdateTable = %r<UPDATE#{TableNext}>i
-    TkInsertTable = %r<INSERT[#{WS}]+INTO#{TableNext}>i
-    TkDeleteTable = %r<DELETE[#{WS}]+FROM#{TableNext}>i
-    TkFromTable   = %r<FROM#{TableNext}>i
-    TkID          = %r<#{ID}>
-    TkEnd         = %r<;?[#{WS}]*>
-    TkBind        = %r<#{String}|#{Number}|#{Literals}>
-    TkIn          = %r<#{InOp}>i
-    TkSpecialOp   = %r<#{SpecialOps}>i
+    TkWS          = %r<[#{WS}]+>u
+    TkOptWS       = %r<[#{WS}]*>u
+    TkOp          = %r<[#{OpPart}]>u
+    TkPlaceholder = %r<#{Placeholder}>u
+    TkNonBind     = %r<#{NonBind}>u
+    TkQuotedTable = %r<#{QuotedTable}>iu
+    TkUpdateTable = %r<UPDATE#{TableNext}>iu
+    TkInsertTable = %r<INSERT[#{WS}]+INTO#{TableNext}>iu
+    TkDeleteTable = %r<DELETE[#{WS}]+FROM#{TableNext}>iu
+    TkFromTable   = %r<FROM#{TableNext}>iu
+    TkID          = %r<#{ID}>u
+    TkEnd         = %r<;?[#{WS}]*>u
+    TkBind        = %r<#{String}|#{Number}|#{Literals}>u
+    TkIn          = %r<#{InOp}>iu
+    TkSpecialOp   = %r<#{SpecialOps}>iu
+    TkStartSelect = %r<SELECT(?=(?:[#{WS}]|#{OpPart}))>iu
 
     STATE_HANDLERS = {
       begin:       :process_begin,
@@ -88,84 +89,143 @@ module SqlLexer
     }
 
     def self.bindify(string)
-      new(string).tap do |scanner|
-        scanner.process
-        return scanner.title, scanner.output, scanner.binds
-      end
+      scanner = instance(string)
+      scanner.process
+      [scanner.title, scanner.output, scanner.binds]
     end
 
     attr_reader :output, :binds, :title
 
-    def initialize(string)
-      @scanner = StringScanner.new(string)
-      @state   = :begin
-      @input   = string
-      @output  = string.dup
-      @binds   = []
+    def self.pooled_value(name, default)
+      key = :"__skylight_sql_#{name}"
+
+      singleton_class.class_eval do
+        define_method(name) do
+          value = Thread.current[key] ||= default.dup
+          value.clear
+          value
+        end
+      end
+
+      __send__(name)
     end
 
+    SCANNER_KEY = :__skylight_sql_scanner
+    LEXER_KEY   = :__skylight_sql_lexer
+
+    def self.scanner(string='')
+      scanner = Thread.current[SCANNER_KEY] ||= StringScanner.new('')
+      scanner.string = string
+      scanner
+    end
+
+    def self.instance(string)
+      lexer = Thread.current[LEXER_KEY] ||= new
+      lexer.init(string)
+      lexer
+    end
+
+    pooled_value :binds, []
+    pooled_value :table, "*" * 20
+
+    SPACE = " ".freeze
+
+    DEBUG = ENV["DEBUG"]
+
+    def init(string)
+      @state   = :begin
+      @debug   = DEBUG
+      @binds   = self.class.binds
+      @table   = self.class.table
+      @title   = nil
+
+      self.string = string
+    end
+
+    def string=(value)
+      @input   = value
+
+      @scanner = self.class.scanner(value)
+
+      # intentionally allocates; we need to return a new
+      # string as part of this API
+      @output = value.dup
+    end
+
+    PLACEHOLDER = "?".freeze
+
     def process
-      @operation = @table = @title = nil
+      @operation = nil
 
       while @state
-        if ENV["DEBUG"]
+        if @debug
           p @state
           p @scanner
         end
 
-        send STATE_HANDLERS[@state]
+        __send__ STATE_HANDLERS[@state]
       end
 
       pos = 0
       removed = 0
+
+      # intentionally allocates; the returned binds must
+      # be in a newly produced array
       extracted_binds = Array.new(@binds.size / 2)
 
-      if @operation && @table
-        table = @input[@table[0], @table[1] - @table[0]]
-        @title = "#{@operation} #{table}"
+      if @operation && !@table.empty?
+        @title = "" << @operation << SPACE << @table
       end
 
       while pos < @binds.size
-        slice = @output.slice!(@binds[pos] - removed, @binds[pos+1])
-        @output.insert(@binds[pos] - removed, '?')
+        slice = @output[@binds[pos] - removed, @binds[pos+1]]
+        @output[@binds[pos] - removed, @binds[pos+1]] = PLACEHOLDER
+
         extracted_binds[pos/2] = slice
-        removed += slice.size - 1
+        removed += (@binds[pos+1] - 1)
         pos += 2
       end
 
       @binds = extracted_binds
+      nil
     end
 
+    EMPTY = "".freeze
+
     def process_begin
-      @scanner.scan(TkOptWS)
+      @scanner.skip(TkOptWS)
       @state = :first_token
     end
 
+    OP_SELECT_FROM = "SELECT FROM".freeze
+    OP_UPDATE      = "UPDATE".freeze
+    OP_INSERT_INTO = "INSERT INTO".freeze
+    OP_DELETE_FROM = "DELETE FROM".freeze
+
     def process_first_token
-      if @scanner.skip(/SELECT\s+/i)
-        @operation = :"SELECT FROM"
+      if @scanner.skip(TkStartSelect)
+        @operation = OP_SELECT_FROM
         @state = :tokens
-        return
-      end
+      else
+        if @scanner.skip(TkUpdateTable)
+          @operation = OP_UPDATE
+        elsif @scanner.skip(TkInsertTable)
+          @operation = OP_INSERT_INTO
+        elsif @scanner.skip(TkDeleteTable)
+          @operation = OP_DELETE_FROM
+        end
 
-      if @scanner.skip(TkUpdateTable)
-        @operation = :UPDATE
-      elsif @scanner.skip(TkInsertTable)
-        @operation = :"INSERT INTO"
-      elsif @scanner.skip(TkDeleteTable)
-        @operation = :"DELETE FROM"
+        @state = :table_name
       end
-
-      @state = :table_name
     end
 
     def process_table_name
       pos = @scanner.pos
 
       if @scanner.skip(TkQuotedTable)
-        @table = [pos + 1, @scanner.pos - 1]
+        copy_substr(@input, @table, pos + 1, @scanner.pos - 1)
       elsif @scanner.skip(TkID)
-        @table = [pos, @scanner.pos]
+        copy_substr(@input, @table, pos, @scanner.pos)
       end
 
       @state = :tokens
@@ -174,7 +234,7 @@ module SqlLexer
     def process_tokens
       @scanner.skip(TkOptWS)
 
-      if @operation == :"SELECT FROM" && !@table && @scanner.skip(TkFromTable)
+      if @operation == OP_SELECT_FROM && @table.empty? && @scanner.skip(TkFromTable)
         @state = :table_name
       elsif @scanner.match?(TkSpecialOp)
         @state = :special
@@ -190,7 +250,7 @@ module SqlLexer
     def process_special
       if @scanner.skip(TkIn)
         @scanner.skip(TkOptWS)
-        @scanner.skip(/\(/)
+        @scanner.skip(/\(/u)
         @state = :in
       end
     end
@@ -209,16 +269,16 @@ module SqlLexer
           raise "The SQL '#{@scanner.string}' could not be parsed because of too many iterations in IN"
         end
 
-        if ENV["DEBUG"]
+        if @debug
           p @state
           p @scanner
           p nest
         end
 
-        if @scanner.skip(/\(/)
+        if @scanner.skip(/\(/u)
           nest += 1
           process_tokens
-        elsif @scanner.skip(/\)/)
+        elsif @scanner.skip(/\)/u)
           nest -= 1
           break if nest.zero?
           process_tokens
@@ -263,5 +323,19 @@ module SqlLexer
 
       @state = nil
     end
+
+  private
+    def copy_substr(source, target, start_pos, end_pos)
+      pos = start_pos
+
+      while pos < end_pos
+        target.concat source.getbyte(pos)
+        pos += 1
+      end
+    end
+
+    scanner
+    instance('')
+
   end
 end
