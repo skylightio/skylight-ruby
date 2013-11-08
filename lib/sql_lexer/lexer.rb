@@ -82,15 +82,16 @@ module SqlLexer
       tokens:      :process_tokens,
       bind:        :process_bind,
       non_bind:    :process_non_bind,
+      placeholder: :process_placeholder,
       table_name:  :process_table_name,
       end:         :process_end,
       special:     :process_special,
       in:          :process_in
     }
 
-    def self.bindify(string)
+    def self.bindify(string, binds=nil)
       scanner = instance(string)
-      scanner.process
+      scanner.process(binds)
       [scanner.title, scanner.output, scanner.binds]
     end
 
@@ -138,6 +139,7 @@ module SqlLexer
       @binds   = self.class.binds
       @table   = self.class.table
       @title   = nil
+      @bind    = 0
 
       self.string = string
     end
@@ -153,9 +155,11 @@ module SqlLexer
     end
 
     PLACEHOLDER = "?".freeze
+    UNKNOWN = "<unknown>".freeze
 
-    def process
+    def process(binds)
       @operation = nil
+      @provided_binds = binds
 
       while @state
         if @debug
@@ -178,11 +182,16 @@ module SqlLexer
       end
 
       while pos < @binds.size
-        slice = @output[@binds[pos] - removed, @binds[pos+1]]
-        @output[@binds[pos] - removed, @binds[pos+1]] = PLACEHOLDER
+        if @binds[pos] == nil
+          extracted_binds[pos/2] = @binds[pos+1]
+        else
+          slice = @output[@binds[pos] - removed, @binds[pos+1]]
+          @output[@binds[pos] - removed, @binds[pos+1]] = PLACEHOLDER
 
-        extracted_binds[pos/2] = slice
-        removed += (@binds[pos+1] - 1)
+          extracted_binds[pos/2] = slice
+          removed += (@binds[pos+1] - 1)
+        end
+
         pos += 2
       end
 
@@ -240,11 +249,31 @@ module SqlLexer
         @state = :special
       elsif @scanner.match?(TkBind)
         @state = :bind
+      elsif @scanner.match?(TkPlaceholder)
+        @state = :placeholder
       elsif @scanner.match?(TkNonBind)
         @state = :non_bind
       else
         @state = :end
       end
+    end
+
+    def process_placeholder
+      @scanner.skip(TkPlaceholder)
+
+      binds << nil
+
+      if !@provided_binds
+        @binds << UNKNOWN
+      elsif !@provided_binds[@bind]
+        @binds << UNKNOWN
+      else
+        @binds << @provided_binds[@bind]
+      end
+
+      @bind += 1
+
+      @state = :tokens
     end
 
     def process_special
