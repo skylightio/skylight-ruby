@@ -92,6 +92,28 @@ module Skylight
       }
     end
 
+    it "handles some precomputed binds" do
+      sql = %{INSERT INTO "agent_errors" ("body", "created_at", "value", "hostname", "reason") VALUES ($1, $2, NULL, $3, $4) RETURNING "id"}
+      extracted = %{INSERT INTO "agent_errors" ("body", "created_at", "value", "hostname", "reason") VALUES ($1, $2, ?, $3, $4) RETURNING "id"}
+
+      body = "hello"
+      hostname = "localhost"
+      reason = "sql_parse"
+      created_at = DateTime.now
+
+      name, title, desc, annotations =
+        normalize(name: "SQL", sql: sql, binds: [[Object.new, body], [Object.new, created_at], [Object.new, hostname], [Object.new, reason]])
+
+      name.should == "db.sql.query"
+      title.should == "INSERT INTO agent_errors"
+      desc.should == extracted
+
+      annotations.should == {
+        sql: extracted,
+        binds: ["\"hello\"", created_at.inspect, "NULL", "\"localhost\"", "\"sql_parse\""]
+      }
+    end
+
     it "Produces an error if the SQL isn't parsable" do
       name, title, desc, annotations =
         normalize(name: "Foo Load", sql: "NOT &REAL& ;;;SQL;;;", binds: [])

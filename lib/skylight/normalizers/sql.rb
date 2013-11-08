@@ -15,15 +15,12 @@ module Skylight
           title = payload[:name] || "SQL"
         end
 
-        if payload[:binds].empty?
-          extracted_title, payload[:sql], binds, error = extract_binds(payload)
-        else
-          extracted_title, _, _, error = extract_binds(payload)
-          binds = payload[:binds].map { |col, val| val.inspect }
+        unless payload[:binds].empty?
+          payload[:binds] = payload[:binds].map { |col, val| val.inspect }
         end
 
+        extracted_title, payload[:sql], binds, error = extract_binds(payload, payload[:binds])
         title = extracted_title if extracted_title
-
 
         if payload[:sql]
           annotations = {
@@ -40,8 +37,8 @@ module Skylight
       end
 
     private
-      def extract_binds(payload)
-        title, sql, binds = SqlLexer::Lexer.bindify(payload[:sql])
+      def extract_binds(payload, precalculated)
+        title, sql, binds = SqlLexer::Lexer.bindify(payload[:sql], precalculated)
         [ title, sql, binds, nil ]
       rescue
         [ nil, nil, nil, ["sql_parse", payload[:sql]] ]
