@@ -8,108 +8,109 @@ module Skylight
       Config.new normalizers: { render: { view_paths: %w(/path/to/views /path/to) }}
     end
 
-    describe "render_collection.action_view" do
+    shared_examples_for "low allocator" do
+      it "allocates 1 array, 1 string, 1 hash when normalizing the notification name" do
+        payload = { identifier: "foo/bar", count: 10 }
 
+        # prime
+        normalize(payload)
+
+        lambda { normalize(payload) }.should allocate(array: 1, hash: 1)
+      end
+
+      it "allocates 1 string, 1 array and 1 hash when normalizing the title to a path relative to view paths" do
+        payload = { identifier: "/path/to/views/foo/bar", count: 10 }
+
+        # prime
+        normalize(payload)
+
+        lambda { normalize(payload) }.should allocate(string: 1, array: 1, hash: 1)
+      end
+
+      it "allocates 1 string, 1 array and 1 hash when normalizing the title to a path relative to the Rails root" do
+        payload = { identifier: "/path/to/other/path", count: 10 }
+
+        # prime
+        normalize(payload)
+
+        lambda { normalize(payload) }.should allocate(string: 1, array: 1, hash: 1)
+      end
+    end
+
+    shared_examples_for "template normalizer" do
       it "normalizes the notification name" do
-        name, title, desc, payload = normalize(identifier: "foo/bar", count: 10)
-        name.should == "view.render.collection"
+        complete_payload = { identifier: "foo/bar" }.merge(group_payload)
+        name, title, desc, payload = normalize(complete_payload)
+        name.should == group_name
         title.should == "foo/bar"
         desc.should == nil
-        payload.should == { count: 10 }
+        payload.should == group_payload
       end
 
       it "normalizes the title to a path relative to view paths" do
-        name, title, desc, payload = normalize(config, { identifier: "/path/to/views/foo/bar", count: 10 })
-        name.should == "view.render.collection"
+        complete_payload = { identifier: "/path/to/views/foo/bar", count: 10 }.merge(group_payload)
+        name, title, desc, payload = normalize(complete_payload)
+        name.should == group_name
         title.should == "foo/bar"
         desc.should == nil
-        payload.should == { count: 10 }
+        payload.should == group_payload
       end
 
       it "normalizes the title to a path relative to rails root" do
-        name, title, desc, payload = normalize(config, { identifier: "/path/to/other/path", count: 10 })
-        name.should == "view.render.collection"
+        complete_payload = { identifier: "/path/to/other/path" }.merge(group_payload)
+        name, title, desc, payload = normalize(complete_payload)
+        name.should == group_name
         title.should == "other/path"
         desc.should == nil
-        payload.should == { count: 10 }
+        payload.should == group_payload
       end
 
       it "prints Absolute Path if it's outside the root" do
-        name, title, desc, payload = normalize(config, { identifier: "/other/path/to/stuff", count: 10 })
-        name.should == "view.render.collection"
+        complete_payload = { identifier: "/other/path/to/stuff" }.merge(group_payload)
+        name, title, desc, payload = normalize(complete_payload)
+        name.should == group_name
         title.should == "Absolute Path"
         desc.should == nil
-        payload.should == { count: 10, skylight_error: ["absolute_path", "/other/path/to/stuff"] }
+        payload.should == group_payload.merge(skylight_error: ["absolute_path", "/other/path/to/stuff"])
+      end
+    end
+
+    describe "render_collection.action_view" do
+      it_should_behave_like "low allocator"
+      it_should_behave_like "template normalizer"
+
+      def group_payload
+        { count: 10 }
+      end
+
+      def group_name
+        "view.render.collection"
       end
     end
 
     describe "render_template.action_view" do
+      it_should_behave_like "low allocator"
+      it_should_behave_like "template normalizer"
 
-      it "normalizes the notification name" do
-        name, title, desc, payload = normalize(config, identifier: "foo/bar")
-        name.should == "view.render.template"
-        title.should == "foo/bar"
-        desc.should == nil
-        payload.should == { partial: 0 }
+      def group_payload
+        { partial: 0 }
       end
 
-      it "normalizes the title to a relative path" do
-        name, title, desc, payload = normalize(config, { identifier: "/path/to/views/foo/bar" })
-        name.should == "view.render.template"
-        title.should == "foo/bar"
-        desc.should == nil 
-        payload.should == { partial: 0 }
-      end
-
-      it "normalizes the title to a path relative to rails root" do
-        name, title, desc, payload = normalize(config, { identifier: "/path/to/other/path" })
-        name.should == "view.render.template"
-        title.should == "other/path"
-        desc.should == nil
-        payload.should == { partial: 0 }
-      end
-
-      it "prints Absolute Path if it's outside the root" do
-        name, title, desc, payload = normalize(config, { identifier: "/other/path/to/stuff" })
-        name.should == "view.render.template"
-        title.should == "Absolute Path"
-        desc.should == nil
-        payload.should == { partial: 0, skylight_error: ["absolute_path", "/other/path/to/stuff"] }
+      def group_name
+        "view.render.template"
       end
     end
 
     describe "render_partial.action_view" do
+      it_should_behave_like "low allocator"
+      it_should_behave_like "template normalizer"
 
-      it "normalizes the notification name" do
-        name, title, desc, payload = normalize(config, identifier: "foo/bar")
-        name.should == "view.render.template"
-        title.should == "foo/bar"
-        desc.should == nil
-        payload.should == { partial: 1 }
+      def group_payload
+        { partial: 1 }
       end
 
-      it "normalizes the title to a relative path" do
-        name, title, desc, payload = normalize(config, { identifier: "/path/to/views/foo/bar" })
-        name.should == "view.render.template"
-        title.should == "foo/bar"
-        desc.should == nil
-        payload.should == { partial: 1 }
-      end
-
-      it "normalizes the title to a path relative to rails root" do
-        name, title, desc, payload = normalize(config, { identifier: "/path/to/other/path" })
-        name.should == "view.render.template"
-        title.should == "other/path"
-        desc.should == nil
-        payload.should == { partial: 1 }
-      end
-
-      it "prints Absolute Path if it's outside the root" do
-        name, title, desc, payload = normalize(config, { identifier: "/other/path/to/stuff" })
-        name.should == "view.render.template"
-        title.should == "Absolute Path"
-        desc.should == nil
-        payload.should == { partial: 1, skylight_error: ["absolute_path", "/other/path/to/stuff"] }
+      def group_name
+        "view.render.template"
       end
     end
   end

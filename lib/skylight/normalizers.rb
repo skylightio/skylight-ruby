@@ -1,4 +1,5 @@
 require 'skylight/normalizers/default'
+require 'skylight/util/allocation_free'
 
 module Skylight
   # Convert AS::N events to Skylight events
@@ -40,6 +41,8 @@ module Skylight
     end
 
     class RenderNormalizer < Normalizer
+      include AllocationFree
+
       def setup
         @paths = config['normalizers.render.view_paths'] || []
       end
@@ -54,17 +57,43 @@ module Skylight
       end
 
       def relative_path(path, annotations)
-        return path if Pathname.new(path).relative?
+        return path if relative_path?(path)
 
-        root = @paths.find { |p| path.start_with?(p) }
+        root = array_find(@paths) { |p| path.start_with?(p) }
 
         if root
-          relative = path[root.size..-1]
-          relative = relative[1..-1] if relative.start_with?("/")
-          relative
+          start = root.size
+          start += 1 if path.getbyte(start) == SEPARATOR_BYTE
+          path[start, path.size]
         else
           annotations[:skylight_error] = ["absolute_path", path]
           "Absolute Path"
+        end
+      end
+
+    private
+      def relative_path?(path)
+        !absolute_path?(path)
+      end
+
+      SEPARATOR_BYTE = File::SEPARATOR.ord
+
+      if File::NULL == "NUL"
+        ALT_SEPARATOR_BYTE = File::ALT_SEPARATOR && File::ALT_SEPARATOR.ord
+        COLON_BYTE = ":".ord
+        def absolute_path?(path)
+          if alpha?(path.getbyte(0)) && path.getbyte(1) == COLON_BYTE
+            byte2 = path.getbyte(2)
+            byte2 == SEPARATOR_BYTE || byte2 == ALT_SEPARATOR_BYTE
+          end
+        end
+
+        def alpha?(byte)
+          byte >= 65 and byte <= 90 || byte >= 97 and byte <= 122
+        end
+      else
+        def absolute_path?(path)
+          path.getbyte(0) == SEPARATOR_BYTE
         end
       end
     end

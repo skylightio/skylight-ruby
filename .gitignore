@@ -1,6 +1,9 @@
 # Ignore the temporary directory
 /tmp
 
+# Ignore logs
+/log/
+
 # Ignore any build artifacts
 *.bundle
 
@@ -9,4 +12,4 @@
 /b/*
 
 # Ignore lockfiles from travis Gemfiles
-gemfiles/*.lock
+/gemfiles/*.lock

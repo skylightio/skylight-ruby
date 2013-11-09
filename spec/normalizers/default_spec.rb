@@ -6,7 +6,7 @@ module Skylight
     context 'valid events' do
 
       it 'keeps the notification name' do
-        name, title, desc, annot = normalize('app.request.rack')
+        name, title, desc, annot = normalize('app.request.rack', {})
 
         name.should == 'app.request.rack'
         title.should be_nil

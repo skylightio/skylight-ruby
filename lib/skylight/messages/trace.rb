@@ -13,14 +13,17 @@ module Skylight
 
         include Util::Logging
 
-        attr_accessor :endpoint
-        attr_reader   :spans, :notifications
+        attr_reader   :endpoint, :spans, :notifications
 
-        def initialize(instrumenter, endpoint, start, cat, *args)
+        def endpoint=(value)
+          @endpoint = value.freeze
+        end
+
+        def initialize(instrumenter, endpoint, start, cat, title=nil, desc=nil, annot=nil)
           raise ArgumentError, 'instrumenter is required' unless instrumenter
 
           @instrumenter = instrumenter
-          @endpoint     = endpoint
+          @endpoint     = endpoint.freeze
           @start        = start
           @spans        = []
           @stack        = []
@@ -32,9 +35,13 @@ module Skylight
           # Track time
           @last_seen_time = start
 
-          annot = args.pop if Hash === args
-          title = args.shift
-          desc  = args.shift
+          if Hash === title
+            annot = title
+            title = desc = nil
+          elsif Hash === desc
+            annot = desc
+            desc = nil
+          end
 
           # Create the root node
           @root = start(@start, cat, title, desc, annot)
@@ -60,15 +67,21 @@ module Skylight
           nil
         end
 
-        def instrument(cat, *args)
-          annot = args.pop if Hash === args.last
-          title = args.shift
-          desc  = args.shift
-          now   = adjust_for_skew(Util::Clock.micros)
+        def instrument(cat, title=nil, desc=nil, annot=nil)
+          if Hash === title
+            annot = title
+            title = desc = nil
+          elsif Hash === desc
+            annot = desc
+            desc = nil
+          end
+
+          title.freeze
+          desc.freeze
 
           original_desc = desc
-
-          desc = @instrumenter.limited_description(desc)
+          now           = adjust_for_skew(Util::Clock.micros)
+          desc          = @instrumenter.limited_description(desc)
 
           if desc == Instrumenter::TOO_MANY_UNIQUES
             debug "[SKYLIGHT] A payload description produced <too many uniques>"

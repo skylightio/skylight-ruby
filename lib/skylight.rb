@@ -59,9 +59,10 @@ module Skylight
     noise
     other)
 
-  TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/
-  CATEGORY_REGEX = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/i
+  TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/u
+  CATEGORY_REGEX = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/iu
   DEFAULT_CATEGORY = "app.block".freeze
+  DEFAULT_OPTIONS = { category: DEFAULT_CATEGORY }
 
   def self.start!(*args)
     Instrumenter.start!(*args)
@@ -71,23 +72,27 @@ module Skylight
     Instrumenter.stop!(*args)
   end
 
-  def self.trace(*args, &blk)
+  def self.trace(title=nil, desc=nil, annot=nil)
     unless inst = Instrumenter.instance
       return yield if block_given?
       return
     end
 
-    inst.trace(*args, &blk)
+    if block_given?
+      inst.trace(title, desc, annot) { yield }
+    else
+      inst.trace(title, desc, annot)
+    end
   end
 
-  def self.instrument(opts = {}, &blk)
+  def self.instrument(opts = DEFAULT_OPTIONS)
     unless inst = Instrumenter.instance
       return yield if block_given?
       return
     end
 
     if Hash === opts
-      category = opts.delete(:category) || DEFAULT_CATEGORY
+      category = opts.delete(:category)
       title    = opts.delete(:title)
       desc     = opts.delete(:description)
     else
@@ -96,16 +101,20 @@ module Skylight
       desc     = nil
     end
 
-    inst.instrument(category, title, desc, &blk)
+    if block_given?
+      inst.instrument(category, title, desc) { yield }
+    else
+      inst.instrument(category, title, desc)
+    end
   end
 
-  def self.disable(&block)
+  def self.disable
     unless inst = Instrumenter.instance
       return yield if block_given?
       return
     end
 
-    inst.disable(&block)
+    inst.disable { yield }
   end
 
   RUBYBIN = File.join(

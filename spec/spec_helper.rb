@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'allocation_counter/rspec'
 
 require 'rspec'
 require 'yaml'

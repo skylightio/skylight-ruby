@@ -3,9 +3,11 @@ module Skylight
     class RenderPartial < RenderNormalizer
       register "render_partial.action_view"
 
+      CAT = "view.render.template".freeze
+
       def normalize(trace, name, payload)
         normalize_render(
-          "view.render.template",
+          CAT,
           payload,
           partial: 1)
       end

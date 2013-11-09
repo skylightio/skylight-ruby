@@ -1,3 +1,10 @@
+GIT
+  remote: git://github.com/wycats/allocation_counter.git
+  revision: 62124b41c59a305ed70a9f570a7329dbdb1bb411
+  branch: master
+  specs:
+    allocation_counter (0.0.1)
+
 PATH
   remote: .
   specs:
@@ -126,6 +133,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  allocation_counter!
   excon
   pry-debugger
   rack

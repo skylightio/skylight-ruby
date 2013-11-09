@@ -10,6 +10,9 @@ module Skylight
       class SendFile < Normalizer
         register "send_file.action_controller"
 
+        CAT = "app.controller.send_file".freeze
+        TITLE = "send file".freeze
+
         def normalize(trace, name, payload)
           path = payload[:path]
 
@@ -20,22 +23,38 @@ module Skylight
             disposition: normalize_disposition(payload),
             status:      normalize_status(payload) }
 
-          title = "send file"
+          title = TITLE
 
           # depending on normalization, we probably want this to eventually
           # include the full path, but we need to make sure we have a good
           # deduping strategy first.
           desc = nil
 
-          [ "app.controller.send_file", title, desc, annotations ]
+          [ CAT, title, desc, annotations ]
         end
 
       private
 
+        OCTET_STREAM = "application/octet-stream".freeze
+        ATTACHMENT = "attachment".freeze
+
+        def initialize(*)
+          super
+
+          @mimes = Mime::SET.reduce({}) do |hash, mime|
+            hash[mime.symbol] = mime.to_s.dup.freeze
+            hash
+          end
+        end
+
         def normalize_type(payload)
-          type = payload[:type] || "application/octet-stream"
-          type = Mime[type].to_s if type.is_a?(Symbol)
+          type = payload[:type] || OCTET_STREAM
+          type = @mimes[type] if type.is_a?(Symbol)
           type
+        end
+
+        def mime_for(type)
+          @mimes[type] ||= Mime[type].to_s.freeze
         end
 
         def normalize_status(payload)
@@ -44,7 +63,7 @@ module Skylight
         end
 
         def normalize_disposition(payload)
-          payload[:disposition] || "attachment"
+          payload[:disposition] || ATTACHMENT
         end
       end
 

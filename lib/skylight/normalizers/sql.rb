@@ -6,12 +6,14 @@ module Skylight
     class SQL < Normalizer
       register "sql.active_record"
 
+      CAT = "db.sql.query".freeze
+
       def normalize(trace, name, payload)
         case payload[:name]
         when "SCHEMA", "CACHE"
           return :skip
         else
-          name  = "db.sql.query"
+          name  = CAT
           title = payload[:name] || "SQL"
         end
 

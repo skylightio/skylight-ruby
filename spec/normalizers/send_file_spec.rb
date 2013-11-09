@@ -21,14 +21,41 @@ module Skylight
       }
     end
 
+    it "allocates lightly when normalizing the notification name with defaults" do
+      payload = { path: "foo/bar" }
+
+      # prime
+      normalize(payload)
+
+      lambda { normalize(payload) }.should allocate(array: 1, hash: 1)
+    end
+
     it "normalizes symbol types into their full name" do
       _, _, _, payload = normalize(path: "foo/bar", type: :html)
       payload[:type].should == "text/html"
     end
 
+    it "allocates lightly when normalizing symbols" do
+      payload = { path: "foo/bar", type: :html }
+
+      # prime
+      normalize(payload)
+
+      lambda { normalize(payload) }.should allocate(array: 1, hash: 1)
+    end
+
     it "supports alternative content dispositions" do
       _, _, _, payload = normalize(path: "foo/bar", disposition: "inline")
       payload[:disposition].should == "inline"
+    end
+
+    it "allocates lightly with alternate dispositions" do
+      payload = { path: "foo/bar", disposition: "inline" }
+
+      # prime
+      normalize(payload)
+
+      lambda { normalize(payload) }.should allocate(array: 1, hash: 1)
     end
 
     it "supports alternative statuses" do

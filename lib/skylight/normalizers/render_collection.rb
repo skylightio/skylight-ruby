@@ -3,9 +3,11 @@ module Skylight
     class RenderCollection < RenderNormalizer
       register "render_collection.action_view"
 
+      CAT = "view.render.collection".freeze
+
       def normalize(trace, name, payload)
         normalize_render(
-          "view.render.collection",
+          CAT,
           payload,
           count: payload[:count])
       end

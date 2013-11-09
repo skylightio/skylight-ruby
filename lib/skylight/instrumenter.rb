@@ -56,7 +56,7 @@ module Skylight
       @subscriber = Subscriber.new(config, self)
 
       @trace_info = @config[:trace_info] || TraceInfo.new
-      @descriptions = Hash.new { |h,k| h[k] = Set.new }
+      @descriptions = Hash.new { |h,k| h[k] = {} }
     end
 
     def current_trace
@@ -88,7 +88,7 @@ module Skylight
       @worker.shutdown
     end
 
-    def trace(endpoint, cat, *args)
+    def trace(endpoint, cat, title=nil, desc=nil, annot=nil)
       # If a trace is already in progress, continue with that one
       if trace = @trace_info.current
         t { "already tracing" }
@@ -97,7 +97,7 @@ module Skylight
       end
 
       begin
-        trace = Messages::Trace::Builder.new(self, endpoint, Util::Clock.micros, cat, *args)
+        trace = Messages::Trace::Builder.new(self, endpoint, Util::Clock.micros, cat, title, desc, annot)
       rescue Exception => e
         error e.message
         t { e.backtrace.join("\n") }
@@ -127,7 +127,17 @@ module Skylight
       @disabled
     end
 
-    def instrument(cat, *args)
+    @scanner = StringScanner.new('')
+    def self.match?(string, regex)
+      @scanner.string = string
+      @scanner.match?(regex)
+    end
+
+    def match?(string, regex)
+      self.class.match?(string, regex)
+    end
+
+    def instrument(cat, title=nil, desc=nil, annot=nil)
       unless trace = @trace_info.current
         return yield if block_given?
         return
@@ -135,15 +145,15 @@ module Skylight
 
       cat = cat.to_s
 
-      unless cat =~ CATEGORY_REGEX
+      unless match?(cat, CATEGORY_REGEX)
         warn "invalid skylight instrumentation category; value=%s", cat
         return yield if block_given?
         return
       end
 
-      cat = "other.#{cat}" unless cat =~ TIER_REGEX
+      cat = "other.#{cat}" unless match?(cat, TIER_REGEX)
 
-      unless sp = trace.instrument(cat, *args)
+      unless sp = trace.instrument(cat, title, desc, annot)
         return yield if block_given?
         return
       end
@@ -158,16 +168,17 @@ module Skylight
     end
 
     def limited_description(description)
+      endpoint = nil
       endpoint = @trace_info.current.endpoint
 
       DESC_LOCK.synchronize do
         set = @descriptions[endpoint]
 
         if set.size >= 100
-          return TOO_MANY_UNIQUES if set.size >= 100
+          return TOO_MANY_UNIQUES
         end
 
-        set << description
+        set[description] = true
         description
       end
     end
