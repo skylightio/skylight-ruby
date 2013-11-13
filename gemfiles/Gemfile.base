@@ -5,3 +5,4 @@ gemspec path: File.expand_path('../..', __FILE__)
 gem 'rack'
 gem 'rake'
 gem 'rspec'
+gem 'allocation_counter', github: 'wycats/allocation_counter', branch: 'master'
