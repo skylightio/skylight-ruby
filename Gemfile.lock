@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/wycats/allocation_counter.git
-  revision: 62124b41c59a305ed70a9f570a7329dbdb1bb411
+  revision: 1e35b8fdb04e3558e84b1fe12edde00d5920b1e3
   branch: master
   specs:
     allocation_counter (0.0.1)
@@ -58,8 +58,8 @@ GEM
     hike (1.2.2)
     i18n (0.6.1)
     journey (1.0.4)
-    json (1.8.0)
-    json (1.8.0-java)
+    json (1.8.1)
+    json (1.8.1-java)
     mail (2.5.3)
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
