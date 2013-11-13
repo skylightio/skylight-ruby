@@ -1,5 +1,9 @@
 require 'spec_helper'
-require 'allocation_counter/rspec'
+
+begin
+  require 'allocation_counter/rspec'
+rescue LoadError
+end
 
 require 'rspec'
 require 'yaml'
@@ -8,6 +12,10 @@ require 'skylight'
 Dir[File.expand_path('../support/*.rb', __FILE__)].each { |f| require f }
 
 RSpec.configure do |config|
+  unless defined?(AllocationCounter)
+    config.filter_run_excluding allocations: true
+  end
+
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.include SpecHelper
 

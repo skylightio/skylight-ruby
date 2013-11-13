@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'allocation_counter/rspec'
 
 describe Skylight::Instrumenter, :http do
 
@@ -40,7 +39,7 @@ describe Skylight::Instrumenter, :http do
       Skylight.stop!
     end
 
-    it 'allocates few objects' do
+    it 'allocates few objects', allocations: true do
       # Make sure autoload doesn't cause issues
       preload = Skylight::Util::Clock
       preload = Skylight::Messages::Trace::Builder

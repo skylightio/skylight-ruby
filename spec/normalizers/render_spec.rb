@@ -9,7 +9,7 @@ module Skylight
     end
 
     shared_examples_for "low allocator" do
-      it "allocates 1 array, 1 string, 1 hash when normalizing the notification name" do
+      it "allocates 1 array, 1 string, 1 hash when normalizing the notification name", allocations: true do
         payload = { identifier: "foo/bar", count: 10 }
 
         # prime
@@ -18,7 +18,7 @@ module Skylight
         lambda { normalize(payload) }.should allocate(array: 1, hash: 1)
       end
 
-      it "allocates 1 string, 1 array and 1 hash when normalizing the title to a path relative to view paths" do
+      it "allocates 1 string, 1 array and 1 hash when normalizing the title to a path relative to view paths", allocations: true do
         payload = { identifier: "/path/to/views/foo/bar", count: 10 }
 
         # prime
@@ -27,7 +27,7 @@ module Skylight
         lambda { normalize(payload) }.should allocate(string: 1, array: 1, hash: 1)
       end
 
-      it "allocates 1 string, 1 array and 1 hash when normalizing the title to a path relative to the Rails root" do
+      it "allocates 1 string, 1 array and 1 hash when normalizing the title to a path relative to the Rails root", allocations: true do
         payload = { identifier: "/path/to/other/path", count: 10 }
 
         # prime

@@ -21,7 +21,7 @@ module Skylight
       }
     end
 
-    it "allocates lightly when normalizing the notification name with defaults" do
+    it "allocates lightly when normalizing the notification name with defaults", allocations: true do
       payload = { path: "foo/bar" }
 
       # prime
@@ -35,7 +35,7 @@ module Skylight
       payload[:type].should == "text/html"
     end
 
-    it "allocates lightly when normalizing symbols" do
+    it "allocates lightly when normalizing symbols", allocations: true do
       payload = { path: "foo/bar", type: :html }
 
       # prime
@@ -49,7 +49,7 @@ module Skylight
       payload[:disposition].should == "inline"
     end
 
-    it "allocates lightly with alternate dispositions" do
+    it "allocates lightly with alternate dispositions", allocations: true do
       payload = { path: "foo/bar", disposition: "inline" }
 
       # prime

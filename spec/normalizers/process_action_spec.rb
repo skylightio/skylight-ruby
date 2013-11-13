@@ -8,7 +8,7 @@ module Skylight
       trace.endpoint.should == "foo#bar"
     end
 
-    it "allocates" do
+    it "allocates", allocations: true do
       payload = { controller: "foo", action: "bar" }
 
       # prime

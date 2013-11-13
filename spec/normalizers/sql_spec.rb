@@ -14,7 +14,7 @@ module Skylight
       name.should == :skip
     end
 
-    it "allocates while processing cached queries" do
+    it "allocates while processing cached queries", allocations: true do
       payload = { name: "CACHE", sql: "select * from query", binds: [] }
 
       # prime
@@ -37,7 +37,7 @@ module Skylight
       }
     end
 
-    it "allocates while processing uncached queries" do
+    it "allocates while processing uncached queries", allocations: true do
       payload = { name: "Foo Load", sql: "select * from foo", binds: [] }
 
       # prime
@@ -61,7 +61,7 @@ module Skylight
       }
     end
 
-    it "allocates lightly when pulling out binds" do
+    it "allocates lightly when pulling out binds", allocations: true do
       payload = { name: "Foo Load", sql: "select * from foo where id = $1", binds: [[Object.new, 1]] }
 
       # prime
@@ -143,7 +143,7 @@ module Skylight
       }
     end
 
-    it "allocates lightly when mixed computed and un-computed binds" do
+    it "allocates lightly when mixed computed and un-computed binds", allocations: true do
       sql = %{INSERT INTO "agent_errors" ("body", "created_at", "value", "hostname", "reason") VALUES ($1, $2, NULL, $3, $4) RETURNING "id"}
 
       body = "hello"
