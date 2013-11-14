@@ -7,6 +7,9 @@ module Skylight
   STANDALONE_ENV_KEY = 'SKYLIGHT_STANDALONE'.freeze
   STANDALONE_ENV_VAL = 'server'.freeze
 
+  # Cygwin is not included since it doesn't have DOS style paths
+  IS_DOSISH = RbConfig::CONFIG['host_os'] =~ /mingw|mswin32/
+
   def self.daemon?
     ENV[STANDALONE_ENV_KEY] == STANDALONE_ENV_VAL
   end

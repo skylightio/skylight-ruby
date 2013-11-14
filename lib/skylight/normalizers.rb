@@ -78,7 +78,7 @@ module Skylight
 
       SEPARATOR_BYTE = File::SEPARATOR.ord
 
-      if File::NULL == "NUL"
+      if IS_DOSISH
         ALT_SEPARATOR_BYTE = File::ALT_SEPARATOR && File::ALT_SEPARATOR.ord
         COLON_BYTE = ":".ord
         def absolute_path?(path)
