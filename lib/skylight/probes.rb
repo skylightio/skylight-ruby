@@ -71,6 +71,7 @@ module Skylight
     end
 
     require 'skylight/probes/excon'
+    require 'skylight/probes/net_http'
   end
 end
 

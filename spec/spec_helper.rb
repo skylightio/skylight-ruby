@@ -5,10 +5,16 @@ begin
 rescue LoadError
 end
 
+# Begin Probed libraries
+
 begin
   require 'excon'
 rescue LoadError
 end
+
+require 'net/http'
+
+# End Probed Libraries
 
 require 'rspec'
 require 'yaml'
@@ -17,7 +23,7 @@ require 'timecop'
 
 Dir[File.expand_path('../support/*.rb', __FILE__)].each { |f| require f }
 
-all_probes = %w(Excon)
+all_probes = %w(Excon Net::HTTP)
 installed_probes = Skylight::Probes.installed.keys
 skipped_probes = all_probes - installed_probes
 

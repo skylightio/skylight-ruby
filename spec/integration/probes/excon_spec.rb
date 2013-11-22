@@ -30,6 +30,7 @@ describe 'Excon integration', :excon_probe, :http do
   before :each do
     Timecop.freeze
 
+    # This is a bit risky to stub :/
     Skylight.stub(:instrument) {|opts| TestSpan.new(opts) }
   end
 
