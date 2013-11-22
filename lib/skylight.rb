@@ -42,6 +42,10 @@ module Skylight
     autoload :UniformSample, 'skylight/util/uniform_sample'
   end
 
+  module Formatters
+    autoload :HTTP, 'skylight/formatters/http'
+  end
+
   # ==== Vendor ====
   autoload :Beefcake, 'skylight/vendor/beefcake'
 

@@ -166,6 +166,10 @@ module SpecHelper
     9292
   end
 
+  def server_uri
+    "http://localhost:#{port}"
+  end
+
   def token
     "hey-guyz-i-am-a-token"
   end

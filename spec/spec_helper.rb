@@ -5,13 +5,19 @@ begin
 rescue LoadError
 end
 
+begin
+  require 'excon'
+rescue LoadError
+end
+
 require 'rspec'
 require 'yaml'
 require 'skylight'
+require 'timecop'
 
 Dir[File.expand_path('../support/*.rb', __FILE__)].each { |f| require f }
 
-all_probes = %w()
+all_probes = %w(Excon)
 installed_probes = Skylight::Probes.installed.keys
 skipped_probes = all_probes - installed_probes
 

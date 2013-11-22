@@ -70,6 +70,7 @@ module Skylight
       require_hooks[require_path]
     end
 
+    require 'skylight/probes/excon'
   end
 end
 

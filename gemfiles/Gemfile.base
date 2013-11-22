@@ -5,7 +5,10 @@ gemspec path: File.expand_path('../..', __FILE__)
 gem 'rack'
 gem 'rake'
 gem 'rspec'
+gem 'timecop'
 
 if RUBY_VERSION.to_f >= 2.0
   gem 'allocation_counter', github: 'wycats/allocation_counter', branch: 'master'
 end
+
+gem 'excon'
