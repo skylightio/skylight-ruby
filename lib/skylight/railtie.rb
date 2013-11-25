@@ -11,8 +11,13 @@ module Skylight
     # The path to the configuration file
     config.skylight.config_path = "config/skylight.yml"
 
+    # The probes to load
+    config.skylight.probes = []
+
     initializer 'skylight.configure' do |app|
       if activate?
+        load_probes
+
         if config = load_skylight_config(app)
           Instrumenter.start!(config)
           app.middleware.insert 0, Middleware
@@ -84,6 +89,13 @@ module Skylight
 
     def activate?
       environments.include?(Rails.env.to_s)
+    end
+
+    def load_probes
+      probes = config.skylight.probes || []
+      probes.each do |p|
+        require 'skylight/probes/#{p}'
+      end
     end
   end
 end

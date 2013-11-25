@@ -5,21 +5,23 @@ begin
 rescue LoadError
 end
 
-# Begin Probed libraries
-
-begin
-  require 'excon'
-rescue LoadError
-end
-
-require 'net/http'
-
-# End Probed Libraries
-
 require 'rspec'
 require 'yaml'
 require 'skylight'
 require 'timecop'
+
+# Begin Probed libraries
+
+begin
+  require 'excon'
+  require 'skylight/probes/excon'
+rescue LoadError
+end
+
+require 'net/http'
+require 'skylight/probes/net_http'
+
+# End Probed Libraries
 
 Dir[File.expand_path('../support/*.rb', __FILE__)].each { |f| require f }
 
@@ -36,10 +38,12 @@ RSpec.configure do |config|
   end
 
   unless skipped_probes.empty?
-    probe_name = p.downcase.replace('::', '_')
-
     args = {}
-    skipped_probes.each{|p| args["#{probe_name}_probe".to_sym] = true }
+
+    skipped_probes.each do |p|
+      probe_name = p.downcase.gsub('::', '_')
+      args["#{probe_name}_probe".to_sym] = true
+    end
 
     config.filter_run_excluding args
   end

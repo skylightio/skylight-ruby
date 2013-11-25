@@ -69,9 +69,6 @@ module Skylight
     def self.lookup_by_require_path(require_path)
       require_hooks[require_path]
     end
-
-    require 'skylight/probes/excon'
-    require 'skylight/probes/net_http'
   end
 end
 
