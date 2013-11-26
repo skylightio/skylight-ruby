@@ -35,10 +35,15 @@ module Skylight
     autoload :Clock,         'skylight/util/clock'
     autoload :Gzip,          'skylight/util/gzip'
     autoload :HTTP,          'skylight/util/http'
+    autoload :Inflector,     'skylight/util/inflector'
     autoload :Logging,       'skylight/util/logging'
     autoload :Queue,         'skylight/util/queue'
     autoload :Task,          'skylight/util/task'
     autoload :UniformSample, 'skylight/util/uniform_sample'
+  end
+
+  module Formatters
+    autoload :HTTP, 'skylight/formatters/http'
   end
 
   # ==== Vendor ====
@@ -127,4 +132,6 @@ module Skylight
   if defined?(Rails)
     require 'skylight/railtie'
   end
+
+  require 'skylight/probes'
 end

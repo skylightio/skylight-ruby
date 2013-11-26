@@ -8,12 +8,44 @@ end
 require 'rspec'
 require 'yaml'
 require 'skylight'
+require 'timecop'
+
+# Begin Probed libraries
+
+begin
+  require 'excon'
+  require 'skylight/probes/excon'
+rescue LoadError
+end
+
+require 'net/http'
+require 'skylight/probes/net_http'
+
+# End Probed Libraries
 
 Dir[File.expand_path('../support/*.rb', __FILE__)].each { |f| require f }
+
+all_probes = %w(Excon Net::HTTP)
+installed_probes = Skylight::Probes.installed.keys
+skipped_probes = all_probes - installed_probes
+
+puts "Testing probes: #{installed_probes.join(", ")}" unless installed_probes.empty?
+puts "Skipping probes: #{skipped_probes.join(", ")}"  unless skipped_probes.empty?
 
 RSpec.configure do |config|
   unless defined?(AllocationCounter)
     config.filter_run_excluding allocations: true
+  end
+
+  unless skipped_probes.empty?
+    args = {}
+
+    skipped_probes.each do |p|
+      probe_name = p.downcase.gsub('::', '_')
+      args["#{probe_name}_probe".to_sym] = true
+    end
+
+    config.filter_run_excluding args
   end
 
   config.treat_symbols_as_metadata_keys_with_true_values = true
@@ -44,6 +76,16 @@ RSpec.configure do |config|
     ensure
       Dir.chdir original_wd
       ENV['HOME'] = original_home
+    end
+  end
+
+  config.after :each do
+    # Reset the starting paths
+    Skylight::Probes.instance_variable_set(:@require_hooks, {})
+
+    # Remove the ProbeTestClass if it exists so that the probe won't find it
+    if defined?(SpecHelper::ProbeTestClass)
+      SpecHelper.send(:remove_const, :ProbeTestClass)
     end
   end
 
