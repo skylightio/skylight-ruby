@@ -40,7 +40,7 @@ module Skylight
 
         gc.should be_enabled
         gc.should_receive(:total_time).
-          exactly(2).times.and_return(0.0, 100_000)
+          exactly(2).times.and_return(0.0, 100_000_000)
 
         Skylight.trace 'Rack', 'app.rack' do |t|
           clock.skip 1
@@ -65,7 +65,7 @@ module Skylight
 
         gc.should be_enabled
         gc.should_receive(:total_time).
-          exactly(4).times.and_return(0, 0, 100_000, 0)
+          exactly(4).times.and_return(0, 0, 100_000_000, 0)
 
         Skylight.trace 'Rack', 'app.rack' do |t|
           instrument 'app.test' do

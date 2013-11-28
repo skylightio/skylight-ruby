@@ -97,7 +97,7 @@ module Skylight
       end
 
       begin
-        trace = Messages::Trace::Builder.new(self, endpoint, Util::Clock.micros, cat, title, desc, annot)
+        trace = Messages::Trace::Builder.new(self, endpoint, Util::Clock.nanos, cat, title, desc, annot)
       rescue Exception => e
         log_error e.message
         t { e.backtrace.join("\n") }

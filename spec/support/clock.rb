@@ -5,16 +5,16 @@ module SpecHelper
       @skew = 0
     end
 
-    def micros
-      (@now || __micros) + @skew
+    def nanos
+      (@now || __nanos) + @skew
     end
 
     def skip(val)
-      @skew += (val * 1_000_000).to_i
+      @skew += (val * 1_000_000_000).to_i
     end
 
     def freeze
-      @now = __micros
+      @now = __nanos
     end
 
     def unfreeze
@@ -27,9 +27,8 @@ module SpecHelper
 
   private
 
-    def __micros
-      n = Time.now
-      n.to_i * 1_000_000 + n.usec
+    def __nanos
+      native_hrtime
     end
   end
 

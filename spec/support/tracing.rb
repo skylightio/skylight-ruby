@@ -28,7 +28,7 @@ module SpecHelper
   end
 
   def trace
-    @trace ||= Skylight::Messages::Trace::Builder.new instrumenter, 'Rack', clock.micros, 'app.rack.request'
+    @trace ||= Skylight::Messages::Trace::Builder.new instrumenter, 'Rack', clock.nanos, 'app.rack.request'
   end
 
   def span(arg)

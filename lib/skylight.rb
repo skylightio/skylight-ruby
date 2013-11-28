@@ -1,6 +1,7 @@
 require 'rbconfig'
 require 'socket'
 require 'skylight/version'
+require 'skylight/native/skylight_native'
 
 module Skylight
   TRACE_ENV_KEY      = 'SKYLIGHT_ENABLE_TRACE_LOGS'.freeze
@@ -32,7 +33,8 @@ module Skylight
   autoload :Worker,       'skylight/worker'
 
   module Util
-    autoload :Clock,         'skylight/util/clock'
+    require 'skylight/util/clock'
+
     autoload :Gzip,          'skylight/util/gzip'
     autoload :HTTP,          'skylight/util/http'
     autoload :Inflector,     'skylight/util/inflector'

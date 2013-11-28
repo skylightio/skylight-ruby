@@ -56,7 +56,7 @@ module Skylight
           annot = args.pop if Hash === args
           title = args.shift
           desc  = args.shift
-          now   = adjust_for_skew(Util::Clock.micros)
+          now   = adjust_for_skew(Util::Clock.nanos)
 
           desc = @instrumenter.limited_description(desc)
 
@@ -80,7 +80,7 @@ module Skylight
           desc.freeze
 
           original_desc = desc
-          now           = adjust_for_skew(Util::Clock.micros)
+          now           = adjust_for_skew(Util::Clock.nanos)
           desc          = @instrumenter.limited_description(desc)
 
           if desc == Instrumenter::TOO_MANY_UNIQUES
@@ -94,7 +94,7 @@ module Skylight
 
         def done(span)
           return unless span
-          stop(span, adjust_for_skew(Util::Clock.micros) - gc_time)
+          stop(span, adjust_for_skew(Util::Clock.nanos) - gc_time)
         end
 
         def release
@@ -108,7 +108,7 @@ module Skylight
           release
           @submitted = true
 
-          now = adjust_for_skew(Util::Clock.micros)
+          now = adjust_for_skew(Util::Clock.nanos)
 
           # Pop everything that is left
           while sp = pop
@@ -182,9 +182,9 @@ module Skylight
 
         def relativize(time)
           if parent = @stack[-1]
-            ((time - parent.time) / 100).to_i
+            ((time - parent.time) / 100_000).to_i
           else
-            ((time - @start) / 100).to_i
+            ((time - @start) / 100_000).to_i
           end
         end
 

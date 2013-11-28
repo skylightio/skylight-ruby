@@ -2,17 +2,16 @@ module Skylight
   module Util
     class Clock
 
-      def micros
-        n = Time.now
-        n.to_i * 1_000_000 + n.usec
+      def nanos
+        native_hrtime
       end
 
       def secs
-        micros / 1_000_000
+        nanos / 1_000_000_000
       end
 
-      def self.micros
-        default.micros
+      def self.nanos
+        default.nanos
       end
 
       def self.secs
