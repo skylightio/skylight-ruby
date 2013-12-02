@@ -255,6 +255,10 @@ authentication: #{self[:authentication]}
       @gc ||= GC.new(self, get('gc.profiler', VM::GC.new))
     end
 
+    def constant_flush?
+      get('test.constant_flush')
+    end
+
     def root
       self[:root] || Dir.pwd
     end

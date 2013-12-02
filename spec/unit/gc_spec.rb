@@ -5,7 +5,6 @@ module Skylight
 
     before :each do
       clock.freeze
-      Skylight.start! config
     end
 
     after :each do
@@ -15,7 +14,7 @@ module Skylight
     context 'when there is no GC and no spans' do
 
       it 'leaves the GC node out' do
-        stub_session_request
+        start!
 
         gc.should be_enabled
         gc.should_receive(:total_time).
@@ -37,7 +36,7 @@ module Skylight
     context 'when there is GC and no spans' do
 
       it 'adds a GC node' do
-        stub_session_request
+        start!
 
         gc.should be_enabled
         gc.should_receive(:total_time).
@@ -62,7 +61,7 @@ module Skylight
     context 'when there is GC and a span' do
 
       it 'subtracts GC from the span and adds it at the end' do
-        stub_session_request
+        start!
 
         gc.should be_enabled
         gc.should_receive(:total_time).

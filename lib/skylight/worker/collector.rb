@@ -173,6 +173,7 @@ module Skylight
         end
 
         def should_flush?(now)
+          return true if @config.constant_flush?
           now >= @flush_at
         end
 

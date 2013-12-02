@@ -8,6 +8,7 @@ describe Skylight::Instrumenter, :http do
 
     context "when Skylight is running" do
       before :each do
+        stub_session_request
         Skylight.start! config
         clock.freeze
       end
@@ -17,8 +18,6 @@ describe Skylight::Instrumenter, :http do
       end
 
       it 'records the trace' do
-        stub_session_request
-
         Skylight.trace 'Testin', 'app.rack' do |t|
           clock.skip 1
         end
@@ -42,8 +41,6 @@ describe Skylight::Instrumenter, :http do
       end
 
       it 'ignores disabled parts of the trace' do
-        stub_session_request
-
         Skylight.trace 'Testin', 'app.rack' do |t|
           Skylight.disable do
             ActiveSupport::Notifications.instrument('sql.active_record', name: "Load User", sql: "SELECT * FROM posts", binds: []) do
@@ -71,8 +68,6 @@ describe Skylight::Instrumenter, :http do
       end
 
       it "sends error messages to the Skylight Rails app" do
-        stub_session_request
-
         bad_sql = "SELECT ???LOL??? ;;;NOTSQL;;;"
 
         Skylight.trace 'Testin', 'app.rack' do |t|
@@ -111,8 +106,6 @@ describe Skylight::Instrumenter, :http do
       end
 
       it "sends error messages with binary data the Skylight Rails app" do
-        stub_session_request
-
         bad_sql = "SELECT ???LOL??? \xCE ;;;NOTSQL;;;".force_encoding("BINARY")
         encoded_sql = Base64.encode64(bad_sql)
 
@@ -152,8 +145,6 @@ describe Skylight::Instrumenter, :http do
       end
 
       it "sends error messages with invalid UTF-8 data to the Skylight Rails app" do
-        stub_session_request
-
         bad_sql = "SELECT ???LOL??? \xCE ;;;NOTSQL;;;".force_encoding("UTF-8")
         encoded_sql = Base64.encode64(bad_sql)
 

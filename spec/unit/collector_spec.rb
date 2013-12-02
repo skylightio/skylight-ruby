@@ -30,10 +30,14 @@ module Skylight
         end
       end
 
-      it 'submits the batch to the server' do
+      def mock_auth(t=token)
         server.mock "/agent/authenticate" do |env|
-          { session: { token: token} }
+          { session: { token: t } }
         end
+      end
+
+      it 'submits the batch to the server' do
+        mock_auth
 
         submit_trace
 
@@ -71,9 +75,7 @@ module Skylight
       end
 
       it 'refreshes the session token every 10 minutes' do
-        server.mock "/agent/authenticate" do |env|
-          { session: { token: token }}
-        end
+        mock_auth
 
         submit_trace
         clock.unfreeze
@@ -93,9 +95,7 @@ module Skylight
           req['HTTP_AUTHORIZATION'].should == token
         end
 
-        server.mock "/agent/authenticate" do |env|
-          { session: { token: token2 }}
-        end
+        mock_auth token2
 
         clock.skip 600
         submit_trace
@@ -109,9 +109,7 @@ module Skylight
       end unless strategy == :standalone
 
       it 'uses the old token if the accounts server cannot provide a new one' do
-        server.mock "/agent/authenticate" do |env|
-          { session: { token: token }}
-        end
+        mock_auth
 
         submit_trace
         clock.unfreeze

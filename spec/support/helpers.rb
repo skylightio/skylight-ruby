@@ -60,12 +60,20 @@ module SpecHelper
       }.freeze,
       gc: {
         profiler: gc
-      }.freeze
+      }.freeze,
+      test: {
+        constant_flush: true
+      }
     }.freeze
   end
 
   def gc
     @gc ||= MockGC.new
+  end
+
+  def start!
+    stub_session_request
+    Skylight.start! config
   end
 
   def annotation(key=nil, type=nil, value=nil, &block)

@@ -60,7 +60,7 @@ module SpecHelper
 
       until requests.length == opts[:count]
         if opts[:timeout] <= Time.now - now
-          raise "Server.wait timeout"
+          raise "Server.wait timeout: got #{requests.length} not #{opts[:count]}"
         end
         sleep 0.1
       end
