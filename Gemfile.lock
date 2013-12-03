@@ -8,7 +8,7 @@ GIT
 PATH
   remote: .
   specs:
-    skylight (0.2.0.beta.4)
+    skylight (0.2.0)
       activesupport (>= 3.0.0)
 
 GEM
