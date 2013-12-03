@@ -4,11 +4,11 @@ module Skylight
   describe Messages::Trace do
 
     before :each do
-      clock.now = 1000
+      clock.now = 100_000_000
     end
 
     let! :trace do
-      Skylight::Messages::Trace::Builder.new instrumenter, 'Zomg', 1000, 'app.rack.request'
+      Skylight::Messages::Trace::Builder.new instrumenter, 'Zomg', clock.nanos, 'app.rack.request'
     end
 
     it 'does not track the span when it is started' do
@@ -17,15 +17,26 @@ module Skylight
       end
     end
 
+    def spans
+      serialized.spans
+    end
+
+    def serialized
+      @serialized ||= Skylight::Messages::Trace.decode(trace.serialize)
+    end
+
     it 'tracks the span when it is finished' do
       clock.skip 0.1
       a = trace.instrument 'foo'
       clock.skip 0.1
-      a.done
+      trace.done(a)
+      trace.traced
 
-      trace.spans.should have(1).item
-      span(0).event.category.should   == 'foo'
-      span(0).started_at.should == 1000
+      spans.should have(2).items
+      spans[0].event.category.should == 'app.rack.request'
+      spans[1].event.category.should == 'foo'
+      spans[0].started_at.should == 0
+      spans[1].started_at.should == 1000
     end
 
     it 'builds the trace' do
@@ -37,76 +48,57 @@ module Skylight
       trace.record 'cat4'
       clock.skip 0.002
       trace.record 'cat5'
-      c.done
+      trace.done(c)
       clock.skip 0.003
-      b.done
+      trace.done(b)
       clock.skip 0.002
-      a.done
-      trace.submit
+      trace.done(a)
+      trace.traced
 
-      trace.spans.should have(6).item
+      spans.should have(6).items
 
-      span(0).event.category.should == 'cat4'
-      span(0).started_at.should     == 10
-      span(0).duration.should       be_nil
-      span(0).children.should       be_nil
+      spans[0].event.category.should == 'app.rack.request'
+      spans[0].started_at.should     == 0
+      spans[0].parent.should         == nil
+      spans[0].duration.should       == 90
 
-      span(1).event.category.should == 'cat5'
-      span(1).started_at.should     == 30
-      span(1).duration.should       be_nil
-      span(1).children.should       be_nil
+      spans[1].event.category.should == 'cat1'
+      spans[1].started_at.should     == 0
+      spans[1].parent.should         == 0
+      spans[1].duration.should       == 90
 
-      span(2).event.category.should == 'cat3'
-      span(2).started_at.should     == 0
-      span(2).duration.should       == 30
-      span(2).children.should       == 2
+      spans[2].event.category.should == 'cat2'
+      spans[2].started_at.should     == 10
+      spans[2].parent.should         == 1
+      spans[2].duration.should       == 60
 
-      span(3).event.category.should == 'cat2'
-      span(3).started_at.should     == 10
-      span(3).duration.should       == 60
-      span(3).children.should       == 1
+      spans[3].event.category.should == 'cat3'
+      spans[3].started_at.should     == 0
+      spans[3].parent.should         == 2
+      spans[3].duration.should       == 30
 
-      span(4).event.category.should == 'cat1'
-      span(4).started_at.should     == 0
-      span(4).duration.should       == 90
-      span(4).children.should       == 1
-      span(4).annotations.should    == [annotation("foo", :string, "bar")]
+      spans[4].event.category.should == 'cat4'
+      spans[4].started_at.should     == 10
+      spans[4].parent.should         == 3
+      spans[4].duration.should       == 0
 
-      span(5).event.category.should == 'app.rack.request'
-    end
-
-    it 'handles clock skew' do
-      a = trace.instrument 'cat1'
-      clock.skip(-0.001)
-      b = trace.instrument 'cat2'
-      clock.skip 0.002
-      b.done
-      clock.skip(-0.001)
-      a.done
-      trace.submit
-
-      trace.spans.should have(3).item
-
-      span(0).started_at.should == 0
-      span(0).duration.should == 10
-
-      span(1).started_at.should == 0
-      span(1).duration.should == 10
-
-      span(2).event.category.should == 'app.rack.request'
+      spans[5].event.category.should == 'cat5'
+      spans[5].started_at.should     == 30
+      spans[5].parent.should         == 3
+      spans[5].duration.should       == 0
     end
 
     it 'force closes any open span on build' do
       trace.instrument 'foo'
       clock.skip 0.001
-      trace.submit
+      trace.traced
 
-      trace.should have(2).spans
-      span(0).event.category.should == 'foo'
-      span(0).started_at.should == 0
-      span(0).duration.should == 10
+      spans.should have(2).items
+      spans[1].event.category.should == 'foo'
+      spans[1].started_at.should == 0
+      spans[1].duration.should == 10
 
-      span(1).event.category.should == 'app.rack.request'
+      spans[0].event.category.should == 'app.rack.request'
     end
 
     it 'closes any spans that were not properly closed' do
@@ -116,46 +108,48 @@ module Skylight
       clock.skip 0.1
       trace.instrument 'baz'
       clock.skip 0.1
-      a.done
+      trace.done(a)
       clock.skip 0.1
-      b.done
+      trace.done(b)
       clock.skip 0.1
 
-      trace.submit
-      trace.should have(4).spans
+      trace.traced
 
-      span(0).event.category.should == 'baz'
-      span(0).duration.should == 1000
+      spans.should have(4).items
 
-      span(1).event.category.should == 'bar'
-      span(1).duration.should == 2000
+      spans[0].event.category.should == 'app.rack.request'
+      spans[0].duration.should       == 4000
 
-      span(2).event.category.should == 'foo'
-      span(2).duration.should == 3000
+      spans[1].event.category.should == 'foo'
+      spans[1].duration.should       == 3000
 
-      span(3).event.category.should == 'app.rack.request'
+      spans[2].event.category.should == 'bar'
+      spans[2].duration.should       == 2000
+
+      spans[3].event.category.should == 'baz'
+      spans[3].duration.should       == 1000
     end
 
     it 'tracks the title' do
       a = trace.instrument 'foo', 'How a foo is formed?'
       trace.record :bar, 'How a bar is formed?'
-      a.done
-      trace.submit
+      trace.done(a)
+      trace.traced
 
-      span(0).event.title.should == 'How a bar is formed?'
-      span(1).event.title.should == 'How a foo is formed?'
+      spans[1].event.title.should == 'How a foo is formed?'
+      spans[2].event.title.should == 'How a bar is formed?'
     end
 
     it 'tracks the description' do
       a = trace.instrument 'foo', 'FOO', 'How a foo is formed?'
       trace.record :bar, 'BAR', 'How a bar is formed?'
-      a.done
-      trace.submit
+      trace.done(a)
+      trace.traced
 
-      span(0).event.title.should       == 'BAR'
-      span(0).event.description.should == 'How a bar is formed?'
-      span(1).event.title.should       == 'FOO'
-      span(1).event.description.should == 'How a foo is formed?'
+      spans[1].event.title.should       == 'FOO'
+      spans[1].event.description.should == 'How a foo is formed?'
+      spans[2].event.title.should       == 'BAR'
+      spans[2].event.description.should == 'How a bar is formed?'
     end
 
     it 'limits unique descriptions' do
@@ -165,13 +159,13 @@ module Skylight
 
       a = trace.instrument 'foo', 'FOO', 'How a foo is formed?'
       trace.record :bar, 'BAR', 'How a bar is formed?'
-      a.done
-      trace.submit
+      trace.done(a)
+      trace.traced
 
-      span(0).event.title.should       == 'BAR'
-      span(0).event.description.should == Skylight::Instrumenter::TOO_MANY_UNIQUES
-      span(1).event.title.should       == 'FOO'
-      span(1).event.description.should == Skylight::Instrumenter::TOO_MANY_UNIQUES
+      spans[1].event.title.should       == 'FOO'
+      spans[1].event.description.should == Skylight::Instrumenter::TOO_MANY_UNIQUES
+      spans[2].event.title.should       == 'BAR'
+      spans[2].event.description.should == Skylight::Instrumenter::TOO_MANY_UNIQUES
     end
   end
 

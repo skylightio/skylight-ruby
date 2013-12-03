@@ -17,23 +17,24 @@ module Skylight
 
         def endpoint=(value)
           @endpoint = value.freeze
+          @native_builder.native_set_name(value)
         end
 
         def initialize(instrumenter, endpoint, start, cat, title=nil, desc=nil, annot=nil)
           raise ArgumentError, 'instrumenter is required' unless instrumenter
 
-          @instrumenter = instrumenter
-          @endpoint     = endpoint.freeze
-          @start        = start
-          @spans        = []
-          @stack        = []
-          @submitted    = false
+          start = normalize_time(start)
 
-          # Tracks the AS::N stack
+          @native_builder = ::Skylight::Trace.native_new(start)
+          @native_builder.native_set_uuid("TODO")
+          @native_builder.native_set_name(endpoint)
+
+          @instrumenter  = instrumenter
+          @endpoint      = endpoint.freeze
+          @submitted     = false
+          @start         = start
+
           @notifications = []
-
-          # Track time
-          @last_seen_time = start
 
           if Hash === title
             annot = title
@@ -43,26 +44,41 @@ module Skylight
             desc = nil
           end
 
-          # Create the root node
-          @root = start(@start, cat, title, desc, annot)
+          # create the root node
+          @root = @native_builder.native_start_span(@start, cat)
+          @native_builder.native_span_set_title(@root, title) if title
+          @native_builder.native_span_set_description(@root, desc) if desc
+
           @gc   = config.gc.track
+        end
+
+        def serialize
+          raise "Can only serialize once" if @serialized
+          @serialized = true
+          @native_builder.native_serialize
         end
 
         def config
           @instrumenter.config
         end
 
-        def record(cat, *args)
-          annot = args.pop if Hash === args
-          title = args.shift
-          desc  = args.shift
-          now   = adjust_for_skew(Util::Clock.nanos)
+        def record(cat, title=nil, desc=nil, annot=nil)
+          if Hash === title
+            annot = title
+            title = desc = nil
+          elsif Hash === desc
+            annot = desc
+            desc = nil
+          end
+
+          title.freeze
+          desc.freeze
 
           desc = @instrumenter.limited_description(desc)
 
-          sp = span(now - gc_time, cat, title, desc, annot)
-          inc_children
-          @spans << sp.build(0)
+          time = Util::Clock.nanos - gc_time
+
+          stop(start(time, cat, title, desc), time)
 
           nil
         end
@@ -80,7 +96,7 @@ module Skylight
           desc.freeze
 
           original_desc = desc
-          now           = adjust_for_skew(Util::Clock.nanos)
+          now           = Util::Clock.nanos
           desc          = @instrumenter.limited_description(desc)
 
           if desc == Instrumenter::TOO_MANY_UNIQUES
@@ -94,12 +110,24 @@ module Skylight
 
         def done(span)
           return unless span
-          stop(span, adjust_for_skew(Util::Clock.nanos) - gc_time)
+          stop(span, Util::Clock.nanos - gc_time)
         end
 
         def release
           return unless @instrumenter.current_trace == self
           @instrumenter.current_trace = nil
+        end
+
+        def traced
+          time = gc_time
+          now = Util::Clock.nanos
+
+          if time > 0
+            t { fmt "tracking GC time; duration=%d", time }
+            stop(start(now - time, GC_CAT, nil, nil, {}), now)
+          end
+
+          stop(@root, now)
         end
 
         def submit
@@ -108,31 +136,9 @@ module Skylight
           release
           @submitted = true
 
-          now = adjust_for_skew(Util::Clock.nanos)
+          traced
 
-          # Pop everything that is left
-          while sp = pop
-            @spans << sp.build(relativize(now) - sp.started_at)
-          end
-
-          time = gc_time
-
-          if time > 0
-            t { fmt "tracking GC time; duration=%d", time }
-            noise = start(now - time, GC_CAT, nil, nil, {})
-            stop(noise, now)
-          end
-
-          if sp = @stack.pop
-            @spans << sp.build(relativize(now) - sp.started_at)
-          end
-
-          t = Trace.new(
-            uuid:     'TODO',
-            endpoint: endpoint,
-            spans:    spans)
-
-          @instrumenter.process(t)
+          @instrumenter.process(@native_builder)
         rescue Exception => e
           error e
           t { e.backtrace.join("\n") }
@@ -140,63 +146,24 @@ module Skylight
 
       private
 
-        def start(time, cat, title, desc, annot)
-          sp = span(time, cat, title, desc, annot)
-
-          push(sp)
-
-          sp
+        def start(time, cat, title, desc, annot=nil)
+          span(normalize_time(time), cat, title, desc, annot)
         end
 
         def stop(span, time)
-          until span == (sp = pop)
-            return unless sp
-            @spans << sp.build(relativize(time) - sp.started_at)
-          end
-
-          @spans << span.build(relativize(time) - sp.started_at)
-
+          @native_builder.native_stop_span(span, normalize_time(time))
           nil
         end
 
-        def span(time, cat, title, desc, annot)
-          Span::Builder.new(
-            self, time, relativize(time),
-            cat, title, desc, annot)
+        def normalize_time(time)
+          time.to_i / 100_000
         end
 
-        def pop
-          return unless @stack.length > 1
-          @stack.pop
-        end
-
-        def push(sp)
-          inc_children
-          @stack << sp
-        end
-
-        def inc_children
-          return unless sp = @stack[-1]
-          sp.children += 1
-        end
-
-        def relativize(time)
-          if parent = @stack[-1]
-            ((time - parent.time) / 100_000).to_i
-          else
-            ((time - @start) / 100_000).to_i
-          end
-        end
-
-        # Sadely, we don't have access to a pure monotonic clock in ruby, so we
-        # need to cheat a little.
-        def adjust_for_skew(time)
-          if time <= @last_seen_time
-            return @last_seen_time
-          end
-
-          @last_seen_time = time
-          time
+        def span(time, cat, title=nil, desc=nil, annot=nil)
+          sp = @native_builder.native_start_span(time, cat.to_s)
+          @native_builder.native_span_set_title(sp, title.to_s) if title
+          @native_builder.native_span_set_description(sp, desc.to_s) if desc
+          sp
         end
 
         def gc_time

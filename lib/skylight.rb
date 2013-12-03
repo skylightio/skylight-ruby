@@ -79,17 +79,22 @@ module Skylight
     Instrumenter.stop!(*args)
   end
 
-  def self.trace(title=nil, desc=nil, annot=nil)
+  def self.trace(endpoint=nil, cat=nil, title=nil)
     unless inst = Instrumenter.instance
       return yield if block_given?
       return
     end
 
     if block_given?
-      inst.trace(title, desc, annot) { yield }
+      inst.trace(endpoint, cat, title) { yield }
     else
-      inst.trace(title, desc, annot)
+      inst.trace(endpoint, cat, title)
     end
+  end
+
+  def self.done(span)
+    return unless inst = Instrumenter.instance
+    inst.done(span)
   end
 
   def self.instrument(opts = DEFAULT_OPTIONS)

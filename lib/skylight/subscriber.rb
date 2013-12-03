@@ -67,7 +67,7 @@ module Skylight
 
       while curr = trace.notifications.pop
         if curr.name == name
-          curr.span.done if curr.span
+          trace.done(curr.span) if curr.span
           return
         end
       end

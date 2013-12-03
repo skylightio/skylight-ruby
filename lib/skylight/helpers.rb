@@ -39,7 +39,7 @@ module Skylight
         title    = (opts[:title] || title).to_s
         desc     = opts[:description].to_s if opts[:description]
 
-        klass.class_eval <<-RUBY
+        klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
           alias_method :"#{name}_before_instrument", :"#{name}"
 
           def #{name}(*args, &blk)
@@ -51,7 +51,7 @@ module Skylight
             begin
               #{name}_before_instrument(*args, &blk)
             ensure
-              span.done if span
+              Skylight.done(span) if span
             end
           end
         RUBY

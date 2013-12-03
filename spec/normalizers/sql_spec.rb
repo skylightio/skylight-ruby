@@ -38,6 +38,7 @@ module Skylight
     end
 
     it "allocates while processing uncached queries", allocations: true do
+      pending
       payload = { name: "Foo Load", sql: "select * from foo", binds: [] }
 
       # prime

@@ -63,7 +63,7 @@ module Skylight
       end
 
       def submit(msg)
-        unless msg.respond_to?(:encode)
+        unless msg.respond_to?(:encode) || msg.respond_to?(:native_serialize)
           raise ArgumentError, "message not encodable"
         end
 
@@ -217,8 +217,15 @@ module Skylight
       end
 
       def write_msg(sock, msg)
-        buf   = msg.encode.to_s
-        frame = [ msg.message_id, buf.bytesize ].pack("LL")
+        if msg.respond_to?(:native_serialize)
+          buf = msg.native_serialize
+          id  = Messages::Trace.message_id
+        else
+          buf = msg.encode.to_s
+          id  = msg.message_id
+        end
+
+        frame = [ id, buf.bytesize ].pack("LL")
 
         write(sock, frame) &&
           write(sock, buf)

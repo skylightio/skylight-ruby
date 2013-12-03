@@ -50,10 +50,10 @@ module Skylight
         server.wait count: 2
 
         trace.should have(2).spans
-        span(1).duration.should == 10_000
+        span(0).duration.should == 10_000
 
-        span(0).event.category.should == 'noise.gc'
-        span(0).duration.should == 1_000
+        span(1).event.category.should == 'noise.gc'
+        span(1).duration.should == 1_000
       end
 
     end
@@ -77,14 +77,15 @@ module Skylight
         server.wait count: 2
 
         trace.should have(3).spans
-        span(0).event.category.should == 'app.test'
-        span(0).duration.should == 9_000
 
-        span(1).event.category.should == 'noise.gc'
-        span(1).duration.should == 1_000
+        span(0).event.category.should == 'app.rack'
+        span(0).duration.should == 10_000
 
-        span(2).event.category.should == 'app.rack'
-        span(2).duration.should == 10_000
+        span(1).event.category.should == 'app.test'
+        span(1).duration.should == 9_000
+
+        span(2).event.category.should == 'noise.gc'
+        span(2).duration.should == 1_000
       end
     end
 

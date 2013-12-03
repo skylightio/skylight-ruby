@@ -40,7 +40,9 @@ module Skylight
       'ACCOUNTS_SSL'        => :'accounts.ssl',
       'ACCOUNTS_DEFLATE'    => :'accounts.deflate',
       'ME_AUTHENTICATION'   => :'me.authentication',
-      'ME_CREDENTIALS_PATH' => :'me.credentials_path' }
+      'ME_CREDENTIALS_PATH' => :'me.credentials_path',
+      'TEST_CONSTANT_FLUSH' => :'test.constant_flush',
+      'TEST_IGNORE_TOKEN'   => :'test.ignore_token' }
 
     # Default values for Skylight configuration keys
     DEFAULTS = {
@@ -259,6 +261,10 @@ authentication: #{self[:authentication]}
 
     def constant_flush?
       get('test.constant_flush')
+    end
+
+    def ignore_token?
+      get('test.ignore_token')
     end
 
     def root

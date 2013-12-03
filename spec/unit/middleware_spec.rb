@@ -46,16 +46,17 @@ describe Skylight::Middleware, :http do
     t = ep.traces[0]
     t.should have(2).spans
 
+
     t.spans[0].should == span(
+      event: event('app.rack.request'),
+      started_at: 0,
+      duration: 3_000 )
+
+    t.spans[1].should == span(
+      parent: 0,
       event: event('app.block', 'hello'),
       started_at: 1_000,
       duration:   2_000)
-
-    t.spans[1].should == span(
-      event: event('app.rack.request'),
-      started_at: 0,
-      duration: 3_000,
-      children: 1)
   end
 
 end

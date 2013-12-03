@@ -157,6 +157,7 @@ module Skylight
       end
 
       def has_report_token?(now)
+        return true if config.ignore_token?
         return unless @http_report
         now < @refresh_at + (3600 * 3 - 660)
       end

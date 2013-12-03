@@ -19,7 +19,7 @@ module Skylight
         case s
         when 'embedded'
           trace "building embedded worker"
-          Collector.new(config)
+          Embedded.new(Collector.new(config))
         when 'standalone'
           trace "building standalone worker"
 

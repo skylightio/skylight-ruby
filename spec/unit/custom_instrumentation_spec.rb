@@ -40,6 +40,8 @@ describe Skylight::Instrumenter, :http do
     end
 
     it 'allocates few objects', allocations: true do
+      pending
+
       # Make sure autoload doesn't cause issues
       preload = Skylight::Util::Clock
       preload = Skylight::Messages::Trace::Builder
@@ -72,7 +74,7 @@ describe Skylight::Instrumenter, :http do
           object.set = true
           3
         end
-        end.should allocate(hash: 2, object: 3)
+        end.should allocate(total: 0)
       end
 
     end
@@ -104,14 +106,14 @@ describe Skylight::Instrumenter, :http do
       t = ep.traces[0]
       t.should have(2).spans
       t.spans[0].should == span(
-        event:      event('app.foo'),
-        started_at: 1_000,
-        duration:   1_000)
-      t.spans[1].should == span(
         event:      event('app.rack.request'),
         started_at: 0,
-        duration:   2_000,
-        children:   1)
+        duration:   2_000 )
+      t.spans[1].should == span(
+        parent:     0,
+        event:      event('app.foo'),
+        started_at: 1_000,
+        duration:   1_000 )
     end
 
     it 'recategorizes unknown events as other' do
@@ -130,7 +132,8 @@ describe Skylight::Instrumenter, :http do
       ep = server.reports[0].endpoints[0]
       t  = ep.traces[0]
 
-      t.spans[0].should == span(
+      t.spans[1].should == span(
+        parent:     0,
         event:      event('other.foo'),
         started_at: 1_000,
         duration:   1_000)
@@ -203,32 +206,35 @@ describe Skylight::Instrumenter, :http do
       t = ep.traces[0]
       t.should have(5).spans
 
+      # Root span
       t.spans[0].should == span(
+        event:      event('app.rack.request'),
+        started_at: 0,
+        duration:   10_000 )
+
+      t.spans[1].should == span(
+        parent:     0,
         event:      event('app.method', 'MyClass#one'),
         started_at: 1_000,
         duration:   1_000)
 
-      t.spans[1].should == span(
+      t.spans[2].should == span(
+        parent:     0,
         event:      event('app.method', 'MyClass#three'),
         started_at: 5_000,
         duration:   1_000)
 
-      t.spans[2].should == span(
+      t.spans[3].should == span(
+        parent:     0,
         event:      event('app.winning', 'Win'),
         started_at: 7_000,
         duration:   1_000)
 
-      t.spans[3].should == span(
+      t.spans[4].should == span(
+        parent:     0,
         event:      event('app.method', 'MyClass.singleton_method'),
         started_at: 9_000,
         duration:   1_000)
-
-      # Root span
-      t.spans[4].should == span(
-        event:      event('app.rack.request'),
-        started_at: 0,
-        duration:   10_000,
-        children:   4)
     end
 
   end

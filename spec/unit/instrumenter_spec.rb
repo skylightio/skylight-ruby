@@ -99,13 +99,13 @@ describe Skylight::Instrumenter, :http do
         t.should have(2).spans
         t.uuid.should == 'TODO'
 
-        t.spans[1].should == span(
+        t.spans[0].should == span(
           event:      event('app.rack'),
           started_at: 0,
-          duration:   10_000,
-          children: 1 )
+          duration:   10_000 )
 
-        t.spans[0].should == span(
+        t.spans[1].should == span(
+          parent:     0,
           event:      event('db.sql.query', 'Load User'),
           started_at: 0,
           duration:   10_000 )
@@ -143,13 +143,13 @@ describe Skylight::Instrumenter, :http do
         t.should have(2).spans
         t.uuid.should == 'TODO'
 
-        t.spans[1].should == span(
+        t.spans[0].should == span(
           event:      event('app.rack'),
           started_at: 0,
-          duration:   10_000,
-          children: 1 )
+          duration:   10_000 )
 
-        t.spans[0].should == span(
+        t.spans[1].should == span(
+          parent:     0,
           event:      event('db.sql.query', 'Load User'),
           started_at: 0,
           duration:   10_000 )
@@ -188,13 +188,13 @@ describe Skylight::Instrumenter, :http do
         t.should have(2).spans
         t.uuid.should == 'TODO'
 
-        t.spans[1].should == span(
+        t.spans[0].should == span(
           event:      event('app.rack'),
           started_at: 0,
-          duration:   10_000,
-          children: 1 )
+          duration:   10_000 )
 
-        t.spans[0].should == span(
+        t.spans[1].should == span(
+          parent:     0,
           event:      event('db.sql.query', 'Load User'),
           started_at: 0,
           duration:   10_000 )

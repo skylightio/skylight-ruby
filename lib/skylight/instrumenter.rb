@@ -137,6 +137,11 @@ module Skylight
       self.class.match?(string, regex)
     end
 
+    def done(span)
+      return unless trace = @trace_info.current
+      trace.done(span)
+    end
+
     def instrument(cat, title=nil, desc=nil, annot=nil)
       unless trace = @trace_info.current
         return yield if block_given?
@@ -163,7 +168,7 @@ module Skylight
       begin
         yield sp
       ensure
-        sp.done
+        trace.done(sp)
       end
     end
 
@@ -194,8 +199,7 @@ module Skylight
     end
 
     def process(trace)
-      t { fmt "processing trace; spans=%d; duration=%d",
-            trace.spans.length, trace.spans[-1].duration }
+      t { fmt "processing trace" }
       unless @worker.submit(trace)
         warn "failed to submit trace to worker"
       end
