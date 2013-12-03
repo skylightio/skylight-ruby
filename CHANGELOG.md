@@ -1,4 +1,13 @@
-## unreleased ##
+## 0.2.0 (December 3, 2013)
+
+* Added Probes, initially Net::HTTP and Excon
+* Wide-ranging memory cleanup
+* Better resiliance to binary and encoding errors
+* Add support for disabling
+* De-dupe rendering instrumentation better
+* Fix send_file event to not spew a gazillion nodes
+* Rails 3.0 compatibility
+* Detailed SQL annotations
 
 ## 0.1.8 (July 19, 2013)
 
