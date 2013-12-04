@@ -13,3 +13,5 @@
 
 # Ignore lockfiles from travis Gemfiles
 /gemfiles/*.lock
+/Gemfile.lock
+

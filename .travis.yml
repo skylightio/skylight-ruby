@@ -1,7 +1,5 @@
 language: ruby
 
-cache: bundler
-
 script: bundle exec rspec -cfs spec/
 
 env:
