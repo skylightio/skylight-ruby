@@ -116,7 +116,7 @@ VALUE rb_cAnnotationBuilder;
  */
 
 static VALUE clock_high_res_time(VALUE self) {
-  return UINT2NUM(skylight_high_res_time());
+  return ULL2NUM(skylight_high_res_time());
 }
 
 /**
@@ -188,7 +188,7 @@ static void trace_dealloc(RustTrace hello) {
 }
 
 static VALUE trace_new(VALUE self, VALUE started_at) {
-  RustTrace trace = skylight_trace_new(FIX2UINT(started_at));
+  RustTrace trace = skylight_trace_new(NUM2LL(started_at));
   return Data_Wrap_Struct(rb_cTrace, 0, trace_dealloc, trace);
 }
 
@@ -226,7 +226,7 @@ static VALUE trace_start_span(VALUE self, VALUE time, VALUE category) {
   CHECK_TYPE(time, T_FIXNUM);
   CHECK_TYPE(category, T_STRING);
 
-  span = skylight_trace_start_span(trace, FIX2UINT(time), STR2RUST(category));
+  span = skylight_trace_start_span(trace, NUM2LL(time), STR2RUST(category));
 
   return INT2FIX(span);
 }
@@ -237,7 +237,7 @@ static VALUE trace_stop_span(VALUE self, VALUE span_index, VALUE time) {
   CHECK_TYPE(time, T_FIXNUM);
   CHECK_TYPE(span_index, T_FIXNUM);
 
-  skylight_trace_stop_span(trace, FIX2UINT(span_index), FIX2UINT(time));
+  skylight_trace_stop_span(trace, FIX2UINT(span_index), NUM2LL(time));
   return Qnil;
 }
 
@@ -247,7 +247,7 @@ static VALUE trace_span_set_title(VALUE self, VALUE index, VALUE title) {
   CHECK_TYPE(index, T_FIXNUM);
   CHECK_TYPE(title, T_STRING);
 
-  skylight_trace_span_set_title(trace, FIX2INT(index), STR2RUST(title));
+  skylight_trace_span_set_title(trace, FIX2UINT(index), STR2RUST(title));
   return Qnil;
 }
 
@@ -257,7 +257,7 @@ static VALUE trace_span_set_description(VALUE self, VALUE index, VALUE descripti
   CHECK_TYPE(index, T_FIXNUM);
   CHECK_TYPE(description, T_STRING);
 
-  skylight_trace_span_set_description(trace, FIX2INT(index), STR2RUST(description));
+  skylight_trace_span_set_description(trace, FIX2UINT(index), STR2RUST(description));
   return Qnil;
 }
 
@@ -275,11 +275,11 @@ static VALUE trace_span_add_annotation(VALUE self, VALUE rb_span_id, VALUE paren
   My_Struct(trace, RustTrace, freedTrace);
 
   CHECK_TYPE(rb_span_id, T_FIXNUM);
-  uint64_t span_id = FIX2INT(rb_span_id);
+  uint64_t span_id = FIX2UINT(rb_span_id);
 
   if (parent != Qnil) {
     CHECK_TYPE(parent, T_FIXNUM);
-    parent_int = FIX2INT(parent);
+    parent_int = FIX2UINT(parent);
     parent_id = &parent_int;
   }
 
@@ -289,7 +289,7 @@ static VALUE trace_span_add_annotation(VALUE self, VALUE rb_span_id, VALUE paren
   }
 
   if (TYPE(value) == T_FIXNUM) {
-    skylight_trace_add_annotation_int(trace, span_id, parent_id, key, FIX2INT(value));
+    skylight_trace_add_annotation_int(trace, span_id, parent_id, key, FIX2UINT(value));
   } else if (TYPE(value) == T_FLOAT) {
     skylight_trace_add_annotation_double(trace, span_id, parent_id, key, NUM2DBL(value));
   } else if (TYPE(value) == T_STRING) {
