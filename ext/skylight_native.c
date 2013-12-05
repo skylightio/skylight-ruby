@@ -77,7 +77,6 @@ uint64_t skylight_trace_add_annotation_double(RustTrace, uint64_t, uint64_t*, Ru
 uint64_t skylight_trace_add_annotation_string(RustTrace, uint64_t, uint64_t*, RustString, RustString);
 uint64_t skylight_trace_add_annotation_nested(RustTrace, uint64_t, uint64_t*, RustString);
 
-void bootstrap_rust_runtime();
 void skylight_free_buf(RustString);
 
 /**
@@ -325,6 +324,4 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_span_set_title", trace_span_set_title, 2);
   rb_define_method(rb_cTrace, "native_span_set_description", trace_span_set_description, 2);
   rb_define_method(rb_cTrace, "native_span_add_annotation", trace_span_add_annotation, 4);
-
-  bootstrap_rust_runtime();
 }
