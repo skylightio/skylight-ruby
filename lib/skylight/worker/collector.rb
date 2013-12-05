@@ -185,7 +185,7 @@ module Skylight
 
         def should_flush?(now)
           return true if @config.constant_flush?
-          t { "Checking if should flush at #{now} (@flush_at is #{@flush_at}) (#{self.inspect})" }
+          t { "Checking if should flush at #{now} (@flush_at is #{@flush_at})" }
           now >= @flush_at
         end
 
