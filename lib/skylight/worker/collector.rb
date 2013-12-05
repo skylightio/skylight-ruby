@@ -7,7 +7,7 @@ module Skylight
 
       ENDPOINT     = '/report'.freeze
       CONTENT_TYPE = 'content-type'.freeze
-      SKYLIGHT_V1  = 'application/x-skylight-report-v1'.freeze
+      SKYLIGHT_V2  = 'application/x-skylight-report-v2'.freeze
 
       include Util::Logging
 
@@ -115,7 +115,7 @@ module Skylight
         debug "flushing batch; size=%d", batch.sample.count
 
         @buf.clear
-        @http_report.post(ENDPOINT, batch.encode(@buf), CONTENT_TYPE => SKYLIGHT_V1)
+        @http_report.post(ENDPOINT, batch.encode(@buf), CONTENT_TYPE => SKYLIGHT_V2)
       end
 
       def refresh_report_token(now)
