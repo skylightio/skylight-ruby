@@ -6,6 +6,12 @@
 
 # Ignore any build artifacts
 *.bundle
+*.so
+*.o
+*.a
+Makefile
+mkmf.log
+/lib/skylight_native.*
 
 # Ignore OS artifacts
 .DS_Store
