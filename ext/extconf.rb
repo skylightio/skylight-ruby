@@ -5,7 +5,9 @@ require 'zlib'
 
 unless RbConfig::CONFIG["arch"] == "x86_64-linux"
   puts "At the moment, Skylight only supports 64-bit linux"
-  exit 1
+  File.open("Makefile", "w") { |f| f.puts "hello:\ninstall:" }
+
+  exit
 end
 
 location = nil
