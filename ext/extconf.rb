@@ -25,7 +25,8 @@ Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
 end
 
 inflater, dest = Zlib::Inflate.new(32 + Zlib::MAX_WBITS), ""
-inflater.inflate(archive) { |chunk| dest << chunk }
+dest << inflater.inflate(archive)
+inflater.close
 
 File.open("libskylight.a", "w") { |file| file.write dest }
 
