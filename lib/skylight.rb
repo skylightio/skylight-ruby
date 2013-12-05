@@ -1,7 +1,15 @@
 require 'rbconfig'
 require 'socket'
 require 'skylight/version'
-require 'skylight_native'
+
+begin
+  require 'skylight_native'
+  has_native_ext = true
+rescue
+  puts "[SKYLIGHT] The Skylight native extension wasn't found. Skylight is not running"
+end
+
+if has_native_ext
 
 module Skylight
   TRACE_ENV_KEY      = 'SKYLIGHT_ENABLE_TRACE_LOGS'.freeze
@@ -141,4 +149,6 @@ module Skylight
   end
 
   require 'skylight/probes'
+end
+
 end
