@@ -1,0 +1,4 @@
+{
+  global: Init_skylight_native;
+  local: *;
+};

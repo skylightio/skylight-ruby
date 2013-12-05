@@ -26,4 +26,7 @@ Gem::Specification.new do |s|
 
   # Executables
   s.executables = %w(skylight)
+
+  # Extensions
+  s.extensions << "ext/extconf.rb"
 end
