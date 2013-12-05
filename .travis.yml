@@ -1,6 +1,6 @@
 language: ruby
 
-script: bundle exec rspec -cfs spec/
+script: ./spec.sh
 
 env:
   global:
