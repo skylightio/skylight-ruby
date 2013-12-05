@@ -12,13 +12,19 @@
     }                                             \
   } while(0)                                      \
 
-#define My_Struct(name, Type)        \
-  Type name;                         \
-  Data_Get_Struct(self, Type, name);
+#define My_Struct(name, Type, msg)                \
+  Get_Struct(name, self, Type, msg);              \
 
-#define Get_Struct(name, obj, Type)  \
-  Type name;                         \
-  Data_Get_Struct(obj, Type, name);
+#define Transfer_Struct(name, Type, msg)          \
+  My_Struct(name, Type, msg);                     \
+  DATA_PTR(self) = NULL;                          \
+
+#define Get_Struct(name, obj, Type, msg)          \
+  Type name;                                      \
+  Data_Get_Struct(obj, Type, name);               \
+  if (name == NULL) {                             \
+    rb_raise(rb_eRuntimeError, "%s", msg);        \
+  }                                               \
 
 /**
  * Rust types
@@ -132,14 +138,16 @@ static VALUE hello_new(VALUE klass, VALUE version, VALUE config) {
   return Data_Wrap_Struct(rb_cHello, 0, hello_dealloc, hello);
 }
 
+static const char* freedHello = "You can't do anything with a Hello once it's been serialized";
+
 static VALUE hello_get_version(VALUE self) {
-  My_Struct(hello, RustHello);
+  My_Struct(hello, RustHello, freedHello);
 
   return SLICE2STR(skylight_hello_get_version(hello));
 }
 
 static VALUE hello_add_cmd_part(VALUE self, VALUE part) {
-  My_Struct(hello, RustHello);
+  My_Struct(hello, RustHello, freedHello);
 
   CHECK_TYPE(part, T_STRING);
 
@@ -150,7 +158,7 @@ static VALUE hello_add_cmd_part(VALUE self, VALUE part) {
 static VALUE hello_cmd_get(VALUE self, VALUE rb_off) {
   int hasValue, off;
   RustSlice slice;
-  My_Struct(hello, RustHello);
+  My_Struct(hello, RustHello, freedHello);
 
   CHECK_TYPE(rb_off, T_FIXNUM);
   off = FIX2INT(rb_off);
@@ -163,7 +171,7 @@ static VALUE hello_cmd_get(VALUE self, VALUE rb_off) {
 
 static VALUE hello_serialize(VALUE self) {
   RustString serialized;
-  My_Struct(hello, RustHello);
+  My_Struct(hello, RustHello, freedHello);
 
   serialized = skylight_hello_serialize(hello);
   return VEC2STR(serialized);
@@ -172,6 +180,8 @@ static VALUE hello_serialize(VALUE self) {
 /**
  * Skylight::Trace
  */
+
+static const char* freedTrace = "You can't do anything with a Trace once it's been serialized";
 
 static void trace_dealloc(RustTrace hello) {
   // noop for now
@@ -183,35 +193,35 @@ static VALUE trace_new(VALUE self, VALUE started_at) {
 }
 
 static VALUE trace_get_started_at(VALUE self) {
-  My_Struct(trace, RustTrace);
+  My_Struct(trace, RustTrace, freedTrace);
   return LONG2NUM(skylight_trace_get_started_at(trace));
 }
 
 static VALUE trace_set_name(VALUE self, VALUE name) {
-  My_Struct(trace, RustTrace);
+  My_Struct(trace, RustTrace, freedTrace);
   skylight_trace_set_name(trace, STR2RUST(name));
   return Qnil;
 }
 
 static VALUE trace_get_name(VALUE self) {
-  My_Struct(trace, RustTrace);
+  My_Struct(trace, RustTrace, freedTrace);
   return SLICE2STR(skylight_trace_get_name(trace));
 }
 
 static VALUE trace_set_uuid(VALUE self, VALUE name) {
-  My_Struct(trace, RustTrace);
+  My_Struct(trace, RustTrace, freedTrace);
   skylight_trace_set_uuid(trace, STR2RUST(name));
   return Qnil;
 }
 
 static VALUE trace_get_uuid(VALUE self) {
-  My_Struct(trace, RustTrace);
+  My_Struct(trace, RustTrace, freedTrace);
   return SLICE2STR(skylight_trace_get_uuid(trace));
 }
 
 static VALUE trace_start_span(VALUE self, VALUE time, VALUE category) {
   int span;
-  My_Struct(trace, RustTrace);
+  My_Struct(trace, RustTrace, freedTrace);
 
   CHECK_TYPE(time, T_FIXNUM);
   CHECK_TYPE(category, T_STRING);
@@ -222,7 +232,7 @@ static VALUE trace_start_span(VALUE self, VALUE time, VALUE category) {
 }
 
 static VALUE trace_stop_span(VALUE self, VALUE span_index, VALUE time) {
-  My_Struct(trace, RustTrace);
+  My_Struct(trace, RustTrace, freedTrace);
 
   CHECK_TYPE(time, T_FIXNUM);
   CHECK_TYPE(span_index, T_FIXNUM);
@@ -232,7 +242,7 @@ static VALUE trace_stop_span(VALUE self, VALUE span_index, VALUE time) {
 }
 
 static VALUE trace_span_set_title(VALUE self, VALUE index, VALUE title) {
-  My_Struct(trace, RustTrace);
+  My_Struct(trace, RustTrace, freedTrace);
 
   CHECK_TYPE(index, T_FIXNUM);
   CHECK_TYPE(title, T_STRING);
@@ -242,7 +252,7 @@ static VALUE trace_span_set_title(VALUE self, VALUE index, VALUE title) {
 }
 
 static VALUE trace_span_set_description(VALUE self, VALUE index, VALUE description) {
-  My_Struct(trace, RustTrace);
+  My_Struct(trace, RustTrace, freedTrace);
 
   CHECK_TYPE(index, T_FIXNUM);
   CHECK_TYPE(description, T_STRING);
@@ -252,21 +262,17 @@ static VALUE trace_span_set_description(VALUE self, VALUE index, VALUE descripti
 }
 
 static VALUE trace_serialize(VALUE self) {
-  My_Struct(trace, RustTrace);
+  Transfer_Struct(trace, RustTrace, freedTrace);
 
   return VEC2STR(skylight_trace_serialize(trace));
 }
-
-/**
- * class Skylight::AnnotationBuilder
- */
 
 static VALUE trace_span_add_annotation(VALUE self, VALUE rb_span_id, VALUE parent, VALUE rb_key, VALUE value) {
   uint64_t *parent_id = NULL;
   RustString key = NULL;
   uint64_t new_id, parent_int;
 
-  My_Struct(trace, RustTrace);
+  My_Struct(trace, RustTrace, freedTrace);
 
   CHECK_TYPE(rb_span_id, T_FIXNUM);
   uint64_t span_id = FIX2INT(rb_span_id);
