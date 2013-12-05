@@ -33,7 +33,7 @@ have_header 'dlfcn.h'
 
 find_library("skylight", "factory", ".")
 
-$LDFLAGS << " -Wl,-no-export-dynamic,--version-script=skylight.map"
+$LDFLAGS << " -Wl,--version-script=skylight.map"
 $LDFLAGS << " -lrt -ldl -lm -lpthread"
 
 CONFIG['warnflags'].gsub!('-Wdeclaration-after-statement', '')
