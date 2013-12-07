@@ -1,11 +1,13 @@
-require 'spec_helper'
+require 'rubygems'
+require 'bundler/setup'
+
+require 'rspec'
 
 begin
   require 'allocation_counter/rspec'
 rescue LoadError
 end
 
-require 'rspec'
 require 'yaml'
 require 'skylight'
 require 'timecop'
