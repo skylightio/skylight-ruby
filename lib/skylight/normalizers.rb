@@ -110,7 +110,8 @@ module Skylight
       end
     end
 
-    %w( process_action
+    %w( moped
+        process_action
         render_collection
         render_partial
         render_template

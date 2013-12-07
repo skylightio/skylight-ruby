@@ -13,4 +13,5 @@ end
 
 unless ENV['SKIP_EXTERNAL']
   gem 'excon'
+  gem 'moped'
 end

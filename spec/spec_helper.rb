@@ -25,6 +25,17 @@ require 'skylight/probes/net_http'
 
 # End Probed Libraries
 
+
+# Begin Normalize Libraries
+
+begin
+  require 'moped'
+rescue LoadError
+end
+
+# End Normalize Libraries
+
+
 Dir[File.expand_path('../support/*.rb', __FILE__)].each { |f| require f }
 
 all_probes = %w(Excon Net::HTTP)
