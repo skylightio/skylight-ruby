@@ -2,8 +2,6 @@ require 'socket'
 
 module Skylight
   module Worker
-    # TODO:
-    #   - Shutdown if no connections for over a minute
     class Server
       LOCKFILE_PATH      = 'SKYLIGHT_LOCKFILE_PATH'.freeze
       LOCKFILE_ENV_KEY   = 'SKYLIGHT_LOCKFILE_FD'.freeze
@@ -18,7 +16,10 @@ module Skylight
         :config,
         :keepalive,
         :lockfile_path,
-        :sockfile_path
+        :sockfile_path,
+        :status_interval,
+        :last_status_update,
+        :max_memory
 
       def initialize(config, lockfile, srv, lockfile_path)
         unless lockfile && srv
@@ -37,6 +38,8 @@ module Skylight
         @connections   = {}
         @lockfile_path = lockfile_path
         @sockfile_path = @config[:'agent.sockfile_path']
+        @status_interval = 60
+        @max_memory      = @config[:'agent.max_memory']
       end
 
       # Called from skylight.rb on require
@@ -132,6 +135,7 @@ module Skylight
         now = Time.now.to_i
         next_sanity_check_at = now + tick
         had_client_at = now
+        last_status_update = now
 
         trace "starting IO loop"
         begin
@@ -179,9 +183,16 @@ module Skylight
           if keepalive < now - had_client_at
             info "no clients for #{keepalive} sec - shutting down"
             @run = false
-          elsif next_sanity_check_at <= now
-            next_sanity_check_at = now + tick
-            sanity_check
+          else
+            if next_sanity_check_at <= now
+              next_sanity_check_at = now + tick
+              sanity_check
+            end
+
+            if status_interval < now - last_status_update
+              last_status_update = now
+              status_check
+            end
           end
 
         rescue SignalException => e
@@ -193,9 +204,11 @@ module Skylight
         rescue Exception => e
           error "Loop exception: %s (%s)", e.message, e.class
           puts e.backtrace
+          @collector.send_exception(class_name: e.class.name, message: e.message, backtrace: e.backtrace)
           return false
         rescue Object => o
           error "Unknown object thrown: `%s`", o.to_s
+          @collector.send_exception(class_name: o.class.name)
           return false
         end while @run
 
@@ -300,6 +313,22 @@ module Skylight
         unless sockfile?
           raise WorkerStateError, "sockfile gone"
         end
+      end
+
+      def status_check
+        memory_usage = get_memory_usage
+
+        @collector.send_status(memory: memory_usage, max_memory: max_memory)
+
+        if memory_usage > max_memory
+          raise WorkerStateError, "Memory limit exceeded: #{memory_usage} (max: #{max_memory})"
+        end
+      end
+
+      def get_memory_usage
+        `ps -o rss= -p #{Process.pid}`.to_i / 1024
+      rescue Errno::ENOENT
+        0
       end
     end
   end
