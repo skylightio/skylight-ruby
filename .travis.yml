@@ -4,7 +4,7 @@ script: bundle exec rspec -cfs spec/
 
 env:
   global:
-    - SK_ENABLE_TRACE_LOGS=true
+    - SKYLIGHT_ENABLE_TRACE_LOGS=true
     - RAILS_ENV=development
 
 rvm:
@@ -25,7 +25,7 @@ matrix:
     - rvm: 1.9.2
       gemfile: gemfiles/Gemfile.rails-4.0.x
       env:
-        - SK_ENABLE_TRACE_LOGS=true
+        - SKYLIGHT_ENABLE_TRACE_LOGS=true
         - RAILS_ENV=development
     - rvm: 1.9.2
       gemfile: gemfiles/Gemfile.rails-4.0.x
