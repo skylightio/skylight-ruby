@@ -157,7 +157,7 @@ module Skylight
 
       # 4 extra strings and 2 extra arrays for the mixed computed/uncomputed
       # TODO: Investigate reducing this
-      lambda { normalize(payload) }.should allocate(array: 5, string: 7, hash: 1)
+      lambda { normalize(payload) }.should allocate(array: 5, string: 11, hash: 1)
     end
 
     it "Produces an error if the SQL isn't parsable" do
@@ -167,7 +167,7 @@ module Skylight
       name.should == "db.sql.query"
       title.should == "Foo Load"
       desc.should == nil
-      annotations[:skylight_error].should == ["sql_parse", "NOT &REAL& ;;;SQL;;;"]
+      annotations[:skylight_error].should == ["sql_parse", { payload: { name: "Foo Load", sql: "NOT &REAL& ;;;SQL;;;", binds: [] }, precalculated: [] }]
     end
 
 
