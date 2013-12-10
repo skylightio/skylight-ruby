@@ -79,7 +79,7 @@ module Skylight
       self
 
     rescue Exception => e
-      error "failed to start instrumenter; msg=%s", e.message
+      log_error "failed to start instrumenter; msg=%s", e.message
       nil
     end
 
@@ -99,7 +99,7 @@ module Skylight
       begin
         trace = Messages::Trace::Builder.new(self, endpoint, Util::Clock.micros, cat, title, desc, annot)
       rescue Exception => e
-        error e.message
+        log_error e.message
         t { e.backtrace.join("\n") }
         return
       end

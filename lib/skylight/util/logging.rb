@@ -35,7 +35,13 @@ module Skylight
         log :error, msg, *args
       end
 
-      alias fmt sprintf
+      alias log_trace trace
+      alias log_debug debug
+      alias log_info  info
+      alias log_warn  warn
+      alias log_error error
+
+      alias fmt       sprintf
 
       def log(level, msg, *args)
         return unless respond_to?(:config)
