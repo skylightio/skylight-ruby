@@ -81,7 +81,10 @@ describe Skylight::Instrumenter, :http do
 
         server.requests[1]["PATH_INFO"].should == "/agent/error"
         error = server.requests[1]["rack.input"]
-        error.should == { "reason" => "sql_parse", "body" => bad_sql }
+        error.should == {
+          "reason" => "sql_parse",
+          "body" => { "payload" => { "name" => "Load User", "sql" => bad_sql, "binds" => [] }, "precalculated" => [] }
+        }
 
         server.reports[0].should have(1).endpoints
 
@@ -120,7 +123,10 @@ describe Skylight::Instrumenter, :http do
 
         server.requests[1]["PATH_INFO"].should == "/agent/error"
         error = server.requests[1]["rack.input"]
-        error.should == { "reason" => "sql_parse", "body" => encoded_sql }
+        error.should == {
+          "reason" => "sql_parse",
+          "body" => {"payload"=>{"name"=>"Load User", "sql"=>encoded_sql, "binds"=>[]}, "precalculated"=>[]}
+        }
 
         server.reports[0].should have(1).endpoints
 
@@ -159,7 +165,10 @@ describe Skylight::Instrumenter, :http do
 
         server.requests[1]["PATH_INFO"].should == "/agent/error"
         error = server.requests[1]["rack.input"]
-        error.should == { "reason" => "sql_parse", "body" => encoded_sql }
+        error.should == {
+          "reason" => "sql_parse",
+          "body" => {"payload"=>{"name"=>"Load User", "sql"=>encoded_sql, "binds"=>[]}, "precalculated"=>[]}
+        }
 
         server.reports[0].should have(1).endpoints
 
