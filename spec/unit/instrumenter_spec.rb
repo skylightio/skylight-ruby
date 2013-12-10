@@ -83,7 +83,7 @@ describe Skylight::Instrumenter, :http do
         error = server.requests[1]["rack.input"]
         error.should == {
           "reason" => "sql_parse",
-          "body" => { "payload" => { "name" => "Load User", "sql" => bad_sql, "binds" => [] }, "precalculated" => [] }
+          "body" => { "payload" => { "name" => "Load User", "sql" => bad_sql, "binds" => [] }, "precalculated" => [] }.to_json
         }
 
         server.reports[0].should have(1).endpoints
@@ -110,7 +110,7 @@ describe Skylight::Instrumenter, :http do
 
       it "sends error messages with binary data the Skylight Rails app" do
         bad_sql = "SELECT ???LOL??? \xCE ;;;NOTSQL;;;".force_encoding("BINARY")
-        encoded_sql = Base64.encode64(bad_sql)
+        encoded_payload = {"payload"=>{"name"=>"Load User", "sql"=>Base64.encode64(bad_sql), "binds"=>[]}, "precalculated"=>[]}.to_json
 
         Skylight.trace 'Testin', 'app.rack' do |t|
           ActiveSupport::Notifications.instrument('sql.active_record', name: "Load User", sql: bad_sql, binds: []) do
@@ -125,7 +125,7 @@ describe Skylight::Instrumenter, :http do
         error = server.requests[1]["rack.input"]
         error.should == {
           "reason" => "sql_parse",
-          "body" => {"payload"=>{"name"=>"Load User", "sql"=>encoded_sql, "binds"=>[]}, "precalculated"=>[]}
+          "body" => encoded_payload
         }
 
         server.reports[0].should have(1).endpoints
@@ -167,7 +167,7 @@ describe Skylight::Instrumenter, :http do
         error = server.requests[1]["rack.input"]
         error.should == {
           "reason" => "sql_parse",
-          "body" => {"payload"=>{"name"=>"Load User", "sql"=>encoded_sql, "binds"=>[]}, "precalculated"=>[]}
+          "body" => {"payload"=>{"name"=>"Load User", "sql"=>encoded_sql, "binds"=>[]}, "precalculated"=>[]}.to_json
         }
 
         server.reports[0].should have(1).endpoints

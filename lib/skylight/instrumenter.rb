@@ -186,7 +186,11 @@ module Skylight
     def error(reason, body)
       t { fmt "processing error; reason=%s; body=%s", reason, body }
 
-      message = Skylight::Messages::Error.new(reason: reason, body: encode(body))
+      if body.encoding == Encoding::BINARY || !body.valid_encoding?
+        body = Base64.encode64(body)
+      end
+
+      message = Skylight::Messages::Error.new(reason: reason, body: body)
 
       unless @worker.submit(message)
         warn "failed to submit error to worker"
@@ -198,20 +202,6 @@ module Skylight
             trace.spans.length, trace.spans[-1].duration }
       unless @worker.submit(trace)
         warn "failed to submit trace to worker"
-      end
-    end
-
-    private
-
-    def encode(body)
-      if body.is_a?(Hash)
-        body.each{|k,v| body[k] = encode(v) }
-      elsif body.is_a?(Array)
-        body.each_with_index{|v,i| body[i] = encode(v) }
-      elsif body.respond_to?(:encoding) && (body.encoding == Encoding::BINARY || !body.valid_encoding?)
-        Base64.encode64(body)
-      else
-        body
       end
     end
 

@@ -45,7 +45,21 @@ module Skylight
         title, sql, binds = SqlLexer::Lexer.bindify(payload[:sql], precalculated)
         [ title, sql, binds, nil ]
       rescue
-        [ nil, nil, nil, ["sql_parse", { payload: payload, precalculated: precalculated }] ]
+        # Encode this since we may have improperly incoded strings that can't be to_json'ed
+        encoded = encode(payload: payload, precalculated: precalculated)
+        [ nil, nil, nil, ["sql_parse", encoded.to_json] ]
+      end
+
+      def encode(body)
+        if body.is_a?(Hash)
+          body.each{|k,v| body[k] = encode(v) }
+        elsif body.is_a?(Array)
+          body.each_with_index{|v,i| body[i] = encode(v) }
+        elsif body.respond_to?(:encoding) && (body.encoding == Encoding::BINARY || !body.valid_encoding?)
+          Base64.encode64(body)
+        else
+          body
+        end
       end
     end
   end
