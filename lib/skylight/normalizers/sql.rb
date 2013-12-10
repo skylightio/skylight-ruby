@@ -17,9 +17,6 @@ module Skylight
           title = payload[:name] || "SQL"
         end
 
-        # We don't want to modify the original payload since other non-Skylight subscribers may use it
-        payload = payload.dup
-
         unless payload[:binds].empty?
           payload[:binds] = payload[:binds].map { |col, val| val.inspect }
         end
