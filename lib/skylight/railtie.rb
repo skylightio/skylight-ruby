@@ -94,7 +94,7 @@ module Skylight
     def load_probes
       probes = config.skylight.probes || []
       probes.each do |p|
-        require 'skylight/probes/#{p}'
+        require "skylight/probes/#{p}"
       end
     end
   end
