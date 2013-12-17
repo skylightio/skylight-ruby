@@ -79,7 +79,7 @@ module Skylight
       self
 
     rescue Exception => e
-      error "failed to start instrumenter; msg=%s", e.message
+      log_error "failed to start instrumenter; msg=%s", e.message
       nil
     end
 
@@ -99,7 +99,7 @@ module Skylight
       begin
         trace = Messages::Trace::Builder.new(self, endpoint, Util::Clock.micros, cat, title, desc, annot)
       rescue Exception => e
-        error e.message
+        log_error e.message
         t { e.backtrace.join("\n") }
         return
       end
@@ -183,14 +183,10 @@ module Skylight
       end
     end
 
-    def error(reason, body)
-      t { fmt "processing error; reason=%s; body=%s", reason, body }
+    def error(type, description, details=nil)
+      t { fmt "processing error; type=%s; description=%s", type, description }
 
-      if body.encoding == Encoding::BINARY || !body.valid_encoding?
-        body = Base64.encode64(body)
-      end
-
-      message = Skylight::Messages::Error.new(reason: reason, body: body)
+      message = Skylight::Messages::Error.new(type: type, description: description, details: details && details.to_json)
 
       unless @worker.submit(message)
         warn "failed to submit error to worker"

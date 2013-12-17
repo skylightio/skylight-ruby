@@ -30,6 +30,7 @@ module Skylight
       'AGENT_SAMPLE_SIZE'   => :'agent.sample',
       'AGENT_SOCKFILE_PATH' => :'agent.sockfile_path',
       'AGENT_STRATEGY'      => :'agent.strategy',
+      'AGENT_MAX_MEMORY'    => :'agent.max_memory',
       'REPORT_HOST'         => :'report.host',
       'REPORT_PORT'         => :'report.port',
       'REPORT_SSL'          => :'report.ssl',
@@ -49,6 +50,7 @@ module Skylight
       :'agent.keepalive'     => 60,
       :'agent.interval'      => 5,
       :'agent.sample'        => 200,
+      :'agent.max_memory'    => 256, # MB
       :'report.host'         => 'agent.skylight.io'.freeze,
       :'report.port'         => 443,
       :'report.ssl'          => true,

@@ -87,8 +87,8 @@ module Skylight
       end
 
       def execute(req, body=nil)
-        t { fmt "executing HTTP request; host=%s; port=%s; body=%s",
-              @host, @port, body && body.bytesize }
+        t { fmt "executing HTTP request; host=%s; port=%s; path=%s, body=%s",
+              @host, @port, req.path, body && body.bytesize }
 
         if body
           body = Gzip.compress(body) if @deflate

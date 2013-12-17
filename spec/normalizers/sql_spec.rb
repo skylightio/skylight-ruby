@@ -170,7 +170,7 @@ module Skylight
       name.should == "db.sql.query"
       title.should == "Foo Load"
       desc.should == nil
-      annotations[:skylight_error].should == ["sql_parse", { payload: { name: "Foo Load", sql: "NOT &REAL& ;;;SQL;;;", binds: [] }, precalculated: [] }.to_json]
+      annotations[:skylight_error].should == ["sql_parse", "NOT &REAL& ;;;SQL;;;", { payload: { name: "Foo Load", sql: "NOT &REAL& ;;;SQL;;;", binds: [] }, precalculated: [] }]
     end
 
 

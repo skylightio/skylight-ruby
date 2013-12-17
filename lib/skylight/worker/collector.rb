@@ -62,25 +62,35 @@ module Skylight
         true
       end
 
+      def send_status(status)
+        post_data(:status, status)
+      end
+
+      def send_exception(exception)
+        post_data(:exception, exception)
+      end
+
     private
 
-      def send_error(msg)
-        res = @http_auth.post("/agent/error?hostname=#{escape(config[:'hostname'])}", reason: msg.reason, body: msg.body)
+      def post_data(type, data)
+        t { "posting data (#{type}): #{data.inspect}" }
+
+        res = @http_auth.post("/agent/#{type}?hostname=#{escape(config[:'hostname'])}", data)
 
         # error already handled in Util::HTTP
         return unless res
 
         unless res.success?
-          if (400..499).include? res.status
-            warn "error wasn't sent successfully; status=%s", res.status
-          end
-
-          warn "could not fetch report session token; status=%s", res.status
-          return
+          warn "#{type} wasn't sent successfully; status=%s", res.status
         end
       rescue Exception => e
         error "exception; msg=%s; class=%s", e.message, e.class
         t { e.backtrace.join("\n") }
+      end
+
+      def send_error(msg)
+        details = msg.details ? JSON.parse(msg.details) : nil
+        post_data(:error, type: msg.type, description: msg.description, details: details)
       end
 
       def finish

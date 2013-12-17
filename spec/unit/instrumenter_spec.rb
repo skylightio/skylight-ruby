@@ -79,11 +79,14 @@ describe Skylight::Instrumenter, :http do
         clock.unfreeze
         server.wait(timeout: 2, count: 3)
 
-        server.requests[1]["PATH_INFO"].should == "/agent/error"
-        error = server.requests[1]["rack.input"]
+        error_request = server.requests[1]
+
+        error_request["PATH_INFO"].should == "/agent/error"
+        error = error_request["rack.input"]
         error.should == {
-          "reason" => "sql_parse",
-          "body" => { "payload" => { "name" => "Load User", "sql" => bad_sql, "binds" => [] }, "precalculated" => [] }.to_json
+          "type" => "sql_parse",
+          "description" => bad_sql,
+          "details"=>{"payload"=>{"name"=>"Load User", "sql"=>bad_sql, "binds"=>[]}, "precalculated"=>[]}
         }
 
         server.reports[0].should have(1).endpoints
@@ -110,7 +113,7 @@ describe Skylight::Instrumenter, :http do
 
       it "sends error messages with binary data the Skylight Rails app" do
         bad_sql = "SELECT ???LOL??? \xCE ;;;NOTSQL;;;".force_encoding("BINARY")
-        encoded_payload = {"payload"=>{"name"=>"Load User", "sql"=>Base64.encode64(bad_sql), "binds"=>[]}, "precalculated"=>[]}.to_json
+        encoded_sql = Base64.encode64(bad_sql)
 
         Skylight.trace 'Testin', 'app.rack' do |t|
           ActiveSupport::Notifications.instrument('sql.active_record', name: "Load User", sql: bad_sql, binds: []) do
@@ -121,11 +124,13 @@ describe Skylight::Instrumenter, :http do
         clock.unfreeze
         server.wait(timeout: 2, count: 3)
 
-        server.requests[1]["PATH_INFO"].should == "/agent/error"
-        error = server.requests[1]["rack.input"]
+        error_request = server.requests[1]
+        error_request["PATH_INFO"].should == "/agent/error"
+        error = error_request["rack.input"]
         error.should == {
-          "reason" => "sql_parse",
-          "body" => encoded_payload
+          "type"=>"sql_parse",
+          "description"=>encoded_sql,
+          "details"=>{"payload"=>{"name"=>"Load User", "sql"=>encoded_sql, "binds"=>[]}, "precalculated"=>[]}
         }
 
         server.reports[0].should have(1).endpoints
@@ -163,11 +168,14 @@ describe Skylight::Instrumenter, :http do
         clock.unfreeze
         server.wait(timeout: 2, count: 3)
 
-        server.requests[1]["PATH_INFO"].should == "/agent/error"
-        error = server.requests[1]["rack.input"]
+        error_request = server.requests[1]
+
+        error_request["PATH_INFO"].should == "/agent/error"
+        error = error_request["rack.input"]
         error.should == {
-          "reason" => "sql_parse",
-          "body" => {"payload"=>{"name"=>"Load User", "sql"=>encoded_sql, "binds"=>[]}, "precalculated"=>[]}.to_json
+          "type"=>"sql_parse",
+          "description"=>encoded_sql,
+          "details"=>{"payload"=>{"name"=>"Load User", "sql"=>encoded_sql, "binds"=>[]}, "precalculated"=>[]}
         }
 
         server.reports[0].should have(1).endpoints

@@ -45,9 +45,8 @@ module Skylight
         title, sql, binds = SqlLexer::Lexer.bindify(payload[:sql], precalculated)
         [ title, sql, binds, nil ]
       rescue
-        # Encode this since we may have improperly incoded strings that can't be to_json'ed
-        encoded = encode(payload: payload, precalculated: precalculated)
-        [ nil, nil, nil, ["sql_parse", encoded.to_json] ]
+        error = ["sql_parse", encode(payload[:sql]), encode(payload: payload, precalculated: precalculated)]
+        [ nil, nil, nil, error ]
       end
 
       def encode(body)
