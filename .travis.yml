@@ -38,3 +38,7 @@ notifications:
       - secure: "IRhdYUI6TCUTma3JTkv1NSrLuQIuCEyCKjKHVf2hl8VwmxridYfit5ewLs2F\n3kzk0Owh6lsM0eSyIygTGyT+5xIplZgk7N/p8ImvbqvTuNylqmmv7xoBaxKF\nTFmQaXHkSiVOF30EP67uF6zbENMT/n9+IpaXX45wrdu1XCP5SX4="
     on_success: change
     on_failure: always
+  webhooks:
+    urls: https://tilde.slack.com/services/hooks/travis?token=N5Dc2tov6aTfOjXK1VOXlxiS
+    on_success: change
+    on_failure: always
