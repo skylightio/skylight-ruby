@@ -65,6 +65,18 @@ module Skylight
         payload.should == group_payload
       end
 
+      it "normalizes the title to a path relative to Gem.path" do
+        path = "/gem/path"
+        Gem.stub(path: [path])
+
+        complete_payload = { identifier: "#{path}/foo-1.0/views/bar.html.erb" }.merge(group_payload)
+        name, title, desc, payload = normalize(complete_payload)
+        name.should == group_name
+        title.should == "$GEM_PATH/foo-1.0/views/bar.html.erb"
+        desc.should == nil
+        payload.should == group_payload
+      end
+
       it "prints Absolute Path if it's outside the root" do
         complete_payload = { identifier: "/other/path/to/stuff" }.merge(group_payload)
         name, title, desc, payload = normalize(complete_payload)

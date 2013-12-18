@@ -60,11 +60,21 @@ module Skylight
         return path if relative_path?(path)
 
         root = array_find(@paths) { |p| path.start_with?(p) }
+        type = :project
+
+        unless root
+          root = array_find(Gem.path) { |p| path.start_with?(p) }
+          type = :gem
+        end
 
         if root
           start = root.size
           start += 1 if path.getbyte(start) == SEPARATOR_BYTE
-          path[start, path.size]
+          if type == :gem
+            "$GEM_PATH/#{path[start, path.size]}"
+          else
+            path[start, path.size]
+          end
         else
           annotations[:skylight_error] = ["absolute_path", path]
           "Absolute Path"
