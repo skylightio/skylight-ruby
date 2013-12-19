@@ -19,7 +19,10 @@ module SqlLexer
     End           = %Q<;|$>
 
     InOp          = %q<IN>
-    SpecialOps    = %Q<#{InOp}(?=[#{WS}])>
+    ArrayOp       = %q<ARRAY>
+    ColonColonOp  = %Q<::(?=[#{StartID}])>
+    ArrayIndexOp  = %q<\\[(?:\-?\d+(?::\-?\d+)?|NULL)\\]>
+    SpecialOps     = %Q<#{InOp}(?=[#{WS}])|#{ColonColonOp}|#{ArrayOp}|#{ArrayIndexOp}>
 
     StartQuotedID = %Q<">
     StartTickedID = %Q<`>
@@ -35,13 +38,14 @@ module SqlLexer
     StartAnyId    = %Q<"#{StartID}>
     Placeholder   = %q<\$\p{Digit}+>
 
-    AfterID       = %Q<[#{WS};#{StartNonBind}]|(?:#{OpPart})|$>
+    AfterID       = %Q<[#{WS};#{StartNonBind}]|(?:#{OpPart})|(?:#{ColonColonOp})|(?:#{ArrayIndexOp})|$>
     ID            = %Q<[#{StartID}][#{PartID}]*(?=#{AfterID})>
     AfterOp       = %Q<[#{WS}]|[#{StartAnyId}]|[#{StartBind}]|(#{StartNonBind})|$>
     Op            = %Q<(?:#{OpPart})+(?=#{AfterOp})>
     QuotedID      = %Q<#{StartQuotedID}(?:[^"]|"")*">
     TickedID      = %Q<#{StartTickedID}(?:[^`]|``)*`>
     NonBind       = %Q<#{ID}|#{Op}|#{QuotedID}|#{TickedID}|#{Placeholder}>
+    Type          = %Q<[#{StartID}][#{PartID}]*(?:\\(\d+\\)|\\[\\])?(?=#{AfterID})>
     QuotedTable   = %Q<#{TickedID}|#{QuotedID}>
 
     StringBody    = %q<(?:''|\x5C'|[^'])*>
@@ -64,6 +68,7 @@ module SqlLexer
     TkOp          = %r<[#{OpPart}]>u
     TkPlaceholder = %r<#{Placeholder}>u
     TkNonBind     = %r<#{NonBind}>u
+    TkType        = %r<#{Type}>u
     TkQuotedTable = %r<#{QuotedTable}>iu
     TkUpdateTable = %r<UPDATE#{TableNext}>iu
     TkInsertTable = %r<INSERT[#{WS}]+INTO#{TableNext}>iu
@@ -73,6 +78,9 @@ module SqlLexer
     TkEnd         = %r<;?[#{WS}]*>u
     TkBind        = %r<#{String}|#{Number}|#{Literals}>u
     TkIn          = %r<#{InOp}>iu
+    TkColonColon  = %r<#{ColonColonOp}>u
+    TkArray       = %r<#{ArrayOp}>iu
+    TkArrayIndex  = %r<#{ArrayIndexOp}>iu
     TkSpecialOp   = %r<#{SpecialOps}>iu
     TkStartSelect = %r<SELECT(?=(?:[#{WS}]|#{OpPart}))>iu
 
@@ -86,7 +94,8 @@ module SqlLexer
       table_name:  :process_table_name,
       end:         :process_end,
       special:     :process_special,
-      in:          :process_in
+      in:          :process_in,
+      array:       :process_array
     }
 
     def self.bindify(string, binds=nil)
@@ -281,6 +290,17 @@ module SqlLexer
         @scanner.skip(TkOptWS)
         @scanner.skip(/\(/u)
         @state = :in
+      elsif @scanner.skip(TkArray)
+        @scanner.skip(/\[/u)
+        @state = :array
+      elsif @scanner.skip(TkColonColon)
+        if @scanner.skip(TkType)
+          @state = :tokens
+        else
+          @state = :end
+        end
+      elsif @scanner.skip(TkArrayIndex)
+        @state = :tokens
       end
     end
 
@@ -326,6 +346,56 @@ module SqlLexer
       @state = :tokens
     end
 
+    def process_array
+      nest = 1
+      iterations = 0
+
+      @skip_binds = true
+      pos = @scanner.pos - 6
+
+      while nest > 0
+        iterations += 1
+
+        if iterations > 10_000
+          raise "The SQL '#{@scanner.string}' could not be parsed because of too many iterations in ARRAY"
+        end
+
+        if @debug
+          p "array loop"
+          p @state
+          p @scanner
+        end
+
+        if @scanner.skip(/\[/u)
+          nest += 1
+        elsif @scanner.skip(/\]/u)
+          nest -= 1
+
+          break if nest.zero?
+
+          # End of final nested array
+          next if @scanner.skip(/#{TkOptWS}(?=\])/u)
+        end
+
+        # A NULL array
+        next if @scanner.skip(/NULL/iu)
+
+        # Another nested array
+        next if @scanner.skip(/#{TkOptWS},#{TkOptWS}(?=\[)/u)
+
+        process_tokens
+
+        send STATE_HANDLERS[@state]
+      end
+
+      @binds << pos
+      @binds << @scanner.pos - pos
+
+      @skip_binds = false
+
+      @state = :tokens
+    end
+
     def process_non_bind
       @scanner.skip(TkNonBind)
       @state = :tokens
@@ -344,13 +414,18 @@ module SqlLexer
     end
 
     def process_end
-      @scanner.skip(TkEnd)
-
-      unless @scanner.eos?
-        raise "The SQL '#{@scanner.string}' could not be parsed"
+      if @scanner.skip(TkEnd)
+        if @scanner.eos?
+          @state = nil
+        else
+          process_tokens
+        end
       end
 
-      @state = nil
+      # We didn't hit EOS and we couldn't process any tokens
+      if @state == :end
+        raise "The SQL '#{@scanner.string}' could not be parsed"
+      end
     end
 
   private
