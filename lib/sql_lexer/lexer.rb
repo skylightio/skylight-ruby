@@ -22,7 +22,7 @@ module SqlLexer
     ArrayOp       = %q<ARRAY>
     ColonColonOp  = %Q<::(?=[#{StartID}])>
     ArrayIndexOp  = %q<\\[(?:\-?\d+(?::\-?\d+)?|NULL)\\]>
-    SpecialOps     = %Q<#{InOp}(?=[#{WS}])|#{ColonColonOp}|#{ArrayOp}|#{ArrayIndexOp}>
+    SpecialOps    = %Q<#{InOp}(?=[#{WS}])|#{ColonColonOp}|#{ArrayOp}|#{ArrayIndexOp}>
 
     StartQuotedID = %Q<">
     StartTickedID = %Q<`>
@@ -66,6 +66,9 @@ module SqlLexer
     TkWS          = %r<[#{WS}]+>u
     TkOptWS       = %r<[#{WS}]*>u
     TkOp          = %r<[#{OpPart}]>u
+    TkComment     = %r<^#{OptWS}--.*$>u
+    TkBlockCommentStart = %r</\*>u
+    TkBlockCommentEnd   = %r<\*/>u
     TkPlaceholder = %r<#{Placeholder}>u
     TkNonBind     = %r<#{NonBind}>u
     TkType        = %r<#{Type}>u
@@ -167,6 +170,8 @@ module SqlLexer
     UNKNOWN = "<unknown>".freeze
 
     def process(binds)
+      process_comments
+
       @operation = nil
       @provided_binds = binds
 
@@ -209,6 +214,64 @@ module SqlLexer
     end
 
     EMPTY = "".freeze
+
+    def process_comments
+      # SQL treats comments as similar to whitespace
+      # Here we replace all comments with spaces of the same length so as to not affect binds
+
+      # Remove block comments
+      # SQL allows for nested comments so this takes a bit more work
+      while @scanner.skip_until(TkBlockCommentStart)
+        count = 1
+        pos = @scanner.pos - 2
+
+        while true
+          # Determine whether we close the comment or start nesting
+          next_open  = @scanner.skip_until(TkBlockCommentStart)
+          @scanner.unscan if next_open
+          next_close = @scanner.skip_until(TkBlockCommentEnd)
+          @scanner.unscan if next_close
+
+          if next_open && next_open < next_close
+            # We're nesting
+            count += 1
+            @scanner.skip_until(TkBlockCommentStart)
+          else
+            # We're closing
+            count -= 1
+            @scanner.skip_until(TkBlockCommentEnd)
+          end
+
+          if count > 10_000
+            raise "The SQL '#{@scanner.string}' could not be parsed because of too many iterations in block comments"
+          end
+
+          if count == 0
+            # We've closed all comments
+            length = @scanner.pos - pos
+            # Dup the string if necessary so we aren't destructive to the original value
+            @scanner.string = @input.dup if @scanner.string == @input
+            # Replace the comment with spaces
+            @scanner.string[pos, length] = SPACE*length
+            break
+          end
+        end
+      end
+
+      @scanner.reset
+
+      # Remove single line comments
+      while @scanner.skip_until(TkComment)
+        pos = @scanner.pos
+        len = @scanner.matched_size
+        # Dup the string if necessary so we aren't destructive to the original value
+        @scanner.string = @input.dup if @scanner.string == @input
+        # Replace the comment with spaces
+        @scanner.string[pos-len, len] = SPACE*len
+      end
+
+      @scanner.reset
+    end
 
     def process_begin
       @scanner.skip(TkOptWS)
@@ -335,7 +398,7 @@ module SqlLexer
           process_tokens
         end
 
-        send STATE_HANDLERS[@state]
+        __send__ STATE_HANDLERS[@state]
       end
 
       @binds << pos
@@ -385,7 +448,7 @@ module SqlLexer
 
         process_tokens
 
-        send STATE_HANDLERS[@state]
+        __send__ STATE_HANDLERS[@state]
       end
 
       @binds << pos
