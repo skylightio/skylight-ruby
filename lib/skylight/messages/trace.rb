@@ -25,8 +25,7 @@ module Skylight
 
           start = normalize_time(start)
 
-          @native_builder = ::Skylight::Trace.native_new(start)
-          @native_builder.native_set_uuid("TODO")
+          @native_builder = ::Skylight::Trace.native_new(start, "TODO")
           @native_builder.native_set_name(endpoint)
 
           @instrumenter  = instrumenter
