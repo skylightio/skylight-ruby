@@ -151,4 +151,29 @@ module Skylight
   require 'skylight/probes'
 end
 
+else
+
+module Skylight
+  def self.start!(*)
+  end
+
+  def self.stop!(*)
+  end
+
+  def self.trace(*)
+    yield if block_given?
+  end
+
+  def self.done(*)
+  end
+
+  def self.instrument(*)
+    yield if block_given?
+  end
+
+  def self.disable(*)
+    yield if block_given?
+  end
+end
+
 end
