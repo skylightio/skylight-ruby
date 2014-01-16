@@ -62,26 +62,26 @@ if missing_a
     file.puts "default:"
   end
 else
-  have_header 'dlfcn.h'
-
-  find_library("skylight", "factory", ".")
-
-  puts "Found skylight"
-
-  if Gem::Platform.local.os == "darwin"
-    $LDFLAGS << " -lpthread"
-  else
-    $LDFLAGS << " -Wl,--version-script=skylight.map"
-    $LDFLAGS << " -lrt -ldl -lm -lpthread"
-  end
-
-  puts "Updated ldflags"
-
-  CONFIG['warnflags'].gsub!('-Wdeclaration-after-statement', '')
-
-  puts "Updated warnflags"
-
   begin
+    have_header 'dlfcn.h'
+
+    find_library("skylight", "factory", ".")
+
+    puts "Found skylight"
+
+    if Gem::Platform.local.os == "darwin"
+      $LDFLAGS << " -lpthread"
+    else
+      $LDFLAGS << " -Wl,--version-script=skylight.map"
+      $LDFLAGS << " -lrt -ldl -lm -lpthread"
+    end
+
+    puts "Updated ldflags"
+
+    CONFIG['warnflags'].gsub!('-Wdeclaration-after-statement', '')
+
+    puts "Updated warnflags"
+
     puts "Creating makefile"
     create_makefile 'skylight_native', '.'
     puts "Created makefile"
