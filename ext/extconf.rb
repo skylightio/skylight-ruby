@@ -75,5 +75,14 @@ else
 
   CONFIG['warnflags'].gsub!('-Wdeclaration-after-statement', '')
 
-  create_makefile 'skylight_native', '.'
+  begin
+    puts "Creating makefile"
+    create_makefile 'skylight_native', '.'
+    puts "Created makefile"
+  rescue Exception => e
+    puts e.class
+    puts e.message
+    puts e.backtrace
+    exit 1
+  end
 end
