@@ -66,6 +66,8 @@ else
 
   find_library("skylight", "factory", ".")
 
+  puts "Found skylight"
+
   if Gem::Platform.local.os == "darwin"
     $LDFLAGS << " -lpthread"
   else
@@ -73,7 +75,11 @@ else
     $LDFLAGS << " -lrt -ldl -lm -lpthread"
   end
 
+  puts "Updated ldflags"
+
   CONFIG['warnflags'].gsub!('-Wdeclaration-after-statement', '')
+
+  puts "Updated warnflags"
 
   begin
     puts "Creating makefile"
