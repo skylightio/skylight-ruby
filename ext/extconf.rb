@@ -24,12 +24,16 @@ unless File.exist?("libskylight.a")
       location = response["Location"]
     end
 
-    archive = nil
+    if location
+      archive = nil
 
-    uri = URI(location)
-    Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
-      response = http.get(uri.request_uri)
-      archive = response.body
+      uri = URI(location)
+      Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+        response = http.get(uri.request_uri)
+        archive = response.body
+      end
+    else
+      missing_a = true
     end
   rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
        Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError

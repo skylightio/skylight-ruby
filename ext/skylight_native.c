@@ -135,10 +135,6 @@ static VALUE clock_high_res_time(VALUE self) {
  * class Skylight::Hello
  */
 
-static void hello_dealloc(RustHello hello) {
-  // noop for now
-}
-
 static VALUE hello_new(VALUE klass, VALUE version, VALUE config) {
   RustHello hello;
 
