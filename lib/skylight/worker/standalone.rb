@@ -217,18 +217,13 @@ module Skylight
       end
 
       def write_msg(sock, msg)
-        if msg.respond_to?(:native_serialize)
-          buf = msg.native_serialize
-          id  = Messages::Trace.message_id
-        else
-          buf = msg.encode.to_s
-          id  = msg.message_id
-        end
+        t { "writing a #{msg.class} on the wire" }
+        id = Messages::KLASS_TO_ID.fetch(msg.class)
+        buf = msg.serialize
 
         frame = [ id, buf.bytesize ].pack("LL")
 
-        write(sock, frame) &&
-          write(sock, buf)
+        write(sock, frame) && write(sock, buf)
       end
 
       SOCK_TIMEOUT_VAL = [ 0, 0.01 * 1_000_000 ].pack("l_2")
@@ -361,11 +356,8 @@ module Skylight
         end
       end
 
-      def build_hello(config_version = nil)
-        Messages::Hello.new(
-          version: VERSION,
-          cmd:     SUBPROCESS_CMD,
-          config:  config_version)
+      def build_hello
+        Messages::Hello.build(VERSION, SUBPROCESS_CMD)
       end
 
       def build_queue

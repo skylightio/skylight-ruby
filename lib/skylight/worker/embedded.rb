@@ -14,10 +14,8 @@ module Skylight
       end
 
       def submit(msg)
-        # a Rust Trace
-        if msg.respond_to?(:native_serialize)
-          msg = Messages::TraceEnvelope.new(msg.native_serialize)
-        end
+        decoder = Messages::ID_TO_KLASS.fetch(Messages::KLASS_TO_ID.fetch(msg.class))
+        msg = decoder.deserialize(msg.serialize)
 
         @collector.submit(msg)
       end

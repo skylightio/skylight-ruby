@@ -221,12 +221,12 @@ module Skylight
         case msg
         when nil
           return
-        when Messages::Hello
+        when Hello
           if msg.newer?
             info "newer version of agent deployed - restarting; curr=%s; new=%s", VERSION, msg.version
             reload(msg)
           end
-        when Messages::Base, Messages::TraceEnvelope
+        when Messages::TraceEnvelope, Messages::Error
           t { "received message" }
           @collector.submit(msg)
         when :unknown

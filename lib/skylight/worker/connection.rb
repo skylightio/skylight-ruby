@@ -44,8 +44,7 @@ module Skylight
       def maybe_read_message
         if @len && @buf.bytesize >= @len + FRAME_HDR_LEN
           mid   = read_message_id
-          klass = Messages.get(mid)
-          $stderr.puts("mid: #{mid.inspect}; klass: #{klass.inspect}")
+          klass = Messages::ID_TO_KLASS.fetch(mid)
           data  = @buf[FRAME_HDR_LEN, @len]
           @buf  = @buf[(FRAME_HDR_LEN + @len)..-1] || ""
 
@@ -60,7 +59,7 @@ module Skylight
           end
 
           begin
-            return klass.decode(data)
+            return klass.deserialize(data)
           rescue Exception => e
             # reraise protobuf decoding exceptions
             raise IpcProtoError, e.message

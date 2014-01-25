@@ -1,7 +1,7 @@
 module Skylight
   module Messages
     class TraceEnvelope
-      def self.decode(data)
+      def self.deserialize(data)
         new(data)
       end
 
@@ -11,7 +11,5 @@ module Skylight
         @data = data
       end
     end
-
-    Messages.set(Trace.message_id, TraceEnvelope)
   end
 end

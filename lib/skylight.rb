@@ -4,6 +4,7 @@ require 'skylight/version'
 
 begin
   require 'skylight_native'
+  require 'skylight/native'
   has_native_ext = true
 rescue LoadError
   puts "[SKYLIGHT] The Skylight native extension wasn't found. Skylight is not running"

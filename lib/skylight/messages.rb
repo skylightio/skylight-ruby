@@ -1,13 +1,5 @@
 module Skylight
   module Messages
-    def self.get(id)
-      (@id_map ||= {})[id]
-    end
-
-    def self.set(id, klass)
-      (@id_map ||= {})[id] = klass
-    end
-
     require 'skylight/messages/annotation'
     require 'skylight/messages/event'
     require 'skylight/messages/span'
@@ -17,5 +9,17 @@ module Skylight
     require 'skylight/messages/hello'
     require 'skylight/messages/error'
     require 'skylight/messages/trace_envelope'
+
+    KLASS_TO_ID = {
+      Skylight::Hello => 1,
+      Skylight::Trace => 2,
+      Skylight::Messages::Error => 3
+    }
+
+    ID_TO_KLASS = {
+      1 => Skylight::Hello,
+      2 => Skylight::Messages::TraceEnvelope,
+      3 => Skylight::Messages::Error
+    }
   end
 end
