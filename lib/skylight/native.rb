@@ -55,6 +55,17 @@ module Skylight
 
   end
 
+  class Error
+    alias serialize native_serialize
+    alias type native_get_group
+    alias description native_get_description
+    alias details native_get_details
+
+    class << self
+      alias deserialize native_load
+    end
+  end
+
   class Trace
     alias serialize native_serialize
 

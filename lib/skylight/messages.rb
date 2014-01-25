@@ -13,13 +13,13 @@ module Skylight
     KLASS_TO_ID = {
       Skylight::Hello => 1,
       Skylight::Trace => 2,
-      Skylight::Messages::Error => 3
+      Skylight::Error => 3
     }
 
     ID_TO_KLASS = {
       1 => Skylight::Hello,
       2 => Skylight::Messages::TraceEnvelope,
-      3 => Skylight::Messages::Error
+      3 => Skylight::Error
     }
   end
 end
