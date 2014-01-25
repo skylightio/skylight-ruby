@@ -6,7 +6,20 @@ cd ext
 ruby extconf.rb
 make
 
-cp skylight_native.{bundle,so} ../lib/
+case `uname` in
+  Darwin)
+    LIBEXT=bundle
+    ;;
+  Linux)
+    LIBEXT=so
+    ;;
+  *)
+    echo "Unknown OS" >&2
+    exit 1
+    ;;
+esac
+
+cp skylight_native.${LIBEXT} ../lib/
 
 cd ..
 
