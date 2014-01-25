@@ -16,5 +16,6 @@ module Skylight
     require 'skylight/messages/batch'
     require 'skylight/messages/hello'
     require 'skylight/messages/error'
+    require 'skylight/messages/trace_envelope'
   end
 end

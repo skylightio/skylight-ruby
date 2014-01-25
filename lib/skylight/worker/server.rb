@@ -226,7 +226,7 @@ module Skylight
             info "newer version of agent deployed - restarting; curr=%s; new=%s", VERSION, msg.version
             reload(msg)
           end
-        when Messages::Base
+        when Messages::Base, Messages::TraceEnvelope
           t { "received message" }
           @collector.submit(msg)
         when :unknown

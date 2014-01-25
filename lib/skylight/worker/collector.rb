@@ -20,7 +20,6 @@ module Skylight
         @size        = config[:'agent.sample']
         @batch       = nil
         @interval    = config[:'agent.interval']
-        @buf         = ""
         @refresh_at  = 0
         @http_auth   = Util::HTTP.new(config, :accounts)
         @http_report = nil
@@ -50,7 +49,7 @@ module Skylight
         return true unless msg
 
         case msg
-        when Messages::Trace
+        when Messages::TraceEnvelope
           t { fmt "collector received trace" }
           @batch.push(msg)
         when Messages::Error
@@ -114,8 +113,7 @@ module Skylight
 
         debug "flushing batch; size=%d", batch.sample.count
 
-        @buf.clear
-        @http_report.post(ENDPOINT, batch.encode(@buf), CONTENT_TYPE => SKYLIGHT_V2)
+        @http_report.post(ENDPOINT, batch.encode, CONTENT_TYPE => SKYLIGHT_V2)
       end
 
       def refresh_report_token(now)
@@ -180,7 +178,6 @@ module Skylight
           @from     = from
           @flush_at = from + interval
           @sample   = Util::UniformSample.new(size)
-          @counts   = Hash.new(0)
         end
 
         def should_flush?(now)
@@ -194,38 +191,18 @@ module Skylight
         end
 
         def push(trace)
-          # Count it
-          @counts[trace.endpoint] += 1
           # Push the trace into the sample
           @sample << trace
         end
 
-        def encode(buf)
-          endpoints = {}
+        def encode
+          batch = Skylight::Batch.native_new(from, config[:hostname])
 
           sample.each do |trace|
-            unless name = trace.endpoint
-              debug "trace missing name -- dropping"
-              next
-            end
-
-            trace.endpoint = nil
-
-            ep = (endpoints[name] ||= Messages::Endpoint.new(
-              name: name, traces: [], count: @counts[name]))
-
-            ep.traces << trace
+            batch.native_move_in(trace.data)
           end
 
-          t { fmt "encoding batch; endpoints=%p", endpoints.keys }
-
-          Messages::Batch.new(
-            timestamp: from,
-            hostname:  config[:hostname],
-            endpoints: endpoints.values).
-            encode(buf)
-
-          buf
+          batch.native_serialize
         end
       end
 

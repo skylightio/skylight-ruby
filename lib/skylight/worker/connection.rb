@@ -45,6 +45,7 @@ module Skylight
         if @len && @buf.bytesize >= @len + FRAME_HDR_LEN
           mid   = read_message_id
           klass = Messages.get(mid)
+          $stderr.puts("mid: #{mid.inspect}; klass: #{klass.inspect}")
           data  = @buf[FRAME_HDR_LEN, @len]
           @buf  = @buf[(FRAME_HDR_LEN + @len)..-1] || ""
 
