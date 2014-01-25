@@ -79,8 +79,10 @@ void factory();
 
 // Rust skylight_hello prototypes
 bool skylight_hello_new(RustSlice, uint32_t, RustHello*);
+bool skylight_hello_load(RustSlice, RustHello*);
 bool skylight_hello_cmd_add(RustHello, RustSlice);
 bool skylight_hello_get_version(RustHello, RustSlice*);
+bool skylight_hello_cmd_length(RustHello, uint32_t*);
 bool skylight_hello_get_cmd(RustHello, int, RustSlice*);
 bool skylight_hello_serialize(RustHello, RustString*);
 bool skylight_high_res_time(uint64_t*);
@@ -155,6 +157,16 @@ static VALUE hello_new(VALUE klass, VALUE version, VALUE config) {
   return Data_Wrap_Struct(rb_cHello, NULL, NULL, hello);
 }
 
+static VALUE hello_load(VALUE self, VALUE protobuf) {
+  CHECK_TYPE(protobuf, T_STRING);
+
+  RustHello hello;
+
+  CHECK_FFI(skylight_hello_load(STR2SLICE(protobuf), &hello), "Could not load Hello");
+
+  return Data_Wrap_Struct(rb_cHello, NULL, NULL, hello);
+}
+
 static const char* freedHello = "You can't do anything with a Hello once it's been serialized";
 
 static VALUE hello_get_version(VALUE self) {
@@ -165,6 +177,16 @@ static VALUE hello_get_version(VALUE self) {
   CHECK_FFI(skylight_hello_get_version(hello, &slice), "could not get version from Hello");
 
   return SLICE2STR(slice);
+}
+
+static VALUE hello_cmd_length(VALUE self) {
+  My_Struct(hello, RustHello, freedHello);
+
+  uint32_t length;
+
+  CHECK_FFI(skylight_hello_cmd_length(hello, &length), "Could not get length of Hello commands");
+
+  return UINT2NUM(length);
 }
 
 static VALUE hello_add_cmd_part(VALUE self, VALUE rb_string) {
@@ -412,7 +434,9 @@ void Init_skylight_native() {
 
   rb_cHello = rb_define_class_under(rb_mSkylight, "Hello", rb_cObject);
   rb_define_singleton_method(rb_cHello, "native_new", hello_new, 2);
+  rb_define_singleton_method(rb_cHello, "native_load", hello_load, 1);
   rb_define_method(rb_cHello, "native_get_version", hello_get_version, 0);
+  rb_define_method(rb_cHello, "native_cmd_length", hello_cmd_length, 0);
   rb_define_method(rb_cHello, "native_add_cmd_part", hello_add_cmd_part, 1);
   rb_define_method(rb_cHello, "native_cmd_get", hello_cmd_get, 1);
   rb_define_method(rb_cHello, "native_serialize", hello_serialize, 0);
