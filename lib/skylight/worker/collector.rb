@@ -28,7 +28,7 @@ module Skylight
         t { fmt "starting collector; interval=%d; size=%d", @interval, @size }
       end
 
-      def handle(msg, now = Util::Clock.secs)
+      def handle(msg, now = Util::Clock.absolute_secs)
         @batch ||= new_batch(now)
 
         if should_refresh_token?(now)
@@ -95,7 +95,7 @@ module Skylight
       def finish
         t { fmt "collector finishing up" }
 
-        now = Util::Clock.secs
+        now = Util::Clock.absolute_secs
 
         if should_refresh_token?(now)
           refresh_report_token(now)

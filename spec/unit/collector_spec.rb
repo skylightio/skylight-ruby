@@ -61,7 +61,7 @@ module Skylight
         req['CONTENT_TYPE'].should == 'application/x-skylight-report-v2'
 
         batch = server.reports[0]
-        batch.timestamp.should be_within(3).of(Util::Clock.secs)
+        batch.timestamp.should be_within(3).of(Util::Clock.absolute_secs)
         batch.hostname.should == Socket.gethostname
 
         batch.should have(1).endpoints
