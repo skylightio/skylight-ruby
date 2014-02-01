@@ -13,6 +13,17 @@
     }                                             \
   } while(0)                                      \
 
+#define CHECK(EXPR, string)                       \
+  do {                                            \
+    if (!({ EXPR; })) {                           \
+      rb_raise(rb_eArgError, string);             \
+      return Qnil;                                \
+    }                                             \
+  } while(0)                                      \
+
+#define CHECK_NUMERIC(VAL)                        \
+  CHECK(VAL, #VAL " is not numeric")              \
+
 #define My_Struct(name, Type, msg)                \
   Get_Struct(name, self, Type, msg);              \
 
@@ -53,7 +64,7 @@ typedef struct {
 } RustSlice;
 
 typedef rust_str * RustString;
-#define VEC2STR(string) ({ RustString s = (string); VALUE ret = rb_str_new((char *)s->data, s->fill); skylight_free_buf(s); ret; })
+#define VEC2STR(string) ({ RustString s = (string); VALUE ret = rb_str_new((char *)s->data, s->fill); ret; })
 #define SLICE2STR(slice) ({ RustSlice s = (slice); rb_str_new(s.data, s.len); })
 #define STR2SLICE(string) ({ RustSlice s; VALUE rb_str = (string); s.data = RSTRING_PTR(rb_str); s.len = RSTRING_LEN(rb_str); s; })
 
@@ -71,6 +82,7 @@ typedef struct {
  */
 
 typedef void * RustHello;
+typedef void * RustError;
 typedef void * RustTrace;
 typedef void * RustBatch;
 
@@ -79,16 +91,18 @@ void factory();
 
 // Rust skylight_hello prototypes
 bool skylight_hello_new(RustSlice, uint32_t, RustHello*);
+bool skylight_hello_free(RustHello);
 bool skylight_hello_load(RustSlice, RustHello*);
 bool skylight_hello_cmd_add(RustHello, RustSlice);
 bool skylight_hello_get_version(RustHello, RustSlice*);
 bool skylight_hello_cmd_length(RustHello, uint32_t*);
 bool skylight_hello_get_cmd(RustHello, int, RustSlice*);
-bool skylight_hello_serialize(RustHello, RustString*);
+bool skylight_hello_serialize_into_new_buffer(RustHello, RustString*);
 bool skylight_high_res_time(uint64_t*);
 
 // Rust skylight_trace prototypes
 bool skylight_trace_new(uint64_t, RustSlice, RustTrace*);
+bool skylight_trace_free(RustTrace);
 bool skylight_trace_load(RustSlice, RustTrace*);
 bool skylight_trace_get_started_at(RustTrace, uint64_t*);
 bool skylight_trace_set_name(RustTrace, RustSlice);
@@ -96,7 +110,7 @@ bool skylight_trace_get_name(RustTrace, RustSlice*);
 bool skylight_trace_get_uuid(RustTrace, RustSlice*);
 bool skylight_trace_start_span(RustTrace, uint64_t, RustSlice, uint32_t*);
 bool skylight_trace_stop_span(RustTrace, uint32_t, uint64_t);
-bool skylight_trace_serialize(RustTrace, RustString*);
+bool skylight_trace_serialize_into_new_buffer(RustTrace, RustString*);
 bool skylight_trace_span_set_title(RustTrace, uint64_t, RustSlice);
 bool skylight_trace_span_set_description(RustTrace, uint64_t, RustSlice);
 
@@ -108,8 +122,19 @@ bool skylight_trace_add_annotation_nested(RustTrace, uint32_t, uint32_t*, Option
 
 // Batch methods
 bool skylight_batch_new(uint64_t, RustString, RustBatch*);
+bool skylight_batch_free(RustBatch);
 bool skylight_batch_move_in(RustBatch, RustString);
-bool skylight_batch_serialize(RustBatch, RustString*);
+bool skylight_batch_serialize_into_new_buffer(RustBatch, RustString*);
+
+// Error methods
+bool skylight_error_new(RustSlice, RustSlice, RustError*);
+bool skylight_error_free(RustError);
+bool skylight_error_load(RustSlice, RustError*);
+bool skylight_error_get_group(RustError, RustSlice*);
+bool skylight_error_get_description(RustError, RustSlice*);
+bool skylight_error_get_details(RustError, RustSlice*);
+bool skylight_error_set_details(RustError, RustSlice);
+bool skylight_error_serialize_into_new_buffer(RustError, RustString*);
 
 void skylight_free_buf(RustString);
 
@@ -129,6 +154,7 @@ VALUE rb_mSkylight;
 VALUE rb_mUtil;
 VALUE rb_cClock;
 VALUE rb_cHello;
+VALUE rb_cError;
 VALUE rb_cTrace;
 VALUE rb_cBatch;
 
@@ -154,7 +180,7 @@ static VALUE hello_new(VALUE klass, VALUE version, VALUE config) {
 
   CHECK_FFI(skylight_hello_new(STR2SLICE(version), FIX2INT(config), &hello), "could not create new Hello");
 
-  return Data_Wrap_Struct(rb_cHello, NULL, NULL, hello);
+  return Data_Wrap_Struct(rb_cHello, NULL, skylight_hello_free, hello);
 }
 
 static VALUE hello_load(VALUE self, VALUE protobuf) {
@@ -164,7 +190,7 @@ static VALUE hello_load(VALUE self, VALUE protobuf) {
 
   CHECK_FFI(skylight_hello_load(STR2SLICE(protobuf), &hello), "Could not load Hello");
 
-  return Data_Wrap_Struct(rb_cHello, NULL, NULL, hello);
+  return Data_Wrap_Struct(rb_cHello, NULL, skylight_hello_free, hello);
 }
 
 static const char* freedHello = "You can't do anything with a Hello once it's been serialized";
@@ -216,9 +242,91 @@ static VALUE hello_serialize(VALUE self) {
   RustString serialized;
   Transfer_My_Struct(hello, RustHello, freedHello);
 
-  CHECK_FFI(skylight_hello_serialize(hello, &serialized), "Could not serialize Hello");
+  CHECK_FFI(skylight_hello_serialize_into_new_buffer(hello, &serialized), "Could not serialize Hello");
+  skylight_hello_free(hello);
 
-  return VEC2STR(serialized);
+  VALUE string = VEC2STR(serialized);
+  skylight_free_buf(serialized);
+  return string;
+}
+
+/**
+ * class Skylight::Error
+ */
+
+static VALUE error_new(VALUE klass, VALUE group, VALUE description) {
+  RustError error;
+
+  CHECK_TYPE(group, T_STRING);
+  CHECK_TYPE(description, T_STRING);
+
+  CHECK_FFI(skylight_error_new(STR2SLICE(group), STR2SLICE(description), &error), "could not create new Error");
+
+  return Data_Wrap_Struct(rb_cError, NULL, skylight_error_free, error);
+}
+
+static VALUE error_load(VALUE self, VALUE protobuf) {
+  CHECK_TYPE(protobuf, T_STRING);
+
+  RustError error;
+
+  CHECK_FFI(skylight_error_load(STR2SLICE(protobuf), &error), "Could not load Error");
+
+  return Data_Wrap_Struct(rb_cError, NULL, skylight_error_free, error);
+}
+
+static const char* freedError = "You can't do anything with a Error once it's been serialized";
+
+static VALUE error_get_group(VALUE self) {
+  RustSlice slice;
+
+  My_Struct(error, RustError, freedError);
+
+  CHECK_FFI(skylight_error_get_group(error, &slice), "could not get group from Error");
+
+  return SLICE2STR(slice);
+}
+
+static VALUE error_get_description(VALUE self) {
+  RustSlice slice;
+
+  My_Struct(error, RustError, freedError);
+
+  CHECK_FFI(skylight_error_get_description(error, &slice), "could not get description from Error");
+
+  return SLICE2STR(slice);
+}
+
+static VALUE error_get_details(VALUE self) {
+  RustSlice slice;
+
+  My_Struct(error, RustError, freedError);
+
+  CHECK_FFI(skylight_error_get_details(error, &slice), "could not get details from Error");
+
+  return SLICE2STR(slice);
+}
+
+static VALUE error_set_details(VALUE self, VALUE details) {
+  CHECK_TYPE(details, T_STRING);
+
+  My_Struct(error, RustError, freedError);
+
+  CHECK_FFI(skylight_error_set_details(error, STR2SLICE(details)), "could not set Error details");
+
+  return Qnil;
+}
+
+static VALUE error_serialize(VALUE self) {
+  RustString serialized;
+  Transfer_My_Struct(error, RustError, freedError);
+
+  CHECK_FFI(skylight_error_serialize_into_new_buffer(error, &serialized), "Could not serialize Error");
+  skylight_error_free(error);
+
+  VALUE string = VEC2STR(serialized);
+  skylight_free_buf(serialized);
+  return string;
 }
 
 /**
@@ -235,7 +343,7 @@ static VALUE trace_new(VALUE self, VALUE started_at, VALUE uuid) {
 
   CHECK_FFI(skylight_trace_new(NUM2ULL(started_at), STR2SLICE(uuid), &trace), "Could not created Trace");
 
-  return Data_Wrap_Struct(rb_cTrace, NULL, NULL, trace);
+  return Data_Wrap_Struct(rb_cTrace, NULL, skylight_trace_free, trace);
 }
 
 static VALUE trace_load(VALUE self, VALUE protobuf) {
@@ -245,7 +353,7 @@ static VALUE trace_load(VALUE self, VALUE protobuf) {
 
   CHECK_FFI(skylight_trace_load(STR2SLICE(protobuf), &trace), "Could not load Trace");
 
-  return Data_Wrap_Struct(rb_cTrace, NULL, NULL, trace);
+  return Data_Wrap_Struct(rb_cTrace, NULL, skylight_trace_free, trace);
 }
 
 static VALUE trace_get_started_at(VALUE self) {
@@ -293,18 +401,18 @@ static VALUE trace_start_span(VALUE self, VALUE time, VALUE category) {
   uint32_t span;
   My_Struct(trace, RustTrace, freedTrace);
 
-  CHECK_TYPE(time, T_FIXNUM);
+  CHECK_NUMERIC(time);
   CHECK_TYPE(category, T_STRING);
 
   CHECK_FFI(skylight_trace_start_span(trace, NUM2ULL(time), STR2SLICE(category), &span), "Could not start Span");
 
-  return INT2FIX(span);
+  return UINT2NUM(span);
 }
 
 static VALUE trace_stop_span(VALUE self, VALUE span_index, VALUE time) {
   My_Struct(trace, RustTrace, freedTrace);
 
-  CHECK_TYPE(time, T_FIXNUM);
+  CHECK_NUMERIC(time);
   CHECK_TYPE(span_index, T_FIXNUM);
 
   CHECK_FFI(skylight_trace_stop_span(trace, FIX2UINT(span_index), NUM2ULL(time)), "Could not stop Span");
@@ -338,9 +446,12 @@ static VALUE trace_serialize(VALUE self) {
 
   RustString string;
 
-  CHECK_FFI(skylight_trace_serialize(trace, &string), "Could not serialize Trace");
+  CHECK_FFI(skylight_trace_serialize_into_new_buffer(trace, &string), "Could not serialize Trace");
+  skylight_trace_free(trace);
 
-  return VEC2STR(string);
+  VALUE rb_string = VEC2STR(string);
+  skylight_free_buf(string);
+  return rb_string;
 }
 
 static VALUE trace_span_add_annotation(VALUE self, VALUE rb_span_id, VALUE parent, VALUE rb_key, VALUE value) {
@@ -376,6 +487,8 @@ static VALUE trace_span_add_annotation(VALUE self, VALUE rb_span_id, VALUE paren
   } else if (TYPE(value) == T_SYMBOL && value == ID2SYM(rb_intern("nested"))) {
     CHECK_FFI(skylight_trace_add_annotation_nested(trace, span_id, parent_id, key, &new_id), "Could not add nested annotation");
     return ULL2NUM(new_id);
+  } else {
+    rb_raise(rb_eArgError, "You must pass an integer, string or :nested to native_span_add_annotation");
   }
 
   return Qnil;
@@ -388,10 +501,10 @@ static VALUE trace_span_add_annotation(VALUE self, VALUE rb_span_id, VALUE paren
 static const char* freedBatch = "You can't do anything with a Batch once it's been serialized";
 
 VALUE batch_new(VALUE klass, VALUE rb_timestamp, VALUE rb_hostname) {
-  CHECK_TYPE(rb_timestamp, T_FIXNUM);
+  CHECK_NUMERIC(rb_timestamp);
 
   RustString hostname = NULL;
-  uint32_t timestamp = FIX2UINT(rb_timestamp);
+  uint64_t timestamp = NUM2ULL(rb_timestamp);
 
   if (rb_hostname != Qnil) {
     CHECK_TYPE(rb_hostname, T_STRING);
@@ -402,7 +515,7 @@ VALUE batch_new(VALUE klass, VALUE rb_timestamp, VALUE rb_hostname) {
 
   CHECK_FFI(skylight_batch_new(timestamp, hostname, &batch), "Could not create Batch");
 
-  return Data_Wrap_Struct(rb_cBatch, NULL, NULL, batch);
+  return Data_Wrap_Struct(rb_cBatch, NULL, skylight_batch_free, batch);
 }
 
 VALUE batch_move_in(VALUE self, VALUE rb_string) {
@@ -420,9 +533,12 @@ VALUE batch_serialize(VALUE self) {
 
   RustString string;
 
-  CHECK_FFI(skylight_batch_serialize(batch, &string), "Could not serialize Batch");
+  CHECK_FFI(skylight_batch_serialize_into_new_buffer(batch, &string), "Could not serialize Batch");
+  skylight_batch_free(batch);
 
-  return VEC2STR(string);
+  VALUE rb_string = VEC2STR(string);
+  skylight_free_buf(string);
+  return rb_string;
 }
 
 void Init_skylight_native() {
@@ -440,6 +556,15 @@ void Init_skylight_native() {
   rb_define_method(rb_cHello, "native_add_cmd_part", hello_add_cmd_part, 1);
   rb_define_method(rb_cHello, "native_cmd_get", hello_cmd_get, 1);
   rb_define_method(rb_cHello, "native_serialize", hello_serialize, 0);
+
+  rb_cError = rb_define_class_under(rb_mSkylight, "Error", rb_cObject);
+  rb_define_singleton_method(rb_cError, "native_new", error_new, 2);
+  rb_define_singleton_method(rb_cError, "native_load", error_load, 1);
+  rb_define_method(rb_cError, "native_get_group", error_get_group, 0);
+  rb_define_method(rb_cError, "native_get_description", error_get_description, 0);
+  rb_define_method(rb_cError, "native_get_details", error_get_details, 0);
+  rb_define_method(rb_cError, "native_set_details", error_set_details, 1);
+  rb_define_method(rb_cError, "native_serialize", error_serialize, 0);
 
   rb_cTrace = rb_define_class_under(rb_mSkylight, "Trace", rb_cObject);
   rb_define_singleton_method(rb_cTrace, "native_new", trace_new, 2);
