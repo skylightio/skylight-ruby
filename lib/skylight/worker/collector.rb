@@ -136,12 +136,12 @@ module Skylight
         tok = tok['token'] if tok
 
         if tok
-          @refresh_at  = now + 30
+          @refresh_at  = now + 1800 # 30 minutes
           @http_report = Util::HTTP.new(config, :report)
           @http_report.authentication = tok
         else
           if @http_report
-            @refresh_at = now + 30
+            @refresh_at = now + 60
           end
           warn "server did not return a session token"
         end
