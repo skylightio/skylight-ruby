@@ -1,13 +1,6 @@
-require 'skylight/messages/base'
-
 module Skylight
   module Messages
-    class Trace < Base
-
-      required :uuid,     :string, 1
-      optional :endpoint, :string, 2
-      repeated :spans,    Span,    3
-
+    class Trace
       class Builder
         GC_CAT = 'noise.gc'.freeze
 

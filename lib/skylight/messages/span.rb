@@ -67,21 +67,8 @@ module Skylight
     end
 
     class Span
-      include Beefcake::Message
-
-      optional :parent,      :uint32,    1
-      required :event,       Event,      2
-      repeated :annotations, Annotation, 3
-      required :started_at,  :uint32,    4
-      optional :duration,    :uint32,    5
-
       # Bit of a hack
       attr_accessor :absolute_time
-
-      # Optimization
-      def initialize(attrs = nil)
-        super if attrs
-      end
 
       class Builder
 

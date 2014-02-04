@@ -33,14 +33,14 @@ module SpecHelper
 
   def span(arg)
     if Hash === arg
-      Skylight::Messages::Span.new(arg)
+      SpecHelper::Messages::Span.new(arg)
     else
       trace.spans[arg]
     end
   end
 
   def event(cat, title = nil, desc = nil)
-    Skylight::Messages::Event.new(
+    SpecHelper::Messages::Event.new(
       category:    cat,
       title:       title,
       description: desc)

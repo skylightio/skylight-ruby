@@ -3,9 +3,11 @@
 set -e -x
 
 export SKYLIGHT_REQUIRED=true
+export SKYLIGHT_ENABLE_TRACE_LOGS=true
 
 cd ext
 ruby extconf.rb
+echo $?
 make
 
 case `uname` in

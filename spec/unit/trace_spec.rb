@@ -22,7 +22,7 @@ module Skylight
     end
 
     def serialized
-      @serialized ||= Skylight::Messages::Trace.decode(trace.serialize)
+      @serialized ||= SpecHelper::Messages::Trace.decode(trace.serialize)
     end
 
     it 'tracks the span when it is finished' do

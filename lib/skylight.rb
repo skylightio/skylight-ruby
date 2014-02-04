@@ -58,9 +58,6 @@ module Skylight
     autoload :HTTP, 'skylight/formatters/http'
   end
 
-  # ==== Vendor ====
-  autoload :Beefcake, 'skylight/vendor/beefcake'
-
   # ==== Exceptions ====
   class IpcProtoError    < RuntimeError; end
   class WorkerStateError < RuntimeError; end

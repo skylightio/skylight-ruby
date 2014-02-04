@@ -1,4 +1,4 @@
-module Skylight
+module SpecHelper
   module Messages
     class Event
       include Beefcake::Message

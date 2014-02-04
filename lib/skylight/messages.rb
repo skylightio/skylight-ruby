@@ -1,11 +1,7 @@
 module Skylight
   module Messages
-    require 'skylight/messages/annotation'
-    require 'skylight/messages/event'
     require 'skylight/messages/span'
     require 'skylight/messages/trace'
-    require 'skylight/messages/endpoint'
-    require 'skylight/messages/batch'
     require 'skylight/messages/hello'
     require 'skylight/messages/error'
     require 'skylight/messages/trace_envelope'
