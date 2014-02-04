@@ -52,7 +52,7 @@ module Skylight
         when Messages::TraceEnvelope
           t { fmt "collector received trace" }
           @batch.push(msg)
-        when Messages::Error
+        when Error
           send_error(msg)
         else
           debug "Received unknown message; class=%s", msg.class.to_s

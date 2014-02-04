@@ -191,7 +191,7 @@ module Skylight
     def error(type, description, details=nil)
       t { fmt "processing error; type=%s; description=%s", type, description }
 
-      message = Skylight::Messages::Error.new(type: type, description: description, details: details && details.to_json)
+      message = Skylight::Messages::Error.build(type, description, details && details.to_json)
 
       unless @worker.submit(message)
         warn "failed to submit error to worker"
