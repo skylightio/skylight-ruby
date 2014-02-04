@@ -104,6 +104,7 @@ bool skylight_high_res_time(uint64_t*);
 bool skylight_trace_new(uint64_t, RustSlice, RustTrace*);
 bool skylight_trace_free(RustTrace);
 bool skylight_trace_load(RustSlice, RustTrace*);
+bool skylight_trace_name_from_serialized_into_new_buffer(RustSlice, RustSlice*);
 bool skylight_trace_get_started_at(RustTrace, uint64_t*);
 bool skylight_trace_set_name(RustTrace, RustSlice);
 bool skylight_trace_get_name(RustTrace, RustSlice*);
@@ -123,6 +124,7 @@ bool skylight_trace_add_annotation_nested(RustTrace, uint32_t, uint32_t*, Option
 // Batch methods
 bool skylight_batch_new(uint64_t, RustString, RustBatch*);
 bool skylight_batch_free(RustBatch);
+bool skylight_batch_set_endpoint_count(RustBatch, RustSlice, uint64_t);
 bool skylight_batch_move_in(RustBatch, RustString);
 bool skylight_batch_serialize_into_new_buffer(RustBatch, RustString*);
 
@@ -356,6 +358,16 @@ static VALUE trace_load(VALUE self, VALUE protobuf) {
   return Data_Wrap_Struct(rb_cTrace, NULL, skylight_trace_free, trace);
 }
 
+static VALUE trace_name_from_serialized(VALUE self, VALUE protobuf) {
+  CHECK_TYPE(protobuf, T_STRING);
+
+  RustSlice trace_name;
+
+  CHECK_FFI(skylight_trace_name_from_serialized_into_new_buffer(STR2SLICE(protobuf), &trace_name), "Could not read name from serialized Trace");
+
+  return SLICE2STR(trace_name);
+}
+
 static VALUE trace_get_started_at(VALUE self) {
   My_Struct(trace, RustTrace, freedTrace);
 
@@ -518,6 +530,17 @@ VALUE batch_new(VALUE klass, VALUE rb_timestamp, VALUE rb_hostname) {
   return Data_Wrap_Struct(rb_cBatch, NULL, skylight_batch_free, batch);
 }
 
+VALUE batch_set_endpoint_count(VALUE self, VALUE rb_endpoint_name, VALUE rb_count) {
+  CHECK_TYPE(rb_endpoint_name, T_STRING);
+  CHECK_NUMERIC(rb_count);
+
+  My_Struct(batch, RustBatch, freedBatch);
+
+  CHECK_FFI(skylight_batch_set_endpoint_count(batch, STR2SLICE(rb_endpoint_name), NUM2ULL(rb_count)), "Could not set count for Endpoint in Batch");
+
+  return Qnil;
+}
+
 VALUE batch_move_in(VALUE self, VALUE rb_string) {
   CHECK_TYPE(rb_string, T_STRING);
 
@@ -569,6 +592,7 @@ void Init_skylight_native() {
   rb_cTrace = rb_define_class_under(rb_mSkylight, "Trace", rb_cObject);
   rb_define_singleton_method(rb_cTrace, "native_new", trace_new, 2);
   rb_define_singleton_method(rb_cTrace, "native_load", trace_load, 1);
+  rb_define_singleton_method(rb_cTrace, "native_name_from_serialized", trace_name_from_serialized, 1);
   rb_define_method(rb_cTrace, "native_get_started_at", trace_get_started_at, 0);
   rb_define_method(rb_cTrace, "native_get_name", trace_get_name, 0);
   rb_define_method(rb_cTrace, "native_set_name", trace_set_name, 1);
@@ -583,5 +607,6 @@ void Init_skylight_native() {
   rb_cBatch = rb_define_class_under(rb_mSkylight, "Batch", rb_cObject);
   rb_define_singleton_method(rb_cBatch, "native_new", batch_new, 2);
   rb_define_method(rb_cBatch, "native_move_in", batch_move_in, 1);
+  rb_define_method(rb_cBatch, "native_set_endpoint_count", batch_set_endpoint_count, 2);
   rb_define_method(rb_cBatch, "native_serialize", batch_serialize, 0);
 }

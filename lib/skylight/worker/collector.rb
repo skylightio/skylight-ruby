@@ -178,6 +178,7 @@ module Skylight
           @from     = from
           @flush_at = from + interval
           @sample   = Util::UniformSample.new(size)
+          @counts   = Hash.new(0)
         end
 
         def should_flush?(now)
@@ -191,6 +192,8 @@ module Skylight
         end
 
         def push(trace)
+          # Count it
+          @counts[trace.endpoint_name] += 1
           # Push the trace into the sample
           @sample << trace
         end
@@ -200,6 +203,10 @@ module Skylight
 
           sample.each do |trace|
             batch.native_move_in(trace.data)
+          end
+
+          @counts.each do |endpoint_name,count|
+            batch.native_set_endpoint_count(endpoint_name, count)
           end
 
           batch.native_serialize
