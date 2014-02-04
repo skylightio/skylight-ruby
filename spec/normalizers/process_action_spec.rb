@@ -17,5 +17,10 @@ module Skylight
       lambda { normalize(payload) }.should allocate(string: 1, array: 1, hash: 1)
     end
 
+    it "ignores unknown keys" do
+      name, desc, error, annotation = normalize(request: "why is this here?")
+      annotation.should_not have_key(:request)
+    end
+
   end
 end

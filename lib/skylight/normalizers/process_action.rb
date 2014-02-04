@@ -4,6 +4,7 @@ module Skylight
       register "process_action.action_controller"
 
       CAT = "app.controller.request".freeze
+      PAYLOAD_KEYS = %w[ controller action params format method path ].map(&:to_sym).freeze
 
       def normalize(trace, name, payload)
         trace.endpoint = controller_action(payload)
@@ -19,11 +20,8 @@ module Skylight
       def normalize_payload(payload)
         normalized = {}
 
-        payload.each_key do |key|
-          value = payload[key]
-
-          value = value.inspect unless value.is_a?(String) || value.is_a?(Numeric)
-          normalized[key] = value
+        PAYLOAD_KEYS.each do |key|
+          normalized[key] = payload[key]
         end
 
         normalized
