@@ -9,10 +9,10 @@ checksums = YAML.load_file("checksums.yml")
 
 unless File.exist?("libskylight.a")
   unless RbConfig::CONFIG["arch"] == "x86_64-linux"
-    puts "At the moment, Skylight only supports 64-bit linux"
+    puts "[SKYLIGHT] At the moment, Skylight only supports 64-bit linux"
     File.open("Makefile", "w") { |f| f.puts "hello:\ninstall:" }
 
-    exit
+    exit 1
   end
 
   location = nil
@@ -58,6 +58,9 @@ end
 
 if missing_a
   puts "[SKYLIGHT] Could not download Skylight native code from Github"
+
+  exit 1 if ENV.key?("SKYLIGHT_REQUIRED")
+
   File.open("Makefile", "w") do |file|
     file.puts "default:"
   end

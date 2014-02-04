@@ -2,6 +2,8 @@
 
 set -e -x
 
+export SKYLIGHT_REQUIRED=true
+
 cd ext
 ruby extconf.rb
 make

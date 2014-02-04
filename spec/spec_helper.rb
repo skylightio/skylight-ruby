@@ -8,6 +8,9 @@ begin
 rescue LoadError
 end
 
+# Trigger hard-crash if C-ext is missing
+ENV["SKYLIGHT_REQUIRED"] = "true"
+
 require 'yaml'
 require 'skylight'
 require 'timecop'
