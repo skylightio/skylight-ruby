@@ -1,6 +1,5 @@
 module Skylight
   module Messages
-    require 'skylight/messages/span'
     require 'skylight/messages/trace'
     require 'skylight/messages/hello'
     require 'skylight/messages/error'
