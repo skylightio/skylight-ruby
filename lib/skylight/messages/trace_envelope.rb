@@ -10,6 +10,10 @@ module Skylight
       def initialize(data)
         @data = data
       end
+
+      def endpoint_name
+        Skylight::Trace.native_name_from_serialized(@data)
+      end
     end
   end
 end
