@@ -7,7 +7,7 @@ begin
   require 'skylight/native'
   has_native_ext = true
 rescue LoadError
-  puts "[SKYLIGHT] The Skylight native extension wasn't found. Skylight is not running"
+  puts "[SKYLIGHT] The Skylight native extension wasn't found. Skylight is not running."
   raise if ENV.key?("SKYLIGHT_REQUIRED")
 end
 
