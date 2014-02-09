@@ -3,9 +3,11 @@ require 'socket'
 require 'skylight/version'
 
 begin
-  require 'skylight_native'
-  require 'skylight/native'
-  has_native_ext = true
+  unless ENV["SKYLIGHT_DISABLE_AGENT"]
+    require 'skylight_native'
+    require 'skylight/native'
+    has_native_ext = true
+  end
 rescue LoadError
   puts "[SKYLIGHT] The Skylight native extension wasn't found. Skylight is not running."
   raise if ENV.key?("SKYLIGHT_REQUIRED")
