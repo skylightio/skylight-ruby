@@ -6,20 +6,18 @@ require 'yaml'
 require 'digest/sha2'
 
 checksums = YAML.load_file("checksums.yml")
+rust_version = "36e8114"
+arch = RbConfig::CONFIG["arch"]
+url = "https://github.com/skylightio/skylight-rust/releases/download/archives/libskylight-#{rust_version}.#{arch}.a.gz"
+required = ENV.key?("SKYLIGHT_REQUIRED")
 
 unless File.exist?("libskylight.a")
-  unless RbConfig::CONFIG["arch"] == "x86_64-linux"
-    puts "[SKYLIGHT] At the moment, Skylight only supports 64-bit linux"
-    File.open("Makefile", "w") { |f| f.puts "hello:\ninstall:" }
-
-    exit 1
-  end
-
+  puts "[SKYLIGHT] Downloading from #{url.inspect}"
   location = nil
+  uri = URI.parse(url)
 
   begin
     Net::HTTP.start("github.com", 443, use_ssl: true) do |http|
-      uri = URI.parse("https://github.com/skylightio/skylight-rust/releases/download/v0.3.0-pre.1/libskylight-x86_64-linux.a.gz")
       response = http.get(uri.request_uri)
       location = response["Location"]
     end
@@ -33,33 +31,36 @@ unless File.exist?("libskylight.a")
         archive = response.body
       end
     else
+      raise "No location returned" if required
       missing_a = true
     end
   rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
        Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError
+    raise if required
     missing_a = true
   end
 
   unless missing_a
-    inflater, dest = Zlib::Inflate.new(32 + Zlib::MAX_WBITS), ""
-    dest << inflater.inflate(archive)
-    inflater.close
-
-    expected_checksum = checksums[RbConfig::CONFIG["arch"]]
-    actual_checksum = Digest::SHA2.hexdigest(dest)
+    expected_checksum = checksums["#{rust_version}.#{arch}"]
+    actual_checksum = Digest::SHA2.hexdigest(archive)
 
     if expected_checksum == actual_checksum
+      inflater, dest = Zlib::Inflate.new(32 + Zlib::MAX_WBITS), ""
+      dest << inflater.inflate(archive)
+      inflater.close
+
       File.open("libskylight.a", "w") { |file| file.write dest }
     else
+      raise "Checksum mismatched; expected=#{expected_checksum.inspect}; actual=#{actual_checksum.inspect}" if required
       missing_a = true
     end
   end
 end
 
 if missing_a
-  puts "[SKYLIGHT] Could not download Skylight native code from Github"
+  puts "[SKYLIGHT] Could not download Skylight native code from Github; version=#{rust_version.inspect}; arch=#{arch.inspect}"
 
-  exit 1 if ENV.key?("SKYLIGHT_REQUIRED")
+  exit 1 if required
 
   File.open("Makefile", "w") do |file|
     file.puts "default:"
