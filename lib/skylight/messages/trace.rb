@@ -41,7 +41,7 @@ module Skylight
           @native_builder.native_span_set_title(@root, title) if title
           @native_builder.native_span_set_description(@root, desc) if desc
 
-          @gc   = config.gc.track
+          @gc   = config.gc.track unless ENV.key?("SKYLIGHT_DISABLE_GC_TRACKING")
         end
 
         def serialize
