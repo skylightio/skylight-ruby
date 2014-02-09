@@ -116,13 +116,13 @@ bool skylight_trace_span_set_title(RustTrace, uint64_t, RustSlice);
 bool skylight_trace_span_set_description(RustTrace, uint64_t, RustSlice);
 
 // Trace annotation methods
-bool skylight_trace_add_annotation_int(RustTrace, uint32_t, uint32_t*, OptionRustSlice, int64_t);
-bool skylight_trace_add_annotation_double(RustTrace, uint32_t, uint32_t*, OptionRustSlice, double);
-bool skylight_trace_add_annotation_string(RustTrace, uint32_t, uint32_t*, OptionRustSlice, RustSlice);
-bool skylight_trace_add_annotation_nested(RustTrace, uint32_t, uint32_t*, OptionRustSlice, uint32_t*);
+bool skylight_trace_add_annotation_int(RustTrace, uint32_t, uint32_t*, RustSlice*, int64_t);
+bool skylight_trace_add_annotation_double(RustTrace, uint32_t, uint32_t*, RustSlice*, double);
+bool skylight_trace_add_annotation_string(RustTrace, uint32_t, uint32_t*, RustSlice*, RustSlice);
+bool skylight_trace_add_annotation_nested(RustTrace, uint32_t, uint32_t*, RustSlice*, uint32_t*);
 
 // Batch methods
-bool skylight_batch_new(uint64_t, RustString, RustBatch*);
+bool skylight_batch_new(uint32_t, RustString, RustBatch*);
 bool skylight_batch_free(RustBatch);
 bool skylight_batch_set_endpoint_count(RustBatch, RustSlice, uint64_t);
 bool skylight_batch_move_in(RustBatch, RustString);
@@ -145,8 +145,9 @@ void skylight_free_buf(RustString);
  */
 
 RustString skylight_slice_to_owned(RustSlice);
+RustString skylight_bytes_to_new_vec(uint8_t*, uint64_t);
 
-#define STR2RUST(string) skylight_slice_to_owned(STR2SLICE(string))
+#define STR2RUST(string) ({ VALUE rb_str = (string); skylight_bytes_to_new_vec((uint8_t*)RSTRING_PTR(rb_str), RSTRING_LEN(rb_str)); })
 
 /**
  * Ruby types defined here
@@ -468,7 +469,8 @@ static VALUE trace_serialize(VALUE self) {
 
 static VALUE trace_span_add_annotation(VALUE self, VALUE rb_span_id, VALUE parent, VALUE rb_key, VALUE value) {
   uint32_t *parent_id = NULL;
-  OptionRustSlice key;
+  RustSlice rs_key;
+  RustSlice *key = NULL;
   uint32_t new_id, parent_int;
 
   My_Struct(trace, RustTrace, freedTrace);
@@ -484,10 +486,9 @@ static VALUE trace_span_add_annotation(VALUE self, VALUE rb_span_id, VALUE paren
 
   if (rb_key != Qnil) {
     CHECK_TYPE(rb_key, T_STRING);
-    key.discrim = 1;
-    key.slice = STR2SLICE(rb_key);
-  } else {
-    key.discrim = 0;
+
+    rs_key = STR2SLICE(rb_key);
+    key = &rs_key;
   }
 
   if (TYPE(value) == T_FIXNUM) {
@@ -516,7 +517,7 @@ VALUE batch_new(VALUE klass, VALUE rb_timestamp, VALUE rb_hostname) {
   CHECK_NUMERIC(rb_timestamp);
 
   RustString hostname = NULL;
-  uint64_t timestamp = NUM2ULL(rb_timestamp);
+  uint32_t timestamp = NUM2ULONG(rb_timestamp);
 
   if (rb_hostname != Qnil) {
     CHECK_TYPE(rb_hostname, T_STRING);
