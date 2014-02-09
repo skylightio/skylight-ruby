@@ -64,6 +64,7 @@ if missing_a
 
   File.open("Makefile", "w") do |file|
     file.puts "default:"
+    file.puts "install:"
   end
 else
   have_header 'dlfcn.h'
