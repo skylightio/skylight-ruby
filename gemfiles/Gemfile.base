@@ -6,6 +6,7 @@ gem 'rack'
 gem 'rake'
 gem 'rspec'
 gem 'timecop'
+gem 'beefcake'
 
 if RUBY_VERSION.to_f >= 2.0
   gem 'allocation_counter', github: 'wycats/allocation_counter', branch: 'master'
