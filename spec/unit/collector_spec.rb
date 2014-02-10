@@ -84,27 +84,25 @@ module Skylight
 
         submit_trace
         clock.unfreeze
-        server.wait count: 3
+        server.wait count: 2
         clock.freeze
 
-        server.should have(3).requests
+        server.should have(2).requests
         req = server.requests[0]
         req['HTTP_AUTHORIZATION'].should == 'lulz'
 
-        server.requests[1, 2].each do |req|
-          req['HTTP_AUTHORIZATION'].should == token
-        end
+        server.requests[1]['HTTP_AUTHORIZATION'].should == token
 
         mock_auth token2
+        clock.skip 3600
 
-        clock.skip 600
         submit_trace
         clock.unfreeze
-        server.wait count: 5
+        server.wait count: 4
 
-        server.should have(5).requests
+        server.should have(4).requests
 
-        req = server.requests[4]
+        req = server.requests[3]
         req['HTTP_AUTHORIZATION'].should == token2
       end unless strategy == :standalone
 
@@ -131,18 +129,18 @@ module Skylight
           req['HTTP_AUTHORIZATION'].should == token
         end
 
-        clock.skip 600
+        clock.skip 3600
         submit_trace
         clock.unfreeze
-        server.wait count: 5
+        server.wait count: 4
 
-        server.should have(5).requests
+        server.should have(4).requests
 
         req = server.requests[3]
         req['PATH_INFO'].should == '/agent/authenticate'
         req['HTTP_AUTHORIZATION'].should == 'lulz'
 
-        req = server.requests[4]
+        req = server.requests[2]
         req['PATH_INFO'].should == '/report'
         req['HTTP_AUTHORIZATION'].should == token
       end unless strategy == :standalone
