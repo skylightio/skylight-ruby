@@ -6,15 +6,15 @@ module Skylight
     require 'skylight/messages/trace_envelope'
 
     KLASS_TO_ID = {
+      Skylight::Trace => 0,
       Skylight::Hello => 1,
-      Skylight::Trace => 2,
-      Skylight::Error => 3
+      Skylight::Error => 2
     }
 
     ID_TO_KLASS = {
+      0 => Skylight::Messages::TraceEnvelope,
       1 => Skylight::Hello,
-      2 => Skylight::Messages::TraceEnvelope,
-      3 => Skylight::Error
+      2 => Skylight::Error
     }
   end
 end
