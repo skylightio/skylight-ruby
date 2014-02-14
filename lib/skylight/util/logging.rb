@@ -51,9 +51,9 @@ module Skylight
           return unless logger.respond_to?(level)
 
           if args.length > 0
-            logger.send level, sprintf("[SKYLIGHT] #{msg}", *args)
+            logger.send level, sprintf("[SKYLIGHT] [#{Skylight::VERSION}] #{msg}", *args)
           else
-            logger.send level, "[SKYLIGHT] #{msg}"
+            logger.send level, "[SKYLIGHT] [#{Skylight::VERSION}] #{msg}"
           end
         end
       rescue Exception => e

@@ -18,7 +18,7 @@ url = "https://github.com/skylightio/skylight-rust/releases/download/v#{ruby_ver
 required = ENV.key?("SKYLIGHT_REQUIRED")
 
 unless File.exist?("libskylight.a")
-  puts "[SKYLIGHT] Downloading from #{url.inspect}"
+  puts "[SKYLIGHT] [#{Skylight::VERSION}] Downloading from #{url.inspect}"
   location = nil
   uri = URI.parse(url)
 
@@ -64,7 +64,7 @@ unless File.exist?("libskylight.a")
 end
 
 if missing_a
-  puts "[SKYLIGHT] Could not download Skylight native code from Github; version=#{rust_version.inspect}; arch=#{arch.inspect}"
+  puts "[SKYLIGHT] [#{Skylight::VERSION}] Could not download Skylight native code from Github; version=#{rust_version.inspect}; arch=#{arch.inspect}"
 
   exit 1 if required
 
