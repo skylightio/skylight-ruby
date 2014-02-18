@@ -44,13 +44,11 @@ module Skylight
       def maybe_read_message
         if @len && @buf.bytesize >= @len + FRAME_HDR_LEN
           mid   = read_message_id
-          klass = Messages::ID_TO_KLASS.fetch(mid)
-          data  = @buf[FRAME_HDR_LEN, @len]
-          @buf  = @buf[(FRAME_HDR_LEN + @len)..-1] || ""
-
-          unless klass
+          klass = Messages::ID_TO_KLASS.fetch(mid) do
             raise IpcProtoError, "unknown message `#{mid}`"
           end
+          data  = @buf[FRAME_HDR_LEN, @len]
+          @buf  = @buf[(FRAME_HDR_LEN + @len)..-1] || ""
 
           if @buf.bytesize >= FRAME_HDR_LEN
             @len = read_len
