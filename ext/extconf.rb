@@ -10,10 +10,10 @@ require_relative '../lib/skylight/version.rb'
 checksums = YAML.load_file("checksums.yml")
 
 rust_version = "dc29745"
-ruby_version = Skylight::VERSION
 
 arch = RbConfig::CONFIG["arch"]
-url = "https://github.com/skylightio/skylight-rust/releases/download/v#{ruby_version}/libskylight.#{rust_version}.#{arch}.a.gz"
+
+url = "https://github.com/skylightio/skylight-rust/releases/download/#{rust_version}/libskylight.#{arch}.a.gz"
 
 required = ENV.key?("SKYLIGHT_REQUIRED")
 
