@@ -203,8 +203,7 @@ module Skylight
           info "#{e.message} - shutting down"
           @run = false
         rescue Exception => e
-          error "Loop exception: %s (%s)", e.message, e.class
-          puts e.backtrace
+          error "Loop exception: %s (%s)\n%s", e.message, e.class, e.backtrace.join("\n")
           @collector.send_exception(class_name: e.class.name, message: e.message, backtrace: e.backtrace)
           return false
         rescue Object => o
