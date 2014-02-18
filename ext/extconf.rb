@@ -77,6 +77,7 @@ else
 
   find_library("skylight", "factory", ".")
 
+  $CFLAGS << " -Werror"
   if RbConfig::CONFIG["arch"] =~ /darwin(\d+)?/
     $LDFLAGS << " -lpthread"
   else
