@@ -32,8 +32,6 @@ module Skylight
     require 'skylight/vm/gc'
   end
 
-  autoload :Api,          'skylight/api'
-  autoload :CLI,          'skylight/cli'
   autoload :Config,       'skylight/config'
   autoload :GC,           'skylight/gc'
   autoload :Helpers,      'skylight/helpers'
@@ -177,4 +175,9 @@ module Skylight
   end
 end
 
+end
+
+module Skylight
+  autoload :Api,          'skylight/api'
+  autoload :CLI,          'skylight/cli'
 end
