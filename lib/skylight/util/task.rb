@@ -88,6 +88,7 @@ module Skylight
                 @queue = nil
               end
 
+              t { "shutting down task" }
               finish
             rescue Exception => e
               error "failed to execute task; msg=%s", e.message

@@ -130,6 +130,7 @@ module Skylight
       end
 
       def work
+        t { "server working" }
         @socks << @server
 
         now = Time.now.to_i
@@ -258,6 +259,7 @@ module Skylight
       end
 
       def cleanup
+        t { "server cleaning up" }
         # The lockfile is not deleted. There is no way to atomically ensure
         # that we are deleting the lockfile for the current process.
         cleanup_curr_sockfile
