@@ -47,7 +47,7 @@ unless File.exist?("libskylight.a")
   end
 
   unless missing_a
-    expected_checksum = checksums["#{rust_version}.#{arch}"]
+    expected_checksum = checksums[arch]
     actual_checksum = Digest::SHA2.hexdigest(archive)
 
     if expected_checksum == actual_checksum
