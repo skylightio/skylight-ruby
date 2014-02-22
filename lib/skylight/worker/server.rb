@@ -328,7 +328,7 @@ module Skylight
 
       def get_memory_usage
         `ps -o rss= -p #{Process.pid}`.to_i / 1024
-      rescue Errno::ENOENT
+      rescue Errno::ENOENT, Errno::EINTR
         0
       end
     end
