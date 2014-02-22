@@ -29,8 +29,6 @@ module SqlLexer
     StartString   = %Q<'>
     StartDigit    = %q<[\p{Digit}\.]>
 
-    StartSelect   = %Q<SELECT(?=(?:[#{WS}]|#{OpPart}))>
-
     # Binds that are also IDs do not need to be included here, since AfterOp (which uses StartBind)
     # also checks for StartAnyId
     StartBind     = %Q<#{StartString}|#{StartDigit}|#{SpecialOps}>
@@ -87,9 +85,7 @@ module SqlLexer
     TkArray       = %r<#{ArrayOp}>iu
     TkArrayIndex  = %r<#{ArrayIndexOp}>iu
     TkSpecialOp   = %r<#{SpecialOps}>iu
-    TkStartSelect = %r<#{StartSelect}>iu
-    TkStartSubquery = %r<\(#{OptWS}#{StartSelect}>iu
-    TkCloseParen  = %r<#{OptWS}\)>u
+    TkStartSelect = %r<SELECT(?=(?:[#{WS}]|#{OpPart}))>iu
 
     STATE_HANDLERS = {
       begin:       :process_begin,
@@ -101,7 +97,6 @@ module SqlLexer
       table_name:  :process_table_name,
       end:         :process_end,
       special:     :process_special,
-      subquery:    :process_subquery,
       in:          :process_in,
       array:       :process_array
     }
@@ -356,12 +351,8 @@ module SqlLexer
     def process_special
       if @scanner.skip(TkIn)
         @scanner.skip(TkOptWS)
-        if @scanner.skip(TkStartSubquery)
-          @state = :subquery
-        else
-          @scanner.skip(/\(/u)
-          @state = :in
-        end
+        @scanner.skip(/\(/u)
+        @state = :in
       elsif @scanner.skip(TkArray)
         @scanner.skip(/\[/u)
         @state = :array
@@ -371,46 +362,9 @@ module SqlLexer
         else
           @state = :end
         end
-      elsif @scanner.skip(TkStartSubquery)
-        @state = :subquery
       elsif @scanner.skip(TkArrayIndex)
         @state = :tokens
       end
-    end
-
-    def process_subquery
-      nest = 1
-      iterations = 0
-
-      while nest > 0
-        iterations += 1
-
-        if iterations > 10_000
-          raise "The SQL '#{@scanner.string}' could not be parsed because of too many iterations in subquery"
-        end
-
-        if @debug
-          p @state
-          p @scanner
-          p nest
-          p @scanner.peek(1)
-        end
-
-        if @scanner.skip(TkStartSubquery)
-          nest += 1
-          @state = :tokens
-        elsif @scanner.skip(TkCloseParen)
-          nest -= 1
-          break if nest.zero?
-          @state = :tokens
-        elsif @state == :subquery
-          @state = :tokens
-        end
-
-        __send__ STATE_HANDLERS[@state]
-      end
-
-      @state = :tokens
     end
 
     def process_in
@@ -436,7 +390,7 @@ module SqlLexer
         if @scanner.skip(/\(/u)
           nest += 1
           process_tokens
-        elsif @scanner.skip(TkCloseParen)
+        elsif @scanner.skip(/\)/u)
           nest -= 1
           break if nest.zero?
           process_tokens
