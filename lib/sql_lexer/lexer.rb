@@ -26,7 +26,7 @@ module SqlLexer
 
     StartQuotedID = %Q<">
     StartTickedID = %Q<`>
-    StartString   = %Q<'>
+    StartString   = %Q<[a-zA-Z]?'>
     StartDigit    = %q<[\p{Digit}\.]>
 
     StartSelect   = %Q<SELECT(?=(?:[#{WS}]|#{OpPart}))>
@@ -50,7 +50,7 @@ module SqlLexer
     Type          = %Q<[#{StartID}][#{PartID}]*(?:\\(\d+\\)|\\[\\])?(?=#{AfterID})>
     QuotedTable   = %Q<#{TickedID}|#{QuotedID}>
 
-    StringBody    = %q<(?:''|\x5C'|[^'])*>
+    StringBody    = %q{(?:''|(?<!\x5C)(?:\x5C\x5C)*\x5C'|[^'])*}
     String        = %Q<#{StartString}#{StringBody}'>
 
     Digits        = %q<\p{Digit}+>
