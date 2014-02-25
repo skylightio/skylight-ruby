@@ -8,17 +8,13 @@ module Skylight
       trace.endpoint.should == "foo#bar"
     end
 
-    it "allocates", allocations: true do
-      payload = { controller: "foo", action: "bar" }
-
-      # prime
-      normalize(payload)
-
-      lambda { normalize(payload) }.should allocate(string: 1, array: 1, hash: 1)
+    it "converts non-Strings or Numerics via inspect" do
+      _, _, _, annotation = normalize(params: { foo: "bar" })
+      annotation[:params].should == { foo: "bar" }.inspect
     end
 
     it "ignores unknown keys" do
-      name, desc, error, annotation = normalize(request: "why is this here?")
+      _, _, _, annotation = normalize(request: "why is this here?")
       annotation.should_not have_key(:request)
     end
 
