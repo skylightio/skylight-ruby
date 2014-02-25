@@ -21,7 +21,9 @@ module Skylight
         normalized = {}
 
         PAYLOAD_KEYS.each do |key|
-          normalized[key] = payload[key]
+          val = payload[key]
+          val = val.inspect unless val.is_a?(String) || val.is_a?(Numeric)
+          normalized[key] = val
         end
 
         normalized
