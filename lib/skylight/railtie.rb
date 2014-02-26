@@ -24,6 +24,8 @@ module Skylight
 
           puts "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
         end
+      elsif !Rails.env.test? && Rails.env.development?
+        puts "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the #{Rails.env} environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
       end
     end
 
