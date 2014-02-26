@@ -70,7 +70,8 @@ module Skylight
       span(4).started_at.should     == 0
       span(4).duration.should       == 90
       span(4).children.should       == 1
-      span(4).annotations.should    == [annotation("foo", :string, "bar")]
+      # disabled annotations
+      #span(4).annotations.should    == [annotation("foo", :string, "bar")]
 
       span(5).event.category.should == 'app.rack.request'
     end

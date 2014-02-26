@@ -136,7 +136,7 @@ module Skylight
               category: category,
               title: title,
               description: description),
-            annotations: to_annotations(annotations),
+            annotations: nil,
             started_at: @started_at,
             duration: duration && duration > 0 ? duration : nil,
             children: @children > 0 ? @children : nil)
