@@ -66,22 +66,25 @@ module Skylight
       end
 
       def send_exception(exception)
-        post_data(:exception, exception)
+        data = {class_name: exception.class.name}
+        if Exception === exception
+          data.merge!(message: exception.message, backtrace: exception.backtrace)
+        end
+        post_data(:exception, data, false)
       end
 
     private
 
-      def post_data(type, data)
+      def post_data(type, data, notify = true)
         t { "posting data (#{type}): #{data.inspect}" }
 
         res = @http_auth.post("/agent/#{type}?hostname=#{escape(config[:'hostname'])}", data)
 
-        # error already handled in Util::HTTP
-        return unless res
-
         unless res.success?
           warn "#{type} wasn't sent successfully; status=%s", res.status
         end
+
+        send_exception(res.exception) if notify && res.exception
       rescue Exception => e
         error "exception; msg=%s; class=%s", e.message, e.class
         t { e.backtrace.join("\n") }
@@ -113,14 +116,18 @@ module Skylight
 
         debug "flushing batch; size=%d", batch.sample.count
 
-        @http_report.post(ENDPOINT, batch.encode, CONTENT_TYPE => SKYLIGHT_V2)
+        res = @http_report.post(ENDPOINT, batch.encode, CONTENT_TYPE => SKYLIGHT_V2)
+        send_exception(res.exception) if res.exception
+        nil
       end
 
       def refresh_report_token(now)
         res = @http_auth.get("/agent/authenticate?hostname=#{escape(config[:'hostname'])}")
 
-        # error already handled in Util::HTTP
-        return unless res
+        if res.exception
+          send_exception(res.exception)
+          return
+        end
 
         unless res.success?
           if (400..499).include? res.status

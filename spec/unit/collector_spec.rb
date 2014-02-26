@@ -145,6 +145,33 @@ module Skylight
         req['HTTP_AUTHORIZATION'].should == token
       end unless strategy == :standalone
 
+      context "with crashing report server" do
+
+        let :config do
+          @config ||= Skylight::Config.new(test_config_values.merge(
+            report: {
+              host: "localhost",
+              port: 60000,
+              ssl: false,
+              deflate: false
+            }
+          ))
+        end
+
+        it "sends exceptions while making HTTP requests" do
+          mock_auth
+
+          submit_trace
+
+          server.wait count: 2
+
+          req = server.requests[1]
+          req['rack.input']["class_name"].should == "Errno::ECONNREFUSED"
+          req['PATH_INFO'].should == '/agent/exception'
+        end
+
+      end
+
     end
 
     context "embedded" do

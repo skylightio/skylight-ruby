@@ -204,11 +204,11 @@ module Skylight
           @run = false
         rescue Exception => e
           error "Loop exception: %s (%s)\n%s", e.message, e.class, e.backtrace.join("\n")
-          @collector.send_exception(class_name: e.class.name, message: e.message, backtrace: e.backtrace)
+          @collector.send_exception(e)
           return false
         rescue Object => o
           error "Unknown object thrown: `%s`", o.to_s
-          @collector.send_exception(class_name: o.class.name)
+          @collector.send_exception(o)
           return false
         end while @run
 

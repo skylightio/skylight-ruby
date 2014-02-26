@@ -48,10 +48,6 @@ module Skylight
       def get(endpoint, hdrs = {})
         request = build_request(Net::HTTP::Get, endpoint, hdrs)
         execute(request)
-      rescue Exception => e
-        error "http GET failed; error=%s; msg=%s", e.class, e.message
-        t { e.backtrace.join("\n") }
-        nil
       end
 
       def post(endpoint, body, hdrs = {})
@@ -62,10 +58,6 @@ module Skylight
 
         request = build_request(Net::HTTP::Post, endpoint, hdrs, body.bytesize)
         execute(request, body)
-      rescue Exception => e
-        error "http POST failed; error=%s; msg=%s", e.class, e.message
-        t { e.backtrace.join("\n") }
-        nil
       end
 
     private
@@ -113,10 +105,14 @@ module Skylight
 
           Response.new(res.code.to_i, res, res.body)
         end
+      rescue Exception => e
+        error "http %s failed; error=%s; msg=%s", req.method, e.class, e.message
+        t { e.backtrace.join("\n") }
+        ErrorResponse.new(req.method, e)
       end
 
       class Response
-        attr_reader :status, :headers, :body
+        attr_reader :status, :headers, :body, :exception
 
         def initialize(status, headers, body)
           @status  = status
@@ -161,6 +157,16 @@ module Skylight
           else
             super
           end
+        end
+      end
+
+      class ErrorResponse < Struct.new(:request_method, :exception)
+        def status
+          nil
+        end
+
+        def success?
+          false
         end
       end
 
