@@ -64,8 +64,9 @@ typedef struct {
 } RustSlice;
 
 typedef rust_str * RustString;
-#define VEC2STR(string) ({ RustString s = (string); VALUE ret = rb_str_new((char *)s->data, s->fill); ret; })
-#define SLICE2STR(slice) ({ RustSlice s = (slice); rb_str_new(s.data, s.len); })
+typedef RustString RustVector;
+#define VEC2STR(vector) ({ RustVector v = (vector); VALUE ret = rb_str_new((char *)v->data, v->fill); ret; })
+#define SLICE2STR(slice) ({ RustSlice s = (slice); VALUE str = rb_str_new(s.data, s.len); rb_enc_associate(str, rb_utf8_encoding()); str; })
 #define STR2SLICE(string) ({ RustSlice s; VALUE rb_str = (string); s.data = RSTRING_PTR(rb_str); s.len = RSTRING_LEN(rb_str); s; })
 
 #define UnwrapOption(T, val, transform) ({ T * v = (val); VALUE ret; if (v == NULL) ret = Qnil; else ret = transform(*v); ret; })

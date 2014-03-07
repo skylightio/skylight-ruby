@@ -2,8 +2,11 @@
 
 set -e -x
 
+mkdir -p ~/tmp
+
 export SKYLIGHT_REQUIRED=true
 export SKYLIGHT_ENABLE_TRACE_LOGS=true
+export SKYLIGHT_TEST_DIR=~/tmp
 
 cd ext
 ruby extconf.rb
