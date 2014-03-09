@@ -1,3 +1,31 @@
+## 0.3.0 (February 28, 2014)
+
+* Native Rust agent
+* Send exceptions occurring during HTTP requests to the client.
+* Warn users when skylight is potentially disabled incorrectly.
+* Update SQL Lexer to 0.0.6
+* Log the backtraces of unhandled exceptions
+* Add support for disabling GC tracking
+* Add support for disabling agent
+
+## 0.2.7 (February 26, 2014)
+
+* Disable annotations to reduce memory load.
+
+## 0.2.6 (February 25, 2014)
+
+* `inspect` even whitelisted payload props
+* Ignore Errno::EINTR for 'ps' call
+
+## 0.2.5 (February 21, 2014)
+
+* Revert "Update SqlLexer to 0.0.4"
+
+## 0.2.4 (February 20, 2014)
+
+* Whitelist process action annotation keys.
+* Update SqlLexer to 0.0.4
+
 ## 0.2.3 (December 20, 2013)
 
 * Fix SQL lexing for comments, arrays, double-colon casting, and multiple queries
