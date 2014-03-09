@@ -13,10 +13,22 @@ rescue LoadError
   raise if ENV.key?("SKYLIGHT_REQUIRED")
 end
 
+module Skylight
+  TRACE_ENV_KEY      = 'SKYLIGHT_ENABLE_TRACE_LOGS'.freeze
+
+  autoload :Api,          'skylight/api'
+  autoload :CLI,          'skylight/cli'
+  autoload :Config,       'skylight/config'
+
+  module Util
+    autoload :Logging,       'skylight/util/logging'
+    autoload :HTTP,          'skylight/util/http'
+  end
+end
+
 if has_native_ext
 
 module Skylight
-  TRACE_ENV_KEY      = 'SKYLIGHT_ENABLE_TRACE_LOGS'.freeze
   STANDALONE_ENV_KEY = 'SKYLIGHT_STANDALONE'.freeze
   STANDALONE_ENV_VAL = 'server'.freeze
 
@@ -32,7 +44,6 @@ module Skylight
     require 'skylight/vm/gc'
   end
 
-  autoload :Config,       'skylight/config'
   autoload :GC,           'skylight/gc'
   autoload :Helpers,      'skylight/helpers'
   autoload :Instrumenter, 'skylight/instrumenter'
@@ -175,9 +186,4 @@ module Skylight
   end
 end
 
-end
-
-module Skylight
-  autoload :Api,          'skylight/api'
-  autoload :CLI,          'skylight/cli'
 end
