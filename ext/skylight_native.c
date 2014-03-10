@@ -1,6 +1,10 @@
 #include <ruby.h>
 #include <stdbool.h>
 
+#ifdef HAVE_RUBY_ENCODING_H
+#include <ruby/encoding.h>
+#endif
+
 /**
  * Ruby helpers
  */
