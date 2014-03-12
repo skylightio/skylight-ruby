@@ -25,6 +25,10 @@ module Skylight
     autoload :Logging,       'skylight/util/logging'
     autoload :HTTP,          'skylight/util/http'
   end
+
+  if defined?(Rails)
+    require 'skylight/railtie'
+  end
 end
 
 if has_native_ext
@@ -153,10 +157,6 @@ module Skylight
 
   # Called by the standalone agent
   Worker::Server.boot if daemon?
-
-  if defined?(Rails)
-    require 'skylight/railtie'
-  end
 
   require 'skylight/probes'
 end
