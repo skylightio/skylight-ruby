@@ -19,6 +19,7 @@ module Skylight
   autoload :Api,          'skylight/api'
   autoload :CLI,          'skylight/cli'
   autoload :Config,       'skylight/config'
+  autoload :Helpers,      'skylight/helpers'
 
   module Util
     autoload :Logging,       'skylight/util/logging'
@@ -45,7 +46,6 @@ module Skylight
   end
 
   autoload :GC,           'skylight/gc'
-  autoload :Helpers,      'skylight/helpers'
   autoload :Instrumenter, 'skylight/instrumenter'
   autoload :Messages,     'skylight/messages'
   autoload :Middleware,   'skylight/middleware'
