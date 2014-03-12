@@ -1,3 +1,7 @@
+## 0.3.1 (March 8, 2014)
+
+* Fix requires to allow CLI to function without native extension.
+
 ## 0.3.0 (February 28, 2014)
 
 * Native Rust agent

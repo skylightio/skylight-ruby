@@ -1,7 +1,5 @@
 module Skylight
   class Api
-    include Util::Logging
-
     attr_reader :config, :http
 
     def initialize(config, service = :accounts)
