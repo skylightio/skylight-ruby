@@ -26,6 +26,13 @@ module Skylight
     autoload :HTTP,          'skylight/util/http'
   end
 
+  # ==== Exceptions ====
+  class IpcProtoError    < RuntimeError; end
+  class WorkerStateError < RuntimeError; end
+  class ConfigError      < RuntimeError; end
+  class TraceError       < RuntimeError; end
+  class SerializeError   < RuntimeError; end
+
   if defined?(Rails)
     require 'skylight/railtie'
   end
@@ -72,13 +79,6 @@ module Skylight
   module Formatters
     autoload :HTTP, 'skylight/formatters/http'
   end
-
-  # ==== Exceptions ====
-  class IpcProtoError    < RuntimeError; end
-  class WorkerStateError < RuntimeError; end
-  class ConfigError      < RuntimeError; end
-  class TraceError       < RuntimeError; end
-  class SerializeError   < RuntimeError; end
 
   TIERS = %w(
     api
