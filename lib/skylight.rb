@@ -44,6 +44,10 @@ module Skylight
   STANDALONE_ENV_KEY = 'SKYLIGHT_STANDALONE'.freeze
   STANDALONE_ENV_VAL = 'server'.freeze
 
+  def self.native?
+    true
+  end
+
   def self.daemon?
     ENV[STANDALONE_ENV_KEY] == STANDALONE_ENV_VAL
   end
@@ -164,6 +168,10 @@ end
 else
 
 module Skylight
+  def self.native?
+    false
+  end
+
   def self.start!(*)
   end
 

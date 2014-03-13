@@ -15,17 +15,19 @@ module Skylight
     config.skylight.probes = []
 
     initializer 'skylight.configure' do |app|
-      if activate?
-        load_probes
+      if Skylight.native?
+        if activate?
+          load_probes
 
-        if config = load_skylight_config(app)
-          Instrumenter.start!(config)
-          app.middleware.insert 0, Middleware
+          if config = load_skylight_config(app)
+            Instrumenter.start!(config)
+            app.middleware.insert 0, Middleware
 
-          puts "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+            puts "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+          end
+        elsif !Rails.env.test? && Rails.env.development?
+          puts "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the #{Rails.env} environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
         end
-      elsif !Rails.env.test? && Rails.env.development?
-        puts "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the #{Rails.env} environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
       end
     end
 
