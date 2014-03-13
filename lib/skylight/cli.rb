@@ -51,6 +51,14 @@ repository and deploy from there. You can learn more about the process at:
       @app_name ||=
         begin
           if File.exist?("config/application.rb")
+            # This looks like a Rails app, lets make sure we have the railtie loaded
+            # skylight.rb checks for Rails, but when running the CLI, Skylight loads before Rails does
+            begin
+              require "skylight/railtie"
+            rescue LoadError => e
+              error "Unable to load Railtie. Please notify support@skylight.io."
+            end
+
             require "./config/application"
             Rails.application.class.name.split("::").first.underscore.humanize
           else
