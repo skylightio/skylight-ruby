@@ -26,6 +26,10 @@ module Skylight
         @ssl  = config["#{service}.ssl"]
         @host = config["#{service}.host"]
         @port = config["#{service}.port"]
+        @proxy_addr = config["#{service}.proxy_addr"]
+        @proxy_port = config["#{service}.proxy_port"]
+        @proxy_user = config["#{service}.proxy_user"]
+        @proxy_pass = config["#{service}.proxy_pass"]
         @deflate = config["#{service}.deflate"]
         @authentication = config[:'authentication']
       end
@@ -87,7 +91,7 @@ module Skylight
           req.body = body
         end
 
-        http = Net::HTTP.new @host, @port
+        http = Net::HTTP.new(@host, @port, @proxy_addr, @proxy_port, @proxy_user, @proxy_pass)
 
         if @ssl
           http.use_ssl = true
