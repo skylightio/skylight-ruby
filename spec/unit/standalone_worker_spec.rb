@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe 'Standalone worker' do
 
+  timeout = 10
+
   let :pid do
     File.read(tmp('skylight.pid')).to_i
   end
@@ -81,28 +83,28 @@ describe 'Standalone worker' do
       pid = worker.pid
       pid.should_not be_nil
       kill 9, pid # The ultimate sacrifice
-      lambda { worker.pid != pid }.should happen(5)
+      lambda { worker.pid != pid }.should happen(timeout)
     end
 
     it 'restarts the worker when the lockfile is deleted' do
       pid = worker.pid
       worker.shutdown
       lockfile.rm
-      lambda { !pid_exists?(pid) }.should happen(5)
+      lambda { !pid_exists?(pid) }.should happen(timeout)
     end
 
     it 'restarts the worker when the lockfile changes' do
       pid = worker.pid
       worker.shutdown
       File.open(lockfile, 'w') { |f| f.write "123345" }
-      lambda { !pid_exists?(pid) }.should happen(5)
+      lambda { !pid_exists?(pid) }.should happen(timeout)
     end
 
     it 'restarts the worker when the sockfile is deleted' do
       pid = worker.pid
       worker.shutdown
       sockfile_path("skylight-#{pid}.sock").rm
-      lambda { !pid_exists?(pid) }.should happen(5)
+      lambda { !pid_exists?(pid) }.should happen(timeout)
     end
 
   end
@@ -114,13 +116,13 @@ describe 'Standalone worker' do
 
       2.times do
         kill 9, pid
-        lambda { worker.pid != pid }.should happen(5)
+        lambda { worker.pid != pid }.should happen(timeout)
         pid = worker.pid
         pid.should_not be_nil
       end
 
       kill 9, pid
-      lambda { worker.pid != pid }.should happen(5)
+      lambda { worker.pid != pid }.should happen(timeout)
       worker.pid.should be_nil
     end
 
@@ -132,7 +134,7 @@ describe 'Standalone worker' do
       worker = spawn_worker keepalive: 1
       pid = worker.pid
       worker.shutdown
-      lambda { !pid_exists?(pid) }.should happen(5)
+      lambda { !pid_exists?(pid) }.should happen(timeout)
     end
 
   end
@@ -152,7 +154,7 @@ describe 'Standalone worker' do
 
       worker.submit Skylight::Messages::Hello.build(version, [Skylight::RUBYBIN, tmp("test.rb").to_s])
 
-      lambda { testfile.exist? }.should happen(5)
+      lambda { testfile.exist? }.should happen(timeout)
     end
 
   end
