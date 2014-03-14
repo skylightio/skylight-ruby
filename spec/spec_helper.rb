@@ -4,7 +4,10 @@ require 'bundler/setup'
 require 'rspec'
 
 begin
-  require 'allocation_counter/rspec'
+  # Only load this on ruby 2.x
+  if RUBY_VERSION =~ /^2\./
+    require 'allocation_counter/rspec'
+  end
 rescue LoadError
 end
 

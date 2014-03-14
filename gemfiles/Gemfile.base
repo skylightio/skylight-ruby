@@ -8,7 +8,7 @@ gem 'rspec'
 gem 'timecop'
 gem 'beefcake'
 
-if RUBY_VERSION.to_f >= 2.0
+group :ruby_2 do
   gem 'allocation_counter', github: 'wycats/allocation_counter', branch: 'master'
 end
 
