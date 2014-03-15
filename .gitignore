@@ -21,3 +21,5 @@ mkmf.log
 /gemfiles/*.lock
 /Gemfile.lock
 
+# Ignore developer specific configuration
+.rspec
