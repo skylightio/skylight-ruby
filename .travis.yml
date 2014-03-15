@@ -6,6 +6,8 @@ env:
   global:
     - SKYLIGHT_ENABLE_TRACE_LOGS=true
     - RAILS_ENV=development
+    - STANDALONE_WORKER_SPEC_TIMEOUT=15
+    - EMBEDDED_HTTP_SERVER_TIMEOUT=15
 
 rvm:
   - 1.9.2

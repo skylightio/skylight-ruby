@@ -54,7 +54,7 @@ module SpecHelper
       end
 
       opts[:count]   ||= 1
-      opts[:timeout] ||= ENV['TRAVIS'] ? 15 : 4
+      opts[:timeout] ||= EMBEDDED_HTTP_SERVER_TIMEOUT
 
       now = Time.now
 

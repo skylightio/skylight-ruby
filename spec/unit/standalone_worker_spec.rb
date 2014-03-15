@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe 'Standalone worker' do
 
-  timeout = 10
+  timeout = STANDALONE_WORKER_SPEC_TIMEOUT
 
   let :pid do
     File.read(tmp('skylight.pid')).to_i
