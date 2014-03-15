@@ -522,7 +522,7 @@ VALUE batch_new(VALUE klass, VALUE rb_timestamp, VALUE rb_hostname) {
   CHECK_NUMERIC(rb_timestamp);
 
   RustString hostname = NULL;
-  uint32_t timestamp = NUM2ULONG(rb_timestamp);
+  uint32_t timestamp = (uint32_t) NUM2ULONG(rb_timestamp);
 
   if (rb_hostname != Qnil) {
     CHECK_TYPE(rb_hostname, T_STRING);
