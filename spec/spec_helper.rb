@@ -3,14 +3,6 @@ require 'bundler/setup'
 
 require 'rspec'
 
-begin
-  # Only load this on ruby 2.x
-  if RUBY_VERSION =~ /^2\./
-    require 'allocation_counter/rspec'
-  end
-rescue LoadError
-end
-
 # Trigger hard-crash if C-ext is missing
 ENV["SKYLIGHT_REQUIRED"] = "true"
 

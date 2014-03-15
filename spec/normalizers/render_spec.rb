@@ -8,35 +8,6 @@ module Skylight
       Config.new normalizers: { render: { view_paths: %w(/path/to/views /path/to) }}
     end
 
-    shared_examples_for "low allocator" do
-      it "allocates 1 array, 1 string, 1 hash when normalizing the notification name", allocations: true do
-        payload = { identifier: "foo/bar", count: 10 }
-
-        # prime
-        normalize(payload)
-
-        lambda { normalize(payload) }.should allocate(array: 1, hash: 1)
-      end
-
-      it "allocates 1 string, 1 array and 1 hash when normalizing the title to a path relative to view paths", allocations: true do
-        payload = { identifier: "/path/to/views/foo/bar", count: 10 }
-
-        # prime
-        normalize(payload)
-
-        lambda { normalize(payload) }.should allocate(string: 1, array: 1, hash: 1)
-      end
-
-      it "allocates 1 string, 1 array and 1 hash when normalizing the title to a path relative to the Rails root", allocations: true do
-        payload = { identifier: "/path/to/other/path", count: 10 }
-
-        # prime
-        normalize(payload)
-
-        lambda { normalize(payload) }.should allocate(string: 1, array: 1, hash: 1)
-      end
-    end
-
     shared_examples_for "template normalizer" do
       it "normalizes the notification name" do
         complete_payload = { identifier: "foo/bar" }.merge(group_payload)
@@ -88,7 +59,6 @@ module Skylight
     end
 
     describe "render_collection.action_view" do
-      it_should_behave_like "low allocator"
       it_should_behave_like "template normalizer"
 
       def group_payload
@@ -101,7 +71,6 @@ module Skylight
     end
 
     describe "render_template.action_view" do
-      it_should_behave_like "low allocator"
       it_should_behave_like "template normalizer"
 
       def group_payload
@@ -114,7 +83,6 @@ module Skylight
     end
 
     describe "render_partial.action_view" do
-      it_should_behave_like "low allocator"
       it_should_behave_like "template normalizer"
 
       def group_payload
