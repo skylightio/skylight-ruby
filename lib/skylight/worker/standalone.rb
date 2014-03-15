@@ -299,6 +299,7 @@ module Skylight
           sf = sockfile(pid)
           File.unlink(sf) rescue nil
 
+          t { fmt "opening a new socket; %s", sf }
           srv = UNIXServer.new(sf)
 
           unless ENV[TRACE_ENV_KEY]
