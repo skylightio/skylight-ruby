@@ -1,6 +1,7 @@
 require 'socket'
 require 'thread'
 require 'fileutils'
+require 'rbconfig'
 
 # TODO: Handle cool-off
 module Skylight
@@ -12,11 +13,29 @@ module Skylight
     class Standalone
       include Util::Logging
 
-      SUBPROCESS_CMD = [
-        RUBYBIN,
-        '-I', File.expand_path('../../..', __FILE__),
-        File.expand_path('../../../skylight.rb', __FILE__) ]
+      # Locates skylight_native so that it can be included in the standalone agent startup command
+      def self.locate_skylight_native
+        $LOADED_FEATURES.each do |feature|
+          return feature if feature =~ /skylight_native\.#{RbConfig::CONFIG['DLEXT']}/
+        end
+      end
 
+      def self.build_subprocess_cmd
+        paths = [
+          File.expand_path('../../..', __FILE__), # Ruby code root
+          File.dirname(locate_skylight_native)    # Native extension location
+        ].uniq.compact
+
+        ret = [ RUBYBIN ]
+        paths.each { |path| ret << "-I" << path }
+        ret << File.expand_path('../../../skylight.rb', __FILE__) # The agent startup script
+        ret
+      end
+
+      # Used to start the standalone agent as well as included in the hello message
+      SUBPROCESS_CMD = build_subprocess_cmd
+
+      # Used to handle starting the thread
       LOCK = Mutex.new
 
       attr_reader \
