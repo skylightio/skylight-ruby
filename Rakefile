@@ -22,7 +22,7 @@ task :spec do
   # Shelling out to rspec vs. invoking the runner in process fixes exit
   # statuses.
   Dir.chdir File.expand_path('../', __FILE__) do
-    sh "ruby -rbundler/setup -S rspec spec"
+    sh [ "ruby -rbundler/setup -S rspec", ENV['args'] ].join(' ')
   end
 end
 
