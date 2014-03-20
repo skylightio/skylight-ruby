@@ -21,6 +21,27 @@ module SpecHelper
     (@spawned || []).each do |worker|
       worker.shutdown
     end
+
+    lockfile = tmp('skylight.pid')
+
+    if lockfile.exist?
+      pid = File.read(lockfile) rescue nil
+      if pid =~ /^\d+$/
+        pid = pid.to_i
+
+        # Poor man's waitpid. Implemented this way in order to work
+        # around the fact that the pid we are attempting to wait on is
+        # not a child of the current process.
+        begin
+          kill "TERM", pid
+
+          while true
+            kill 0, pid
+          end
+        rescue Errno::ESRCH
+        end
+      end
+    end
   end
 
   def kill(sig, pid)
