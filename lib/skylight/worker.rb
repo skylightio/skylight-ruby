@@ -12,8 +12,5 @@ module Skylight
     autoload :Server,     'skylight/worker/server'
     autoload :Standalone, 'skylight/worker/standalone'
 
-    def self.spawn
-      Standalone.new
-    end
   end
 end
