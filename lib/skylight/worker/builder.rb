@@ -24,7 +24,7 @@ module Skylight
           trace "building standalone worker"
 
           unless config[:'agent.sockfile_path']
-            raise ArgumentError, 'agent.sockfile_path config required'
+            raise ConfigError, 'agent.sockfile_path required'
           end
 
           Standalone.new(
@@ -32,7 +32,8 @@ module Skylight
             lockfile,
             server)
         else
-          raise "unknown strategy: `#{s}`"
+          # We can assume that if it's unknown it's from the config
+          raise ConfigError, "unknown agent.strategy: `#{s}`"
         end
       end
 
