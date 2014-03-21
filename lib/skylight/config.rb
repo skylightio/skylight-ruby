@@ -70,7 +70,7 @@ module Skylight
       :'report.port'    => "skylight remote port" }
 
     VALIDATORS = {
-      :'agent.interval' => lambda { |v, c| Integer === v && v > 0 }
+      :'agent.interval' => [lambda { |v, c| Integer === v && v > 0 }, "must be an integer greater than 0"]
     }
 
     def self.load(path = nil, environment = nil, env = ENV)
@@ -212,8 +212,12 @@ module Skylight
         k = key.to_sym
 
         if validator = VALIDATORS[k]
-          unless validator.call(val, self)
-            raise ConfigError, "invalid value for #{k} (#{val})"
+          blk, msg = validator
+
+          unless blk.call(val, self)
+            error_msg = "invalid value for #{k} (#{val})"
+            error_msg << ", #{msg}" if msg
+            raise ConfigError, error_msg
           end
         end
 

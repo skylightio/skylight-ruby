@@ -295,4 +295,37 @@ authentication: nope
 
   end
 
+  context "validations" do
+
+    let :config do
+      Skylight::Config.new(authentication: "testtoken")
+    end
+
+    it "is valid" do
+      lambda { config.validate! }.should_not raise_error
+    end
+
+    Skylight::Config::REQUIRED.each do |key, name|
+      it "requires #{key}" do
+        config[key] = nil
+        lambda { config.validate! }.should raise_error(Skylight::ConfigError, "#{name} required")
+      end
+    end
+
+    it "does not allow agent.interval to be a non-zero integer" do
+      lambda {
+        config['agent.interval'] = "abc"
+      }.should raise_error(Skylight::ConfigError, "invalid value for agent.interval (abc), must be an integer greater than 0")
+
+      lambda {
+        config['agent.interval'] = -1
+      }.should raise_error(Skylight::ConfigError, "invalid value for agent.interval (-1), must be an integer greater than 0")
+
+      lambda {
+        config['agent.interval'] = 5
+      }.should_not raise_error
+    end
+
+  end
+
 end
