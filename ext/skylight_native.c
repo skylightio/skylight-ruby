@@ -26,7 +26,9 @@
   } while(0)                                      \
 
 #define CHECK_NUMERIC(VAL)                        \
-  CHECK(VAL, #VAL " is not numeric")              \
+  CHECK(TYPE(VAL) == T_BIGNUM ||                  \
+      TYPE(VAL) == T_FIXNUM,                      \
+      #VAL " is not numeric")                     \
 
 #define My_Struct(name, Type, msg)                \
   Get_Struct(name, self, Type, msg);              \
