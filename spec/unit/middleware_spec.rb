@@ -34,7 +34,7 @@ describe Skylight::Middleware, :http do
     body.close
 
     clock.unfreeze
-    server.wait count: 2
+    server.wait count: 3
 
     server.reports[0].should have(1).endpoints
 

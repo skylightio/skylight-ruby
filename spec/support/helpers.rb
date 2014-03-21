@@ -72,6 +72,7 @@ module SpecHelper
   end
 
   def start!
+    stub_token_verification
     stub_session_request
     Skylight.start! config
   end

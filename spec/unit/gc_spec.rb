@@ -25,7 +25,7 @@ module Skylight
         end
 
         clock.unfreeze
-        server.wait count: 2
+        server.wait count: 3
 
         trace.should have(1).spans
         trace.spans[0].duration.should == 10_000
@@ -47,7 +47,7 @@ module Skylight
         end
 
         clock.unfreeze
-        server.wait count: 2
+        server.wait count: 3
 
         trace.should have(2).spans
         span(0).duration.should == 10_000
@@ -74,7 +74,7 @@ module Skylight
         end
 
         clock.unfreeze
-        server.wait count: 2
+        server.wait count: 3
 
         trace.should have(3).spans
 

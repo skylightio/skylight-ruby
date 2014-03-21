@@ -161,6 +161,21 @@ module Skylight
       true
     end
 
+    def validate_token
+      http_auth = Util::HTTP.new(self, :accounts)
+
+      res = http_auth.get("/agent/authenticate?hostname=#{URI.escape(self[:'hostname'])}")
+
+      case res.status
+      when 200...300
+        :ok
+      when 400...500
+        :invalid
+      else
+        :unknown
+      end
+    end
+
     def key?(key)
       key = key.to_sym
       @priority.key?(key) || @values.key?(key)

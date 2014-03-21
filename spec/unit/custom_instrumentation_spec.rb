@@ -95,7 +95,7 @@ describe Skylight::Instrumenter, :http do
       end
 
       clock.unfreeze
-      server.wait(count: 2)
+      server.wait(count: 3)
 
       server.reports[0].should have(1).endpoints
 
@@ -127,7 +127,7 @@ describe Skylight::Instrumenter, :http do
       end
 
       clock.unfreeze
-      server.wait count: 2
+      server.wait count: 3
 
       ep = server.reports[0].endpoints[0]
       t  = ep.traces[0]
@@ -195,7 +195,7 @@ describe Skylight::Instrumenter, :http do
       end
 
       clock.unfreeze
-      server.wait count: 2
+      server.wait count: 3
 
       server.reports[0].should have(1).endpoints
 

@@ -42,19 +42,25 @@ module Skylight
         submit_trace
 
         clock.unfreeze
-        server.wait count: 2
+        server.wait count: 3
 
-        server.should have(2).requests
+        server.should have(3).requests
         server.should have(1).reports
 
-        # Session authentication
+        # Token verification
         req = server.requests[0]
         req['PATH_INFO'].should == '/agent/authenticate'
         req['HTTP_X_SKYLIGHT_AGENT_VERSION'].should == Skylight::VERSION
         req['HTTP_AUTHORIZATION'].should == 'lulz'
 
-        # Report
+        # Session authentication
         req = server.requests[1]
+        req['PATH_INFO'].should == '/agent/authenticate'
+        req['HTTP_X_SKYLIGHT_AGENT_VERSION'].should == Skylight::VERSION
+        req['HTTP_AUTHORIZATION'].should == 'lulz'
+
+        # Report
+        req = server.requests[2]
         req['PATH_INFO'].should == '/report'
         req['HTTP_X_SKYLIGHT_AGENT_VERSION'].should == Skylight::VERSION
         req['HTTP_AUTHORIZATION'].should == token
@@ -84,25 +90,26 @@ module Skylight
 
         submit_trace
         clock.unfreeze
-        server.wait count: 2
+        server.wait count: 3
         clock.freeze
 
-        server.should have(2).requests
+        server.should have(3).requests
+
         req = server.requests[0]
         req['HTTP_AUTHORIZATION'].should == 'lulz'
 
-        server.requests[1]['HTTP_AUTHORIZATION'].should == token
+        server.requests[2]['HTTP_AUTHORIZATION'].should == token
 
         mock_auth token2
         clock.skip 3600
 
         submit_trace
         clock.unfreeze
-        server.wait count: 4
+        server.wait count: 5
 
-        server.should have(4).requests
+        server.should have(5).requests
 
-        req = server.requests[3]
+        req = server.requests[4]
         req['HTTP_AUTHORIZATION'].should == token2
       end unless strategy == :standalone
 
@@ -111,20 +118,20 @@ module Skylight
 
         submit_trace
         clock.unfreeze
-        server.wait count: 2
+        server.wait count: 3
         clock.freeze
 
         submit_trace
         clock.unfreeze
-        server.wait count: 3
+        server.wait count: 4
         clock.freeze
 
-        server.should have(3).requests
-        req = server.requests[0]
+        server.should have(4).requests
+        req = server.requests[1]
         req['PATH_INFO'].should == '/agent/authenticate'
         req['HTTP_AUTHORIZATION'].should == 'lulz'
 
-        server.requests[1, 2].each do |req|
+        server.requests[2, 3].each do |req|
           req['PATH_INFO'].should == '/report'
           req['HTTP_AUTHORIZATION'].should == token
         end
@@ -132,15 +139,16 @@ module Skylight
         clock.skip 3600
         submit_trace
         clock.unfreeze
-        server.wait count: 4
+        server.wait count: 5
 
-        server.should have(4).requests
+        server.should have(5).requests
 
-        req = server.requests[3]
+        req = server.requests[4]
         req['PATH_INFO'].should == '/agent/authenticate'
         req['HTTP_AUTHORIZATION'].should == 'lulz'
 
-        req = server.requests[2]
+        # This tests seems like it duplicates the test in the #each above
+        req = server.requests[3]
         req['PATH_INFO'].should == '/report'
         req['HTTP_AUTHORIZATION'].should == token
       end unless strategy == :standalone
@@ -163,9 +171,9 @@ module Skylight
 
           submit_trace
 
-          server.wait count: 2
+          server.wait count: 3
 
-          req = server.requests[1]
+          req = server.requests[2]
           req['rack.input']["class_name"].should == "Errno::ECONNREFUSED"
           req['PATH_INFO'].should == '/agent/exception'
         end
