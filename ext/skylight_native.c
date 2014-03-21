@@ -344,7 +344,7 @@ static VALUE error_serialize(VALUE self) {
 static const char* freedTrace = "You can't do anything with a Trace once it's been serialized or moved into a Batch";
 
 static VALUE trace_new(VALUE self, VALUE started_at, VALUE uuid) {
-  CHECK_TYPE(started_at, T_FIXNUM);
+  CHECK_NUMERIC(started_at);
   CHECK_TYPE(uuid, T_STRING);
 
   RustTrace trace;
