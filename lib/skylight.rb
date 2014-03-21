@@ -9,7 +9,13 @@ begin
     has_native_ext = true
   end
 rescue LoadError
-  puts "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension wasn't found. Skylight is not running."
+  if defined?(Rails) && !Rails.env.development? && !Rails.env.test?
+    puts "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. We currently support monitoring in 32- and 64-bit Linux only. If you are on a supported platform, please contact support at support@skylight.io. The missing extension will not affect the functioning of your application."
+  elsif defined?(Rails)
+    puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in #{Rails.env} mode. No data will be reported until you deploy your app."
+  else
+    puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode."
+  end
   raise if ENV.key?("SKYLIGHT_REQUIRED")
 end
 
