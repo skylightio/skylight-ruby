@@ -12,7 +12,7 @@ task :spec do
     File.expand_path("../target/#{platform.os}/#{platform.cpu}/skylight_native.#{ext}"),
     # The default extconf output directory
     File.expand_path("../ext/skylight_native.#{ext}")
-  ].detect { |f| File.exist?(f) }
+  ].detect { |f| f && File.exist?(f) }
 
   if native_ext
     native_ext_dir = File.dirname(native_ext)
