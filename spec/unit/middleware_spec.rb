@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Skylight::Middleware, :http do
 
   before :each do
-    Skylight.start! config
+    start!
     clock.freeze
   end
 
@@ -16,7 +16,6 @@ describe Skylight::Middleware, :http do
   end
 
   it 'tracks traces' do
-    stub_session_request
     hello.should_receive(:hello)
 
     app = Skylight::Middleware.new(lambda do |env|

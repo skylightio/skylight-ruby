@@ -8,8 +8,7 @@ describe Skylight::Instrumenter, :http do
 
     context "when Skylight is running" do
       before :each do
-        stub_session_request
-        Skylight.start! config
+        start!
         clock.freeze
       end
 
