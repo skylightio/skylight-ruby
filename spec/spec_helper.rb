@@ -74,6 +74,8 @@ puts "Testing probes: #{installed_probes.join(", ")}" unless installed_probes.em
 puts "Skipping probes: #{skipped_probes.join(", ")}"  unless skipped_probes.empty?
 
 RSpec.configure do |config|
+  config.color_enabled = true
+
   unless defined?(AllocationCounter)
     config.filter_run_excluding allocations: true
   end
