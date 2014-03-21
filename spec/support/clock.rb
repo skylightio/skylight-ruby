@@ -2,7 +2,7 @@ module SpecHelper
   class TestClock < Skylight::Util::Clock
     def initialize
       @absolute_secs = nil
-      @nanos = nil
+      @tick = nil
       @skew = 0
     end
 
@@ -10,8 +10,8 @@ module SpecHelper
       (@absolute_secs || __absolute_secs) + @skew / 1_000_000_000
     end
 
-    def nanos
-      (@nanos || __nanos) + @skew
+    def tick
+      (@tick || __tick) + @skew
     end
 
     def skip(val)
@@ -20,16 +20,16 @@ module SpecHelper
 
     def freeze
       @absolute_secs = __absolute_secs
-      @nanos = __nanos
+      @tick = __tick
     end
 
     def unfreeze
       @absolute_secs = nil
-      @nanos = nil
+      @tick = nil
     end
 
     def now=(v)
-      @nanos = v
+      @tick = v
     end
 
   private
@@ -38,7 +38,7 @@ module SpecHelper
       Time.now.to_i
     end
 
-    def __nanos
+    def __tick
       native_hrtime
     end
   end

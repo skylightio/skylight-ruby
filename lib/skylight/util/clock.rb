@@ -2,22 +2,28 @@ module Skylight
   module Util
     class Clock
 
-      def absolute_secs
-        Time.now.to_i
-      end
-
       if Skylight.native?
-        def nanos
+        def tick
           native_hrtime
         end
       else
-        # Implement nanos to work when native extension is not present
-        def nanos
+        def tick
           now = Time.now
           now.to_i * 1_000_000_000 + now.usec * 1_000
         end
       end
 
+      # TODO: rename to secs
+      def absolute_secs
+        Time.now.to_i
+      end
+
+      # TODO: remove
+      def nanos
+        tick
+      end
+
+      # TODO: remove
       def secs
         nanos / 1_000_000_000
       end

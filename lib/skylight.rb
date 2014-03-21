@@ -81,9 +81,15 @@ module Skylight
   autoload :Subscriber,   'skylight/subscriber'
   autoload :Worker,       'skylight/worker'
 
+  module Metrics
+    autoload :Meter, 'skylight/metrics/meter'
+    autoload :EWMA,  'skylight/metrics/ewma'
+  end
+
   module Util
     require 'skylight/util/clock'
 
+    autoload :Conversions,   'skylight/util/conversions'
     autoload :Gzip,          'skylight/util/gzip'
     autoload :HTTP,          'skylight/util/http'
     autoload :Inflector,     'skylight/util/inflector'
