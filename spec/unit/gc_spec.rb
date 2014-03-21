@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Skylight
-  describe GC, :http do
+  describe GC, :http, :agent do
 
     before :each do
       clock.freeze

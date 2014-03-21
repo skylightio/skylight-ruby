@@ -38,7 +38,7 @@ if enable
     end
   end
 
-  describe 'Rails integration', :http do
+  describe 'Rails integration', :http, :agent do
 
     before :all do
       ENV['SKYLIGHT_AUTHENTICATION']      = 'lulz'

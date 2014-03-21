@@ -1,5 +1,3 @@
-# skylight/probes.rb
-
 module Skylight
   module Probes
 

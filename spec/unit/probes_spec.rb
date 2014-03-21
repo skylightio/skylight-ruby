@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Skylight
 
-  describe Probes, :probes do
+  describe "Probes", :probes, :agent do
 
     before :all do
       @require_hooks    = Skylight::Probes.require_hooks.dup
@@ -15,6 +15,8 @@ module Skylight
     end
 
     let(:probe) { create_probe }
+
+    subject { Skylight::Probes }
 
     it "can determine const availability" do
       subject.is_available?("Skylight").should be_true

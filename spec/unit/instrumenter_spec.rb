@@ -3,7 +3,7 @@ require 'securerandom'
 require 'base64'
 require "stringio"
 
-describe Skylight::Instrumenter, :http do
+describe "Skylight::Instrumenter", :http, :agent do
 
   context "boot" do
 

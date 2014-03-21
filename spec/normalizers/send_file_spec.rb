@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module Skylight
-  describe Normalizers, "send_file.action_controller" do
+  describe "Normalizers", "send_file.action_controller", :agent do
 
     it "normalizes the notification name with defaults" do
       name, title, desc, payload =

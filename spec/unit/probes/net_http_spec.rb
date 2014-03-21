@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Skylight
   module Probes
-    describe "NetHTTP:Probe", :net_http_probe, :probes do
+    describe "NetHTTP:Probe", :net_http_probe, :probes, :agent do
 
       it "is registered" do
         reg = Skylight::Probes.installed["Net::HTTP"]

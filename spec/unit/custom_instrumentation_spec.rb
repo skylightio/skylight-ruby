@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Skylight::Instrumenter, :http do
+describe "Skylight::Instrumenter", :http, :agent do
 
   let :hello do
     double('hello')

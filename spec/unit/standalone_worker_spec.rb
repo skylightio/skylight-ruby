@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Standalone worker' do
+describe 'Standalone worker', :agent do
 
   timeout = STANDALONE_WORKER_SPEC_TIMEOUT
 
@@ -139,7 +139,7 @@ describe 'Standalone worker' do
 
   end
 
-  context 'reloading', :http do
+  context 'reloading', :http, :agent do
 
     it 'reloads the agent when there is a new version' do
       start!

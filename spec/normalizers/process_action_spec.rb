@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Skylight
-  describe Normalizers, "process_action.action_controller" do
+  describe "Normalizers", "process_action.action_controller", :agent do
 
     it "updates the trace's endpoint" do
       normalize(controller: "foo", action: "bar")

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Skylight
-  describe Normalizers do
+  describe "Normalizers", :agent do
 
     let(:config) do
       # the second path represents rails root

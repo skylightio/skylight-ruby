@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Skylight
-  describe Worker::Collector, :http do
+  describe "Worker::Collector", :http, :agent do
 
     before :each do
       Skylight.start! config

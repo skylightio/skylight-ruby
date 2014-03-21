@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'date'
 
 module Skylight
-  describe Normalizers, "sql.active_record" do
+  describe "Normalizers", "sql.active_record", :agent do
 
     it "skips SCHEMA queries" do
       normalize(name: "SCHEMA").should == :skip

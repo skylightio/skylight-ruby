@@ -3,8 +3,10 @@ require 'bundler/setup'
 
 require 'rspec'
 
-# Trigger hard-crash if C-ext is missing
-ENV["SKYLIGHT_REQUIRED"] = "true"
+unless ENV['SKYLIGHT_DISABLE_AGENT']
+  # Trigger hard-crash if C-ext is missing
+  ENV["SKYLIGHT_REQUIRED"] = "true"
+end
 
 require 'yaml'
 require 'skylight'
@@ -13,14 +15,16 @@ require 'beefcake'
 
 # Begin Probed libraries
 
-begin
-  require 'excon'
-  require 'skylight/probes/excon'
-rescue LoadError
-end
+if defined?(Skylight::Probes)
+  begin
+    require 'excon'
+    require 'skylight/probes/excon'
+  rescue LoadError
+  end
 
-require 'net/http'
-require 'skylight/probes/net_http'
+  require 'net/http'
+  require 'skylight/probes/net_http'
+end
 
 # End Probed Libraries
 
@@ -67,7 +71,7 @@ EMBEDDED_HTTP_SERVER_TIMEOUT = get_embedded_http_server_timeout
 Dir[File.expand_path('../support/*.rb', __FILE__)].each { |f| require f }
 
 all_probes = %w(Excon Net::HTTP)
-installed_probes = Skylight::Probes.installed.keys
+installed_probes = defined?(Skylight::Probes) ? Skylight::Probes.installed.keys : []
 skipped_probes = all_probes - installed_probes
 
 puts "Testing probes: #{installed_probes.join(", ")}" unless installed_probes.empty?
@@ -78,6 +82,14 @@ RSpec.configure do |config|
 
   unless defined?(AllocationCounter)
     config.filter_run_excluding allocations: true
+  end
+
+  unless defined?(Moped)
+    config.filter_run_excluding moped: true
+  end
+
+  if ENV['SKYLIGHT_DISABLE_AGENT']
+    config.filter_run_excluding agent: true
   end
 
   unless skipped_probes.empty?
@@ -98,7 +110,9 @@ RSpec.configure do |config|
   original_home = ENV['HOME']
 
   config.before :each do
-    Skylight::Util::Clock.default = SpecHelper::TestClock.new
+    if defined?(Skylight::Util::Clock)
+      Skylight::Util::Clock.default = SpecHelper::TestClock.new
+    end
 
     if File.exist?(tmp)
       FileUtils.rm_rf tmp

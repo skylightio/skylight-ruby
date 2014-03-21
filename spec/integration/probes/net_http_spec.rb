@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Net::HTTP integration', :net_http_probe, :http do
+describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
 
   class CustomType < Net::HTTPRequest
     METHOD = "CUSTOM"

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Skylight::Middleware, :http do
+describe "Skylight::Middleware", :http, :agent do
 
   before :each do
     start!

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Skylight
   module Probes
-    describe "Excon::Probe", :excon_probe, :probes do
+    describe "Excon::Probe", :excon_probe, :probes, :agent do
 
       it "is registered" do
         reg = Skylight::Probes.installed["Excon"]

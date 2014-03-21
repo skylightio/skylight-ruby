@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Skylight
-  describe Normalizers, 'default' do
+  describe "Normalizers", 'default', :agent do
 
     context 'valid events' do
 

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Skylight
-  describe Messages::Trace do
+  describe "Messages::Trace", :agent do
 
     before :each do
       clock.now = 100_000_000

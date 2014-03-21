@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'skylight setup', :http do
+describe 'skylight setup', :http, :agent do
 
   let(:hl) { double("highline") }
 

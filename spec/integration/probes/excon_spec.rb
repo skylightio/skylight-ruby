@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Excon integration', :excon_probe, :http do
+describe 'Excon integration', :excon_probe, :http, :agent do
 
   class TestSpan
     def self.spans
