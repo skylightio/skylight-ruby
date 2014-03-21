@@ -72,6 +72,16 @@ module Skylight
 
       t { "starting instrumenter" }
       @config.validate!
+
+      case @config.validate_token
+      when :ok
+        # Good to go
+      when :unknown
+        log_warn "unable to validate authentication token"
+      else
+        raise ConfigError, "authentication token is invalid"
+      end
+
       @config.gc.enable
       @worker.spawn
       @subscriber.register!

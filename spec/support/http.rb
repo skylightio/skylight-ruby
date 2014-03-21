@@ -174,6 +174,12 @@ module SpecHelper
     "hey-guyz-i-am-a-token"
   end
 
+  def stub_token_verification(status=200)
+    server.mock "/agent/authenticate" do |env|
+      [status, { session: { token: token} }]
+    end
+  end
+
   def stub_session_request
     server.mock "/agent/authenticate" do |env|
       { session: { token: token} }

@@ -1,8 +1,50 @@
 require 'spec_helper'
 require 'securerandom'
 require 'base64'
+require "stringio"
 
 describe Skylight::Instrumenter, :http do
+
+  context "boot" do
+
+    let :logger_out do
+      StringIO.new
+    end
+
+    let :logger do
+      log = Logger.new(logger_out)
+      log.level = Logger::DEBUG
+      log
+    end
+
+    before :each do
+      @old_logger = config.logger
+      config.logger = logger
+    end
+
+    after :each do
+      Skylight.stop!
+      config.logger = @old_logger
+    end
+
+    it 'validates the token' do
+      stub_token_verification
+      Skylight.start!(config).should be_true
+    end
+
+    it 'warns about unvalidated tokens' do
+      stub_token_verification(500)
+      Skylight.start!(config).should be_true
+      logger_out.string.should include("unable to validate authentication token")
+    end
+
+    it 'fails with invalid token' do
+      stub_token_verification(401)
+      Skylight.start!(config).should be_false
+      logger_out.string.should include("failed to start instrumenter; msg=authentication token is invalid")
+    end
+
+  end
 
   shared_examples 'an instrumenter' do
 
@@ -22,7 +64,7 @@ describe Skylight::Instrumenter, :http do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 2)
+        server.wait(timeout: 2, count: 3)
 
         server.reports[0].should have(1).endpoints
 
@@ -49,7 +91,7 @@ describe Skylight::Instrumenter, :http do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 2)
+        server.wait(timeout: 2, count: 3)
 
         server.reports[0].should have(1).endpoints
 
@@ -76,9 +118,9 @@ describe Skylight::Instrumenter, :http do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 3)
+        server.wait(timeout: 2, count: 4)
 
-        error_request = server.requests[1]
+        error_request = server.requests[2]
 
         error_request["PATH_INFO"].should == "/agent/error"
         error = error_request["rack.input"]
@@ -121,9 +163,9 @@ describe Skylight::Instrumenter, :http do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 3)
+        server.wait(timeout: 2, count: 4)
 
-        error_request = server.requests[1]
+        error_request = server.requests[2]
         error_request["PATH_INFO"].should == "/agent/error"
         error = error_request["rack.input"]
         error.should == {
@@ -165,9 +207,9 @@ describe Skylight::Instrumenter, :http do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 3)
+        server.wait(timeout: 2, count: 4)
 
-        error_request = server.requests[1]
+        error_request = server.requests[2]
 
         error_request["PATH_INFO"].should == "/agent/error"
         error = error_request["rack.input"]
