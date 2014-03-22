@@ -4,6 +4,12 @@ require 'open3'
 
 describe "CLI integration", :http do
 
+  # Make sure this is executed before we mess with the env, just in case
+  let! :rails_version do
+    require 'rails'
+    Rails.version
+  end
+
   it "works" do
     server.mock "/me" do |env|
       env['HTTP_X_EMAIL'].should == "test@example.com"
@@ -61,6 +67,7 @@ describe "CLI integration", :http do
 
   def set_env
     # Gemfile
+    ENV['RAILS_VERSION'] = rails_version
     ENV['SKYLIGHT_GEM_PATH'] = APP_ROOT
 
     # Skylight config
