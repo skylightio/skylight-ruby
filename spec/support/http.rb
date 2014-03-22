@@ -4,6 +4,7 @@ require 'socket'
 require 'thread'
 require 'timeout'
 require 'active_support'
+require 'json'
 
 module SpecHelper
   class Server

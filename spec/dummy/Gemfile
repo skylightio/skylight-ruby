@@ -1,0 +1,2 @@
+gem 'rails'
+gem 'skylight', path: ENV['SKYLIGHT_GEM_PATH'] || "../../"
