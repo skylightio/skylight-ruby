@@ -134,11 +134,11 @@ RSpec.configure do |config|
       Dir.chdir original_wd
       ENV['HOME'] = original_home
     end
-  end
 
-  config.after :each do
     # Reset the starting paths
-    Skylight::Probes.instance_variable_set(:@require_hooks, {})
+    if defined?(Skylight::Probes)
+      Skylight::Probes.instance_variable_set(:@require_hooks, {})
+    end
 
     # Remove the ProbeTestClass if it exists so that the probe won't find it
     if defined?(SpecHelper::ProbeTestClass)

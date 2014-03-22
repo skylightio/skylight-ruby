@@ -28,6 +28,8 @@ if enable
   end
 
   class ::UsersController < ActionController::Base
+    include Skylight::Helpers
+
     def index
       Skylight.instrument category: 'app.inside' do
         render text: "Hello"
@@ -36,9 +38,14 @@ if enable
         end
       end
     end
+
+    instrument_method
+    def show
+      render text: "Hola: #{params[:id]}"
+    end
   end
 
-  describe 'Rails integration', :http, :agent do
+  describe 'Rails integration' do
 
     before :all do
       ENV['SKYLIGHT_AUTHENTICATION']      = 'lulz'
@@ -79,41 +86,56 @@ if enable
       Skylight.stop!
     end
 
-    let :token do
-      "hey-guyz-i-am-a-token"
-    end
+    context "with agent", :http, :agent do
 
-    before :each do
-      server.mock "/agent/authenticate" do |env|
-        { session: { token: token } }
+      let :token do
+        "hey-guyz-i-am-a-token"
       end
+
+      before :each do
+        server.mock "/agent/authenticate" do |env|
+          { session: { token: token } }
+        end
+      end
+
+      it 'successfully calls into rails' do
+        call MyApp, env('/users')
+
+        server.wait count: 2
+
+        batch = server.reports[0]
+        batch.should_not be nil
+        batch.should have(1).endpoints
+        endpoint = batch.endpoints[0]
+        endpoint.name.should == "UsersController#index"
+        endpoint.should have(1).traces
+        trace = endpoint.traces[0]
+
+        names = trace.spans.map { |s| s.event.category }
+
+        names.length.should be >= 2
+        names.should include('app.zomg')
+        names.should include('app.inside')
+        names[0].should == 'app.rack.request'
+      end
+
     end
 
-    it 'successfully calls into rails' do
-      call MyApp, env('/users')
+    context "without agent" do
 
-      server.wait count: 2
+      it "allows calls to Skylight.instrument" do
+        call(MyApp, env('/users')).should == ["Hello"]
+      end
 
-      batch = server.reports[0]
-      batch.should_not be nil
-      batch.should have(1).endpoints
-      endpoint = batch.endpoints[0]
-      endpoint.name.should == "UsersController#index"
-      endpoint.should have(1).traces
-      trace = endpoint.traces[0]
+      it "supports Skylight::Helpers" do
+        call(MyApp, env('/users/1')).should == ["Hola: 1"]
+      end
 
-      names = trace.spans.map { |s| s.event.category }
-
-      names.length.should be >= 2
-      names.should include('app.zomg')
-      names.should include('app.inside')
-      names[0].should == 'app.rack.request'
     end
 
     def call(app, env)
       resp = app.call(env)
       consume(resp)
-      nil
     end
 
     def env(path = '/', opts = {})
@@ -121,8 +143,10 @@ if enable
     end
 
     def consume(resp)
-      resp[2].each { }
+      data = []
+      resp[2].each{|p| data << p }
       resp[2].close
+      data
     end
 
   end
