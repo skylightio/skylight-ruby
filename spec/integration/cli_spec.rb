@@ -28,19 +28,25 @@ describe "CLI integration", :http do
         system "bundle install"
 
         Open3.popen3("bundle exec skylight setup") do |stdin, stdout, stderr|
-          get_prompt(stdout).should =~ /Email:\s*$/
-          fill_prompt(stdin, "test@example.com")
+          begin
+            get_prompt(stdout).should =~ /Email:\s*$/
+            fill_prompt(stdin, "test@example.com")
 
-          get_prompt(stdout).should =~ /Password:\s*$/
-          fill_prompt(stdin, "testpass", false)
+            get_prompt(stdout).should =~ /Password:\s*$/
+            fill_prompt(stdin, "testpass", false)
 
-          result = stdout.read
-          puts result
-          result.should include("Congratulations. Your application is on Skylight!")
+            result = stdout.read
+            puts result
+            result.should include("Congratulations. Your application is on Skylight!")
 
-          YAML.load_file("../.skylight").should == {"token"=>"testtoken"}
+            YAML.load_file("../.skylight").should == {"token"=>"testtoken"}
 
-          YAML.load_file("config/skylight.yml").should == {"application"=>"appid", "authentication"=>"apptoken"}
+            YAML.load_file("config/skylight.yml").should == {"application"=>"appid", "authentication"=>"apptoken"}
+          rescue
+            # Provide some potential debugging information
+            puts stderr.read
+            raise
+          end
         end
       end
     end
