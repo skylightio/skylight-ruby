@@ -25,7 +25,9 @@ describe "CLI integration", :http do
       with_dummy do
         set_env
 
-        system "bundle install"
+        IO.popen("bundle install") do |stdout|
+          puts stdout.read if ENV['DEBUG']
+        end
 
         Open3.popen3("bundle exec skylight setup") do |stdin, stdout, stderr|
           begin
@@ -35,16 +37,14 @@ describe "CLI integration", :http do
             get_prompt(stdout).should =~ /Password:\s*$/
             fill_prompt(stdin, "testpass", false)
 
-            result = stdout.read
-            puts result
-            result.should include("Congratulations. Your application is on Skylight!")
+            read(stdout).should include("Congratulations. Your application is on Skylight!")
 
             YAML.load_file("../.skylight").should == {"token"=>"testtoken"}
 
             YAML.load_file("config/skylight.yml").should == {"application"=>"appid", "authentication"=>"apptoken"}
           rescue
             # Provide some potential debugging information
-            puts stderr.read
+            puts stderr.read if ENV['DEBUG']
             raise
           end
         end
@@ -73,13 +73,19 @@ describe "CLI integration", :http do
 
   def get_prompt(io, limit=100)
     prompt = io.readpartial(limit)
-    print prompt
+    print prompt if ENV['DEBUG']
     prompt
   end
 
-  def fill_prompt(io, str, echo=true)
+  def fill_prompt(io, str, echo=ENV['DEBUG'])
     io.puts str
     puts str if echo
+  end
+
+  def read(io)
+    result = io.read
+    puts result if ENV['DEBUG']
+    result
   end
 
 end
