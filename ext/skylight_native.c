@@ -111,7 +111,7 @@ bool skylight_high_res_time(uint64_t*);
 bool skylight_trace_new(uint64_t, RustSlice, RustTrace*);
 bool skylight_trace_free(RustTrace);
 bool skylight_trace_load(RustSlice, RustTrace*);
-bool skylight_trace_name_from_serialized_into_new_buffer(RustSlice, RustSlice*);
+bool skylight_trace_name_from_serialized_into_new_buffer(RustSlice, RustString*);
 bool skylight_trace_get_started_at(RustTrace, uint64_t*);
 bool skylight_trace_set_name(RustTrace, RustSlice);
 bool skylight_trace_get_name(RustTrace, RustSlice*);
@@ -369,11 +369,13 @@ static VALUE trace_load(VALUE self, VALUE protobuf) {
 static VALUE trace_name_from_serialized(VALUE self, VALUE protobuf) {
   CHECK_TYPE(protobuf, T_STRING);
 
-  RustSlice trace_name;
+  RustString trace_name;
 
   CHECK_FFI(skylight_trace_name_from_serialized_into_new_buffer(STR2SLICE(protobuf), &trace_name), "Could not read name from serialized Trace");
 
-  return SLICE2STR(trace_name);
+  VALUE ret = VEC2STR(trace_name);
+  skylight_free_buf(trace_name);
+  return ret;
 }
 
 static VALUE trace_get_started_at(VALUE self) {
