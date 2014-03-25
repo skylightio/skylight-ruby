@@ -32,6 +32,10 @@ module SpecHelper
     'embedded'
   end
 
+  def metrics_report_interval
+    60
+  end
+
   def log_path
     '-'
   end
@@ -61,9 +65,12 @@ module SpecHelper
       gc: {
         profiler: gc
       }.freeze,
+      metrics: {
+        report_interval: metrics_report_interval
+      }.freeze,
       test: {
         constant_flush: true
-      }
+      }.freeze
     }.freeze
   end
 

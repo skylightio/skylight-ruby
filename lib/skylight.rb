@@ -82,8 +82,9 @@ module Skylight
   autoload :Worker,       'skylight/worker'
 
   module Metrics
-    autoload :Meter, 'skylight/metrics/meter'
-    autoload :EWMA,  'skylight/metrics/ewma'
+    autoload :Meter,           'skylight/metrics/meter'
+    autoload :EWMA,            'skylight/metrics/ewma'
+    autoload :ProcessMemGauge, 'skylight/metrics/process_mem_gauge'
   end
 
   module Util

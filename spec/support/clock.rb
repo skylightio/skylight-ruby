@@ -1,5 +1,7 @@
 module SpecHelper
   class TestClock < Skylight::Util::Clock
+    alias __tick tick
+
     def initialize
       @absolute_secs = nil
       @tick = nil
@@ -36,10 +38,6 @@ module SpecHelper
 
     def __absolute_secs
       Time.now.to_i
-    end
-
-    def __tick
-      native_hrtime
     end
   end
 

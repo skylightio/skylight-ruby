@@ -1,23 +1,32 @@
+require 'thread'
+
 module Skylight
   module Metrics
-
-    # Not thread-safe
     class Meter
       def initialize(ewma = EWMA.one_minute_ewma, clock = Util::Clock.default)
         @ewma = ewma
+        @lock = Mutex.new
         @clock = clock
         @start_time = @clock.tick
         @last_tick = @start_time
       end
 
       def mark(n = 1)
-        tick_if_necessary
-        @ewma.update(n)
+        @lock.synchronize do
+          tick_if_necessary
+          @ewma.update(n)
+        end
       end
 
       def rate
-        tick_if_necessary
-        @ewma.rate(1)
+        @lock.synchronize do
+          tick_if_necessary
+          @ewma.rate(1)
+        end
+      end
+
+      def call
+        rate
       end
 
     private

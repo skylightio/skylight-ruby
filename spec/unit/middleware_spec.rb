@@ -36,7 +36,9 @@ describe "Skylight::Middleware", :http, :agent do
     clock.unfreeze
     server.wait count: 1, resource: "/report"
 
-    server.reports[0].should have(1).endpoints
+    report = server.reports[0]
+    report.should_not be_nil
+    report.should have(1).endpoints
 
     ep = server.reports[0].endpoints[0]
     ep.name.should == 'Rack'

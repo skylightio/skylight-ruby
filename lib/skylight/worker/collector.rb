@@ -11,21 +11,37 @@ module Skylight
 
       include Util::Logging
 
-      attr_reader :config
+      attr_reader :config, :metrics_reporter
 
-      def initialize(config)
+      def initialize(config, metrics_reporter = nil)
         super(1000, 0.25)
 
-        @config      = config
-        @size        = config[:'agent.sample']
-        @batch       = nil
-        @interval    = config[:'agent.interval']
-        @refresh_at  = 0
-        @http_auth   = Util::HTTP.new(config, :accounts)
+        @config = config
+        @size = config[:'agent.sample']
+        @batch = nil
+        @interval = config[:'agent.interval']
+        @refresh_at = 0
+        @http_auth = Util::HTTP.new(config, :accounts)
         @http_report = nil
-        # @http_report = Util::HTTP.new(config, :report)
+        @report_meter = Metrics::Meter.new
+        @report_success_meter = Metrics::Meter.new
+        @metrics_reporter = metrics_reporter
+
+        @metrics_reporter.register("collector.report-rate", @report_meter)
+        @metrics_reporter.register("collector.report-success-rate", @report_success_meter)
 
         t { fmt "starting collector; interval=%d; size=%d", @interval, @size }
+      end
+
+      def self.build(config)
+        new(config, MetricsReporter.new(config))
+      end
+
+      def prepare
+        if @metrics_reporter
+          @metrics_reporter.register("worker.collector.queue-depth", queue_depth_metric)
+          @metrics_reporter.spawn
+        end
       end
 
       def handle(msg, now = Util::Clock.absolute_secs)
@@ -109,6 +125,10 @@ module Skylight
         end
 
         @batch = nil
+      ensure
+        if @metrics_reporter
+          @metrics_reporter.shutdown
+        end
       end
 
       def flush(batch)
@@ -116,8 +136,16 @@ module Skylight
 
         debug "flushing batch; size=%d", batch.sample.count
 
+        @report_meter.mark
+
         res = @http_report.post(ENDPOINT, batch.encode, CONTENT_TYPE => SKYLIGHT_V2)
-        send_exception(res.exception) if res.exception
+
+        if res.exception
+          send_exception(res.exception)
+        else
+          @report_success_meter.mark
+        end
+
         nil
       end
 
