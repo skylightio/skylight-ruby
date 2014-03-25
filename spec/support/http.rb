@@ -118,7 +118,12 @@ module SpecHelper
           @mocks.delete(mock)
 
           begin
-            ret = mock[:blk].call(env)
+            ret =
+              begin
+                mock[:blk].call(env)
+              rescue
+                [ 500, { 'content-type' => 'text/plain', 'content-length' => '4' }, [ 'Fail' ] ]
+              end
 
             if Array === ret
               return ret if ret.length == 3
@@ -133,14 +138,6 @@ module SpecHelper
               ret = ret.to_json
               return [ 200, { 'content-type' => json, 'content-length' => ret.bytesize.to_s }, [ret] ]
             end
-          rescue Exception => e
-            puts e.message
-            puts e.backtrace
-            return [
-              500,
-              { 'content-type' => 'text/plain',
-                'content-length' => '4' },
-              ['Fail'] ]
           end
         end
       end

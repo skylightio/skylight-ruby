@@ -153,6 +153,28 @@ module Skylight
         req['HTTP_AUTHORIZATION'].should == token
       end unless strategy == :standalone
 
+      it 'continues the collector even if no session token can be obtained' do
+        2.times do
+          server.mock "/agent/authenticate" do |env|
+            raise "nope"
+          end
+        end
+
+        submit_trace
+        clock.unfreeze
+        server.wait count: 3
+        clock.freeze
+
+        mock_auth
+
+        submit_trace
+        clock.unfreeze
+        server.wait count: 5
+        clock.freeze
+
+        server.reports.should have(1).item
+      end unless strategy == :standalone
+
       context "with crashing report server" do
 
         let :config do

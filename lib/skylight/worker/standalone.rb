@@ -191,8 +191,10 @@ module Skylight
           trace "shuting down agent connection"
           @sock.close if @sock
           @pid = nil
+
+          return false
         elsif msg
-          handle(msg)
+          return handle(msg)
         else
           begin
             @sock.read_nonblock(1)
@@ -204,11 +206,11 @@ module Skylight
             end
           end
 
-          true
+          return true
         end
       rescue WorkerStateError => e
         error "skylight shutting down: %s", e.message
-        false
+        return false
       end
 
       def handle(msg)

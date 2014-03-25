@@ -40,7 +40,7 @@ module Skylight
             flush(@batch)
           else
             warn "do not have valid session token -- dropping"
-            return
+            return true
           end
 
           @batch = new_batch(now)
