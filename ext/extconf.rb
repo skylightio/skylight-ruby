@@ -9,7 +9,7 @@ require_relative '../lib/skylight/version.rb'
 
 checksums = YAML.load_file("checksums.yml")
 
-rust_version = "dc29745"
+rust_version = "74fb9b3"
 
 arch = RbConfig::CONFIG["arch"]
 
