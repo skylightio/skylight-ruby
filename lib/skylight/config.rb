@@ -25,6 +25,7 @@ module Skylight
       'APPLICATION'         => :'application',
       'AUTHENTICATION'      => :'authentication',
       'HOSTNAME'            => :'hostname',
+      'SKIP_VALIDATION'     => :'skip_validation',
       'AGENT_INTERVAL'      => :'agent.interval',
       'AGENT_KEEPALIVE'     => :'agent.keepalive',
       'AGENT_SAMPLE_SIZE'   => :'agent.sample',
@@ -151,7 +152,13 @@ module Skylight
       end
     end
 
+    def skip_validation?
+      !!get(:skip_validation)
+    end
+
     def validate!
+      return true if skip_validation?
+
       REQUIRED.each do |k, v|
         unless get(k)
           raise ConfigError, "#{v} required"
@@ -162,6 +169,8 @@ module Skylight
     end
 
     def validate_token
+      return :ok if skip_validation?
+
       http_auth = Util::HTTP.new(self, :accounts)
 
       res = http_auth.get("/agent/authenticate?hostname=#{URI.escape(self[:'hostname'])}")
