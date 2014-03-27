@@ -153,6 +153,8 @@ module Skylight
     end
 
     def instrument(cat, title=nil, desc=nil, annot=nil)
+      raise ArgumentError, 'cat is required' unless cat
+
       unless trace = @trace_info.current
         return yield if block_given?
         return

@@ -136,7 +136,7 @@ module Skylight
     end
 
     if Hash === opts
-      category = opts.delete(:category)
+      category = opts.delete(:category) || DEFAULT_CATEGORY
       title    = opts.delete(:title)
       desc     = opts.delete(:description)
     else

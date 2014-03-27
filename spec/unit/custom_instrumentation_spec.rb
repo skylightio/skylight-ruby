@@ -139,6 +139,29 @@ describe "Skylight::Instrumenter", :http, :agent do
         duration:   1_000)
     end
 
+    it 'sets a default category' do
+      stub_session_request
+
+      Skylight.trace 'Testin', 'app.rack.request' do |t|
+        clock.skip 0.1
+        Skylight.instrument title: 'foo' do
+          clock.skip 0.1
+        end
+      end
+
+      clock.unfreeze
+      server.wait count: 3
+
+      ep = server.reports[0].endpoints[0]
+      t  = ep.traces[0]
+
+      t.spans[1].should == span(
+        parent:     0,
+        event:      event('app.block', 'foo'),
+        started_at: 1_000,
+        duration:   1_000)
+    end
+
     class MyClass
       include Skylight::Helpers
 
