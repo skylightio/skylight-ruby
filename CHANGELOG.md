@@ -1,3 +1,8 @@
+## 0.3.6 (March 27, 2014)
+
+* Shorter token validation timeout
+* Allow validation to be skipped
+
 ## 0.3.5 (March 26, 2014)
 
 * Update Rust component
