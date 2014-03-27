@@ -93,6 +93,9 @@ module Skylight
 
         http = Net::HTTP.new(@host, @port, @proxy_addr, @proxy_port, @proxy_user, @proxy_pass)
 
+        # Default is 60, but that's also the Heroku boot timeout and we don't want to slow boot
+        http.read_timeout = 15
+
         if @ssl
           http.use_ssl = true
           http.ca_file = DEFAULT_CA_FILE unless HTTP.ca_cert_file?
