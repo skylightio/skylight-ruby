@@ -1,3 +1,13 @@
+## 0.3.5 (March 26, 2014)
+
+* Update Rust component
+* Return true from Task#handle to avoid sutdown
+* Fix numeric check that caused crash on some 32-bit systems
+* Improve error message for missing Skylight ext
+* Better config error messages
+* Validate authentication token before starting
+* Add proxy support
+
 ## 0.3.4 (March 13, 2014)
 
 * Don't try to boot Skylight without native agent
