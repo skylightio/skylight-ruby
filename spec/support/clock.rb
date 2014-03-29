@@ -1,5 +1,3 @@
-unless ENV['SKYLIGHT_DISABLE_AGENT']
-
 module SpecHelper
   class TestClock < Skylight::Util::Clock
     def initialize
@@ -49,6 +47,4 @@ module SpecHelper
     c = Skylight::Util::Clock.default
     c if TestClock === c
   end
-end
-
 end

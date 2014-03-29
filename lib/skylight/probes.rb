@@ -39,6 +39,8 @@ module Skylight
     end
 
     def self.require_hook(require_path)
+      return unless Skylight.native?
+
       registration = lookup_by_require_path(require_path)
       return unless registration
 

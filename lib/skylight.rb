@@ -2,25 +2,32 @@ require 'rbconfig'
 require 'socket'
 require 'skylight/version'
 
-begin
-  unless ENV["SKYLIGHT_DISABLE_AGENT"]
-    require 'skylight_native'
-    require 'skylight/native'
-    has_native_ext = true
-  end
-rescue LoadError
-  if defined?(Rails) && !Rails.env.development? && !Rails.env.test?
-    puts "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. We currently support monitoring in 32- and 64-bit Linux only. If you are on a supported platform, please contact support at support@skylight.io. The missing extension will not affect the functioning of your application."
-  elsif defined?(Rails)
-    puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in #{Rails.env} mode. No data will be reported until you deploy your app."
-  else
-    puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode."
-  end
-  raise if ENV.key?("SKYLIGHT_REQUIRED")
-end
-
 module Skylight
   TRACE_ENV_KEY      = 'SKYLIGHT_ENABLE_TRACE_LOGS'.freeze
+  STANDALONE_ENV_KEY = 'SKYLIGHT_STANDALONE'.freeze
+  STANDALONE_ENV_VAL = 'server'.freeze
+
+  # Whether or not the native extension is present
+  @@has_native_ext = false
+
+  def self.native?
+    @@has_native_ext
+  end
+
+  begin
+    unless ENV["SKYLIGHT_DISABLE_AGENT"]
+      # First attempt to require the native extension
+      require 'skylight_native'
+
+      # If nothing was thrown, then the native extension is present
+      @@has_native_ext = true
+
+      # Require ruby support for the native extension
+      require 'skylight/native'
+    end
+  rescue LoadError
+    raise if ENV.key?("SKYLIGHT_REQUIRED")
+  end
 
   autoload :Api,          'skylight/api'
   autoload :CLI,          'skylight/cli'
@@ -42,16 +49,16 @@ module Skylight
   if defined?(Rails)
     require 'skylight/railtie'
   end
-end
 
-if has_native_ext
-
-module Skylight
-  STANDALONE_ENV_KEY = 'SKYLIGHT_STANDALONE'.freeze
-  STANDALONE_ENV_VAL = 'server'.freeze
-
-  def self.native?
-    true
+  def self.warn_skylight_native_missing
+    # TODO: Dumping the error messages this way is pretty hacky
+    if defined?(Rails) && !Rails.env.development? && !Rails.env.test?
+      puts "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. We currently support monitoring in 32- and 64-bit Linux only. If you are on a supported platform, please contact support at support@skylight.io. The missing extension will not affect the functioning of your application."
+    elsif defined?(Rails)
+      puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in #{Rails.env} mode. No data will be reported until you deploy your app."
+    else
+      puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode."
+    end
   end
 
   def self.daemon?
@@ -102,6 +109,12 @@ module Skylight
   CATEGORY_REGEX = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/iu
   DEFAULT_CATEGORY = "app.block".freeze
   DEFAULT_OPTIONS = { category: DEFAULT_CATEGORY }
+
+  #
+  #
+  # ===== Public API =====
+  #
+  #
 
   def self.start!(*args)
     Instrumenter.start!(*args)
@@ -169,35 +182,4 @@ module Skylight
   Worker::Server.boot if daemon?
 
   require 'skylight/probes'
-end
-
-else
-
-module Skylight
-  def self.native?
-    false
-  end
-
-  def self.start!(*)
-  end
-
-  def self.stop!(*)
-  end
-
-  def self.trace(*)
-    yield if block_given?
-  end
-
-  def self.done(*)
-  end
-
-  def self.instrument(*)
-    yield if block_given?
-  end
-
-  def self.disable(*)
-    yield if block_given?
-  end
-end
-
 end

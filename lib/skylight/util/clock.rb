@@ -6,8 +6,16 @@ module Skylight
         Time.now.to_i
       end
 
-      def nanos
-        native_hrtime
+      if Skylight.native?
+        def nanos
+          native_hrtime
+        end
+      else
+        # Implement nanos to work when native extension is not present
+        def nanos
+          now = Time.now
+          now.to_i * 1_000_000_000 + now.usec * 1_000
+        end
       end
 
       def secs

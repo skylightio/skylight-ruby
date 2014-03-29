@@ -70,6 +70,11 @@ module Skylight
     def start!
       return unless config
 
+      unless Skylight.native?
+        Skylight.warn_skylight_native_missing
+        return
+      end
+
       t { "starting instrumenter" }
       @config.validate!
 
