@@ -39,46 +39,6 @@ describe "Skylight::Instrumenter", :http, :agent do
       Skylight.stop!
     end
 
-    it 'allocates few objects', allocations: true do
-      pending
-
-      # Make sure autoload doesn't cause issues
-      preload = Skylight::Util::Clock
-      preload = Skylight::Messages::Trace::Builder
-
-      object = Struct.new(:set).new
-
-      stub_session_request
-
-      # prime the pump
-      Skylight.trace 'Testin', 'app.rack.request' do |t|
-        clock.skip 0.1
-        Skylight.instrument 'app.foo' do
-          clock.skip 0.1
-          object.set = true
-          3
-        end
-      end
-
-      clock.unfreeze
-      server.wait(count: 2)
-      clock.freeze
-
-      Skylight.trace 'Testin', 'app.rack.request' do |t|
-        # Avoid unnecessary pollution from strings made in the test
-        endpoint = 'app.foo'
-        lambda do
-        clock.skip 0.1
-        Skylight.instrument endpoint do
-          clock.skip 0.1
-          object.set = true
-          3
-        end
-        end.should allocate(total: 0)
-      end
-
-    end
-
     it 'tracks custom instrumentation metrics' do
       stub_session_request
       hello.should_receive(:hello)
