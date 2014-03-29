@@ -57,9 +57,12 @@ module SpecHelper
       opts[:count]   ||= 1
       opts[:timeout] ||= EMBEDDED_HTTP_SERVER_TIMEOUT
 
+      filter = lambda { |r| true }
+      filter = lambda { |r| r['PATH_INFO'] == opts[:resource] } if opts[:resource]
+
       now = Time.now
 
-      until requests.length == opts[:count]
+      until requests.select(&filter).length == opts[:count]
         if opts[:timeout] <= Time.now - now
           raise "Server.wait timeout: got #{requests.length} not #{opts[:count]}"
         end
