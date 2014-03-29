@@ -49,15 +49,48 @@
   }                                               \
 
 #define CHECK_FFI(success, message)               \
-  {                                               \
+  ({                                              \
     if (!(success))                               \
       rb_raise(rb_eRuntimeError, message);        \
-  }                                               \
+  })
 
-#define VEC2STR(vector) ({ RustVector v = (vector); VALUE ret = rb_str_new((char *)v->data, v->fill); ret; })
-#define SLICE2STR(slice) ({ RustSlice s = (slice); VALUE str = rb_str_new(s.data, s.len); rb_enc_associate(str, rb_utf8_encoding()); str; })
-#define STR2SLICE(string) ({ RustSlice s; VALUE rb_str = (string); s.data = RSTRING_PTR(rb_str); s.len = RSTRING_LEN(rb_str); s; })
-#define UnwrapOption(T, val, transform) ({ T * v = (val); VALUE ret; if (v == NULL) ret = Qnil; else ret = transform(*v); ret; })
+#define VEC2STR(vector)                               \
+  ({                                                  \
+    RustVector v = (vector);                          \
+    VALUE ret = rb_str_new((char *)v->data, v->fill); \
+    ret;                                              \
+  })
+
+#define SLICE2STR(slice)                        \
+  ({                                            \
+    RustSlice s = (slice);                      \
+    VALUE str = rb_str_new(s.data, s.len);      \
+    rb_enc_associate(str, rb_utf8_encoding());  \
+    str;                                        \
+  })
+
+#define STR2SLICE(string)         \
+  ({                              \
+    RustSlice s;                  \
+    VALUE rb_str = (string);      \
+    s.data = RSTRING_PTR(rb_str); \
+    s.len = RSTRING_LEN(rb_str);  \
+    s;                            \
+  })
+
+#define UnwrapOption(T, val, transform) \
+  ({                                    \
+    T * v = (val);                      \
+    VALUE ret;                          \
+    if (v == NULL) {                    \
+      ret = Qnil;                       \
+    }                                   \
+    else {                              \
+      ret = transform(*v);              \
+    }                                   \
+    ret;                                \
+  })
+
 #define IsNone(val) val.discrim == 0
 
 /**
@@ -67,7 +100,13 @@
 RustString skylight_slice_to_owned(RustSlice);
 RustString skylight_bytes_to_new_vec(uint8_t*, uint64_t);
 
-#define STR2RUST(string) ({ VALUE rb_str = (string); skylight_bytes_to_new_vec((uint8_t*)RSTRING_PTR(rb_str), RSTRING_LEN(rb_str)); })
+#define STR2RUST(string)              \
+  ({                                  \
+    VALUE rb_str = (string);          \
+    skylight_bytes_to_new_vec(        \
+      (uint8_t*) RSTRING_PTR(rb_str), \
+      RSTRING_LEN(rb_str));           \
+  })
 
 /**
  * Ruby types defined here
