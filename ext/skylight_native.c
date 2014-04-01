@@ -428,46 +428,6 @@ static VALUE trace_serialize(VALUE self) {
   return rb_string;
 }
 
-static VALUE trace_span_add_annotation(VALUE self, VALUE rb_span_id, VALUE parent, VALUE rb_key, VALUE value) {
-  uint32_t *parent_id = NULL;
-  RustSlice rs_key;
-  RustSlice *key = NULL;
-  uint32_t new_id, parent_int;
-
-  My_Struct(trace, RustTrace, freedTrace);
-
-  CHECK_TYPE(rb_span_id, T_FIXNUM);
-  uint32_t span_id = FIX2UINT(rb_span_id);
-
-  if (parent != Qnil) {
-    CHECK_TYPE(parent, T_FIXNUM);
-    parent_int = FIX2UINT(parent);
-    parent_id = &parent_int;
-  }
-
-  if (rb_key != Qnil) {
-    CHECK_TYPE(rb_key, T_STRING);
-
-    rs_key = STR2SLICE(rb_key);
-    key = &rs_key;
-  }
-
-  if (TYPE(value) == T_FIXNUM) {
-    CHECK_FFI(skylight_trace_add_annotation_int(trace, span_id, parent_id, key, NUM2LL(value)), "Could not add int annotation");
-  } else if (TYPE(value) == T_FLOAT) {
-    CHECK_FFI(skylight_trace_add_annotation_double(trace, span_id, parent_id, key, NUM2DBL(value)), "Could not add double annotation");
-  } else if (TYPE(value) == T_STRING) {
-    CHECK_FFI(skylight_trace_add_annotation_string(trace, span_id, parent_id, key, STR2SLICE(value)), "Could not add string annotation");
-  } else if (TYPE(value) == T_SYMBOL && value == ID2SYM(rb_intern("nested"))) {
-    CHECK_FFI(skylight_trace_add_annotation_nested(trace, span_id, parent_id, key, &new_id), "Could not add nested annotation");
-    return ULL2NUM(new_id);
-  } else {
-    rb_raise(rb_eArgError, "You must pass an integer, string or :nested to native_span_add_annotation");
-  }
-
-  return Qnil;
-}
-
 /**
  * class Skylight::Batch
  */
@@ -564,7 +524,6 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_stop_span", trace_stop_span, 2);
   rb_define_method(rb_cTrace, "native_span_set_title", trace_span_set_title, 2);
   rb_define_method(rb_cTrace, "native_span_set_description", trace_span_set_description, 2);
-  rb_define_method(rb_cTrace, "native_span_add_annotation", trace_span_add_annotation, 4);
 
   rb_cBatch = rb_define_class_under(rb_mSkylight, "Batch", rb_cObject);
   rb_define_singleton_method(rb_cBatch, "native_new", batch_new, 2);
