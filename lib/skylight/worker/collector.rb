@@ -81,11 +81,23 @@ module Skylight
         post_data(:status, status)
       end
 
-      def send_exception(exception)
-        data = {class_name: exception.class.name}
+      def send_http_exception(http, response)
+        send_exception(response.exception, additional_info: {
+          host: http.host,
+          port: http.port,
+          path: response.request.path,
+          method: response.request.method
+        })
+      end
+
+      def send_exception(exception, data={})
+        data = { class_name: exception.class.name,
+                 agent_info: @metrics_reporter.build_report }.merge(data)
+
         if Exception === exception
           data.merge!(message: exception.message, backtrace: exception.backtrace)
         end
+
         post_data(:exception, data, false)
       end
 
@@ -100,7 +112,12 @@ module Skylight
           warn "#{type} wasn't sent successfully; status=%s", res.status
         end
 
-        send_exception(res.exception) if notify && res.exception
+        if res.exception
+          send_http_exception(@http_auth, res) if notify
+          false
+        else
+          true
+        end
       rescue Exception => e
         error "exception; msg=%s; class=%s", e.message, e.class
         t { e.backtrace.join("\n") }
@@ -141,7 +158,7 @@ module Skylight
         res = @http_report.post(ENDPOINT, batch.encode, CONTENT_TYPE => SKYLIGHT_V2)
 
         if res.exception
-          send_exception(res.exception)
+          send_http_exception(@http_report, res)
         else
           @report_success_meter.mark
         end
@@ -153,7 +170,7 @@ module Skylight
         res = @http_auth.get("/agent/authenticate?hostname=#{escape(config[:'hostname'])}")
 
         if res.exception
-          send_exception(res.exception)
+          send_http_exception(@http_auth, res)
           return
         end
 

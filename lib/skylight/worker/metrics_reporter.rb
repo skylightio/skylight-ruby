@@ -48,7 +48,7 @@ module Skylight
         true
       end
 
-      def post_report
+      def build_report
         report = {
           "hostname"           => config[:'hostname'],
           "host.info"          => RbConfig::CONFIG['arch'],
@@ -67,6 +67,12 @@ module Skylight
 
           report[name] = m.call
         end
+
+        report
+      end
+
+      def post_report
+        report = build_report
 
         # Send the report
         t { fmt "reporting internal metrics; payload=%s", report.inspect }
