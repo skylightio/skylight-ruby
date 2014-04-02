@@ -169,7 +169,7 @@ module Skylight
       end
 
       def source_uri
-        "#{@source}/#{@version}/libskylight.#{@arch}.a.gz"
+        "#{@source}/#{@version}/libskylight.#{@version}.#{@arch}.a.gz"
       end
 
       def deconstruct_uri(uri)

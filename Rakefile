@@ -29,6 +29,7 @@ end
 desc "clean build artifacts"
 task :clean do
   rm_rf Dir["ext/{*.a,*.o,*.so,*.bundle}"]
+  rm_rf Dir["lib/skylight_native.{a,o,so,bundle}"]
   rm_rf "target"
 end
 

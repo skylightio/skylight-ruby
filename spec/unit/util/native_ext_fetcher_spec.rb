@@ -16,7 +16,7 @@ module Skylight::Util
 
       it 'fetches the native extension' do
         NativeExtFetcher.should_receive(:http_get).
-          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.linux-x86_64.a.gz").
+          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
           and_return([ :success, archive ])
 
         ret = fetch version: "1.0.0", cpu: "x86_64", os: "linux", checksums: {
@@ -27,7 +27,7 @@ module Skylight::Util
 
       it 'follows redirects' do
         NativeExtFetcher.should_receive(:http_get).
-          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.linux-x86_64.a.gz").
+          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
           and_return([ :redirect, "https://example.org/zomg/bar.gz" ])
 
         NativeExtFetcher.should_receive(:http_get).
@@ -42,10 +42,10 @@ module Skylight::Util
 
       it 'retries on failure' do
         NativeExtFetcher.should_receive(:http_get) { raise "nope" }.
-          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.linux-x86_64.a.gz")
+          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz")
 
         NativeExtFetcher.should_receive(:http_get).
-          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.linux-x86_64.a.gz").
+          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
           and_return([ :success, archive ])
 
         ret = fetch version: "1.0.0", cpu: "x86_64", os: "linux", checksums: {
@@ -56,7 +56,7 @@ module Skylight::Util
 
       it 'writes the archive to the specified location' do
         NativeExtFetcher.should_receive(:http_get).
-          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.linux-x86_64.a.gz").
+          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
           and_return([ :success, archive ])
 
         ret = fetch version: "1.0.0", cpu: "x86_64", os: "linux", target: tmp("skylight.a"), checksums: {
@@ -72,7 +72,7 @@ module Skylight::Util
 
       it 'verifies the checksum' do
         NativeExtFetcher.should_receive(:http_get).
-          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.linux-x86_64.a.gz").
+          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
           and_return([ :success, archive ])
 
         ret = fetch version: "1.0.0", cpu: "x86_64", os: "linux", checksums: {
