@@ -1,14 +1,18 @@
 module Skylight
   module Worker
+    # Represents the IPC client connection
     class Connection
       FRAME_HDR_LEN = 8
 
-      attr_reader :sock
+      attr_reader :sock, :throughput
 
       def initialize(sock)
         @sock = sock
         @len  = nil
         @buf  = ""
+
+        # Metrics
+        @throughput = Metrics::Meter.new
       end
 
       def read
@@ -17,6 +21,7 @@ module Skylight
         end
 
         if chunk = read_sock
+
           @buf << chunk
 
           if !@len && @buf.bytesize >= FRAME_HDR_LEN
@@ -25,6 +30,10 @@ module Skylight
 
           maybe_read_message
         end
+      end
+
+      def cleanup
+        # Any cleanup code here
       end
 
     private
@@ -66,7 +75,10 @@ module Skylight
       end
 
       def read_sock
-        @sock.read_nonblock(CHUNK_SIZE)
+        ret = @sock.read_nonblock(CHUNK_SIZE)
+        # Track the throughput
+        @throughput.mark(ret.bytesize) if ret
+        ret
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK
       end
 

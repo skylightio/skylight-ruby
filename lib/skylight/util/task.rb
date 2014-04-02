@@ -7,13 +7,17 @@ module Skylight
 
       include Util::Logging
 
+      attr_reader :queue_depth_metric
+
       def initialize(size, timeout = 0.1, &blk)
-        @pid     = Process.pid
-        @thread  = nil
-        @size    = size
-        @lock    = Mutex.new
+        @pid = Process.pid
+        @thread = nil
+        @size = size
+        @lock = Mutex.new
         @timeout = timeout
-        @blk     = blk
+        @blk = blk
+
+        @queue_depth_metric = build_queue_depth_metric
       end
 
       def submit(msg, pid = Process.pid)
@@ -84,6 +88,8 @@ module Skylight
           @queue  = Util::Queue.new(@size)
           @thread = Thread.new do
             begin
+              prepare
+
               unless work
                 @queue = nil
               end
@@ -147,7 +153,17 @@ module Skylight
         @blk.call(msg)
       end
 
+      def prepare
+      end
+
       def finish
+      end
+
+      def build_queue_depth_metric
+        lambda do
+          q = @queue
+          q ? @queue.length : 0
+        end
       end
 
     end

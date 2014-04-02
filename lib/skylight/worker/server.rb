@@ -26,20 +26,23 @@ module Skylight
           raise ArgumentError, "lockfile and unix domain server socket are required"
         end
 
-        @pid           = Process.pid
-        @run           = true
-        @tick          = 1
-        @socks         = []
-        @config        = config
-        @server        = srv
-        @lockfile      = lockfile
-        @collector     = Collector.new(config)
-        @keepalive     = @config[:'agent.keepalive']
-        @connections   = {}
+        @pid = Process.pid
+        @run = true
+        @tick = 1
+        @socks = []
+        @config = config
+        @server = srv
+        @lockfile = lockfile
+        @collector = Collector.build(config)
+        @metrics_reporter = @collector.metrics_reporter
+        @keepalive = @config[:'agent.keepalive']
+        @connections = ConnectionSet.new
         @lockfile_path = lockfile_path
         @sockfile_path = @config[:'agent.sockfile_path']
         @status_interval = 60
-        @max_memory      = @config[:'agent.max_memory']
+        @process_mem_gauge = Metrics::ProcessMemGauge.new
+        @max_memory = @config[:'agent.max_memory']
+        @booted_at = Util::Clock.absolute_secs
       end
 
       # Called from skylight.rb on require
@@ -122,8 +125,19 @@ module Skylight
     private
 
       def init
+        # TODO: Not super ideal to always iterate here even if debug mode isn't
+        # enabled, but it's not super perf critical. We will fix when we revamp
+        # logging
+        debug "initializing server; config=%s", config.to_env
+
         trap('TERM') { @run = false }
         trap('INT')  { @run = false }
+
+        # Register metrics
+        @metrics_reporter.register("worker.memory", @process_mem_gauge)
+        @metrics_reporter.register("worker.uptime", lambda { Util::Clock.absolute_secs - @booted_at })
+        @metrics_reporter.register("worker.ipc.open-connections", @connections.open_connections)
+        @metrics_reporter.register("worker.ipc.throughput", @connections.throughput)
 
         info "starting skylight daemon"
         @collector.spawn
@@ -213,6 +227,9 @@ module Skylight
         end while @run
 
         true # Successful return
+      ensure
+        # Send a final metrics report
+        @metrics_reporter.post_report
       end
 
       # Handles an incoming message. Will be instances from
@@ -254,7 +271,7 @@ module Skylight
       def connect(sock)
         trace "client accepted"
         @socks << sock
-        @connections[sock] = Connection.new(sock)
+        @connections.add(sock)
       end
 
       def cleanup
@@ -272,16 +289,15 @@ module Skylight
       end
 
       def clients_close
-        @connections.keys.each do |sock|
+        @connections.socks.each do |sock|
           client_close(sock)
         end
       end
 
       def client_close(sock)
         trace "closing client connection; fd=%d", sock.fileno
-        @connections.delete(sock)
+        @connections.cleanup(sock)
         @socks.delete(sock)
-        sock.close rescue nil
       end
 
       def sockfile
@@ -317,19 +333,13 @@ module Skylight
       end
 
       def status_check
-        memory_usage = get_memory_usage
+        memory_usage = @process_mem_gauge.call
 
         @collector.send_status(memory: memory_usage, max_memory: max_memory)
 
         if memory_usage > max_memory
           raise WorkerStateError, "Memory limit exceeded: #{memory_usage} (max: #{max_memory})"
         end
-      end
-
-      def get_memory_usage
-        `ps -o rss= -p #{Process.pid}`.to_i / 1024
-      rescue Errno::ENOENT, Errno::EINTR
-        0
       end
     end
   end
