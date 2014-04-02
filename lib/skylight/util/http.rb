@@ -20,6 +20,7 @@ module Skylight
       include Logging
 
       attr_accessor :authentication, :config
+      attr_reader :host, :port
 
       def initialize(config, service = :report)
         @config = config
@@ -93,7 +94,8 @@ module Skylight
 
         http = Net::HTTP.new(@host, @port, @proxy_addr, @proxy_port, @proxy_user, @proxy_pass)
 
-        # Default is 60, but that's also the Heroku boot timeout and we don't want to slow boot
+        # Default is 60, but we don't want to wait that long.
+        # This path is also used on app boot and Heroku will timeout at 60
         http.read_timeout = 15
 
         if @ssl
@@ -113,9 +115,9 @@ module Skylight
           Response.new(res.code.to_i, res, res.body)
         end
       rescue Exception => e
-        error "http %s failed; error=%s; msg=%s", req.method, e.class, e.message
+        error "http %s %s failed; error=%s; msg=%s", req.method, req.path, e.class, e.message
         t { e.backtrace.join("\n") }
-        ErrorResponse.new(req.method, e)
+        ErrorResponse.new(req, e)
       end
 
       class Response
@@ -167,7 +169,7 @@ module Skylight
         end
       end
 
-      class ErrorResponse < Struct.new(:request_method, :exception)
+      class ErrorResponse < Struct.new(:request, :exception)
         def status
           nil
         end
