@@ -70,10 +70,6 @@ module Skylight
 
     class Trace
       alias serialize native_serialize
-
-      class << self
-        alias deserialize native_load
-      end
     end
 
     class Batch

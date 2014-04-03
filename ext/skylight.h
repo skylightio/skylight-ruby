@@ -53,7 +53,6 @@ bool skylight_high_res_time(uint64_t*);
 // Rust skylight_trace prototypes
 bool skylight_trace_new(uint64_t, RustSlice, RustTrace*);
 bool skylight_trace_free(RustTrace);
-bool skylight_trace_load(RustSlice, RustTrace*);
 bool skylight_trace_name_from_serialized_into_new_buffer(RustSlice, RustString*);
 bool skylight_trace_get_started_at(RustTrace, uint64_t*);
 bool skylight_trace_set_name(RustTrace, RustSlice);

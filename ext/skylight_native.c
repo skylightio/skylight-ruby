@@ -308,16 +308,6 @@ static VALUE trace_new(VALUE self, VALUE started_at, VALUE uuid) {
   return Data_Wrap_Struct(rb_cTrace, NULL, skylight_trace_free, trace);
 }
 
-static VALUE trace_load(VALUE self, VALUE protobuf) {
-  CHECK_TYPE(protobuf, T_STRING);
-
-  RustTrace trace;
-
-  CHECK_FFI(skylight_trace_load(STR2SLICE(protobuf), &trace), "Could not load Trace");
-
-  return Data_Wrap_Struct(rb_cTrace, NULL, skylight_trace_free, trace);
-}
-
 static VALUE trace_name_from_serialized(VALUE self, VALUE protobuf) {
   CHECK_TYPE(protobuf, T_STRING);
 
@@ -513,7 +503,6 @@ void Init_skylight_native() {
 
   rb_cTrace = rb_define_class_under(rb_mSkylight, "Trace", rb_cObject);
   rb_define_singleton_method(rb_cTrace, "native_new", trace_new, 2);
-  rb_define_singleton_method(rb_cTrace, "native_load", trace_load, 1);
   rb_define_singleton_method(rb_cTrace, "native_name_from_serialized", trace_name_from_serialized, 1);
   rb_define_method(rb_cTrace, "native_get_started_at", trace_get_started_at, 0);
   rb_define_method(rb_cTrace, "native_get_name", trace_get_name, 0);
