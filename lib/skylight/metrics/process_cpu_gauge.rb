@@ -37,7 +37,7 @@ module Skylight
           totaltime = usagetime + cpustats[4].to_i
 
           pidstats = File.read(pidstatfile).split(' ')
-          utime, stime = pidstats[13..14]
+          utime, stime = pidstats[13].to_i, pidstats[14].to_i
 
           if @last_totaltime && @last_usagetime && @last_utime && @last_stime
             elapsed = totaltime - @last_totaltime
