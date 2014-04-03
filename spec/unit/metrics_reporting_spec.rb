@@ -42,9 +42,9 @@ module Skylight
       submit_trace
       clock.unfreeze
 
-      server.wait count: 5, timeout: 15
+      server.wait count: 4, timeout: 15
 
-      server.requests[3..4].each do |req|
+      server.requests[4..5].each do |req|
         req['PATH_INFO'].should == '/agent/metrics'
         req['rack.input']['report'].keys.sort.should == %w(
           collector.report-rate
