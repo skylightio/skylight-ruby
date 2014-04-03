@@ -33,4 +33,21 @@ task :clean do
   rm_rf "target"
 end
 
+namespace :vendor do
+  namespace :update do
+    task :highline do
+      rm_rf "lib/skylight/vendor/cli/highline*"
+
+      mkdir_p "tmp/vendor"
+      cd "tmp/vendor" do
+        rm_rf "highline*"
+        sh "gem update highline"
+        sh "gem unpack highline"
+      end
+
+      cp_r Dir["tmp/vendor/highline*/lib/*"], "lib/skylight/vendor/cli/"
+    end
+  end
+end
+
 task :default => :spec
