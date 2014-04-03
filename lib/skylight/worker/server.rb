@@ -39,6 +39,7 @@ module Skylight
         @lockfile_path = lockfile_path
         @sockfile_path = @config[:'agent.sockfile_path']
         @process_mem_gauge = Metrics::ProcessMemGauge.new
+        @process_cpu_gauge = Metrics::ProcessCpuGauge.new
         @max_memory = @config[:'agent.max_memory']
         @booted_at = Util::Clock.absolute_secs
       end
@@ -133,6 +134,7 @@ module Skylight
 
         # Register metrics
         @metrics_reporter.register("worker.memory", @process_mem_gauge)
+        @metrics_reporter.register("worker.cpu", @process_cpu_gauge)
         @metrics_reporter.register("worker.uptime", lambda { Util::Clock.absolute_secs - @booted_at })
         @metrics_reporter.register("worker.ipc.open-connections", @connections.open_connections)
         @metrics_reporter.register("worker.ipc.throughput", @connections.throughput)
