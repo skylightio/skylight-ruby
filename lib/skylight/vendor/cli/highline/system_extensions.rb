@@ -14,10 +14,14 @@ class HighLine
     if JRUBY
       def initialize_system_extensions
         require 'java'
+        require 'readline'
         if JRUBY_VERSION =~ /^1.7/
           java_import 'jline.console.ConsoleReader'
 
-          @java_console = ConsoleReader.new(@input.to_inputstream, @output.to_outputstream)
+          input = @input && @input.to_inputstream
+          output = @output && @output.to_outputstream
+
+          @java_console = ConsoleReader.new(input, output)
           @java_console.set_history_enabled(false)
           @java_console.set_bell_enabled(true)
           @java_console.set_pagination_enabled(false)
@@ -76,7 +80,13 @@ class HighLine
         require "dl/import"
 
         module WinAPI
-          extend DL::Importer rescue DL::Importable
+          if defined?(DL::Importer)
+            # Ruby 1.9
+            extend DL::Importer
+          else
+            # Ruby 1.8
+            extend DL::Importable
+          end
           begin
             dlload "msvcrt", "kernel32"
           rescue DL::DLError
@@ -85,6 +95,16 @@ class HighLine
           extern "unsigned long _getch()"
           extern "unsigned long GetConsoleScreenBufferInfo(unsigned long, void*)"
           extern "unsigned long GetStdHandle(unsigned long)"
+
+          # Ruby 1.8 DL::Importable.import does mname[0,1].downcase so FooBar becomes fooBar
+          if defined?(getConsoleScreenBufferInfo)
+            alias_method :GetConsoleScreenBufferInfo, :getConsoleScreenBufferInfo
+            module_function :GetConsoleScreenBufferInfo
+          end
+          if defined?(getStdHandle)
+            alias_method :GetStdHandle, :getStdHandle
+            module_function :GetStdHandle
+          end
         end
       end
 
@@ -140,7 +160,11 @@ class HighLine
           CHARACTER_MODE = "jline"    # For Debugging purposes only.
 
           def terminal_size
-            [ @java_terminal.getTerminalWidth, @java_terminal.getTerminalHeight ]
+            if JRUBY_VERSION =~ /^1.7/
+              [ @java_terminal.get_width, @java_terminal.get_height ]
+            else
+              [ @java_terminal.getTerminalWidth, @java_terminal.getTerminalHeight ]
+            end
           end
 
           def raw_no_echo_mode
@@ -172,7 +196,7 @@ class HighLine
               size = [80, 40]
               FFI::NCurses.initscr
               begin
-                size = FFI::NCurses.getmaxyx(stdscr).reverse
+                size = FFI::NCurses.getmaxyx(FFI::NCurses.stdscr).reverse
               ensure
                 FFI::NCurses.endwin
               end
