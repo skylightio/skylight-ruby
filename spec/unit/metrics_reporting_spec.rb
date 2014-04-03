@@ -58,6 +58,7 @@ module Skylight
           worker.ipc.open-connections
           worker.ipc.throughput
           worker.memory
+          worker.cpu
           worker.uptime)
       end
     end
