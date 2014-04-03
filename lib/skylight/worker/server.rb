@@ -17,7 +17,6 @@ module Skylight
         :keepalive,
         :lockfile_path,
         :sockfile_path,
-        :status_interval,
         :last_status_update,
         :max_memory
 
@@ -39,7 +38,6 @@ module Skylight
         @connections = ConnectionSet.new
         @lockfile_path = lockfile_path
         @sockfile_path = @config[:'agent.sockfile_path']
-        @status_interval = 60
         @process_mem_gauge = Metrics::ProcessMemGauge.new
         @max_memory = @config[:'agent.max_memory']
         @booted_at = Util::Clock.absolute_secs
@@ -204,9 +202,8 @@ module Skylight
               sanity_check
             end
 
-            if status_interval < now - last_status_update
-              last_status_update = now
-              status_check
+            if @process_mem_gauge.call > max_memory
+              raise WorkerStateError, "Memory limit exceeded: #{memory_usage} (max: #{max_memory})"
             end
           end
 
@@ -329,16 +326,6 @@ module Skylight
 
         unless sockfile?
           raise WorkerStateError, "sockfile gone"
-        end
-      end
-
-      def status_check
-        memory_usage = @process_mem_gauge.call
-
-        @collector.send_status(memory: memory_usage, max_memory: max_memory)
-
-        if memory_usage > max_memory
-          raise WorkerStateError, "Memory limit exceeded: #{memory_usage} (max: #{max_memory})"
         end
       end
     end

@@ -77,10 +77,6 @@ module Skylight
         true
       end
 
-      def send_status(status)
-        post_data(:status, status)
-      end
-
       def send_http_exception(http, response)
         send_exception(response.exception, additional_info: {
           host: http.host,
