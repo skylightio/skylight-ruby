@@ -1,5 +1,8 @@
-## Upcoming
+## 0.3.8 (April 3, 2014)
 
+* Update vendored highline to 1.6.21
+* Send more information with exceptions for easier debugging
+* Instrument and report internal agent metrics for easier debugging
 * Fix bug with tracking request counts per endpoint
 
 ## 0.3.7 (March 31, 2014)
