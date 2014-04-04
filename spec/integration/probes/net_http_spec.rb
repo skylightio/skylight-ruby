@@ -24,8 +24,19 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments basic requests" do
-    Skylight.should_receive(:instrument).with(category: "api.http.get", title: "GET localhost",
-                                                description: "GET #{server_uri}/test.html").and_call_original
+    expected = {
+      category: "api.http.get",
+      title: "GET localhost",
+      annotations: {
+        method: "GET",
+        scheme: "http",
+        host: "localhost",
+        port: 9292,
+        path: "/test.html",
+        query: nil
+      }
+    }
+    Skylight.should_receive(:instrument).with(expected).and_call_original
 
     response = Net::HTTP.get_response(uri)
 
@@ -33,8 +44,19 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments verbose requests" do
-    Skylight.should_receive(:instrument).with(category: "api.http.get", title: "GET localhost",
-                                                description: "GET #{server_uri}/test.html").and_call_original
+     expected = {
+      category: "api.http.get",
+      title: "GET localhost",
+      annotations: {
+        method: "GET",
+        scheme: "http",
+        host: "localhost",
+        port: 9292,
+        path: "/test.html",
+        query: nil
+      }
+    }
+    Skylight.should_receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     response = http.request(Net::HTTP::Get.new(uri.request_uri))
@@ -43,8 +65,19 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments basic auth requests" do
-    Skylight.should_receive(:instrument).with(category: "api.http.get", title: "GET localhost",
-                                                description: "GET #{server_uri}/test.html").and_call_original
+    expected = {
+      category: "api.http.get",
+      title: "GET localhost",
+      annotations: {
+        method: "GET",
+        scheme: "http",
+        host: "localhost",
+        port: 9292,
+        path: "/test.html",
+        query: nil
+      }
+    }
+    Skylight.should_receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Get.new(uri.request_uri)
@@ -55,8 +88,20 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments post_form requests" do
-    Skylight.should_receive(:instrument).with(category: "api.http.post", title: "POST localhost",
-                                                description: "POST #{server_uri}/test.html").and_call_original
+    expected = {
+      category: "api.http.post",
+      title: "POST localhost",
+      annotations: {
+        method: "POST",
+        scheme: "http",
+        host: "localhost",
+        port: 9292,
+        path: "/test.html",
+        query: nil
+      }
+    }
+
+    Skylight.should_receive(:instrument).with(expected).and_call_original
 
     response = Net::HTTP.post_form(uri, {"q" => "My query", "per_page" => "50"})
 
@@ -64,8 +109,20 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments post requests" do
-    Skylight.should_receive(:instrument).with(category: "api.http.post", title: "POST localhost",
-                                                description: "POST #{server_uri}/test.html").and_call_original
+     expected = {
+      category: "api.http.post",
+      title: "POST localhost",
+      annotations: {
+        method: "POST",
+        scheme: "http",
+        host: "localhost",
+        port: 9292,
+        path: "/test.html",
+        query: nil
+      }
+    }
+
+    Skylight.should_receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Post.new(uri.request_uri)
@@ -94,8 +151,20 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments PUT requests" do
-    Skylight.should_receive(:instrument).with(category: "api.http.put", title: "PUT localhost",
-                                                description: "PUT #{server_uri}/test.html").and_call_original
+     expected = {
+      category: "api.http.put",
+      title: "PUT localhost",
+      annotations: {
+        method: "PUT",
+        scheme: "http",
+        host: "localhost",
+        port: 9292,
+        path: "/test.html",
+        query: nil
+      }
+    }
+
+    Skylight.should_receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Put.new(uri.request_uri)
@@ -106,8 +175,20 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments DELETE requests" do
-    Skylight.should_receive(:instrument).with(category: "api.http.delete", title: "DELETE localhost",
-                                                description: "DELETE #{server_uri}/test.html").and_call_original
+    expected = {
+      category: "api.http.delete",
+      title: "DELETE localhost",
+      annotations: {
+        method: "DELETE",
+        scheme: "http",
+        host: "localhost",
+        port: 9292,
+        path: "/test.html",
+        query: nil
+      }
+    }
+
+    Skylight.should_receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Delete.new(uri.request_uri)
@@ -126,8 +207,20 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
 
     uri = URI.parse("#{server_uri}/slow.html")
 
-    Skylight.should_receive(:instrument).with(category: "api.http.get", title: "GET localhost",
-                                                description: "GET #{server_uri}/slow.html").and_call_original
+    expected = {
+      category: "api.http.get",
+      title: "GET localhost",
+      annotations: {
+        method: "GET",
+        scheme: "http",
+        host: "localhost",
+        port: 9292,
+        path: "/slow.html",
+        query: nil
+      }
+    }
+
+    Skylight.should_receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     http.open_timeout = 0.1 # in seconds
@@ -139,8 +232,20 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments non-URI requests" do
-    Skylight.should_receive(:instrument).with(category: "api.http.get", title: "GET localhost",
-                                                description: "GET #{server_uri}/test.html").and_call_original
+    expected = {
+      category: "api.http.get",
+      title: "GET localhost",
+      annotations: {
+        method: "GET",
+        scheme: "http",
+        host: "localhost",
+        port: 9292,
+        path: "/test.html",
+        query: nil
+      }
+    }
+
+    Skylight.should_receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new("localhost", port)
     response = http.request(Net::HTTP::Get.new("/test.html"))
@@ -149,8 +254,20 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments custom verbs" do
-    Skylight.should_receive(:instrument).with(category: "api.http.custom", title: "CUSTOM localhost",
-                                                description: "CUSTOM #{server_uri}/test.html").and_call_original
+    expected = {
+      category: "api.http.custom",
+      title: "CUSTOM localhost",
+      annotations: {
+        method: "CUSTOM",
+        scheme: "http",
+        host: "localhost",
+        port: 9292,
+        path: "/test.html",
+        query: nil
+      }
+    }
+
+    Skylight.should_receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new("localhost", port)
     response = http.request(CustomType.new("/test.html"))
@@ -159,8 +276,20 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments basic auth" do
-    Skylight.should_receive(:instrument).with(category: "api.http.get", title: "GET localhost",
-                                                description: "GET #{server_uri}/test.html").and_call_original
+    expected = {
+      category: "api.http.get",
+      title: "GET localhost",
+      annotations: {
+        method: "GET",
+        scheme: "http",
+        host: "localhost",
+        port: 9292,
+        path: "/test.html",
+        query: nil
+      }
+    }
+
+    Skylight.should_receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Get.new(uri.request_uri)
@@ -171,8 +300,20 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments multiple requests with the same socket" do
-    Skylight.should_receive(:instrument).with(category: "api.http.get", title: "GET localhost",
-                                                description: "GET #{server_uri}/test.html").twice.and_call_original
+    expected = {
+      category: "api.http.get",
+      title: "GET localhost",
+      annotations: {
+        method: "GET",
+        scheme: "http",
+        host: "localhost",
+        port: 9292,
+        path: "/test.html",
+        query: nil
+      }
+    }
+
+    Skylight.should_receive(:instrument).with(expected).twice.and_call_original
 
 
     http = Net::HTTP.new(uri.host, uri.port)
