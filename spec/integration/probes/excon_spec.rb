@@ -63,7 +63,14 @@ describe 'Excon integration', :excon_probe, :http, :agent do
     span.opts.should == {
       category:    "api.http.get",
       title:       "GET localhost",
-      description: "GET #{server_uri}/"
+      annotations: {
+        method: "GET",
+        scheme: "http",
+        host: "localhost",
+        port: 9292,
+        path: "/",
+        query: nil
+      }
     }
   end
 
@@ -87,7 +94,14 @@ describe 'Excon integration', :excon_probe, :http, :agent do
       span.opts.should == {
         category:    "api.http.get",
         title:       "GET example.com",
-        description: "GET http://example.com/"
+        annotations: {
+          method: "GET",
+          scheme: "http",
+          host: "example.com",
+          port: nil,
+          path: "/",
+          query: nil
+        }
       }
     end
 
@@ -107,7 +121,14 @@ describe 'Excon integration', :excon_probe, :http, :agent do
         TestSpan.spans.last.opts.should == {
           category:    "api.http.#{verb}",
           title:       "#{verb.upcase} localhost",
-          description: "#{verb.upcase} #{server_uri}/"
+          annotations: {
+            method: verb.upcase,
+            scheme: "http",
+            host:   "localhost",
+            port:   9292,
+            path:   "/",
+            query:  nil
+          }
         }
       end
     end
@@ -124,7 +145,14 @@ describe 'Excon integration', :excon_probe, :http, :agent do
       TestSpan.spans.last.opts.should == {
         category:    "api.http.get",
         title:       "GET localhost",
-        description: "GET #{server_uri}/path/to/file"
+        annotations: {
+          method: "GET",
+          scheme: "http",
+          host: "localhost",
+          port: 9292,
+          path: "/path/to/file",
+          query: nil
+        }
       }
     end
 
@@ -135,7 +163,14 @@ describe 'Excon integration', :excon_probe, :http, :agent do
       TestSpan.spans.last.opts.should == {
         category:    "api.http.get",
         title:       "GET localhost",
-        description: "GET #{server_uri}/path/to/file?foo=bar&baz=qux"
+        annotations: {
+          method: "GET",
+          scheme: "http",
+          host: "localhost",
+          port: 9292,
+          path: "/path/to/file",
+          query: "foo=bar&baz=qux"
+        }
       }
     end
   end
