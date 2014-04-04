@@ -157,19 +157,21 @@ module Skylight
     end
 
     if Hash === opts
-      category = opts.delete(:category) || DEFAULT_CATEGORY
-      title    = opts.delete(:title)
-      desc     = opts.delete(:description)
+      category    = opts[:category] || DEFAULT_CATEGORY
+      title       = opts[:title]
+      desc        = opts[:description]
+      annotations = opts[:annotations]
     else
-      category = DEFAULT_CATEGORY
-      title    = opts.to_s
-      desc     = nil
+      category    = DEFAULT_CATEGORY
+      title       = opts.to_s
+      desc        = nil
+      annotations = nil
     end
 
     if block_given?
-      inst.instrument(category, title, desc) { yield }
+      inst.instrument(category, title, desc, annotations) { yield }
     else
-      inst.instrument(category, title, desc)
+      inst.instrument(category, title, desc, annotations)
     end
   end
 
