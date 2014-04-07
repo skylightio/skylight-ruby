@@ -15,15 +15,18 @@ module Skylight
 
       # Locates skylight_native so that it can be included in the standalone agent startup command
       def self.locate_skylight_native
-        $LOADED_FEATURES.each do |feature|
+        $LOADED_FEATURES.find do |feature|
           return feature if feature =~ /skylight_native\.#{RbConfig::CONFIG['DLEXT']}/
         end
       end
 
       def self.build_subprocess_cmd
+        native_path = locate_skylight_native
+        raise "Unable to find path to native agent" unless native_path
+
         paths = [
           File.expand_path('../../..', __FILE__), # Ruby code root
-          File.dirname(locate_skylight_native)    # Native extension location
+          File.dirname(native_path)    # Native extension location
         ].uniq.compact
 
         ret = [ RUBYBIN ]
