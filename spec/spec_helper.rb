@@ -111,18 +111,27 @@ RSpec.configure do |config|
   original_wd   = Dir.pwd
   original_home = ENV['HOME']
 
-  config.before :each do
-    if defined?(Skylight::Util::Clock)
-      Skylight::Util::Clock.default = SpecHelper::TestClock.new
-    end
-
+  config.around :each do |example|
     if File.exist?(tmp)
       FileUtils.rm_rf tmp
     end
 
-    FileUtils.mkdir_p(tmp)
-    Dir.chdir(tmp)
-    ENV['HOME'] = tmp.to_s
+    begin
+      FileUtils.mkdir_p(tmp)
+      Dir.chdir(tmp)
+      ENV['HOME'] = tmp.to_s
+
+      example.run
+    ensure
+      Dir.chdir original_wd
+      ENV['HOME'] = original_home
+    end
+  end
+
+  config.before :each do
+    if defined?(Skylight::Util::Clock)
+      Skylight::Util::Clock.default = SpecHelper::TestClock.new
+    end
   end
 
   config.before :each, http: true do
@@ -130,12 +139,7 @@ RSpec.configure do |config|
   end
 
   config.after :each do
-    begin
-      cleanup_all_spawned_workers
-    ensure
-      Dir.chdir original_wd
-      ENV['HOME'] = original_home
-    end
+    cleanup_all_spawned_workers
 
     # Reset the starting paths
     if defined?(Skylight::Probes)
