@@ -30,4 +30,4 @@ cp skylight_native.${LIBEXT} ../lib/
 
 cd ..
 
-bundle exec rspec -cfs spec/
+bundle exec rspec -cfs $1
