@@ -1,22 +1,29 @@
 require 'spec_helper'
+require 'tmpdir'
 
 describe "Initialization integration" do
 
   let(:rails_env) { "development" }
 
+  before :all do
+    @tmpdir = Dir.mktmpdir
+    with_standalone(dir: @tmpdir) do
+      output = `bundle install`
+      puts output if ENV['DEBUG']
+    end
+  end
+
+  after :all do
+    FileUtils.remove_entry_secure @tmpdir
+  end
+
   around :each do |example|
-    # Any ENV vars set inside of with_standalone will be reset
-    with_standalone do
+    # Any ENV vars set inside of with_clean_env will be reset
+    with_standalone(dir: @tmpdir) do
       ENV['SKYLIGHT_AUTHENTICATION'] = 'lulz'
       ENV['SKYLIGHT_AGENT_STRATEGY'] = 'embedded'
       example.run
     end
-  end
-
-  # FIXME: Having to run this for each test is slow
-  before :each do
-    output = `bundle install`
-    puts output if ENV['DEBUG']
   end
 
   def boot
