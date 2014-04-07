@@ -52,12 +52,13 @@ module Skylight
 
   def self.warn_skylight_native_missing
     # TODO: Dumping the error messages this way is pretty hacky
-    if defined?(Rails) && !Rails.env.development? && !Rails.env.test?
-      puts "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. We currently support monitoring in 32- and 64-bit Linux only. If you are on a supported platform, please contact support at support@skylight.io. The missing extension will not affect the functioning of your application."
-    elsif defined?(Rails)
-      puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in #{Rails.env} mode. No data will be reported until you deploy your app."
+    is_rails = defined?(Rails)
+    env_name = is_rails ? Rails.env : "development"
+
+    if env_name == "development" || env_name == "test"
+      puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in #{env_name} mode. No data will be reported until you deploy your app."
     else
-      puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode."
+      puts "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. We currently support monitoring in 32- and 64-bit Linux only. If you are on a supported platform, please contact support at support@skylight.io. The missing extension will not affect the functioning of your application."
     end
   end
 
