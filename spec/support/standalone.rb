@@ -3,11 +3,13 @@ require 'tmpdir'
 module SpecHelper
   module Standalone
 
-    def self.with_dummy(&blk)
-      Dir.mktmpdir do |dir|
-        FileUtils.cp_r File.join(APP_ROOT, "spec/dummy"), dir
-        Dir.chdir(File.join(dir, "dummy"), &blk)
-      end
+    def self.with_dummy(dir=nil, &blk)
+      dir = tmpdir = Dir.mktmpdir unless dir
+
+      FileUtils.cp_r File.join(APP_ROOT, "spec/dummy"), dir
+      Dir.chdir(File.join(dir, "dummy"), &blk)
+    ensure
+      FileUtils.remove_entry_secure tmpdir if tmpdir
     end
 
     def self.set_env(rails_version, port)
@@ -36,7 +38,7 @@ module SpecHelper
 
     # This also resets other ENV vars that are set in the block
     Bundler.with_clean_env do
-      Standalone.with_dummy do
+      Standalone.with_dummy opts[:dir] do
         Standalone.set_env(opts[:rails_version], opts[:port])
         yield
       end
