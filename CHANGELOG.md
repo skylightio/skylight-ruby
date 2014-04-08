@@ -1,3 +1,9 @@
+## 0.3.9 (April 8, 2014)
+
+* Avoid finalizing sockets in the child process
+* Fix non-displaying warnings around native agent
+* Remove HTTP path information from title for better grouping
+
 ## 0.3.8 (April 3, 2014)
 
 * Update vendored highline to 1.6.21
