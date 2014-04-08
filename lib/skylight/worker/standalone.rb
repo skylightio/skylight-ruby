@@ -21,12 +21,13 @@ module Skylight
       end
 
       def self.build_subprocess_cmd
+        # Native extension location
         native_path = locate_skylight_native
-        raise "Unable to find path to native agent" unless native_path
+        native_dir = native_path ? File.dirname(native_path) : nil
 
         paths = [
           File.expand_path('../../..', __FILE__), # Ruby code root
-          File.dirname(native_path)    # Native extension location
+          native_dir
         ].uniq.compact
 
         ret = [ RUBYBIN ]
