@@ -299,12 +299,20 @@ module Skylight
       # Spawn the worker process.
       def spawn_worker(f)
         pid = fork do
-          Process.setsid
-          exit if fork
+          # Note: By default, Ruby will finalize C objects inside the fork. Because those C objects
+          # are shared with the parent, this can cause database connections to disconnect in the
+          # parent process. We need to double-fork for proper semantics, so we disable the GC and
+          # exit! to avoid finalizing shared handles.
+          #
+          # We should continue to look for alternate solutions, and to determine whether there is
+          # still a possible race between the fork and the GC disabling.
+          ::GC.disable
+          ::Process.setsid
+          exit! if fork
 
           # Acquire exclusive file lock, exit otherwise
           unless f.flock(File::LOCK_EX | File::LOCK_NB)
-            exit 1
+            exit! 1
           end
 
           f.truncate(0)
