@@ -23,3 +23,7 @@ mkmf.log
 
 # Ignore developer specific configuration
 .rspec
+
+# Ignore testing files
+/spec/dummy/Gemfile.lock
+/spec/dummy/log/*
