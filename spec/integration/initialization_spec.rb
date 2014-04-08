@@ -51,21 +51,21 @@ describe "Initialization integration" do
 
       end
 
-      context "production" do
-        let(:rails_env) { "production" }
+      # context "production" do
+      #   let(:rails_env) { "production" }
 
-        it "notifies of boot" do
-          boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
-        end
-      end
+      #   it "notifies of boot" do
+      #     boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+      #   end
+      # end
 
-      context "custom enabled environment (staging)" do
-        let(:rails_env) { "staging" }
+      # context "custom enabled environment (staging)" do
+      #   let(:rails_env) { "staging" }
 
-        it "notifies of boot" do
-         boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
-       end
-      end
+      #   it "notifies of boot" do
+      #    boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+      #  end
+      # end
 
       context "custom disabled environment (other)" do
         let(:rails_env) { "other" }
