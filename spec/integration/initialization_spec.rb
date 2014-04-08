@@ -89,7 +89,7 @@ describe "Initialization integration" do
     context "development" do
 
       it "warns development mode" do
-        boot.should == "[SKYLIGHT] [0.3.8] Running Skylight in development mode. No data will be reported until you deploy your app."
+        boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
       end
 
     end
