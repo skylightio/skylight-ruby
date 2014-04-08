@@ -1,3 +1,7 @@
+## 0.3.10 (April 8, 2014)
+
+* Don't raise on missing native agent path
+
 ## 0.3.9 (April 8, 2014)
 
 * Avoid finalizing sockets in the child process
