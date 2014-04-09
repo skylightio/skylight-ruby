@@ -4,6 +4,10 @@ require 'zlib'
 require 'net/http'
 require 'digest/sha2'
 
+# Must require 'rubygems/platform' vs. just requiring 'rubygems' to avoid a
+# stack overflow bug on ruby 1.9.2.
+require 'rubygems/platform'
+
 module Skylight
   module Util
     class NativeExtFetcher
