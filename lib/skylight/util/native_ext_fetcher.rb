@@ -4,10 +4,6 @@ require 'zlib'
 require 'net/http'
 require 'digest/sha2'
 
-# Must require 'rubygems/platform' vs. just requiring 'rubygems' to avoid a
-# stack overflow bug on ruby 1.9.2.
-require 'rubygems/platform'
-
 module Skylight
   module Util
     class NativeExtFetcher
@@ -18,45 +14,33 @@ module Skylight
       class FetchError < StandardError; end
 
       def self.fetch(opts = {})
-        platform = Gem::Platform.local
-
         fetcher = new(
           BASE_URL,
           opts[:target],
           opts[:version],
-          opts[:checksums],
-          opts[:cpu] || platform.cpu,
-          opts[:os] || platform.os,
+          opts[:checksum],
+          opts[:arch],
           opts[:required],
           opts[:logger] || Logger.new(STDOUT))
 
         fetcher.fetch
       end
 
-      def initialize(source, target, version, checksums, cpu, os, required, log)
+      def initialize(source, target, version, checksum, arch, required, log)
         raise "source required" unless source
-        raise "checksums required" unless checksums
-        raise "cpu required" unless cpu
-        raise "os required" unless os
+        raise "checksum required" unless checksum
+        raise "arch required" unless arch
 
         @source = source
         @target = target
         @version = version
-        @checksums = checksums
+        @checksum = checksum
         @required = required
-        @arch = "#{os}-#{cpu}"
+        @arch = arch
         @log = log
       end
 
       def fetch
-        # Ensure that the requested arch is valid
-        unless @checksums[@arch]
-          maybe_raise "no checksum entry for requested architecture -- " \
-            "this probably means the requested architecture is not supported; " \
-            "arch=#{@arch}; available=#{@checksums.keys}"
-          return
-        end
-
         log "fetching native ext; curr-platform=#{Gem::Platform.local.to_s}; " \
           "requested-arch=#{@arch}; version=#{@version}"
 
@@ -146,11 +130,7 @@ module Skylight
       end
 
       def verify_checksum(archive)
-        unless expected = @checksums[@arch]
-          log "no checksum provided; arch=#{@arch}"
-          return false
-        end
-
+        expected = @checksum
         actual = Digest::SHA2.hexdigest(archive)
 
         unless expected == actual
