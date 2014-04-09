@@ -29,23 +29,6 @@ module Skylight
     raise if ENV.key?("SKYLIGHT_REQUIRED")
   end
 
-  autoload :Api,          'skylight/api'
-  autoload :CLI,          'skylight/cli'
-  autoload :Config,       'skylight/config'
-  autoload :Helpers,      'skylight/helpers'
-
-  module Util
-    autoload :Logging,       'skylight/util/logging'
-    autoload :HTTP,          'skylight/util/http'
-  end
-
-  # ==== Exceptions ====
-  class IpcProtoError    < RuntimeError; end
-  class WorkerStateError < RuntimeError; end
-  class ConfigError      < RuntimeError; end
-  class TraceError       < RuntimeError; end
-  class SerializeError   < RuntimeError; end
-
   if defined?(Rails)
     require 'skylight/railtie'
   end
@@ -89,37 +72,29 @@ module Skylight
     require 'skylight/vm/gc'
   end
 
+  autoload :Api,          'skylight/api'
+  autoload :CLI,          'skylight/cli'
+  autoload :Config,       'skylight/config'
+  autoload :Helpers,      'skylight/helpers'
+  autoload :Formatters,   'skylight/formatters'
   autoload :GC,           'skylight/gc'
   autoload :Instrumenter, 'skylight/instrumenter'
   autoload :Messages,     'skylight/messages'
+  autoload :Metrics,      'skylight/metrics'
   autoload :Middleware,   'skylight/middleware'
   autoload :Normalizers,  'skylight/normalizers'
   autoload :Subscriber,   'skylight/subscriber'
   autoload :Worker,       'skylight/worker'
 
-  module Metrics
-    autoload :Meter,           'skylight/metrics/meter'
-    autoload :EWMA,            'skylight/metrics/ewma'
-    autoload :ProcessMemGauge, 'skylight/metrics/process_mem_gauge'
-    autoload :ProcessCpuGauge, 'skylight/metrics/process_cpu_gauge'
-  end
+  # Skylight::Util is defined by the native ext so we can't autoload
+  require 'skylight/util'
 
-  module Util
-    require 'skylight/util/clock'
-
-    autoload :Conversions,   'skylight/util/conversions'
-    autoload :Gzip,          'skylight/util/gzip'
-    autoload :HTTP,          'skylight/util/http'
-    autoload :Inflector,     'skylight/util/inflector'
-    autoload :Logging,       'skylight/util/logging'
-    autoload :Queue,         'skylight/util/queue'
-    autoload :Task,          'skylight/util/task'
-    autoload :UniformSample, 'skylight/util/uniform_sample'
-  end
-
-  module Formatters
-    autoload :HTTP, 'skylight/formatters/http'
-  end
+  # ==== Exceptions ====
+  class IpcProtoError    < RuntimeError; end
+  class WorkerStateError < RuntimeError; end
+  class ConfigError      < RuntimeError; end
+  class TraceError       < RuntimeError; end
+  class SerializeError   < RuntimeError; end
 
   TIERS = %w(
     api

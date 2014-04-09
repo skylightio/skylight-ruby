@@ -1,5 +1,4 @@
 require 'skylight/normalizers/default'
-require 'skylight/util/allocation_free'
 
 module Skylight
   # Convert AS::N events to Skylight events
@@ -41,7 +40,7 @@ module Skylight
     end
 
     class RenderNormalizer < Normalizer
-      include AllocationFree
+      include Util::AllocationFree
 
       def setup
         @paths = config['normalizers.render.view_paths'] || []
