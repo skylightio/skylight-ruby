@@ -2,7 +2,27 @@ require 'mkmf'
 require 'yaml'
 require 'logger'
 
-LOG = Logger.new(STDOUT)
+# Must require 'rubygems/platform' vs. just requiring 'rubygems' to avoid a
+# stack overflow bug on ruby 1.9.2.
+require 'rubygems/platform'
+
+class MultiIO
+  def initialize(*targets)
+     @targets = targets
+  end
+
+  def write(*args)
+    @targets.each {|t| t.write(*args)}
+  end
+
+  def close
+    @targets.each(&:close)
+  end
+end
+
+log_file = File.open(File.expand_path("../install.log", __FILE__), "a")
+LOG = Logger.new(MultiIO.new(STDOUT, log_file))
+
 SKYLIGHT_REQUIRED = ENV.key?("SKYLIGHT_REQUIRED") && ENV['SKYLIGHT_REQUIRED'] !~ /^false$/i
 
 require_relative '../lib/skylight/version'
@@ -14,8 +34,8 @@ include Skylight::Util
 # want to break our customer's deploy, but extconf.rb requires a Makefile to be
 # present upon a successful exit. To satisfy this requirement, we create a
 # dummy Makefile.
-def fail(msg)
-  LOG.error msg
+def fail(msg, type=:error)
+  LOG.send type, msg
 
   if SKYLIGHT_REQUIRED
     exit 1
@@ -50,11 +70,21 @@ unless File.exist?(libskylight_a)
     fail "libskylight checksums missing from `#{libskylight_yml}`"
   end
 
+  platform = Gem::Platform.local
+  arch = "#{platform.os}-#{platform.cpu}"
+
+  unless checksum = checksums[arch]
+    fail "no checksum entry for requested architecture -- " \
+             "this probably means the requested architecture is not supported; " \
+             "arch=#{arch}; available=#{checksums.keys}", :info
+  end
+
   begin
     res = NativeExtFetcher.fetch(
       version: version,
       target: libskylight_a,
-      checksums: checksums,
+      checksum: checksum,
+      arch: arch,
       required: SKYLIGHT_REQUIRED,
       logger: LOG)
 
