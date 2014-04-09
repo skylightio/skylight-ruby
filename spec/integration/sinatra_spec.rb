@@ -10,9 +10,8 @@ rescue LoadError
 end
 
 if enable
-  class MyApp < Sinatra::Base
-    register Skylight::Sinatra
-    include Skylight::Helpers
+  class MySinatraApp < Sinatra::Base
+    set :root, File.expand_path('../../dummy', __FILE__)
 
     get '/users' do
       Skylight.instrument category: 'app.inside' do
@@ -20,13 +19,8 @@ if enable
           # nothing
         end
 
-        "hello"
+        "Hello"
       end
-    end
-
-    instrument_method
-    get '/users/:id' do
-      "Hola: #{params[:id]}"
     end
   end
 
@@ -45,6 +39,8 @@ if enable
       ENV['SKYLIGHT_ACCOUNTS_DEFLATE']    = false.to_s
       ENV['SKYLIGHT_TEST_CONSTANT_FLUSH'] = true.to_s
       ENV['SKYLIGHT_TEST_IGNORE_TOKEN']   = true.to_s
+
+      MySinatraApp.register(Skylight::Sinatra)
     end
 
     after :all do
@@ -76,7 +72,7 @@ if enable
       end
 
       it "successfully calls into sinatra" do
-        call MyApp, env('/users')
+        call MySinatraApp, env('/users')
 
         server.wait count: 2
 
@@ -99,11 +95,7 @@ if enable
 
     context "without agent" do
       it "allows calls to Skylight.instrument" do
-        call(MyApp, env('/users')).should == ["Hello"]
-      end
-
-      it "supports Skylight::Helpers" do
-        call(MyApp, env('/users/1')).should == ["Hola: 1"]
+        call(MySinatraApp, env('/users')).should == ["Hello"]
       end
     end
 
@@ -119,7 +111,6 @@ if enable
     def consume(resp)
       data = []
       resp[2].each { |p| data << p }
-      resp[2].close
       data
     end
   end
