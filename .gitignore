@@ -27,3 +27,7 @@ mkmf.log
 # Ignore testing files
 /spec/dummy/Gemfile.lock
 /spec/dummy/log/*
+
+# Docs
+/.yardoc
+/doc

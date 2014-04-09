@@ -1,4 +1,6 @@
+require 'bundler/setup'
 require 'rbconfig'
+require 'yard'
 
 task :spec do
   platform = Gem::Platform.local
@@ -49,5 +51,8 @@ namespace :vendor do
     end
   end
 end
+
+# See .yardopts
+YARD::Rake::YardocTask.new
 
 task :default => :spec
