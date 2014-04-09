@@ -130,7 +130,7 @@ module Skylight
           rescue => e
             remaining_attempts -= 1
 
-            log "failed to fetch native extension; uri=#{uri}; msg=#{e.message}; remaining-attempts=#{remaining_attempts}", e
+            error "failed to fetch native extension; uri=#{uri}; msg=#{e.message}; remaining-attempts=#{remaining_attempts}", e
 
             if remaining_attempts > 0
               sleep 2
@@ -178,17 +178,22 @@ module Skylight
       end
 
       def maybe_raise(err)
-        log err
+        error err
 
         if @required
           raise err
         end
       end
 
-      def log(msg, e = nil)
+      def log(msg)
+        msg = "[SKYLIGHT] #{msg}"
+        @log.info msg
+      end
+
+      def error(msg, e=nil)
         msg = "[SKYLIGHT] #{msg}"
         msg << "\n#{e.backtrace.join("\n")}" if e
-        @log.info msg
+        @log.error msg
       end
     end
   end
