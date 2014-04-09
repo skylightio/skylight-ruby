@@ -23,6 +23,10 @@ WebMock.disable!
 begin
   require 'excon'
   require 'skylight/probes/excon'
+
+  require 'redis'
+  require 'fakeredis'
+  require 'skylight/probes/redis'
 rescue LoadError
 end
 

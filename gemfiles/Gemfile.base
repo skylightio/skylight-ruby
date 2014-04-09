@@ -15,4 +15,6 @@ gem 'bson', '~> 1.10'
 unless ENV['SKIP_EXTERNAL']
   gem 'excon'
   gem 'moped'
+  gem 'redis'
+  gem 'fakeredis'
 end
