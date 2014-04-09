@@ -4,7 +4,7 @@ require 'rails'
 module Skylight
   module Sinatra
     def self.registered(base)
-      config = Skylight::Config.load(nil, ENV['RACK_ENV'], ENV)
+      config = Skylight::Config.load(nil, base.environment, ENV)
       config['root'] = base.root
       config['agent.sockfile_path'] = File.join(config['root'], 'tmp')
       config.validate!
