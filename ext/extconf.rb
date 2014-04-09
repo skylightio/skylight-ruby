@@ -2,7 +2,23 @@ require 'mkmf'
 require 'yaml'
 require 'logger'
 
-LOG = Logger.new(STDOUT)
+class MultiIO
+  def initialize(*targets)
+     @targets = targets
+  end
+
+  def write(*args)
+    @targets.each {|t| t.write(*args)}
+  end
+
+  def close
+    @targets.each(&:close)
+  end
+end
+
+log_file = File.open("install.log", "a")
+LOG = Logger.new(MultiIO.new(STDOUT, log_file))
+
 SKYLIGHT_REQUIRED = ENV.key?("SKYLIGHT_REQUIRED") && ENV['SKYLIGHT_REQUIRED'] !~ /^false$/i
 
 require_relative '../lib/skylight/version'
