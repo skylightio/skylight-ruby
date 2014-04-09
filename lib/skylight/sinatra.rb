@@ -17,9 +17,9 @@ module Skylight
     def route(verb, path, *)
       condition do
         trace = ::Skylight::Instrumenter.instance.current_trace
-        base_path = request.script_name
-        base_path = '' if base_path == '/'
-        trace.endpoint = "#{verb} #{base_path}#{path}"
+        trace.endpoint = "#{verb} #{uri(path, false)}"
+
+        true
       end
 
       super
