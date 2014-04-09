@@ -70,7 +70,14 @@ module Skylight
       end
 
       def self.http_get(host, port, use_ssl, path)
-        Net::HTTP.start(host, port, use_ssl: use_ssl) do |http|
+        if http_proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
+          log "connecting with proxy: #{http_proxy}"
+          uri = URI.parse(http_proxy)
+          p_host, p_port = uri.host, uri.port
+          p_user, p_pass = uri.userinfo.split(/:/) if uri.userinfo
+        end
+
+        Net::HTTP.start(host, port, p_host, p_port, p_user, p_pass, use_ssl: use_ssl) do |http|
           case response = http.get(path)
           when Net::HTTPSuccess
             return [ :success, response.body ]
