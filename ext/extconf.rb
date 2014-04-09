@@ -20,7 +20,7 @@ class MultiIO
   end
 end
 
-log_file = File.open("install.log", "a")
+log_file = File.open(File.expand_path("../install.log", __FILE__), "a")
 LOG = Logger.new(MultiIO.new(STDOUT, log_file))
 
 SKYLIGHT_REQUIRED = ENV.key?("SKYLIGHT_REQUIRED") && ENV['SKYLIGHT_REQUIRED'] !~ /^false$/i
