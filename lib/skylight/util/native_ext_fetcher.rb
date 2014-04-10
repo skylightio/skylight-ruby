@@ -69,7 +69,7 @@ module Skylight
         archive
       end
 
-      def self.http_get(host, port, use_ssl, path)
+      def http_get(host, port, use_ssl, path)
         if http_proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
           log "connecting with proxy: #{http_proxy}"
           uri = URI.parse(http_proxy)
@@ -102,7 +102,7 @@ module Skylight
           begin
             host, port, use_ssl, path = deconstruct_uri(uri)
 
-            status, body = NativeExtFetcher.http_get(host, port, use_ssl, path)
+            status, body = http_get(host, port, use_ssl, path)
 
             case status
             when :success
