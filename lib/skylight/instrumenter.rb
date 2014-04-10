@@ -4,6 +4,7 @@ require 'base64'
 require 'strscan'
 
 module Skylight
+  # @api private
   class Instrumenter
     KEY  = :__skylight_current_trace
     LOCK = Mutex.new
@@ -27,6 +28,8 @@ module Skylight
       @instance
     end
 
+    # Do start
+    # @param [Config] config The config
     def self.start!(config = Config.new)
       return @instance if @instance
 

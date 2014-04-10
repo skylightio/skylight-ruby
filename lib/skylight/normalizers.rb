@@ -1,6 +1,7 @@
 require 'skylight/normalizers/default'
 
 module Skylight
+  # @api private
   # Convert AS::N events to Skylight events
   module Normalizers
 

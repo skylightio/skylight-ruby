@@ -3,10 +3,16 @@ require 'socket'
 require 'skylight/version'
 
 module Skylight
+  # @api private
   TRACE_ENV_KEY      = 'SKYLIGHT_ENABLE_TRACE_LOGS'.freeze
+
+  # @api private
   STANDALONE_ENV_KEY = 'SKYLIGHT_STANDALONE'.freeze
+
+  # @api private
   STANDALONE_ENV_VAL = 'server'.freeze
 
+  # @api private
   # Whether or not the native extension is present
   @@has_native_ext = false
 
@@ -33,6 +39,7 @@ module Skylight
     require 'skylight/railtie'
   end
 
+  # @api private
   def self.check_install_errors
     # Note: An unsupported arch doesn't count as an error.
     install_log = File.expand_path("../../ext/install.log", __FILE__)
@@ -44,6 +51,7 @@ module Skylight
     end
   end
 
+  # @api private
   def self.warn_skylight_native_missing
     # TODO: Dumping the error messages this way is pretty hacky
     is_rails = defined?(Rails)
@@ -60,6 +68,7 @@ module Skylight
     end
   end
 
+  # @api private
   def self.daemon?
     ENV[STANDALONE_ENV_KEY] == STANDALONE_ENV_VAL
   end
@@ -90,12 +99,23 @@ module Skylight
   require 'skylight/util'
 
   # ==== Exceptions ====
+
+  # @api private
   class IpcProtoError    < RuntimeError; end
+
+  # @api private
   class WorkerStateError < RuntimeError; end
+
+  # @api private
   class ConfigError      < RuntimeError; end
+
+  # @api private
   class TraceError       < RuntimeError; end
+
+  # @api private
   class SerializeError   < RuntimeError; end
 
+  # @api private
   TIERS = %w(
     api
     app
@@ -104,25 +124,29 @@ module Skylight
     noise
     other)
 
+  # @api private
   TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/u
+
+  # @api private
   CATEGORY_REGEX = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/iu
+
+  # @api private
   DEFAULT_CATEGORY = "app.block".freeze
+
+  # @api private
   DEFAULT_OPTIONS = { category: DEFAULT_CATEGORY }
 
-  #
-  #
-  # ===== Public API =====
-  #
-  #
-
+  # Start instrumenting
   def self.start!(*args)
     Instrumenter.start!(*args)
   end
 
+  # Stop instrumenting
   def self.stop!(*args)
     Instrumenter.stop!(*args)
   end
 
+  # Start a trace
   def self.trace(endpoint=nil, cat=nil, title=nil)
     unless inst = Instrumenter.instance
       return yield if block_given?
@@ -136,11 +160,13 @@ module Skylight
     end
   end
 
+  # End a trace
   def self.done(span)
     return unless inst = Instrumenter.instance
     inst.done(span)
   end
 
+  # Instrument
   def self.instrument(opts = DEFAULT_OPTIONS)
     unless inst = Instrumenter.instance
       return yield if block_given?
@@ -166,6 +192,7 @@ module Skylight
     end
   end
 
+  # Temporarily disable
   def self.disable
     unless inst = Instrumenter.instance
       return yield if block_given?
@@ -175,6 +202,7 @@ module Skylight
     inst.disable { yield }
   end
 
+  # @api private
   RUBYBIN = File.join(
     RbConfig::CONFIG['bindir'],
     "#{RbConfig::CONFIG['ruby_install_name']}#{RbConfig::CONFIG['EXEEXT']}")

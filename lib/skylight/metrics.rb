@@ -1,4 +1,5 @@
 module Skylight
+  # @api private
   module Metrics
     autoload :Meter,           'skylight/metrics/meter'
     autoload :EWMA,            'skylight/metrics/ewma'

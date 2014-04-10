@@ -1,6 +1,8 @@
 module Skylight
 
   if native?
+
+    # @api private
     class Hello
       DIGITS = /^\s*\d+\s*$/
 
@@ -57,6 +59,7 @@ module Skylight
 
     end
 
+    # @api private
     class Error
       alias serialize native_serialize
       alias type native_get_group
@@ -68,12 +71,20 @@ module Skylight
       end
     end
 
+    # @api private
     class Trace
       alias serialize native_serialize
     end
 
+    # @api private
     class Batch
       alias serialize native_serialize
     end
   end
+
+  # @api private
+  # We have to declare this again due to a YARD bug
+  # https://github.com/lsegal/yard/issues/761
+  class Hello; end
+
 end

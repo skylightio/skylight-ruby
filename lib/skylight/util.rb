@@ -1,4 +1,5 @@
 module Skylight
+  # @api private
   module Util
     # Already defined by the native extension so we can't autoload
     require 'skylight/util/clock'

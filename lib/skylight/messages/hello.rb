@@ -1,4 +1,5 @@
 module Skylight
+  # @api private
   module Messages
     class Hello
       def self.build(version, cmd=[])
