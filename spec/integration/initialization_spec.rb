@@ -107,7 +107,7 @@ describe "Initialization integration" do
       let(:rails_env) { "production" }
 
       it "warns not enabled verbose" do
-        boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. We currently support monitoring in 32- and 64-bit Linux only. If you are on a supported platform, please contact support at support@skylight.io. The missing extension will not affect the functioning of your application."
+        boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. The monitoring portion of Skylight is only supported on production servers running 32- or 64-bit Linux. The missing extension will not affect the functioning of your application and you can continue local development without data being reported. If you are on a supported platform, please contact support at support@skylight.io."
       end
 
     end
@@ -116,8 +116,7 @@ describe "Initialization integration" do
       let(:rails_env) { "staging" }
 
       it "warns not enabled verbose" do
-        boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. We currently support monitoring in 32- and 64-bit Linux only. If you are on a supported platform, please contact support at support@skylight.io. The missing extension will not affect the functioning of your application."
-      end
+        boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. The monitoring portion of Skylight is only supported on production servers running 32- or 64-bit Linux. The missing extension will not affect the functioning of your application and you can continue local development without data being reported. If you are on a supported platform, please contact support at support@skylight.io."      end
 
     end
 
