@@ -60,11 +60,20 @@ repository and deploy from there. You can learn more about the process at:
               error "Unable to load Railtie. Please notify support@skylight.io."
             end
 
-            require "./config/application"
-            Rails.application.class.name.split("::").first.underscore.humanize
-          else
-            File.basename(File.expand_path('.')).humanize
+            # Get the name in a process so that we don't pollute our environment here
+            # This is especially important since users may have things like WebMock that
+            # will prevent us from communicating with the Skylight API
+            begin
+              namefile = Tempfile.new('skylight-app-name')
+              system("rails runner 'File.open(\"#{namefile.path}\", \"w\") {|f| f.write(Rails.application.class.name) }'")
+              name = namefile.read.split("::").first.underscore.titleize
+            ensure
+              namefile.close
+              namefile.unlink
+            end
           end
+
+          name.blank? ? File.basename(File.expand_path('.')).titleize : name
         end
     end
 
