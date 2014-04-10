@@ -2,3 +2,5 @@
 
 Instrument your ruby application and send the data to the Skylight
 servers.
+
+{render:Skylight}

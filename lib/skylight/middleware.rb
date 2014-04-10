@@ -1,4 +1,5 @@
 module Skylight
+  # @api private
   class Middleware
 
     class BodyProxy

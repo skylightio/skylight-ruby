@@ -1,4 +1,5 @@
 module Skylight
+  # @api private
   class Api
     attr_reader :config, :http
 

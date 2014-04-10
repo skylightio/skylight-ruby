@@ -2,6 +2,7 @@ require 'skylight'
 require 'rails'
 
 module Skylight
+  # @api private
   class Railtie < Rails::Railtie
     config.skylight = ActiveSupport::OrderedOptions.new
 

@@ -6,6 +6,7 @@ require 'socket'
 
 module Skylight
   class Config
+    # @api private
     MUTEX = Mutex.new
 
     def self.default_hostname
@@ -102,6 +103,7 @@ module Skylight
       self.load(nil, nil, env)
     end
 
+    # @api private
     def self.remap_env(env)
       ret = {}
 
@@ -125,8 +127,10 @@ module Skylight
       ret
     end
 
+    # @api private
     attr_reader :environment
 
+    # @api private
     def initialize(*args)
       attrs = {}
 
@@ -155,10 +159,12 @@ module Skylight
       end
     end
 
+    # @api private
     def skip_validation?
       !!get(:skip_validation)
     end
 
+    # @api private
     def validate!
       return true if skip_validation?
 
@@ -171,6 +177,7 @@ module Skylight
       true
     end
 
+    # @api private
     def validate_token
       return :ok if skip_validation?
 
@@ -255,12 +262,6 @@ module Skylight
       ret
     end
 
-    #
-    #
-    # ===== Writing =====
-    #
-    #
-
     def write(path)
       FileUtils.mkdir_p(File.dirname(path))
 
@@ -282,18 +283,22 @@ authentication: #{self[:authentication]}
     #
     #
 
+    # @api private
     def worker
       Worker::Builder.new(self)
     end
 
+    # @api private
     def gc
       @gc ||= GC.new(self, get('gc.profiler', VM::GC.new))
     end
 
+    # @api private
     def constant_flush?
       get('test.constant_flush')
     end
 
+    # @api private
     def ignore_token?
       get('test.ignore_token')
     end

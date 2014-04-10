@@ -1,4 +1,5 @@
 module Skylight
+  # @api private
   module Worker
 
     # === Constants

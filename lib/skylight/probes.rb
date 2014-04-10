@@ -1,6 +1,6 @@
 module Skylight
+  # @api private
   module Probes
-
     class ProbeRegistration
       attr_reader :klass_name, :require_paths, :probe
 
@@ -73,6 +73,7 @@ module Skylight
 end
 
 # Allow hooking require
+# @api private
 module ::Kernel
   alias require_without_sk require
 

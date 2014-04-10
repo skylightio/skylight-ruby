@@ -1,6 +1,7 @@
 require 'thread'
 
 module Skylight
+  # @api private
   class GC
     METHODS   = [ :enable, :total_time ]
     TH_KEY    = :SK_GC_CURR_WINDOW

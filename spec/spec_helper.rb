@@ -17,16 +17,14 @@ require 'beefcake'
 
 # Begin Probed libraries
 
-if defined?(Skylight::Probes)
-  begin
-    require 'excon'
-    require 'skylight/probes/excon'
-  rescue LoadError
-  end
-
-  require 'net/http'
-  require 'skylight/probes/net_http'
+begin
+  require 'excon'
+  require 'skylight/probes/excon'
+rescue LoadError
 end
+
+require 'net/http'
+require 'skylight/probes/net_http'
 
 # End Probed Libraries
 
@@ -73,7 +71,7 @@ EMBEDDED_HTTP_SERVER_TIMEOUT = get_embedded_http_server_timeout
 Dir[File.expand_path('../support/*.rb', __FILE__)].each { |f| require f }
 
 all_probes = %w(Excon Net::HTTP)
-installed_probes = defined?(Skylight::Probes) ? Skylight::Probes.installed.keys : []
+installed_probes = Skylight::Probes.installed.keys
 skipped_probes = all_probes - installed_probes
 
 puts "Testing probes: #{installed_probes.join(", ")}" unless installed_probes.empty?
@@ -129,9 +127,7 @@ RSpec.configure do |config|
   end
 
   config.before :each do
-    if defined?(Skylight::Util::Clock)
-      Skylight::Util::Clock.default = SpecHelper::TestClock.new
-    end
+    Skylight::Util::Clock.default = SpecHelper::TestClock.new
   end
 
   config.before :each, http: true do
@@ -142,9 +138,7 @@ RSpec.configure do |config|
     cleanup_all_spawned_workers
 
     # Reset the starting paths
-    if defined?(Skylight::Probes)
-      Skylight::Probes.instance_variable_set(:@require_hooks, {})
-    end
+    Skylight::Probes.instance_variable_set(:@require_hooks, {})
 
     # Remove the ProbeTestClass if it exists so that the probe won't find it
     if defined?(SpecHelper::ProbeTestClass)

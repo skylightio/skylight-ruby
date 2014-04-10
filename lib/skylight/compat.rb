@@ -34,6 +34,7 @@ end
 
 if defined?(ActiveSupport::Notifications::Fanout::Subscribers::Evented)
   # Handle early RCs of rails 4.0
+  # @api private
   class ActiveSupport::Notifications::Fanout::Subscribers::Evented
     unless method_defined?(:publish)
       def publish(name, *args)

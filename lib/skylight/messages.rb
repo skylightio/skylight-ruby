@@ -1,4 +1,5 @@
 module Skylight
+  # @api private
   module Messages
     require 'skylight/messages/trace'
     require 'skylight/messages/hello'

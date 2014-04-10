@@ -7,6 +7,7 @@ require 'highline'
 require 'active_support/inflector'
 
 module Skylight
+  # @api private
   class CLI < Thor
 
     desc "setup", "Sets up a new app"
