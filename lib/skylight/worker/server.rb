@@ -204,7 +204,8 @@ module Skylight
               sanity_check
             end
 
-            if @process_mem_gauge.call > max_memory
+            memory_usage = @process_mem_gauge.call
+            if memory_usage > max_memory
               raise WorkerStateError, "Memory limit exceeded: #{memory_usage} (max: #{max_memory})"
             end
           end
