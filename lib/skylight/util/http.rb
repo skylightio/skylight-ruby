@@ -22,6 +22,7 @@ module Skylight
       attr_accessor :authentication, :config
       attr_reader :host, :port
 
+      class StartError < StandardError; end
       class ReadResponseError < StandardError; end
 
       def initialize(config, service = :report)
@@ -85,6 +86,19 @@ module Skylight
         type.new(endpoint, headers)
       end
 
+      def start(http)
+        begin
+          client = http.start
+        rescue => e
+          # TODO: Retry here
+          raise StartError, e.inspect
+        end
+
+        yield client
+      ensure
+        client.finish if client
+      end
+
       def read_code_and_body(res)
         code, body = res.code, res.body
       rescue Net::ReadTimeout, Timeout::Error, EOFError => e
@@ -112,7 +126,7 @@ module Skylight
           http.verify_mode = OpenSSL::SSL::VERIFY_PEER
         end
 
-        http.start do |client|
+        start(http) do |client|
           res = client.request(req)
           code, body = read_code_and_body(res)
 

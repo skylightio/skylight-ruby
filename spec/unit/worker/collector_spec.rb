@@ -196,7 +196,7 @@ module Skylight
           server.wait count: 3
 
           req = server.requests[2]
-          req['rack.input']["class_name"].should == "Errno::ECONNREFUSED"
+          req['rack.input']["class_name"].should == "Skylight::Util::HTTP::StartError"
           req['PATH_INFO'].should == '/agent/exception'
         end
 
