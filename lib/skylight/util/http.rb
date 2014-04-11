@@ -22,6 +22,8 @@ module Skylight
       attr_accessor :authentication, :config
       attr_reader :host, :port
 
+      class ReadResponseError < StandardError; end
+
       def initialize(config, service = :report)
         @config = config
         @ssl  = config["#{service}.ssl"]
@@ -83,6 +85,12 @@ module Skylight
         type.new(endpoint, headers)
       end
 
+      def read_code_and_body(res)
+        code, body = res.code, res.body
+      rescue Net::ReadTimeout, Timeout::Error, EOFError => e
+        raise ReadResponseError, e.inspect
+      end
+
       def execute(req, body=nil)
         t { fmt "executing HTTP request; host=%s; port=%s; path=%s, body=%s",
               @host, @port, req.path, body && body.bytesize }
@@ -106,13 +114,14 @@ module Skylight
 
         http.start do |client|
           res = client.request(req)
+          code, body = read_code_and_body(res)
 
-          unless res.code =~ /2\d\d/
-            debug "server responded with #{res.code}"
-            t { fmt "body=%s", res.body }
+          unless code =~ /2\d\d/
+            debug "server responded with #{code}"
+            t { fmt "body=%s", body }
           end
 
-          Response.new(res.code.to_i, res, res.body)
+          Response.new(code.to_i, res, body)
         end
       rescue Exception => e
         error "http %s %s failed; error=%s; msg=%s", req.method, req.path, e.class, e.message
