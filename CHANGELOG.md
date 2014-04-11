@@ -1,3 +1,12 @@
+## 0.3.11 (April 11, 2014)
+
+* Improved error handling and internal metrics
+* Improved missing native agent message
+* Improved install logging
+* Added initial inline docs
+* Respects HTTP_PROXY env var during installation
+* Don't overwrite sockfile_path if set explicitly
+
 ## 0.3.10 (April 8, 2014)
 
 * Don't raise on missing native agent path
