@@ -52,7 +52,7 @@ module Skylight
         report = {
           "hostname"           => config[:'hostname'],
           "host.info"          => RbConfig::CONFIG['arch'],
-          "ruby.version"       => RUBY_VERSION,
+          "ruby.version"       => "#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL}",
           "ruby.engine"        => RUBY_ENGINE,
           "skylight.version"   => Skylight::VERSION
         }
