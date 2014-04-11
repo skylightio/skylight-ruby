@@ -124,11 +124,10 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         error_request["PATH_INFO"].should == "/agent/error"
         error = error_request["rack.input"]
-        error.should == {
-          "type" => "sql_parse",
-          "description" => bad_sql,
-          "details"=>{"payload"=>{"name"=>"Load User", "sql"=>bad_sql, "binds"=>[]}, "precalculated"=>[]}
-        }
+        error['type'].should == "sql_parse"
+        error['description'].should_not be_nil
+        error['details'].keys.should == ['backtrace', 'payload', 'precalculated']
+        error['details']['payload']['sql'].should == bad_sql
 
         server.reports[0].should have(1).endpoints
 
@@ -168,11 +167,10 @@ describe "Skylight::Instrumenter", :http, :agent do
         error_request = server.requests[2]
         error_request["PATH_INFO"].should == "/agent/error"
         error = error_request["rack.input"]
-        error.should == {
-          "type"=>"sql_parse",
-          "description"=>encoded_sql,
-          "details"=>{"payload"=>{"name"=>"Load User", "sql"=>encoded_sql, "binds"=>[]}, "precalculated"=>[]}
-        }
+        error['type'].should == "sql_parse"
+        error['description'].should_not be_nil
+        error['details'].keys.should == ['backtrace', 'payload', 'precalculated']
+        error['details']['payload']['sql'].should == encoded_sql
 
         server.reports[0].should have(1).endpoints
 
@@ -213,11 +211,10 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         error_request["PATH_INFO"].should == "/agent/error"
         error = error_request["rack.input"]
-        error.should == {
-          "type"=>"sql_parse",
-          "description"=>encoded_sql,
-          "details"=>{"payload"=>{"name"=>"Load User", "sql"=>encoded_sql, "binds"=>[]}, "precalculated"=>[]}
-        }
+        error['type'].should == "sql_parse"
+        error['description'].should_not be_nil
+        error['details'].keys.should == ['backtrace', 'payload', 'precalculated']
+        error['details']['payload']['sql'].should == encoded_sql
 
         server.reports[0].should have(1).endpoints
 

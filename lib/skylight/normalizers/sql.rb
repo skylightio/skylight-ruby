@@ -44,8 +44,14 @@ module Skylight
       def extract_binds(payload, precalculated)
         title, sql, binds = SqlLexer::Lexer.bindify(payload[:sql], precalculated)
         [ title, sql, binds, nil ]
-      rescue
-        error = ["sql_parse", encode(payload[:sql]), encode(payload: payload, precalculated: precalculated)]
+      rescue => e
+        group = "sql_parse"
+        description = e.inspect
+        details = encode(backtrace: e.backtrace,
+                          payload: payload,
+                          precalculated: precalculated)
+
+        error = [group, description, details]
         [ nil, nil, nil, error ]
       end
 
