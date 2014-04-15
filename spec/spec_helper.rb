@@ -15,6 +15,9 @@ require 'skylight'
 require 'timecop'
 require 'beefcake'
 
+require 'webmock/rspec'
+WebMock.disable!
+
 # Begin Probed libraries
 
 begin

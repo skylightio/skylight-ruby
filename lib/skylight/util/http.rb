@@ -30,10 +30,20 @@ module Skylight
         @ssl  = config["#{service}.ssl"]
         @host = config["#{service}.host"]
         @port = config["#{service}.port"]
+
         @proxy_addr = config["#{service}.proxy_addr"]
         @proxy_port = config["#{service}.proxy_port"]
         @proxy_user = config["#{service}.proxy_user"]
         @proxy_pass = config["#{service}.proxy_pass"]
+
+        unless @proxy_addr
+          if http_proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
+            uri = URI.parse(http_proxy)
+            @proxy_addr, @proxy_port = uri.host, uri.port
+            @proxy_user, @proxy_pass = (uri.userinfo || '').split(/:/)
+          end
+        end
+
         @deflate = config["#{service}.deflate"]
         @authentication = config[:'authentication']
       end
