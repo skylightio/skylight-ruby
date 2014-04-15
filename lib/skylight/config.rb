@@ -189,7 +189,7 @@ module Skylight
     def validate_token
       return :ok if skip_validation?
 
-      http_auth = Util::HTTP.new(self, :accounts)
+      http_auth = Util::HTTP.new(self, :accounts, timeout: 5)
 
       res = http_auth.get("/agent/authenticate?hostname=#{URI.escape(self[:'hostname'])}")
 

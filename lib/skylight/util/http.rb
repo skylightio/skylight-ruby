@@ -25,7 +25,7 @@ module Skylight
       class StartError < StandardError; end
       class ReadResponseError < StandardError; end
 
-      def initialize(config, service = :report)
+      def initialize(config, service = :report, opts = {})
         @config = config
         @ssl  = config["#{service}.ssl"]
         @host = config["#{service}.host"]
@@ -35,6 +35,8 @@ module Skylight
         @proxy_port = config["#{service}.proxy_port"]
         @proxy_user = config["#{service}.proxy_user"]
         @proxy_pass = config["#{service}.proxy_pass"]
+
+        @timeout = opts[:timeout] || 15
 
         unless @proxy_addr
           if http_proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
@@ -126,9 +128,8 @@ module Skylight
 
         http = Net::HTTP.new(@host, @port, @proxy_addr, @proxy_port, @proxy_user, @proxy_pass)
 
-        # Default is 60, but we don't want to wait that long.
-        # This path is also used on app boot and Heroku will timeout at 60
-        http.read_timeout = 15
+        http.open_timeout = @timeout
+        http.read_timeout = @timeout
 
         if @ssl
           http.use_ssl = true
