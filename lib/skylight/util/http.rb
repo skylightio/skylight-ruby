@@ -86,7 +86,7 @@ module Skylight
         type.new(endpoint, headers)
       end
 
-      def start(http)
+      def do_request(http, req)
         begin
           client = http.start
         rescue => e
@@ -94,15 +94,15 @@ module Skylight
           raise StartError, e.inspect
         end
 
-        yield client
+        begin
+          res = client.request(req)
+        rescue Net::ReadTimeout, Timeout::Error, EOFError => e
+          raise ReadResponseError, e.inspect
+        end
+
+        yield res
       ensure
         client.finish if client
-      end
-
-      def read_code_and_body(res)
-        code, body = res.code, res.body
-      rescue Net::ReadTimeout, Timeout::Error, EOFError => e
-        raise ReadResponseError, e.inspect
       end
 
       def execute(req, body=nil)
@@ -126,16 +126,13 @@ module Skylight
           http.verify_mode = OpenSSL::SSL::VERIFY_PEER
         end
 
-        start(http) do |client|
-          res = client.request(req)
-          code, body = read_code_and_body(res)
-
-          unless code =~ /2\d\d/
-            debug "server responded with #{code}"
-            t { fmt "body=%s", body }
+        do_request(http, req) do |res|
+          unless res.code =~ /2\d\d/
+            debug "server responded with #{res.code}"
+            t { fmt "body=%s", res.body }
           end
 
-          Response.new(code.to_i, res, body)
+          Response.new(res.code.to_i, res, res.body)
         end
       rescue Exception => e
         error "http %s %s failed; error=%s; msg=%s", req.method, req.path, e.class, e.message
