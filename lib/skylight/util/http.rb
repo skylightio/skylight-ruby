@@ -19,7 +19,7 @@ module Skylight
 
       include Logging
 
-      attr_accessor :authentication, :config
+      attr_accessor :authentication
       attr_reader :host, :port
 
       class StartError < StandardError; end
