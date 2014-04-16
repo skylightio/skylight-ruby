@@ -44,6 +44,13 @@ describe "Skylight::Instrumenter", :http, :agent do
       logger_out.string.should include("failed to start instrumenter; msg=authentication token is invalid")
     end
 
+    it "doesn't start if worker doesn't spawn" do
+      worker = mock(spawn: nil)
+      config.worker.should_receive(:build).and_return(worker)
+
+      Skylight.start!(config).should be_false
+    end
+
   end
 
   shared_examples 'an instrumenter' do

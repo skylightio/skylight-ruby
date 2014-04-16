@@ -92,7 +92,12 @@ module Skylight
       end
 
       @config.gc.enable
-      @worker.spawn
+
+      unless @worker.spawn
+        log_error "failed to spawn worker"
+        return nil
+      end
+
       @subscriber.register!
 
       self
