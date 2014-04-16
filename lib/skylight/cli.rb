@@ -31,7 +31,7 @@ module Skylight
       say "Congratulations. Your application is on Skylight! http://www.skylight.io", :green
       say <<-OUT
 
-The application was registered for you and we generated an config file
+The application was registered for you and we generated a config file
 containing your API token at:
 
   #{relative_config_path}
