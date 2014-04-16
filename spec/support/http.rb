@@ -63,7 +63,13 @@ module SpecHelper
       now = Time.now
 
       until requests.select(&filter).length >= opts[:count]
-        if opts[:timeout] <= Time.now - now
+        diff = Time.now - now
+        if opts[:timeout] <= diff
+          puts "***TIMEOUT***"
+          puts "timeout: #{opts[:timeout]}"
+          puts "diff: #{diff}"
+          puts requests.select(&filter).inspect
+          puts "*************"
           raise "Server.wait timeout: got #{requests.select(&filter).length} not #{opts[:count]}"
         end
         sleep 0.1
