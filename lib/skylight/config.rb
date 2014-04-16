@@ -293,7 +293,7 @@ authentication: #{self[:authentication]}
 
     # @api private
     def worker
-      Worker::Builder.new(self)
+      @worker ||= Worker::Builder.new(self)
     end
 
     # @api private
