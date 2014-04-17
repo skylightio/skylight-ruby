@@ -1,3 +1,13 @@
+## 0.3.12 (April 17, 2014)
+
+* Include more information in type check errors
+* Use stdlib SecureRandom instead of ActiveSupport::SecureRandom - Fixes Rails 3.1
+* Instrumenter#start! should fail if worker not spawned
+* Configurable timeouts for Util::HTTP
+* Improve proxy handling for Util::HTTP
+* Improve HTTP error handling
+* Refactor sql_parse errors
+
 ## 0.3.11 (April 11, 2014)
 
 * Improved error handling and internal metrics
