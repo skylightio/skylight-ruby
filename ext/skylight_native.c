@@ -9,11 +9,14 @@
  * Ruby helpers
  */
 
+#define TO_S(VAL) \
+  RSTRING_PTR(rb_funcall(VAL, rb_intern("to_s"), 0))
+
 #define CHECK_TYPE(VAL, T)                        \
   do {                                            \
     if (TYPE(VAL) != T) {                         \
-      rb_raise(rb_eArgError, "expected " #VAL " to be " #T " but was %s [%i]", \
-                rb_obj_classname(VAL), TYPE(VAL)); \
+      rb_raise(rb_eArgError, "expected " #VAL " to be " #T " but was '%s' (%s [%i])", \
+                TO_S(VAL), rb_obj_classname(VAL), TYPE(VAL)); \
       return Qnil;                                \
     }                                             \
   } while(0)                                      \
@@ -22,8 +25,8 @@
   do {                                            \
     if (TYPE(VAL) != T_BIGNUM &&                  \
         TYPE(VAL) != T_FIXNUM) {                  \
-      rb_raise(rb_eArgError, "expected " #VAL " to be numeric but was %s [%i]", \
-                rb_obj_classname(VAL), TYPE(VAL)); \
+      rb_raise(rb_eArgError, "expected " #VAL " to be numeric but was '%s' (%s [%i])", \
+                TO_S(VAL), rb_obj_classname(VAL), TYPE(VAL)); \
       return Qnil;                                \
     }                                             \
   } while(0)                                      \
