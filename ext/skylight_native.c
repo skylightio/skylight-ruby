@@ -12,23 +12,21 @@
 #define CHECK_TYPE(VAL, T)                        \
   do {                                            \
     if (TYPE(VAL) != T) {                         \
-      rb_raise(rb_eArgError, #VAL " is not " #T); \
-      return Qnil;                                \
-    }                                             \
-  } while(0)                                      \
-
-#define CHECK(EXPR, string)                       \
-  do {                                            \
-    if (!({ EXPR; })) {                           \
-      rb_raise(rb_eArgError, string);             \
+      rb_raise(rb_eArgError, "expected " #VAL " to be " #T " but was %s [%i]", \
+                rb_obj_classname(VAL), TYPE(VAL)); \
       return Qnil;                                \
     }                                             \
   } while(0)                                      \
 
 #define CHECK_NUMERIC(VAL)                        \
-  CHECK(TYPE(VAL) == T_BIGNUM ||                  \
-      TYPE(VAL) == T_FIXNUM,                      \
-      #VAL " is not numeric")                     \
+  do {                                            \
+    if (TYPE(VAL) != T_BIGNUM &&                  \
+        TYPE(VAL) != T_FIXNUM) {                  \
+      rb_raise(rb_eArgError, "expected " #VAL " to be numeric but was %s [%i]", \
+                rb_obj_classname(VAL), TYPE(VAL)); \
+      return Qnil;                                \
+    }                                             \
+  } while(0)                                      \
 
 #define My_Struct(name, Type, msg)                \
   Get_Struct(name, self, Type, msg);              \
