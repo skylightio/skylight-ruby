@@ -42,6 +42,9 @@ module Skylight
     def self.stop!
       LOCK.synchronize do
         return unless @instance
+        # This is only really helpful for getting specs to pass.
+        @instance.current_trace = nil
+
         @instance.shutdown
         @instance = nil
       end

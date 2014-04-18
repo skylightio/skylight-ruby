@@ -62,9 +62,9 @@ module SpecHelper
 
       now = Time.now
 
-      until requests.select(&filter).length == opts[:count]
+      until requests.select(&filter).length >= opts[:count]
         if opts[:timeout] <= Time.now - now
-          raise "Server.wait timeout: got #{requests.length} not #{opts[:count]}"
+          raise "Server.wait timeout: got #{requests.select(&filter).length} not #{opts[:count]}"
         end
         sleep 0.1
       end
@@ -85,8 +85,10 @@ module SpecHelper
       end
     end
 
-    def requests
-      LOCK.synchronize { @requests.dup }
+    def requests(resource = nil)
+      reqs = LOCK.synchronize { @requests.dup }
+      reqs.select! { |env| env['PATH_INFO'] == resource } if resource
+      reqs
     end
 
     def reports

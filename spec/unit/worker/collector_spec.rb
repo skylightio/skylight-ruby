@@ -42,25 +42,19 @@ module Skylight
         submit_trace
 
         clock.unfreeze
-        server.wait count: 3
+        server.wait count: 1, resource: "/report"
+        server.wait count: 1, resource: "/agent/authenticate"
 
-        server.should have(3).requests
         server.should have(1).reports
 
         # Token verification
-        req = server.requests[0]
-        req['PATH_INFO'].should == '/agent/authenticate'
-        req['HTTP_X_SKYLIGHT_AGENT_VERSION'].should == Skylight::VERSION
-        req['HTTP_AUTHORIZATION'].should == 'lulz'
-
-        # Session authentication
-        req = server.requests[1]
+        req = server.requests('/agent/authenticate')[0]
         req['PATH_INFO'].should == '/agent/authenticate'
         req['HTTP_X_SKYLIGHT_AGENT_VERSION'].should == Skylight::VERSION
         req['HTTP_AUTHORIZATION'].should == 'lulz'
 
         # Report
-        req = server.requests[2]
+        req = server.requests('/report')[0]
         req['PATH_INFO'].should == '/report'
         req['HTTP_X_SKYLIGHT_AGENT_VERSION'].should == Skylight::VERSION
         req['HTTP_AUTHORIZATION'].should == token

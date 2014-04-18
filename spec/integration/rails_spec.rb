@@ -86,6 +86,13 @@ if enable
       Skylight.stop!
     end
 
+    after :each do
+      # Temporary hax
+      if instrumenter = Skylight::Instrumenter.instance
+        instrumenter.current_trace = nil
+      end
+    end
+
     context "with agent", :http, :agent do
 
       let :token do
