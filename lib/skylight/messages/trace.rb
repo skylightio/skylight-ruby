@@ -148,7 +148,9 @@ module Skylight
         end
 
         def normalize_time(time)
-          time.to_i / 100_000
+          # At least one customer has extensions that cause integer division to produce rationals.
+          # Since the native code expects an integer, we force it again.
+          (time.to_i / 100_000).to_i
         end
 
         def span(time, cat, title=nil, desc=nil, annot=nil)
