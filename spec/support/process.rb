@@ -14,6 +14,18 @@ module SpecHelper
     ret.spawn
     @spawned << ret
 
+    elapsed = 0
+    pid = nil
+
+    while true
+      pid = ret.pid
+      break if pid
+      raise if elapsed > 3
+
+      elapsed += 0.1
+      sleep 0.1
+    end
+
     ret
   end
 
