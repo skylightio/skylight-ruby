@@ -71,7 +71,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 3)
+        server.wait(count: 3)
 
         server.reports[0].should have(1).endpoints
 
@@ -98,7 +98,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 3)
+        server.wait(count: 3)
 
         server.reports[0].should have(1).endpoints
 
@@ -125,7 +125,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 4)
+        server.wait(count: 4)
 
         error_request = server.requests[2]
 
@@ -169,7 +169,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 4)
+        server.wait(count: 4)
 
         error_request = server.requests[2]
         error_request["PATH_INFO"].should == "/agent/error"
@@ -212,7 +212,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 4)
+        server.wait(count: 4)
 
         error_request = server.requests[2]
 
