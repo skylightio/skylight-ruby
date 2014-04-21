@@ -23,12 +23,16 @@ describe 'Excon integration', :excon_probe, :http, :agent do
       return nil unless @start && @end
       # Sometimes we get very slight millisecond offsets
       # Consider it good enough if it's off by less than .05 ms
-      (@end - @start).round(1)
+      @end - @start
     end
   end
 
+  let :now do
+    Time.now
+  end
+
   before :each do
-    Timecop.freeze
+    Timecop.freeze(now)
 
     # This is a bit risky to stub :/
     Skylight.stub(:instrument) {|opts| TestSpan.new(opts) }
@@ -45,7 +49,7 @@ describe 'Excon integration', :excon_probe, :http, :agent do
     delay  = opts[:delay] || 1
 
     server.mock path, method do
-      Timecop.travel delay
+      Timecop.freeze(now + delay)
       block.call() if block
       [200, '']
     end
@@ -82,7 +86,7 @@ describe 'Excon integration', :excon_probe, :http, :agent do
 
     it "logs errored requests" do
       Excon.stub({}, lambda{|request_params|
-        Timecop.travel 2
+        Timecop.freeze(now + 2)
         raise "bad response"
         { :body => 'body', :status => 200 }
       })
