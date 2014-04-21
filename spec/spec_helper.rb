@@ -60,7 +60,6 @@ def get_embedded_http_server_timeout
   if timeout = ENV['EMBEDDED_HTTP_SERVER_TIMEOUT']
     puts "EMBEDDED_HTTP_SERVER_TIMEOUT=#{timeout}"
     timeout.to_i
-    timeout.to_i
   else
     4
   end
