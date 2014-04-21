@@ -20,10 +20,7 @@ module Skylight
       api.authentication = load_credentials
 
       unless res = api.create_app(app_name)
-        puts res.inspect if ENV['DEBUG']
-
         say "Could not create the application", :red
-
         return
       end
 
