@@ -8,7 +8,7 @@ env:
     - SKYLIGHT_ENABLE_TRACE_LOGS=true
     - RAILS_ENV=development
     - STANDALONE_WORKER_SPEC_TIMEOUT=15
-    - EMBEDDED_HTTP_SERVER_TIMEOUT=15
+    - EMBEDDED_HTTP_SERVER_TIMEOUT=30
   matrix:
     # The first one is intentionally empty in order to run without any extra env vars
     -
