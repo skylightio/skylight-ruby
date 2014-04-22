@@ -20,7 +20,7 @@ module SpecHelper
     while true
       pid = ret.pid
       break if pid
-      raise if elapsed > 3
+      raise "Unable to spawn worker" if elapsed > 5
 
       elapsed += 0.1
       sleep 0.1
