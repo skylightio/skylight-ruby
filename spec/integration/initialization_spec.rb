@@ -22,6 +22,7 @@ describe "Initialization integration" do
     with_standalone(dir: @tmpdir) do
       ENV['SKYLIGHT_AUTHENTICATION'] = 'lulz'
       ENV['SKYLIGHT_AGENT_STRATEGY'] = 'embedded'
+      ENV['SKYLIGHT_LOG_FILE'] = '-'
       example.run
     end
   end
@@ -55,7 +56,7 @@ describe "Initialization integration" do
         let(:rails_env) { "production" }
 
         it "notifies of boot" do
-          boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+          boot.should =~ /\[SKYLIGHT\] \[#{Skylight::VERSION}\] Skylight agent enabled/
         end
       end
 
@@ -63,7 +64,7 @@ describe "Initialization integration" do
         let(:rails_env) { "staging" }
 
         it "notifies of boot" do
-         boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+          boot.should =~ /\[SKYLIGHT\] \[#{Skylight::VERSION}\] Skylight agent enabled/
        end
       end
 
