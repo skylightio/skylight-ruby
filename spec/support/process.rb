@@ -16,11 +16,12 @@ module SpecHelper
 
     elapsed = 0
     pid = nil
+    timeout = WORKER_SPAWN_TIMEOUT || 5
 
     while true
       pid = ret.pid
       break if pid
-      raise "Unable to spawn worker" if elapsed > 5
+      raise "Unable to spawn worker" if elapsed > timeout
 
       elapsed += 0.1
       sleep 0.1
