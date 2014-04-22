@@ -48,6 +48,10 @@ module Skylight
         group = "sql_parse"
         description = e.inspect
         details = encode(backtrace: e.backtrace,
+                          original_exception: {
+                            class_name: e.class.name,
+                            message: e.message
+                          },
                           payload: payload,
                           precalculated: precalculated)
 
