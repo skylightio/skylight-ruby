@@ -17,6 +17,9 @@ mkmf.log
 .DS_Store
 /b/*
 
+# Build artifacts
+/ext/install.log
+
 # Ignore lockfiles from travis Gemfiles
 /gemfiles/*.lock
 /Gemfile.lock
