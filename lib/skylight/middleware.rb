@@ -46,14 +46,17 @@ module Skylight
 
     def call(env)
       begin
+        t { "middleware beginning trace" }
         trace = Skylight.trace "Rack", 'app.rack.request'
         resp = @app.call(env)
         resp[2] = BodyProxy.new(resp[2]) { trace.submit } if trace
         resp
       rescue Exception
+        t { "middleware exception: #{trace}"}
         trace.submit if trace
         raise
       ensure
+        t { "middleware release: #{trace}"}
         trace.release if trace
       end
     end

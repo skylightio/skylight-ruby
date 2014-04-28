@@ -146,12 +146,10 @@ module Skylight
       private
 
         def start(time, cat, title, desc, annot=nil)
-          t { "starting trace: #{cat}, #{title}" }
           span(normalize_time(time), cat, title, desc, annot)
         end
 
         def stop(span, time)
-          t { "stopping trace" }
           @native_builder.native_stop_span(span, normalize_time(time))
           nil
         end
