@@ -40,8 +40,14 @@ module Skylight
       end
     end
 
-    def initialize(app)
+    include Util::Logging
+
+    # For Util::Logging
+    attr_reader :config
+
+    def initialize(app, opts={})
       @app = app
+      @config = opts.config
     end
 
     def call(env)

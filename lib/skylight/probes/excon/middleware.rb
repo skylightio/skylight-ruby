@@ -3,6 +3,7 @@ module Skylight
     module Excon
       class Middleware < ::Excon::Middleware::Base
 
+        # This probably won't work since config isn't defined
         include Util::Logging
 
         def initialize(*)
