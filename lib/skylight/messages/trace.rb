@@ -76,6 +76,8 @@ module Skylight
         end
 
         def instrument(cat, title=nil, desc=nil, annot=nil)
+          t { "instrument: #{cat}, #{title}" }
+
           if Hash === title
             annot = title
             title = desc = nil
@@ -123,7 +125,12 @@ module Skylight
         end
 
         def submit
-          return if @submitted
+          t { "submitting trace" }
+
+          if @submitted
+            t { "already submitted" }
+            return
+          end
 
           release
           @submitted = true
@@ -139,10 +146,12 @@ module Skylight
       private
 
         def start(time, cat, title, desc, annot=nil)
+          t { "starting trace: #{cat}, #{title}" }
           span(normalize_time(time), cat, title, desc, annot)
         end
 
         def stop(span, time)
+          t { "stopping trace" }
           @native_builder.native_stop_span(span, normalize_time(time))
           nil
         end

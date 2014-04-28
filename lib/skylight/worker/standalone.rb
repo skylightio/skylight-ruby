@@ -90,7 +90,10 @@ module Skylight
           raise ArgumentError, "message not encodable"
         end
 
-        return unless @pid
+        unless @pid
+          t { "no pid, can't submit: #{msg.inspect}" }
+          return
+        end
 
         if @me != Process.pid
           handle_fork

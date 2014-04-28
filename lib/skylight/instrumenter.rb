@@ -123,6 +123,8 @@ module Skylight
         return trace
       end
 
+      t { "starting trace" }
+
       begin
         trace = Messages::Trace::Builder.new(self, endpoint, Util::Clock.nanos, cat, title, desc, annot)
       rescue Exception => e
