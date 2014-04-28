@@ -47,7 +47,7 @@ module Skylight
 
     def initialize(app, opts={})
       @app = app
-      @config = opts.config
+      @config = opts[:config]
     end
 
     def call(env)
