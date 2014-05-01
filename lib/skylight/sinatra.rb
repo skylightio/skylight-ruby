@@ -1,5 +1,4 @@
 require 'skylight'
-require 'rails'
 
 module Skylight
   module Sinatra
