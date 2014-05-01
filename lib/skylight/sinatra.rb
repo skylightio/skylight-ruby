@@ -5,7 +5,7 @@ module Skylight
     def self.registered(base)
       config = Skylight::Config.load(nil, base.environment, ENV)
       config['root'] = base.root
-      config['agent.sockfile_path'] = File.join(config['root'], 'tmp')
+      config['agent.sockfile_path'] ||= File.join(config['root'], 'tmp')
       config.validate!
 
       base.enable :skylight
