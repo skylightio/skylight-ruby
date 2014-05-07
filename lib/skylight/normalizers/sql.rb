@@ -59,11 +59,15 @@ module Skylight
         [ nil, nil, nil, error ]
       end
 
+      # While operating in place would save memory, some of these passed in items are re-used elsewhere
+      # and, as such, should not be modified.
       def encode(body)
         if body.is_a?(Hash)
-          body.each{|k,v| body[k] = encode(v) }
+          hash = {}
+          body.each{|k,v| hash[k] = encode(v) }
+          hash
         elsif body.is_a?(Array)
-          body.each_with_index{|v,i| body[i] = encode(v) }
+          body.map{|v| encode(v) }
         elsif body.respond_to?(:encoding) && (body.encoding == Encoding::BINARY || !body.valid_encoding?)
           Base64.encode64(body)
         else
