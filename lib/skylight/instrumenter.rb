@@ -1,6 +1,4 @@
 require 'thread'
-require 'set'
-require 'base64'
 require 'strscan'
 
 module Skylight
