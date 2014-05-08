@@ -16,9 +16,10 @@ module Skylight
     config.skylight.probes = []
 
     initializer 'skylight.configure' do |app|
-      if activate?
-        load_probes
+      # Load probes even when agent is inactive to catch probe related bugs sooner
+      load_probes
 
+      if activate?
         if config = load_skylight_config(app)
           if Instrumenter.start!(config)
             app.middleware.insert 0, Middleware, config: config
