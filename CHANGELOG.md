@@ -1,3 +1,16 @@
+## 0.3.13 (May 12, 2014)
+
+* Load probes even when agent is disabled
+* Check for Excon::Middlewares before installing the probe
+* SQL error encoder should not operate in-place
+* Fix Middleware
+* More debug logging
+* Log Rails version in MetricsReporter
+* Handle missing Net::ReadTimeout in 1.9.3
+* Include original exception information in sql_parse errors
+* Debugging for failed application creation
+* Make double sure that Trace started_at is an Integer
+
 ## 0.3.12 (April 17, 2014)
 
 * Include more information in type check errors
