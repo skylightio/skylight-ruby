@@ -9,104 +9,27 @@
  * Ruby helpers
  */
 
-#define TO_S(VAL) \
-  RSTRING_PTR(rb_funcall(VAL, rb_intern("to_s"), 0))
-
-#define CHECK_TYPE(VAL, T)                        \
-  do {                                            \
-    if (TYPE(VAL) != T) {                         \
-      rb_raise(rb_eArgError, "expected " #VAL " to be " #T " but was '%s' (%s [%i])", \
-                TO_S(VAL), rb_obj_classname(VAL), TYPE(VAL)); \
-      return Qnil;                                \
-    }                                             \
-  } while(0)                                      \
-
-#define CHECK_NUMERIC(VAL)                        \
-  do {                                            \
-    if (TYPE(VAL) != T_BIGNUM &&                  \
-        TYPE(VAL) != T_FIXNUM) {                  \
-      rb_raise(rb_eArgError, "expected " #VAL " to be numeric but was '%s' (%s [%i])", \
-                TO_S(VAL), rb_obj_classname(VAL), TYPE(VAL)); \
-      return Qnil;                                \
-    }                                             \
-  } while(0)                                      \
-
-#define My_Struct(name, Type, msg)                \
-  Get_Struct(name, self, Type, msg);              \
-
-#define Transfer_My_Struct(name, Type, msg)       \
-  My_Struct(name, Type, msg);                     \
-  DATA_PTR(self) = NULL;                          \
-
-#define Transfer_Struct(name, obj, Type, msg)     \
-  Get_Struct(name, obj, Type, msg);               \
-  DATA_PTR(obj) = NULL;                           \
-
-#define Get_Struct(name, obj, Type, msg)          \
-  Type name;                                      \
-  Data_Get_Struct(obj, Type, name);               \
-  if (name == NULL) {                             \
-    rb_raise(rb_eRuntimeError, "%s", msg);        \
-  }                                               \
-
-#define CHECK_FFI(success, message)               \
-  ({                                              \
-    if (!(success))                               \
-      rb_raise(rb_eRuntimeError, message);        \
-  })
-
-#define VEC2STR(vector)                               \
-  ({                                                  \
-    RustVector v = (vector);                          \
-    VALUE ret = rb_str_new((char *)v->data, v->fill); \
-    ret;                                              \
-  })
-
-#define SLICE2STR(slice)                        \
-  ({                                            \
-    RustSlice s = (slice);                      \
-    VALUE str = rb_str_new(s.data, s.len);      \
-    rb_enc_associate(str, rb_utf8_encoding());  \
-    str;                                        \
-  })
-
-#define STR2SLICE(string)         \
-  ({                              \
-    RustSlice s;                  \
-    VALUE rb_str = (string);      \
-    s.data = RSTRING_PTR(rb_str); \
-    s.len = RSTRING_LEN(rb_str);  \
-    s;                            \
-  })
-
-#define UnwrapOption(T, val, transform) \
-  ({                                    \
-    T * v = (val);                      \
-    VALUE ret;                          \
-    if (v == NULL) {                    \
-      ret = Qnil;                       \
-    }                                   \
-    else {                              \
-      ret = transform(*v);              \
-    }                                   \
-    ret;                                \
-  })
-
-#define IsNone(val) val.discrim == 0
-
-/**
- * Convert Ruby String to a Rust String
- */
-
-RustString skylight_slice_to_owned(RustSlice);
-RustString skylight_bytes_to_new_vec(uint8_t*, uint64_t);
-
-#define STR2RUST(string)              \
-  ({                                  \
-    VALUE rb_str = (string);          \
-    skylight_bytes_to_new_vec(        \
-      (uint8_t*) RSTRING_PTR(rb_str), \
-      RSTRING_LEN(rb_str));           \
+#define SERIALIZE(MSG)                                                                                                     \
+  ({                                                                                                                       \
+    VALUE ret;                                                                                                             \
+    size_t size;                                                                                                           \
+    RustSerializer serializer;                                                                                             \
+                                                                                                                           \
+    if (!MSG) {                                                                                                            \
+      rb_raise(rb_eRuntimeError, "No "#MSG" message to serialize");                                                        \
+    }                                                                                                                      \
+    else {                                                                                                                 \
+      CHECK_FFI(skylight_ ## MSG ## _get_serializer(MSG, &serializer), "could not get serializer for "#MSG);               \
+                                                                                                                           \
+      CHECK_FFI(skylight_serializer_get_serialized_size(serializer, &size), "could not get serialized size for "#MSG);     \
+      ret = rb_str_new(NULL, size);                                                                                        \
+                                                                                                                           \
+      CHECK_FFI(skylight_ ## MSG ## _serialize(MSG, serializer, STR2SLICE(ret)), "could not serialize "#MSG);              \
+      skylight_serializer_free(serializer);                                                                                \
+    }                                                                                                                      \
+                                                                                                                           \
+    skylight_ ## MSG ## _free(MSG);                                                                                        \
+    ret;                                                                                                                   \
   })
 
 /**
@@ -202,15 +125,8 @@ static VALUE hello_cmd_get(VALUE self, VALUE rb_off) {
 }
 
 static VALUE hello_serialize(VALUE self) {
-  RustString serialized;
   Transfer_My_Struct(hello, RustHello, freedHello);
-
-  CHECK_FFI(skylight_hello_serialize_into_new_buffer(hello, &serialized), "Could not serialize Hello");
-  skylight_hello_free(hello);
-
-  VALUE string = VEC2STR(serialized);
-  skylight_free_buf(serialized);
-  return string;
+  return SERIALIZE(hello);
 }
 
 /**
@@ -281,15 +197,8 @@ static VALUE error_set_details(VALUE self, VALUE details) {
 }
 
 static VALUE error_serialize(VALUE self) {
-  RustString serialized;
   Transfer_My_Struct(error, RustError, freedError);
-
-  CHECK_FFI(skylight_error_serialize_into_new_buffer(error, &serialized), "Could not serialize Error");
-  skylight_error_free(error);
-
-  VALUE string = VEC2STR(serialized);
-  skylight_free_buf(serialized);
-  return string;
+  return SERIALIZE(error);
 }
 
 /**
@@ -316,9 +225,7 @@ static VALUE trace_name_from_serialized(VALUE self, VALUE protobuf) {
 
   CHECK_FFI(skylight_trace_name_from_serialized_into_new_buffer(STR2SLICE(protobuf), &trace_name), "Could not read name from serialized Trace");
 
-  VALUE ret = VEC2STR(trace_name);
-  skylight_free_buf(trace_name);
-  return ret;
+  return RUSTSTR2STR(trace_name);
 }
 
 static VALUE trace_get_started_at(VALUE self) {
@@ -348,8 +255,6 @@ static VALUE trace_get_name(VALUE self) {
   } else {
     return Qnil;
   }
-
-  //return UnwrapOption(RustSlice, skylight_trace_get_name(trace), SLICE2STR);
 }
 
 static VALUE trace_get_uuid(VALUE self) {
@@ -408,15 +313,7 @@ static VALUE trace_span_set_description(VALUE self, VALUE index, VALUE descripti
 
 static VALUE trace_serialize(VALUE self) {
   Transfer_My_Struct(trace, RustTrace, freedTrace);
-
-  RustString string;
-
-  CHECK_FFI(skylight_trace_serialize_into_new_buffer(trace, &string), "Could not serialize Trace");
-  skylight_trace_free(trace);
-
-  VALUE rb_string = VEC2STR(string);
-  skylight_free_buf(string);
-  return rb_string;
+  return SERIALIZE(trace);
 }
 
 /**
@@ -428,12 +325,15 @@ static const char* freedBatch = "You can't do anything with a Batch once it's be
 VALUE batch_new(VALUE klass, VALUE rb_timestamp, VALUE rb_hostname) {
   CHECK_NUMERIC(rb_timestamp);
 
-  RustString hostname = NULL;
+  RustSlice* hostname = NULL;
+  RustSlice tmp;
+
   uint32_t timestamp = (uint32_t) NUM2ULONG(rb_timestamp);
 
   if (rb_hostname != Qnil) {
     CHECK_TYPE(rb_hostname, T_STRING);
-    hostname = STR2RUST(rb_hostname);
+    tmp = STR2SLICE(rb_hostname);
+    hostname = &tmp;
   }
 
   RustBatch batch;
@@ -459,22 +359,14 @@ VALUE batch_move_in(VALUE self, VALUE rb_string) {
 
   My_Struct(batch, RustBatch, freedBatch);
 
-  CHECK_FFI(skylight_batch_move_in(batch, STR2RUST(rb_string)), "Could not add serialized Trace to Batch");
+  CHECK_FFI(skylight_batch_move_in(batch, STR2SLICE(rb_string)), "Could not add serialized Trace to Batch");
 
   return Qnil;
 }
 
 VALUE batch_serialize(VALUE self) {
   Transfer_My_Struct(batch, RustBatch, freedBatch);
-
-  RustString string;
-
-  CHECK_FFI(skylight_batch_serialize_into_new_buffer(batch, &string), "Could not serialize Batch");
-  skylight_batch_free(batch);
-
-  VALUE rb_string = VEC2STR(string);
-  skylight_free_buf(string);
-  return rb_string;
+  return SERIALIZE(batch);
 }
 
 void Init_skylight_native() {

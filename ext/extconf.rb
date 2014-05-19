@@ -104,6 +104,7 @@ end
 
 have_header 'dlfcn.h'
 
+find_header("rust_support/ruby.h", ".")
 find_library("skylight", "factory", ".")
 
 $CFLAGS << " -Werror"
