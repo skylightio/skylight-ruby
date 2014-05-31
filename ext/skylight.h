@@ -26,7 +26,7 @@ bool skylight_hello_load(RustSlice, RustHello*);
 bool skylight_hello_cmd_add(RustHello, RustSlice);
 bool skylight_hello_get_version(RustHello, RustSlice*);
 bool skylight_hello_cmd_length(RustHello, uint32_t*);
-bool skylight_hello_get_cmd(RustHello, int, RustSlice*);
+bool skylight_hello_get_cmd(RustHello, uint32_t, RustSlice*);
 bool skylight_hello_get_serializer(RustHello, RustSerializer*);
 bool skylight_hello_serialize(RustHello, RustSerializer, RustSlice);
 bool skylight_high_res_time(uint64_t*);

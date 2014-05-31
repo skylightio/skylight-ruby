@@ -112,7 +112,7 @@ static VALUE hello_add_cmd_part(VALUE self, VALUE rb_string) {
 }
 
 static VALUE hello_cmd_get(VALUE self, VALUE rb_off) {
-  int off;
+  uint32_t off;
   RustSlice slice;
   My_Struct(hello, RustHello, freedHello);
 
