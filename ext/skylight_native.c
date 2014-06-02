@@ -225,7 +225,7 @@ static VALUE trace_name_from_serialized(VALUE self, VALUE protobuf) {
 
   CHECK_FFI(skylight_trace_name_from_serialized_into_new_buffer(STR2SLICE(protobuf), &trace_name), "Could not read name from serialized Trace");
 
-  return RUSTSTR2STR(trace_name);
+  return SKYLIGHT_RUSTSTR2STR(trace_name);
 }
 
 static VALUE trace_get_started_at(VALUE self) {

@@ -8,6 +8,20 @@
 #include <rust_support/ruby.h>
 
 /**
+ * TODO: This is copied from rust_support
+ */
+
+bool skylight_string_as_slice(RustString, RustSlice*);
+
+#define SKYLIGHT_RUSTSTR2STR(string)          \
+  ({                                 \
+    RustString s = (string);         \
+    RustSlice slice;                  \
+    CHECK_FFI(skylight_string_as_slice(s, &slice), "Couldn't convert String to &str"); \
+    SLICE2STR(slice);                    \
+  })
+
+/**
  * Externed Rust functions from libskylight
  */
 
