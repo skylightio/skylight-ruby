@@ -1,3 +1,10 @@
+## 0.3.14 (June 3, 2014)
+
+* Do not build C extension if dependencies (libraries/headers) are
+  missing
+* [RUST] Improve performance by not double copying memory when serializing
+* Enable the Net::HTTP probe by default
+
 ## 0.3.13 (May 12, 2014)
 
 * Load probes even when agent is disabled
