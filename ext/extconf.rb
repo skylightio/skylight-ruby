@@ -104,8 +104,8 @@ end
 
 have_header 'dlfcn.h'
 
-find_header("rust_support/ruby.h", ".")
-find_library("skylight", "factory", ".")
+find_header("rust_support/ruby.h", ".") or fail "could not find rust support header"
+find_library("skylight", "factory", ".") or fail "could not find skylight library"
 
 $CFLAGS << " -Werror"
 if RbConfig::CONFIG["arch"] =~ /darwin(\d+)?/
@@ -117,4 +117,4 @@ end
 
 CONFIG['warnflags'].gsub!('-Wdeclaration-after-statement', '')
 
-create_makefile 'skylight_native', '.'
+create_makefile 'skylight_native', '.' or fail "could not create makefile"
