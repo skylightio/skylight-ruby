@@ -4,7 +4,7 @@ gemspec path: File.expand_path('../..', __FILE__)
 
 gem 'rack'
 gem 'rake'
-gem 'rspec'
+gem 'rspec', '< 3.0'
 gem 'timecop'
 gem 'webmock'
 gem 'beefcake'
