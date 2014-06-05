@@ -217,8 +217,10 @@ describe Skylight::Config do
         'SKYLIGHT_APPLICATION'    => 'my-app'})
     end
 
-    before :each do
-      file.write <<-YML
+    context 'valid' do
+
+      before :each do
+        file.write <<-YML
 application: nope
 authentication: nope
 zomg: hello
@@ -229,31 +231,52 @@ report:
 
 production:
   stuff: waaa
-      YML
+        YML
+      end
+
+      it 'sets the configuration' do
+        config['zomg'].should == 'hello'
+      end
+
+      it 'can load the application from an environment variable' do
+        config['application'].should == 'my-app'
+      end
+
+      it 'can load the token from an environment variable' do
+        config['authentication'].should == 'my-token'
+      end
+
+      it 'ignores unknown env keys' do
+        config['foo'].should == 'bar'
+      end
+
+      it 'loads nested config variables' do
+        config['report.ssl'].should == true
+      end
+
+      it 'still overrides' do
+        config['stuff'].should == 'waaa'
+      end
+
     end
 
-    it 'sets the configuration' do
-      config['zomg'].should == 'hello'
-    end
+    context 'invalid' do
 
-    it 'can load the application from an environment variable' do
-      config['application'].should == 'my-app'
-    end
+      it 'has useable error for empty files' do
+        file.write ''
+        lambda{ config }.should raise_error(Skylight::ConfigError, "could not load config file; msg=empty file")
+      end
 
-    it 'can load the token from an environment variable' do
-      config['authentication'].should == 'my-token'
-    end
+      it 'has useable error for files with only newlines' do
+        file.write "\n"
+        lambda{ config }.should raise_error(Skylight::ConfigError, "could not load config file; msg=empty file")
+      end
 
-    it 'ignores unknown env keys' do
-      config['foo'].should == 'bar'
-    end
+      it 'has useable error for files with arrays' do
+        file.write "- foo\n- bar"
+        lambda{ config }.should raise_error(Skylight::ConfigError, "could not load config file; msg=invalid format")
+      end
 
-    it 'loads nested config variables' do
-      config['report.ssl'].should == true
-    end
-
-    it 'still overrides' do
-      config['stuff'].should == 'waaa'
     end
 
   end
