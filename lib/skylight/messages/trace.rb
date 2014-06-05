@@ -9,7 +9,7 @@ module Skylight
         attr_reader   :endpoint, :spans, :notifications
 
         def endpoint=(value)
-          @endpoint = value.freeze
+          @endpoint = value.is_a?(String) ? value.freeze : value
           @native_builder.native_set_name(value)
         end
 
@@ -22,7 +22,7 @@ module Skylight
           @native_builder.native_set_name(endpoint)
 
           @instrumenter  = instrumenter
-          @endpoint      = endpoint.freeze
+          @endpoint      = endpoint
           @submitted     = false
           @start         = start
 
@@ -63,8 +63,8 @@ module Skylight
             desc = nil
           end
 
-          title.freeze
-          desc.freeze
+          title.freeze if title.is_a?(String)
+          desc.freeze  if desc.is_a?(String)
 
           desc = @instrumenter.limited_description(desc)
 
@@ -86,8 +86,8 @@ module Skylight
             desc = nil
           end
 
-          title.freeze
-          desc.freeze
+          title.freeze if title.is_a?(String)
+          desc.freeze  if desc.is_a?(String)
 
           original_desc = desc
           now           = Util::Clock.nanos
