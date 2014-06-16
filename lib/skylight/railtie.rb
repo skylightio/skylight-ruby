@@ -13,16 +13,18 @@ module Skylight
     config.skylight.config_path = "config/skylight.yml"
 
     # The probes to load
-    config.skylight.probes = []
+    #   net_http is on by default
+    #   Also available: excon
+    config.skylight.probes = ['net_http']
 
     initializer 'skylight.configure' do |app|
-      if activate?
-        load_probes
+      # Load probes even when agent is inactive to catch probe related bugs sooner
+      load_probes
 
+      if activate?
         if config = load_skylight_config(app)
           if Instrumenter.start!(config)
-            app.middleware.insert 0, Middleware
-            config.logger.info "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+            app.middleware.insert 0, Middleware, config: config
           end
         end
       elsif Rails.env.development?

@@ -1,6 +1,4 @@
 require 'thread'
-require 'set'
-require 'base64'
 require 'strscan'
 
 module Skylight
@@ -122,6 +120,8 @@ module Skylight
         return yield(trace) if block_given?
         return trace
       end
+
+      t { "starting trace" }
 
       begin
         trace = Messages::Trace::Builder.new(self, endpoint, Util::Clock.nanos, cat, title, desc, annot)

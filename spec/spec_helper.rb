@@ -60,6 +60,15 @@ def get_embedded_http_server_timeout
   if timeout = ENV['EMBEDDED_HTTP_SERVER_TIMEOUT']
     puts "EMBEDDED_HTTP_SERVER_TIMEOUT=#{timeout}"
     timeout.to_i
+  else
+    4
+  end
+end
+
+# Similar to above, but this is for waiting for the worker to spawn.
+def get_worker_spawn_timeout
+  if timeout = ENV['WORKER_SPAWN_TIMEOUT']
+    puts "WORKER_SPAWN_TIMEOUT=#{timeout}"
     timeout.to_i
   else
     4
@@ -68,6 +77,7 @@ end
 
 STANDALONE_WORKER_SPEC_TIMEOUT = get_standalone_worker_spec_timeout
 EMBEDDED_HTTP_SERVER_TIMEOUT = get_embedded_http_server_timeout
+WORKER_SPAWN_TIMEOUT = get_worker_spawn_timeout
 
 # End Normalize Libraries
 

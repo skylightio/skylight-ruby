@@ -71,7 +71,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 3)
+        server.wait(count: 3)
 
         server.reports[0].should have(1).endpoints
 
@@ -98,7 +98,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 3)
+        server.wait(count: 3)
 
         server.reports[0].should have(1).endpoints
 
@@ -125,7 +125,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 4)
+        server.wait(count: 4)
 
         error_request = server.requests[2]
 
@@ -133,7 +133,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         error = error_request["rack.input"]
         error['type'].should == "sql_parse"
         error['description'].should_not be_nil
-        error['details'].keys.should == ['backtrace', 'payload', 'precalculated']
+        error['details'].keys.should == ['backtrace', 'original_exception', 'payload', 'precalculated']
         error['details']['payload']['sql'].should == bad_sql
 
         server.reports[0].should have(1).endpoints
@@ -169,14 +169,14 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 4)
+        server.wait(count: 4)
 
         error_request = server.requests[2]
         error_request["PATH_INFO"].should == "/agent/error"
         error = error_request["rack.input"]
         error['type'].should == "sql_parse"
         error['description'].should_not be_nil
-        error['details'].keys.should == ['backtrace', 'payload', 'precalculated']
+        error['details'].keys.should == ['backtrace', 'original_exception', 'payload', 'precalculated']
         error['details']['payload']['sql'].should == encoded_sql
 
         server.reports[0].should have(1).endpoints
@@ -212,7 +212,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(timeout: 2, count: 4)
+        server.wait(count: 4)
 
         error_request = server.requests[2]
 
@@ -220,7 +220,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         error = error_request["rack.input"]
         error['type'].should == "sql_parse"
         error['description'].should_not be_nil
-        error['details'].keys.should == ['backtrace', 'payload', 'precalculated']
+        error['details'].keys.should == ['backtrace', 'original_exception', 'payload', 'precalculated']
         error['details']['payload']['sql'].should == encoded_sql
 
         server.reports[0].should have(1).endpoints

@@ -26,6 +26,7 @@ module Skylight
 
     def create_app(name)
       res = @http.post('/apps', { app: { name: name }})
+      puts "POST /apps: #{res.inspect}" if ENV['DEBUG']
       res if res.success?
     end
 

@@ -5,6 +5,7 @@ module Skylight
     class Task
       SHUTDOWN = :__SK_TASK_SHUTDOWN
 
+      # Requires the subclass to define `config`
       include Util::Logging
 
       attr_reader :queue_depth_metric

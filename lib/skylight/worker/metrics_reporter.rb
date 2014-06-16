@@ -54,6 +54,7 @@ module Skylight
           "host.info"          => RbConfig::CONFIG['arch'],
           "ruby.version"       => "#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL}",
           "ruby.engine"        => RUBY_ENGINE,
+          "rails.version"      => defined?(Rails) ? Rails.version : nil,
           "skylight.version"   => Skylight::VERSION
         }
 

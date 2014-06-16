@@ -91,11 +91,16 @@ module Skylight
       version = nil
 
       if path
+        error = nil
         begin
           attrs = YAML.load_file(path)
+          error = "empty file" unless attrs
+          error = "invalid format" if attrs && !attrs.is_a?(Hash)
         rescue Exception => e
-          raise ConfigError, "could not load config file; msg=#{e.message}"
+          error = e.message
         end
+
+        raise ConfigError, "could not load config file; msg=#{error}" if error
 
         version = File.mtime(path).to_i
       end
