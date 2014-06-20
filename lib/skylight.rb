@@ -39,6 +39,10 @@ module Skylight
     require 'skylight/railtie'
   end
 
+  if defined?(Sinatra)
+    require 'skylight/sinatra'
+  end
+
   # @api private
   def self.check_install_errors
     # Note: An unsupported arch doesn't count as an error.
