@@ -9,6 +9,9 @@ gem 'timecop'
 gem 'webmock'
 gem 'beefcake'
 
+# Version 2 requires Ruby 1.9.3+
+gem 'bson', '~> 1.10'
+
 unless ENV['SKIP_EXTERNAL']
   gem 'excon'
   gem 'moped'
