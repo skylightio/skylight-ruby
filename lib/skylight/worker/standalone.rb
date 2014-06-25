@@ -380,16 +380,16 @@ module Skylight
 
         if File.exist?(lockfile)
           if !FileTest.writable?(lockfile)
-            raise WorkerStateError, "`#{lockfile}` not writable"
+            raise WorkerStateError, "`#{lockfile}` not writable. Please set agent.lockfile or agent.sockfile_path in your config to a writable path."
           end
         else
           if !FileTest.writable?(lockfile_root)
-            raise WorkerStateError, "`#{lockfile_root}` not writable"
+            raise WorkerStateError, "`#{lockfile_root}` not writable. Please set agent.lockfile or agent.sockfile_path in your config to a writable path."
           end
         end
 
         unless FileTest.writable?(sockfile_path)
-          raise WorkerStateError, "`#{sockfile_path}` not writable"
+          raise WorkerStateError, "`#{sockfile_path}` not writable. Please set agent.sockfile_path in your config to a writable path."
         end
       end
 

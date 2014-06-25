@@ -72,7 +72,7 @@ describe 'Standalone worker', :agent do
       sockfile_path.chmod(0555)
       lambda {
         spawn_worker sockfile_path: sockfile_path
-      }.should raise_error(Skylight::WorkerStateError)
+      }.should raise_error(Skylight::WorkerStateError, "`#{sockfile_path}` not writable. Please set agent.lockfile or agent.sockfile_path in your config to a writable path.")
     end
 
   end
