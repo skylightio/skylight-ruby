@@ -29,6 +29,7 @@ module Skylight
       'SKIP_VALIDATION'         => :'skip_validation',
       'AGENT_INTERVAL'          => :'agent.interval',
       'AGENT_KEEPALIVE'         => :'agent.keepalive',
+      'AGENT_LOCKFILE'          => :'agent.lockfile',
       'AGENT_SAMPLE_SIZE'       => :'agent.sample',
       'AGENT_SOCKFILE_PATH'     => :'agent.sockfile_path',
       'AGENT_STRATEGY'          => :'agent.strategy',
