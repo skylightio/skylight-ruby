@@ -120,13 +120,13 @@ module Skylight
       end
     end
 
-    %w( moped
-        process_action
-        render_collection
-        render_partial
-        render_template
-        send_file
-        sql).each do |file|
+    %w( action_controller/process_action
+        action_controller/send_file
+        action_view/render_collection
+        action_view/render_partial
+        action_view/render_template
+        active_record/sql
+        moped/query).each do |file|
       require "skylight/normalizers/#{file}"
     end
   end
