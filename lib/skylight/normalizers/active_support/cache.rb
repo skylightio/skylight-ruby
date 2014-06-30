@@ -20,3 +20,31 @@ module Skylight
     end
   end
 end
+
+# See https://github.com/rails/rails/pull/15943
+if defined?(ActiveSupport::Cache::Store.instrument)
+  deprecated = false
+
+  # If it's deprecated, setting to false will cause a deprecation warning
+  # and the value will remain true
+  ActiveSupport::Deprecation.silence do
+    ActiveSupport::Cache::Store.instrument = false
+    deprecated = ActiveSupport::Cache::Store.instrument
+  end
+
+  unless deprecated
+    class ActiveSupport::Cache::Store
+      def instrument
+        true
+      end
+
+      def instrument=(val)
+        unless val
+          logger.warn "Skylight has patched ActiveSupport::Cache::Store.instrument to always be true. " \
+                        "In future versions of Rails, this method will no longer be settable. " \
+                        "See https://github.com/rails/rails/pull/15943 for more information."
+        end
+      end
+    end
+  end
+end
