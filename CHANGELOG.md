@@ -1,3 +1,10 @@
+## 0.3.15 (June 30, 2014)
+
+* Basic instrumentation for ActiveSupport::Cache
+* Fix incompatibility with old version of rack-mini-profiler
+* Better error messages when config/skylight.yml is invalid
+* Better error messages for non-writeable lock/sockfile path
+
 ## 0.3.14 (June 3, 2014)
 
 * Do not build C extension if dependencies (libraries/headers) are
