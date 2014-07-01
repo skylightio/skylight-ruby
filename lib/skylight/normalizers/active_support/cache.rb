@@ -40,9 +40,9 @@ if defined?(ActiveSupport::Cache::Store.instrument)
 
       def self.instrument=(val)
         unless val
-          logger.warn "Skylight has patched ActiveSupport::Cache::Store.instrument to always be true. " \
-                        "In future versions of Rails, this method will no longer be settable. " \
-                        "See https://github.com/rails/rails/pull/15943 for more information."
+          Rails.logger.warn "[WARNING] Skylight has patched ActiveSupport::Cache::Store.instrument to always be true. " \
+                            "In future versions of Rails, this method will no longer be settable. " \
+                            "See https://github.com/rails/rails/pull/15943 for more information."
         end
       end
     end
