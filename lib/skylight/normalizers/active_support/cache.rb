@@ -34,11 +34,11 @@ if defined?(ActiveSupport::Cache::Store.instrument)
 
   unless deprecated
     class ActiveSupport::Cache::Store
-      def instrument
+      def self.instrument
         true
       end
 
-      def instrument=(val)
+      def self.instrument=(val)
         unless val
           logger.warn "Skylight has patched ActiveSupport::Cache::Store.instrument to always be true. " \
                         "In future versions of Rails, this method will no longer be settable. " \
