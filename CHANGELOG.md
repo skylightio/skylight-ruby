@@ -1,4 +1,8 @@
-## 0.3.15 (June 30, 2014)
+## 0.3.16 (July 1, 2014)
+
+* Fixed ActiveSupport::Cache monkeypatch
+
+## 0.3.15 (June 30, 2014) [YANKED]
 
 * Basic instrumentation for ActiveSupport::Cache
 * Fix incompatibility with old version of rack-mini-profiler
