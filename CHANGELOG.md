@@ -1,4 +1,8 @@
-## 0.3.16 (July 1, 2014)
+## 0.3.17 (July 1, 2014)
+
+* Fix warning for Cache.instrument overwrite
+
+## 0.3.16 (July 1, 2014) [YANKED]
 
 * Fixed ActiveSupport::Cache monkeypatch
 
