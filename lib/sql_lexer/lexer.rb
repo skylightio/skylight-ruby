@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require "strscan"
 
 module SqlLexer
@@ -18,8 +20,8 @@ module SqlLexer
     OptWS         = %Q<[#{WS}]*>
     End           = %Q<;|$>
 
-    InOp          = %q<IN>
-    ArrayOp       = %q<ARRAY>
+    InOp          = %Q<IN(?=#{OptWS}\\()>
+    ArrayOp       = %q<ARRAY(?=\[)>
     ColonColonOp  = %Q<::(?=[#{StartID}])>
     ArrayIndexOp  = %q<\\[(?:\-?\d+(?::\-?\d+)?|NULL)\\]>
     SpecialOps    = %Q<#{InOp}(?=[#{WS}])|#{ColonColonOp}|#{ArrayOp}|#{ArrayIndexOp}>
@@ -42,7 +44,7 @@ module SqlLexer
 
     AfterID       = %Q<[#{WS};#{StartNonBind}]|(?:#{OpPart})|(?:#{ColonColonOp})|(?:#{ArrayIndexOp})|$>
     ID            = %Q<[#{StartID}][#{PartID}]*(?=#{AfterID})>
-    AfterOp       = %Q<[#{WS}]|[#{StartAnyId}]|[#{StartBind}]|(#{StartNonBind})|$>
+    AfterOp       = %Q<[#{WS}]|[#{StartAnyId}]|[#{StartBind}]|(#{StartNonBind})|;|$>
     Op            = %Q<(?:#{OpPart})+(?=#{AfterOp})>
     QuotedID      = %Q<#{StartQuotedID}(?:[^"]|"")*">
     TickedID      = %Q<#{StartTickedID}(?:[^`]|``)*`>
@@ -228,7 +230,7 @@ module SqlLexer
       # SQL allows for nested comments so this takes a bit more work
       while @scanner.skip_until(TkBlockCommentStart)
         count = 1
-        pos = @scanner.pos - 2
+        pos = @scanner.charpos - 2
 
         while true
           # Determine whether we close the comment or start nesting
@@ -253,7 +255,7 @@ module SqlLexer
 
           if count == 0
             # We've closed all comments
-            length = @scanner.pos - pos
+            length = @scanner.charpos - pos
             # Dup the string if necessary so we aren't destructive to the original value
             @scanner.string = @input.dup if @scanner.string == @input
             # Replace the comment with spaces
@@ -267,7 +269,7 @@ module SqlLexer
 
       # Remove single line comments
       while @scanner.skip_until(TkComment)
-        pos = @scanner.pos
+        pos = @scanner.charpos
         len = @scanner.matched_size
         # Dup the string if necessary so we aren't destructive to the original value
         @scanner.string = @input.dup if @scanner.string == @input
@@ -418,7 +420,7 @@ module SqlLexer
       iterations = 0
 
       @skip_binds = true
-      pos = @scanner.pos - 1
+      pos = @scanner.charpos - 1
 
       while nest > 0
         iterations += 1
@@ -448,7 +450,7 @@ module SqlLexer
       end
 
       @binds << pos
-      @binds << @scanner.pos - pos
+      @binds << @scanner.charpos - pos
 
       @skip_binds = false
 
@@ -460,7 +462,7 @@ module SqlLexer
       iterations = 0
 
       @skip_binds = true
-      pos = @scanner.pos - 6
+      pos = @scanner.charpos - 6
 
       while nest > 0
         iterations += 1
@@ -498,7 +500,7 @@ module SqlLexer
       end
 
       @binds << pos
-      @binds << @scanner.pos - pos
+      @binds << @scanner.charpos - pos
 
       @skip_binds = false
 
@@ -511,12 +513,17 @@ module SqlLexer
     end
 
     def process_bind
-      pos = @scanner.pos
-      size = @scanner.skip(TkBind)
+      pos = nil
+
+      unless @skip_binds
+        pos = @scanner.charpos
+      end
+
+      @scanner.skip(TkBind)
 
       unless @skip_binds
         @binds << pos
-        @binds << size
+        @binds << @scanner.charpos - pos
       end
 
       @state = :tokens
