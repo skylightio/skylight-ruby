@@ -101,7 +101,7 @@ if enable
 
       before :each do
         server.mock "/agent/authenticate" do |env|
-          { session: { token: token } }
+          { session: { token: token, expires_at: 3.hours.from_now.to_i } }
         end
       end
 

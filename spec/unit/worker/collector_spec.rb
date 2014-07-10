@@ -32,7 +32,7 @@ module Skylight
 
       def mock_auth(t=token)
         server.mock "/agent/authenticate" do |env|
-          { session: { token: t } }
+          { session: { token: t, expires_at: 3.hours.from_now.to_i } }
         end
       end
 
@@ -74,7 +74,7 @@ module Skylight
         span(0).event.category.should == 'app.rack.request'
       end
 
-      it 'refreshes the session token every 10 minutes' do
+      it 'refreshes the session token 30 minutes before expiry' do
         mock_auth
 
         submit_trace
@@ -95,7 +95,7 @@ module Skylight
         server.requests[2]['HTTP_AUTHORIZATION'].should == token
 
         mock_auth token2
-        clock.skip 3600
+        clock.skip (2.5).hours # Test token last for 3 hours
 
         submit_trace
         clock.unfreeze
@@ -130,7 +130,7 @@ module Skylight
           req['HTTP_AUTHORIZATION'].should == token
         end
 
-        clock.skip 3600
+        clock.skip (2.5).hours # Test token last for 3 hours
         submit_trace
         clock.unfreeze
         server.wait count: 5

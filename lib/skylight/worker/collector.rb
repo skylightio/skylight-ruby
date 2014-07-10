@@ -180,11 +180,20 @@ module Skylight
           return
         end
 
-        tok = res.body['session']
-        tok = tok['token'] if tok
+        session = res.body['session']
+        tok, expires_at = session['token'], session['expires_at'] if session
 
-        if tok
-          @refresh_at  = now + 1800 # 30 minutes
+        if tok && expires_at
+          if expires_at <= now
+            error "token is expired: token=%s; expires_at=%s"
+            return
+          end
+
+          # 30 minute buffer or split the difference
+          @refresh_at  = expires_at - now > 3600 ?
+                            now + ((expires_at - now) / 2) :
+                            expires_at - 1800
+
           @http_report = Util::HTTP.new(config, :report)
           @http_report.authentication = tok
         else
