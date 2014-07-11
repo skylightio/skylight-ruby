@@ -27,7 +27,7 @@ module Skylight
 
     def mock_auth(t=token)
       server.mock "/agent/authenticate" do |env|
-        { session: { token: t } }
+        { session: { token: t, expires_at: 3.hours.from_now.to_i } }
       end
     end
 

@@ -185,13 +185,13 @@ module SpecHelper
 
   def stub_token_verification(status=200)
     server.mock "/agent/authenticate" do |env|
-      [status, { session: { token: token} }]
+      [status, { session: { token: token, expires_at: 3.hours.from_now.to_i } }]
     end
   end
 
   def stub_session_request
     server.mock "/agent/authenticate" do |env|
-      { session: { token: token} }
+      { session: { token: token, expires_at: 3.hours.from_now.to_i } }
     end
   end
 
