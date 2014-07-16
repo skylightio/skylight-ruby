@@ -14,20 +14,33 @@ describe 'skylight setup', :http, :agent do
       end
   end
 
-  def should_successfully_create_app
+  def test_config_values
+    @test_config_values ||= begin
+      vals = super.dup
+      vals.delete(:authentication)
+      vals
+    end
+  end
+
+  def should_successfully_create_app(token=nil)
     server.mock "/apps", :post do
       { app:
         { id: "my-app-id",
           token: "my-app-token" }}
     end
 
-    cli.should_receive(:say).
-      with(/congratulations/i, :green)
+    unless token
+      cli.should_receive(:say).
+        with(/Please enter your email and password/).ordered
 
-    cli.should_receive(:say).
-      with(/config\/skylight\.yml/)
+      cli.should_receive(:say).
+        with(/congratulations/i, :green).ordered
 
-    cli.setup
+      cli.should_receive(:say).
+        with(/config\/skylight\.yml/)
+    end
+
+    cli.setup(token)
 
     tmp('config/skylight.yml').should exist
 
@@ -51,10 +64,6 @@ describe 'skylight setup', :http, :agent do
       end
 
       should_successfully_create_app
-
-      tmp('.skylight').should exist
-
-      YAML.load_file(tmp('.skylight')).should == { 'token' => 'dat-token' }
     end
 
     it 'logs in and creates the app' do
@@ -104,24 +113,16 @@ describe 'skylight setup', :http, :agent do
 
   end
 
-  context 'logged in' do
+  context 'with token' do
 
     it 'does not ask for login info' do
-      write_credentials('zomg')
-
-      should_successfully_create_app
+      should_successfully_create_app('foobar')
 
       server.requests[0].should post_json("/apps", {
-        authorization: 'zomg',
-        input: { 'app' => { 'name' => 'Tmp' }} })
+        authorization: nil,
+        input: { 'app' => { 'name' => 'Tmp' }, 'token' => 'foobar' } })
     end
 
-  end
-
-  def write_credentials(token)
-    File.open(tmp('.skylight'), 'w') do |f|
-      f.write YAML.dump('token' => token)
-    end
   end
 
 end

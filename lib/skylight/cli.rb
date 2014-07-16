@@ -10,16 +10,18 @@ module Skylight
   # @api private
   class CLI < Thor
 
-    desc "setup", "Sets up a new app"
-    def setup
+    desc "setup TOKEN", "Sets up a new app using the provided token"
+    def setup(token=nil)
       if File.exist?(config_path)
         say "Your app is already on Skylight. http://www.skylight.io", :green
         return
       end
 
-      api.authentication = load_credentials
+      unless token
+        api.authentication = login
+      end
 
-      unless res = api.create_app(app_name)
+      unless res = api.create_app(app_name, token)
         say "Could not create the application", :red
         return
       end
@@ -51,6 +53,8 @@ repository and deploy from there. You can learn more about the process at:
     def app_name
       @app_name ||=
         begin
+          name = nil
+
           if File.exist?("config/application.rb")
             # This looks like a Rails app, lets make sure we have the railtie loaded
             # skylight.rb checks for Rails, but when running the CLI, Skylight loads before Rails does
@@ -73,26 +77,22 @@ repository and deploy from there. You can learn more about the process at:
             end
           end
 
-          name.blank? ? File.basename(File.expand_path('.')).titleize : name
+          if !name || name.strip.empty?
+            name = File.basename(File.expand_path('.')).titleize
+          end
+
+          name
         end
     end
 
-    def load_credentials
-      load_credentials_from_file || login
-    end
-
     def login
+      say "Please enter your email and password below or get a token from https://www.skylight.io/app/setup."
+
       10.times do
         email    = highline.ask("Email: ")
         password = highline.ask("Password: ") { |q| q.echo = "*" }
 
         if token = api.login(email, password)
-          # Write the token
-          FileUtils.mkdir_p(File.dirname(credentials_path))
-          File.open(credentials_path, 'w') do |f|
-            f.puts YAML.dump('token' => token)
-          end
-
           return token
         end
 
@@ -104,22 +104,12 @@ repository and deploy from there. You can learn more about the process at:
       return
     end
 
-    def load_credentials_from_file
-      return unless File.exist?(credentials_path)
-      return unless yaml = YAML.load_file(credentials_path)
-      yaml['token']
-    end
-
     def relative_config_path
       'config/skylight.yml'
     end
 
     def config_path
       File.expand_path(relative_config_path)
-    end
-
-    def credentials_path
-      File.expand_path(config[:'me.credentials_path'])
     end
 
     def api
