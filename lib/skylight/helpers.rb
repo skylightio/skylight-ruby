@@ -99,7 +99,7 @@ module Skylight
         desc     = opts[:description].to_s if opts[:description]
 
         klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
-          alias_method :"#{name}_before_instrument", :"#{name}"
+          alias_method :"before_instrument_#{name}", :"#{name}"
 
           def #{name}(*args, &blk)
             span = Skylight.instrument(
@@ -108,7 +108,7 @@ module Skylight
               description: #{desc.inspect})
 
             begin
-              #{name}_before_instrument(*args, &blk)
+              before_instrument_#{name}(*args, &blk)
             ensure
               Skylight.done(span) if span
             end

@@ -27,8 +27,13 @@ if enable
     config.logger.level = Logger::DEBUG
   end
 
+  # We include instrument_method in multiple places to ensure
+  # that all of them work.
+
   class ::UsersController < ActionController::Base
     include Skylight::Helpers
+
+    before_action :authorized?
 
     def index
       Skylight.instrument category: 'app.inside' do
@@ -38,11 +43,21 @@ if enable
         end
       end
     end
+    instrument_method :index
 
     instrument_method
     def show
       render text: "Hola: #{params[:id]}"
     end
+
+    private
+
+      def authorized?
+        true
+      end
+
+      # It's important for us to test a method ending in a special char
+      instrument_method :authorized?, title: "Check authorization"
   end
 
   describe 'Rails integration' do
