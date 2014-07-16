@@ -33,7 +33,7 @@ if enable
   class ::UsersController < ActionController::Base
     include Skylight::Helpers
 
-    before_action :authorized?
+    before_filter :authorized?
 
     def index
       Skylight.instrument category: 'app.inside' do
