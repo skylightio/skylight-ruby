@@ -1,3 +1,12 @@
+## 0.3.18 (July 17, 2014)
+
+* [FEATURE] Redis probe (Not enabled by default. See http://docs.skylight.io/agent/#railtie)
+* [FEATURE] Support app creation with token instead of email/password
+* [BUGFIX] App creation now works even when Webmock is enabled
+* [BUGFIX] Fix instrumentation for methods ending in special chars
+* [BUGFIX] Improved SQL parsing
+* [IMPROVEMENT] Respect collector token expiration to reduce token requests
+
 ## 0.3.17 (July 1, 2014)
 
 * Fix warning for Cache.instrument overwrite
