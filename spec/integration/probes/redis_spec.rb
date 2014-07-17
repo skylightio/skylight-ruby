@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Redis integration', :redis_probe, :redis, :agent do
+describe 'Redis integration', :redis_probe, :agent do
 
   before(:each) do
     @redis = Redis.new

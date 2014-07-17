@@ -14,7 +14,7 @@ module Skylight
 
     # The probes to load
     #   net_http is on by default
-    #   Also available: excon
+    #   Also available: excon, redis
     config.skylight.probes = ['net_http']
 
     initializer 'skylight.configure' do |app|

@@ -87,7 +87,7 @@ WORKER_SPAWN_TIMEOUT = get_worker_spawn_timeout
 
 Dir[File.expand_path('../support/*.rb', __FILE__)].each { |f| require f }
 
-all_probes = %w(Excon Net::HTTP)
+all_probes = %w(Excon Net::HTTP Redis)
 installed_probes = Skylight::Probes.installed.keys
 skipped_probes = all_probes - installed_probes
 
