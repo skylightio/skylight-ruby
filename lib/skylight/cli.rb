@@ -44,7 +44,7 @@ repository and deploy from there. You can learn more about the process at:
       OUT
     rescue Api::CreateFailed => e
       say "Could not create the application", :red
-      say e.errors.inspect, :orange if e.errors
+      say e.errors.inspect, :yellow if e.errors
     rescue Interrupt
     end
 
