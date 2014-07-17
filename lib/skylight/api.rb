@@ -3,6 +3,20 @@ module Skylight
   class Api
     attr_reader :config, :http
 
+    class CreateFailed < StandardError
+      attr_reader :res
+
+      def initialize(res)
+        @res = res
+        super "failed with status #{res.status}"
+      end
+
+      def errors
+        return unless res.body.is_a?(Hash)
+        res.body['errors']
+      end
+    end
+
     def initialize(config, service = :accounts)
       @config = config
       @http   = Util::HTTP.new(config, service)
@@ -28,8 +42,8 @@ module Skylight
       params = { app: { name: name } }
       params[:token] = token if token
       res = @http.post('/apps', params)
-      puts "POST /apps: #{res.inspect}" if ENV['DEBUG']
-      res if res.success?
+      raise CreateFailed, res unless res.success?
+      res
     end
 
   end

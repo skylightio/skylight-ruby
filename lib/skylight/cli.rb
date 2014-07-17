@@ -21,10 +21,7 @@ module Skylight
         api.authentication = login
       end
 
-      unless res = api.create_app(app_name, token)
-        say "Could not create the application", :red
-        return
-      end
+      res = api.create_app(app_name, token)
 
       config[:application]    = res.get('app.id')
       config[:authentication] = res.get('app.token')
@@ -45,6 +42,9 @@ repository and deploy from there. You can learn more about the process at:
   http://docs.skylight.io/getting-started/#deploy
 
       OUT
+    rescue Api::CreateFailed => e
+      say "Could not create the application", :red
+      say e.errors.inspect, :orange if e.errors
     rescue Interrupt
     end
 

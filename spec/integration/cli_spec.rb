@@ -29,6 +29,32 @@ describe "CLI integration", :http do
     end
   end
 
+  it "shows error messages for invalid token" do
+    server.mock "/apps", :post do |env|
+      env['rack.input'].should == { 'app' => { 'name' => 'Dummy' }, 'token' => 'invalidtoken' }
+      [403, { errors: { request: "invalid app create token" }}]
+    end
+
+    with_standalone do
+      output = `bundle install`
+      puts output if ENV['DEBUG']
+
+      Open3.popen3("bundle exec skylight setup invalidtoken") do |stdin, stdout, stderr|
+        begin
+          output = read(stdout)
+          output.should include("Could not create the application")
+          output.should include('{"request"=>"invalid app create token"}')
+
+          File.exist?("config/skylight.yml").should be_false
+        rescue
+          # Provide some potential debugging information
+          puts stderr.read if ENV['DEBUG']
+          raise
+        end
+      end
+    end
+  end
+
   it "works without setup token" do
     server.mock "/me" do |env|
       env['HTTP_X_EMAIL'].should == "test@example.com"
