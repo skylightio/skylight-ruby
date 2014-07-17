@@ -86,7 +86,7 @@ repository and deploy from there. You can learn more about the process at:
     end
 
     def login
-      say "Please enter your email and password below or get a token from https://www.skylight.io/app/setup."
+      say "Please enter your email and password below or get a token from https://www.skylight.io/app/setup.", :cyan
 
       10.times do
         email    = highline.ask("Email: ")

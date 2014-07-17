@@ -31,7 +31,7 @@ describe 'skylight setup', :http, :agent do
 
     unless token
       cli.should_receive(:say).
-        with(/Please enter your email and password/).ordered
+        with(/Please enter your email and password/, :cyan).ordered
 
       cli.should_receive(:say).
         with(/congratulations/i, :green).ordered
