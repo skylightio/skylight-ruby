@@ -3,7 +3,33 @@ require 'open3'
 
 describe "CLI integration", :http do
 
-  it "works" do
+  it "works with setup token" do
+    server.mock "/apps", :post do |env|
+      env['rack.input'].should == { 'app' => { 'name' => 'Dummy' }, 'token' => 'setuptoken' }
+
+      # This would have more information really, but the CLI doesn't care
+      { app: { id: 'appid', token: 'apptoken' }}
+    end
+
+    with_standalone do
+      output = `bundle install`
+      puts output if ENV['DEBUG']
+
+      Open3.popen3("bundle exec skylight setup setuptoken") do |stdin, stdout, stderr|
+        begin
+          read(stdout).should include("Congratulations. Your application is on Skylight!")
+
+          YAML.load_file("config/skylight.yml").should == {"application"=>"appid", "authentication"=>"apptoken"}
+        rescue
+          # Provide some potential debugging information
+          puts stderr.read if ENV['DEBUG']
+          raise
+        end
+      end
+    end
+  end
+
+  it "works without setup token" do
     server.mock "/me" do |env|
       env['HTTP_X_EMAIL'].should == "test@example.com"
       env['HTTP_X_PASSWORD'].should == "testpass"
@@ -25,6 +51,7 @@ describe "CLI integration", :http do
 
       Open3.popen3("bundle exec skylight setup") do |stdin, stdout, stderr|
         begin
+          get_prompt(stdout, 200).should =~ %r{Please enter your email and password below or get a token from https://www.skylight.io/app/setup.}
           get_prompt(stdout).should =~ /Email:\s*$/
           fill_prompt(stdin, "test@example.com")
 
@@ -32,8 +59,6 @@ describe "CLI integration", :http do
           fill_prompt(stdin, "testpass", false)
 
           read(stdout).should include("Congratulations. Your application is on Skylight!")
-
-          YAML.load_file("../.skylight").should == {"token"=>"testtoken"}
 
           YAML.load_file("config/skylight.yml").should == {"application"=>"appid", "authentication"=>"apptoken"}
         rescue
