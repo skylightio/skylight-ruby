@@ -45,9 +45,9 @@ module Skylight
     install_log = File.expand_path("../../ext/install.log", __FILE__)
 
     if File.exist?(install_log) && File.read(install_log) =~ /ERROR/
-      puts "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension failed to install. " \
-              "Please check #{install_log} and notify support@skylight.io." \
-              "The missing extension will not affect the functioning of your application."
+      $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension failed to install. " \
+                    "Please check #{install_log} and notify support@skylight.io." \
+                    "The missing extension will not affect the functioning of your application."
     end
   end
 
@@ -58,14 +58,14 @@ module Skylight
     env_name = is_rails ? Rails.env : "development"
 
     if env_name == "development" || env_name == "test"
-      puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in #{env_name} mode. " \
-              "No data will be reported until you deploy your app."
+      $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in #{env_name} mode. " \
+                    "No data will be reported until you deploy your app."
     else
-      puts "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. " \
-              "The monitoring portion of Skylight is only supported on production servers running 32- or " \
-              "64-bit Linux. The missing extension will not affect the functioning of your application " \
-              "and you can continue local development without data being reported. If you are on a " \
-              "supported platform, please contact support at support@skylight.io."
+      $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. " \
+                    "The monitoring portion of Skylight is only supported on production servers running 32- or " \
+                    "64-bit Linux. The missing extension will not affect the functioning of your application " \
+                    "and you can continue local development without data being reported. If you are on a " \
+                    "supported platform, please contact support at support@skylight.io."
     end
   end
 

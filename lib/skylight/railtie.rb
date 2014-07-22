@@ -25,13 +25,13 @@ module Skylight
         if config = load_skylight_config(app)
           if Instrumenter.start!(config)
             app.middleware.insert 0, Middleware, config: config
-            puts "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+            $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
           end
         end
       elsif Rails.env.development?
-        puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
+        $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
       elsif !Rails.env.test?
-        puts "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the #{Rails.env} environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
+        $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the #{Rails.env} environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
       end
     end
 
@@ -46,7 +46,7 @@ module Skylight
       path = nil unless File.exist?(path)
 
       unless tmp = app.config.paths['tmp'].first
-        puts "[SKYLIGHT] [#{Skylight::VERSION}] tmp directory missing from rails configuration"
+        $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] tmp directory missing from rails configuration"
         return nil
       end
 
@@ -61,7 +61,7 @@ module Skylight
       config
 
     rescue ConfigError => e
-      puts "[SKYLIGHT] [#{Skylight::VERSION}] #{e.message}; disabling Skylight agent"
+      $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] #{e.message}; disabling Skylight agent"
       nil
     end
 
