@@ -27,7 +27,8 @@ describe "Initialization integration" do
   end
 
   def boot
-    `RAILS_ENV=#{rails_env} rails runner '#noop'`.strip
+    # Pipe stderr to stdout for now, maybe split up later
+    `RAILS_ENV=#{rails_env} rails runner '#noop' 2>&1`.strip
   end
 
   if Skylight.native?
