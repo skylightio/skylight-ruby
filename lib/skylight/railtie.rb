@@ -25,7 +25,6 @@ module Skylight
         if config = load_skylight_config(app)
           if Instrumenter.start!(config)
             app.middleware.insert 0, Middleware, config: config
-            puts "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
           end
         end
       elsif Rails.env.development?
