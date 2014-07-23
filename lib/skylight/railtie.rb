@@ -6,7 +6,7 @@ module Skylight
   class Railtie < Rails::Railtie
     config.skylight = ActiveSupport::OrderedOptions.new
 
-    # The environments in which skylight should be inabled
+    # The environments in which skylight should be enabled
     config.skylight.environments = ['production']
 
     # The path to the configuration file
