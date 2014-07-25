@@ -12,8 +12,18 @@ module Skylight
       end
 
       def errors
-        return unless res.body.is_a?(Hash)
+        return unless res.respond_to?(:body) && res.body.is_a?(Hash)
         res.body['errors']
+      end
+
+      def to_s
+        if errors
+          errors.inspect
+        elsif res
+          res.inspect
+        else
+          super
+        end
       end
     end
 

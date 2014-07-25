@@ -109,8 +109,6 @@ describe 'skylight setup', :http, :agent do
         input: { 'app' => { 'name' => 'Tmp' }} })
     end
 
-    it 'handles server errors'
-
   end
 
   context 'with token' do
@@ -121,6 +119,28 @@ describe 'skylight setup', :http, :agent do
       server.requests[0].should post_json("/apps", {
         authorization: nil,
         input: { 'app' => { 'name' => 'Tmp' }, 'token' => 'foobar' } })
+    end
+
+    it 'handles server errors' do
+      server.mock "/apps", :post do
+        [403, { errors: { request: 'token is invalid' }}]
+      end
+
+      cli.should_receive(:say).with("Could not create the application", :red).ordered
+      cli.should_receive(:say).with('{"request"=>"token is invalid"}', :yellow).ordered
+
+      cli.setup('foobar')
+    end
+
+    it "handles http exceptions" do
+      server.mock "/apps", :post do
+        raise "http error"
+      end
+
+      cli.should_receive(:say).with("Could not create the application", :red).ordered
+      cli.should_receive(:say).with(/#<Skylight::Util::HTTP::Response/, :yellow).ordered
+
+      cli.setup('foobar')
     end
 
   end
