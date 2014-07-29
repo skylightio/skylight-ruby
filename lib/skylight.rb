@@ -40,32 +40,35 @@ module Skylight
   end
 
   # @api private
-  def self.check_install_errors
+  def self.check_install_errors(config)
     # Note: An unsupported arch doesn't count as an error.
     install_log = File.expand_path("../../ext/install.log", __FILE__)
 
     if File.exist?(install_log) && File.read(install_log) =~ /ERROR/
-      $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension failed to install. " \
-                    "Please check #{install_log} and notify support@skylight.io." \
-                    "The missing extension will not affect the functioning of your application."
+      config.alert_logger.error \
+          "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension failed to install. " \
+          "Please check #{install_log} and notify support@skylight.io." \
+          "The missing extension will not affect the functioning of your application."
     end
   end
 
   # @api private
-  def self.warn_skylight_native_missing
+  def self.warn_skylight_native_missing(config)
     # TODO: Dumping the error messages this way is pretty hacky
     is_rails = defined?(Rails)
     env_name = is_rails ? Rails.env : "development"
 
     if env_name == "development" || env_name == "test"
-      $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in #{env_name} mode. " \
-                    "No data will be reported until you deploy your app."
+      config.alert_logger.warn \
+          "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in #{env_name} mode. " \
+          "No data will be reported until you deploy your app."
     else
-      $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. " \
-                    "The monitoring portion of Skylight is only supported on production servers running 32- or " \
-                    "64-bit Linux. The missing extension will not affect the functioning of your application " \
-                    "and you can continue local development without data being reported. If you are on a " \
-                    "supported platform, please contact support at support@skylight.io."
+      config.alert_logger.error \
+          "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. " \
+          "The monitoring portion of Skylight is only supported on production servers running 32- or " \
+          "64-bit Linux. The missing extension will not affect the functioning of your application " \
+          "and you can continue local development without data being reported. If you are on a " \
+          "supported platform, please contact support at support@skylight.io."
     end
   end
 
@@ -213,7 +216,3 @@ module Skylight
 
   require 'skylight/probes'
 end
-
-# Warn as soon as possible if there was an error installing Skylight.
-# We do this here since we can't report these issues via Gem install without stopping install entirely.
-Skylight.check_install_errors

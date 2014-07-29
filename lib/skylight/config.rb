@@ -4,6 +4,20 @@ require 'logger'
 require 'thread'
 require 'socket'
 
+class AlertLoggerIO
+  def initialize(config)
+    @config = config
+  end
+
+  def write(*args)
+    STDERR.write *args
+    @config.logger.<<(*args)
+  end
+
+  def close
+  end
+end
+
 module Skylight
   class Config
     # @api private
@@ -23,6 +37,7 @@ module Skylight
       'ROOT'                    => :'root',
       'LOG_FILE'                => :'log_file',
       'LOG_LEVEL'               => :'log_level',
+      'ALERT_LOG_FILE'          => :'alert_log_file',
       'APPLICATION'             => :'application',
       'AUTHENTICATION'          => :'authentication',
       'HOSTNAME'                => :'hostname',
@@ -60,6 +75,7 @@ module Skylight
     DEFAULTS = {
       :'log_file'                => '-'.freeze,
       :'log_level'               => 'INFO'.freeze,
+      :'alert_log_file'          => '-'.freeze,
       :'hostname'                => default_hostname,
       :'agent.keepalive'         => 60,
       :'agent.interval'          => 5,
@@ -352,6 +368,34 @@ authentication: #{self[:authentication]}
     def logger=(logger)
       @logger = logger
     end
+
+    def alert_logger
+      @alert_logger ||=
+        begin
+          MUTEX.synchronize do
+            unless l = @alert_logger
+              out = get(:'alert_log_file')
+
+              if out == '-'
+                out = AlertLoggerIO.new(self)
+              elsif !(IO === out)
+                out = File.expand_path(out, root)
+                FileUtils.mkdir_p(File.dirname(out))
+              end
+
+              l = Logger.new(out)
+              l.level = Logger::DEBUG
+            end
+
+            l
+          end
+        end
+    end
+
+    def alert_logger=(logger)
+      @alert_logger = logger
+    end
+
 
   private
 

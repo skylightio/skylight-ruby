@@ -49,7 +49,7 @@ describe "Initialization integration" do
       context "development" do
 
         it "warns development mode" do
-          boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
+          boot.should include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
         end
 
       end
@@ -67,7 +67,8 @@ describe "Initialization integration" do
         let(:rails_env) { "production" }
 
         it "notifies of boot" do
-          boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+          boot
+          File.read("log/production.log").should include "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
         end
       end
 
@@ -75,7 +76,8 @@ describe "Initialization integration" do
         let(:rails_env) { "staging" }
 
         it "notifies of boot" do
-         boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+         boot
+         File.read("log/staging.log").should include "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
        end
       end
 
@@ -83,7 +85,7 @@ describe "Initialization integration" do
         let(:rails_env) { "other" }
 
         it "warns that it is disabled" do
-          boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
+          boot.should include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
         end
 
       end
@@ -101,7 +103,7 @@ describe "Initialization integration" do
     context "development" do
 
       it "warns development mode" do
-        boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
+        boot.should include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
       end
 
     end
@@ -119,7 +121,7 @@ describe "Initialization integration" do
       let(:rails_env) { "production" }
 
       it "warns not enabled verbose" do
-        boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. The monitoring portion of Skylight is only supported on production servers running 32- or 64-bit Linux. The missing extension will not affect the functioning of your application and you can continue local development without data being reported. If you are on a supported platform, please contact support at support@skylight.io."
+        boot.should include "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. The monitoring portion of Skylight is only supported on production servers running 32- or 64-bit Linux. The missing extension will not affect the functioning of your application and you can continue local development without data being reported. If you are on a supported platform, please contact support at support@skylight.io."
       end
 
     end
@@ -128,7 +130,8 @@ describe "Initialization integration" do
       let(:rails_env) { "staging" }
 
       it "warns not enabled verbose" do
-        boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. The monitoring portion of Skylight is only supported on production servers running 32- or 64-bit Linux. The missing extension will not affect the functioning of your application and you can continue local development without data being reported. If you are on a supported platform, please contact support at support@skylight.io."      end
+        boot.should include "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. The monitoring portion of Skylight is only supported on production servers running 32- or 64-bit Linux. The missing extension will not affect the functioning of your application and you can continue local development without data being reported. If you are on a supported platform, please contact support at support@skylight.io."
+      end
 
     end
 
@@ -136,7 +139,7 @@ describe "Initialization integration" do
       let(:rails_env) { "other" }
 
       it "warns that it is disabled" do
-        boot.should == "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
+        boot.should include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
       end
 
     end
