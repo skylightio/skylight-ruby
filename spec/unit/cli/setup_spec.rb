@@ -138,7 +138,7 @@ describe 'skylight setup', :http, :agent do
       end
 
       cli.should_receive(:say).with("Could not create the application", :red).ordered
-      cli.should_receive(:say).with(/#<Skylight::Util::HTTP::Response/, :yellow).ordered
+      cli.should_receive(:say).with("Skylight::Util::HTTP::Response: Fail", :yellow).ordered
 
       cli.setup('foobar')
     end

@@ -20,7 +20,7 @@ module Skylight
         if errors
           errors.inspect
         elsif res
-          res.inspect
+          "#{res.class.to_s}: #{res.to_s}"
         else
           super
         end

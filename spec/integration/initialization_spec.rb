@@ -26,9 +26,20 @@ describe "Initialization integration" do
     end
   end
 
+  # FIXME: Sometimes this can hang for no apparent reason
   def boot
-    # Pipe stderr to stdout for now, maybe split up later
-    `RAILS_ENV=#{rails_env} rails runner '#noop' 2>&1`.strip
+    pipe_cmd_in, pipe_cmd_out = IO.pipe
+    cmd_pid = Process.spawn("RAILS_ENV=#{rails_env} rails runner '#noop'", :out => pipe_cmd_out, :err => pipe_cmd_out)
+
+    Timeout.timeout(5) do
+      Process.wait(cmd_pid)
+    end
+
+    pipe_cmd_out.close
+    pipe_cmd_in.read.strip
+  rescue Timeout::Error
+    Process.kill('TERM', cmd_pid)
+    raise
   end
 
   if Skylight.native?
