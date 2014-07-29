@@ -61,7 +61,8 @@ module Skylight
     if env_name == "development" || env_name == "test"
       config.alert_logger.warn \
           "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in #{env_name} mode. " \
-          "No data will be reported until you deploy your app."
+          "No data will be reported until you deploy your app.\n" \
+          "(To disable this message, set `alert_logger_file` in your config.)"
     else
       config.alert_logger.error \
           "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. " \
