@@ -75,8 +75,12 @@ module Skylight
     def start!
       return unless config
 
+      # Warn if there was an error installing Skylight.
+      # We do this here since we can't report these issues via Gem install without stopping install entirely.
+      Skylight.check_install_errors(config)
+
       unless Skylight.native?
-        Skylight.warn_skylight_native_missing
+        Skylight.warn_skylight_native_missing(config)
         return
       end
 

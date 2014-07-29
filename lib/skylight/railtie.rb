@@ -21,21 +21,33 @@ module Skylight
       # Load probes even when agent is inactive to catch probe related bugs sooner
       load_probes
 
+      config = load_skylight_config(app)
+
       if activate?
-        if config = load_skylight_config(app)
-          if Instrumenter.start!(config)
+        if config
+          if config && Instrumenter.start!(config)
             app.middleware.insert 0, Middleware, config: config
-            $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+            Rails.logger.info "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
           end
+        else
+          Rails.logger.warn "[SKYLIGHT] [#{Skylight::VERSION}] No configuration found; disabling Skylight agent"
         end
       elsif Rails.env.development?
-        $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
+        log_warning config, "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
       elsif !Rails.env.test?
-        $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the #{Rails.env} environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
+        log_warning config, "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the #{Rails.env} environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
       end
     end
 
   private
+
+    def log_warning(config, msg)
+      if config
+        config.alert_logger.warn(msg)
+      else
+        Rails.logger.warn(msg)
+      end
+    end
 
     def existent_paths(paths)
       paths.respond_to?(:existent) ? paths.existent : paths.select { |f| File.exists?(f) }
@@ -46,7 +58,7 @@ module Skylight
       path = nil unless File.exist?(path)
 
       unless tmp = app.config.paths['tmp'].first
-        $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] tmp directory missing from rails configuration"
+        Rails.logger.error "[SKYLIGHT] [#{Skylight::VERSION}] tmp directory missing from rails configuration"
         return nil
       end
 
@@ -61,7 +73,7 @@ module Skylight
       config
 
     rescue ConfigError => e
-      $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] #{e.message}; disabling Skylight agent"
+      Rails.logger.error "[SKYLIGHT] [#{Skylight::VERSION}] #{e.message}; disabling Skylight agent"
       nil
     end
 
