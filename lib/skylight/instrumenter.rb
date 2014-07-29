@@ -206,7 +206,6 @@ module Skylight
     end
 
     def limited_description(description)
-      endpoint = nil
       endpoint = @trace_info.current.endpoint
 
       DESC_LOCK.synchronize do
