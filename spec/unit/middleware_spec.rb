@@ -11,14 +11,14 @@ describe "Skylight::Middleware", :http, :agent do
     Skylight.stop!
   end
 
-  let :hello do
-    double('hello')
+  let :env do
+    e = {}
+    e.stub!(:hello)
+    e
   end
 
-  it 'tracks traces' do
-    hello.should_receive(:hello)
-
-    app = Skylight::Middleware.new(lambda do |env|
+  let :app do
+    Skylight::Middleware.new(lambda do |env|
       clock.skip 0.1
 
       Skylight.instrument 'hello' do
@@ -29,8 +29,13 @@ describe "Skylight::Middleware", :http, :agent do
 
       [ 200, {}, [] ]
     end)
+  end
 
-    _, _, body = app.call(hello)
+  it 'tracks traces' do
+    Skylight.should_receive('trace').and_call_original
+    env.should_receive(:hello)
+
+    _, _, body = app.call(env)
     body.close
 
     clock.unfreeze
@@ -58,6 +63,14 @@ describe "Skylight::Middleware", :http, :agent do
       event: event('app.block', 'hello'),
       started_at: 1_000,
       duration:   2_000)
+  end
+
+  it 'skips HEAD' do
+    Skylight.should_not_receive('trace')
+
+    env['REQUEST_METHOD'] = 'HEAD'
+
+    app.call(env)
   end
 
 end
