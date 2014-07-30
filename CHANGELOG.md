@@ -1,3 +1,10 @@
+## 0.3.19 (July 30, 2014)
+
+* [IMPROVEMENT] HEAD requests are no longer instrumented and will not count towards usage totals.
+* [IMPROVEMENT] Added LICENSE and CLA
+* [IMPROVEMENT] Improve how warnings are logged to reduce overall noise and interfere less with cron jobs
+* [BUGFIX] Fixed a case where failed app creation raised an exception instead of printing error messages
+
 ## 0.3.18 (July 17, 2014)
 
 * [FEATURE] Redis probe (Not enabled by default. See http://docs.skylight.io/agent/#railtie)
