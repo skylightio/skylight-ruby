@@ -8,7 +8,7 @@ describe "Initialization integration" do
   before :all do
     @tmpdir = Dir.mktmpdir
     with_standalone(dir: @tmpdir) do
-      output = `bundle install`
+      output = `bin/bundle install`
       puts output if ENV['DEBUG']
     end
   end
@@ -29,7 +29,7 @@ describe "Initialization integration" do
   # FIXME: Sometimes this can hang for no apparent reason
   def boot
     pipe_cmd_in, pipe_cmd_out = IO.pipe
-    cmd_pid = Process.spawn("RAILS_ENV=#{rails_env} rails runner '#noop'", :out => pipe_cmd_out, :err => pipe_cmd_out)
+    cmd_pid = Process.spawn("RAILS_ENV=#{rails_env} bin/rails runner '#noop'", :out => pipe_cmd_out, :err => pipe_cmd_out)
 
     Timeout.timeout(5) do
       Process.wait(cmd_pid)
