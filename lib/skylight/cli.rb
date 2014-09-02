@@ -69,7 +69,8 @@ repository and deploy from there. You can learn more about the process at:
             # will prevent us from communicating with the Skylight API
             begin
               namefile = Tempfile.new('skylight-app-name')
-              `rails runner 'File.open(\"#{namefile.path}\", \"w\") {|f| f.write(Rails.application.class.name) }'`
+              # Windows appears to need double quotes for `rails runner`
+              `rails runner "File.open('#{namefile.path}', 'w') {|f| f.write(Rails.application.class.name) }"`
               name = namefile.read.split("::").first.underscore.titleize
             ensure
               namefile.close
