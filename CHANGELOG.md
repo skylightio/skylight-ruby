@@ -1,3 +1,7 @@
+## 0.3.20 (September 3, 2014)
+
+* [BUGFIX] Fix app name fetching on Windows for `skylight setup`
+
 ## 0.3.19 (July 30, 2014)
 
 * [IMPROVEMENT] HEAD requests are no longer instrumented and will not count towards usage totals.
