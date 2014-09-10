@@ -48,16 +48,27 @@ module Skylight
       end
     end
 
+    at_exit { stop! }
+
     attr_reader :config, :gc, :trace_info
 
-    def initialize(config)
-      if Hash === config
+    def self.new(config)
+      if config.nil?
+        raise ArgumentError, "config is required"
+      elsif Hash === config
         config = Config.new(config)
       end
 
+      config.validate!
+
+      inst = native_new(config.to_env)
+      inst.send(:initialize, config)
+      inst
+    end
+
+    def initialize(config)
       @gc = config.gc
       @config = config
-      @worker = config.worker.build
       @subscriber = Subscriber.new(config, self)
 
       @trace_info = @config[:trace_info] || TraceInfo.new
@@ -73,8 +84,6 @@ module Skylight
     end
 
     def start!
-      return unless config
-
       # Warn if there was an error installing Skylight.
       # We do this here since we can't report these issues via Gem install without stopping install entirely.
       Skylight.check_install_errors(config)
@@ -87,48 +96,37 @@ module Skylight
       t { "starting instrumenter" }
       @config.validate!
 
-      case @config.validate_token
-      when :ok
-        # Good to go
-      when :unknown
-        log_warn "unable to validate authentication token"
-      else
-        raise ConfigError, "authentication token is invalid"
+      t { "starting native instrumenter" }
+      unless native_start
+        warn "failed to start instrumenter"
+        return
       end
 
       @config.gc.enable
-
-      unless @worker.spawn
-        log_error "failed to spawn worker"
-        return nil
-      end
-
       @subscriber.register!
 
       self
 
     rescue Exception => e
       log_error "failed to start instrumenter; msg=%s; config=%s", e.message, @config.inspect
+      t { e.backtrace.join("\n") }
       nil
     end
 
     def shutdown
       @subscriber.unregister!
-      @worker.shutdown
+      native_stop
     end
 
     def trace(endpoint, cat, title=nil, desc=nil, annot=nil)
       # If a trace is already in progress, continue with that one
       if trace = @trace_info.current
-        t { "already tracing" }
         return yield(trace) if block_given?
         return trace
       end
 
-      t { "starting trace" }
-
       begin
-        trace = Messages::Trace::Builder.new(self, endpoint, Util::Clock.nanos, cat, title, desc, annot)
+        trace = Trace.new(self, endpoint, Util::Clock.nanos, cat, title, desc, annot)
       rescue Exception => e
         log_error e.message
         t { e.backtrace.join("\n") }
@@ -143,6 +141,7 @@ module Skylight
 
       ensure
         @trace_info.current = nil
+        t { "submitting trace" }
         trace.submit
       end
     end
@@ -220,20 +219,14 @@ module Skylight
       end
     end
 
-    def error(type, description, details=nil)
-      t { fmt "processing error; type=%s; description=%s", type, description }
-
-      message = Skylight::Messages::Error.build(type, description, details && details.to_json)
-
-      unless @worker.submit(message)
-        warn "failed to submit error to worker"
-      end
-    end
-
     def process(trace)
       t { fmt "processing trace" }
-      unless @worker.submit(trace)
-        warn "failed to submit trace to worker"
+      begin
+        native_submit_trace(trace)
+        true
+      rescue => e
+        warn "failed to submit trace to worker; err=%s", e
+        false
       end
     end
 

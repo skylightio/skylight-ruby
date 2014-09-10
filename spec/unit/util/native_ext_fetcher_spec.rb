@@ -1,7 +1,12 @@
 require 'spec_helper'
+require 'skylight/util/native_ext_fetcher'
 
 module Skylight::Util
   describe NativeExtFetcher do
+
+    before :each do
+      skip
+    end
 
     let :archive do
       compress("win")

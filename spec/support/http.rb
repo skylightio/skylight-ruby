@@ -5,6 +5,7 @@ require 'thread'
 require 'timeout'
 require 'active_support'
 require 'json'
+require 'skylight/util/logging'
 
 module SpecHelper
   class Server
@@ -49,7 +50,6 @@ module SpecHelper
     end
 
     def wait(opts = {})
-
       if Numeric === opts
         opts = { timeout: opts }
       end
@@ -104,6 +104,21 @@ module SpecHelper
     end
 
     def call(env)
+      trace "%s http://%s:%s%s",
+        env['REQUEST_METHOD'],
+        env['SERVER_NAME'],
+        env['SERVER_PORT'],
+        env['PATH_INFO']
+
+      ret = handle(env)
+
+      trace "  -> %s", ret[0]
+      trace "  -> %s", ret[2].join("\n")
+
+      ret
+    end
+
+    def handle(env)
       if input = env.delete('rack.input')
         str = input.read.dup
         str.freeze
@@ -114,6 +129,8 @@ module SpecHelper
 
         env['rack.input'] = str
       end
+
+
 
       json = ['application/json', 'application/json; charset=UTF-8'].shuffle.first
 
@@ -154,6 +171,12 @@ module SpecHelper
       end
 
       [200, {'content-type' => 'text/plain', 'content-length' => '7'}, ['Thanks!']]
+    end
+
+    def trace(line, *args)
+      if Skylight::Util::Logging.trace?
+        printf("[HTTP Server] #{line}\n", *args)
+      end
     end
   end
 

@@ -19,10 +19,8 @@ module SpecHelper
 
       # Skylight config
       ENV['SKYLIGHT_ME_CREDENTIALS_PATH'] = File.expand_path("../.skylight")
-      ENV['SKYLIGHT_ACCOUNTS_HOST']    = "localhost"
-      ENV['SKYLIGHT_ACCOUNTS_PORT']    = port.to_s
-      ENV['SKYLIGHT_ACCOUNTS_SSL']     = "false"
-      ENV['SKYLIGHT_ACCOUNTS_DEFLATE'] = "false"
+      ENV['SKYLIGHT_AUTH_URL'] = "http://localhost:#{port}"
+      ENV['SKYLIGHT_AUTH_HTTP_DEFLATE'] = "false"
     end
   end
 

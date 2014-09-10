@@ -76,7 +76,6 @@ module Skylight
             path[start, path.size]
           end
         else
-          annotations[:skylight_error] = ["absolute_path", path]
           "Absolute Path"
         end
       end

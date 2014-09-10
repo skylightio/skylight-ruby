@@ -27,7 +27,7 @@ module Skylight
       end
     end
 
-    def initialize(config, service = :accounts)
+    def initialize(config, service = :auth)
       @config = config
       @http   = Util::HTTP.new(config, service)
     end

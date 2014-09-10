@@ -45,32 +45,21 @@ module SpecHelper
       authentication: "lulz",
       log: log_path,
       log_level: :debug,
-      agent: {
-        strategy:      agent_strategy,
-        interval:      1,
-        sockfile_path: tmp
-      }.freeze,
-      report: {
-        host:    "localhost",
-        port:    port,
-        ssl:     false,
-        deflate: false
-      }.freeze,
-      accounts: {
-        host:    "localhost",
-        port:    port,
-        ssl:     false,
-        deflate: false
-      }.freeze,
+      report_url: "http://localhost:#{port}/report",
+      report_http_deflate: false,
+      report_http_connect_timeout: "1sec",
+      report_http_read_timeout: "1sec",
+      auth_url: "http://localhost:#{port}/agent/authenticate",
+      auth_http_deflate: false,
+      auth_http_connect_timeout: "1sec",
+      auth_http_read_timeout: "1sec",
       gc: {
         profiler: gc
       }.freeze,
-      metrics: {
-        report_interval: metrics_report_interval
+      daemon: {
+        sockdir_path: tmp,
+        batch_flush_interval: "1sec"
       }.freeze,
-      test: {
-        constant_flush: true
-      }.freeze
     }.freeze
   end
 

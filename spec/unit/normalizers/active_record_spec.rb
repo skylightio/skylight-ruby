@@ -121,13 +121,6 @@ module Skylight
       name.should == "db.sql.query"
       title.should == "Foo Load"
       desc.should == nil
-
-      error = annotations[:skylight_error]
-      error[0].should == "sql_parse"
-      error[1].should_not be_nil
-      error[2][:payload][:sql].should == "NOT &REAL& ;;;SQL;;;"
-      error[2][:precalculated].should_not be_nil
-      error[2][:backtrace].should_not be_nil
     end
   end
 end

@@ -38,7 +38,10 @@ module SpecHelper
     lockfile = tmp('skylight.pid')
 
     if lockfile.exist?
-      pid = File.read(lockfile) rescue nil
+      begin
+      pid = File.read(lockfile)
+      rescue
+      end
       if pid =~ /^\d+$/
         pid = pid.to_i
 

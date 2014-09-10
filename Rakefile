@@ -1,25 +1,52 @@
+$:.unshift File.expand_path('../lib', __FILE__)
+
 require 'bundler/setup'
+require 'fileutils'
 require 'rbconfig'
 require 'yard'
+require 'skylight/util/platform'
 
-task :spec do
-  platform = Gem::Platform.local
-  ext = RbConfig::CONFIG['DLEXT']
+include FileUtils
+include Skylight::Util
 
-  # The possible locations for the native extension
-  native_ext = [
-    # Allows the location of the native extension to be specified externally
-    ENV['RUBY_SKYLIGHT_NATIVE_PATH'],
-    # The platform scoped location
-    File.expand_path("../target/#{platform.os}/#{platform.cpu}/skylight_native.#{ext}"),
-    # The default extconf output directory
-    File.expand_path("../ext/skylight_native.#{ext}")
-  ].detect { |f| f && File.exist?(f) }
+ROOT = File.expand_path("..", __FILE__)
 
-  if native_ext
-    native_ext_dir = File.dirname(native_ext)
-    ENV["RUBYOPT"] = "#{ENV["RUBYOPT"]} -I#{native_ext_dir}"
+# Ruby extension output
+TARGET_DIR = ENV['SKYLIGHT_RUBY_EXT_PATH'] || "#{ROOT}/target/#{Platform.tuple}"
+
+# Path to the ruby extension
+RUBY_EXT = "#{TARGET_DIR}/skylight_native.#{Platform.dlext}"
+
+namespace :build do
+  C_SRC = Dir["#{ROOT}/ext/{*.c,extconf.rb}"]
+
+  # If the native lib location is specified locally, depend on it as well
+  if native = ENV['SKYLIGHT_LIB_PATH']
+    C_SRC.concat Dir[File.expand_path("../*.{c,h}", native)]
   end
+
+  file RUBY_EXT => C_SRC do
+    extconf = File.expand_path("../ext/extconf.rb", __FILE__)
+
+    # Make sure that the directory is present
+    mkdir_p TARGET_DIR
+
+    chdir TARGET_DIR do
+      Bundler.with_clean_env do
+        sh "SKYLIGHT_REQUIRED=true ruby #{extconf}" or abort "failed to configure ruby ext"
+        sh "make" or abort "failed to build ruby ext"
+      end
+    end
+  end
+end
+
+desc "build the ruby extension"
+task :build => RUBY_EXT
+
+task :spec => :build do
+  ruby_ext_dir = File.dirname(RUBY_EXT)
+  ENV['SKYLIGHT_LIB_PATH'] = ruby_ext_dir
+  ENV["RUBYOPT"] = "#{ENV["RUBYOPT"]} -I#{ruby_ext_dir}"
 
   # Shelling out to rspec vs. invoking the runner in process fixes exit
   # statuses.
@@ -30,7 +57,7 @@ end
 
 desc "clean build artifacts"
 task :clean do
-  rm_rf Dir["ext/{*.a,*.o,*.so,*.bundle}"]
+  rm_rf Dir["#{TARGET_DIR}/{*.a,*.o,*.so,*.bundle}"]
   rm_rf Dir["lib/skylight_native.{a,o,so,bundle}"]
   rm_rf "target"
 end

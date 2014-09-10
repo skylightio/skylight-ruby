@@ -1,82 +1,92 @@
+require 'uri'
 require 'yaml'
 require 'fileutils'
-require 'logger'
 require 'thread'
-require 'socket'
-
-class AlertLoggerIO
-  def initialize(config)
-    @config = config
-  end
-
-  def write(*args)
-    STDERR.write *args
-    @config.logger.<<(*args)
-  end
-
-  def close
-  end
-end
+require 'openssl'
+require 'skylight/util/hostname'
+require 'skylight/util/logging'
+require 'skylight/util/platform'
+require 'skylight/util/ssl'
 
 module Skylight
   class Config
     # @api private
     MUTEX = Mutex.new
 
-    def self.default_hostname
-      if hostname = Socket.gethostname
-        hostname.strip!
-        hostname = nil if hostname == ''
-      end
-
-      hostname || "gen-#{SecureRandom.uuid}"
-    end
-
     # Map environment variable keys with Skylight configuration keys
     ENV_TO_KEY = {
-      'ROOT'                    => :'root',
-      'LOG_FILE'                => :'log_file',
-      'LOG_LEVEL'               => :'log_level',
-      'ALERT_LOG_FILE'          => :'alert_log_file',
-      'APPLICATION'             => :'application',
-      'AUTHENTICATION'          => :'authentication',
-      'HOSTNAME'                => :'hostname',
-      'SKIP_VALIDATION'         => :'skip_validation',
-      'AGENT_INTERVAL'          => :'agent.interval',
-      'AGENT_KEEPALIVE'         => :'agent.keepalive',
-      'AGENT_LOCKFILE'          => :'agent.lockfile',
-      'AGENT_SAMPLE_SIZE'       => :'agent.sample',
-      'AGENT_SOCKFILE_PATH'     => :'agent.sockfile_path',
-      'AGENT_STRATEGY'          => :'agent.strategy',
+      # == Authentication ==
+      'AUTHENTICATION' => :'authentication',
+
+      # == Version ==
+      'VERSION' => :'version',
+
+      # == App settings ==
+      'ROOT'        => :'root',
+      'APPLICATION' => :'application',
+      'HOSTNAME'    => :'hostname',
+
+      # == Logging ==
+      'LOG_FILE'       => :'log_file',
+      'LOG_LEVEL'      => :'log_level',
+      'ALERT_LOG_FILE' => :'alert_log_file',
+
+      # == Proxy ==
+      'PROXY_URL' => :'proxy_url',
+
+      # == Skylight Remote ==
+      "AUTH_URL"                     => :'auth_url',
+      "AUTH_HTTP_DEFLATE"            => :'auth_http_deflate',
+      "AUTH_HTTP_CONNECT_TIMEOUT"    => :'auth_http_connect_timeout',
+      "AUTH_HTTP_READ_TIMEOUT"       => :'auth_http_read_timeout',
+      "REPORT_URL"                   => :'report_url',
+      "REPORT_HTTP_DEFLATE"          => :'report_http_deflate',
+      "REPORT_HTTP_CONNECT_TIMEOUT"  => :'report_http_connect_timeout',
+      "REPORT_HTTP_READ_TIMEOUT"     => :'report_http_read_timeout',
+
+      # == Native agent settings ==
+      #
+      "LAZY_START"                   => :'daemon.lazy_start',
+      "DAEMON_EXEC_PATH"             => :'daemon.exec_path',
+      "DAEMON_LIB_PATH"              => :'daemon.lib_path',
+      "PIDFILE_PATH"                 => :'daemon.pidfile_path',
+      "SOCKDIR_PATH"                 => :'daemon.sockdir_path',
+      "BATCH_QUEUE_DEPTH"            => :'daemon.batch_queue_depth',
+      "BATCH_SAMPLE_SIZE"            => :'daemon.batch_sample_size',
+      "BATCH_FLUSH_INTERVAL"         => :'daemon.batch_flush_interval',
+      "DAEMON_TICK_INTERVAL"         => :'daemon.tick_interval',
+      "DAEMON_SANITY_CHECK_INTERVAL" => :'daemon.sanity_check_interval',
+      "DAEMON_INACTIVITY_TIMEOUT"    => :'daemon.inactivity_timeout',
+      "CLIENT_MAX_TRIES"             => :'daemon.max_connect_tries',
+      "CLIENT_CONN_TRY_WIN"          => :'daemon.connect_try_window',
+      "MAX_PRESPAWN_JITTER"          => :'daemon.max_prespawn_jitter',
+      "DAEMON_WAIT_TIMEOUT"          => :'daemon.wait_timeout',
+      "CLIENT_CHECK_INTERVAL"        => :'daemon.client_check_interval',
+      "CLIENT_QUEUE_DEPTH"           => :'daemon.client_queue_depth',
+      "CLIENT_WRITE_TIMEOUT"         => :'daemon.client_write_timeout',
+      "SSL_CERT_PATH"                => :'daemon.ssl_cert_path',
+      "SSL_CERT_DIR"                 => :'daemon.ssl_cert_dir',
+
+      # == Legacy settings ==
+      #
       'AGENT_MAX_MEMORY'        => :'agent.max_memory',
-      'REPORT_HOST'             => :'report.host',
-      'REPORT_PORT'             => :'report.port',
-      'REPORT_SSL'              => :'report.ssl',
-      'REPORT_DEFLATE'          => :'report.deflate',
-      'REPORT_PROXY_ADDR'       => :'report.proxy_addr',
-      'REPORT_PROXY_PORT'       => :'report.proxy_port',
-      'REPORT_PROXY_USER'       => :'report.proxy_user',
-      'REPORT_PROXY_PASS'       => :'report.proxy_user',
-      'ACCOUNTS_HOST'           => :'accounts.host',
-      'ACCOUNTS_PORT'           => :'accounts.port',
-      'ACCOUNTS_SSL'            => :'accounts.ssl',
-      'ACCOUNTS_DEFLATE'        => :'accounts.deflate',
-      'ACCOUNTS_PROXY_ADDR'     => :'accounts.proxy_addr',
-      'ACCOUNTS_PROXY_PORT'     => :'accounts.proxy_port',
-      'ACCOUNTS_PROXY_USER'     => :'accounts.proxy_user',
-      'ACCOUNTS_PROXY_PASS'     => :'accounts.proxy_user',
       'ME_AUTHENTICATION'       => :'me.authentication',
       'ME_CREDENTIALS_PATH'     => :'me.credentials_path',
-      'METRICS_REPORT_INTERVAL' => :'metrics.report_interval',
-      'TEST_CONSTANT_FLUSH'     => :'test.constant_flush',
       'TEST_IGNORE_TOKEN'       => :'test.ignore_token' }
 
     # Default values for Skylight configuration keys
     DEFAULTS = {
+      :'version'              => VERSION,
+      :'auth_url'             => 'https://www.skylight.io/agent/authenticate',
+      :'daemon.lazy_start'    => true,
+      :'daemon.ssl_cert_path' => Util::SSL.ca_cert_file_or_default,
+      :'daemon.ssl_cert_dir'  => Util::SSL.ca_cert_dir,
+
+      # == Legacy ==
       :'log_file'                => '-'.freeze,
       :'log_level'               => 'INFO'.freeze,
       :'alert_log_file'          => '-'.freeze,
-      :'hostname'                => default_hostname,
+      :'hostname'                => Util::Hostname.default_hostname,
       :'agent.keepalive'         => 60,
       :'agent.interval'          => 5,
       :'agent.sample'            => 200,
@@ -91,7 +101,16 @@ module Skylight
       :'accounts.deflate'        => false,
       :'me.credentials_path'     => '~/.skylight',
       :'metrics.report_interval' => 60
-    }.freeze
+    }
+
+    if Skylight.native?
+      native_path = Skylight.libskylight_path
+
+      DEFAULTS[:'daemon.lib_path'] = native_path
+      DEFAULTS[:'daemon.exec_path'] = File.join(native_path, 'skylightd')
+    end
+
+    DEFAULTS.freeze
 
     REQUIRED = {
       :'authentication' => "authentication token",
@@ -99,9 +118,49 @@ module Skylight
       :'report.host'    => "skylight remote host",
       :'report.port'    => "skylight remote port" }
 
+    ALWAYS_INCLUDE_IN_ENV = [
+      :version,
+      :'daemon.lazy_start',
+      :'daemon.lib_path',
+      :'daemon.exec_path',
+      :'daemon.ssl_cert_dir',
+      :'daemon.ssl_cert_path' ]
+
     VALIDATORS = {
       :'agent.interval' => [lambda { |v, c| Integer === v && v > 0 }, "must be an integer greater than 0"]
     }
+
+    # @api private
+    attr_reader :environment
+
+    # @api private
+    def initialize(*args)
+      attrs = {}
+
+      if Hash === args.last
+        attrs = args.pop.dup
+      end
+
+      @values   = {}
+      @priority = {}
+      @regexp   = nil
+
+      p = attrs.delete(:priority)
+
+      if @environment = args[0]
+        @regexp = /^#{Regexp.escape(@environment)}\.(.+)$/
+      end
+
+      attrs.each do |k, v|
+        self[k] = v
+      end
+
+      if p
+        p.each do |k, v|
+          @priority[k.to_sym] = v
+        end
+      end
+    end
 
     def self.load(path = nil, environment = nil, env = ENV)
       attrs   = {}
@@ -137,6 +196,10 @@ module Skylight
     def self.remap_env(env)
       ret = {}
 
+      return ret unless env
+
+      ret[:proxy_url] = detect_proxy_url(env)
+
       env.each do |k, val|
         # Support deprecated SK_ key prefix
         next unless k =~ /^(?:SK|SKYLIGHT)_(.+)$/
@@ -152,40 +215,15 @@ module Skylight
             else val
             end
         end
-      end if env
+      end
 
       ret
     end
 
-    # @api private
-    attr_reader :environment
-
-    # @api private
-    def initialize(*args)
-      attrs = {}
-
-      if Hash === args.last
-        attrs = args.pop.dup
-      end
-
-      @values   = {}
-      @priority = {}
-      @regexp   = nil
-
-      p = attrs.delete(:priority)
-
-      if @environment = args[0]
-        @regexp = /^#{Regexp.escape(@environment)}\.(.+)$/
-      end
-
-      attrs.each do |k, v|
-        self[k] = v
-      end
-
-      if p
-        p.each do |k, v|
-          @priority[k.to_sym] = v
-        end
+    def self.detect_proxy_url(env)
+      if u = env['HTTP_PROXY'] || env['http_proxy']
+        u = "http://#{u}" unless u =~ %r[://]
+        u
       end
     end
 
@@ -205,24 +243,6 @@ module Skylight
       end
 
       true
-    end
-
-    # @api private
-    def validate_token
-      return :ok if skip_validation?
-
-      http_auth = Util::HTTP.new(self, :accounts, timeout: 5)
-
-      res = http_auth.get("/agent/authenticate?hostname=#{URI.escape(self[:'hostname'])}")
-
-      case res.status
-      when 200...300
-        :ok
-      when 400...500
-        :invalid
-      else
-        :unknown
-      end
     end
 
     def key?(key)
@@ -280,12 +300,32 @@ module Skylight
 
     alias []= set
 
+    def duration_ms(key, default = nil)
+      if (v = self[key]) && v.to_s =~ /^\s*(\d+)(s|sec|ms|μs|nanos)?\s*$/
+        v = $1.to_i
+        case $2
+        when "ms"
+          v
+        when "μs"
+          v / 1_000
+        when "nanos"
+          v / 1_000_000
+        else # "s", "sec", nil
+          v * 1000
+        end
+      else
+        default
+      end
+    end
+
     def to_env
-      ret = {}
+      ret = []
 
       ENV_TO_KEY.each do |k, v|
-        if (c = get(v)) != DEFAULTS[v]
-          ret["SKYLIGHT_#{k}"] = cast_for_env(c)
+        c = get(v)
+        # Always need to pass daemon lib_path config even when default
+        if c != DEFAULTS[v] || ALWAYS_INCLUDE_IN_ENV.include?(v)
+          ret << "SKYLIGHT_#{k}" << cast_for_env(c) if c
         end
       end
 
@@ -314,18 +354,8 @@ authentication: #{self[:authentication]}
     #
 
     # @api private
-    def worker
-      @worker ||= Worker::Builder.new(self)
-    end
-
-    # @api private
     def gc
       @gc ||= GC.new(self, get('gc.profiler', VM::GC.new))
-    end
-
-    # @api private
-    def constant_flush?
-      get('test.constant_flush')
     end
 
     # @api private
@@ -339,29 +369,8 @@ authentication: #{self[:authentication]}
 
     def logger
       @logger ||=
-        begin
-          MUTEX.synchronize do
-            unless l = @logger
-              out = get(:'log_file')
-              out = STDOUT if out == '-'
-
-              unless IO === out
-                out = File.expand_path(out, root)
-                FileUtils.mkdir_p(File.dirname(out))
-              end
-
-              l = Logger.new(out)
-              l.level =
-                case get(:'log_level')
-                when /^debug$/i then Logger::DEBUG
-                when /^info$/i  then Logger::INFO
-                when /^warn$/i  then Logger::WARN
-                when /^error$/i then Logger::ERROR
-                end
-            end
-
-            l
-          end
+        MUTEX.synchronize do
+          load_logger
         end
     end
 
@@ -377,7 +386,7 @@ authentication: #{self[:authentication]}
               out = get(:'alert_log_file')
 
               if out == '-'
-                out = AlertLoggerIO.new(self)
+                out = Util::AlertLogger.new(load_logger)
               elsif !(IO === out)
                 out = File.expand_path(out, root)
                 FileUtils.mkdir_p(File.dirname(out))
@@ -396,8 +405,30 @@ authentication: #{self[:authentication]}
       @alert_logger = logger
     end
 
-
   private
+
+    def load_logger
+      unless l = @logger
+        out = get(:'log_file')
+        out = STDOUT if out == '-'
+
+        unless IO === out
+          out = File.expand_path(out, root)
+          FileUtils.mkdir_p(File.dirname(out))
+        end
+
+        l = Logger.new(out)
+        l.level =
+          case get(:'log_level')
+          when /^debug$/i then Logger::DEBUG
+          when /^info$/i  then Logger::INFO
+          when /^warn$/i  then Logger::WARN
+          when /^error$/i then Logger::ERROR
+          end
+      end
+
+      l
+    end
 
     def cast_for_env(v)
       case v
@@ -407,6 +438,5 @@ authentication: #{self[:authentication]}
       else v.to_s
       end
     end
-
   end
 end

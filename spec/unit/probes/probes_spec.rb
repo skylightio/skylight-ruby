@@ -21,8 +21,8 @@ module Skylight
     it "can determine const availability" do
       subject.is_available?("Skylight").should be_truthy
       subject.is_available?("Skylight::Probes").should be_truthy
-      subject.is_available?("Nonexistent").should be_falsy
-      subject.is_available?("Skylight::Nonexistent").should be_falsy
+      subject.is_available?("Nonexistent").should be_falsey
+      subject.is_available?("Skylight::Nonexistent").should be_falsey
     end
 
     it "installs probe if constant is available" do

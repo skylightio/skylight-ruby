@@ -32,10 +32,6 @@ module Skylight
               sql:   sql,
               binds: binds,
             }
-          else
-            annotations = {
-              skylight_error: error
-            }
           end
 
           [ name, title, sql, annotations ]

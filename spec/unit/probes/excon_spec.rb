@@ -84,6 +84,7 @@ module Skylight
                      port:   nil,
                      path:   "/",
                      query:  nil } }
+
           Skylight.should_receive(:instrument).with(args).and_return(span)
           span.should_receive(:done).once
 

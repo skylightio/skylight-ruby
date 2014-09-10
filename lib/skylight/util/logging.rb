@@ -2,8 +2,27 @@ require 'logger'
 
 module Skylight
   module Util
+    # Log both to the specified logger and STDOUT
+    class AlertLogger
+      def initialize(logger)
+        @logger = logger
+      end
+
+      def write(*args)
+        STDERR.write *args
+        @logger.<<(*args)
+      end
+
+      def close
+      end
+    end
+
     module Logging
-      if ENV[TRACE_ENV_KEY]
+      def self.trace?
+        ENV[TRACE_ENV_KEY]
+      end
+
+      if trace?
         def trace(msg, *args)
           log :debug, msg, *args
         end

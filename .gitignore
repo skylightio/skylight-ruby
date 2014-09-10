@@ -11,6 +11,7 @@
 *.a
 Makefile
 mkmf.log
+skylight_dlopen.c
 /lib/skylight_native.*
 
 # Ignore OS artifacts
@@ -19,6 +20,7 @@ mkmf.log
 
 # Build artifacts
 /ext/install.log
+/lib/skylight/native
 
 # Ignore lockfiles from travis Gemfiles
 /gemfiles/*.lock

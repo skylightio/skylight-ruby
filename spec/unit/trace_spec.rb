@@ -1,36 +1,26 @@
 require 'spec_helper'
 
 module Skylight
-  describe "Messages::Trace", :agent do
+  describe Trace, :http, :agent do
 
     before :each do
       clock.now = 100_000_000
+      start!
     end
 
-    let! :trace do
-      Skylight::Messages::Trace::Builder.new instrumenter, 'Zomg', clock.nanos, 'app.rack.request'
-    end
-
-    it 'does not track the span when it is started' do
-      trace.instrument 'foo' do
-        trace.spans.should be_empty
-      end
-    end
-
-    def spans
-      serialized.spans
-    end
-
-    def serialized
-      @serialized ||= SpecHelper::Messages::Trace.decode(trace.serialize)
+    after :each do
+      Skylight.stop!
     end
 
     it 'tracks the span when it is finished' do
+      trace = Skylight.trace 'Rack', 'app.rack.request'
       clock.skip 0.1
       a = trace.instrument 'foo'
       clock.skip 0.1
       trace.done(a)
-      trace.traced
+      trace.submit
+
+      server.wait count: 3
 
       spans.count.should == 2
       spans[0].event.category.should == 'app.rack.request'
@@ -40,6 +30,7 @@ module Skylight
     end
 
     it 'builds the trace' do
+      trace = Skylight.trace 'Rack', 'app.rack.request'
       a = trace.instrument 'cat1', { foo: "bar" }
       clock.skip 0.001
       b = trace.instrument 'cat2'
@@ -53,7 +44,9 @@ module Skylight
       trace.done(b)
       clock.skip 0.002
       trace.done(a)
-      trace.traced
+      trace.submit
+
+      server.wait count: 3
 
       spans.count.should == 6
 
@@ -89,9 +82,12 @@ module Skylight
     end
 
     it 'force closes any open span on build' do
+      trace = Skylight.trace 'Rack', 'app.rack.request'
       trace.instrument 'foo'
       clock.skip 0.001
-      trace.traced
+      trace.submit
+
+      server.wait count: 3
 
       spans.count.should == 2
       spans[1].event.category.should == 'foo'
@@ -102,6 +98,7 @@ module Skylight
     end
 
     it 'closes any spans that were not properly closed' do
+      trace = Skylight.trace 'Rack', 'app.rack.request'
       a = trace.instrument 'foo'
       clock.skip 0.1
       b = trace.instrument 'bar'
@@ -112,8 +109,9 @@ module Skylight
       clock.skip 0.1
       trace.done(b)
       clock.skip 0.1
+      trace.submit
 
-      trace.traced
+      server.wait count: 3
 
       spans.count.should == 4
 
@@ -131,20 +129,26 @@ module Skylight
     end
 
     it 'tracks the title' do
+      trace = Skylight.trace 'Rack', 'app.rack.request'
       a = trace.instrument 'foo', 'How a foo is formed?'
       trace.record :bar, 'How a bar is formed?'
       trace.done(a)
-      trace.traced
+      trace.submit
+
+      server.wait count: 3
 
       spans[1].event.title.should == 'How a foo is formed?'
       spans[2].event.title.should == 'How a bar is formed?'
     end
 
     it 'tracks the description' do
+      trace = Skylight.trace 'Rack', 'app.rack.request'
       a = trace.instrument 'foo', 'FOO', 'How a foo is formed?'
       trace.record :bar, 'BAR', 'How a bar is formed?'
       trace.done(a)
-      trace.traced
+      trace.submit
+
+      server.wait count: 3
 
       spans[1].event.title.should       == 'FOO'
       spans[1].event.description.should == 'How a foo is formed?'
@@ -153,20 +157,28 @@ module Skylight
     end
 
     it 'limits unique descriptions' do
-      def instrumenter.limited_description(desc)
-        return Skylight::Instrumenter::TOO_MANY_UNIQUES
-      end
+      trace = Skylight.trace 'Rack', 'app.rack.request'
+
+      expect(Skylight::Instrumenter.instance).to receive(:limited_description).
+        at_least(:once).
+        with(any_args()).
+        and_return(Skylight::Instrumenter::TOO_MANY_UNIQUES)
 
       a = trace.instrument 'foo', 'FOO', 'How a foo is formed?'
       trace.record :bar, 'BAR', 'How a bar is formed?'
       trace.done(a)
-      trace.traced
+      trace.submit
+
+      server.wait count: 3
 
       spans[1].event.title.should       == 'FOO'
       spans[1].event.description.should == Skylight::Instrumenter::TOO_MANY_UNIQUES
       spans[2].event.title.should       == 'BAR'
       spans[2].event.description.should == Skylight::Instrumenter::TOO_MANY_UNIQUES
     end
-  end
 
+    def spans
+      server.reports[0].endpoints[0].traces[0].spans
+    end
+  end
 end

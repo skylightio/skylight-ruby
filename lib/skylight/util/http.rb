@@ -1,7 +1,9 @@
+require 'uri'
 require 'json'
 require 'openssl'
 require 'net/http'
 require 'net/https'
+require 'skylight/util/ssl'
 
 module Skylight
   module Util
@@ -15,7 +17,6 @@ module Skylight
       AUTHORIZATION    = 'authorization'.freeze
       DEFLATE          = 'deflate'.freeze
       GZIP             = 'gzip'.freeze
-      DEFAULT_CA_FILE  = File.expand_path('../../data/cacert.pem', __FILE__)
 
       include Logging
 
@@ -30,44 +31,30 @@ module Skylight
       class StartError < StandardError; end
       class ReadResponseError < StandardError; end
 
-      def initialize(config, service = :report, opts = {})
+      def initialize(config, service = :auth, opts = {})
         @config = config
-        @ssl  = config["#{service}.ssl"]
-        @host = config["#{service}.host"]
-        @port = config["#{service}.port"]
 
-        @proxy_addr = config["#{service}.proxy_addr"]
-        @proxy_port = config["#{service}.proxy_port"]
-        @proxy_user = config["#{service}.proxy_user"]
-        @proxy_pass = config["#{service}.proxy_pass"]
-
-        @timeout = opts[:timeout] || 15
-
-        unless @proxy_addr
-          if http_proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
-            uri = URI.parse(http_proxy)
-            @proxy_addr, @proxy_port = uri.host, uri.port
-            @proxy_user, @proxy_pass = (uri.userinfo || '').split(/:/)
-          end
+        unless url = config["#{service}_url"]
+          raise ArgumentError, "no URL specified"
         end
 
-        @deflate = config["#{service}.deflate"]
+        url = URI.parse(url)
+
+        @ssl  = url.scheme == 'https'
+        @host = url.host
+        @port = url.port
+
+        if proxy_url = config[:proxy_url]
+          proxy_url = URI.parse(proxy_url)
+          @proxy_addr, @proxy_port = proxy_url.host, proxy_url.port
+          @proxy_user, @proxy_pass = (proxy_url.userinfo || '').split(/:/)
+        end
+
+        @open_timeout = get_timeout(:connect, config, service, opts)
+        @read_timeout = get_timeout(:read, config, service, opts)
+
+        @deflate = config["#{service}_http_deflate"]
         @authentication = config[:'authentication']
-      end
-
-      def self.detect_ca_cert_file!
-        @ca_cert_file = false
-        if defined?(OpenSSL::X509::DEFAULT_CERT_FILE)
-          if OpenSSL::X509::DEFAULT_CERT_FILE
-            @ca_cert_file = File.exist?(OpenSSL::X509::DEFAULT_CERT_FILE)
-          end
-        end
-      end
-
-      detect_ca_cert_file!
-
-      def self.ca_cert_file?
-        @ca_cert_file
       end
 
       def get(endpoint, hdrs = {})
@@ -86,6 +73,11 @@ module Skylight
       end
 
     private
+
+      def get_timeout(type, config, service, opts)
+        config.duration_ms("#{service}_http_#{type}_timeout") ||
+          opts[:timeout] || 15
+      end
 
       def build_request(type, endpoint, hdrs, length=nil)
         headers = {}
@@ -131,14 +123,19 @@ module Skylight
           req.body = body
         end
 
-        http = Net::HTTP.new(@host, @port, @proxy_addr, @proxy_port, @proxy_user, @proxy_pass)
+        http = Net::HTTP.new(@host, @port,
+          @proxy_addr, @proxy_port, @proxy_user, @proxy_pass)
 
-        http.open_timeout = @timeout
-        http.read_timeout = @timeout
+        http.open_timeout = @open_timeout
+        http.read_timeout = @read_timeout
 
         if @ssl
           http.use_ssl = true
-          http.ca_file = DEFAULT_CA_FILE unless HTTP.ca_cert_file?
+
+          unless SSL.ca_cert_file?
+            http.ca_file = SSL.ca_cert_file_or_default
+          end
+
           http.verify_mode = OpenSSL::SSL::VERIFY_PEER
         end
 

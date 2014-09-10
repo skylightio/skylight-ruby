@@ -45,7 +45,7 @@ describe "CLI integration", :http do
           output.should include("Could not create the application")
           output.should include('{"request"=>"invalid app create token"}')
 
-          File.exist?("config/skylight.yml").should be_falsy
+          File.exist?("config/skylight.yml").should be_falsey
         rescue
           # Provide some potential debugging information
           puts stderr.read if ENV['DEBUG']

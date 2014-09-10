@@ -63,19 +63,13 @@ if enable
   describe 'Rails integration' do
 
     before :all do
-      ENV['SKYLIGHT_AUTHENTICATION']      = 'lulz'
-      ENV['SKYLIGHT_AGENT_INTERVAL']      = '1'
-      ENV['SKYLIGHT_AGENT_STRATEGY']      = 'embedded'
-      ENV['SKYLIGHT_REPORT_HOST']         = 'localhost'
-      ENV['SKYLIGHT_REPORT_PORT']         = port.to_s
-      ENV['SKYLIGHT_REPORT_SSL']          = false.to_s
-      ENV['SKYLIGHT_REPORT_DEFLATE']      = false.to_s
-      ENV['SKYLIGHT_ACCOUNTS_HOST']       = 'localhost'
-      ENV['SKYLIGHT_ACCOUNTS_PORT']       = port.to_s
-      ENV['SKYLIGHT_ACCOUNTS_SSL']        = false.to_s
-      ENV['SKYLIGHT_ACCOUNTS_DEFLATE']    = false.to_s
-      ENV['SKYLIGHT_TEST_CONSTANT_FLUSH'] = true.to_s
-      ENV['SKYLIGHT_TEST_IGNORE_TOKEN']   = true.to_s
+      ENV['SKYLIGHT_AUTHENTICATION']       = "lulz"
+      ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
+      ENV['SKYLIGHT_REPORT_URL']           = "http://localhost:#{port}/report"
+      ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = "false"
+      ENV['SKYLIGHT_AUTH_URL']             = "http://localhost:#{port}/agent/authenticate"
+      ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
+      # ENV['SKYLIGHT_TEST_IGNORE_TOKEN']   = true.to_s
 
       MyApp.initialize!
 
@@ -85,18 +79,13 @@ if enable
     end
 
     after :all do
-      ENV['SKYLIGHT_AUTHENTICATION']    = nil
-      ENV['SKYLIGHT_AGENT_INTERVAL']    = nil
-      ENV['SKYLIGHT_AGENT_STRATEGY']    = nil
-      ENV['SKYLIGHT_REPORT_HOST']       = nil
-      ENV['SKYLIGHT_REPORT_PORT']       = nil
-      ENV['SKYLIGHT_REPORT_SSL']        = nil
-      ENV['SKYLIGHT_REPORT_DEFLATE']    = nil
-      ENV['SKYLIGHT_ACCOUNTS_HOST']     = nil
-      ENV['SKYLIGHT_ACCOUNTS_PORT']     = nil
-      ENV['SKYLIGHT_ACCOUNTS_SSL']      = nil
-      ENV['SKYLIGHT_ACCOUNTS_DEFLATE']  = nil
-      ENV['SKYLIGHT_TEST_IGNORE_TOKEN'] = nil
+      ENV['SKYLIGHT_AUTHENTICATION']       = nil
+      ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = nil
+      ENV['SKYLIGHT_REPORT_URL']           = nil
+      ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = nil
+      ENV['SKYLIGHT_AUTH_URL']             = nil
+      ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = nil
+      # ENV['SKYLIGHT_TEST_IGNORE_TOKEN']   = nil
 
       Skylight.stop!
     end
@@ -144,6 +133,10 @@ if enable
     end
 
     context "without agent" do
+
+      before :each do
+        Skylight.stop!
+      end
 
       it "allows calls to Skylight.instrument" do
         call(MyApp, env('/users')).should == ["Hello"]

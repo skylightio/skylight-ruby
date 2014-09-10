@@ -1,3 +1,5 @@
+require 'skylight/formatters/http'
+
 module Skylight
   module Probes
     module Excon

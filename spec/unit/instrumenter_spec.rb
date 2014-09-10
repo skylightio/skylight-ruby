@@ -35,22 +35,12 @@ describe "Skylight::Instrumenter", :http, :agent do
     it 'warns about unvalidated tokens' do
       stub_token_verification(500)
       Skylight.start!(config).should be_truthy
-      logger_out.string.should include("unable to validate authentication token")
     end
 
     it 'fails with invalid token' do
       stub_token_verification(401)
-      Skylight.start!(config).should be_falsy
-      logger_out.string.should include("failed to start instrumenter; msg=authentication token is invalid")
+      Skylight.start!(config).should be_falsey
     end
-
-    it "doesn't start if worker doesn't spawn" do
-      worker = double(spawn: nil)
-      config.worker.should_receive(:build).and_return(worker)
-
-      Skylight.start!(config).should be_falsy
-    end
-
   end
 
   shared_examples 'an instrumenter' do
@@ -115,7 +105,7 @@ describe "Skylight::Instrumenter", :http, :agent do
           duration:   10_000 )
       end
 
-      it "sends error messages to the Skylight Rails app" do
+      it "handles un-lexable SQL" do
         bad_sql = "SELECT ???LOL??? ;;;NOTSQL;;;"
 
         Skylight.trace 'Testin', 'app.rack' do |t|
@@ -125,16 +115,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(count: 4)
-
-        error_request = server.requests[2]
-
-        error_request["PATH_INFO"].should == "/agent/error"
-        error = error_request["rack.input"]
-        error['type'].should == "sql_parse"
-        error['description'].should_not be_nil
-        error['details'].keys.should == ['backtrace', 'original_exception', 'payload', 'precalculated']
-        error['details']['payload']['sql'].should == bad_sql
+        server.wait(count: 3)
 
         server.reports[0].endpoints.count.should == 1
 
@@ -158,7 +139,7 @@ describe "Skylight::Instrumenter", :http, :agent do
           duration:   10_000 )
       end
 
-      it "sends error messages with binary data the Skylight Rails app" do
+      it "handles SQL with binary data" do
         bad_sql = "SELECT ???LOL??? \xCE ;;;NOTSQL;;;".force_encoding("BINARY")
         encoded_sql = Base64.encode64(bad_sql)
 
@@ -169,15 +150,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(count: 4)
-
-        error_request = server.requests[2]
-        error_request["PATH_INFO"].should == "/agent/error"
-        error = error_request["rack.input"]
-        error['type'].should == "sql_parse"
-        error['description'].should_not be_nil
-        error['details'].keys.should == ['backtrace', 'original_exception', 'payload', 'precalculated']
-        error['details']['payload']['sql'].should == encoded_sql
+        server.wait(count: 3)
 
         server.reports[0].endpoints.count.should == 1
 
@@ -201,7 +174,7 @@ describe "Skylight::Instrumenter", :http, :agent do
           duration:   10_000 )
       end
 
-      it "sends error messages with invalid UTF-8 data to the Skylight Rails app" do
+      it "handles invalid string encodings" do
         bad_sql = "SELECT ???LOL??? \xCE ;;;NOTSQL;;;".force_encoding("UTF-8")
         encoded_sql = Base64.encode64(bad_sql)
 
@@ -212,16 +185,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(count: 4)
-
-        error_request = server.requests[2]
-
-        error_request["PATH_INFO"].should == "/agent/error"
-        error = error_request["rack.input"]
-        error['type'].should == "sql_parse"
-        error['description'].should_not be_nil
-        error['details'].keys.should == ['backtrace', 'original_exception', 'payload', 'precalculated']
-        error['details']['payload']['sql'].should == encoded_sql
+        server.wait(count: 3)
 
         server.reports[0].endpoints.count.should == 1
 
@@ -270,14 +234,6 @@ describe "Skylight::Instrumenter", :http, :agent do
 
   end
 
-  context 'embedded' do
-
-    let(:agent_strategy) { 'embedded' }
-
-    it_behaves_like 'an instrumenter'
-
-  end
-
   context 'standalone' do
 
     let(:log_path) { tmp('skylight.log') }
@@ -285,6 +241,6 @@ describe "Skylight::Instrumenter", :http, :agent do
 
     it_behaves_like 'an instrumenter'
 
-  end unless defined?(JRUBY_VERSION)
+  end
 
 end

@@ -54,7 +54,6 @@ module Skylight
         name.should == group_name
         title.should == "Absolute Path"
         desc.should == nil
-        payload.should == group_payload.merge(skylight_error: ["absolute_path", "/other/path/to/stuff"])
       end
     end
 

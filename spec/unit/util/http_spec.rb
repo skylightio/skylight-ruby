@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-module Skylight::Util
-  describe HTTP do
+module Skylight
+  describe Util::HTTP do
 
     let :config do
       Skylight::Config.new
@@ -21,49 +21,30 @@ module Skylight::Util
     describe "proxy" do
 
       before :each do
-        stub_request(:get, "https://agent.skylight.io/foobar").
+        stub_request(:get, "https://www.skylight.io/foobar").
           to_return(:status => 200, :body => "", :headers => {})
       end
 
       it "gets details from config" do
-        config[:'report.proxy_addr'] = "example.com"
-        config[:'report.proxy_port'] = 1234
-        config[:'report.proxy_user'] = 'test'
-        config[:'report.proxy_pass'] = 'pass'
+        config[:proxy_url] = "http://test:pass@example.com:1234"
 
-        http = HTTP.new(config)
+        http = Util::HTTP.new(config)
 
-        Net::HTTP.should_receive(:new).with("agent.skylight.io", 443, "example.com", 1234, "test", "pass").and_call_original
+        Net::HTTP.should_receive(:new).with("www.skylight.io", 443, "example.com", 1234, "test", "pass").and_call_original
 
         http.get("/foobar")
       end
 
       it "gets details from HTTP_PROXY" do
-        ENV['HTTP_PROXY'] = "http://testing:otherpass@proxy.example.com:4321"
+        http = Util::HTTP.new(Config.load_from_env(
+          'HTTP_PROXY' => "http://testing:otherpass@proxy.example.com:4321"))
 
-        http = HTTP.new(config)
-
-        Net::HTTP.should_receive(:new).with("agent.skylight.io", 443, "proxy.example.com", 4321, "testing", "otherpass").and_call_original
-
-        http.get("/foobar")
-      end
-
-      it "gives priority to config" do
-        config[:'report.proxy_addr'] = "example.com"
-        config[:'report.proxy_port'] = 1234
-        config[:'report.proxy_user'] = 'test'
-        config[:'report.proxy_pass'] = 'pass'
-
-        ENV['HTTP_PROXY'] = "http://testing:otherpass@proxy.example.com:4321"
-
-        http = HTTP.new(config)
-
-        Net::HTTP.should_receive(:new).with("agent.skylight.io", 443, "example.com", 1234, "test", "pass").and_call_original
+        Net::HTTP.should_receive(:new).
+          with("www.skylight.io", 443, "proxy.example.com", 4321, "testing", "otherpass").
+          and_call_original
 
         http.get("/foobar")
       end
-
     end
-
   end
 end
