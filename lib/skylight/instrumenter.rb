@@ -108,7 +108,7 @@ module Skylight
       self
 
     rescue Exception => e
-      log_error "failed to start instrumenter; msg=%s", e.message
+      log_error "failed to start instrumenter; msg=%s; config=%s", e.message, @config.inspect
       nil
     end
 
