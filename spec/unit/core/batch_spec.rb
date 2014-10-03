@@ -7,7 +7,7 @@ module Skylight
       batch.native_set_endpoint_count "foo", 3
 
       actual = SpecHelper::Messages::Batch.decode(batch.native_serialize)
-      actual.endpoints.should have(1).item
+      actual.endpoints.count.should == 1
 
       endpoint = actual.endpoints[0]
       endpoint.name.should == "foo"

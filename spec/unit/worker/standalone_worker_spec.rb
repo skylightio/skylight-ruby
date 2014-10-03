@@ -36,7 +36,7 @@ describe 'Standalone worker', :agent do
 
     it 'creates a new agent process' do
       worker
-      pid_exists?(pid).should be_true
+      pid_exists?(pid).should be_truthy
     end
 
     it 'provides the pid' do

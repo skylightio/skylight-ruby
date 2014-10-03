@@ -13,7 +13,7 @@ describe "Skylight::Middleware", :http, :agent do
 
   let :env do
     e = {}
-    e.stub!(:hello)
+    e.stub(:hello)
     e
   end
 
@@ -43,14 +43,14 @@ describe "Skylight::Middleware", :http, :agent do
 
     report = server.reports[0]
     report.should_not be_nil
-    report.should have(1).endpoints
+    report.endpoints.count.should == 1
 
     ep = server.reports[0].endpoints[0]
     ep.name.should == 'Rack'
-    ep.should have(1).traces
+    ep.traces.count.should == 1
 
     t = ep.traces[0]
-    t.should have(2).spans
+    t.spans.count.should == 2
 
 
     t.spans[0].should == span(

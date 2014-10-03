@@ -32,7 +32,7 @@ module Skylight
       trace.done(a)
       trace.traced
 
-      spans.should have(2).items
+      spans.count.should == 2
       spans[0].event.category.should == 'app.rack.request'
       spans[1].event.category.should == 'foo'
       spans[0].started_at.should == 0
@@ -55,7 +55,7 @@ module Skylight
       trace.done(a)
       trace.traced
 
-      spans.should have(6).items
+      spans.count.should == 6
 
       spans[0].event.category.should == 'app.rack.request'
       spans[0].started_at.should     == 0
@@ -93,7 +93,7 @@ module Skylight
       clock.skip 0.001
       trace.traced
 
-      spans.should have(2).items
+      spans.count.should == 2
       spans[1].event.category.should == 'foo'
       spans[1].started_at.should == 0
       spans[1].duration.should == 10
@@ -115,7 +115,7 @@ module Skylight
 
       trace.traced
 
-      spans.should have(4).items
+      spans.count.should == 4
 
       spans[0].event.category.should == 'app.rack.request'
       spans[0].duration.should       == 4000

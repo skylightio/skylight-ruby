@@ -127,10 +127,10 @@ if enable
 
         batch = server.reports[0]
         batch.should_not be nil
-        batch.should have(1).endpoints
+        batch.endpoints.count.should == 1
         endpoint = batch.endpoints[0]
         endpoint.name.should == "UsersController#index"
-        endpoint.should have(1).traces
+        endpoint.traces.count.should == 1
         trace = endpoint.traces[0]
 
         names = trace.spans.map { |s| s.event.category }

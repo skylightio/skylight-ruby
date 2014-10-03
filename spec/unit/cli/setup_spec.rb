@@ -69,7 +69,7 @@ describe 'skylight setup', :http, :agent do
     it 'logs in and creates the app' do
       should_successfully_login
 
-      server.should have(2).requests
+      server.requests.count.should == 2
 
       server.requests[0].should get_json("/me", {
         'x-email' => 'engineering@tilde.io',
@@ -94,7 +94,7 @@ describe 'skylight setup', :http, :agent do
 
       should_successfully_login
 
-      server.should have(3).requests
+      server.requests.count.should == 3
 
       server.requests[0].should get_json("/me", {
         'x-email' => 'zomg',

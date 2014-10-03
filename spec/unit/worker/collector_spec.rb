@@ -45,7 +45,7 @@ module Skylight
         server.wait count: 1, resource: "/report"
         server.wait count: 1, resource: "/agent/authenticate"
 
-        server.should have(1).reports
+        server.reports.count.should == 1
 
         # Token verification
         req = server.requests('/agent/authenticate')[0]
@@ -64,12 +64,12 @@ module Skylight
         batch.timestamp.should be_within(3).of(Util::Clock.absolute_secs)
         batch.hostname.should == Socket.gethostname
 
-        batch.should have(1).endpoints
+        batch.endpoints.count.should == 1
 
         ep = batch.endpoints[0]
         ep.name.should == 'Unknown'
         @trace = ep.traces[0]
-        trace.should have(1).spans
+        trace.spans.count.should == 1
 
         span(0).event.category.should == 'app.rack.request'
       end
@@ -87,7 +87,7 @@ module Skylight
         server.wait count: 3
         clock.freeze
 
-        server.should have(3).requests
+        server.requests.count.should == 3
 
         req = server.requests[0]
         req['HTTP_AUTHORIZATION'].should == 'lulz'
@@ -101,7 +101,7 @@ module Skylight
         clock.unfreeze
         server.wait count: 5
 
-        server.should have(5).requests
+        server.requests.count.should == 5
 
         req = server.requests[4]
         req['HTTP_AUTHORIZATION'].should == token2
@@ -120,7 +120,7 @@ module Skylight
         server.wait count: 4
         clock.freeze
 
-        server.should have(4).requests
+        server.requests.count.should == 4
         req = server.requests[1]
         req['PATH_INFO'].should == '/agent/authenticate'
         req['HTTP_AUTHORIZATION'].should == 'lulz'
@@ -135,7 +135,7 @@ module Skylight
         clock.unfreeze
         server.wait count: 5
 
-        server.should have(5).requests
+        server.requests.count.should == 5
 
         req = server.requests[4]
         req['PATH_INFO'].should == '/agent/authenticate'
@@ -166,7 +166,7 @@ module Skylight
         server.wait count: 5
         clock.freeze
 
-        server.reports.should have(1).item
+        server.reports.count.should == 1
       end unless strategy == :standalone
 
       context "with crashing report server" do

@@ -27,7 +27,7 @@ module Skylight
         clock.unfreeze
         server.wait count: 3
 
-        trace.should have(1).spans
+        trace.spans.count.should == 1
         trace.spans[0].duration.should == 10_000
       end
 
@@ -49,7 +49,7 @@ module Skylight
         clock.unfreeze
         server.wait count: 3
 
-        trace.should have(2).spans
+        trace.spans.count.should == 2
         span(0).duration.should == 10_000
 
         span(1).event.category.should == 'noise.gc'
@@ -76,7 +76,7 @@ module Skylight
         clock.unfreeze
         server.wait count: 3
 
-        trace.should have(3).spans
+        trace.spans.count.should == 3
 
         span(0).event.category.should == 'app.rack'
         span(0).duration.should == 10_000

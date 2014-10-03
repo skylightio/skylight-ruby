@@ -174,12 +174,12 @@ describe Skylight::Config do
 
     it 'uses defaults' do
       config = Skylight::Config.new
-      config['report.ssl'].should be_true
+      config['report.ssl'].should be_truthy
     end
 
     it 'uses values over defaults' do
       config = Skylight::Config.new report: { ssl: false }
-      config['report.ssl'].should be_false
+      config['report.ssl'].should be_falsy
     end
 
     it 'uses nil values over defaults' do

@@ -57,14 +57,14 @@ describe "Skylight::Instrumenter", :http, :agent do
       clock.unfreeze
       server.wait(count: 3)
 
-      server.reports[0].should have(1).endpoints
+      server.reports[0].endpoints.count.should == 1
 
       ep = server.reports[0].endpoints[0]
       ep.name.should == 'Testin'
-      ep.should have(1).traces
+      ep.traces.count.should == 1
 
       t = ep.traces[0]
-      t.should have(2).spans
+      t.spans.count.should == 2
       t.spans[0].should == span(
         event:      event('app.rack.request'),
         started_at: 0,
@@ -180,14 +180,14 @@ describe "Skylight::Instrumenter", :http, :agent do
       clock.unfreeze
       server.wait count: 3
 
-      server.reports[0].should have(1).endpoints
+      server.reports[0].endpoints.count.should == 1
 
       ep = server.reports[0].endpoints[0]
       ep.name.should == 'Testin'
-      ep.should have(1).traces
+      ep.traces.count.should == 1
 
       t = ep.traces[0]
-      t.should have(5).spans
+      t.spans.count.should == 5
 
       # Root span
       t.spans[0].should == span(

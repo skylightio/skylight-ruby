@@ -29,26 +29,26 @@ describe "Skylight::Instrumenter", :http, :agent do
 
     it 'validates the token' do
       stub_token_verification
-      Skylight.start!(config).should be_true
+      Skylight.start!(config).should be_truthy
     end
 
     it 'warns about unvalidated tokens' do
       stub_token_verification(500)
-      Skylight.start!(config).should be_true
+      Skylight.start!(config).should be_truthy
       logger_out.string.should include("unable to validate authentication token")
     end
 
     it 'fails with invalid token' do
       stub_token_verification(401)
-      Skylight.start!(config).should be_false
+      Skylight.start!(config).should be_falsy
       logger_out.string.should include("failed to start instrumenter; msg=authentication token is invalid")
     end
 
     it "doesn't start if worker doesn't spawn" do
-      worker = mock(spawn: nil)
+      worker = double(spawn: nil)
       config.worker.should_receive(:build).and_return(worker)
 
-      Skylight.start!(config).should be_false
+      Skylight.start!(config).should be_falsy
     end
 
   end
@@ -73,14 +73,14 @@ describe "Skylight::Instrumenter", :http, :agent do
         clock.unfreeze
         server.wait(count: 3)
 
-        server.reports[0].should have(1).endpoints
+        server.reports[0].endpoints.count.should == 1
 
         ep = server.reports[0].endpoints[0]
         ep.name.should == 'Testin'
-        ep.should have(1).traces
+        ep.traces.count.should == 1
 
         t = ep.traces[0]
-        t.should have(1).spans
+        t.spans.count.should == 1
         t.uuid.should == 'TODO'
         t.spans[0].should == span(
           event:      event('app.rack'),
@@ -100,14 +100,14 @@ describe "Skylight::Instrumenter", :http, :agent do
         clock.unfreeze
         server.wait(count: 3)
 
-        server.reports[0].should have(1).endpoints
+        server.reports[0].endpoints.count.should == 1
 
         ep = server.reports[0].endpoints[0]
         ep.name.should == 'Testin'
-        ep.should have(1).traces
+        ep.traces.count.should == 1
 
         t = ep.traces[0]
-        t.should have(1).spans
+        t.spans.count.should == 1
         t.uuid.should == 'TODO'
         t.spans[0].should == span(
           event:      event('app.rack'),
@@ -136,14 +136,14 @@ describe "Skylight::Instrumenter", :http, :agent do
         error['details'].keys.should == ['backtrace', 'original_exception', 'payload', 'precalculated']
         error['details']['payload']['sql'].should == bad_sql
 
-        server.reports[0].should have(1).endpoints
+        server.reports[0].endpoints.count.should == 1
 
         ep = server.reports[0].endpoints[0]
         ep.name.should == 'Testin'
-        ep.should have(1).traces
+        ep.traces.count.should == 1
 
         t = ep.traces[0]
-        t.should have(2).spans
+        t.spans.count.should == 2
         t.uuid.should == 'TODO'
 
         t.spans[0].should == span(
@@ -179,14 +179,14 @@ describe "Skylight::Instrumenter", :http, :agent do
         error['details'].keys.should == ['backtrace', 'original_exception', 'payload', 'precalculated']
         error['details']['payload']['sql'].should == encoded_sql
 
-        server.reports[0].should have(1).endpoints
+        server.reports[0].endpoints.count.should == 1
 
         ep = server.reports[0].endpoints[0]
         ep.name.should == 'Testin'
-        ep.should have(1).traces
+        ep.traces.count.should == 1
 
         t = ep.traces[0]
-        t.should have(2).spans
+        t.spans.count.should == 2
         t.uuid.should == 'TODO'
 
         t.spans[0].should == span(
@@ -223,14 +223,14 @@ describe "Skylight::Instrumenter", :http, :agent do
         error['details'].keys.should == ['backtrace', 'original_exception', 'payload', 'precalculated']
         error['details']['payload']['sql'].should == encoded_sql
 
-        server.reports[0].should have(1).endpoints
+        server.reports[0].endpoints.count.should == 1
 
         ep = server.reports[0].endpoints[0]
         ep.name.should == 'Testin'
-        ep.should have(1).traces
+        ep.traces.count.should == 1
 
         t = ep.traces[0]
-        t.should have(2).spans
+        t.spans.count.should == 2
         t.uuid.should == 'TODO'
 
         t.spans[0].should == span(
