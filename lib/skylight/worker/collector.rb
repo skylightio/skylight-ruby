@@ -185,7 +185,7 @@ module Skylight
 
         if tok && expires_at
           if expires_at <= now
-            error "token is expired: token=%s; expires_at=%s"
+            error "token is expired: token=%s; expires_at=%s", tok, expires_at
             return
           end
 
