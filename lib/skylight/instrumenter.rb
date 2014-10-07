@@ -232,6 +232,12 @@ module Skylight
 
     def process(trace)
       t { fmt "processing trace" }
+
+      if ignore?(trace)
+        t { fmt "ignoring trace" }
+        return false
+      end
+
       begin
         native_submit_trace(trace)
         true
@@ -239,6 +245,10 @@ module Skylight
         warn "failed to submit trace to worker; err=%s", e
         false
       end
+    end
+
+    def ignore?(trace)
+      config.key?(:ignored_endpoint) && trace.endpoint == config[:ignored_endpoint]
     end
 
   end

@@ -34,6 +34,9 @@ module Skylight
       # == Proxy ==
       'PROXY_URL' => :'proxy_url',
 
+      # == Instrumenter ==
+      "IGNORED_ENDPOINT" => :'ignored_endpoint',
+
       # == Skylight Remote ==
       "AUTH_URL"                     => :'auth_url',
       "AUTH_HTTP_DEFLATE"            => :'auth_http_deflate',
