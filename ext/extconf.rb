@@ -14,7 +14,7 @@ include Skylight::Util
 
 SKYLIGHT_INSTALL_LOG = File.expand_path("../install.log", __FILE__)
 SKYLIGHT_REQUIRED   = ENV.key?("SKYLIGHT_REQUIRED") && ENV['SKYLIGHT_REQUIRED'] !~ /^false$/i
-SKYLIGHT_FETCH_LIB  = !ENV.key?('SKYLIGHT_FETCH_LIB') || ENV['SKYLIGHT_REQUIRED'] !~ /^false$/i
+SKYLIGHT_FETCH_LIB  = !ENV.key?('SKYLIGHT_FETCH_LIB') || ENV['SKYLIGHT_FETCH_LIB'] !~ /^false$/i
 
 # Directory where skylight.h exists
 SKYLIGHT_HDR_PATH = ENV['SKYLIGHT_HDR_PATH'] || ENV['SKYLIGHT_LIB_PATH'] || '.'
