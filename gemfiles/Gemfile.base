@@ -7,7 +7,7 @@ gem 'rake'
 gem 'timecop'
 gem 'webmock'
 gem 'beefcake', '< 1.0' # 1.0 doesn't work with 1.9.2
-gem 'rspec', '< 3.0'
+gem 'rspec', '< 3.0', '> 2.0.0'
 gem 'rspec-collection_matchers'
 
 # Version 2 requires Ruby 1.9.3+
