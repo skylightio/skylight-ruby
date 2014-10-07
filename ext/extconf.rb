@@ -12,7 +12,7 @@ require 'skylight/util/platform'
 
 include Skylight::Util
 
-SKYLIGHT_INSTAL_LOG = File.expand_path("../install.log", __FILE__)
+SKYLIGHT_INSTALL_LOG = File.expand_path("../install.log", __FILE__)
 SKYLIGHT_REQUIRED   = ENV.key?("SKYLIGHT_REQUIRED") && ENV['SKYLIGHT_REQUIRED'] !~ /^false$/i
 SKYLIGHT_FETCH_LIB  = !ENV.key?('SKYLIGHT_FETCH_LIB') || ENV['SKYLIGHT_REQUIRED'] !~ /^false$/i
 
@@ -21,7 +21,7 @@ SKYLIGHT_HDR_PATH = ENV['SKYLIGHT_HDR_PATH'] || ENV['SKYLIGHT_LIB_PATH'] || '.'
 SKYLIGHT_LIB_PATH = ENV['SKYLIGHT_LIB_PATH'] || File.expand_path("../../lib/skylight/native/#{Platform.tuple}", __FILE__)
 
 # Setup logger
-LOG = Logger.new(MultiIO.new(STDOUT, File.open(SKYLIGHT_INSTAL_LOG, 'a')))
+LOG = Logger.new(MultiIO.new(STDOUT, File.open(SKYLIGHT_INSTALL_LOG, 'a')))
 
 # Handles terminating in the case of a failure. If we have a bug, we do not
 # want to break our customer's deploy, but extconf.rb requires a Makefile to be
