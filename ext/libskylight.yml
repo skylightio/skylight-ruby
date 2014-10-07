@@ -1,5 +1,5 @@
 ---
-version: "0.4.0-0f922af"
+version: "0.4.0-5b644a1"
 checksums:
-  x86_64-linux:  "d1d5a497dc373f49a6c45332cf7ea69b81d0d6f9e39e5fd7f38a46bad576d3e3"
-  x86_64-darwin: "51e7ff3d3a62ecab1d0e655ccb3e2c10ab1686c414801665502b5ebd883f549f"
+  x86_64-linux:  "cbd96d780d2f4b1f5907f991e5ef5673c40230e2bf0eb3835390afcbdcba1b6d"
+  x86_64-darwin: "53357234c27038fbd4bd57b00afd1723663f495adb1a1bfa08cdd375e5ce126e"
