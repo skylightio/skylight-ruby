@@ -9,6 +9,7 @@ module Skylight
     def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil, annot = nil)
       inst = native_new(normalize_time(start), "TODO", endpoint)
       inst.send(:initialize, instrumenter, cat, title, desc, annot)
+      inst.endpoint = endpoint
       inst
     end
 
@@ -45,6 +46,7 @@ module Skylight
     end
 
     def endpoint=(value)
+      @endpoint = value
       native_set_endpoint(value)
       value
     end
