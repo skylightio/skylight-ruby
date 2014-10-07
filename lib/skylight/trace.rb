@@ -4,7 +4,7 @@ module Skylight
 
     include Util::Logging
 
-    attr_reader :endpoint, :spans, :notifications
+    attr_reader :endpoint, :notifications
 
     def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil, annot = nil)
       inst = native_new(normalize_time(start), "TODO", endpoint)
