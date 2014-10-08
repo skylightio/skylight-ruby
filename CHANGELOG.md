@@ -1,3 +1,7 @@
+## 0.3.21 (October 8, 2014)
+
+* [BUGFIX] Skylight crashing on start won't crash entire app
+
 ## 0.3.20 (September 3, 2014)
 
 * [BUGFIX] Fix app name fetching on Windows for `skylight setup`
