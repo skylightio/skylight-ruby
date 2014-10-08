@@ -28,13 +28,24 @@ module Skylight
 
     # Do start
     # @param [Config] config The config
-    def self.start!(config = Config.new)
+    def self.start!(config = nil)
       return @instance if @instance
+
+      # Initialize here so we can catch errors
+      config ||= Config.new
 
       LOCK.synchronize do
         return @instance if @instance
         @instance = new(config).start!
       end
+    rescue => e
+      message = sprintf("[SKYLIGHT] [#{Skylight::VERSION}] Unable to start Instrumenter; msg=%s; class=%s", e.message, e.class)
+      if config
+        config.logger.warn message
+      else
+        warn message
+      end
+      false
     end
 
     def self.stop!
