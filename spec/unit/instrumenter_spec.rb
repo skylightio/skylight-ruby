@@ -41,6 +41,27 @@ describe "Skylight::Instrumenter", :http, :agent do
       stub_token_verification(401)
       Skylight.start!(config).should be_falsey
     end
+
+    it "doesn't crash on failed config" do
+      Skylight::Config.stub(:new).and_raise(Skylight::ConfigError.new("Test Failure"))
+      expect(Skylight::Instrumenter).to receive(:warn).
+        with("[SKYLIGHT] [#{Skylight::VERSION}] Unable to start Instrumenter; msg=Test Failure; class=Skylight::ConfigError")
+
+      expect do
+        Skylight.start!
+      end.to_not raise_error
+    end
+
+    it "doesn't crash on failed start" do
+      Skylight::Instrumenter.stub(:new).and_raise("Test Failure")
+      expect(logger).to receive(:warn).
+        with("[SKYLIGHT] [#{Skylight::VERSION}] Unable to start Instrumenter; msg=Test Failure; class=RuntimeError")
+
+      expect do
+        Skylight.start!(config)
+      end.to_not raise_error
+    end
+
   end
 
   shared_examples 'an instrumenter' do
