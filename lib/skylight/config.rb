@@ -301,12 +301,12 @@ module Skylight
     alias []= set
 
     def duration_ms(key, default = nil)
-      if (v = self[key]) && v.to_s =~ /^\s*(\d+)(s|sec|ms|μs|nanos)?\s*$/
+      if (v = self[key]) && v.to_s =~ /^\s*(\d+)(s|sec|ms|micros|nanos)?\s*$/
         v = $1.to_i
         case $2
         when "ms"
           v
-        when "μs"
+        when "micros"
           v / 1_000
         when "nanos"
           v / 1_000_000
