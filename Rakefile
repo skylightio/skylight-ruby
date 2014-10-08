@@ -33,7 +33,7 @@ namespace :build do
 
     chdir TARGET_DIR do
       Bundler.with_clean_env do
-        sh "SKYLIGHT_REQUIRED=true ruby #{extconf}" or abort "failed to configure ruby ext"
+        sh "SKYLIGHT_LIB_PATH=#{native} SKYLIGHT_REQUIRED=true ruby #{extconf}" or abort "failed to configure ruby ext"
         sh "make" or abort "failed to build ruby ext"
       end
     end
@@ -57,9 +57,9 @@ end
 
 desc "clean build artifacts"
 task :clean do
-  rm_rf Dir["#{TARGET_DIR}/{*.a,*.o,*.so,*.bundle}"]
   rm_rf Dir["lib/skylight_native.{a,o,so,bundle}"]
-  rm_rf "target"
+  rm_rf "lib/skylight/native"
+  rm_rf TARGET_DIR
 end
 
 namespace :vendor do
