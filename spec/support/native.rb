@@ -5,11 +5,12 @@ unless ENV['SKYLIGHT_DISABLE_AGENT']
   # Attempt to load the native extension
   begin
     require 'skylight_native'
-  rescue LoadError
+  rescue LoadError => e
     abort "Skylight Ruby extension is not present on the load path. This is " \
       "usually caused by not running the specs with Rake (`rake spec`). If running " \
       "the tests manually, ensure that the native extension is on the load path by " \
-      "specifying where it resides with -I."
+      "specifying where it resides with -I.\n\n" \
+      "#{e.message}\n#{e.backtrace.join("\n")}" \
   end
 end
 

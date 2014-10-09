@@ -158,7 +158,7 @@ have_header 'dlfcn.h' or fail "could not create Makefile; dlfcn.h missing"
 
 # For escaping the GVL
 unless have_func('rb_thread_call_without_gvl', 'ruby/thread.h')
-  have_func('rb_thread_call_without_gvl')
+  have_func('rb_thread_blocking_region') or abort "Ruby is unexpectedly missing rb_thread_blocking_region. This should not happen."
 end
 
 # TODO: Compute the relative path to the location
