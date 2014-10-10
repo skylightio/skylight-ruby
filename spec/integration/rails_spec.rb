@@ -12,57 +12,17 @@ end
 
 if enable
 
-  class MyApp < Rails::Application
-    if Rails.version =~ /^4\./
-      config.secret_key_base = '095f674153982a9ce59914b561f4522a'
-    else
-      config.secret_token = '095f674153982a9ce59914b561f4522a'
-    end
-
-    config.active_support.deprecation = :stderr
-
-    config.skylight.environments << 'development'
-
-    config.logger = Logger.new(STDOUT)
-    config.logger.level = Logger::DEBUG
-  end
-
-  # We include instrument_method in multiple places to ensure
-  # that all of them work.
-
-  class ::UsersController < ActionController::Base
-    include Skylight::Helpers
-
-    before_filter :authorized?
-
-    def index
-      Skylight.instrument category: 'app.inside' do
-        render text: "Hello"
-        Skylight.instrument category: 'app.zomg' do
-          # nothing
-        end
-      end
-    end
-    instrument_method :index
-
-    instrument_method
-    def show
-      render text: "Hola: #{params[:id]}"
-    end
-
-    private
-
-      def authorized?
-        true
-      end
-
-      # It's important for us to test a method ending in a special char
-      instrument_method :authorized?, title: "Check authorization"
-  end
-
   describe 'Rails integration' do
 
-    before :all do
+    def boot
+      MyApp.initialize!
+
+      MyApp.routes.draw do
+        resources :users
+      end
+    end
+
+    before :each do
       ENV['SKYLIGHT_AUTHENTICATION']       = "lulz"
       ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
       ENV['SKYLIGHT_REPORT_URL']           = "http://localhost:#{port}/report"
@@ -71,14 +31,62 @@ if enable
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
       # ENV['SKYLIGHT_TEST_IGNORE_TOKEN']   = true.to_s
 
-      MyApp.initialize!
+      class ::MyApp < Rails::Application
+        if Rails.version =~ /^4\./
+          config.secret_key_base = '095f674153982a9ce59914b561f4522a'
+        else
+          config.secret_token = '095f674153982a9ce59914b561f4522a'
+        end
 
-      MyApp.routes.draw do
-        resources :users
+        if Rails.version =~ /^3\.2/
+          # Workaround for initialization issue with 3.2
+          config.action_view.stylesheet_expansions = {}
+          config.action_view.javascript_expansions = {}
+        end
+
+        config.active_support.deprecation = :stderr
+
+        config.logger = Logger.new(STDOUT)
+        config.logger.level = Logger::DEBUG
+
+        config.eager_load = false
+      end
+
+      # We include instrument_method in multiple places to ensure
+      # that all of them work.
+
+      class ::UsersController < ActionController::Base
+        include Skylight::Helpers
+
+        before_filter :authorized?
+
+        def index
+          Skylight.instrument category: 'app.inside' do
+            render text: "Hello"
+            Skylight.instrument category: 'app.zomg' do
+              # nothing
+            end
+          end
+        end
+        instrument_method :index
+
+        instrument_method
+        def show
+          render text: "Hola: #{params[:id]}"
+        end
+
+        private
+
+          def authorized?
+            true
+          end
+
+          # It's important for us to test a method ending in a special char
+          instrument_method :authorized?, title: "Check authorization"
       end
     end
 
-    after :all do
+    after :each do
       ENV['SKYLIGHT_AUTHENTICATION']       = nil
       ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = nil
       ENV['SKYLIGHT_REPORT_URL']           = nil
@@ -88,31 +96,28 @@ if enable
       # ENV['SKYLIGHT_TEST_IGNORE_TOKEN']   = nil
 
       Skylight.stop!
-    end
 
-    after :each do
-      # Temporary hax
-      if instrumenter = Skylight::Instrumenter.instance
-        instrumenter.current_trace = nil
-      end
+      # Clean slate
+      Object.send(:remove_const, :MyApp)
+      Object.send(:remove_const, :UsersController)
+      Rails.application = nil
     end
 
     context "with agent", :http, :agent do
 
-      let :token do
-        "hey-guyz-i-am-a-token"
-      end
-
       before :each do
-        server.mock "/agent/authenticate" do |env|
-          { auth: { session: { token: token, expiry_ttl: 3.hours.to_i } } }
-        end
+        MyApp.config.skylight.environments << 'development'
+
+        stub_token_verification
+        stub_session_request
+
+        boot
       end
 
       it 'successfully calls into rails' do
         call MyApp, env('/users')
 
-        server.wait count: 2
+        server.wait count: 3
 
         batch = server.reports[0]
         batch.should_not be nil
@@ -135,7 +140,7 @@ if enable
     context "without agent" do
 
       before :each do
-        Skylight.stop!
+        boot
       end
 
       it "allows calls to Skylight.instrument" do
