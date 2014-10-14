@@ -229,6 +229,25 @@ describe "Skylight::Instrumenter", :http, :agent do
           started_at: 0,
           duration:   10_000 )
       end
+
+      it "ignores endpoints" do
+        config[:ignored_endpoint] = "foo#heartbeat"
+        instrumenter = Skylight::Instrumenter.new(config)
+
+        Skylight.trace 'foo#bar', 'app.rack' do |t|
+          clock.skip 1
+        end
+
+        Skylight.trace 'foo#heartbeat', 'app.rack' do |t|
+          clock.skip 1
+        end
+
+        clock.unfreeze
+        server.wait(count: 3)
+
+        server.reports[0].should have(1).endpoints
+        server.reports[0].endpoints.map(&:name).should == ["foo#bar"]
+      end
     end
 
     def with_endpoint(endpoint)
