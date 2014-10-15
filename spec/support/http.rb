@@ -27,6 +27,12 @@ module SpecHelper
           # Rack 1.2 (required by Rails 3.0) has a bug that prevents setting the app properly
           @rack.instance_variable_set('@app', @inst )
           @rack.start
+
+          # If we get here then we got a Ctrl-C which we really wanted RSpec to catch
+          LOCK.synchronize do
+            # Yes, this is a private API, but we want to let RSpec shut down cleanly
+            RSpec.wants_to_quit = true
+          end
         rescue Exception => e
           # Prevent errors from being silently swallowed
           puts e.inspect
@@ -43,6 +49,10 @@ module SpecHelper
           retry
         end
       end
+    end
+
+    def self.status
+      @thread && @thread.status
     end
 
     def initialize
@@ -63,6 +73,11 @@ module SpecHelper
       now = Time.now
 
       until requests.select(&filter).length >= opts[:count]
+        # Server isn't running so this won't succeed anyway
+        unless Server.status
+          raise "Server stopped"
+        end
+
         diff = Time.now - now
         if opts[:timeout] <= diff
           puts "***TIMEOUT***"
