@@ -3,8 +3,12 @@ $:.unshift File.expand_path('../lib', __FILE__)
 require 'bundler/setup'
 require 'fileutils'
 require 'rbconfig'
-require 'yard'
 require 'skylight/util/platform'
+
+begin
+  require 'yard'
+rescue LoadError
+end
 
 include FileUtils
 include Skylight::Util
@@ -79,7 +83,9 @@ namespace :vendor do
   end
 end
 
-# See .yardopts
-YARD::Rake::YardocTask.new
+if defined?(YARD)
+  # See .yardopts
+  YARD::Rake::YardocTask.new
+end
 
 task :default => :spec
