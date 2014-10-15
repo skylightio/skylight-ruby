@@ -26,6 +26,7 @@ gemfile:
   - gemfiles/Gemfile.rails-3.0.x
   - gemfiles/Gemfile.rails-3.2.x
   - gemfiles/Gemfile.rails-4.0.x
+  - gemfiles/Gemfile.rails-4.1.x
 # - gemfiles/Gemfile.rails-edge
 
 matrix:
@@ -38,6 +39,13 @@ matrix:
         - RAILS_ENV=development
     - rvm: 1.9.2
       gemfile: gemfiles/Gemfile.rails-4.0.x
+    - rvm: 1.9.2
+      gemfile: gemfiles/Gemfile.rails-4.1.x
+      env:
+        - SKYLIGHT_ENABLE_TRACE_LOGS=true
+        - RAILS_ENV=development
+    - rvm: 1.9.2
+      gemfile: gemfiles/Gemfile.rails-4.1.x
 
 # TODO: We may want to bring back rails-edge and add to allow_failures list
 
