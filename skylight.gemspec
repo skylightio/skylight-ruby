@@ -15,9 +15,10 @@ Gem::Specification.new do |s|
   s.required_ruby_version = ">= 1.9.2"
 
   files  = `git ls-files`.split("\n") rescue []
-  files &= Dir['lib/**/*.{rb,pem}']
-  files |= Dir['ext/**/*.{h,c,map,rb,yml}']
-  files |= Dir['*.md']
+  files &= (
+    Dir['lib/**/*.{rb,pem}'] +
+    Dir['ext/**/*.{h,c,rb,yml}'] +
+    Dir['*.md'])
 
   s.files         = files
   s.require_paths = ["lib"]
