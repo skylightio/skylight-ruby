@@ -22,9 +22,10 @@ module Skylight
       'VERSION' => :'version',
 
       # == App settings ==
-      'ROOT'        => :'root',
-      'APPLICATION' => :'application',
-      'HOSTNAME'    => :'hostname',
+      'ROOT'          => :'root',
+      'APPLICATION'   => :'application',
+      'HOSTNAME'      => :'hostname',
+      'SESSION_TOKEN' => :'session_token',
 
       # == Logging ==
       'LOG_FILE'       => :'log_file',
