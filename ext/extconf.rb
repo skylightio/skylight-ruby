@@ -159,8 +159,28 @@ unless have_func('rb_thread_call_without_gvl', 'ruby/thread.h')
   have_func('rb_thread_blocking_region') or abort "Ruby is unexpectedly missing rb_thread_blocking_region. This should not happen."
 end
 
+# Some extra checks
+# -Werror is needed for the fast thread local storage
+$CFLAGS << " -Werror"
+
+checking_for 'fast thread local storage' do
+  if try_compile("__thread int foo;")
+    $defs << "-DHAVE_FAST_TLS"
+    true
+  end
+end
+
+#     spec = nil
+#     checking_for('thread_specific', '%s') do
+#       spec = %w[__declspec(thread) __thread].find {|th|
+#         try_compile("#{th} int foo;", "", :werror => true)
+#       }
+#       spec or 'no'
+#     end
+#     $defs << "-DRB_THREAD_SPECIFIC=#{spec}" if spec
+
 # Flag -std=c99 required for older build systems
-$CFLAGS << " -std=c99 -pedantic -Wall -Werror -fno-strict-aliasing"
+$CFLAGS << " -std=c99 -pedantic -Wall -fno-strict-aliasing"
 
 # TODO: Compute the relative path to the location
 create_makefile 'skylight_native', File.expand_path('..', __FILE__) # or fail "could not create makefile"
