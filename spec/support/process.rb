@@ -35,13 +35,12 @@ module SpecHelper
       worker.shutdown
     end
 
-    lockfile = tmp('skylight.pid')
-
     if lockfile.exist?
       begin
       pid = File.read(lockfile)
       rescue
       end
+
       if pid =~ /^\d+$/
         pid = pid.to_i
 
