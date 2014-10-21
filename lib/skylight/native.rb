@@ -13,23 +13,27 @@ module Skylight
     ENV['SKYLIGHT_LIB_PATH'] || File.expand_path("../native/#{Util::Platform.tuple}", __FILE__)
   end
 
+  skylight_required = ENV.key?("SKYLIGHT_REQUIRED") && ENV['SKYLIGHT_REQUIRED'] !~ /^false$/i
+
   begin
-    unless ENV["SKYLIGHT_DISABLE_AGENT"]
+    unless ENV.key?("SKYLIGHT_DISABLE_AGENT") && ENV['SKYLIGHT_DISABLE_AGENT'] !~ /^false$/i
       lib = "#{libskylight_path}/libskylight.#{Util::Platform.libext}"
 
       if File.exist?(lib)
         # First attempt to require the native extension
-        require 'skylight_native'
+        require "skylight_native"
 
         # Attempt to link the dylib
         load_libskylight(lib)
 
         # If nothing was thrown, then the native extension is present
         @@has_native_ext = true
+      elsif skylight_required
+        raise LoadError, "Cannot find native extensions in #{libskylight_path}"
       end
     end
   rescue LoadError => e
-    raise if ENV.key?("SKYLIGHT_REQUIRED")
+    raise if skylight_required
   end
 
   unless Skylight.native?
