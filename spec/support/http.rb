@@ -94,6 +94,11 @@ module SpecHelper
     end
 
     def reset
+      # Crazy hack to make sure that the server has finished processing any inbound requests
+      # This is necessary since sometimes we have situations where a request made in a previous
+      # spec doesn't land until the next spec.
+      sleep 0.1
+
       LOCK.synchronize do
         @requests = []
         @mocks = []
