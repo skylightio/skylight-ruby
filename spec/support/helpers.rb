@@ -51,8 +51,8 @@ module SpecHelper
       report_http_read_timeout: "1sec",
       auth_url: "http://localhost:#{port}/agent/authenticate",
       auth_http_deflate: false,
-      auth_http_connect_timeout: "1sec",
-      auth_http_read_timeout: "1sec",
+      auth_http_connect_timeout: "2sec",
+      auth_http_read_timeout: "2sec",
       gc: {
         profiler: gc
       }.freeze,
