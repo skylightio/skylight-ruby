@@ -83,7 +83,10 @@ module SpecHelper
           puts "***TIMEOUT***"
           puts "timeout: #{opts[:timeout]}"
           puts "diff: #{diff}"
-          puts requests.select(&filter).inspect
+          puts "requests:"
+          requests.each do |request|
+            puts "#{Rack::Request.new(request).url}: #{!!filter.call(request)}"
+          end
           puts "*************"
           raise "Server.wait timeout: got #{requests.select(&filter).length} not #{opts[:count]}"
         end
