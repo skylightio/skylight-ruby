@@ -3,6 +3,10 @@ require 'open3'
 
 describe "CLI integration", :http do
 
+  def run_command(cmd, &block)
+    Open3.popen3({ "RUBYLIB" => $native_lib_path }, "bundle exec skylight #{cmd}", &block)
+  end
+
   it "works with setup token" do
     server.mock "/apps", :post do |env|
       env['rack.input'].should == { 'app' => { 'name' => 'Dummy' }, 'token' => 'setuptoken' }
@@ -15,7 +19,7 @@ describe "CLI integration", :http do
       output = `bundle install`
       puts output if ENV['DEBUG']
 
-      Open3.popen3("bundle exec skylight setup setuptoken") do |stdin, stdout, stderr|
+      run_command("setup setuptoken") do |stdin, stdout, stderr|
         begin
           read(stdout).should include("Congratulations. Your application is on Skylight!")
 
@@ -39,7 +43,7 @@ describe "CLI integration", :http do
       output = `bundle install`
       puts output if ENV['DEBUG']
 
-      Open3.popen3("bundle exec skylight setup invalidtoken") do |stdin, stdout, stderr|
+      run_command("setup invalidtoken") do |stdin, stdout, stderr|
         begin
           output = read(stdout)
           output.should include("Could not create the application")
@@ -75,7 +79,7 @@ describe "CLI integration", :http do
       output = `bundle install`
       puts output if ENV['DEBUG']
 
-      Open3.popen3("bundle exec skylight setup") do |stdin, stdout, stderr|
+      run_command("setup") do |stdin, stdout, stderr|
         begin
           get_prompt(stdout, 200).should =~ %r{Please enter your email and password below or get a token from https://www.skylight.io/app/setup.}
           get_prompt(stdout).should =~ /Email:\s*$/

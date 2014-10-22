@@ -21,6 +21,7 @@ skylight_dlopen.c
 # Build artifacts
 /ext/install.log
 /lib/skylight/native
+/target
 
 # Ignore lockfiles from travis Gemfiles
 /gemfiles/*.lock

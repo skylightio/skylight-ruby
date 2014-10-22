@@ -2,13 +2,12 @@ language: ruby
 cache: bundler
 sudo: false
 
-script: ./spec.sh
-
 env:
   global:
     - SKYLIGHT_ENABLE_TRACE_LOGS=true
+    - SKYLIGHT_REQUIRED=true
+    - SKYLIGHT_TEST_DIR=/tmp
     - RAILS_ENV=development
-    - STANDALONE_WORKER_SPEC_TIMEOUT=15
     - EMBEDDED_HTTP_SERVER_TIMEOUT=30
     - WORKER_SPAWN_TIMEOUT=15
   matrix:

@@ -31,7 +31,7 @@ describe "Skylight::Instrumenter", :http, :agent do
   context 'when the instrumenter is running' do
 
     before :each do
-      Skylight.start! config
+      start!
       clock.freeze
     end
 
@@ -40,7 +40,6 @@ describe "Skylight::Instrumenter", :http, :agent do
     end
 
     it 'tracks custom instrumentation metrics' do
-      stub_session_request
       hello.should_receive(:hello)
 
       Skylight.trace 'Testin', 'app.rack.request' do |t|
@@ -77,8 +76,6 @@ describe "Skylight::Instrumenter", :http, :agent do
     end
 
     it 'recategorizes unknown events as other' do
-      stub_session_request
-
       Skylight.trace 'Testin', 'app.rack.request' do |t|
         clock.skip 0.1
         Skylight.instrument category: 'foo' do
@@ -100,8 +97,6 @@ describe "Skylight::Instrumenter", :http, :agent do
     end
 
     it 'sets a default category' do
-      stub_session_request
-
       Skylight.trace 'Testin', 'app.rack.request' do |t|
         clock.skip 0.1
         Skylight.instrument title: 'foo' do
@@ -154,8 +149,6 @@ describe "Skylight::Instrumenter", :http, :agent do
     end
 
     it 'tracks instrumented methods using the helper' do
-      stub_session_request
-
       Skylight.trace 'Testin', 'app.rack.request' do |t|
         inst = MyClass.new
 

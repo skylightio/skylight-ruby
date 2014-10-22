@@ -41,20 +41,6 @@ begin
 rescue LoadError
 end
 
-# The standalone worker specs require waiting for subprocesses to do work. It
-# would be quite difficult to coordinate a mocked clock, so we just wait for
-# the work to happen and timeout if it doesn't. Unfortunetly, this can cause
-# specs to fail when run in low resource situations (aka, travis). In those
-# cases, we should significantly increase the timeout.
-def get_standalone_worker_spec_timeout
-  if timeout = ENV['STANDALONE_WORKER_SPEC_TIMEOUT']
-    puts "STANDALONE_WORKER_SPEC_TIMEOUT=#{timeout}"
-    timeout.to_i
-  else
-    10
-  end
-end
-
 # Similar to above, but this is for waiting for the embedded HTTP server to
 # receive requests. The HTTP server is used to mock out the Skylight hosted
 # service.
@@ -77,7 +63,6 @@ def get_worker_spawn_timeout
   end
 end
 
-STANDALONE_WORKER_SPEC_TIMEOUT = get_standalone_worker_spec_timeout
 EMBEDDED_HTTP_SERVER_TIMEOUT = get_embedded_http_server_timeout
 WORKER_SPAWN_TIMEOUT = get_worker_spawn_timeout
 
