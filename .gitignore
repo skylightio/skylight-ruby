@@ -37,3 +37,6 @@ skylight_dlopen.c
 # Docs
 /.yardoc
 /doc
+
+# Vagrant
+/.vagrant
