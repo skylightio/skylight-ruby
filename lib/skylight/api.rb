@@ -1,3 +1,5 @@
+require 'uri'
+
 module Skylight
   # @api private
   class Api
@@ -38,6 +40,23 @@ module Skylight
 
     def authentication=(token)
       @http.authentication = token
+    end
+
+    def validate_authentication
+      url = URI.parse(config[:auth_url])
+
+      res = @http.get(url.path)
+
+      case res.status
+      when 200...300
+        :ok
+      when 400...500
+        :invalid
+      else
+        :unknown
+      end
+    rescue
+      :unknown
     end
 
     def login(email, password)

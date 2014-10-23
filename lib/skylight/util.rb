@@ -7,10 +7,10 @@ module Skylight
     require 'skylight/util/hostname'
     require 'skylight/util/logging'
     require 'skylight/util/ssl'
+    require 'skylight/util/http'
 
     # Used from the CLI
     autoload :Gzip,      'skylight/util/gzip'
-    autoload :HTTP,      'skylight/util/http'
     autoload :Inflector, 'skylight/util/inflector'
   end
 end

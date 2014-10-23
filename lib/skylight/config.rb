@@ -81,7 +81,7 @@ module Skylight
     # Default values for Skylight configuration keys
     DEFAULTS = {
       :'version'              => VERSION,
-      :'auth_url'             => 'https://www.skylight.io/agent/authenticate',
+      :'auth_url'             => 'https://auth.skylight.io/agent',
       :'daemon.lazy_start'    => true,
       :'daemon.ssl_cert_path' => Util::SSL.ca_cert_file_or_default,
       :'daemon.ssl_cert_dir'  => Util::SSL.ca_cert_dir,
@@ -332,6 +332,9 @@ module Skylight
           ret << "SKYLIGHT_#{k}" << cast_for_env(c) if c
         end
       end
+
+      ret << "SKYLIGHT_VALIDATE_AUTHENTICATION"
+      ret << "false"
 
       ret
     end

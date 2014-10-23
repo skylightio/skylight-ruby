@@ -1,5 +1,6 @@
 require 'thread'
 require 'strscan'
+require 'skylight/api'
 
 module Skylight
   # @api private
@@ -106,6 +107,11 @@ module Skylight
 
       t { "starting instrumenter" }
       @config.validate!
+
+      unless validate_authentication
+        warn "invalid authentication token"
+        return
+      end
 
       t { "starting native instrumenter" }
       unless native_start
@@ -249,6 +255,31 @@ module Skylight
 
     def ignore?(trace)
       config.key?(:ignored_endpoint) && trace.endpoint == config[:ignored_endpoint]
+    end
+
+    # Validates that the provided authentication token is valid. This is done
+    # by issuing a request for a session token and checking the response
+    def validate_authentication
+      # If a session token is specified, don't bother attempting to validate
+      if config[:session_token]
+        true
+      else
+        api = Api.new(config)
+        api.authentication = config[:authentication]
+
+        case res = api.validate_authentication
+        when :ok
+          true
+        when :invalid
+          false
+        when :unknown
+          warn "unable to validate authentication token"
+          true
+        else
+          error "[BUG] unexpected validate_token result; res=%s", res
+          true
+        end
+      end
     end
 
   end
