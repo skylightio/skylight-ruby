@@ -60,10 +60,10 @@ module Skylight
   # @api private
   def self.warn_skylight_native_missing(config)
     config.alert_logger.error \
-      "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. " \
-      "The monitoring portion of Skylight is only supported on production servers running 32- or " \
-      "64-bit Linux. The missing extension will not affect the functioning of your application " \
-      "and you can continue local development without data being reported. If you are on a " \
+      "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for " \
+      "your platform wasn't found. Supported operating systems are " \
+      "Linux 2.6.18+ and Mac OS X 10.8+. The missing extension will not " \
+      "affect the functioning of your application. If you are on a " \
       "supported platform, please contact support at support@skylight.io."
   end
 end
