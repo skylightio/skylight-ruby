@@ -262,6 +262,7 @@ module Skylight
     def validate_authentication
       # If a session token is specified, don't bother attempting to validate
       if config[:session_token]
+        debug "using pre-generated session token"
         true
       else
         api = Api.new(config)
