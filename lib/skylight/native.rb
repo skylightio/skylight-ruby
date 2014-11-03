@@ -59,22 +59,11 @@ module Skylight
 
   # @api private
   def self.warn_skylight_native_missing(config)
-    # TODO: Dumping the error messages this way is pretty hacky
-    is_rails = defined?(Rails)
-    env_name = is_rails ? Rails.env : "development"
-
-    if env_name == "development" || env_name == "test"
-      config.alert_logger.warn \
-          "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in #{env_name} mode. " \
-          "No data will be reported until you deploy your app.\n" \
-          "(To disable this message, set `alert_log_file` in your config.)"
-    else
-      config.alert_logger.error \
-          "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. " \
-          "The monitoring portion of Skylight is only supported on production servers running 32- or " \
-          "64-bit Linux. The missing extension will not affect the functioning of your application " \
-          "and you can continue local development without data being reported. If you are on a " \
-          "supported platform, please contact support at support@skylight.io."
-    end
+    config.alert_logger.error \
+      "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. " \
+      "The monitoring portion of Skylight is only supported on production servers running 32- or " \
+      "64-bit Linux. The missing extension will not affect the functioning of your application " \
+      "and you can continue local development without data being reported. If you are on a " \
+      "supported platform, please contact support at support@skylight.io."
   end
 end
