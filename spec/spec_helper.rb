@@ -124,6 +124,8 @@ RSpec.configure do |config|
 
     begin
       FileUtils.mkdir_p(tmp)
+      # Sockfile goes into the "tmp" dir
+      FileUtils.mkdir_p(tmp("tmp"))
       Dir.chdir(tmp)
       ENV['HOME'] = tmp.to_s
 

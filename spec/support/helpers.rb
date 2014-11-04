@@ -57,7 +57,7 @@ module SpecHelper
         profiler: gc
       }.freeze,
       daemon: {
-        sockdir_path: tmp,
+        sockdir_path: sockdir_path,
         batch_flush_interval: "1sec"
       }.freeze,
     }.freeze
