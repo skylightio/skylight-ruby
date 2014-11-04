@@ -70,15 +70,26 @@ repository and deploy from there. You can learn more about the process at:
             begin
               namefile = Tempfile.new('skylight-app-name')
               # Windows appears to need double quotes for `rails runner`
-              `rails runner "File.open('#{namefile.path}', 'w') {|f| f.write(Rails.application.class.name) }"`
+              `rails runner "File.open('#{namefile.path}', 'w') {|f| f.write(Rails.application.class.name) rescue '' }"`
               name = namefile.read.split("::").first.underscore.titleize
+              name = nil if name.empty?
+            rescue => e
+              if ENV['DEBUG']
+                puts e.class.name
+                puts e.to_s
+                puts e.backtrace.join("\n")
+              end
             ensure
               namefile.close
               namefile.unlink
             end
+
+            unless name
+              warn "Unable to determine Rails application name. Using directory name."
+            end
           end
 
-          if !name || name.strip.empty?
+          unless name
             name = File.basename(File.expand_path('.')).titleize
           end
 
