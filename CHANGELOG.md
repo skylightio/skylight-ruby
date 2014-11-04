@@ -1,3 +1,8 @@
+## 0.4.0 (November 3, 2014)
+
+* Featherweight Agent: lowered CPU and memory overhead
+* [IMPROVEMENT] Add support for ignoring an endpoint by name
+
 ## 0.3.20 (September 3, 2014)
 
 * [BUGFIX] Fix app name fetching on Windows for `skylight setup`
