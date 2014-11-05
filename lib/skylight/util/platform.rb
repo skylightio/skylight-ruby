@@ -29,7 +29,7 @@ module Skylight
       when /amd64|x86_64/
         "x86_64"
       when /i?86|x86|i86pc/
-        "i386"
+        "x86"
       when /ppc|powerpc/
         "powerpc"
       when /^arm/
