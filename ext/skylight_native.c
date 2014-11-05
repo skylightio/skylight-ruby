@@ -6,6 +6,8 @@
 #include <ruby/encoding.h>
 #endif
 
+#define UNUSED(x) (void)(x)
+
 #define TO_S(VAL) \
   RSTRING_PTR(rb_funcall(VAL, rb_intern("to_s"), 0))
 
@@ -28,22 +30,20 @@
     }                                             \
   } while(0)                                      \
 
-#define BUF2STR(buf)                            \
-  ({                                            \
-    sky_buf_t b = (buf);                        \
-    VALUE str = rb_str_new(b.data, b.len);      \
-    rb_enc_associate(str, rb_utf8_encoding());  \
-    str;                                        \
-  })
+static inline VALUE
+BUF2STR(sky_buf_t buf) {
+  VALUE str = rb_str_new(buf.data, buf.len);
+  rb_enc_associate(str, rb_utf8_encoding());
+  return str;
+}
 
-#define STR2BUF(str)           \
-  ({                           \
-    sky_buf_t buf;             \
-    VALUE s = (str);           \
-    buf.data = RSTRING_PTR(s); \
-    buf.len = RSTRING_LEN(s);  \
-    buf;                       \
-  })
+static inline sky_buf_t
+STR2BUF(VALUE str) {
+  return (sky_buf_t) {
+    .data = RSTRING_PTR(str),
+    .len = RSTRING_LEN(str),
+  };
+}
 
 #define CHECK_FFI(success, message)               \
   do {                                            \
@@ -65,7 +65,6 @@
   DATA_PTR(obj) = NULL;                           \
 
 #define Get_Struct(name, obj, Type, msg)          \
-  Type name;                                      \
   Data_Get_Struct(obj, Type, name);               \
   if (name == NULL) {                             \
     rb_raise(rb_eRuntimeError, "%s", msg);        \
@@ -115,6 +114,7 @@ static VALUE
 load_libskylight(VALUE klass, VALUE path) {
   int res;
 
+  UNUSED(klass);
   CHECK_TYPE(path, T_STRING);
 
   // Already loaded
@@ -140,6 +140,7 @@ load_libskylight(VALUE klass, VALUE path) {
 
 static VALUE
 clock_high_res_time(VALUE self) {
+  UNUSED(self);
   return ULL2NUM(sky_hrtime());
 }
 
@@ -153,7 +154,9 @@ static VALUE
 instrumenter_new(VALUE klass, VALUE rb_env) {
   sky_instrumenter_t* instrumenter;
   sky_buf_t env[256];
+  int i, envc;
 
+  UNUSED(klass);
   CHECK_TYPE(rb_env, T_ARRAY);
 
   if (RARRAY_LEN(rb_env) >= 256) {
@@ -161,8 +164,7 @@ instrumenter_new(VALUE klass, VALUE rb_env) {
     return Qnil;
   }
 
-  int i;
-  int envc = (int) RARRAY_LEN(rb_env);
+  envc = (int) RARRAY_LEN(rb_env);
 
   for (i = 0; i < envc; ++i) {
     VALUE val = rb_ary_entry(rb_env, i);
@@ -196,14 +198,18 @@ instrumenter_start_nogvl(sky_instrumenter_t* instrumenter) {
 
 static VALUE
 instrumenter_start(VALUE self) {
-  My_Struct(instrumenter, sky_instrumenter_t*, no_instrumenter_msg);
+  sky_instrumenter_t* instrumenter;
+
+  My_Struct(instrumenter, sky_instrumenter_t, no_instrumenter_msg);
 
   return (VALUE) WITHOUT_GVL(instrumenter_start_nogvl, instrumenter);
 }
 
 static VALUE
 instrumenter_stop(VALUE self) {
-  My_Struct(instrumenter, sky_instrumenter_t*, no_instrumenter_msg);
+  sky_instrumenter_t* instrumenter;
+
+  My_Struct(instrumenter, sky_instrumenter_t, no_instrumenter_msg);
 
   CHECK_FFI(
       sky_instrumenter_stop(instrumenter),
@@ -214,8 +220,11 @@ instrumenter_stop(VALUE self) {
 
 static VALUE
 instrumenter_submit_trace(VALUE self, VALUE rb_trace) {
-  My_Struct(instrumenter, sky_instrumenter_t*, no_instrumenter_msg);
-  Transfer_Struct(trace, rb_trace, sky_trace_t*, consumed_trace_msg);
+  sky_instrumenter_t* instrumenter;
+  sky_trace_t* trace;
+
+  My_Struct(instrumenter, sky_instrumenter_t, no_instrumenter_msg);
+  Transfer_Struct(trace, rb_trace, sky_trace_t, consumed_trace_msg);
 
   CHECK_FFI(
       sky_instrumenter_submit_trace(instrumenter, trace),
@@ -232,11 +241,12 @@ instrumenter_submit_trace(VALUE self, VALUE rb_trace) {
 
 static VALUE
 trace_new(VALUE klass, VALUE start, VALUE uuid, VALUE endpoint) {
+  sky_trace_t* trace;
+
+  UNUSED(klass);
   CHECK_NUMERIC(start);
   CHECK_TYPE(uuid, T_STRING);
   CHECK_TYPE(endpoint, T_STRING);
-
-  sky_trace_t* trace;
 
   CHECK_FFI(
       sky_trace_new(NUM2ULL(start), STR2BUF(uuid), STR2BUF(endpoint), &trace),
@@ -248,7 +258,9 @@ trace_new(VALUE klass, VALUE start, VALUE uuid, VALUE endpoint) {
 static VALUE
 trace_get_started_at(VALUE self) {
   uint64_t start;
-  My_Struct(trace, sky_trace_t*, consumed_trace_msg);
+  sky_trace_t* trace;
+
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
 
   CHECK_FFI(
       sky_trace_start(trace, &start),
@@ -259,8 +271,10 @@ trace_get_started_at(VALUE self) {
 
 static VALUE
 trace_get_endpoint(VALUE self) {
+  sky_trace_t* trace;
   sky_buf_t endpoint;
-  My_Struct(trace, sky_trace_t*, consumed_trace_msg);
+
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
 
   CHECK_FFI(
       sky_trace_endpoint(trace, &endpoint),
@@ -271,8 +285,10 @@ trace_get_endpoint(VALUE self) {
 
 static VALUE
 trace_set_endpoint(VALUE self, VALUE endpoint) {
+  sky_trace_t* trace;
+
   CHECK_TYPE(endpoint, T_STRING);
-  My_Struct(trace, sky_trace_t*, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
 
   CHECK_FFI(
       sky_trace_set_endpoint(trace, STR2BUF(endpoint)),
@@ -283,8 +299,10 @@ trace_set_endpoint(VALUE self, VALUE endpoint) {
 
 static VALUE
 trace_get_uuid(VALUE self) {
+  sky_trace_t* trace;
   sky_buf_t uuid;
-  My_Struct(trace, sky_trace_t*, consumed_trace_msg);
+
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
 
   CHECK_FFI(
       sky_trace_uuid(trace, &uuid),
@@ -295,8 +313,10 @@ trace_get_uuid(VALUE self) {
 
 static VALUE
 trace_start_span(VALUE self, VALUE time, VALUE category) {
+  sky_trace_t* trace;
   uint32_t span;
-  My_Struct(trace, sky_trace_t*, consumed_trace_msg);
+
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
 
   CHECK_NUMERIC(time);
   CHECK_TYPE(category, T_STRING);
@@ -310,7 +330,9 @@ trace_start_span(VALUE self, VALUE time, VALUE category) {
 
 static VALUE
 trace_stop_span(VALUE self, VALUE span, VALUE time) {
-  My_Struct(trace, sky_trace_t*, consumed_trace_msg);
+  sky_trace_t* trace;
+
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
 
   CHECK_NUMERIC(time);
   CHECK_TYPE(span, T_FIXNUM);
@@ -324,7 +346,9 @@ trace_stop_span(VALUE self, VALUE span, VALUE time) {
 
 static VALUE
 trace_span_set_title(VALUE self, VALUE span, VALUE title) {
-  My_Struct(trace, sky_trace_t*, consumed_trace_msg);
+  sky_trace_t* trace;
+
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
 
   CHECK_TYPE(span, T_FIXNUM);
   CHECK_TYPE(title, T_STRING);
@@ -338,7 +362,9 @@ trace_span_set_title(VALUE self, VALUE span, VALUE title) {
 
 static VALUE
 trace_span_set_description(VALUE self, VALUE span, VALUE desc) {
-  My_Struct(trace, sky_trace_t*, consumed_trace_msg);
+  sky_trace_t* trace;
+
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
 
   CHECK_TYPE(span, T_FIXNUM);
   CHECK_TYPE(desc, T_STRING);
