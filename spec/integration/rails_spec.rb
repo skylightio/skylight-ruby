@@ -38,7 +38,7 @@ if enable
           config.secret_token = '095f674153982a9ce59914b561f4522a'
         end
 
-        if Rails.version =~ /^3\.2/
+        if Rails.version =~ /^3/
           # Workaround for initialization issue with 3.2
           config.action_view.stylesheet_expansions = {}
           config.action_view.javascript_expansions = {}
@@ -96,6 +96,12 @@ if enable
       # ENV['SKYLIGHT_TEST_IGNORE_TOKEN']   = nil
 
       Skylight.stop!
+
+      if Rails.version =~ /^3.0/
+        Rails::Application.class_eval do
+          @@instance = nil
+        end
+      end
 
       # Clean slate
       Object.send(:remove_const, :MyApp)
