@@ -71,12 +71,11 @@ module Skylight
       "SSL_CERT_PATH"                => :'daemon.ssl_cert_path',
       "SSL_CERT_DIR"                 => :'daemon.ssl_cert_dir',
 
-      # == Legacy settings ==
+      # == Legacy env vars ==
       #
-      'AGENT_MAX_MEMORY'        => :'agent.max_memory',
-      'ME_AUTHENTICATION'       => :'me.authentication',
-      'ME_CREDENTIALS_PATH'     => :'me.credentials_path',
-      'TEST_IGNORE_TOKEN'       => :'test.ignore_token' }
+      'AGENT_LOCKFILE'      => :'agent.lockfile',
+      'AGENT_SOCKFILE_PATH' => :'agent.sockfile_path',
+    }
 
     # Default values for Skylight configuration keys
     DEFAULTS = {
@@ -130,6 +129,12 @@ module Skylight
       :'daemon.ssl_cert_dir',
       :'daemon.ssl_cert_path' ]
 
+    # Maps legacy config keys to new config keys
+    LEGACY = {
+      :'agent.sockfile_path' => :'daemon.sockdir_path',
+      :'agent.pidfile_path'  => :'agent.lockfile',
+    }
+
     VALIDATORS = {
       :'agent.interval' => [lambda { |v, c| Integer === v && v > 0 }, "must be an integer greater than 0"]
     }
@@ -161,7 +166,7 @@ module Skylight
 
       if p
         p.each do |k, v|
-          @priority[k.to_sym] = v
+          @priority[Config.remap_key(k)] = v
         end
       end
     end
@@ -194,6 +199,11 @@ module Skylight
 
     def self.load_from_env(env = ENV)
       self.load(nil, nil, env)
+    end
+
+    def self.remap_key(key)
+      key = key.to_sym
+      LEGACY[key] || key
     end
 
     # @api private
@@ -250,12 +260,12 @@ module Skylight
     end
 
     def key?(key)
-      key = key.to_sym
+      key = Config.remap_key(key)
       @priority.key?(key) || @values.key?(key)
     end
 
     def get(key, default = nil, &blk)
-      key = key.to_sym
+      key = Config.remap_key(key)
 
       return @priority[key] if @priority.key?(key)
       return @values[key]   if @values.key?(key)
@@ -282,7 +292,7 @@ module Skylight
           set(k, v, key)
         end
       else
-        k = key.to_sym
+        k = Config.remap_key(key)
 
         if validator = VALIDATORS[k]
           blk, msg = validator
@@ -294,7 +304,7 @@ module Skylight
           end
         end
 
-        if @regexp && key =~ @regexp
+        if @regexp && k =~ @regexp
           @priority[$1.to_sym] = val
         end
 
@@ -326,6 +336,7 @@ module Skylight
       ret = []
 
       ENV_TO_KEY.each do |k, v|
+        next if LEGACY[v]
         c = get(v)
         # Always need to pass daemon lib_path config even when default
         if c != DEFAULTS[v] || ALWAYS_INCLUDE_IN_ENV.include?(v)

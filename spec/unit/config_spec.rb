@@ -393,5 +393,17 @@ module Skylight
         c[:proxy_url].should == 'http://foo.com'
       end
     end
+
+    context "legacy settings" do
+      it "remaps agent.sockfile_path" do
+        c = Config.new(agent: { sockfile_path: "/foo/bar" })
+        c[:'agent.sockfile_path'].should == '/foo/bar'
+        c[:'daemon.sockdir_path'].should == '/foo/bar'
+
+        env = Hash[*c.to_env]
+        env['SKYLIGHT_AGENT_SOCKFILE_PATH'].should be_nil
+        env['SKYLIGHT_SOCKDIR_PATH'].should == '/foo/bar'
+      end
+    end
   end
 end
