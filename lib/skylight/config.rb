@@ -256,7 +256,33 @@ module Skylight
         end
       end
 
+      sockdir_path = self[:'daemon.sockdir_path'] || File.expand_path('.')
+      pidfile_path = self[:'daemon.pidfile_path'] || File.expand_path('skylight.pid', sockdir_path)
+
+      check_permissions(pidfile_path, sockdir_path)
+
       true
+    end
+
+    def check_permissions(pidfile, sockdir_path)
+      pidfile_root = File.dirname(pidfile)
+
+      FileUtils.mkdir_p pidfile_root
+      FileUtils.mkdir_p sockdir_path
+
+      if File.exist?(pidfile)
+        if !FileTest.writable?(pidfile)
+          raise "`#{pidfile}` not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path."
+        end
+      else
+        if !FileTest.writable?(pidfile_root)
+          raise "`#{pidfile_root}` not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path."
+        end
+      end
+
+      unless FileTest.writable?(sockdir_path)
+        raise "`#{sockdir_path}` not writable. Please set daemon.sockdir_path in your config to a writable path."
+      end
     end
 
     def key?(key)
