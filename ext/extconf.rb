@@ -135,8 +135,6 @@ def find_file(file, root = nil)
   end
 end
 
-# Flag -std=c99 required for older build systems
-$CFLAGS << " -std=c99 -pedantic" # -Wall
 $VPATH  << libpath
 
 # Where the ruby binding src is
@@ -160,6 +158,9 @@ have_header 'dlfcn.h' or fail "could not create Makefile; dlfcn.h missing"
 unless have_func('rb_thread_call_without_gvl', 'ruby/thread.h')
   have_func('rb_thread_blocking_region') or abort "Ruby is unexpectedly missing rb_thread_blocking_region. This should not happen."
 end
+
+# Flag -std=c99 required for older build systems
+$CFLAGS << " -std=c99 -pedantic -Wall -Werror -fno-strict-aliasing"
 
 # TODO: Compute the relative path to the location
 create_makefile 'skylight_native', File.expand_path('..', __FILE__) # or fail "could not create makefile"
