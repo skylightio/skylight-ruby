@@ -60,7 +60,18 @@ module Skylight
       end
     end
 
-    at_exit { stop! }
+    at_exit do
+      if RUBY_VERSION == '1.9.2'
+        # workaround for MRI bug losing exit status in at_exit block
+        # http://bugs.ruby-lang.org/issues/5218
+        exit_status = $!.status if $!.is_a?(SystemExit)
+        stop!
+        exit exit_status if exit_status
+      else
+        stop!
+      end
+    end
+
 
     attr_reader :config, :gc, :trace_info
 
