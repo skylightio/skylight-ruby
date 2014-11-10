@@ -28,12 +28,10 @@ describe "Initialization integration" do
 
   # FIXME: Sometimes this can hang for no apparent reason
   def boot
-    rails_cmd = RUBY_VERSION == "1.9.2" ? "rails" : "bin/rails"
-
     pipe_cmd_in, pipe_cmd_out = IO.pipe
 
     # Have to add $native_lib_path to the LOAD_PATH here since we build in a different location for tests
-    cmd_pid = Process.spawn("RAILS_ENV=#{rails_env} ruby -I#{$native_lib_path} #{rails_cmd} runner '#noop'", :out => pipe_cmd_out, :err => pipe_cmd_out)
+    cmd_pid = Process.spawn("RAILS_ENV=#{rails_env} ruby -I#{$native_lib_path} bin/rails runner '#noop'", :out => pipe_cmd_out, :err => pipe_cmd_out)
 
     Timeout.timeout(10) do
       Process.wait(cmd_pid)
