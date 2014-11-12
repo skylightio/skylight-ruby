@@ -108,9 +108,9 @@ module SqlLexer
       array:       :process_array
     }
 
-    def self.bindify(string, binds=nil)
+    def self.bindify(string, binds=nil, strip_comments=false)
       scanner = instance(string)
-      scanner.process(binds)
+      scanner.process(binds, strip_comments)
       [scanner.title, scanner.output, scanner.binds]
     end
 
@@ -176,8 +176,8 @@ module SqlLexer
     PLACEHOLDER = "?".freeze
     UNKNOWN = "<unknown>".freeze
 
-    def process(binds)
-      process_comments
+    def process(binds, strip_comments)
+      process_comments(strip_comments)
 
       @operation = nil
       @provided_binds = binds
@@ -220,9 +220,33 @@ module SqlLexer
       nil
     end
 
-    EMPTY = "".freeze
+    def replace_comment(pos, length, strip)
+      if strip
+        # Dup the string if necessary so we aren't destructive to the original value
+        if @input == @original_input
+          @input = @input.dup
+          @scanner.string = @input
+        end
 
-    def process_comments
+        # Replace the comment with a space to ensure valid SQL
+        # Updating the input also updates the scanner
+        @input[pos, length] = SPACE
+        @output[pos, length] = SPACE
+
+        # Move back to start of removed string
+        @scanner.pos = pos
+      else
+        # Dup the string if necessary so we aren't destructive to the original value
+        @scanner.string = @input.dup if @scanner.string == @original_input
+
+        # Replace the comment with spaces
+        @scanner.string[pos, length] = SPACE*length
+      end
+    end
+
+    def process_comments(strip_comments)
+      @original_input = @input
+
       # SQL treats comments as similar to whitespace
       # Here we replace all comments with spaces of the same length so as to not affect binds
 
@@ -256,10 +280,7 @@ module SqlLexer
           if count == 0
             # We've closed all comments
             length = @scanner.charpos - pos
-            # Dup the string if necessary so we aren't destructive to the original value
-            @scanner.string = @input.dup if @scanner.string == @input
-            # Replace the comment with spaces
-            @scanner.string[pos, length] = SPACE*length
+            replace_comment(pos, length, strip_comments)
             break
           end
         end
@@ -271,10 +292,7 @@ module SqlLexer
       while @scanner.skip_until(TkComment)
         pos = @scanner.charpos
         len = @scanner.matched_size
-        # Dup the string if necessary so we aren't destructive to the original value
-        @scanner.string = @input.dup if @scanner.string == @input
-        # Replace the comment with spaces
-        @scanner.string[pos-len, len] = SPACE*len
+        replace_comment(pos-len, len, strip_comments)
       end
 
       @scanner.reset
