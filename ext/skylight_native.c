@@ -1,6 +1,7 @@
 #include <dlfcn.h>
 #include <ruby.h>
 #include <skylight_dlopen.h>
+#include <skylight_native.h>
 
 #ifdef HAVE_RUBY_ENCODING_H
 #include <ruby/encoding.h>
@@ -189,6 +190,8 @@ instrumenter_start_nogvl(sky_instrumenter_t* instrumenter) {
    */
 
   if (sky_instrumenter_start(instrumenter) == 0) {
+    sky_activate_memprof();
+
     return (void*) Qtrue;
   }
   else {
@@ -214,6 +217,8 @@ instrumenter_stop(VALUE self) {
   CHECK_FFI(
       sky_instrumenter_stop(instrumenter),
       "native Instrumenter#stop failed");
+
+  sky_deactivate_memprof();
 
   return Qnil;
 }
@@ -251,6 +256,8 @@ trace_new(VALUE klass, VALUE start, VALUE uuid, VALUE endpoint) {
   CHECK_FFI(
       sky_trace_new(NUM2ULL(start), STR2BUF(uuid), STR2BUF(endpoint), &trace),
       "native Trace#new failed");
+
+  sky_clear_allocation_count();
 
   return Data_Wrap_Struct(rb_cTrace, NULL, sky_trace_free, trace);
 }
@@ -325,6 +332,10 @@ trace_start_span(VALUE self, VALUE time, VALUE category) {
       sky_trace_instrument(trace, NUM2ULL(time), STR2BUF(category), &span),
       "native Trace#start_span failed");
 
+  if (sky_have_memprof()) {
+    sky_trace_span_add_uint_annotation(trace, span, 2, sky_consume_allocations());
+  }
+
   return UINT2NUM(span);
 }
 
@@ -336,6 +347,10 @@ trace_stop_span(VALUE self, VALUE span, VALUE time) {
 
   CHECK_NUMERIC(time);
   CHECK_TYPE(span, T_FIXNUM);
+
+  if (sky_have_memprof()) {
+    sky_trace_span_add_uint_annotation(trace, FIX2UINT(span), 1, sky_consume_allocations());
+  }
 
   CHECK_FFI(
       sky_trace_span_done(trace, FIX2UINT(span), NUM2ULL(time)),
