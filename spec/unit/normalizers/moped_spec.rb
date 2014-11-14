@@ -18,6 +18,28 @@ module Skylight
       annotations.should == { binds: ["bar", "qux"], skip: 0 }
     end
 
+    if defined?(Mongoid)
+      class Artist
+        include Mongoid::Document
+        field :name, type: String
+        field :signed_at, type: Time
+      end
+    end
+
+    it "normalizes QUERY with a Time" do
+      Mongoid.load!(File.expand_path("../../../support/mongoid.yml", __FILE__), :development)
+
+      time = Time.now
+      artists = Artist.where(signed_at: time)
+
+      category, title, description, annotations = normalize(ops: [artists.query.operation])
+
+      category.should    == "db.mongo.query"
+      title.should       == "QUERY skylight_artists"
+      description.should == { signed_at: '?' }.to_json
+      annotations.should == { binds: [time.utc.to_s], skip: 0 }
+    end
+
     it "normalizes GET_MORE" do
       op = Moped::Protocol::GetMore.new("testdb", "testcollection", "cursor123", 10)
       category, title, description, annotations = normalize(ops: [op])
