@@ -1,3 +1,14 @@
+## 0.4.2 (November 12, 2014)
+
+* [BUGFIX] Fix exit status on MRI 1.9.2
+* [BUGFIX] Strip SQL comments for better aggregation
+
+## 0.4.1 (November 7, 2014)
+
+* [BUGFIX] Fix downloading native agent on 32bit systems
+* [BUGFIX] Support legacy config settings
+* [FEATURE] Check FS permissions on instrumenter start
+
 ## 0.4.0 (November 3, 2014)
 
 * Featherweight Agent: lowered CPU and memory overhead
