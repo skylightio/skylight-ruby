@@ -1,3 +1,8 @@
+## 0.5.0 (unreleased)
+* [FEATURE] Track object allocations per span
+* [BUGFIX] Fix exit status in 1.9.2
+* [IMPROVEMENT] Fix C warnings
+
 ## 0.4.2 (November 12, 2014)
 
 * [BUGFIX] Fix exit status on MRI 1.9.2
