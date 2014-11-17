@@ -1,4 +1,4 @@
 module Skylight
-  VERSION = '0.5.0-beta1'
+  VERSION = '0.5.0-beta2'
 end
 
