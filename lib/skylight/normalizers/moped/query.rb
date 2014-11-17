@@ -117,18 +117,18 @@ module Skylight
         end
 
         def extract_binds(hash, binds=[])
-          hash = hash.dup
+          ret = {}
 
           hash.each do |k,v|
             if v.is_a?(Hash)
-              hash[k] = extract_binds(v, binds)[0]
+              ret[k] = extract_binds(v, binds)[0]
             else
               binds << stringify(hash[k])
-              hash[k] = '?'
+              ret[k] = '?'
             end
           end
 
-          [hash, binds]
+          [ret, binds]
         end
 
         def stringify(value)

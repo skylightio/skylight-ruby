@@ -38,6 +38,7 @@ require 'skylight/probes/net_http'
 
 begin
   require 'moped'
+  require 'mongoid'
 rescue LoadError
 end
 
@@ -83,7 +84,7 @@ puts "Skipping probes: #{skipped_probes.join(", ")}"  unless skipped_probes.empt
 RSpec.configure do |config|
   config.color = true
 
-  unless defined?(Moped)
+  unless defined?(Moped) && defined?(Mongoid)
     config.filter_run_excluding moped: true
   end
 
