@@ -44,7 +44,7 @@ describe 'skylight setup', :http, :agent do
 
     tmp('config/skylight.yml').should exist
 
-    c = Skylight::Config.load(tmp('config/skylight.yml'))
+    c = Skylight::Config.load(file: tmp('config/skylight.yml'))
     c[:application].should == 'my-app-id'
     c[:authentication].should == 'my-app-token'
   end

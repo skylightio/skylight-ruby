@@ -235,7 +235,7 @@ module Skylight
       end
 
       let :config do
-        Config.load(file, 'production', {
+        Config.load({file: file, environment: 'production'}, {
           'foo'                     => 'fail',
           'application'             => 'no',
           'SKYLIGHT_AUTHENTICATION' => 'my-token',
@@ -320,7 +320,7 @@ module Skylight
       end
 
       let :config do
-        Config.load(file, 'production', {
+        Config.load({file: file, environment: 'production'}, {
           'foo'               => 'fail',
           'application'       => 'no',
           'SK_AUTHENTICATION' => 'my-token',
@@ -372,21 +372,21 @@ module Skylight
 
     context "loading" do
       it "uses convential proxy env vars" do
-        c = Config.load(nil, :production, 'HTTP_PROXY' => 'http://foo.com:9872')
+        c = Config.load({environment: :production}, 'HTTP_PROXY' => 'http://foo.com:9872')
         c[:proxy_url].should == 'http://foo.com:9872'
 
-        c = Config.load(nil, :production, 'http_proxy' => 'http://bar.com:9872')
+        c = Config.load({environment: :production}, 'http_proxy' => 'http://bar.com:9872')
         c[:proxy_url].should == 'http://bar.com:9872'
       end
 
       it "normalizes convential proxy env vars" do
         # Curl doesn't require http:// prefix
-        c = Config.load(nil, :production, 'HTTP_PROXY' => 'foo.com:9872')
+        c = Config.load({environment: :production}, 'HTTP_PROXY' => 'foo.com:9872')
         c[:proxy_url].should == 'http://foo.com:9872'
       end
 
       it "prioritizes skylight's proxy env var" do
-        c = Config.load(nil, :production,
+        c = Config.load({environment: :production},
           'SKYLIGHT_PROXY_URL' => 'http://foo.com',
           'HTTP_PROXY' => 'http://bar.com')
 

@@ -36,7 +36,7 @@ module Skylight
       end
 
       it "gets details from HTTP_PROXY" do
-        http = Util::HTTP.new(Config.load_from_env(
+        http = Util::HTTP.new(Config.load({},
           'HTTP_PROXY' => "http://testing:otherpass@proxy.example.com:4321"))
 
         Net::HTTP.should_receive(:new).

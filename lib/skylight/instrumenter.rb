@@ -32,16 +32,13 @@ module Skylight
     def self.start!(config = nil)
       return @instance if @instance
 
-      # Initialize here so we can catch errors
-      config ||= Config.new
-
       LOCK.synchronize do
         return @instance if @instance
         @instance = new(config).start!
       end
     rescue => e
       message = sprintf("[SKYLIGHT] [#{Skylight::VERSION}] Unable to start Instrumenter; msg=%s; class=%s", e.message, e.class)
-      if config
+      if config && config.respond_to?(:logger)
         config.logger.warn message
       else
         warn message
@@ -72,16 +69,11 @@ module Skylight
       end
     end
 
-
     attr_reader :config, :gc, :trace_info
 
     def self.new(config)
-      if config.nil?
-        raise ArgumentError, "config is required"
-      elsif Hash === config
-        config = Config.new(config)
-      end
-
+      config ||= {}
+      config = Config.load(config) unless config.is_a?(Config)
       config.validate!
 
       inst = native_new(config.to_env)

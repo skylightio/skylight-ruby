@@ -171,9 +171,12 @@ module Skylight
       end
     end
 
-    def self.load(path = nil, environment = nil, env = ENV)
+    def self.load(opts = {}, env = ENV)
       attrs   = {}
       version = nil
+
+      path = opts.delete(:file)
+      environment = opts.delete(:environment)
 
       if path
         error = nil
@@ -194,11 +197,13 @@ module Skylight
         attrs[:priority] = remap_env(env)
       end
 
-      new(environment, attrs)
-    end
+      config = new(environment, attrs)
 
-    def self.load_from_env(env = ENV)
-      self.load(nil, nil, env)
+      opts.each do |k, v|
+        config[k] = v
+      end
+
+      config
     end
 
     def self.remap_key(key)
