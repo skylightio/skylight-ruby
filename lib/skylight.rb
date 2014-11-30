@@ -121,4 +121,6 @@ module Skylight
   end
 
   require 'skylight/probes'
+  require 'skylight/probes/sinatra'
+  require 'skylight/probes/tilt'
 end

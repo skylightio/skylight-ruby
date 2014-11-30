@@ -21,10 +21,19 @@ require "support/native"
 begin
   require 'excon'
   require 'skylight/probes/excon'
+rescue LoadError
+end
 
+begin
   require 'redis'
   require 'fakeredis'
   require 'skylight/probes/redis'
+rescue LoadError
+end
+
+begin
+  require 'tilt'
+  require 'skylight/probes/tilt'
 rescue LoadError
 end
 

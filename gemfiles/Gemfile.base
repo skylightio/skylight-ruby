@@ -23,3 +23,7 @@ unless ENV['SKIP_EXTERNAL']
   gem 'redis'
   gem 'fakeredis'
 end
+
+unless ENV['SKIP_TILT']
+  gem 'tilt'
+end
