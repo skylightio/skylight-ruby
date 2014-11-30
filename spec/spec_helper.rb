@@ -13,6 +13,8 @@ require 'rspec/collection_matchers'
 require 'webmock/rspec'
 WebMock.disable!
 
+require 'rack/test'
+
 # Loads Skylight + the native extension such that missing the native extension
 # will report more helpful errors
 require "support/native"
@@ -34,6 +36,12 @@ end
 begin
   require 'tilt'
   require 'skylight/probes/tilt'
+rescue LoadError
+end
+
+begin
+  require 'sinatra'
+  require 'skylight/probes/sinatra'
 rescue LoadError
 end
 

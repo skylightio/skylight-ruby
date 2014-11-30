@@ -24,6 +24,10 @@ unless ENV['SKIP_EXTERNAL']
   gem 'fakeredis'
 end
 
-unless ENV['SKIP_TILT']
+unless ENV['SKIP_TILT'] || ENV['SKIP_SINATRA']
   gem 'tilt'
+end
+
+unless ENV['SKIP_SINATRA']
+  gem 'sinatra'
 end

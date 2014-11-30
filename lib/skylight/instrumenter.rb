@@ -23,6 +23,12 @@ module Skylight
       end
     end
 
+    def self.mock!(&callback)
+      @instance = self.allocate.tap do |inst|
+        inst.send(:initialize, Config.new(mock_submission: callback))
+      end
+    end
+
     def self.instance
       @instance
     end
@@ -135,7 +141,7 @@ module Skylight
 
     def shutdown
       @subscriber.unregister!
-      native_stop
+      native_stop unless config.key?(:mock_submission)
     end
 
     def trace(endpoint, cat, title=nil, desc=nil, annot=nil)
@@ -245,10 +251,12 @@ module Skylight
       if ignore?(trace)
         t { fmt "ignoring trace" }
         return false
+      elsif config.key?(:mock_submission)
+        config[:mock_submission].call(trace)
       end
 
       begin
-        native_submit_trace(trace)
+        native_submit_trace(trace) unless config.key?(:mock_submission)
         true
       rescue => e
         warn "failed to submit trace to worker; err=%s", e
