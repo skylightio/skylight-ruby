@@ -123,4 +123,5 @@ module Skylight
   require 'skylight/probes'
   require 'skylight/probes/sinatra'
   require 'skylight/probes/tilt'
+  require 'skylight/probes/sequel'
 end

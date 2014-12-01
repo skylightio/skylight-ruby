@@ -27,7 +27,10 @@ module Skylight
 
     def self.mock!(&callback)
       @instance = self.allocate.tap do |inst|
-        inst.send(:initialize, Config.new(mock_submission: callback))
+        inst.instance_eval do
+          initialize Config.new(mock_submission: callback || proc {})
+          @subscriber.register!
+        end
       end
     end
 

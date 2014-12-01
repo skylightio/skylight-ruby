@@ -45,6 +45,12 @@ begin
 rescue LoadError
 end
 
+begin
+  require 'sequel'
+  require 'skylight/probes/sequel'
+rescue LoadError
+end
+
 require 'net/http'
 require 'skylight/probes/net_http'
 

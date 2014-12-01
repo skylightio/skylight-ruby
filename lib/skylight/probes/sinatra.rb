@@ -5,6 +5,16 @@ module Skylight
         def install
           class << ::Sinatra::Base
             alias build_without_sk build
+            alias compile_without_sk! compile!
+
+            def compile!(verb, path, *args, &block)
+              compile_without_sk!(verb, path, *args, &block).tap do |_, _, _, wrapper|
+                if path.is_a?(Regexp)
+                  human_readable = "<sk-regex>%r{#{path.source}}</sk-regex>"
+                  wrapper.instance_variable_set(:@route_name, "#{verb} #{human_readable}")
+                end
+              end
+            end
 
             def build(*args, &block)
               self.use Skylight::Middleware
@@ -18,8 +28,13 @@ module Skylight
 
             def dispatch!(*args, &block)
               dispatch_without_sk!(*args, &block).tap do
+                instrumenter = Skylight::Instrumenter.instance
+                next unless instrumenter
+                trace = instrumenter.current_trace
+                next unless trace
+
                 route = env['sinatra.route']
-                Skylight::Instrumenter.instance.current_trace.endpoint = route if route
+                trace.endpoint = route if route
               end
             end
 
@@ -38,6 +53,6 @@ module Skylight
       end
     end
 
-    register("Sinatra", "sinatra", Sinatra::Probe.new)
+    register("Sinatra::Base", "sinatra/base", Sinatra::Probe.new)
   end
 end

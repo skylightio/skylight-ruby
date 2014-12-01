@@ -6,6 +6,8 @@ module Skylight
     module ActiveRecord
       class SQL < Normalizer
         register "sql.active_record"
+        register "sql.sequel"
+        register "sql.data_mapper"
 
         CAT = "db.sql.query".freeze
 
@@ -24,7 +26,7 @@ module Skylight
             binds = binds.map { |col, val| val.inspect }
           end
 
-          extracted_title, sql, binds, error = extract_binds(payload, binds)
+          extracted_title, sql, binds, _ = extract_binds(payload, binds)
           title = extracted_title if extracted_title
 
           if sql

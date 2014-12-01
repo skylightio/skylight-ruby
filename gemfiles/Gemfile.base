@@ -31,3 +31,8 @@ end
 unless ENV['SKIP_SINATRA']
   gem 'sinatra'
 end
+
+unless ENV['SKIP_SEQUEL']
+  gem 'sequel'
+  gem 'sqlite3'
+end
