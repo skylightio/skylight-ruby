@@ -20,5 +20,30 @@ unless ENV['SKYLIGHT_DISABLE_AGENT']
   end
 end
 
+module Skylight
+  class Instrumenter
+    alias native_submit_trace_without_mock native_submit_trace
+    alias native_stop_without_mock native_stop
+
+    def self.mock!(&callback)
+      @instance = self.allocate.tap do |inst|
+        inst.send(:initialize, Config.new(mock_submission: callback))
+      end
+    end
+
+    def native_submit_trace(trace)
+      if config.key?(:mock_submission)
+        config[:mock_submission].call(trace)
+      else
+        native_submit_trace_without_mock(trace)
+      end
+    end
+
+    def native_stop
+      native_stop_without_mock unless config.key?(:mock_submission)
+    end
+  end
+end
+
 # Load everything else
 require 'skylight'
