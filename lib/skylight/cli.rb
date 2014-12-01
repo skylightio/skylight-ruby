@@ -41,6 +41,11 @@ repository and deploy from there. You can learn more about the process at:
 
   http://docs.skylight.io/getting-started/#deploy
 
+If you want to specify the authentication token as an environment variable,
+you should set the `SKYLIGHT_AUTHENTICATION` variable to:
+
+  #{config[:authentication]}
+
       OUT
     rescue Api::CreateFailed => e
       say "Could not create the application", :red

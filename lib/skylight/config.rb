@@ -387,9 +387,6 @@ module Skylight
       File.open(path, 'w') do |f|
         f.puts <<-YAML
 ---
-# The Skylight ID for the application.
-application: #{self[:application]}
-
 # The authentication token for the application.
 authentication: #{self[:authentication]}
         YAML
