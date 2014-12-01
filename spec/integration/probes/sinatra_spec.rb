@@ -55,6 +55,13 @@ describe 'Sinatra integration', :sinatra_probe, :agent do
   end
 
   it "instruments inline templates" do
+    @expected_endpoint = "GET /inline-template"
 
+    Skylight.should_receive(:instrument).with(
+      category: "view.render.template",
+      title: "Inline template (erb)"
+    ).and_call_original
+
+    get "/inline-template"
   end
 end

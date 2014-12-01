@@ -28,7 +28,7 @@ module Skylight
               when Symbol
                 options[:sky_virtual_path] = data.to_s
               else
-                options[:sky_virtual_path] = "Inline template"
+                options[:sky_virtual_path] = "Inline template (#{engine})"
               end
 
               compile_template_without_sk(engine, data, options, *args, &block)
