@@ -9,9 +9,22 @@ module Skylight
 
             def compile!(verb, path, *args, &block)
               compile_without_sk!(verb, path, *args, &block).tap do |_, _, _, wrapper|
+                # Deal with the situation where the path is a regex, and the default behavior
+                # of Ruby stringification produces an unreadable mess
                 if path.is_a?(Regexp)
                   human_readable = "<sk-regex>%r{#{path.source}}</sk-regex>"
                   wrapper.instance_variable_set(:@route_name, "#{verb} #{human_readable}")
+                else
+                  wrapper.instance_variable_set(:@route_name, "#{verb} #{path}")
+                end
+
+                # Newer versions of Sinatra populate env['sinatra.route']. Polyfill older
+                # versions in a targeted but hackish way.
+                if ::Sinatra::VERSION < '1.4.0'
+                  def wrapper.[](app, args)
+                    app.env['sinatra.route'] = @route_name
+                    super
+                  end
                 end
               end
             end
@@ -33,12 +46,15 @@ module Skylight
                 trace = instrumenter.current_trace
                 next unless trace
 
+                # Set the endpoint name to the route name
                 route = env['sinatra.route']
                 trace.endpoint = route if route
               end
             end
 
             def compile_template(engine, data, options, *args, &block)
+              # Pass along a useful "virtual path" to Tilt. The Tilt probe will handle
+              # instrumenting correctly.
               case data
               when Symbol
                 options[:sky_virtual_path] = data.to_s

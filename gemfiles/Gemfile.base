@@ -9,6 +9,7 @@ gem 'webmock'
 gem 'beefcake', '< 1.0' # 1.0 doesn't work with 1.9.2
 gem 'rspec', '< 3.0', '> 2.0.0'
 gem 'rspec-collection_matchers'
+gem 'rack-test'
 
 ENV['SKIP_MOPED'] = 'true' if ENV['SKIP_EXTERNAL'] || RUBY_VERSION < '1.9.3'
 
@@ -26,10 +27,6 @@ end
 
 unless ENV['SKIP_TILT'] || ENV['SKIP_SINATRA']
   gem 'tilt'
-end
-
-unless ENV['SKIP_SINATRA']
-  gem 'sinatra', '1.3.6'
 end
 
 unless ENV['SKIP_SEQUEL']

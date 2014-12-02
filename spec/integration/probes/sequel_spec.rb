@@ -1,6 +1,20 @@
 require 'spec_helper'
 
 describe 'Sequel integration', :sequel_probe, :agent do
+  class RegexMatcher
+    def initialize(regex)
+      @regex = regex
+    end
+
+    def ==(value)
+      @regex === value
+    end
+
+    def description
+      "like #{@regex.inspect}"
+    end
+  end
+
   around do |example|
     Skylight::Instrumenter.mock!
     Skylight.trace("Rack") { example.run }
@@ -21,8 +35,12 @@ describe 'Sequel integration', :sequel_probe, :agent do
       String :name
     end
 
+    db[:items].count
+
     trace.should_receive(:instrument).with(
-      'db.sql.query', 'SELECT FROM items', 'SELECT COUNT(*) AS ? FROM `items` LIMIT ?', anything
+      'db.sql.query', 'SELECT FROM items',
+      RegexMatcher.new(/^SELECT count\(\*\) AS \? FROM `items` LIMIT \?$/i),
+      anything
     ).and_call_original
 
     db[:items].count

@@ -31,7 +31,13 @@ module SpecHelper
 
   def with_standalone(opts={})
     # Make sure this is executed before we mess with the env, just in case
-    opts[:rails_version] ||= rails_version
+
+    begin
+      opts[:rails_version] ||= rails_version
+    rescue LoadError
+      return
+    end
+
     opts[:port] ||= 9292
 
     # This also resets other ENV vars that are set in the block
