@@ -23,7 +23,7 @@ describe "CLI integration", :http do
         begin
           read(stdout).should include("Congratulations. Your application is on Skylight!")
 
-          YAML.load_file("config/skylight.yml").should == {"application"=>"appid", "authentication"=>"apptoken"}
+          YAML.load_file("config/skylight.yml").should == {"authentication"=>"apptoken"}
         rescue
           # Provide some potential debugging information
           puts stderr.read if ENV['DEBUG']
@@ -90,7 +90,7 @@ describe "CLI integration", :http do
 
           read(stdout).should include("Congratulations. Your application is on Skylight!")
 
-          YAML.load_file("config/skylight.yml").should == {"application"=>"appid", "authentication"=>"apptoken"}
+          YAML.load_file("config/skylight.yml").should == {"authentication"=>"apptoken"}
         rescue
           # Provide some potential debugging information
           puts stderr.read if ENV['DEBUG']

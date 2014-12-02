@@ -133,7 +133,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments https requests" do
-    pending "needs test server tweaks"
+    skip "needs test server tweaks"
 
     # Skylight.should_receive(:instrument).with(category: "api.http.get", title: "GET localhost",
     #                                             description: "GET #{server_uri}/test.html").and_call_original

@@ -29,7 +29,7 @@ unless ENV['SKIP_TILT'] || ENV['SKIP_SINATRA']
 end
 
 unless ENV['SKIP_SINATRA']
-  gem 'sinatra'
+  gem 'sinatra', '1.3.6'
 end
 
 unless ENV['SKIP_SEQUEL']
