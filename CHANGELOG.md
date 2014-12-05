@@ -1,4 +1,6 @@
-## 0.5.0 (unreleased)
+## 0.5.0 (December 4, 2014)
+* [IMPROVEMENT] Automatically load configuration from ENV
+* [BUGFIX] Fix Moped integration
 * [FEATURE] Track object allocations per span
 * [BUGFIX] Fix exit status in 1.9.2
 * [IMPROVEMENT] Fix C warnings
