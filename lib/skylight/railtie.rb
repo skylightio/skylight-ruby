@@ -31,8 +31,6 @@ module Skylight
           else
             Rails.logger.info "[SKYLIGHT] [#{Skylight::VERSION}] Unable to start"
           end
-        else
-          Rails.logger.warn "[SKYLIGHT] [#{Skylight::VERSION}] No configuration found; disabling Skylight agent"
         end
       elsif Rails.env.development?
         log_warning config, "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app.\n" \

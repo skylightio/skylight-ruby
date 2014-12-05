@@ -277,16 +277,16 @@ module Skylight
 
       if File.exist?(pidfile)
         if !FileTest.writable?(pidfile)
-          raise "`#{pidfile}` not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path."
+          raise ConfigError, "File `#{pidfile}` not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path"
         end
       else
         if !FileTest.writable?(pidfile_root)
-          raise "`#{pidfile_root}` not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path."
+          raise ConfigError, "Directory `#{pidfile_root}` not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path"
         end
       end
 
       unless FileTest.writable?(sockdir_path)
-        raise "`#{sockdir_path}` not writable. Please set daemon.sockdir_path in your config to a writable path."
+        raise ConfigError, "Directory `#{sockdir_path}` not writable. Please set daemon.sockdir_path in your config to a writable path"
       end
     end
 
