@@ -1,9 +1,11 @@
 ## 0.5.0 (December 4, 2014)
 * [IMPROVEMENT] Automatically load configuration from ENV
-* [BUGFIX] Fix Moped integration
 * [FEATURE] Track object allocations per span
-* [BUGFIX] Fix exit status in 1.9.2
 * [IMPROVEMENT] Fix C warnings
+
+## 0.4.3 (November 17, 2014)
+
+* [BUGFIX] Fix Moped integration when queries include times
 
 ## 0.4.2 (November 12, 2014)
 
