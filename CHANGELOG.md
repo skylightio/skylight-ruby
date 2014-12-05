@@ -1,3 +1,7 @@
+## 0.5.1 (December 5, 2014)
+
+* [BUGFIX] Fix issues with working directory dissappearing
+
 ## 0.5.0 (December 4, 2014)
 * [IMPROVEMENT] Automatically load configuration from ENV
 * [FEATURE] Track object allocations per span
