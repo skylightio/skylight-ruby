@@ -412,6 +412,16 @@ authentication: #{self[:authentication]}
       get('test.ignore_token')
     end
 
+    # @api private
+    def ignored_endpoints
+      @ignored_endpoints ||=
+        begin
+          val = Array(get(:'ignored_endpoint'))
+          val.concat(Array(get(:'ignored_endpoints')))
+          val
+        end
+    end
+
     def root
       self[:root] || Dir.pwd
     end

@@ -7,8 +7,6 @@
 #include <ruby/encoding.h>
 #endif
 
-#define UNUSED(x) (void)(x)
-
 #define TO_S(VAL) \
   RSTRING_PTR(rb_funcall(VAL, rb_intern("to_s"), 0))
 

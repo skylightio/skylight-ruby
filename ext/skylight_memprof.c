@@ -48,6 +48,12 @@ static sky_allocations_t* get_allocations() {
 #endif
 
 static void sky_increment_allocation(rb_event_flag_t flag, VALUE data, VALUE self, ID mid, VALUE klass) {
+  UNUSED(flag);
+  UNUSED(data);
+  UNUSED(self);
+  UNUSED(mid);
+  UNUSED(klass);
+
   get_allocations()->allocations++;
 }
 

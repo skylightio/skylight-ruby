@@ -15,4 +15,6 @@ void sky_clear_allocation_count(void);
 
 int sky_have_memprof(void);
 
+#define UNUSED(x) (void)(x)
+
 #endif
