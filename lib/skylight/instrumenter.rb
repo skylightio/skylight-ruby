@@ -257,7 +257,7 @@ module Skylight
     end
 
     def ignore?(trace)
-      config.key?(:ignored_endpoint) && trace.endpoint == config[:ignored_endpoint]
+      @config.ignored_endpoints.include?(trace.endpoint)
     end
 
     # Validates that the provided authentication token is valid. This is done
