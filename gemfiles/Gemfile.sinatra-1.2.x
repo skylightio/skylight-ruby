@@ -6,3 +6,4 @@ gem 'sinatra', '~> 1.2.9'
 
 # To support 1.9.2
 gem 'activesupport', '< 4.0.0'
+gem 'i18n', '0.6.11'
