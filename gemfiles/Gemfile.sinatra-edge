@@ -1,4 +1,4 @@
-ENV["SKIP_MOPED"] = true
+ENV["SKIP_MOPED"] = "true"
 
 eval_gemfile File.expand_path('../Gemfile.base', __FILE__)
 
