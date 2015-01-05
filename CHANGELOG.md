@@ -1,3 +1,15 @@
+## 0.6.0 - Beta 1 (January 5, 2014)
+
+* [IMPROVEMENT] Eliminates runtime dependency on the Rails
+  constant across the entire codebase
+* [FEATURE] Support for Sinatra applications. During the
+  beta period, this requires an opt-in via
+  `require "skylight/sinatra". See http://docs.skylight.io/sinatra/
+* [FEATURE] Support for the Sequel ORM (off by default for Rails apps
+  during the beta)
+* [FEATURE] Support for Tilt templates (off by default for Rails apps
+  during the beta)
+
 ## 0.5.2 (December 15, 2014)
 
 * [IMPROVEMENT] Support ignoring multiple heartbeat endpoints
