@@ -89,18 +89,21 @@ module Skylight
 
       # Mount a regular expression that will match part by part of the constant.
       #
-      #   const_regexp("Foo::Bar::Baz") # => /Foo(::Bar(::Baz)?)?/
+      #   const_regexp("Foo::Bar::Baz") # => /(Foo(::Bar(::Baz)?)?|Bar|Baz)/
       #   const_regexp("::")            # => /::/
+      #
+      # NOTE: We also add each part in singly, because sometimes a search for a missing
+      # constant like Skylight::Foo::Bar will return an error just saying Foo was missing
       def const_regexp(camel_cased_word) #:nodoc:
         parts = camel_cased_word.split("::")
 
         return Regexp.escape(camel_cased_word) if parts.empty?
 
-        last  = parts.pop
-
-        parts.reverse.inject(last) do |acc, part|
+        regexp = parts.reverse.inject do |acc, part|
           part.empty? ? acc : "#{part}(::#{acc})?"
         end
+
+        "(" + ([regexp] + parts[1..-1]).join('|') + ")"
       end
     end
   end

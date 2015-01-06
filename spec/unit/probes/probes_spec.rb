@@ -22,7 +22,11 @@ module Skylight
       subject.is_available?("Skylight").should be_truthy
       subject.is_available?("Skylight::Probes").should be_truthy
       subject.is_available?("Nonexistent").should be_falsey
+
       subject.is_available?("Skylight::Nonexistent").should be_falsey
+      # For some reason this can behave slightly differently than the previous one in certain
+      # versions of Rails. In 2.2.0 they appear to behave identically.
+      subject.is_available?("Skylight::Fail").should be_falsey
     end
 
     it "installs probe if constant is available" do
