@@ -30,7 +30,8 @@ gemfile:
   - gemfiles/Gemfile.sinatra-1.2.x
   - gemfiles/Gemfile.sinatra-1.3.x
   - gemfiles/Gemfile.sinatra-edge
-  - gemfiles/Gemfile.rails-edge
+  # Declared manually in the matrix include due to Mongoid compat issues
+  # - gemfiles/Gemfile.rails-edge
 
 matrix:
   exclude:
@@ -56,6 +57,17 @@ matrix:
       env: SKYLIGHT_DISABLE_AGENT=true
     - rvm: 2.1.5
       env: SKYLIGHT_DISABLE_AGENT=true
+
+  include:
+    # Mongoid requires ActiveModel ~> 4.0
+    - rvm: 2.2.0
+      env: SKIP_MOPED=true
+      gemfile: gemfiles/Gemfile.rails-edge
+    - rvm: 2.2.0
+      env:
+        - SKIP_MOPED=true
+        - SKYLIGHT_DISABLE_AGENT=true
+      gemfile: gemfiles/Gemfile.rails-edge
 
   allow_failures:
     # Testing edge is nice, but it probably shouldn't kill the build

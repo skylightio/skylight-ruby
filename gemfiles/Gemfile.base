@@ -15,7 +15,7 @@ ENV['SKIP_MOPED'] = 'true' if ENV['SKIP_EXTERNAL'] || RUBY_VERSION < '1.9.3'
 
 unless ENV['SKIP_MOPED']
   gem 'bson'
-  gem 'mongoid', '4.0.0'
+  gem 'mongoid', '~> 4.0.0'
   gem 'moped'
 end
 

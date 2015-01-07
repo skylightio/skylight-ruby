@@ -1,3 +1,4 @@
 eval_gemfile File.expand_path('../Gemfile.base', __FILE__)
 
-gem 'rails', git: 'https://github.com/rails/rails.git'
+gem 'arel', github: 'rails/arel', branch: 'master'
+gem 'rails', github: 'rails/rails', branch: 'master'
