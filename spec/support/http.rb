@@ -212,6 +212,7 @@ module SpecHelper
     opts[:environment] ||= 'test'
     opts[:Logger]      ||= WEBrick::Log.new("/dev/null", 7)
     opts[:AccessLog]   ||= []
+    opts[:debug]       ||= ENV['DEBUG']
 
     Server.start(opts)
     server.reset
