@@ -1,12 +1,15 @@
 ## 0.6.0 (January 27, 2015)
 
-* [FEATURE] Sinatra support - See http://docs.skylight.io/sinatra/
-* [FEATURE] Tilt probe
-* [FEATURE] Sequel probe
+* [IMPROVEMENT] Eliminates runtime dependency on the Rails
+  constant across the entire codebase
+* [FEATURE] Support for Sinatra applications. See http://docs.skylight.io/sinatra/
+* [FEATURE] Support for the Sequel ORM (off by default for Rails apps)
+* [FEATURE] Support for Tilt templates (off by default for Rails apps)
 
 ## 0.5.2 (December 15, 2014)
 
-* [FEATURE] Add support for ignoring multiple endpoints (via YAML configuration)
+* [IMPROVEMENT] Support ignoring multiple heartbeat endpoints
+* [BUGFIX] Fix compilation errors on old GCC
 
 ## 0.5.1 (December 5, 2014)
 
