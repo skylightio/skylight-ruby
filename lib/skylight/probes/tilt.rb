@@ -1,4 +1,4 @@
-# Supports 0.2+, though Sinatra doesn't support 2.0
+# Supports 0.2+, though Sinatra doesn't support 2.0, and Rails doesn't work with older versions
 module Skylight
   module Probes
     module Tilt
