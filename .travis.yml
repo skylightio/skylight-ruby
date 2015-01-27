@@ -68,6 +68,17 @@ matrix:
         - SKIP_MOPED=true
         - SKYLIGHT_DISABLE_AGENT=true
       gemfile: gemfiles/Gemfile.rails-edge
+    # Test old Tilt version
+    - rvm: 2.2.0
+      env:
+        - TILT_VERSION=0.2
+      gemfile: gemfiles/Gemfile.sinatra-edge
+    # Test old Sequel version
+    - rvm: 2.2.0
+      env:
+        - SEQUEL_VERSION=3.12.0
+      gemfile: gemfiles/Gemfile.sinatra-edge
+
 
   allow_failures:
     # Testing edge is nice, but it probably shouldn't kill the build

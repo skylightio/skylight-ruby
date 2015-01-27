@@ -26,10 +26,10 @@ unless ENV['SKIP_EXTERNAL']
 end
 
 unless ENV['SKIP_TILT'] || ENV['SKIP_SINATRA']
-  gem 'tilt'
+  gem 'tilt', ENV['TILT_VERSION'] || '> 0'
 end
 
 unless ENV['SKIP_SEQUEL']
-  gem 'sequel'
+  gem 'sequel', ENV['SEQUEL_VERSION'] || '> 0'
   gem 'sqlite3'
 end
