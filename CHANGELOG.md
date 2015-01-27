@@ -1,3 +1,7 @@
+## 0.5.2 (December 15, 2014)
+
+* [FEATURE] Add support for ignoring multiple endpoints (via YAML configuration)
+
 ## 0.5.1 (December 5, 2014)
 
 * [BUGFIX] Fix issues with working directory dissappearing
