@@ -1,3 +1,4 @@
+# Supports 3.12.0+
 module Skylight
   module Probes
     module Sequel

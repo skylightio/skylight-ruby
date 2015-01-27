@@ -26,7 +26,7 @@ unless ENV['SKIP_EXTERNAL']
 end
 
 unless ENV['SKIP_TILT'] || ENV['SKIP_SINATRA']
-  gem 'tilt', ENV['TILT_VERSION'] || '> 0'
+  gem 'tilt', ENV['TILT_VERSION'] || '~> 1.4.1'
 end
 
 unless ENV['SKIP_SEQUEL']

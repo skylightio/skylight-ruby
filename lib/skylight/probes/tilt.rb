@@ -1,3 +1,4 @@
+# Supports 0.2+, though Sinatra doesn't support 2.0
 module Skylight
   module Probes
     module Tilt
