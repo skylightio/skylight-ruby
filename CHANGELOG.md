@@ -1,3 +1,9 @@
+## 0.6.0 (January 27, 2015)
+
+* [FEATURE] Sinatra support - See http://docs.skylight.io/sinatra/
+* [FEATURE] Tilt probe
+* [FEATURE] Sequel probe
+
 ## 0.5.2 (December 15, 2014)
 
 * [FEATURE] Add support for ignoring multiple endpoints (via YAML configuration)
