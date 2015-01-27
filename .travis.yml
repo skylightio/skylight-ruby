@@ -68,11 +68,11 @@ matrix:
         - SKIP_MOPED=true
         - SKYLIGHT_DISABLE_AGENT=true
       gemfile: gemfiles/Gemfile.rails-edge
-    # Test old Tilt version
+    # Test old Tilt version (with Rails since Sinatra doesn't like old Tilt)
     - rvm: 2.2.0
       env:
         - TILT_VERSION=0.2
-      gemfile: gemfiles/Gemfile.sinatra-1.3.x
+      gemfile: gemfiles/Gemfile.rails-3.0.x
     # Test old Sequel version
     - rvm: 2.2.0
       env:
