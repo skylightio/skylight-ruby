@@ -15,7 +15,7 @@ module Skylight
     # The probes to load
     #   net_http is on by default
     #   Also available: excon, redis
-    config.skylight.probes = ['net_http']
+    config.skylight.probes = ['net_http', 'action_view']
 
     initializer 'skylight.configure' do |app|
       # Load probes even when agent is inactive to catch probe related bugs sooner

@@ -51,6 +51,13 @@ begin
 rescue LoadError
 end
 
+begin
+  require 'action_dispatch'
+  require 'action_view'
+  require 'skylight/probes/action_view'
+rescue LoadError
+end
+
 require 'net/http'
 require 'skylight/probes/net_http'
 
