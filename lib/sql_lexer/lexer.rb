@@ -150,7 +150,7 @@ module SqlLexer
 
     SPACE = " ".freeze
 
-    DEBUG = ENV["DEBUG"]
+    DEBUG = ENV["SKYLIGHT_SQL_DEBUG"]
 
     def init(string)
       @state   = :begin
