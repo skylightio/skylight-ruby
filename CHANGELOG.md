@@ -1,3 +1,7 @@
+## 0.6.2-beta (June 30, 2015)
+
+* [IMPROVEMENT] Improve representation of layouts in Rails 3.1+
+
 ## 0.6.1 (June 30, 2015)
 
 * [BUGFIX] Don't use $DEBUG to enable verbose internal logging
