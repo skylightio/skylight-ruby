@@ -1,3 +1,7 @@
+## 0.6.1 (June 30, 2015)
+
+* [BUGFIX] Don't use $DEBUG to enable verbose internal logging
+
 ## 0.6.0 (January 27, 2015)
 
 * [IMPROVEMENT] Eliminates runtime dependency on the Rails
