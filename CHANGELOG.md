@@ -1,4 +1,8 @@
-## 0.6.2-beta.1 (June 30, 2015)
+## 0.6.2-beta.2 (July 1, 2015)
+
+* No changes. Replaces bad 0.6.2-beta.1 build.
+
+## 0.6.2-beta.1 (June 30, 2015) [YANKED]
 
 * [FEATURE] Add probe on ActionView for layout renders
 
