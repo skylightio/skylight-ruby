@@ -1,3 +1,7 @@
+## 0.6.2-beta.1 (June 30, 2015)
+
+* [FEATURE] Add probe on ActionView for layout renders
+
 ## 0.6.1 (June 30, 2015)
 
 * [BUGFIX] Don't use $DEBUG to enable verbose internal logging
