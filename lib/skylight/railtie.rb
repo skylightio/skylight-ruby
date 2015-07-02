@@ -13,7 +13,7 @@ module Skylight
     config.skylight.config_path = "config/skylight.yml"
 
     # The probes to load
-    #   net_http is on by default
+    #   net_http and action_view are on by default
     #   Also available: excon, redis
     config.skylight.probes = ['net_http', 'action_view']
 
