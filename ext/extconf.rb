@@ -20,6 +20,10 @@ SKYLIGHT_FETCH_LIB  = !ENV.key?('SKYLIGHT_FETCH_LIB') || ENV['SKYLIGHT_FETCH_LIB
 SKYLIGHT_HDR_PATH = ENV['SKYLIGHT_HDR_PATH'] || ENV['SKYLIGHT_LIB_PATH'] || '.'
 SKYLIGHT_LIB_PATH = ENV['SKYLIGHT_LIB_PATH'] || File.expand_path("../../lib/skylight/native/#{Platform.tuple}", __FILE__)
 
+SKYLIGHT_SOURCE_URL = ENV['SKYLIGHT_SOURCE_URL']
+SKYLIGHT_VERSION = ENV['SKYLIGHT_VERSION']
+SKYLIGHT_CHECKSUM = ENV['SKYLIGHT_CHECKSUM']
+
 # Setup logger
 LOG = Logger.new(MultiIO.new(STDOUT, File.open(SKYLIGHT_INSTALL_LOG, 'a')))
 
@@ -74,22 +78,29 @@ if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(
     fail "`#{libskylight_yml}` does not contain data"
   end
 
-  unless version = libskylight_info["version"]
-    fail "libskylight version missing from `#{libskylight_yml}`"
-  end
+  if version = SKYLIGHT_VERSION
+    unless checksum = SKYLIGHT_CHECKSUM
+      fail "no checksum provided when using custom version"
+    end
+  else
+    unless version = libskylight_info["version"]
+      fail "libskylight version missing from `#{libskylight_yml}`"
+    end
 
-  unless checksums = libskylight_info["checksums"]
-    fail "libskylight checksums missing from `#{libskylight_yml}`"
-  end
+    unless checksums = libskylight_info["checksums"]
+      fail "libskylight checksums missing from `#{libskylight_yml}`"
+    end
 
-  unless checksum = checksums[Platform.tuple]
-    fail "no checksum entry for requested architecture -- " \
-             "this probably means the requested architecture is not supported; " \
-             "platform=#{Platform.tuple}; available=#{checksums.keys}", :info
+    unless checksum = checksums[Platform.tuple]
+      fail "no checksum entry for requested architecture -- " \
+               "this probably means the requested architecture is not supported; " \
+               "platform=#{Platform.tuple}; available=#{checksums.keys}", :info
+    end
   end
 
   begin
     res = NativeExtFetcher.fetch(
+      source:   SKYLIGHT_SOURCE_URL,
       version:  version,
       target:   hdrpath,
       checksum: checksum,

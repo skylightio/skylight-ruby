@@ -19,7 +19,7 @@ module Skylight
 
       def self.fetch(opts = {})
         fetcher = new(
-          BASE_URL,
+          opts[:source] || BASE_URL,
           opts[:target],
           opts[:version],
           opts[:checksum],
