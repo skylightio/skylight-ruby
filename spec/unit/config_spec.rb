@@ -256,6 +256,8 @@ module Skylight
 
   production:
     stuff: waaa
+
+  erb: <%= 'interpolated' %>
           YML
         end
 
@@ -281,6 +283,10 @@ module Skylight
 
         it 'still overrides' do
           config['stuff'].should == 'waaa'
+        end
+
+        it 'interpolates ERB' do
+          config['erb'].should == 'interpolated'
         end
 
       end

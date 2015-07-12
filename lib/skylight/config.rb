@@ -3,6 +3,7 @@ require 'yaml'
 require 'fileutils'
 require 'thread'
 require 'openssl'
+require 'erb'
 require 'skylight/util/hostname'
 require 'skylight/util/logging'
 require 'skylight/util/platform'
@@ -181,7 +182,7 @@ module Skylight
       if path
         error = nil
         begin
-          attrs = YAML.load_file(path)
+          attrs = YAML.load(ERB.new(File.read(path)).result)
           error = "empty file" unless attrs
           error = "invalid format" if attrs && !attrs.is_a?(Hash)
         rescue Exception => e
