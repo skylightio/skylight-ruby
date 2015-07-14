@@ -146,6 +146,17 @@ describe "Skylight::Instrumenter", :http, :agent do
         yield if block_given?
       end
 
+      def self.singleton_method_without_options
+        yield if block_given?
+      end
+      instrument_class_method :singleton_method_without_options
+
+      def self.singleton_method_with_options
+        yield if block_given?
+      end
+      instrument_class_method :singleton_method_with_options,
+        category: 'app.singleton',
+        title: 'Singleton Method'
     end
 
     it 'tracks instrumented methods using the helper' do
@@ -168,6 +179,12 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         clock.skip 0.1
         MyClass.singleton_method { clock.skip 0.1 }
+
+        clock.skip 0.1
+        MyClass.singleton_method_without_options { clock.skip 0.1 }
+
+        clock.skip 0.1
+        MyClass.singleton_method_with_options { clock.skip 0.1 }
       end
 
       clock.unfreeze
@@ -180,13 +197,13 @@ describe "Skylight::Instrumenter", :http, :agent do
       ep.traces.count.should == 1
 
       t = ep.traces[0]
-      t.spans.count.should == 5
+      t.spans.count.should == 7
 
       # Root span
       t.spans[0].should == span(
         event:      event('app.rack.request'),
         started_at: 0,
-        duration:   10_000 )
+        duration:   14_000 )
 
       t.spans[1].should == span(
         parent:     0,
@@ -210,6 +227,18 @@ describe "Skylight::Instrumenter", :http, :agent do
         parent:     0,
         event:      event('app.method', 'MyClass.singleton_method'),
         started_at: 9_000,
+        duration:   1_000)
+
+      t.spans[5].should == span(
+        parent:     0,
+        event:      event('app.method', 'MyClass.singleton_method_without_options'),
+        started_at: 11_000,
+        duration:   1_000)
+
+      t.spans[6].should == span(
+        parent:     0,
+        event:      event('app.singleton', 'Singleton Method'),
+        started_at: 13_000,
         duration:   1_000)
     end
 

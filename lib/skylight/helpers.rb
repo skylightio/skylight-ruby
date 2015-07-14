@@ -15,8 +15,7 @@ module Skylight
 
         if opts = @__sk_instrument_next_method
           @__sk_instrument_next_method = nil
-          title = "#{to_s}##{name}"
-          __sk_instrument_method_on(self, name, title, opts)
+          instrument_method(name, opts)
         end
       end
 
@@ -26,8 +25,7 @@ module Skylight
 
         if opts = @__sk_instrument_next_method
           @__sk_instrument_next_method = nil
-          title = "#{to_s}.#{name}"
-          __sk_instrument_method_on(__sk_singleton_class, name, title, opts)
+          instrument_class_method(name, opts)
         end
       end
 
@@ -89,6 +87,46 @@ module Skylight
         else
           @__sk_instrument_next_method = opts || {}
         end
+      end
+
+      # @overload instrument_class_method([name], opts={})
+      #   @param [Symbol|String] [name]
+      #   @param [Hash] opts
+      #   @option opts [String] :category ('app.method')
+      #   @option opts [String] :title (ClassName#method_name)
+      #   @option opts [String] :description
+      #
+      #   You may also declare the methods to instrument at any time by passing the name
+      #   of the method as the first argument to `instrument_method`.
+      #
+      #   @example With name
+      #     class MyClass
+      #       include Skylight::Helpers
+      #
+      #       def self.my_method
+      #         do_expensive_stuff
+      #       end
+      #
+      #       instrument_class_method :my_method
+      #     end
+      #
+      #   By default, the event will be titled using the name of the class and the
+      #   method. For example, in our previous example, the event name will be:
+      #   +MyClass.my_method+. You can customize this by passing using the *:title* option.
+      #
+      #   @example With title
+      #     class MyClass
+      #       include Skylight::Helpers
+      #
+      #       def self.my_method
+      #         do_expensive_stuff
+      #       end
+      #
+      #       instrument_class_method :my_method, title: 'Expensive work'
+      #     end
+      def instrument_class_method(name, opts = {})
+        title = "#{to_s}.#{name}"
+        __sk_instrument_method_on(__sk_singleton_class, name, title, opts || {})
       end
 
     private
