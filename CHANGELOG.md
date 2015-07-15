@@ -1,3 +1,8 @@
+## 0.7.0-beta.1 (July 15, 2015)
+
+* [BUGFIX] Don't crash on ruby stack overflow
+* [IMPROVEMENT] Update to latest openssl & curl
+
 ## 0.6.2-beta.2 (July 1, 2015)
 
 * No changes. Replaces bad 0.6.2-beta.1 build.
