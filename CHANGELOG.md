@@ -1,3 +1,7 @@
+## 0.7.0-beta.2 (July 23, 2015)
+
+* [IMPROVEMENT] Silence a noisy log message
+
 ## 0.7.0-beta.1 (July 15, 2015)
 
 * [BUGFIX] Don't crash on ruby stack overflow
