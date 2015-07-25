@@ -146,6 +146,8 @@ describe "Skylight::Instrumenter", :http, :agent do
         yield if block_given?
       end
 
+      attr_accessor :myvar
+      instrument_method :myvar=
     end
 
     it 'tracks instrumented methods using the helper' do
@@ -168,6 +170,11 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         clock.skip 0.1
         MyClass.singleton_method { clock.skip 0.1 }
+
+        clock.skip 0.1
+        ret = (inst.myvar = :foo)
+        ret.should == :foo
+        inst.myvar.should == :foo
       end
 
       clock.unfreeze
@@ -180,13 +187,13 @@ describe "Skylight::Instrumenter", :http, :agent do
       ep.traces.count.should == 1
 
       t = ep.traces[0]
-      t.spans.count.should == 5
+      t.spans.count.should == 6
 
       # Root span
       t.spans[0].should == span(
         event:      event('app.rack.request'),
         started_at: 0,
-        duration:   10_000 )
+        duration:   11_000 )
 
       t.spans[1].should == span(
         parent:     0,
@@ -211,6 +218,12 @@ describe "Skylight::Instrumenter", :http, :agent do
         event:      event('app.method', 'MyClass.singleton_method'),
         started_at: 9_000,
         duration:   1_000)
+
+      t.spans[5].should == span(
+        parent:     0,
+        event:      event('app.method', 'MyClass#myvar='),
+        started_at: 11_000,
+        duration:   0)
     end
 
   end
