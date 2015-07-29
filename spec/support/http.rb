@@ -168,27 +168,26 @@ module SpecHelper
         if mock
           @mocks.delete(mock)
 
-          begin
-            ret =
-              begin
-                mock[:blk].call(env)
-              rescue
-                [ 500, { 'content-type' => 'text/plain', 'content-length' => '4' }, [ 'Fail' ] ]
-              end
-
-            if Array === ret
-              return ret if ret.length == 3
-
-              body = ret.last
-              body = body.to_json if Hash === body
-
-              return [ ret[0], { 'content-type' => json, 'content-length' => body.bytesize.to_s }, [body] ]
-            elsif respond_to?(:to_str)
-              return [ 200, { 'content-type' => 'text/plain', 'content-length' => ret.bytesize.to_s }, [ret] ]
-            else
-              ret = ret.to_json
-              return [ 200, { 'content-type' => json, 'content-length' => ret.bytesize.to_s }, [ret] ]
+          ret =
+            begin
+              mock[:blk].call(env)
+            rescue => e
+              trace "#{e.inspect}\n#{e.backtrace.map{|l| "  #{l}" }.join("\n")}"
+              [ 500, { 'content-type' => 'text/plain', 'content-length' => '4' }, [ 'Fail' ] ]
             end
+
+          if Array === ret
+            return ret if ret.length == 3
+
+            body = ret.last
+            body = body.to_json if Hash === body
+
+            return [ ret[0], { 'content-type' => json, 'content-length' => body.bytesize.to_s }, [body] ]
+          elsif respond_to?(:to_str)
+            return [ 200, { 'content-type' => 'text/plain', 'content-length' => ret.bytesize.to_s }, [ret] ]
+          else
+            ret = ret.to_json
+            return [ 200, { 'content-type' => json, 'content-length' => ret.bytesize.to_s }, [ret] ]
           end
         end
       end
