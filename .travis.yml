@@ -31,6 +31,8 @@ gemfile:
   - gemfiles/Gemfile.sinatra-1.2.x
   - gemfiles/Gemfile.sinatra-1.3.x
   - gemfiles/Gemfile.sinatra-edge
+  - gemfiles/Gemfile.grape-0.10.0
+  - gemfiles/Gemfile.grape-edge
   # Declared manually in the matrix include due to Mongoid compat issues
   # - gemfiles/Gemfile.rails-edge
 
@@ -87,6 +89,7 @@ matrix:
     # Testing edge is nice, but it probably shouldn't kill the build
     - gemfile: gemfiles/Gemfile.sinatra-edge
     - gemfile: gemfiles/Gemfile.rails-edge
+    - gemfile: gemfiles/Gemfile.grape-edge
 
 notifications:
   webhooks:
