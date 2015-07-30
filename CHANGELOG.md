@@ -1,3 +1,7 @@
+## 0.7.0-beta.3 (July 30, 2015)
+
+* [BUFIX] Condvar bug in Rust. Updated to latest nightly.
+
 ## 0.7.0-beta.2 (July 23, 2015)
 
 * [IMPROVEMENT] Silence a noisy log message
