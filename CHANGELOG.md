@@ -1,3 +1,7 @@
+## 0.7.0 (August 3nd, 2015)
+
+* No changes
+
 ## 0.7.0-beta.3 (July 30, 2015)
 
 * [BUFIX] Condvar bug in Rust. Updated to latest nightly.
