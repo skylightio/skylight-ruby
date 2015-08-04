@@ -95,6 +95,19 @@ module Skylight
       expect(probe.install_count).to eq(0)
     end
 
+    it "logs error on installation failure" do
+      SpecHelper.module_eval "class ProbeTestClass; end", __FILE__, __LINE__
+      register(:probe_test, "SpecHelper::ProbeTestClass", "skylight", probe)
+
+      allow(probe).to receive(:install).and_raise(StandardError, "aaaahhh!!!")
+      expect($stderr).to receive(:puts) do |error|
+        expect(error).to include("Encountered an error while installing the probe for SpecHelper::ProbeTestClass.")
+        expect(error).to include("ERROR: StandardError: aaaahhh!!!")
+      end
+
+      expect { Probes.install! }.not_to raise_error
+    end
+
     def register(*args)
       Skylight::DEPRECATOR.silence do
         # This will raise a deprecation warning about require since we're not using `Skylight.probe`
