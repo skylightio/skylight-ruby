@@ -58,6 +58,12 @@ begin
 rescue LoadError
 end
 
+begin
+  require 'grape'
+  require 'skylight/probes/grape'
+rescue LoadError
+end
+
 require 'net/http'
 require 'skylight/probes/net_http'
 
@@ -104,7 +110,7 @@ Dir[File.expand_path('../support/*.rb', __FILE__)].each do |f|
   require "support/#{File.basename(f, ".rb")}"
 end
 
-all_probes = %w(Excon Net::HTTP Redis)
+all_probes = %w(Excon Net::HTTP Redis Tilt::Template Sinatra::Base Sequel ActionView::TemplateRenderer)
 installed_probes = Skylight::Probes.installed.keys
 skipped_probes = all_probes - installed_probes
 
