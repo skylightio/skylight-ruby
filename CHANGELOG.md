@@ -1,4 +1,8 @@
-## 0.7.0 (August 3nd, 2015)
+## 0.7.1 (August 4, 2015)
+
+* [BUGFIX] Fix bug in FFI error handling
+
+## 0.7.0 (August 3, 2015)
 
 * No changes
 
