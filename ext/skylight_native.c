@@ -46,7 +46,7 @@ STR2BUF(VALUE str) {
 
 #define CHECK_FFI(success, message)               \
   do {                                            \
-    if ((success) < 0 ) {                         \
+    if ((success) != 0 ) {                        \
       rb_raise(rb_eRuntimeError, message);        \
       return Qnil;                                \
     }                                             \
