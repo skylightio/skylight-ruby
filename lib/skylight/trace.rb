@@ -56,7 +56,7 @@ module Skylight
     end
 
     def record(cat, title=nil, desc=nil, annot=nil)
-      @return if @broken
+      return if @broken
 
       if Hash === title
         annot = title
