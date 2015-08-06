@@ -141,19 +141,15 @@ module Skylight
   private
 
     def start(time, cat, title, desc)
-      span(self.class.normalize_time(time), cat, title, desc)
+      sp = native_start_span(self.class.normalize_time(time), cat.to_s)
+      native_span_set_title(sp, title.to_s) if title
+      native_span_set_description(sp, desc.to_s) if desc
+      sp
     end
 
     def stop(span, time)
       native_stop_span(span, self.class.normalize_time(time))
       nil
-    end
-
-    def span(time, cat, title=nil, desc=nil)
-      sp = native_start_span(time, cat.to_s)
-      native_span_set_title(sp, title.to_s) if title
-      native_span_set_description(sp, desc.to_s) if desc
-      sp
     end
 
     def gc_time
