@@ -72,16 +72,4 @@ module SpecHelper
     stub_session_request
     Skylight.start! config
   end
-
-  def annotation(key=nil, type=nil, value=nil, &block)
-    Skylight::Messages::Annotation.new.tap do |annotation|
-      annotation.key = key if key
-      annotation[type] = value if value
-
-      if block_given?
-        annotation.nested = []
-        yield annotation.nested
-      end
-    end
-  end
 end

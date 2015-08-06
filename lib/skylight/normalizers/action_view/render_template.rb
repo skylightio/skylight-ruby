@@ -7,10 +7,7 @@ module Skylight
         CAT = "view.render.template".freeze
 
         def normalize(trace, name, payload)
-          normalize_render(
-            CAT,
-            payload,
-            partial: 0)
+          normalize_render(CAT, payload)
         end
       end
     end

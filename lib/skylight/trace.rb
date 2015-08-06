@@ -6,9 +6,9 @@ module Skylight
 
     attr_reader :endpoint, :notifications
 
-    def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil, annot = nil)
+    def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil)
       inst = native_new(normalize_time(start), "TODO", endpoint)
-      inst.send(:initialize, instrumenter, cat, title, desc, annot)
+      inst.send(:initialize, instrumenter, cat, title, desc)
       inst.endpoint = endpoint
       inst
     end
@@ -20,7 +20,7 @@ module Skylight
       (time.to_i / 100_000).to_i
     end
 
-    def initialize(instrumenter, cat, title, desc, annot)
+    def initialize(instrumenter, cat, title, desc)
       raise ArgumentError, 'instrumenter is required' unless instrumenter
 
       @instrumenter = instrumenter
@@ -28,14 +28,6 @@ module Skylight
       @broken = false
 
       @notifications = []
-
-      if Hash === title
-        annot = title
-        title = desc = nil
-      elsif Hash === desc
-        annot = desc
-        desc = nil
-      end
 
       # create the root node
       @root = native_start_span(native_get_started_at, cat)
@@ -55,16 +47,8 @@ module Skylight
       @instrumenter.config
     end
 
-    def record(cat, title=nil, desc=nil, annot=nil)
-      @return if @broken
-
-      if Hash === title
-        annot = title
-        title = desc = nil
-      elsif Hash === desc
-        annot = desc
-        desc = nil
-      end
+    def record(cat, title=nil, desc=nil)
+      return if @broken
 
       title.freeze if title.is_a?(String)
       desc.freeze  if desc.is_a?(String)
@@ -82,17 +66,9 @@ module Skylight
       nil
     end
 
-    def instrument(cat, title=nil, desc=nil, annot=nil)
+    def instrument(cat, title=nil, desc=nil)
       return if @broken
       t { "instrument: #{cat}, #{title}" }
-
-      if Hash === title
-        annot = title
-        title = desc = nil
-      elsif Hash === desc
-        annot = desc
-        desc = nil
-      end
 
       title.freeze if title.is_a?(String)
       desc.freeze  if desc.is_a?(String)
@@ -104,10 +80,10 @@ module Skylight
       if desc == Instrumenter::TOO_MANY_UNIQUES
         debug "[SKYLIGHT] [#{Skylight::VERSION}] A payload description produced <too many uniques>"
         debug "original desc=%s", original_desc
-        debug "cat=%s, title=%s, desc=%s, annot=%s", cat, title, desc, annot.inspect
+        debug "cat=%s, title=%s, desc=%s", cat, title, desc
       end
 
-      start(now - gc_time, cat, title, desc, annot)
+      start(now - gc_time, cat, title, desc)
     rescue => e
       error "failed to instrument span; msg=%s", e.message
       @broken = true
@@ -135,7 +111,7 @@ module Skylight
 
       if time > 0
         t { fmt "tracking GC time; duration=%d", time }
-        stop(start(now - time, GC_CAT, nil, nil, {}), now)
+        stop(start(now - time, GC_CAT, nil, nil), now)
       end
 
       stop(@root, now)
@@ -164,20 +140,16 @@ module Skylight
 
   private
 
-    def start(time, cat, title, desc, annot=nil)
-      span(self.class.normalize_time(time), cat, title, desc, annot)
+    def start(time, cat, title, desc)
+      sp = native_start_span(self.class.normalize_time(time), cat.to_s)
+      native_span_set_title(sp, title.to_s) if title
+      native_span_set_description(sp, desc.to_s) if desc
+      sp
     end
 
     def stop(span, time)
       native_stop_span(span, self.class.normalize_time(time))
       nil
-    end
-
-    def span(time, cat, title=nil, desc=nil, annot=nil)
-      sp = native_start_span(time, cat.to_s)
-      native_span_set_title(sp, title.to_s) if title
-      native_span_set_description(sp, desc.to_s) if desc
-      sp
     end
 
     def gc_time

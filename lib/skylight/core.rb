@@ -95,18 +95,19 @@ module Skylight
       category    = opts[:category] || DEFAULT_CATEGORY
       title       = opts[:title]
       desc        = opts[:description]
-      annotations = opts[:annotations]
+      if opts.key?(:annotations)
+        warn "call to #instrument included deprecated annotations"
+      end
     else
       category    = DEFAULT_CATEGORY
       title       = opts.to_s
       desc        = nil
-      annotations = nil
     end
 
     if block_given?
-      inst.instrument(category, title, desc, annotations) { yield }
+      inst.instrument(category, title, desc) { yield }
     else
-      inst.instrument(category, title, desc, annotations)
+      inst.instrument(category, title, desc)
     end
   end
 

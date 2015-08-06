@@ -138,7 +138,7 @@ module Skylight
       native_stop
     end
 
-    def trace(endpoint, cat, title=nil, desc=nil, annot=nil)
+    def trace(endpoint, cat, title=nil, desc=nil)
       # If a trace is already in progress, continue with that one
       if trace = @trace_info.current
         return yield(trace) if block_given?
@@ -146,7 +146,7 @@ module Skylight
       end
 
       begin
-        trace = Trace.new(self, endpoint, Util::Clock.nanos, cat, title, desc, annot)
+        trace = Trace.new(self, endpoint, Util::Clock.nanos, cat, title, desc)
       rescue Exception => e
         log_error e.message
         t { e.backtrace.join("\n") }
@@ -192,7 +192,7 @@ module Skylight
       trace.done(span)
     end
 
-    def instrument(cat, title=nil, desc=nil, annot=nil)
+    def instrument(cat, title=nil, desc=nil)
       raise ArgumentError, 'cat is required' unless cat
 
       unless trace = @trace_info.current
@@ -210,7 +210,7 @@ module Skylight
 
       cat = "other.#{cat}" unless match?(cat, TIER_REGEX)
 
-      unless sp = trace.instrument(cat, title, desc, annot)
+      unless sp = trace.instrument(cat, title, desc)
         return yield if block_given?
         return
       end

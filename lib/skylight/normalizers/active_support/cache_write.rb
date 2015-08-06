@@ -8,7 +8,7 @@ module Skylight
         TITLE = "cache write"
 
         def normalize(trace, name, payload)
-          [ CAT, TITLE, nil, payload ]
+          [ CAT, TITLE, nil ]
         end
       end
     end

@@ -11,29 +11,26 @@ module Skylight
     shared_examples_for "template normalizer" do
       it "normalizes the notification name" do
         complete_payload = { identifier: "foo/bar" }.merge(group_payload)
-        name, title, desc, payload = normalize(complete_payload)
+        name, title, desc = normalize(complete_payload)
         name.should == group_name
         title.should == "foo/bar"
         desc.should == nil
-        payload.should == group_payload
       end
 
       it "normalizes the title to a path relative to view paths" do
         complete_payload = { identifier: "/path/to/views/foo/bar", count: 10 }.merge(group_payload)
-        name, title, desc, payload = normalize(complete_payload)
+        name, title, desc = normalize(complete_payload)
         name.should == group_name
         title.should == "foo/bar"
         desc.should == nil
-        payload.should == group_payload
       end
 
       it "normalizes the title to a path relative to rails root" do
         complete_payload = { identifier: "/path/to/other/path" }.merge(group_payload)
-        name, title, desc, payload = normalize(complete_payload)
+        name, title, desc = normalize(complete_payload)
         name.should == group_name
         title.should == "other/path"
         desc.should == nil
-        payload.should == group_payload
       end
 
       it "normalizes the title to a path relative to Gem.path" do
@@ -41,16 +38,15 @@ module Skylight
         Gem.stub(path: [path])
 
         complete_payload = { identifier: "#{path}/foo-1.0/views/bar.html.erb" }.merge(group_payload)
-        name, title, desc, payload = normalize(complete_payload)
+        name, title, desc = normalize(complete_payload)
         name.should == group_name
         title.should == "$GEM_PATH/foo-1.0/views/bar.html.erb"
         desc.should == nil
-        payload.should == group_payload
       end
 
       it "prints Absolute Path if it's outside the root" do
         complete_payload = { identifier: "/other/path/to/stuff" }.merge(group_payload)
-        name, title, desc, payload = normalize(complete_payload)
+        name, title, desc = normalize(complete_payload)
         name.should == group_name
         title.should == "Absolute Path"
         desc.should == nil

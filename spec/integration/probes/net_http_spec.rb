@@ -26,15 +26,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   it "instruments basic requests" do
     expected = {
       category: "api.http.get",
-      title: "GET localhost",
-      annotations: {
-        method: "GET",
-        scheme: "http",
-        host: "localhost",
-        port: 9292,
-        path: "/test.html",
-        query: nil
-      }
+      title: "GET localhost"
     }
     Skylight.should_receive(:instrument).with(expected).and_call_original
 
@@ -46,15 +38,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   it "instruments verbose requests" do
      expected = {
       category: "api.http.get",
-      title: "GET localhost",
-      annotations: {
-        method: "GET",
-        scheme: "http",
-        host: "localhost",
-        port: 9292,
-        path: "/test.html",
-        query: nil
-      }
+      title: "GET localhost"
     }
     Skylight.should_receive(:instrument).with(expected).and_call_original
 
@@ -67,15 +51,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   it "instruments basic auth requests" do
     expected = {
       category: "api.http.get",
-      title: "GET localhost",
-      annotations: {
-        method: "GET",
-        scheme: "http",
-        host: "localhost",
-        port: 9292,
-        path: "/test.html",
-        query: nil
-      }
+      title: "GET localhost"
     }
     Skylight.should_receive(:instrument).with(expected).and_call_original
 
@@ -90,15 +66,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   it "instruments post_form requests" do
     expected = {
       category: "api.http.post",
-      title: "POST localhost",
-      annotations: {
-        method: "POST",
-        scheme: "http",
-        host: "localhost",
-        port: 9292,
-        path: "/test.html",
-        query: nil
-      }
+      title: "POST localhost"
     }
 
     Skylight.should_receive(:instrument).with(expected).and_call_original
@@ -111,15 +79,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   it "instruments post requests" do
      expected = {
       category: "api.http.post",
-      title: "POST localhost",
-      annotations: {
-        method: "POST",
-        scheme: "http",
-        host: "localhost",
-        port: 9292,
-        path: "/test.html",
-        query: nil
-      }
+      title: "POST localhost"
     }
 
     Skylight.should_receive(:instrument).with(expected).and_call_original
@@ -153,15 +113,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   it "instruments PUT requests" do
      expected = {
       category: "api.http.put",
-      title: "PUT localhost",
-      annotations: {
-        method: "PUT",
-        scheme: "http",
-        host: "localhost",
-        port: 9292,
-        path: "/test.html",
-        query: nil
-      }
+      title: "PUT localhost"
     }
 
     Skylight.should_receive(:instrument).with(expected).and_call_original
@@ -177,15 +129,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   it "instruments DELETE requests" do
     expected = {
       category: "api.http.delete",
-      title: "DELETE localhost",
-      annotations: {
-        method: "DELETE",
-        scheme: "http",
-        host: "localhost",
-        port: 9292,
-        path: "/test.html",
-        query: nil
-      }
+      title: "DELETE localhost"
     }
 
     Skylight.should_receive(:instrument).with(expected).and_call_original
@@ -209,15 +153,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
 
     expected = {
       category: "api.http.get",
-      title: "GET localhost",
-      annotations: {
-        method: "GET",
-        scheme: "http",
-        host: "localhost",
-        port: 9292,
-        path: "/slow.html",
-        query: nil
-      }
+      title: "GET localhost"
     }
 
     Skylight.should_receive(:instrument).with(expected).and_call_original
@@ -234,15 +170,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   it "instruments non-URI requests" do
     expected = {
       category: "api.http.get",
-      title: "GET localhost",
-      annotations: {
-        method: "GET",
-        scheme: "http",
-        host: "localhost",
-        port: 9292,
-        path: "/test.html",
-        query: nil
-      }
+      title: "GET localhost"
     }
 
     Skylight.should_receive(:instrument).with(expected).and_call_original
@@ -256,15 +184,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   it "instruments custom verbs" do
     expected = {
       category: "api.http.custom",
-      title: "CUSTOM localhost",
-      annotations: {
-        method: "CUSTOM",
-        scheme: "http",
-        host: "localhost",
-        port: 9292,
-        path: "/test.html",
-        query: nil
-      }
+      title: "CUSTOM localhost"
     }
 
     Skylight.should_receive(:instrument).with(expected).and_call_original
@@ -278,15 +198,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   it "instruments basic auth" do
     expected = {
       category: "api.http.get",
-      title: "GET localhost",
-      annotations: {
-        method: "GET",
-        scheme: "http",
-        host: "localhost",
-        port: 9292,
-        path: "/test.html",
-        query: nil
-      }
+      title: "GET localhost"
     }
 
     Skylight.should_receive(:instrument).with(expected).and_call_original
@@ -302,15 +214,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   it "instruments multiple requests with the same socket" do
     expected = {
       category: "api.http.get",
-      title: "GET localhost",
-      annotations: {
-        method: "GET",
-        scheme: "http",
-        host: "localhost",
-        port: 9292,
-        path: "/test.html",
-        query: nil
-      }
+      title: "GET localhost"
     }
 
     Skylight.should_receive(:instrument).with(expected).twice.and_call_original

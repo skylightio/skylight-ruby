@@ -76,14 +76,7 @@ module Skylight
 
         it "instruments a successful request" do
           args = { category: "api.http.get",
-                   title: "GET www.example.com",
-                   annotations: {
-                     method: "GET",
-                     scheme: "http",
-                     host:   "www.example.com",
-                     port:   nil,
-                     path:   "/",
-                     query:  nil } }
+                   title: "GET www.example.com" }
 
           Skylight.should_receive(:instrument).with(args).and_return(span)
           span.should_receive(:done).once
@@ -95,14 +88,7 @@ module Skylight
 
         it "instruments an errored request" do
           args = { category: "api.http.get",
-                   title: "GET www.example.com",
-                   annotations: {
-                     method: "GET",
-                     scheme: "http",
-                     host:   "www.example.com",
-                     port:   nil,
-                     path:   "/",
-                     query:  nil } }
+                   title: "GET www.example.com" }
           Skylight.should_receive(:instrument).with(args).and_return(span)
           span.should_receive(:done).once
 

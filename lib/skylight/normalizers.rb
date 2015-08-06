@@ -47,16 +47,16 @@ module Skylight
         @paths = config['normalizers.render.view_paths'] || []
       end
 
-      def normalize_render(category, payload, annotations)
+      def normalize_render(category, payload)
         if path = payload[:identifier]
-          title = relative_path(path, annotations)
+          title = relative_path(path)
           path = nil if path == title
         end
 
-        [ category, title, nil, annotations ]
+        [ category, title, nil ]
       end
 
-      def relative_path(path, annotations)
+      def relative_path(path)
         return path if relative_path?(path)
 
         root = array_find(@paths) { |p| path.start_with?(p) }
@@ -114,8 +114,11 @@ module Skylight
       end
 
       def normalize(trace, name, payload)
-        normalizer = @normalizers[name] || DEFAULT
-        normalizer.normalize(trace, name, payload)
+        normalizer_for(name).normalize(trace, name, payload)
+      end
+
+      def normalizer_for(name)
+        @normalizers[name] || DEFAULT
       end
     end
 

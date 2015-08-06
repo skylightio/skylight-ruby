@@ -29,106 +29,60 @@ module Skylight
         def normalize_query(operation)
           title = normalize_title("QUERY", operation)
 
-          hash, binds = extract_binds(operation.selector)
+          hash = extract_binds(operation.selector)
           description = hash.to_json
 
-          annotations = build_annotations(operation)
-          annotations[:skip] = operation.skip
-          if operation.fields
-            annotations[:fields] = operation.fields.select{|k,v| v == 1 }.keys.map(&:to_s)
-          end
-          annotations[:binds] = binds unless binds.empty?
-
-          [CAT, title, description, annotations]
+          [CAT, title, description]
         end
 
         def normalize_get_more(operation)
           title = normalize_title("GET_MORE", operation)
 
-          annotations = build_annotations(operation)
-          annotations[:limit] = operation.limit
-
-          [CAT, title, nil, annotations]
+          [CAT, title, nil]
         end
 
         def normalize_insert(operation)
           title = normalize_title("INSERT", operation)
 
-          annotations = build_annotations(operation)
-          annotations[:count] = operation.documents.count
-
-          [CAT, title, nil, annotations]
+          [CAT, title, nil]
         end
 
         def normalize_update(operation)
           title = normalize_title("UPDATE", operation)
 
-          selector_hash, selector_binds = extract_binds(operation.selector)
-          update_hash, update_binds = extract_binds(operation.update)
+          selector_hash = extract_binds(operation.selector)
+          update_hash = extract_binds(operation.update)
 
           description = { selector: selector_hash, update: update_hash }.to_json
 
-          annotations = build_annotations(operation)
-
-          binds = {}
-          binds[:selector] = selector_binds unless selector_binds.empty?
-          binds[:update]   = update_binds   unless update_binds.empty?
-          annotations[:binds] = binds unless binds.empty?
-
-          [CAT, title, description, annotations]
+          [CAT, title, description]
         end
 
         def normalize_delete(operation)
           title = normalize_title("DELETE", operation)
 
-          hash, binds = extract_binds(operation.selector)
+          hash = extract_binds(operation.selector)
           description = hash.to_json
 
-          annotations = build_annotations(operation)
-          annotations[:binds] = binds unless binds.empty?
-
-          [CAT, title, description, annotations]
+          [CAT, title, description]
         end
 
         def normalize_title(type, operation)
           "#{type} #{operation.collection}"
         end
 
-        def build_annotations(operation)
-          annotations = {}
-
-          if operation.respond_to?(:flags)
-            flags = operation.flags.map{|f| flag_name(f) }
-            annotations[:flags] = flags unless flags.empty?
-          end
-
-          annotations
-        end
-
-        # Some flags used by Moped don't map directly to the Mongo docs
-        # See http://docs.mongodb.org/meta-driver/latest/legacy/mongodb-wire-protocol/
-        FLAG_MAP = {
-          tailable: "TailableCursor",
-          multi:    "MultiUpdate"
-        }
-
-        def flag_name(flag)
-          FLAG_MAP[flag] || flag.to_s.sub(/^[a-z\d]*/) { $&.capitalize }.gsub(/(?:_|(\/))([a-z\d]*)/) { "#{$1}#{$2.capitalize}" }
-        end
-
-        def extract_binds(hash, binds=[])
+        def extract_binds(hash)
           ret = {}
 
           hash.each do |k,v|
             if v.is_a?(Hash)
-              ret[k] = extract_binds(v, binds)[0]
+              ret[k] = extract_binds(v)
             else
-              binds << stringify(hash[k])
               ret[k] = '?'
             end
           end
 
-          [ret, binds]
+          ret
         end
 
         def stringify(value)
