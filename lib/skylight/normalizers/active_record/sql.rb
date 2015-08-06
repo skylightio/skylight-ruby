@@ -26,52 +26,18 @@ module Skylight
             binds = binds.map { |col, val| val.inspect }
           end
 
-          extracted_title, sql, binds, _ = extract_binds(payload, binds)
+          extracted_title, sql, binds = extract_binds(payload, binds)
           title = extracted_title if extracted_title
 
-          if sql
-            annotations = {
-              sql:   sql,
-              binds: binds,
-            }
-          end
-
-          [ name, title, sql, annotations ]
+          [ name, title, sql ]
         end
 
       private
         def extract_binds(payload, precalculated)
-          title, sql, binds = SqlLexer::Lexer.bindify(payload[:sql], precalculated, true)
-          [ title, sql, binds, nil ]
+          SqlLexer::Lexer.bindify(payload[:sql], precalculated, true)
         rescue => e
-          group = "sql_parse"
-          description = e.inspect
-          details = encode(backtrace: e.backtrace,
-                            original_exception: {
-                              class_name: e.class.name,
-                              message: e.message
-                            },
-                            payload: payload,
-                            precalculated: precalculated)
-
-          error = [group, description, details]
-          [ nil, nil, nil, error ]
-        end
-
-        # While operating in place would save memory, some of these passed in items are re-used elsewhere
-        # and, as such, should not be modified.
-        def encode(body)
-          if body.is_a?(Hash)
-            hash = {}
-            body.each{|k,v| hash[k] = encode(v) }
-            hash
-          elsif body.is_a?(Array)
-            body.map{|v| encode(v) }
-          elsif body.respond_to?(:encoding) && (body.encoding == Encoding::BINARY || !body.valid_encoding?)
-            Base64.encode64(body)
-          else
-            body
-          end
+          # TODO: log
+          [ nil, nil, nil ]
         end
       end
     end
