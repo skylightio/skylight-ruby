@@ -39,8 +39,7 @@ describe 'Sequel integration', :sequel_probe, :agent do
 
     trace.should_receive(:instrument).with(
       'db.sql.query', 'SELECT FROM items',
-      RegexMatcher.new(/^SELECT count\(\*\) AS \? FROM `items` LIMIT \?$/i),
-      anything
+      RegexMatcher.new(/^SELECT count\(\*\) AS \? FROM `items` LIMIT \?$/i)
     ).and_call_original
 
     db[:items].count

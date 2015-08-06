@@ -114,8 +114,11 @@ module Skylight
       end
 
       def normalize(trace, name, payload)
-        normalizer = @normalizers[name] || DEFAULT
-        normalizer.normalize(trace, name, payload)
+        normalizer_for(name).normalize(trace, name, payload)
+      end
+
+      def normalizer_for(name)
+        @normalizers[name] || DEFAULT
       end
     end
 
