@@ -4,12 +4,10 @@ module Skylight
 
       def normalize(trace, name, payload)
         if name =~ TIER_REGEX
-          annot = payload.dup
           [
             name,
-            annot.delete(:title),
-            annot.delete(:description),
-            annot
+            payload[:title],
+            payload[:description]
           ]
         else
           :skip

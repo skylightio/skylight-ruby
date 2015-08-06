@@ -17,13 +17,6 @@ module Skylight
           def normalize(trace, name, payload)
             path = payload[:path]
 
-            annotations = {
-              path:        path,
-              filename:    payload[:filename],
-              type:        normalize_type(payload),
-              disposition: normalize_disposition(payload),
-              status:      normalize_status(payload) }
-
             title = TITLE
 
             # depending on normalization, we probably want this to eventually
@@ -31,7 +24,7 @@ module Skylight
             # deduping strategy first.
             desc = nil
 
-            [ CAT, title, desc, annotations ]
+            [ CAT, title, desc ]
           end
 
         private
@@ -46,25 +39,6 @@ module Skylight
               hash[mime.symbol] = mime.to_s.dup.freeze
               hash
             end
-          end
-
-          def normalize_type(payload)
-            type = payload[:type] || OCTET_STREAM
-            type = @mimes[type] if type.is_a?(Symbol)
-            type
-          end
-
-          def mime_for(type)
-            @mimes[type] ||= Mime[type].to_s.freeze
-          end
-
-          def normalize_status(payload)
-            status = payload[:status] || 200
-            Rack::Utils.status_code(status)
-          end
-
-          def normalize_disposition(payload)
-            payload[:disposition] || ATTACHMENT
           end
         end
 

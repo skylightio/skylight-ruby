@@ -9,25 +9,13 @@ module Skylight
 
         def normalize(trace, name, payload)
           trace.endpoint = controller_action(payload)
-          [ CAT, trace.endpoint, nil, normalize_payload(payload) ]
+          [ CAT, trace.endpoint, nil ]
         end
 
       private
 
         def controller_action(payload)
           "#{payload[:controller]}##{payload[:action]}"
-        end
-
-        def normalize_payload(payload)
-          normalized = {}
-
-          PAYLOAD_KEYS.each do |key|
-            val = payload[key]
-            val = val.inspect unless val.is_a?(String) || val.is_a?(Numeric)
-            normalized[key] = val
-          end
-
-          normalized
         end
       end
     end

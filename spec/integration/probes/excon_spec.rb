@@ -66,15 +66,7 @@ describe 'Excon integration', :excon_probe, :http, :agent do
     span.duration.should == 1
     span.opts.should == {
       category:    "api.http.get",
-      title:       "GET localhost",
-      annotations: {
-        method: "GET",
-        scheme: "http",
-        host: "localhost",
-        port: 9292,
-        path: "/",
-        query: nil
-      }
+      title:       "GET localhost"
     }
   end
 
@@ -97,15 +89,7 @@ describe 'Excon integration', :excon_probe, :http, :agent do
       span.duration.should == 2
       span.opts.should == {
         category:    "api.http.get",
-        title:       "GET example.com",
-        annotations: {
-          method: "GET",
-          scheme: "http",
-          host: "example.com",
-          port: nil,
-          path: "/",
-          query: nil
-        }
+        title:       "GET example.com"
       }
     end
 
@@ -124,15 +108,7 @@ describe 'Excon integration', :excon_probe, :http, :agent do
         Excon.send(verb, server_uri)
         TestSpan.spans.last.opts.should == {
           category:    "api.http.#{verb}",
-          title:       "#{verb.upcase} localhost",
-          annotations: {
-            method: verb.upcase,
-            scheme: "http",
-            host:   "localhost",
-            port:   9292,
-            path:   "/",
-            query:  nil
-          }
+          title:       "#{verb.upcase} localhost"
         }
       end
     end
@@ -148,15 +124,7 @@ describe 'Excon integration', :excon_probe, :http, :agent do
       Excon.get("#{server_uri}/path/to/file")
       TestSpan.spans.last.opts.should == {
         category:    "api.http.get",
-        title:       "GET localhost",
-        annotations: {
-          method: "GET",
-          scheme: "http",
-          host: "localhost",
-          port: 9292,
-          path: "/path/to/file",
-          query: nil
-        }
+        title:       "GET localhost"
       }
     end
 
@@ -166,15 +134,7 @@ describe 'Excon integration', :excon_probe, :http, :agent do
       Excon.get("#{server_uri}/path/to/file?foo=bar&baz=qux")
       TestSpan.spans.last.opts.should == {
         category:    "api.http.get",
-        title:       "GET localhost",
-        annotations: {
-          method: "GET",
-          scheme: "http",
-          host: "localhost",
-          port: 9292,
-          path: "/path/to/file",
-          query: "foo=bar&baz=qux"
-        }
+        title:       "GET localhost"
       }
     end
   end
