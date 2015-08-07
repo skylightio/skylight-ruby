@@ -42,17 +42,17 @@ module Skylight
 
       result = normalize(trace, name, payload)
 
-      case result.size
-      when 4
-        error "old style normalizer; name=#{name.inspect}; normalizer=#{@normalizers.normalizer_for(name).class}"
-        cat, title, desc, _ = result
-      when 3
-        cat, title, desc = result
-      else
-        raise "Invalid normalizer result: #{result.inspect}"
-      end
+      unless result == :skip
+        case result.size
+        when 4
+          error "old style normalizer; name=#{name.inspect}; normalizer=#{@normalizers.normalizer_for(name).class}"
+          cat, title, desc, _ = result
+        when 3
+          cat, title, desc = result
+        else
+          raise "Invalid normalizer result: #{result.inspect}"
+        end
 
-      unless cat == :skip
         span = trace.instrument(cat, title, desc)
       end
 
