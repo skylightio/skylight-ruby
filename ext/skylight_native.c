@@ -389,9 +389,56 @@ trace_span_set_description(VALUE self, VALUE span, VALUE desc) {
   return Qnil;
 }
 
+static VALUE
+lex_sql(VALUE klass, VALUE rb_sql) {
+  sky_buf_t sql;
+  sky_buf_t title;
+  sky_buf_t statement;
+  uint8_t title_store[128];
+  VALUE rb_statement;
+  VALUE ret;
+
+  UNUSED(klass);
+  CHECK_TYPE(rb_sql, T_STRING);
+
+  sql = STR2BUF(rb_sql);
+  title = (sky_buf_t) {
+    .data = title_store,
+    .len = sizeof(title_store),
+  };
+
+  // The statement cannot be longer than the original sql string
+  rb_statement = rb_str_buf_new(RSTRING_LEN(rb_sql));
+  statement = (sky_buf_t) {
+    .data = RSTRING_PTR(rb_statement),
+    .len = RSTRING_LEN(rb_sql),
+  };
+
+  CHECK_FFI(
+      sky_lex_sql(sql, &title, &statement),
+      "native lex_sql failed");
+
+  // Set the statement return
+  rb_str_set_len(rb_statement, statement.len);
+
+  ret = rb_ary_new2(2);
+
+  if (title.len > 0) {
+    rb_ary_store(ret, 0, BUF2STR(title));
+  }
+  else {
+    rb_ary_store(ret, 0, Qnil);
+  }
+
+  rb_ary_store(ret, 1, rb_statement);
+
+  return ret;
+}
+
 void Init_skylight_native() {
   rb_mSkylight = rb_define_module("Skylight");
   rb_define_singleton_method(rb_mSkylight, "load_libskylight", load_libskylight, 1);
+  rb_define_singleton_method(rb_mSkylight, "lex_sql", lex_sql, 1);
 
   rb_mUtil  = rb_define_module_under(rb_mSkylight, "Util");
   rb_cClock = rb_define_class_under(rb_mUtil, "Clock", rb_cObject);

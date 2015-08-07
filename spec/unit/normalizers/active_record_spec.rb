@@ -9,14 +9,14 @@ module Skylight
     end
 
     it "Processes cached queries" do
-      name, * = normalize(name: "CACHE", sql: "select * from query", binds: [])
+      name, * = normalize(name: "CACHE", sql: "select * from query")
 
       name.should == :skip
     end
 
     it "Processes uncached queries" do
       name, title, desc =
-        normalize(name: "Foo Load", sql: "select * from foo", binds: [])
+        normalize(name: "Foo Load", sql: "select * from foo")
 
       name.should == "db.sql.query"
       title.should == "SELECT FROM foo"
@@ -25,18 +25,18 @@ module Skylight
 
     it "Pulls out binds" do
       name, title, desc =
-        normalize(name: "Foo Load", sql: "select * from foo where id = $1", binds: [[Object.new, 1]])
+        normalize(name: "Foo Load", sql: "select * from foo where id = $1")
 
       name.should == "db.sql.query"
       title.should == "SELECT FROM foo"
-      desc.should == "select * from foo where id = $1"
+      desc.should == "select * from foo where id = ?"
     end
 
     it "Handles queries without a title" do
       sql = "SELECT * from foo"
 
       name, title, desc =
-        normalize(name: nil, sql: sql, binds: [])
+        normalize(name: nil, sql: sql)
 
       name.should == "db.sql.query"
       title.should == "SELECT FROM foo"
@@ -45,22 +45,18 @@ module Skylight
 
     it "Handles Rails-style insertions" do
       sql = %{INSERT INTO "agent_errors" ("body", "created_at", "hostname", "reason") VALUES ($1, $2, $3, $4) RETURNING "id"}
-      body = "hello"
-      hostname = "localhost"
-      reason = "sql_parse"
-      created_at = DateTime.now
 
       name, title, desc =
-        normalize(name: "SQL", sql: sql, binds: [[Object.new, body], [Object.new, created_at], [Object.new, hostname], [Object.new, reason]])
+        normalize(name: "SQL", sql: sql)
 
       name.should == "db.sql.query"
       title.should == "INSERT INTO agent_errors"
-      desc.should == sql
+      desc.should == %{INSERT INTO "agent_errors" ("body", "created_at", "hostname", "reason") VALUES (?, ?, ?, ?) RETURNING "id"}
     end
 
     it "Determines embedded binds" do
       name, title, desc =
-        normalize(name: "Foo Load", sql: "select * from foo where id = 1", binds: [])
+        normalize(name: "Foo Load", sql: "select * from foo where id = 1")
 
       name.should == "db.sql.query"
       title.should == "SELECT FROM foo"
@@ -69,15 +65,10 @@ module Skylight
 
     it "handles some precomputed binds" do
       sql = %{INSERT INTO "agent_errors" ("body", "created_at", "value", "hostname", "reason") VALUES ($1, $2, NULL, $3, $4) RETURNING "id"}
-      extracted = %{INSERT INTO "agent_errors" ("body", "created_at", "value", "hostname", "reason") VALUES ($1, $2, ?, $3, $4) RETURNING "id"}
-
-      body = "hello"
-      hostname = "localhost"
-      reason = "sql_parse"
-      created_at = DateTime.now
+      extracted = %{INSERT INTO "agent_errors" ("body", "created_at", "value", "hostname", "reason") VALUES (?, ?, ?, ?, ?) RETURNING "id"}
 
       name, title, desc =
-        normalize(name: "SQL", sql: sql, binds: [[Object.new, body], [Object.new, created_at], [Object.new, hostname], [Object.new, reason]])
+        normalize(name: "SQL", sql: sql)
 
       name.should == "db.sql.query"
       title.should == "INSERT INTO agent_errors"
@@ -86,7 +77,7 @@ module Skylight
 
     it "Produces an error if the SQL isn't parsable" do
       name, title, desc =
-        normalize(name: "Foo Load", sql: "NOT &REAL& ;;;SQL;;;", binds: [])
+        normalize(name: "Foo Load", sql: "NOT &REAL& ;;;SQL;;;")
 
       name.should == "db.sql.query"
       title.should == "Foo Load"

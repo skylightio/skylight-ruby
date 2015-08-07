@@ -26,18 +26,25 @@ module Skylight
             binds = binds.map { |col, val| val.inspect }
           end
 
-          extracted_title, sql, binds = extract_binds(payload, binds)
-          title = extracted_title if extracted_title
-
-          [ name, title, sql ]
+          begin
+            extracted_title, sql = extract_binds(payload, binds)
+            [ name, extracted_title || title, sql ]
+          rescue
+            [ name, title, nil ]
+          end
         end
 
-      private
-        def extract_binds(payload, precalculated)
-          SqlLexer::Lexer.bindify(payload[:sql], precalculated, true)
-        rescue => e
-          # TODO: log
-          [ nil, nil, nil ]
+        private
+
+        if ENV["SKYLIGHT_SQL_MODE"] == "rust"
+          def extract_binds(payload, _)
+            Skylight.lex_sql(payload[:sql])
+          end
+        else
+          def extract_binds(payload, precalculated)
+            name, title, _ = SqlLexer::Lexer.bindify(payload[:sql], precalculated, true)
+            [ name, title ]
+          end
         end
       end
     end
