@@ -76,6 +76,9 @@ module Skylight
     end
 
     it "Produces an error if the SQL isn't parsable" do
+      expect(config.logger).to receive(:warn).with(/failed to extract binds in SQL/).once
+      config[:log_sql_parse_errors] = true
+
       name, title, desc =
         normalize(name: "Foo Load", sql: "NOT &REAL& ;;;SQL;;;")
 
