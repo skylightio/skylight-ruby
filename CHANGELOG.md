@@ -10,7 +10,7 @@
 
 ## 0.8.0-beta.1 (August 4, 2015)
 
-* [FEATURE] Add Grape instumentation
+* [FEATURE] Add Grape instumentation. See http://docs.skylight.io/grape
 
 ## 0.7.1 (August 4, 2015)
 
