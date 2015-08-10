@@ -82,17 +82,21 @@ if defined?(Grape)
     end
 
     it "instruments the endpoint body" do
-      expect(Skylight).to receive(:instrument)
-                            .with(category: "app.grape.endpoint", title: "GET test")
-                            .and_call_original
+      Skylight::Trace.any_instance.stub(:instrument)
+
+      expect_any_instance_of(Skylight::Trace).to receive(:instrument)
+          .with("app.grape.endpoint", "GET test", nil)
+          .once
 
       get "/test"
     end
 
     it "instuments mounted apps" do
-      expect(Skylight).to receive(:instrument)
-                            .with(category: "app.grape.endpoint", title: "GET test")
-                            .and_call_original
+      Skylight::Trace.any_instance.stub(:instrument)
+
+      expect_any_instance_of(Skylight::Trace).to receive(:instrument)
+          .with("app.grape.endpoint", "GET test", nil)
+          .once
 
       get "/app/test"
 
@@ -100,9 +104,11 @@ if defined?(Grape)
     end
 
     it "instruments more complex endpoints" do
-      expect(Skylight).to receive(:instrument)
-                            .with(category: "app.grape.endpoint", title: "POST update/:id")
-                            .and_call_original
+      Skylight::Trace.any_instance.stub(:instrument)
+
+      expect_any_instance_of(Skylight::Trace).to receive(:instrument)
+          .with("app.grape.endpoint", "POST update/:id", nil)
+          .once
 
       post "/app/update/1"
 
@@ -110,9 +116,11 @@ if defined?(Grape)
     end
 
     it "instruments namespaced endpoints" do
-      expect(Skylight).to receive(:instrument)
-                            .with(category: "app.grape.endpoint", title: "GET users list")
-                            .and_call_original
+      Skylight::Trace.any_instance.stub(:instrument)
+
+      expect_any_instance_of(Skylight::Trace).to receive(:instrument)
+          .with("app.grape.endpoint", "GET users list", nil)
+          .once
 
       get "/app/users/list"
 
@@ -120,9 +128,11 @@ if defined?(Grape)
     end
 
     it "instruments wildcard routes" do
-      expect(Skylight).to receive(:instrument)
-                            .with(category: "app.grape.endpoint", title: "any *path")
-                            .and_call_original
+      Skylight::Trace.any_instance.stub(:instrument)
+
+      expect_any_instance_of(Skylight::Trace).to receive(:instrument)
+          .with("app.grape.endpoint", "any *path", nil)
+          .once
 
       delete "/app/missing"
 
@@ -130,9 +140,11 @@ if defined?(Grape)
     end
 
     it "instruments failures" do
-      expect(Skylight).to receive(:instrument)
-                            .with(category: "app.grape.endpoint", title: "GET raise")
-                            .and_call_original
+      Skylight::Trace.any_instance.stub(:instrument)
+
+      expect_any_instance_of(Skylight::Trace).to receive(:instrument)
+          .with("app.grape.endpoint", "GET raise", nil)
+          .once
 
       expect{
         get "/raise"
@@ -142,20 +154,20 @@ if defined?(Grape)
     end
 
     it "instruments filters" do
-      expect(Skylight).to receive(:instrument)
-                            .ordered
-                            .with(category: "app.grape.filters", title: "Before Filters")
-                            .and_call_original
+      Skylight::Trace.any_instance.stub(:instrument)
 
-      expect(Skylight).to receive(:instrument)
-                            .ordered
-                            .with("verifying admin")
-                            .and_call_original
+      # TODO: Attempt to verify order
+      expect_any_instance_of(Skylight::Trace).to receive(:instrument)
+          .with("app.grape.filters", "Before Filters", nil)
+          .once
 
-      expect(Skylight).to receive(:instrument)
-                            .ordered
-                            .with(category: "app.grape.endpoint", title: "GET admin secret")
-                            .and_call_original
+      expect_any_instance_of(Skylight::Trace).to receive(:instrument)
+          .with("app.block", "verifying admin", nil)
+          .once
+
+      expect_any_instance_of(Skylight::Trace).to receive(:instrument)
+          .with("app.grape.endpoint", "GET admin secret", nil)
+          .once
 
       get "/app/admin/secret"
 

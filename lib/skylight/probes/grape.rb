@@ -1,10 +1,18 @@
+require 'skylight/grape'
+
 module Skylight
   module Probes
     module Grape
       class Probe
         def install
-          version = ::Grape::VERSION.split('.')
-          if version[0] == '0' && version[1].to_i < 10
+          version = Gem::Version.new(::Grape::VERSION)
+
+          if version > Gem::Version.new("0.12.1")
+            # AS::N is built in to newer versions
+            return
+          end
+
+          if version < Gem::Version.new("0.10.0")
             # Using $stderr here isn't great, but we don't have a logger accessible
             $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] The Grape probe only works with version 0.10.0+ " \
                           "and will be disabled."
@@ -28,13 +36,8 @@ module Skylight
               # modified block. However, Grape does some odd stuff with the block binding
               # that makes this difficult to reason about.
               if original_block = @block
-                opts = {
-                  category: "app.grape.endpoint",
-                  title: method_name.gsub(/\s+/, ' ')
-                }
-
                 @block = lambda do |endpoint_instance|
-                  Skylight.instrument(opts) do
+                  ActiveSupport::Notifications.instrument('endpoint_render.grape', endpoint: endpoint_instance) do
                     original_block.call(endpoint_instance)
                   end
                 end
@@ -43,68 +46,35 @@ module Skylight
 
             alias run_without_sk run
             def run(*args)
-              # We run the original method first since it gives us access to more information
-              # about the current state, including populating `route`.
-              run_without_sk(*args)
-            ensure
-              if instrumenter = Skylight::Instrumenter.instance
-                if trace = instrumenter.current_trace
-                  # FIXME: How do we handle endpoints with multiple methods?
-                  #   Currently we'll see things like "PUT POST DELETE PATCH HEAD"
-
-                  # OPTION A: GET /prefix/name [v1]
-                  # # FIXME: Ideally we wouldn't have to do this, but I don't know
-                  # #   of a better way
-                  # info = route.instance_variable_get :@options
-
-                  # # FIXME: Consider whether we should include the module name
-                  # name = "#{info[:method]} #{info[:path]}"
-                  # name << " [#{info[:version]}]" if info[:version]
-
-
-                  # OPTION B: Module::Class GET /name
-                  http_method = options[:method].first
-                  http_method << "..." if options[:method].length > 1
-
-                  path = options[:path].join("/")
-                  namespace = ::Grape::Namespace.joined_space(namespace_stackable(:namespace))
-
-                  if namespace && !namespace.empty?
-                    path = "/#{path}" if path[0] != '/'
-                    path = "#{namespace}#{path}"
-                  end
-
-                  name = "#{options[:for]} [#{http_method}] #{path}"
-
-                  trace.endpoint = name
-                end
+              ActiveSupport::Notifications.instrument('endpoint_run.grape', endpoint: self) do
+                run_without_sk(*args)
               end
             end
 
             alias run_filters_without_sk run_filters
             def run_filters(filters)
-              if !filters || filters.empty?
-                # If there's no filters nothing should happen, but let Grape decide
-                return run_filters_without_sk(filters)
+              # Unfortunately, the type isn't provided to the method so we have
+              # to try to guess it by looking at the contents. This is only reliable
+              # if the filters aren't empty.
+              if filters && !filters.empty?
+                type = case filters
+                  when befores            then :before
+                  when before_validations then :before_validation
+                  when after_validations  then :after_validation
+                  when afters             then :after
+                  else                         :other
+                  end
+              else
+                type = :unknown
               end
 
-              # Unfortunately, this method only gets passed an array of filters.
-              # This means we have to compare to known lists to attempt to detect
-              # the type.
-              type = case filters
-                when befores            then "Before"
-                when before_validations then "Before Validation"
-                when after_validations  then "After Validation"
-                when afters             then "After"
-                else                         "Other"
-                end
-
-              opts = {
-                category: "app.grape.filters",
-                title: "#{type} Filters"
+              payload = {
+                endpoint: self,
+                filters: filters,
+                type: type
               }
 
-              Skylight.instrument(opts) do
+              ActiveSupport::Notifications.instrument('endpoint_run_filters.grape', payload) do
                 run_filters_without_sk(filters)
               end
             end
