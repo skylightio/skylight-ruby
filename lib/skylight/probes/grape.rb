@@ -1,5 +1,3 @@
-require 'skylight/grape'
-
 module Skylight
   module Probes
     module Grape
