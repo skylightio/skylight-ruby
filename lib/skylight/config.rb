@@ -32,6 +32,7 @@ module Skylight
       'LOG_FILE'       => :'log_file',
       'LOG_LEVEL'      => :'log_level',
       'ALERT_LOG_FILE' => :'alert_log_file',
+      'LOG_SQL_PARSE_ERRORS' => :'log_sql_parse_errors',
 
       # == Proxy ==
       'PROXY_URL' => :'proxy_url',
@@ -90,6 +91,7 @@ module Skylight
       :'log_file'                => '-'.freeze,
       :'log_level'               => 'INFO'.freeze,
       :'alert_log_file'          => '-'.freeze,
+      :'log_sql_parse_errors'    => false,
       :'hostname'                => Util::Hostname.default_hostname,
       :'agent.keepalive'         => 60,
       :'agent.interval'          => 5,
