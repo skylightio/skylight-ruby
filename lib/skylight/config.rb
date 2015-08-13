@@ -39,6 +39,7 @@ module Skylight
 
       # == Instrumenter ==
       "IGNORED_ENDPOINT" => :'ignored_endpoint',
+      "SQL_MODE" => :'sql_mode',
 
       # == Skylight Remote ==
       "AUTH_URL"                     => :'auth_url',
@@ -83,6 +84,7 @@ module Skylight
     DEFAULTS = {
       :'version'              => VERSION,
       :'auth_url'             => 'https://auth.skylight.io/agent',
+      :'sql_mode'             => 'ruby',
       :'daemon.lazy_start'    => true,
       :'daemon.ssl_cert_path' => Util::SSL.ca_cert_file_or_default,
       :'daemon.ssl_cert_dir'  => Util::SSL.ca_cert_dir,
