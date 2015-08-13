@@ -1,16 +1,9 @@
-## 0.8.0-beta.3 (August 10, 2015)
-
-* [BUGFIX] Fix require issue in Grape probe
-
-## 0.8.0-beta.2 (August 10, 2015) [YANKED]
-
-* [FEATURE] Process ERB in config/skylight.yml
-* [IMPROVEMENT] Switch Grape instrumentation to use ActiveSupport::Notifications hooks provided by future Grape versions.
-* [IMPROVEMENT] Internal cleanup
-
-## 0.8.0-beta.1 (August 4, 2015)
+## 0.8.0 (August 13, 2015)
 
 * [FEATURE] Add Grape instumentation. See http://docs.skylight.io/grape
+* [FEATURE] Process ERB in config/skylight.yml
+* [FEATURE] Add Rust based SQL lexing. Currently beta. Enable with `config.sql_mode = 'rust'`.
+* [BUGFIX] Fixed a case where, With some logger configurations, duplicate messages could be written to STDOUT.
 
 ## 0.7.1 (August 4, 2015)
 
