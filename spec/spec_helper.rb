@@ -1,7 +1,5 @@
 APP_ROOT = File.expand_path("../..", __FILE__)
 
-ENV["SKYLIGHT_SQL_MODE"] = "rust"
-
 require 'rubygems'
 require 'bundler/setup'
 

@@ -39,15 +39,24 @@ module Skylight
 
         private
 
-        if ENV["SKYLIGHT_SQL_MODE"] == "rust"
-          def extract_binds(payload, _)
-            Skylight.lex_sql(payload[:sql])
+        def extract_binds(payload, precalculated)
+          case config[:sql_mode]
+          when 'rust'
+            extract_rust(payload)
+          when 'ruby'
+            extract_ruby(payload, precalculated)
+          else
+            raise "Unrecognized sql_mode: #{config.sql_mode}"
           end
-        else
-          def extract_binds(payload, precalculated)
-            name, title, _ = SqlLexer::Lexer.bindify(payload[:sql], precalculated, true)
-            [ name, title ]
-          end
+        end
+
+        def extract_rust(payload)
+          Skylight.lex_sql(payload[:sql])
+        end
+
+        def extract_ruby(payload, precalculated)
+          name, title, _ = SqlLexer::Lexer.bindify(payload[:sql], precalculated, true)
+          [ name, title ]
         end
       end
     end

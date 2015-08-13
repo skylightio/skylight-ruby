@@ -53,6 +53,7 @@ module SpecHelper
       auth_http_deflate: false,
       auth_http_connect_timeout: "2sec",
       auth_http_read_timeout: "2sec",
+      sql_mode: 'rust',
       gc: {
         profiler: gc
       }.freeze,
