@@ -127,7 +127,7 @@ describe "Skylight::Instrumenter", :http, :agent do
       end
 
       it "handles un-lexable SQL" do
-        bad_sql = "SELECT ???LOL??? ;;;NOTSQL;;;"
+        bad_sql = "!!!"
 
         Skylight.trace 'Testin', 'app.rack' do |t|
           ActiveSupport::Notifications.instrument('sql.active_record', name: "Load User", sql: bad_sql, binds: []) do

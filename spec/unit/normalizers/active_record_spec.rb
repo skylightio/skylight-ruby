@@ -80,7 +80,7 @@ module Skylight
       config[:log_sql_parse_errors] = true
 
       name, title, desc =
-        normalize(name: "Foo Load", sql: "NOT &REAL& ;;;SQL;;;")
+        normalize(name: "Foo Load", sql: "!!!")
 
       name.should == "db.sql.query"
       title.should == "Foo Load"
