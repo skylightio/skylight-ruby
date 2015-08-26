@@ -68,7 +68,7 @@ module Skylight
           exactly(4).times.and_return(0, 0, 100_000_000, 0)
 
         Skylight.trace 'Rack', 'app.rack' do |t|
-          instrument 'app.test' do
+          Skylight.instrument do
             clock.skip 1
           end
         end
@@ -81,7 +81,7 @@ module Skylight
         span(0).event.category.should == 'app.rack'
         span(0).duration.should == 10_000
 
-        span(1).event.category.should == 'app.test'
+        span(1).event.category.should == 'app.block'
         span(1).duration.should == 9_000
 
         span(2).event.category.should == 'noise.gc'

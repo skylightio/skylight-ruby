@@ -14,12 +14,25 @@ module Skylight
 
     def register!
       unregister! if @subscriber
-      @subscriber = ActiveSupport::Notifications.subscribe nil, self
+      pattern = ArrayPattern.new(@normalizers.keys)
+      @subscriber = ActiveSupport::Notifications.subscribe pattern, self
     end
 
     def unregister!
       ActiveSupport::Notifications.unsubscribe @subscriber
       @subscriber = nil
+    end
+
+    class ArrayPattern
+
+      def initialize(keys)
+        @keys = Set.new keys
+      end
+
+      def ===(item)
+        @keys.include?(item)
+      end
+
     end
 
     #

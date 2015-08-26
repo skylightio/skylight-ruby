@@ -113,6 +113,10 @@ module Skylight
         @normalizers = normalizers
       end
 
+      def keys
+        @normalizers.keys
+      end
+
       def normalize(trace, name, payload)
         normalizer_for(name).normalize(trace, name, payload)
       end
