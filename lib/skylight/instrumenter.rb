@@ -7,7 +7,6 @@ module Skylight
   class Instrumenter
     KEY  = :__skylight_current_trace
     LOCK = Mutex.new
-    DESC_LOCK = Mutex.new
 
     TOO_MANY_UNIQUES = "<too many unique descriptions>"
 
@@ -87,7 +86,6 @@ module Skylight
       @subscriber = Subscriber.new(config, self)
 
       @trace_info = @config[:trace_info] || TraceInfo.new
-      @descriptions = Hash.new { |h,k| h[k] = {} }
     end
 
     def current_trace
@@ -227,15 +225,12 @@ module Skylight
     def limited_description(description)
       endpoint = @trace_info.current.endpoint
 
-      DESC_LOCK.synchronize do
-        set = @descriptions[endpoint]
-
-        if set.size >= 100
-          return TOO_MANY_UNIQUES
+      if description
+        if native_track_desc(endpoint, description)
+          description
+        else
+          TOO_MANY_UNIQUES
         end
-
-        set[description] = true
-        description
       end
     end
 

@@ -1,6 +1,6 @@
 ---
-version: "0.7.0-d1ae356"
+version: "0.7.0-6aad54d"
 checksums:
-  x86-linux:     "b55bba29175cedefffaf1ad90061eeaf36bc0b4a74069a27c6a4e4b4709e1487"
-  x86_64-linux:  "03d26c7ce85f2631debdcc6b6c2289cb4adb61f6c86b8dcda7ea4e1f680afb01"
-  x86_64-darwin: "c4154a57adf5d982c838883358e2bf35671ed59a6dc5cb023f1baf9448bbe302"
+  x86-linux:     "a3a16d2de1070d455dae8e46f95c8fa3621adfb062f7b23d629df870d6d7b385"
+  x86_64-linux:  "c62bcb68c124c5664cf22254c17db68b7f7a3fe6da9148a3f49c546449a9e766"
+  x86_64-darwin: "bb42c08044a94332a69c7d343273488d44ed7c85d3f1e2f37834f4ed6cdd178d"
