@@ -86,8 +86,6 @@ module Skylight
       :'auth_url'             => 'https://auth.skylight.io/agent',
       :'sql_mode'             => 'ruby',
       :'daemon.lazy_start'    => true,
-      :'daemon.ssl_cert_path' => Util::SSL.ca_cert_file_or_default,
-      :'daemon.ssl_cert_dir'  => Util::SSL.ca_cert_dir,
 
       # == Legacy ==
       :'log_file'                => '-'.freeze,
@@ -110,6 +108,11 @@ module Skylight
       :'me.credentials_path'     => '~/.skylight',
       :'metrics.report_interval' => 60
     }
+
+    if Skylight::Util::Platform::OS != 'darwin'
+      DEFAULTS[:'daemon.ssl_cert_path'] = Util::SSL.ca_cert_file_or_default
+      DEFAULTS[:'daemon.ssl_cert_dir'] = Util::SSL.ca_cert_dir
+    end
 
     if Skylight.native?
       native_path = Skylight.libskylight_path
