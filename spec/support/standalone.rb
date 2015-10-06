@@ -18,7 +18,6 @@ module SpecHelper
       ENV['SKYLIGHT_GEM_PATH'] = APP_ROOT
 
       # Skylight config
-      ENV['SKYLIGHT_ME_CREDENTIALS_PATH'] = File.expand_path("../.skylight")
       ENV['SKYLIGHT_AUTH_URL'] = "http://localhost:#{port}"
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE'] = "false"
     end

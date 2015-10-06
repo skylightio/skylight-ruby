@@ -105,7 +105,6 @@ module Skylight
       :'accounts.port'           => 443,
       :'accounts.ssl'            => true,
       :'accounts.deflate'        => false,
-      :'me.credentials_path'     => '~/.skylight',
       :'metrics.report_interval' => 60
     }
 
