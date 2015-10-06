@@ -53,6 +53,14 @@ you should set the `SKYLIGHT_AUTHENTICATION` variable to:
     rescue Interrupt
     end
 
+    desc "disable_dev_warning", "Disables warning about running Skylight in development mode for all local apps"
+    def disable_dev_warning
+      user_config.disable_dev_warning = true
+      user_config.save
+
+      say "Development mode warning disabled", :green
+    end
+
   private
 
     def app_name
@@ -140,6 +148,10 @@ you should set the `SKYLIGHT_AUTHENTICATION` variable to:
     def config
       # Calling .load checks ENV variables
       @config ||= Config.load
+    end
+
+    def user_config
+      UserConfig.instance
     end
 
   end

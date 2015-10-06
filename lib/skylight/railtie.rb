@@ -33,8 +33,10 @@ module Skylight
           end
         end
       elsif Rails.env.development?
-        log_warning config, "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app.\n" \
-                              "(To disable this message, set `alert_log_file` in your config.)"
+        unless UserConfig.instance.disable_dev_warning?
+          log_warning config, "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app.\n" \
+                                "(To disable this message for all local apps, run `skylight disable_dev_warning`.)"
+        end
       elsif !Rails.env.test?
         log_warning config, "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the #{Rails.env} environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
       end

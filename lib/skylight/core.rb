@@ -16,6 +16,7 @@ module Skylight
 
   # Require VM specific things
   require 'skylight/config'
+  require 'skylight/user_config'
   require 'skylight/gc'
   require 'skylight/helpers'
   require 'skylight/instrumenter'
