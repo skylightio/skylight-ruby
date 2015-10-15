@@ -84,6 +84,12 @@ module Skylight
     inst.done(span)
   end
 
+  # Set a custom name for the endpoint of the current trace
+  def self.set_endpoint(name)
+    return unless inst = Instrumenter.instance
+    inst.current_trace.endpoint = name
+  end
+
   # Instrument
   def self.instrument(opts = DEFAULT_OPTIONS)
     unless inst = Instrumenter.instance
