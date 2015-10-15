@@ -9,6 +9,7 @@ require 'timecop'
 require 'beefcake'
 require 'rspec'
 require 'rspec/collection_matchers'
+require 'pry'
 
 require 'webmock/rspec'
 WebMock.disable!

@@ -18,7 +18,9 @@ if enable
       MyApp.initialize!
 
       MyApp.routes.draw do
-        resources :users
+        resources :users do
+          get :renaming
+        end
       end
     end
 
@@ -73,6 +75,11 @@ if enable
         instrument_method
         def show
           render text: "Hola: #{params[:id]}"
+        end
+
+        def renaming
+          Skylight.set_endpoint 'Other::UsersController#renamed'
+          render text: "Renamed!"
         end
 
         private
@@ -139,6 +146,17 @@ if enable
         names.should include('app.zomg')
         names.should include('app.inside')
         names[0].should == 'app.rack.request'
+      end
+
+      it 'supports Skylight.set_endpoint' do
+        call(MyApp, env('/users/1/renaming'))
+
+        server.wait count: 3
+
+        batch = server.reports[0]
+        batch.endpoints.count.should == 1
+        endpoint = batch.endpoints[0]
+        endpoint.name.should == "Other::UsersController#renamed"
       end
 
     end
