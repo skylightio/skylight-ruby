@@ -108,7 +108,7 @@ module Skylight
               description: #{desc.inspect})
 
             begin
-              before_instrument_#{name}(*args, &blk)
+              send(:before_instrument_#{name}, *args, &blk)
             ensure
               Skylight.done(span) if span
             end
