@@ -146,6 +146,18 @@ describe "Skylight::Instrumenter", :http, :agent do
         yield if block_given?
       end
 
+      def self.singleton_method_without_options
+        yield if block_given?
+      end
+      instrument_class_method :singleton_method_without_options
+
+      def self.singleton_method_with_options
+        yield if block_given?
+      end
+      instrument_class_method :singleton_method_with_options,
+        category: 'app.singleton',
+        title: 'Singleton Method'
+
       attr_accessor :myvar
       instrument_method :myvar=
     end
@@ -172,6 +184,12 @@ describe "Skylight::Instrumenter", :http, :agent do
         MyClass.singleton_method { clock.skip 0.1 }
 
         clock.skip 0.1
+        MyClass.singleton_method_without_options { clock.skip 0.1 }
+
+        clock.skip 0.1
+        MyClass.singleton_method_with_options { clock.skip 0.1 }
+
+        clock.skip 0.1
         ret = (inst.myvar = :foo)
         ret.should == :foo
         inst.myvar.should == :foo
@@ -187,13 +205,13 @@ describe "Skylight::Instrumenter", :http, :agent do
       ep.traces.count.should == 1
 
       t = ep.traces[0]
-      t.spans.count.should == 6
+      t.spans.count.should == 8
 
       # Root span
       t.spans[0].should == span(
         event:      event('app.rack.request'),
         started_at: 0,
-        duration:   11_000 )
+        duration:   15_000 )
 
       t.spans[1].should == span(
         parent:     0,
@@ -221,8 +239,20 @@ describe "Skylight::Instrumenter", :http, :agent do
 
       t.spans[5].should == span(
         parent:     0,
-        event:      event('app.method', 'MyClass#myvar='),
+        event:      event('app.method', 'MyClass.singleton_method_without_options'),
         started_at: 11_000,
+        duration:   1_000)
+
+      t.spans[6].should == span(
+        parent:     0,
+        event:      event('app.singleton', 'Singleton Method'),
+        started_at: 13_000,
+        duration:   1_000)
+
+      t.spans[7].should == span(
+        parent:     0,
+        event:      event('app.method', 'MyClass#myvar='),
+        started_at: 15_000,
         duration:   0)
     end
 
