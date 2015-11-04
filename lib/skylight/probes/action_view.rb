@@ -15,7 +15,17 @@ module Skylight
             alias render_with_layout_without_sk render_with_layout
 
             def render_with_layout(path, locals, *args, &block) #:nodoc:
-              layout  = path && find_layout(path, locals.keys)
+              layout = nil
+
+              if path
+                if method(:find_layout).arity == 3
+                  # Rails 5
+                  layout = find_layout(path, locals.keys, [formats.first])
+                else
+                  # Rails 3, 4
+                  layout = find_layout(path, locals.keys)
+                end
+              end
 
               if layout
                 instrument(:template, :identifier => layout.identifier) do
