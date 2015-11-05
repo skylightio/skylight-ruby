@@ -2,6 +2,7 @@ source "http://rubygems.org"
 
 # Hacks for unreleased versions
 if ENV['RAILS_VERSION'] =~ /alpha/
+  gem 'rack', github: 'rack/rack', branch: 'master'
   gem 'arel', github: 'rails/arel', branch: 'master'
   gem 'rails', github: 'rails/rails', branch: 'master'
 else
