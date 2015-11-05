@@ -131,6 +131,7 @@ module Skylight
         action_view/render_collection
         action_view/render_partial
         action_view/render_template
+        active_model_serializers/render
         active_record/sql
         active_support/cache
         grape/endpoint

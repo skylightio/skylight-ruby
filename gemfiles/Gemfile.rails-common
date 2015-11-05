@@ -1,0 +1,7 @@
+if !ENV['SKIP_EXTERNAL'] && RUBY_VERSION >= '1.9.3'
+  if ENV['AMS_VERSION'] == 'head'
+    gem 'active_model_serializers', github: 'rails-api/active_model_serializers'
+  else
+    gem 'active_model_serializers', ENV['AMS_VERSION']
+  end
+end
