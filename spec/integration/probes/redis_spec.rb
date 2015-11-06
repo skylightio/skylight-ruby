@@ -23,4 +23,30 @@ describe 'Redis integration', :redis_probe, :agent do
     @redis.auth("secret")
   end
 
+  it "instruments pipelining" do
+    expected = {
+      category: "db.redis.pipelined",
+      title:    "PIPELINE"
+    }
+
+    Skylight.should_receive(:instrument).with(expected).and_call_original
+
+    @redis.pipelined do
+      @redis.lrange("cache:all:the:things", 0, -1)
+    end
+  end
+
+  it "instruments multi" do
+    expected = {
+      category: "db.redis.multi",
+      title:    "MULTI"
+    }
+
+    Skylight.should_receive(:instrument).with(expected).and_call_original
+
+    @redis.multi do
+      @redis.lrange("cache:all:the:things", 0, -1)
+    end
+  end
+
 end
