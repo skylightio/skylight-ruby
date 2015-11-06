@@ -84,7 +84,7 @@ module Skylight
     DEFAULTS = {
       :'version'              => VERSION,
       :'auth_url'             => 'https://auth.skylight.io/agent',
-      :'sql_mode'             => 'ruby',
+      :'sql_mode'             => 'rust',
       :'daemon.lazy_start'    => true,
 
       # == Legacy ==
