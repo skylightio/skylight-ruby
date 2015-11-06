@@ -1,3 +1,14 @@
+## 0.9.0 (November, 6, 2015)
+
+* [FEATURE] Expose Skylight::Helpers.instrument_class_method
+* [BUGFIX] Allow for instrumentation of setters
+* [BUGFIX] Fix an issue where loading some items in the Grape namespace without loading the whole library would cause an exception.
+* [IMPROVEMENT] Switch to Rust SQL lexer by default
+* [IMPROVEMENT] Add support for Redis pipelined and multi
+* [IMPROVEMENT] Updated Rust internals
+* [IMPROVEMENT] Agent should now work on current Rails master
+* [IMPROVEMENT] Better disabling of development mode warning
+
 ## 0.8.1 (October 1, 2015)
 
 * [BUGFIX] Fix agent on OS X El Capitan.
