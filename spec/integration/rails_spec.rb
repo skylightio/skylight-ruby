@@ -112,12 +112,17 @@ if enable
     context "with agent", :http, :agent do
 
       before :each do
+        @original_environments = MyApp.config.skylight.environments.clone
         MyApp.config.skylight.environments << 'development'
 
         stub_token_verification
         stub_session_request
 
         boot
+      end
+
+      after :each do
+        MyApp.config.skylight.environments = @original_environments
       end
 
       it 'successfully calls into rails' do
@@ -147,6 +152,9 @@ if enable
 
       before :each do
         boot
+
+        # Sanity check that we are indeed running without an active agent
+        expect(Skylight::Instrumenter.instance).to be_nil
       end
 
       it "allows calls to Skylight.instrument" do
