@@ -1,4 +1,8 @@
-## 0.9.0 (November, 6, 2015)
+## 0.9.1 (November 10, 2015)
+
+* [BUGFIX] Update Rust SQL lexer to handle `NOT` and `::` typecasting.
+
+## 0.9.0 (November 6, 2015)
 
 * [FEATURE] Expose Skylight::Helpers.instrument_class_method
 * [BUGFIX] Allow for instrumentation of setters
