@@ -32,6 +32,17 @@ module Skylight
       desc.should == "select * from foo where id = ?"
     end
 
+    # Not strictly necessary, but testing than an update to the Rust agent really took
+    # so that we don't have a repeat of 0.9.1.
+    it "Handles NOT queries" do
+      name, title, desc =
+        normalize(name: "Foo Load", sql: "select * from foo where id not in (1,2)")
+
+      name.should == "db.sql.query"
+      title.should == "SELECT FROM foo"
+      desc.should == "select * from foo where id not in ?"
+    end
+
     it "Handles queries without a title" do
       sql = "SELECT * from foo"
 

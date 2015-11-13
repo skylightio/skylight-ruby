@@ -1,3 +1,7 @@
+## 0.9.2 (November 13, 2015)
+
+* [BUGFIX] Correctly update Rust agent to include SQL fixes that were supposed to land in 0.9.1.
+
 ## 0.9.1 (November 10, 2015)
 
 * [BUGFIX] Update Rust SQL lexer to handle `NOT` and `::` typecasting.
