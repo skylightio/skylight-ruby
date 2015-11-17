@@ -1,3 +1,8 @@
+## 0.9.3 (November 17, 2015)
+
+* [BUGFIX] Update SQL lexer to handle more common queries
+* [BUGFIX] Correctly report native gem installation failures
+
 ## 0.9.2 (November 13, 2015)
 
 * [BUGFIX] Correctly update Rust agent to include SQL fixes that were supposed to land in 0.9.1.
