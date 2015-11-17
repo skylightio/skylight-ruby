@@ -46,6 +46,21 @@ def fail(msg, type=:error)
   end
 end
 
+# Check that Xcode license has been approved
+# Based on Homebrew's implementation
+# https://github.com/Homebrew/homebrew/blob/03708b016755847facc4f19a43ee9f7a44141ed7/Library/Homebrew/cmd/doctor.rb#L1183
+if RUBY_PLATFORM =~ /darwin/
+  # If the user installs Xcode-only, they have to approve the
+  # license or no "xc*" tool will work.
+  if `/usr/bin/xcrun clang 2>&1` =~ /license/ && !$?.success?
+    fail <<-EOS
+You have not agreed to the Xcode license and so we are unable to build the native agent.
+To resolve this, you can agree to the license by opening Xcode.app or running:
+    sudo xcodebuild -license
+EOS
+  end
+end
+
 #
 # === Setup paths
 #
