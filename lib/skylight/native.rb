@@ -32,6 +32,9 @@ module Skylight
         raise LoadError, "Cannot find native extensions in #{libskylight_path}"
       end
     end
+  rescue RuntimeError => e
+    # Old versions of OS X can have dlerrors, just treat it like a missing native
+    raise if skylight_required || e.message !~ /dlerror/
   rescue LoadError => e
     raise if skylight_required
   end
