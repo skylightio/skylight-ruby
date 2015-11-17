@@ -39,6 +39,7 @@ module Skylight
 
       # == Instrumenter ==
       "IGNORED_ENDPOINT" => :'ignored_endpoint',
+      "IGNORED_ENDPOINTS" => :'ignored_endpoints',
       "SQL_MODE" => :'sql_mode',
 
       # == Skylight Remote ==
@@ -420,8 +421,16 @@ authentication: #{self[:authentication]}
     def ignored_endpoints
       @ignored_endpoints ||=
         begin
+          ignored_endpoints = get(:'ignored_endpoints')
+
+          # If, for some odd reason you have a comma in your endpoint name, use the
+          # YML config instead.
+          if ignored_endpoints.is_a?(String)
+            ignored_endpoints = ignored_endpoints.split(/\s*,\s*/)
+          end
+
           val = Array(get(:'ignored_endpoint'))
-          val.concat(Array(get(:'ignored_endpoints')))
+          val.concat(Array(ignored_endpoints))
           val
         end
     end
