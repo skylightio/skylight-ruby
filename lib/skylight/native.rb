@@ -47,12 +47,12 @@ module Skylight
   # @api private
   def self.check_install_errors(config)
     # Note: An unsupported arch doesn't count as an error.
-    install_log = File.expand_path("../../ext/install.log", __FILE__)
+    install_log = File.expand_path("../../../ext/install.log", __FILE__)
 
     if File.exist?(install_log) && File.read(install_log) =~ /ERROR/
       config.alert_logger.error \
           "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension failed to install. " \
-          "Please check #{install_log} and notify support@skylight.io." \
+          "Please check #{install_log} and notify support@skylight.io. " \
           "The missing extension will not affect the functioning of your application."
     end
   end
