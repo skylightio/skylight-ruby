@@ -49,7 +49,7 @@ end
 # Check that Xcode license has been approved
 # Based on Homebrew's implementation
 # https://github.com/Homebrew/homebrew/blob/03708b016755847facc4f19a43ee9f7a44141ed7/Library/Homebrew/cmd/doctor.rb#L1183
-if RUBY_PLATFORM =~ /darwin/
+if Platform::OS == 'darwin'
   # If the user installs Xcode-only, they have to approve the
   # license or no "xc*" tool will work.
   if `/usr/bin/xcrun clang 2>&1` =~ /license/ && !$?.success?

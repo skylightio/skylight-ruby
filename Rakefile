@@ -60,6 +60,7 @@ task :build => RUBY_EXT
 desc "clean build artifacts"
 task :clean do
   rm_rf "lib/skylight/native"
+  rm_f "ext/install.log"
   rm_rf TARGET_DIR
 end
 
