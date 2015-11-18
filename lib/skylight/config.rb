@@ -269,6 +269,8 @@ module Skylight
         end
       end
 
+      # FIXME: Why not set the sockdir_path and pidfile_path explicitly?
+      # That way we don't have to keep this in sync with the Rust repo.
       sockdir_path = self[:'daemon.sockdir_path'] || File.expand_path('.')
       pidfile_path = self[:'daemon.pidfile_path'] || File.expand_path('skylight.pid', sockdir_path)
 
@@ -284,17 +286,21 @@ module Skylight
       FileUtils.mkdir_p sockdir_path
 
       if File.exist?(pidfile)
-        if !FileTest.writable?(pidfile)
+        unless FileTest.writable?(pidfile)
           raise ConfigError, "File `#{pidfile}` not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path"
         end
       else
-        if !FileTest.writable?(pidfile_root)
+        unless FileTest.writable?(pidfile_root)
           raise ConfigError, "Directory `#{pidfile_root}` not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path"
         end
       end
 
       unless FileTest.writable?(sockdir_path)
         raise ConfigError, "Directory `#{sockdir_path}` not writable. Please set daemon.sockdir_path in your config to a writable path"
+      end
+
+      if check_nfs(pidfile)
+        raise ConfigError, "Directory `#{sockdir_path}` is an NFS mount and will not allow sockets. Please set daemon.sockdir_path in your config to a non-NFS path."
       end
     end
 
@@ -478,6 +484,11 @@ authentication: #{self[:authentication]}
     end
 
   private
+
+    def check_nfs(path)
+      # Should work on most *nix, though not on OS X
+      `stat -f -L -c %T #{path} 2>&1`.strip == 'nfs'
+    end
 
     def load_logger
       unless l = @logger

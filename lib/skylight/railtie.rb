@@ -66,12 +66,12 @@ module Skylight
       end
 
       config = Config.load(file: path, environment: Rails.env.to_s)
-      config['root'] = Rails.root
+      config[:root] = Rails.root
 
       configure_logging(config, app)
 
-      config['daemon.sockdir_path'] ||= tmp
-      config['normalizers.render.view_paths'] = existent_paths(app.config.paths["app/views"]) + [Rails.root.to_s]
+      config[:'daemon.sockdir_path'] ||= tmp
+      config[:'normalizers.render.view_paths'] = existent_paths(app.config.paths["app/views"]) + [Rails.root.to_s]
       config.validate!
       config
 
