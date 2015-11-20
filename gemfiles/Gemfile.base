@@ -10,25 +10,27 @@ gem 'rspec', '< 3.0', '> 2.0.0'
 gem 'rspec-collection_matchers'
 gem 'rack-test'
 
-ENV['SKIP_MOPED'] = 'true' if ENV['SKIP_EXTERNAL'] || RUBY_VERSION < '1.9.3'
-
-unless ENV['SKIP_MOPED']
-  gem 'bson'
-  gem 'mongoid', '~> 4.0.0'
-  gem 'moped'
-end
-
 unless ENV['SKIP_EXTERNAL']
   gem 'excon'
   gem 'redis'
   gem 'fakeredis'
-end
 
-unless ENV['SKIP_TILT'] || ENV['SKIP_SINATRA']
-  gem 'tilt', ENV['TILT_VERSION'] || '~> 1.4.1'
-end
+  # The dependency bson requires 1.9.3+
+  if RUBY_VERSION >= '1.9.3'
+    gem 'mongo'
+    gem 'moped'
 
-unless ENV['SKIP_SEQUEL']
-  gem 'sequel', ENV['SEQUEL_VERSION'] || '> 0'
-  gem 'sqlite3'
+    unless ENV['MONGOID_VERSION'] == 'skip'
+      gem 'mongoid', (ENV['MONGOID_VERSION'] || '>= 5.0.0')
+    end
+  end
+
+  unless ENV['SKIP_TILT'] || ENV['SKIP_SINATRA']
+    gem 'tilt', ENV['TILT_VERSION'] || '~> 1.4.1'
+  end
+
+  unless ENV['SKIP_SEQUEL']
+    gem 'sequel', ENV['SEQUEL_VERSION'] || '> 0'
+    gem 'sqlite3'
+  end
 end

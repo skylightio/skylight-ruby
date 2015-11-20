@@ -1,5 +1,5 @@
 development:
-  clients:
+  sessions:
     default:
       database: echo_test
       hosts:

@@ -19,11 +19,15 @@ require 'rack/test'
 # will report more helpful errors
 require "support/native"
 
+
 # Begin Probed libraries
-begin
-  require 'excon'
-  require 'skylight/probes/excon'
-rescue LoadError
+
+%w(excon tilt sinatra sequel grape mongo moped mongoid).each do |library|
+  begin
+    require library
+    require "skylight/probes/#{library}"
+  rescue LoadError
+  end
 end
 
 begin
@@ -34,33 +38,9 @@ rescue LoadError
 end
 
 begin
-  require 'tilt'
-  require 'skylight/probes/tilt'
-rescue LoadError
-end
-
-begin
-  require 'sinatra'
-  require 'skylight/probes/sinatra'
-rescue LoadError
-end
-
-begin
-  require 'sequel'
-  require 'skylight/probes/sequel'
-rescue LoadError
-end
-
-begin
   require 'action_dispatch'
   require 'action_view'
   require 'skylight/probes/action_view'
-rescue LoadError
-end
-
-begin
-  require 'grape'
-  require 'skylight/probes/grape'
 rescue LoadError
 end
 
@@ -69,14 +49,6 @@ require 'skylight/probes/net_http'
 
 # End Probed Libraries
 
-
-# Begin Normalize Libraries
-
-begin
-  require 'moped'
-  require 'mongoid'
-rescue LoadError
-end
 
 # Similar to above, but this is for waiting for the embedded HTTP server to
 # receive requests. The HTTP server is used to mock out the Skylight hosted
