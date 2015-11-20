@@ -28,8 +28,12 @@ unless ENV['SKYLIGHT_DISABLE_AGENT']
           end
         end
 
+        def mocked?
+          config.key?(:mock_submission)
+        end
+
         def native_submit_trace(trace)
-          if config.key?(:mock_submission)
+          if mocked?
             config[:mock_submission].call(trace)
           else
             native_submit_trace_without_mock(trace)
@@ -37,8 +41,57 @@ unless ENV['SKYLIGHT_DISABLE_AGENT']
         end
 
         def native_stop
-          native_stop_without_mock unless config.key?(:mock_submission)
+          native_stop_without_mock unless mocked?
         end
+      end
+
+      class Trace
+
+        alias native_start_span_without_mock native_start_span
+        alias native_span_set_title_without_mock native_span_set_title
+        alias native_span_set_description_without_mock native_span_set_description
+        alias native_stop_span_without_mock native_stop_span
+
+        def mock_spans
+          @mock_spans ||= []
+        end
+
+        def mocked?
+          @instrumenter.mocked?
+        end
+
+        def native_start_span(time, cat)
+          return native_start_span_without_mock(time, cat) unless mocked?
+
+          span = {
+            start: time,
+            cat: cat
+          }
+          mock_spans << span
+          # Return integer like the native method does
+          mock_spans.index(span)
+        end
+
+        def native_span_set_title(sp, title)
+          return native_span_set_title_without_mock(sp, title) unless mocked?
+
+          mock_spans[sp][:title] = title
+        end
+
+        def native_span_set_description(sp, desc)
+          return native_span_set_description_without_mock(sp, desc) unless mocked?
+
+          mock_spans[sp][:desc] = desc
+        end
+
+        def native_stop_span(span, time)
+          return native_stop_span_without_mock(span, time) unless mocked?
+
+          span = mock_spans[span]
+          span[:duration] = time - span[:start]
+          nil
+        end
+
       end
     end
   rescue LoadError => e

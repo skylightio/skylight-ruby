@@ -30,9 +30,7 @@ module Skylight
       @notifications = []
 
       # create the root node
-      @root = native_start_span(native_get_started_at, cat)
-      native_span_set_title(@root, title) if title
-      native_span_set_description(@root, desc) if desc
+      @root = start(native_get_started_at, cat, title, desc, normalize: false)
 
       @gc = config.gc.track unless ENV.key?("SKYLIGHT_DISABLE_GC_TRACKING")
     end
@@ -140,15 +138,18 @@ module Skylight
 
   private
 
-    def start(time, cat, title, desc)
-      sp = native_start_span(self.class.normalize_time(time), cat.to_s)
+    def start(time, cat, title, desc, opts={})
+      time = self.class.normalize_time(time) unless opts[:normalize] == false
+
+      sp = native_start_span(time, cat.to_s)
       native_span_set_title(sp, title.to_s) if title
       native_span_set_description(sp, desc.to_s) if desc
       sp
     end
 
     def stop(span, time)
-      native_stop_span(span, self.class.normalize_time(time))
+      time = self.class.normalize_time(time)
+      native_stop_span(span, time)
       nil
     end
 
