@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Skylight
-  describe "Normalizers", "query.moped", :moped, :agent do
+  describe "Normalizers", "query.moped", :moped do
 
     it "skips COMMAND" do
       op = Moped::Protocol::Command.new("testdb", { foo: "bar" })
