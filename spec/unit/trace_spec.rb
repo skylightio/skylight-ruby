@@ -4,7 +4,7 @@ module Skylight
   describe Trace, :http, :agent do
 
     before :each do
-      clock.now = 100_000_000
+      clock.tick = 100_000_000
       start!
     end
 

@@ -10,14 +10,14 @@ $LOAD_PATH << $native_lib_path
 unless ENV['SKYLIGHT_DISABLE_AGENT']
   ENV['SKYLIGHT_REQUIRED'] = 'true'
 
-  # Attempt to load the native extension
-  begin
-    require 'skylight/native'
+  require 'skylight'
 
+  begin
     module Skylight
       class Instrumenter
         alias native_submit_trace_without_mock native_submit_trace
         alias native_stop_without_mock native_stop
+        alias limited_description_without_mock limited_description
 
         def self.mock!(&callback)
           @instance = self.allocate.tap do |inst|
@@ -43,6 +43,15 @@ unless ENV['SKYLIGHT_DISABLE_AGENT']
         def native_stop
           native_stop_without_mock unless mocked?
         end
+
+        def limited_description(description)
+          if mocked?
+            description
+          else
+            limited_description_without_mock(description)
+          end
+        end
+
       end
 
       class Trace

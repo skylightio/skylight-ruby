@@ -145,8 +145,19 @@ RSpec.configure do |config|
     end
   end
 
+  config.around :each, instrumenter: true do |example|
+    begin
+      mock_clock! # This happens before the before(:each) below
+      clock.freeze
+      Skylight::Instrumenter.mock!
+      Skylight.trace("Test") { example.run }
+    ensure
+      Skylight::Instrumenter.stop!
+    end
+  end
+
   config.before :each do
-    Skylight::Util::Clock.default = SpecHelper::TestClock.new
+    mock_clock!
   end
 
   config.before :each, http: true do
@@ -155,6 +166,7 @@ RSpec.configure do |config|
 
   config.after :each do
     cleanup_all_spawned_workers
+    reset_clock!
 
     # Reset the starting paths
     Skylight::Probes.instance_variable_set(:@require_hooks, {})
