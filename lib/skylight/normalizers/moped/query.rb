@@ -85,10 +85,6 @@ module Skylight
           ret
         end
 
-        def stringify(value)
-          value.is_a?(Regexp) ? value.inspect : value.to_s
-        end
-
       end
     end
   end
