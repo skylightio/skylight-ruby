@@ -13,11 +13,11 @@ module Skylight
 
         def normalize(trace, name, payload)
           case payload[:name]
-          when "SCHEMA", "CACHE"
+          when "SCHEMA".freeze, "CACHE".freeze
             return :skip
           else
             name  = CAT
-            title = payload[:name] || "SQL"
+            title = payload[:name] || "SQL".freeze
           end
 
           binds = payload[:binds]
@@ -41,9 +41,9 @@ module Skylight
 
         def extract_binds(payload, precalculated)
           case config[:sql_mode]
-          when 'rust'
+          when 'rust'.freeze
             extract_rust(payload)
-          when 'ruby'
+          when 'ruby'.freeze
             extract_ruby(payload, precalculated)
           else
             raise "Unrecognized sql_mode: #{config.sql_mode}"

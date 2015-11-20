@@ -15,11 +15,11 @@ module Skylight
           type = operation && operation.class.to_s =~ /^Moped::Protocol::(.+)$/ ? $1 : nil
 
           case type
-          when "Query"       then normalize_query(operation)
-          when "GetMore"     then normalize_get_more(operation)
-          when "Insert"      then normalize_insert(operation)
-          when "Update"      then normalize_update(operation)
-          when "Delete"      then normalize_delete(operation)
+          when "Query".freeze   then normalize_query(operation)
+          when "GetMore".freeze then normalize_get_more(operation)
+          when "Insert".freeze  then normalize_insert(operation)
+          when "Update".freeze  then normalize_update(operation)
+          when "Delete".freeze  then normalize_delete(operation)
           else :skip
           end
         end
@@ -27,7 +27,7 @@ module Skylight
       private
 
         def normalize_query(operation)
-          title = normalize_title("QUERY", operation)
+          title = normalize_title("QUERY".freeze, operation)
 
           hash = extract_binds(operation.selector)
           description = hash.to_json
@@ -36,19 +36,19 @@ module Skylight
         end
 
         def normalize_get_more(operation)
-          title = normalize_title("GET_MORE", operation)
+          title = normalize_title("GET_MORE".freeze, operation)
 
           [CAT, title, nil]
         end
 
         def normalize_insert(operation)
-          title = normalize_title("INSERT", operation)
+          title = normalize_title("INSERT".freeze, operation)
 
           [CAT, title, nil]
         end
 
         def normalize_update(operation)
-          title = normalize_title("UPDATE", operation)
+          title = normalize_title("UPDATE".freeze, operation)
 
           selector_hash = extract_binds(operation.selector)
           update_hash = extract_binds(operation.update)
@@ -59,7 +59,7 @@ module Skylight
         end
 
         def normalize_delete(operation)
-          title = normalize_title("DELETE", operation)
+          title = normalize_title("DELETE".freeze, operation)
 
           hash = extract_binds(operation.selector)
           description = hash.to_json
@@ -78,15 +78,11 @@ module Skylight
             if v.is_a?(Hash)
               ret[k] = extract_binds(v)
             else
-              ret[k] = '?'
+              ret[k] = '?'.freeze
             end
           end
 
           ret
-        end
-
-        def stringify(value)
-          value.is_a?(Regexp) ? value.inspect : value.to_s
         end
 
       end

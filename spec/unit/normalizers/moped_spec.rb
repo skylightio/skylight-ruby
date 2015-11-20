@@ -17,27 +17,6 @@ module Skylight
       description.should == { foo: { :"$not" => '?' }, baz: '?'}.to_json
     end
 
-    if defined?(Mongoid)
-      class Artist
-        include Mongoid::Document
-        field :name, type: String
-        field :signed_at, type: Time
-      end
-    end
-
-    it "normalizes QUERY with a Time" do
-      Mongoid.load!(File.expand_path("../../../support/mongoid.yml", __FILE__), :development)
-
-      time = Time.now
-      artists = Artist.where(signed_at: time)
-
-      category, title, description = normalize(ops: [artists.query.operation])
-
-      category.should    == "db.mongo.query"
-      title.should       == "QUERY skylight_artists"
-      description.should == { signed_at: '?' }.to_json
-    end
-
     it "normalizes GET_MORE" do
       op = Moped::Protocol::GetMore.new("testdb", "testcollection", "cursor123", 10)
       category, title, description = normalize(ops: [op])
