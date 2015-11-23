@@ -11,11 +11,10 @@ if ENV['TEST_MONGO_INTEGRATION']
     it "instruments insert_one" do
       client[:artists].insert_one(name: "Peter")
 
+      # No details on the insert because the documents aren't guaranteed to follow any pattern
       expected = {
         cat: "db.mongo.command",
-        title: "echo_test.insert artists",
-        # No details on the insert because the documents aren't guaranteed to follow any pattern
-        desc: nil
+        title: "echo_test.insert artists"
       }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
@@ -24,7 +23,7 @@ if ENV['TEST_MONGO_INTEGRATION']
       client[:artists].insert_many([ { name: "Peter" }, { name: "Daniel" } ])
 
       # No details on the insert because the documents aren't guaranteed to follow any pattern
-      expected = { cat: "db.mongo.command", title: "echo_test.insert artists", desc: nil }
+      expected = { cat: "db.mongo.command", title: "echo_test.insert artists" }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
 
