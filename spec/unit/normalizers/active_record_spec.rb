@@ -116,5 +116,13 @@ module Skylight
       desc.should == "SELECT foo FROM bar WHERE date::DATE = ?::date"
     end
 
+    it "Handles underscored identifiers" do
+      name, title, desc = normalize(sql: "SELECT _bar._foo FROM _bar")
+
+      name.should == "db.sql.query"
+      title.should == "SELECT FROM _bar"
+      desc.should == "SELECT _bar._foo FROM _bar"
+    end
+
   end
 end
