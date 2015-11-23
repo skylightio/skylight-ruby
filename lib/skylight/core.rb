@@ -86,7 +86,7 @@ module Skylight
   end
 
   # Instrument
-  def self.instrument(opts = DEFAULT_OPTIONS)
+  def self.instrument(opts = DEFAULT_OPTIONS, &block)
     unless inst = Instrumenter.instance
       return yield if block_given?
       return
@@ -105,11 +105,7 @@ module Skylight
       desc        = nil
     end
 
-    if block_given?
-      inst.instrument(category, title, desc) { yield }
-    else
-      inst.instrument(category, title, desc)
-    end
+    inst.instrument(category, title, desc, &block)
   end
 
   # Temporarily disable

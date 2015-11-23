@@ -53,8 +53,9 @@ module Skylight
           end
 
           def end_instrumentation(datum)
-            @requests[datum.object_id].done
-            @requests.delete(datum)
+            if request = @requests.delete(datum.object_id)
+              Skylight.done(request)
+            end
           rescue Exception => e
             error "failed to end instrumentation for Excon; msg=%s", e.message
           end

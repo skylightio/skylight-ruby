@@ -73,4 +73,9 @@ module SpecHelper
     stub_session_request
     Skylight.start! config
   end
+
+  def current_trace
+    inst = Skylight::Instrumenter.instance
+    inst ? inst.current_trace : nil
+  end
 end

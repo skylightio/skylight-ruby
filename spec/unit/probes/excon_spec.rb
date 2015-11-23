@@ -66,10 +66,6 @@ module Skylight
           end
         end
 
-        let :span do
-          double("span", done: true)
-        end
-
         let :conn do
           TestConnection.new([Skylight::Probes::Excon::Middleware])
         end
@@ -78,8 +74,8 @@ module Skylight
           args = { category: "api.http.get",
                    title: "GET www.example.com" }
 
-          Skylight.should_receive(:instrument).with(args).and_return(span)
-          span.should_receive(:done).once
+          Skylight.should_receive(:instrument).with(args).and_return(123)
+          Skylight.should_receive(:done).with(123).once
 
           datum = { method: "get", scheme: "http", host: "www.example.com", path: "/" }
           conn.request(datum)
@@ -89,8 +85,8 @@ module Skylight
         it "instruments an errored request" do
           args = { category: "api.http.get",
                    title: "GET www.example.com" }
-          Skylight.should_receive(:instrument).with(args).and_return(span)
-          span.should_receive(:done).once
+          Skylight.should_receive(:instrument).with(args).and_return(123)
+          Skylight.should_receive(:done).with(123).once
 
           datum = { method: "get", scheme: "http", host: "www.example.com", path: "/" }
           conn.request(datum)

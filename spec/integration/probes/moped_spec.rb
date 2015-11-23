@@ -2,20 +2,7 @@ require 'spec_helper'
 
 # Requires mongodb instance to be running
 if ENV['TEST_MONGO_INTEGRATION']
-  describe 'Mongo integration with Moped', :moped_probe, :agent do
-
-    around :each do |example|
-      begin
-        Skylight::Instrumenter.mock!
-        Skylight.trace("Rack") { example.run }
-      ensure
-        Skylight::Instrumenter.stop!
-      end
-    end
-
-    let :trace do
-      Skylight::Instrumenter.instance.current_trace
-    end
+  describe 'Mongo integration with Moped', :moped_probe, :instrumenter do
 
     def build_session(opts={})
       @session = Moped::Session.new([ "localhost:27017" ], opts)
@@ -24,7 +11,7 @@ if ENV['TEST_MONGO_INTEGRATION']
     end
 
     it "instruments without affecting default instrumenter" do
-      expect(trace).to receive(:instrument).with("db.mongo.query", "INSERT artists", nil).and_call_original.once
+      expect(current_trace).to receive(:instrument).with("db.mongo.query", "INSERT artists", nil).and_call_original.once
       expect(Moped::Loggable).to receive(:log_operations).at_least(:once)
 
       session = build_session
