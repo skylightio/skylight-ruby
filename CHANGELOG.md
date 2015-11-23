@@ -1,3 +1,12 @@
+## 0.9.4 (November 23, 2015)
+
+* [FEATURE] Added instrumentation for official Mongo Ruby Driver (utilized by Mongoid 5+). Add 'mongo' to probes list to enable. 
+* [BUGFIX] Excon instrumentation now works correctly.
+* [BUGFIX] Graceful handling of native agent failures on old OS X versions.
+* [IMPROVEMENT] Freeze some more strings for (likely very minor) performance improvements.
+* [IMPROVEMENT] Better error messages when sockdir is an NFS mount.
+* [IMPROVEMENT] On OS X, ensure that Xcode license has been approved before trying to build native agent.
+
 ## 0.9.3 (November 17, 2015)
 
 * [BUGFIX] Update SQL lexer to handle more common queries
