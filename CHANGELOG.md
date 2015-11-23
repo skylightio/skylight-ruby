@@ -1,6 +1,7 @@
 ## 0.9.4 (November 23, 2015)
 
 * [FEATURE] Added instrumentation for official Mongo Ruby Driver (utilized by Mongoid 5+). Add 'mongo' to probes list to enable. 
+* [BUGFIX] SQL lexer now handles indentifiers beginning with underscores.
 * [BUGFIX] Excon instrumentation now works correctly.
 * [BUGFIX] Graceful handling of native agent failures on old OS X versions.
 * [IMPROVEMENT] Freeze some more strings for (likely very minor) performance improvements.
