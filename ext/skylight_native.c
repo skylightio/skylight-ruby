@@ -444,6 +444,7 @@ lex_sql(VALUE klass, VALUE rb_sql) {
 
   // Set the statement return
   rb_str_set_len(rb_statement, statement.len);
+  rb_enc_associate(rb_statement, rb_utf8_encoding());
 
   ret = rb_ary_new2(2);
 

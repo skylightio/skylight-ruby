@@ -124,5 +124,13 @@ module Skylight
       desc.should == "SELECT _bar._foo FROM _bar"
     end
 
+    it "Handles multibyte characters" do
+      name, title, desc = normalize(sql: "SELECT 𝒜 FROM zømg WHERE foo = 'å'")
+
+      name.should == "db.sql.query"
+      title.should == "SELECT FROM zømg"
+      desc.should == "SELECT 𝒜 FROM zømg WHERE foo = ?"
+    end
+
   end
 end
