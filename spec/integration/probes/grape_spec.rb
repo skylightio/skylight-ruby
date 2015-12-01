@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'skylight/instrumenter'
 
 if defined?(Grape)
+  # FIXME: We should also add unit specs for the grape normalizers
   describe 'Grape integration', :grape_probe, :agent do
     include Rack::Test::Methods
 

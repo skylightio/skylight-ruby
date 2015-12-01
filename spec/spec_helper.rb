@@ -22,7 +22,7 @@ require "support/native"
 
 # Begin Probed libraries
 
-%w(excon tilt sinatra sequel grape mongo moped mongoid).each do |library|
+%w(excon tilt sinatra sequel grape mongo moped mongoid active_model_serializers).each do |library|
   begin
     require library
     require "skylight/probes/#{library}"
