@@ -19,6 +19,7 @@ if enable
 
       MyApp.routes.draw do
         resources :users
+        get '/metal' => 'metal#show'
       end
     end
 
@@ -84,6 +85,16 @@ if enable
           # It's important for us to test a method ending in a special char
           instrument_method :authorized?, title: "Check authorization"
       end
+
+      class ::MetalController < ActionController::Metal
+        include ActionController::Rendering
+        # Ensure ActiveSupport::Notifications events are fired
+        include ActionController::Instrumentation
+
+        def show
+          render text: "Zomg!"
+        end
+      end
     end
 
     after :each do
@@ -140,9 +151,28 @@ if enable
 
         names = trace.spans.map { |s| s.event.category }
 
-        names.length.should be >= 2
+        names.length.should be >= 3
         names.should include('app.zomg')
         names.should include('app.inside')
+        names[0].should == 'app.rack.request'
+      end
+
+      it 'can instrument metal controllers' do
+        call MyApp, env('/metal')
+
+        server.wait count: 3
+
+        batch = server.reports[0]
+        batch.should_not be nil
+        batch.endpoints.count.should == 1
+        endpoint = batch.endpoints[0]
+        endpoint.name.should == "MetalController#show"
+        endpoint.traces.count.should == 1
+        trace = endpoint.traces[0]
+
+        names = trace.spans.map { |s| s.event.category }
+
+        names.length.should be >= 1
         names[0].should == 'app.rack.request'
       end
 
