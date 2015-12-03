@@ -1,3 +1,8 @@
+## 0.10.0 (December 3, 2015)
+
+* [FEATURE] ActiveModel::Serializers Instrumentation. Always on in latest HEAD, for previous version add 'active_model_serializers' to probes list.
+* [BUGFIX] Handle multi-byte characters in SQL lexer
+
 ## 0.9.4 (November 23, 2015)
 
 * [FEATURE] Added instrumentation for official Mongo Ruby Driver (utilized by Mongoid 5+). Add 'mongo' to probes list to enable. 
