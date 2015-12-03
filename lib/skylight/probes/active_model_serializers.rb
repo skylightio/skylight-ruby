@@ -20,7 +20,7 @@ module Skylight
           if !version || version < Gem::Version.new("0.5.0")
             # Using $stderr here isn't great, but we don't have a logger accessible
             $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] Instrumention is only available for " \
-                          "ActiveModelSerializer version 0.5.0 and greater."
+                          "ActiveModelSerializers version 0.5.0 and greater."
             return
           end
 
