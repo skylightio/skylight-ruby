@@ -30,6 +30,7 @@ module Skylight
             extracted_title, sql = extract_binds(payload, binds)
             [ name, extracted_title || title, sql ]
           rescue => e
+            # FIXME: Rust errors get written to STDERR and don't come through here
             if config[:log_sql_parse_errors]
               config.logger.warn "failed to extract binds in SQL; sql=#{payload[:sql].inspect}; exception=#{e.inspect}"
             end

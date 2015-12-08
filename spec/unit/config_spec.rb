@@ -175,17 +175,17 @@ module Skylight
 
       it 'uses defaults' do
         config = Config.new
-        config['report.ssl'].should be_truthy
+        config['daemon.lazy_start'].should be_truthy
       end
 
       it 'uses values over defaults' do
-        config = Config.new report: { ssl: false }
-        config['report.ssl'].should be_falsey
+        config = Config.new daemon: { lazy_start: false }
+        config['daemon.lazy_start'].should be_falsey
       end
 
       it 'uses nil values over defaults' do
-        config = Config.new report: { ssl: nil }
-        config['report.ssl'].should be_nil
+        config = Config.new daemon: { lazy_start: nil }
+        config['daemon.lazy_start'].should be_nil
       end
 
     end
@@ -237,7 +237,6 @@ module Skylight
       let :config do
         Config.load({file: file, environment: 'production'}, {
           'foo'                     => 'fail',
-          'application'             => 'no',
           'SKYLIGHT_AUTHENTICATION' => 'my-token',
           'SKYLIGHT_APPLICATION'    => 'my-app'})
       end
@@ -246,7 +245,6 @@ module Skylight
 
         before :each do
           file.write <<-YML
-  application: nope
   authentication: nope
   zomg: hello
   foo: bar
@@ -265,10 +263,6 @@ module Skylight
           config['zomg'].should == 'hello'
         end
 
-        it 'can load the application from an environment variable' do
-          config['application'].should == 'my-app'
-        end
-
         it 'can load the token from an environment variable' do
           config['authentication'].should == 'my-token'
         end
@@ -278,7 +272,7 @@ module Skylight
         end
 
         it 'loads nested config variables' do
-          config['report.ssl'].should == true
+          config['daemon.lazy_start'].should == true
         end
 
         it 'still overrides' do
@@ -320,7 +314,6 @@ module Skylight
 
       before :each do
         file.write <<-YML
-  application: nope
   authentication: nope
         YML
       end
@@ -328,17 +321,12 @@ module Skylight
       let :config do
         Config.load({file: file, environment: 'production'}, {
           'foo'               => 'fail',
-          'application'       => 'no',
           'SK_AUTHENTICATION' => 'my-token',
           'SK_APPLICATION'    => 'my-app'})
       end
 
       it 'loads the authentication key' do
         config[:'authentication'].should == 'my-token'
-      end
-
-      it 'loads the application id' do
-        config[:'application'].should == 'my-app'
       end
 
     end
@@ -400,13 +388,53 @@ module Skylight
       end
     end
 
+    context "#to_native_env" do
+
+      let :config do
+        Config.new(
+          hostname: "test.local",
+          root: "/test",
+
+          # These are set in some envs and not others
+          "daemon.ssl_cert_dir" => nil,
+          "daemon.ssl_cert_path" => nil,
+          "daemon.exec_path" => nil,
+          "daemon.lib_path" => nil
+        )
+      end
+
+      def get_env
+        Hash[*config.to_native_env]
+      end
+
+      it "converts to env" do
+        expect(get_env).to eq({
+          "SKYLIGHT_VERSION"    => Skylight::VERSION,
+          "SKYLIGHT_ROOT"       => "/test",
+          "SKYLIGHT_HOSTNAME"   => "test.local",
+          "SKYLIGHT_AUTH_URL"   => "https://auth.skylight.io/agent",
+          "SKYLIGHT_LAZY_START" => "true",
+          "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false"
+        })
+      end
+
+      it "includes keys only if value is set" do
+        expect(get_env['SKYLIGHT_SESSION_TOKEN']).to be_nil
+
+        config[:session_token] = "zomg"
+
+        expect(get_env['SKYLIGHT_SESSION_TOKEN']).to eq("zomg")
+      end
+
+    end
+
     context "legacy settings" do
       it "remaps agent.sockfile_path" do
         c = Config.new(agent: { sockfile_path: "/foo/bar" })
         c[:'agent.sockfile_path'].should == '/foo/bar'
         c[:'daemon.sockdir_path'].should == '/foo/bar'
 
-        env = Hash[*c.to_env]
+        env = Hash[*c.to_native_env]
         env['SKYLIGHT_AGENT_SOCKFILE_PATH'].should be_nil
         env['SKYLIGHT_SOCKDIR_PATH'].should == '/foo/bar'
       end
