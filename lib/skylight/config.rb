@@ -4,6 +4,7 @@ require 'fileutils'
 require 'thread'
 require 'openssl'
 require 'erb'
+require 'skylight/util/deploy'
 require 'skylight/util/hostname'
 require 'skylight/util/logging'
 require 'skylight/util/platform'
@@ -23,6 +24,7 @@ module Skylight
       'ROOT'          => :'root',
       'HOSTNAME'      => :'hostname',
       'SESSION_TOKEN' => :'session_token',
+      'DEPLOY_ID'     => :'deploy_id',
 
       # == Logging ==
       'LOG_FILE'       => :'log_file',
@@ -71,6 +73,10 @@ module Skylight
       "SSL_CERT_PATH"                => :'daemon.ssl_cert_path',
       "SSL_CERT_DIR"                 => :'daemon.ssl_cert_dir',
 
+      # == Heroku settings ==
+      #
+      "HEROKU_DYNO_INFO_PATH"        => :'heroku.dyno_info_path',
+
       # == Legacy env vars ==
       #
       'AGENT_LOCKFILE'      => :'agent.lockfile',
@@ -87,6 +93,7 @@ module Skylight
       :'alert_log_file'       => '-'.freeze,
       :'log_sql_parse_errors' => false,
       :'hostname'             => Util::Hostname.default_hostname,
+      :'heroku.dyno_info_path' => '/etc/heroku/dyno'
     }
 
     if Skylight::Util::Platform::OS != 'darwin'
@@ -113,6 +120,7 @@ module Skylight
       :'authentication',
       :'root',
       :'hostname',
+      :'deploy_id',
       :'session_token',
       :'proxy_url',
       :'auth_url',
@@ -494,6 +502,10 @@ authentication: #{self[:authentication]}
 
     def alert_logger=(logger)
       @alert_logger = logger
+    end
+
+    def deploy_id
+      @deploy_id = Util::Deploy.detect_id(self)
     end
 
   private

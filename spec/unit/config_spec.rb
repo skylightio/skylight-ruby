@@ -204,6 +204,34 @@ module Skylight
 
     end
 
+    context 'deploy_id' do
+
+      it 'uses provided deploy_id' do
+        config = Config.new deploy_id: "12345"
+        expect(config.deploy_id).to eq("12345")
+      end
+
+      it 'detects Heroku ids' do
+        config = Config.new :'heroku.dyno_info_path' => File.expand_path("../../support/heroku_dyno_info_sample", __FILE__)
+        expect(config.deploy_id).to eq("19a8cfc47c10d8069916ae8adba0c9cb4c6c572d")
+      end
+
+      # Travis does a copy without the git repo
+      if ENV['TRAVIS']
+        it 'returns nil when no deploys found' do
+          config = Config.new
+          expect(config.deploy_id).to be_nil
+        end
+      else
+        it 'detects git ids' do
+          config = Config.new
+          # This will be the agent repo's current SHA
+          expect(config.deploy_id).to match(/^[a-f0-9]{40}$/)
+        end
+      end
+
+    end
+
     context 'duration' do
 
       it 'assumes durations are seconds' do
@@ -392,8 +420,9 @@ module Skylight
 
       let :config do
         Config.new(
-          hostname: "test.local",
-          root: "/test",
+          hostname:  "test.local",
+          root:      "/test",
+          deploy_id: "12345",
 
           # These are set in some envs and not others
           "daemon.ssl_cert_dir" => nil,
@@ -414,6 +443,7 @@ module Skylight
           "SKYLIGHT_HOSTNAME"   => "test.local",
           "SKYLIGHT_AUTH_URL"   => "https://auth.skylight.io/agent",
           "SKYLIGHT_LAZY_START" => "true",
+          "SKYLIGHT_DEPLOY_ID"  => "12345",
           "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false"
         })
       end
