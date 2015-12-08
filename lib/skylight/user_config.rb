@@ -22,7 +22,9 @@ module Skylight
     end
 
     def reload
-      config = File.exist?(file_path) ? YAML.load_file(file_path) : {}
+      config = File.exist?(file_path) ? YAML.load_file(file_path) : false
+      return unless config
+
       self.disable_dev_warning = !!config['disable_dev_warning']
     end
 
