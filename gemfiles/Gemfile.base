@@ -18,7 +18,7 @@ unless ENV['SKIP_EXTERNAL']
   # The dependency bson requires 1.9.3+
   if RUBY_VERSION >= '1.9.3'
     gem 'mongo'
-    gem 'moped'
+    gem 'moped', '>= 2.0'
 
     unless ENV['MONGOID_VERSION'] == 'skip'
       gem 'mongoid', (ENV['MONGOID_VERSION'] || '>= 5.0.0')
