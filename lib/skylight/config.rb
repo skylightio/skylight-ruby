@@ -19,12 +19,8 @@ module Skylight
       # == Authentication ==
       'AUTHENTICATION' => :'authentication',
 
-      # == Version ==
-      'VERSION' => :'version',
-
       # == App settings ==
       'ROOT'          => :'root',
-      'APPLICATION'   => :'application',
       'HOSTNAME'      => :'hostname',
       'SESSION_TOKEN' => :'session_token',
 
@@ -78,35 +74,19 @@ module Skylight
       # == Legacy env vars ==
       #
       'AGENT_LOCKFILE'      => :'agent.lockfile',
-      'AGENT_SOCKFILE_PATH' => :'agent.sockfile_path',
+      'AGENT_SOCKFILE_PATH' => :'agent.sockfile_path'
     }
 
     # Default values for Skylight configuration keys
     DEFAULTS = {
-      :'version'              => VERSION,
       :'auth_url'             => 'https://auth.skylight.io/agent',
       :'sql_mode'             => 'rust',
       :'daemon.lazy_start'    => true,
-
-      # == Legacy ==
-      :'log_file'                => '-'.freeze,
-      :'log_level'               => 'INFO'.freeze,
-      :'alert_log_file'          => '-'.freeze,
-      :'log_sql_parse_errors'    => false,
-      :'hostname'                => Util::Hostname.default_hostname,
-      :'agent.keepalive'         => 60,
-      :'agent.interval'          => 5,
-      :'agent.sample'            => 200,
-      :'agent.max_memory'        => 256, # MB
-      :'report.host'             => 'agent.skylight.io'.freeze,
-      :'report.port'             => 443,
-      :'report.ssl'              => true,
-      :'report.deflate'          => true,
-      :'accounts.host'           => 'www.skylight.io'.freeze,
-      :'accounts.port'           => 443,
-      :'accounts.ssl'            => true,
-      :'accounts.deflate'        => false,
-      :'metrics.report_interval' => 60
+      :'log_file'             => '-'.freeze,
+      :'log_level'            => 'INFO'.freeze,
+      :'alert_log_file'       => '-'.freeze,
+      :'log_sql_parse_errors' => false,
+      :'hostname'             => Util::Hostname.default_hostname,
     }
 
     if Skylight::Util::Platform::OS != 'darwin'
@@ -126,21 +106,49 @@ module Skylight
     REQUIRED = {
       :'authentication' => "authentication token",
       :'hostname'       => "server hostname",
-      :'report.host'    => "skylight remote host",
-      :'report.port'    => "skylight remote port" }
+      :'auth_url'       => "authentication url" }
 
-    ALWAYS_INCLUDE_IN_ENV = [
-      :version,
+    NATIVE_ENV = [
+      :'version',
+      :'authentication',
+      :'root',
+      :'hostname',
+      :'session_token',
+      :'proxy_url',
+      :'auth_url',
+      :'auth_http_deflate',
+      :'auth_http_connect_timeout',
+      :'auth_http_read_timeout',
+      :'report_url',
+      :'report_http_deflate',
+      :'report_http_connect_timeout',
+      :'report_http_read_timeout',
       :'daemon.lazy_start',
-      :'daemon.lib_path',
       :'daemon.exec_path',
-      :'daemon.ssl_cert_dir',
-      :'daemon.ssl_cert_path' ]
+      :'daemon.lib_path',
+      :'daemon.pidfile_path',
+      :'daemon.sockdir_path',
+      :'daemon.batch_queue_depth',
+      :'daemon.batch_sample_size',
+      :'daemon.batch_flush_interval',
+      :'daemon.tick_interval',
+      :'daemon.sanity_check_interval',
+      :'daemon.inactivity_timeout',
+      :'daemon.max_connect_tries',
+      :'daemon.connect_try_window',
+      :'daemon.max_prespawn_jitter',
+      :'daemon.wait_timeout',
+      :'daemon.client_check_interval',
+      :'daemon.client_queue_depth',
+      :'daemon.client_write_timeout',
+      :'daemon.ssl_cert_path',
+      :'daemon.ssl_cert_dir'
+    ]
 
     # Maps legacy config keys to new config keys
     LEGACY = {
       :'agent.sockfile_path' => :'daemon.sockdir_path',
-      :'agent.pidfile_path'  => :'agent.lockfile',
+      :'agent.lockfile'  => :'daemon.pidfile_path'
     }
 
     VALIDATORS = {
@@ -359,6 +367,10 @@ module Skylight
 
     alias []= set
 
+    def send_or_get(v)
+      respond_to?(v) ? send(v) : get(v)
+    end
+
     def duration_ms(key, default = nil)
       if (v = self[key]) && v.to_s =~ /^\s*(\d+)(s|sec|ms|micros|nanos)?\s*$/
         v = $1.to_i
@@ -377,20 +389,17 @@ module Skylight
       end
     end
 
-    def to_env
+    def to_native_env
       ret = []
 
-      ENV_TO_KEY.each do |k, v|
-        next if LEGACY[v]
-        c = get(v)
-        # Always need to pass daemon lib_path config even when default
-        if c != DEFAULTS[v] || ALWAYS_INCLUDE_IN_ENV.include?(v)
-          ret << "SKYLIGHT_#{k}" << cast_for_env(c) if c
+      NATIVE_ENV.each do |key|
+        if value = send_or_get(key)
+          env_key = ENV_TO_KEY.key(key) || key.upcase
+          ret << "SKYLIGHT_#{env_key}" << cast_for_env(value)
         end
       end
 
-      ret << "SKYLIGHT_VALIDATE_AUTHENTICATION"
-      ret << "false"
+      ret << "SKYLIGHT_VALIDATE_AUTHENTICATION" << "false"
 
       ret
     end
@@ -412,6 +421,10 @@ authentication: #{self[:authentication]}
     # ===== Helpers =====
     #
     #
+
+    def version
+      VERSION
+    end
 
     # @api private
     def gc

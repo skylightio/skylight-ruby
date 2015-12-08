@@ -75,7 +75,7 @@ module Skylight
       config = Config.load(config) unless config.is_a?(Config)
       config.validate!
 
-      inst = native_new(config.to_env)
+      inst = native_new(config.to_native_env)
       inst.send(:initialize, config)
       inst
     end
