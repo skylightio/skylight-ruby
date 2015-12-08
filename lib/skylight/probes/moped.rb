@@ -4,6 +4,14 @@ module Skylight
       class Probe
 
         def install
+          unless defined?(::Moped::Instrumentable)
+            # Using $stderr here isn't great, but we don't have a logger accessible
+            $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] The installed version of Moped doesn't " \
+                          "support instrumentation. The Moped probe will be disabled."
+
+            return
+          end
+
           ::Moped::Instrumentable.module_eval do
             alias instrument_without_sk instrument
 
