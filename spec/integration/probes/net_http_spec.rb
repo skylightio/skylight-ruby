@@ -28,11 +28,11 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
       category: "api.http.get",
       title: "GET localhost"
     }
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     response = Net::HTTP.get_response(uri)
 
-    response.should be_a(Net::HTTPOK)
+    expect(response).to be_a(Net::HTTPOK)
   end
 
   it "instruments verbose requests" do
@@ -40,12 +40,12 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
       category: "api.http.get",
       title: "GET localhost"
     }
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     response = http.request(Net::HTTP::Get.new(uri.request_uri))
 
-    response.should be_a(Net::HTTPOK)
+    expect(response).to be_a(Net::HTTPOK)
   end
 
   it "instruments basic auth requests" do
@@ -53,14 +53,14 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
       category: "api.http.get",
       title: "GET localhost"
     }
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Get.new(uri.request_uri)
     request.basic_auth("username", "password")
     response = http.request(request)
 
-    response.should be_a(Net::HTTPOK)
+    expect(response).to be_a(Net::HTTPOK)
   end
 
   it "instruments post_form requests" do
@@ -69,11 +69,11 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
       title: "POST localhost"
     }
 
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     response = Net::HTTP.post_form(uri, {"q" => "My query", "per_page" => "50"})
 
-    response.should be_a(Net::HTTPOK)
+    expect(response).to be_a(Net::HTTPOK)
   end
 
   it "instruments post requests" do
@@ -82,20 +82,20 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
       title: "POST localhost"
     }
 
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Post.new(uri.request_uri)
     request.set_form_data({"q" => "My query", "per_page" => "50"})
     response = http.request(request)
 
-    response.should be_a(Net::HTTPOK)
+    expect(response).to be_a(Net::HTTPOK)
   end
 
   it "instruments https requests" do
     skip "needs test server tweaks"
 
-    # Skylight.should_receive(:instrument).with(category: "api.http.get", title: "GET localhost",
+    # expect(Skylight).to receive(:instrument).with(category: "api.http.get", title: "GET localhost",
     #                                             description: "GET #{server_uri}/test.html").and_call_original
 
     # uri = URI.parse("https://localhost/test.html")
@@ -107,7 +107,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
 
     # response = http.request(request)
 
-    # response.should be_a(Net::HTTPOK)
+    # expect(response).to be_a(Net::HTTPOK)
   end
 
   it "instruments PUT requests" do
@@ -116,14 +116,14 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
       title: "PUT localhost"
     }
 
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Put.new(uri.request_uri)
     request.set_form_data({"users[login]" => "changed"})
     response = http.request(request)
 
-    response.should be_a(Net::HTTPOK)
+    expect(response).to be_a(Net::HTTPOK)
   end
 
   it "instruments DELETE requests" do
@@ -132,14 +132,14 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
       title: "DELETE localhost"
     }
 
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Delete.new(uri.request_uri)
     request.set_form_data({"users[login]" => "changed"})
     response = http.request(request)
 
-    response.should be_a(Net::HTTPOK)
+    expect(response).to be_a(Net::HTTPOK)
   end
 
   it "instruments timedout requests" do
@@ -156,15 +156,15 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
       title: "GET localhost"
     }
 
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     http.open_timeout = 0.1 # in seconds
     http.read_timeout = 0.1 # in seconds
 
-    lambda {
+    expect {
       http.request(Net::HTTP::Get.new(uri.request_uri))
-    }.should raise_error
+    }.to raise_error(defined?(Net::ReadTimeout) ? Net::ReadTimeout : Timeout::Error)
   end
 
   it "instruments non-URI requests" do
@@ -173,12 +173,12 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
       title: "GET localhost"
     }
 
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new("localhost", port)
     response = http.request(Net::HTTP::Get.new("/test.html"))
 
-    response.should be_a(Net::HTTPOK)
+    expect(response).to be_a(Net::HTTPOK)
   end
 
   it "instruments custom verbs" do
@@ -187,12 +187,12 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
       title: "CUSTOM localhost"
     }
 
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new("localhost", port)
     response = http.request(CustomType.new("/test.html"))
 
-    response.should be_a(Net::HTTPOK)
+    expect(response).to be_a(Net::HTTPOK)
   end
 
   it "instruments basic auth" do
@@ -201,14 +201,14 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
       title: "GET localhost"
     }
 
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Get.new(uri.request_uri)
     request.basic_auth("username", "password")
     response = http.request(request)
 
-    response.should be_a(Net::HTTPOK)
+    expect(response).to be_a(Net::HTTPOK)
   end
 
   it "instruments multiple requests with the same socket" do
@@ -217,15 +217,15 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
       title: "GET localhost"
     }
 
-    Skylight.should_receive(:instrument).with(expected).twice.and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).twice.and_call_original
 
 
     http = Net::HTTP.new(uri.host, uri.port)
     response1 = http.request(Net::HTTP::Get.new(uri.request_uri))
     response2 = http.request(Net::HTTP::Get.new(uri.request_uri))
 
-    response1.should be_a(Net::HTTPOK)
-    response2.should be_a(Net::HTTPOK)
+    expect(response1).to be_a(Net::HTTPOK)
+    expect(response2).to be_a(Net::HTTPOK)
   end
 
 end

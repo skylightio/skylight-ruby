@@ -18,11 +18,11 @@ module SpecHelper
       res
     end
 
-    failure_message_for_should do
+    failure_message do
       "expected block to happen but it didn't"
     end
 
-    failure_message_for_should_not do
+    failure_message_when_negated do
       "expected block not to happen but it did"
     end
 
@@ -76,7 +76,7 @@ module SpecHelper
       ret
     end
 
-    failure_message_for_should do
+    failure_message do
       if @env
         lines = []
         @fails.each do |f|

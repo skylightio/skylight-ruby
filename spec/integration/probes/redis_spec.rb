@@ -12,13 +12,13 @@ describe 'Redis integration', :redis_probe, :agent do
       title:    "LRANGE"
     }
 
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     @redis.lrange("cache:all:the:things", 0, -1)
   end
 
   it "does not instrument the AUTH command" do
-    Skylight.should_not_receive(:instrument)
+    expect(Skylight).to_not receive(:instrument)
 
     @redis.auth("secret")
   end
@@ -29,7 +29,7 @@ describe 'Redis integration', :redis_probe, :agent do
       title:    "PIPELINE"
     }
 
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     @redis.pipelined do
       @redis.lrange("cache:all:the:things", 0, -1)
@@ -42,7 +42,7 @@ describe 'Redis integration', :redis_probe, :agent do
       title:    "MULTI"
     }
 
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     @redis.multi do
       @redis.lrange("cache:all:the:things", 0, -1)

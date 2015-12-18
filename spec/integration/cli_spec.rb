@@ -9,7 +9,7 @@ describe "CLI integration", :http do
 
   it "works with setup token" do
     server.mock "/apps", :post do |env|
-      env['rack.input'].should == { 'app' => { 'name' => 'Dummy' }, 'token' => 'setuptoken' }
+      expect(env['rack.input']).to eq({ 'app' => { 'name' => 'Dummy' }, 'token' => 'setuptoken' })
 
       # This would have more information really, but the CLI doesn't care
       { app: { id: 'appid', token: 'apptoken' }}
@@ -21,9 +21,9 @@ describe "CLI integration", :http do
 
       run_command("setup setuptoken") do |stdin, stdout, stderr|
         begin
-          read(stdout).should include("Congratulations. Your application is on Skylight!")
+          expect(read(stdout)).to include("Congratulations. Your application is on Skylight!")
 
-          YAML.load_file("config/skylight.yml").should == {"authentication"=>"apptoken"}
+          expect(YAML.load_file("config/skylight.yml")).to eq({"authentication"=>"apptoken"})
         rescue
           # Provide some potential debugging information
           puts stderr.read if ENV['DEBUG']
@@ -35,7 +35,7 @@ describe "CLI integration", :http do
 
   it "shows error messages for invalid token" do
     server.mock "/apps", :post do |env|
-      env['rack.input'].should == { 'app' => { 'name' => 'Dummy' }, 'token' => 'invalidtoken' }
+      expect(env['rack.input']).to eq({ 'app' => { 'name' => 'Dummy' }, 'token' => 'invalidtoken' })
       [403, { errors: { request: "invalid app create token" }}]
     end
 
@@ -46,10 +46,10 @@ describe "CLI integration", :http do
       run_command("setup invalidtoken") do |stdin, stdout, stderr|
         begin
           output = read(stdout)
-          output.should include("Could not create the application")
-          output.should include('{"request"=>"invalid app create token"}')
+          expect(output).to include("Could not create the application")
+          expect(output).to include('{"request"=>"invalid app create token"}')
 
-          File.exist?("config/skylight.yml").should be_falsey
+          expect(File.exist?("config/skylight.yml")).to be_falsey
         rescue
           # Provide some potential debugging information
           puts stderr.read if ENV['DEBUG']
@@ -61,15 +61,15 @@ describe "CLI integration", :http do
 
   it "works without setup token" do
     server.mock "/me" do |env|
-      env['HTTP_X_EMAIL'].should == "test@example.com"
-      env['HTTP_X_PASSWORD'].should == "testpass"
+      expect(env['HTTP_X_EMAIL']).to eq("test@example.com")
+      expect(env['HTTP_X_PASSWORD']).to eq("testpass")
 
       { me: { authentication_token: "testtoken" }}
     end
 
     server.mock "/apps", :post do |env|
-      env['HTTP_AUTHORIZATION'].should == "testtoken"
-      env['rack.input'].should == { 'app' => { 'name' => 'Dummy' }}
+      expect(env['HTTP_AUTHORIZATION']).to eq("testtoken")
+      expect(env['rack.input']).to eq({ 'app' => { 'name' => 'Dummy' }})
 
       # This would have more information really, but the CLI doesn't care
       { app: { id: 'appid', token: 'apptoken' }}
@@ -81,16 +81,16 @@ describe "CLI integration", :http do
 
       run_command("setup") do |stdin, stdout, stderr|
         begin
-          get_prompt(stdout, 200).should =~ %r{Please enter your email and password below or get a token from https://www.skylight.io/app/setup.}
-          get_prompt(stdout).should =~ /Email:\s*$/
+          expect(get_prompt(stdout, 200)).to match(%r{Please enter your email and password below or get a token from https://www.skylight.io/app/setup.})
+          expect(get_prompt(stdout)).to match(/Email:\s*$/)
           fill_prompt(stdin, "test@example.com")
 
-          get_prompt(stdout).should =~ /Password:\s*$/
+          expect(get_prompt(stdout)).to match(/Password:\s*$/)
           fill_prompt(stdin, "testpass", false)
 
-          read(stdout).should include("Congratulations. Your application is on Skylight!")
+          expect(read(stdout)).to include("Congratulations. Your application is on Skylight!")
 
-          YAML.load_file("config/skylight.yml").should == {"authentication"=>"apptoken"}
+          expect(YAML.load_file("config/skylight.yml")).to eq({"authentication"=>"apptoken"})
         rescue
           # Provide some potential debugging information
           puts stderr.read if ENV['DEBUG']

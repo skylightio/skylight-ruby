@@ -51,7 +51,7 @@ describe "Initialization integration" do
       context "development" do
 
         it "warns development mode" do
-          boot.should include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
+          expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
         end
 
       end
@@ -60,7 +60,7 @@ describe "Initialization integration" do
         let(:rails_env) { "test" }
 
         it "doesn't boot or warn" do
-          boot.should == ""
+          expect(boot).to eq("")
         end
 
       end
@@ -70,7 +70,7 @@ describe "Initialization integration" do
 
         it "notifies of boot" do
           boot
-          File.read("log/production.log").should include "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+          expect(File.read("log/production.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
         end
       end
 
@@ -79,7 +79,7 @@ describe "Initialization integration" do
 
         it "notifies of boot" do
          boot
-         File.read("log/staging.log").should include "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+         expect(File.read("log/staging.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
        end
       end
 
@@ -87,7 +87,7 @@ describe "Initialization integration" do
         let(:rails_env) { "other" }
 
         it "warns that it is disabled" do
-          boot.should include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
+          expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
         end
 
       end
@@ -105,7 +105,7 @@ describe "Initialization integration" do
     context "development" do
 
       it "warns development mode" do
-        boot.should include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
+        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
       end
 
     end
@@ -114,7 +114,7 @@ describe "Initialization integration" do
       let(:rails_env) { "test" }
 
       it "doesn't boot or warn" do
-        boot.should == ""
+        expect(boot).to eq("")
       end
 
     end
@@ -123,7 +123,7 @@ describe "Initialization integration" do
       let(:rails_env) { "production" }
 
       it "warns not enabled verbose" do
-        boot.should include "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. Supported operating systems are Linux 2.6.18+ and Mac OS X 10.8+. The missing extension will not affect the functioning of your application. If you are on a supported platform, please contact support at support@skylight.io."
+        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. Supported operating systems are Linux 2.6.18+ and Mac OS X 10.8+. The missing extension will not affect the functioning of your application. If you are on a supported platform, please contact support at support@skylight.io."
       end
 
     end
@@ -132,7 +132,7 @@ describe "Initialization integration" do
       let(:rails_env) { "staging" }
 
       it "warns not enabled verbose" do
-        boot.should include "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. Supported operating systems are Linux 2.6.18+ and Mac OS X 10.8+. The missing extension will not affect the functioning of your application. If you are on a supported platform, please contact support at support@skylight.io."
+        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. Supported operating systems are Linux 2.6.18+ and Mac OS X 10.8+. The missing extension will not affect the functioning of your application. If you are on a supported platform, please contact support at support@skylight.io."
       end
 
     end
@@ -141,7 +141,7 @@ describe "Initialization integration" do
       let(:rails_env) { "other" }
 
       it "warns that it is disabled" do
-        boot.should include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
+        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
       end
 
     end

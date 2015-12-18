@@ -22,11 +22,11 @@ module Skylight
 
       server.wait count: 3
 
-      spans.count.should == 2
-      spans[0].event.category.should == 'app.rack.request'
-      spans[1].event.category.should == 'foo'
-      spans[0].started_at.should == 0
-      spans[1].started_at.should == 1000
+      expect(spans.count).to eq(2)
+      expect(spans[0].event.category).to eq('app.rack.request')
+      expect(spans[1].event.category).to eq('foo')
+      expect(spans[0].started_at).to eq(0)
+      expect(spans[1].started_at).to eq(1000)
     end
 
     it 'builds the trace' do
@@ -48,37 +48,37 @@ module Skylight
 
       server.wait count: 3
 
-      spans.count.should == 6
+      expect(spans.count).to eq(6)
 
-      spans[0].event.category.should == 'app.rack.request'
-      spans[0].started_at.should     == 0
-      spans[0].parent.should         == nil
-      spans[0].duration.should       == 90
+      expect(spans[0].event.category).to eq('app.rack.request')
+      expect(spans[0].started_at).to     eq(0)
+      expect(spans[0].parent).to         eq(nil)
+      expect(spans[0].duration).to       eq(90)
 
-      spans[1].event.category.should == 'cat1'
-      spans[1].started_at.should     == 0
-      spans[1].parent.should         == 0
-      spans[1].duration.should       == 90
+      expect(spans[1].event.category).to eq('cat1')
+      expect(spans[1].started_at).to     eq(0)
+      expect(spans[1].parent).to         eq(0)
+      expect(spans[1].duration).to       eq(90)
 
-      spans[2].event.category.should == 'cat2'
-      spans[2].started_at.should     == 10
-      spans[2].parent.should         == 1
-      spans[2].duration.should       == 60
+      expect(spans[2].event.category).to eq('cat2')
+      expect(spans[2].started_at).to     eq(10)
+      expect(spans[2].parent).to         eq(1)
+      expect(spans[2].duration).to       eq(60)
 
-      spans[3].event.category.should == 'cat3'
-      spans[3].started_at.should     == 0
-      spans[3].parent.should         == 2
-      spans[3].duration.should       == 30
+      expect(spans[3].event.category).to eq('cat3')
+      expect(spans[3].started_at).to     eq(0)
+      expect(spans[3].parent).to         eq(2)
+      expect(spans[3].duration).to       eq(30)
 
-      spans[4].event.category.should == 'cat4'
-      spans[4].started_at.should     == 10
-      spans[4].parent.should         == 3
-      spans[4].duration.should       == 0
+      expect(spans[4].event.category).to eq('cat4')
+      expect(spans[4].started_at).to     eq(10)
+      expect(spans[4].parent).to         eq(3)
+      expect(spans[4].duration).to       eq(0)
 
-      spans[5].event.category.should == 'cat5'
-      spans[5].started_at.should     == 30
-      spans[5].parent.should         == 3
-      spans[5].duration.should       == 0
+      expect(spans[5].event.category).to eq('cat5')
+      expect(spans[5].started_at).to     eq(30)
+      expect(spans[5].parent).to         eq(3)
+      expect(spans[5].duration).to       eq(0)
     end
 
     it 'force closes any open span on build' do
@@ -89,12 +89,12 @@ module Skylight
 
       server.wait count: 3
 
-      spans.count.should == 2
-      spans[1].event.category.should == 'foo'
-      spans[1].started_at.should == 0
-      spans[1].duration.should == 10
+      expect(spans.count).to eq(2)
+      expect(spans[1].event.category).to eq('foo')
+      expect(spans[1].started_at).to eq(0)
+      expect(spans[1].duration).to eq(10)
 
-      spans[0].event.category.should == 'app.rack.request'
+      expect(spans[0].event.category).to eq('app.rack.request')
     end
 
     it 'closes any spans that were not properly closed' do
@@ -113,19 +113,19 @@ module Skylight
 
       server.wait count: 3
 
-      spans.count.should == 4
+      expect(spans.count).to eq(4)
 
-      spans[0].event.category.should == 'app.rack.request'
-      spans[0].duration.should       == 4000
+      expect(spans[0].event.category).to eq('app.rack.request')
+      expect(spans[0].duration).to       eq(4000)
 
-      spans[1].event.category.should == 'foo'
-      spans[1].duration.should       == 3000
+      expect(spans[1].event.category).to eq('foo')
+      expect(spans[1].duration).to       eq(3000)
 
-      spans[2].event.category.should == 'bar'
-      spans[2].duration.should       == 2000
+      expect(spans[2].event.category).to eq('bar')
+      expect(spans[2].duration).to       eq(2000)
 
-      spans[3].event.category.should == 'baz'
-      spans[3].duration.should       == 1000
+      expect(spans[3].event.category).to eq('baz')
+      expect(spans[3].duration).to       eq(1000)
     end
 
     it 'tracks the title' do
@@ -137,8 +137,8 @@ module Skylight
 
       server.wait count: 3
 
-      spans[1].event.title.should == 'How a foo is formed?'
-      spans[2].event.title.should == 'How a bar is formed?'
+      expect(spans[1].event.title).to eq('How a foo is formed?')
+      expect(spans[2].event.title).to eq('How a bar is formed?')
     end
 
     it 'tracks the description' do
@@ -150,10 +150,10 @@ module Skylight
 
       server.wait count: 3
 
-      spans[1].event.title.should       == 'FOO'
-      spans[1].event.description.should == 'How a foo is formed?'
-      spans[2].event.title.should       == 'BAR'
-      spans[2].event.description.should == 'How a bar is formed?'
+      expect(spans[1].event.title).to       eq('FOO')
+      expect(spans[1].event.description).to eq('How a foo is formed?')
+      expect(spans[2].event.title).to       eq('BAR')
+      expect(spans[2].event.description).to eq('How a bar is formed?')
     end
 
     it 'limits unique descriptions' do
@@ -171,10 +171,10 @@ module Skylight
 
       server.wait count: 3
 
-      spans[1].event.title.should       == 'FOO'
-      spans[1].event.description.should == Skylight::Instrumenter::TOO_MANY_UNIQUES
-      spans[2].event.title.should       == 'BAR'
-      spans[2].event.description.should == Skylight::Instrumenter::TOO_MANY_UNIQUES
+      expect(spans[1].event.title).to       eq('FOO')
+      expect(spans[1].event.description).to eq(Skylight::Instrumenter::TOO_MANY_UNIQUES)
+      expect(spans[2].event.title).to       eq('BAR')
+      expect(spans[2].event.description).to eq(Skylight::Instrumenter::TOO_MANY_UNIQUES)
     end
 
     def spans

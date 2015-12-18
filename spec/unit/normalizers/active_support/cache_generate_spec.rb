@@ -6,9 +6,9 @@ module Skylight
     it "normalizes the notification name with defaults" do
       name, title, desc = normalize(key: "foo")
 
-      name.should == "app.cache.generate"
-      title.should == "cache generate"
-      desc.should == nil
+      expect(name).to eq("app.cache.generate")
+      expect(title).to eq("cache generate")
+      expect(desc).to eq(nil)
     end
   end
 end

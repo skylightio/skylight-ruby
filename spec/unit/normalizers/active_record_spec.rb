@@ -7,31 +7,31 @@ module Skylight
   describe "Normalizers", "sql.active_record", :agent do
 
     it "skips SCHEMA queries" do
-      normalize(name: "SCHEMA").should == :skip
+      expect(normalize(name: "SCHEMA")).to eq(:skip)
     end
 
     it "Processes cached queries" do
       name, * = normalize(name: "CACHE", sql: "select * from query")
 
-      name.should == :skip
+      expect(name).to eq(:skip)
     end
 
     it "Processes uncached queries" do
       name, title, desc =
         normalize(name: "Foo Load", sql: "select * from foo")
 
-      name.should == "db.sql.query"
-      title.should == "SELECT FROM foo"
-      desc.should == "select * from foo"
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("SELECT FROM foo")
+      expect(desc).to eq("select * from foo")
     end
 
     it "Pulls out binds" do
       name, title, desc =
         normalize(name: "Foo Load", sql: "select * from foo where id = $1")
 
-      name.should == "db.sql.query"
-      title.should == "SELECT FROM foo"
-      desc.should == "select * from foo where id = ?"
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("SELECT FROM foo")
+      expect(desc).to eq("select * from foo where id = ?")
     end
 
     it "Handles queries without a title" do
@@ -40,9 +40,9 @@ module Skylight
       name, title, desc =
         normalize(name: nil, sql: sql)
 
-      name.should == "db.sql.query"
-      title.should == "SELECT FROM foo"
-      desc.should == sql
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("SELECT FROM foo")
+      expect(desc).to eq(sql)
     end
 
     it "Handles Rails-style insertions" do
@@ -51,18 +51,18 @@ module Skylight
       name, title, desc =
         normalize(name: "SQL", sql: sql)
 
-      name.should == "db.sql.query"
-      title.should == "INSERT INTO agent_errors"
-      desc.should == %{INSERT INTO "agent_errors" ("body", "created_at", "hostname", "reason") VALUES (?, ?, ?, ?) RETURNING "id"}
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("INSERT INTO agent_errors")
+      expect(desc).to eq(%{INSERT INTO "agent_errors" ("body", "created_at", "hostname", "reason") VALUES (?, ?, ?, ?) RETURNING "id"})
     end
 
     it "Determines embedded binds" do
       name, title, desc =
         normalize(name: "Foo Load", sql: "select * from foo where id = 1")
 
-      name.should == "db.sql.query"
-      title.should == "SELECT FROM foo"
-      desc.should == "select * from foo where id = ?"
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("SELECT FROM foo")
+      expect(desc).to eq("select * from foo where id = ?")
     end
 
     it "handles some precomputed binds" do
@@ -72,9 +72,9 @@ module Skylight
       name, title, desc =
         normalize(name: "SQL", sql: sql)
 
-      name.should == "db.sql.query"
-      title.should == "INSERT INTO agent_errors"
-      desc.should == extracted
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("INSERT INTO agent_errors")
+      expect(desc).to eq(extracted)
     end
 
     it "Produces an error if the SQL isn't parsable" do
@@ -84,9 +84,9 @@ module Skylight
       name, title, desc =
         normalize(name: "Foo Load", sql: "!!!")
 
-      name.should == "db.sql.query"
-      title.should == "Foo Load"
-      desc.should == nil
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("Foo Load")
+      expect(desc).to eq(nil)
     end
 
     # The tests below are not strictly necessary, but they ensure that updates to the Rust agent
@@ -96,42 +96,42 @@ module Skylight
       name, title, desc =
         normalize(name: "Foo Load", sql: "select * from foo where id not in (1,2)")
 
-      name.should == "db.sql.query"
-      title.should == "SELECT FROM foo"
-      desc.should == "select * from foo where id not in ?"
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("SELECT FROM foo")
+      expect(desc).to eq("select * from foo where id not in ?")
     end
 
     it "Handles IS queries" do
       name, title, desc =
         normalize(name: "Foo Load", sql: "select * from foo where id is true OR id is not 5")
 
-      name.should == "db.sql.query"
-      title.should == "SELECT FROM foo"
-      desc.should == "select * from foo where id is ? OR id is not ?"
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("SELECT FROM foo")
+      expect(desc).to eq("select * from foo where id is ? OR id is not ?")
     end
 
     it "Handles typecasting" do
       name, title, desc = normalize(sql: "SELECT foo FROM bar WHERE date::DATE = 'yesterday'::date")
 
-      name.should == "db.sql.query"
-      title.should == "SELECT FROM bar"
-      desc.should == "SELECT foo FROM bar WHERE date::DATE = ?::date"
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("SELECT FROM bar")
+      expect(desc).to eq("SELECT foo FROM bar WHERE date::DATE = ?::date")
     end
 
     it "Handles underscored identifiers" do
       name, title, desc = normalize(sql: "SELECT _bar._foo FROM _bar")
 
-      name.should == "db.sql.query"
-      title.should == "SELECT FROM _bar"
-      desc.should == "SELECT _bar._foo FROM _bar"
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("SELECT FROM _bar")
+      expect(desc).to eq("SELECT _bar._foo FROM _bar")
     end
 
     it "Handles multibyte characters" do
       name, title, desc = normalize(sql: "SELECT 𝒜 FROM zømg WHERE foo = 'å'")
 
-      name.should == "db.sql.query"
-      title.should == "SELECT FROM zømg"
-      desc.should == "SELECT 𝒜 FROM zømg WHERE foo = ?"
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("SELECT FROM zømg")
+      expect(desc).to eq("SELECT 𝒜 FROM zømg WHERE foo = ?")
     end
 
   end

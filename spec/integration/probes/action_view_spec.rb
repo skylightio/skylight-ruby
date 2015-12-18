@@ -47,54 +47,54 @@ if defined?(ActionPack) && [ActionPack::VERSION::MAJOR, ActionPack::VERSION::MIN
     end
 
     it "instruments layouts when :text is used with a layout" do
-      renderer.render(context, text: "Hello World", layout: "our-layout").should == "<Hello World>"
+      expect(renderer.render(context, text: "Hello World", layout: "our-layout")).to eq("<Hello World>")
 
-      events.map { |e| [e[0], e[4][:identifier]] }.should == [
+      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
         ["render_template.action_view", "text template"],
         ["render_template.action_view", "test layout"]
-      ]
+      ])
     end
 
     it "does not instrument layouts when :text is used without a layout" do
-      renderer.render(context, text: "Hello World").should == "Hello World"
+      expect(renderer.render(context, text: "Hello World")).to eq("Hello World")
 
-      events.map { |e| [e[0], e[4][:identifier]] }.should == [
+      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
         ["render_template.action_view", "text template"],
-      ]
+      ])
     end
 
     it "instruments layouts when :inline is used with a layout" do
-      renderer.render(context, inline: "Hello World", layout: "our-layout").should == "<Hello World>"
+      expect(renderer.render(context, inline: "Hello World", layout: "our-layout")).to eq("<Hello World>")
 
-      events.map { |e| [e[0], e[4][:identifier]] }.should == [
+      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
         ["render_template.action_view", "inline template"],
         ["render_template.action_view", "test layout"]
-      ]
+      ])
     end
 
     it "does not instrument layouts when :inline is used without a layout" do
-      renderer.render(context, inline: "Hello World").should == "Hello World"
+      expect(renderer.render(context, inline: "Hello World")).to eq("Hello World")
 
-      events.map { |e| [e[0], e[4][:identifier]] }.should == [
+      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
         ["render_template.action_view", "inline template"],
-      ]
+      ])
     end
 
     it "instruments layouts when :template is used with a layout" do
-      renderer.render(context, template: "our-template", layout: "our-layout").should == "<Hello World>"
+      expect(renderer.render(context, template: "our-template", layout: "our-layout")).to eq("<Hello World>")
 
-      events.map { |e| [e[0], e[4][:identifier]] }.should == [
+      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
         ["render_template.action_view", "test template"],
         ["render_template.action_view", "test layout"]
-      ]
+      ])
     end
 
     it "does not instrument layouts when :template is used without a layout" do
-      renderer.render(context, template: "our-template").should == "Hello World"
+      expect(renderer.render(context, template: "our-template")).to eq("Hello World")
 
-      events.map { |e| [e[0], e[4][:identifier]] }.should == [
+      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
         ["render_template.action_view", "test template"],
-      ]
+      ])
     end
   end
 end

@@ -8,8 +8,8 @@ describe 'skylight setup', :http, :agent do
     @cli ||=
       begin
         cli = Skylight::CLI.new
-        cli.stub(:highline).and_return(hl)
-        cli.stub(:config).and_return(config)
+        allow(cli).to receive(:highline).and_return(hl)
+        allow(cli).to receive(:config).and_return(config)
         cli
       end
   end
@@ -30,31 +30,31 @@ describe 'skylight setup', :http, :agent do
     end
 
     unless token
-      cli.should_receive(:say).
+      expect(cli).to receive(:say).
         with(/Please enter your email and password/, :cyan).ordered
 
-      cli.should_receive(:say).
+      expect(cli).to receive(:say).
         with(/congratulations/i, :green).ordered
 
-      cli.should_receive(:say).
+      expect(cli).to receive(:say).
         with(/config\/skylight\.yml/)
     end
 
     cli.setup(token)
 
-    tmp('config/skylight.yml').should exist
+    expect(tmp('config/skylight.yml')).to exist
 
     c = Skylight::Config.load(file: tmp('config/skylight.yml'))
-    c[:authentication].should == 'my-app-token'
+    expect(c[:authentication]).to eq('my-app-token')
   end
 
   context 'logged out' do
 
     def should_successfully_login
-      hl.should_receive(:ask).
+      expect(hl).to receive(:ask).
         with(/email/i).and_return('engineering@tilde.io')
 
-      hl.should_receive(:ask).
+      expect(hl).to receive(:ask).
         with(/password/i).and_return('enter')
 
       server.mock "/me" do
@@ -68,42 +68,42 @@ describe 'skylight setup', :http, :agent do
     it 'logs in and creates the app' do
       should_successfully_login
 
-      server.requests.count.should == 2
+      expect(server.requests.count).to eq(2)
 
-      server.requests[0].should get_json("/me", {
+      expect(server.requests[0]).to get_json("/me", {
         'x-email' => 'engineering@tilde.io',
         'x-password' => 'enter' })
 
-      server.requests[1].should post_json("/apps", {
+      expect(server.requests[1]).to post_json("/apps", {
         input: { 'app' => { 'name' => 'Tmp' }} })
     end
 
     it 'asks for the login info again if it is incorrect' do
-      hl.should_receive(:ask).
+      expect(hl).to receive(:ask).
         with(/email/i).and_return('zomg')
 
-      hl.should_receive(:ask).
+      expect(hl).to receive(:ask).
         with(/password/i).and_return('lulz')
 
       server.mock "/me" do
         [ 401, {} ]
       end
 
-      cli.should_receive(:say).with(/invalid/i, :red)
+      expect(cli).to receive(:say).with(/invalid/i, :red)
 
       should_successfully_login
 
-      server.requests.count.should == 3
+      expect(server.requests.count).to eq(3)
 
-      server.requests[0].should get_json("/me", {
+      expect(server.requests[0]).to get_json("/me", {
         'x-email' => 'zomg',
         'x-password' => 'lulz' })
 
-      server.requests[1].should get_json("/me", {
+      expect(server.requests[1]).to get_json("/me", {
         'x-email' => 'engineering@tilde.io',
         'x-password' => 'enter' })
 
-      server.requests[2].should post_json("/apps", {
+      expect(server.requests[2]).to post_json("/apps", {
         authorization: 'dat-token',
         input: { 'app' => { 'name' => 'Tmp' }} })
     end
@@ -115,7 +115,7 @@ describe 'skylight setup', :http, :agent do
     it 'does not ask for login info' do
       should_successfully_create_app('foobar')
 
-      server.requests[0].should post_json("/apps", {
+      expect(server.requests[0]).to post_json("/apps", {
         authorization: nil,
         input: { 'app' => { 'name' => 'Tmp' }, 'token' => 'foobar' } })
     end
@@ -125,8 +125,8 @@ describe 'skylight setup', :http, :agent do
         [403, { errors: { request: 'token is invalid' }}]
       end
 
-      cli.should_receive(:say).with("Could not create the application", :red).ordered
-      cli.should_receive(:say).with('{"request"=>"token is invalid"}', :yellow).ordered
+      expect(cli).to receive(:say).with("Could not create the application", :red).ordered
+      expect(cli).to receive(:say).with('{"request"=>"token is invalid"}', :yellow).ordered
 
       cli.setup('foobar')
     end
@@ -136,8 +136,8 @@ describe 'skylight setup', :http, :agent do
         raise "http error"
       end
 
-      cli.should_receive(:say).with("Could not create the application", :red).ordered
-      cli.should_receive(:say).with("Skylight::Util::HTTP::Response: Fail", :yellow).ordered
+      expect(cli).to receive(:say).with("Could not create the application", :red).ordered
+      expect(cli).to receive(:say).with("Skylight::Util::HTTP::Response: Fail", :yellow).ordered
 
       cli.setup('foobar')
     end

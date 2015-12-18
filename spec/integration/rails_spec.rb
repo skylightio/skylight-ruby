@@ -142,19 +142,19 @@ if enable
         server.wait count: 3
 
         batch = server.reports[0]
-        batch.should_not be nil
-        batch.endpoints.count.should == 1
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        endpoint.name.should == "UsersController#index"
-        endpoint.traces.count.should == 1
+        expect(endpoint.name).to eq("UsersController#index")
+        expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
         names = trace.spans.map { |s| s.event.category }
 
-        names.length.should be >= 3
-        names.should include('app.zomg')
-        names.should include('app.inside')
-        names[0].should == 'app.rack.request'
+        expect(names.length).to be >= 3
+        expect(names).to include('app.zomg')
+        expect(names).to include('app.inside')
+        expect(names[0]).to eq('app.rack.request')
       end
 
       it 'can instrument metal controllers' do
@@ -163,17 +163,17 @@ if enable
         server.wait count: 3
 
         batch = server.reports[0]
-        batch.should_not be nil
-        batch.endpoints.count.should == 1
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        endpoint.name.should == "MetalController#show"
-        endpoint.traces.count.should == 1
+        expect(endpoint.name).to eq("MetalController#show")
+        expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
         names = trace.spans.map { |s| s.event.category }
 
-        names.length.should be >= 1
-        names[0].should == 'app.rack.request'
+        expect(names.length).to be >= 1
+        expect(names[0]).to eq('app.rack.request')
       end
 
     end
@@ -188,11 +188,11 @@ if enable
       end
 
       it "allows calls to Skylight.instrument" do
-        call(MyApp, env('/users')).should == ["Hello"]
+        expect(call(MyApp, env('/users'))).to eq(["Hello"])
       end
 
       it "supports Skylight::Helpers" do
-        call(MyApp, env('/users/1')).should == ["Hola: 1"]
+        expect(call(MyApp, env('/users/1'))).to eq(["Hola: 1"])
       end
 
     end

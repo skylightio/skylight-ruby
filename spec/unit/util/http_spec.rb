@@ -30,7 +30,7 @@ module Skylight
 
         http = Util::HTTP.new(config)
 
-        Net::HTTP.should_receive(:new).with("auth.skylight.io", 443, "example.com", 1234, "test", "pass").and_call_original
+        expect(Net::HTTP).to receive(:new).with("auth.skylight.io", 443, "example.com", 1234, "test", "pass").and_call_original
 
         http.get("/foobar")
       end
@@ -39,7 +39,7 @@ module Skylight
         http = Util::HTTP.new(Config.load({},
           'HTTP_PROXY' => "http://testing:otherpass@proxy.example.com:4321"))
 
-        Net::HTTP.should_receive(:new).
+        expect(Net::HTTP).to receive(:new).
           with("auth.skylight.io", 443, "proxy.example.com", 4321, "testing", "otherpass").
           and_call_original
 

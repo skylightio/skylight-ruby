@@ -8,33 +8,33 @@ module Skylight
       it 'keeps the notification name' do
         name, title, desc = normalize('app.request.rack', {})
 
-        name.should == 'app.request.rack'
-        title.should be_nil
-        desc.should be_nil
+        expect(name).to eq('app.request.rack')
+        expect(title).to be_nil
+        expect(desc).to be_nil
       end
 
       it 'grabs title from the payload' do
         name, title, desc = normalize('noise.gc', title: 'Garbage')
 
-        name.should == 'noise.gc'
-        title.should == 'Garbage'
-        desc.should be_nil
+        expect(name).to eq('noise.gc')
+        expect(title).to eq('Garbage')
+        expect(desc).to be_nil
       end
 
       it 'grabs description from the payload' do
         name, title, desc = normalize('view.show', description: 'A view')
 
-        name.should == 'view.show'
-        title.should be_nil
-        desc.should == 'A view'
+        expect(name).to eq('view.show')
+        expect(title).to be_nil
+        expect(desc).to eq('A view')
       end
 
       it 'keeps the payload' do
         name, title, desc = normalize('noise.gc', foo: "bar", title: "Junk")
 
-        name.should == 'noise.gc'
-        title.should == 'Junk'
-        desc.should be_nil
+        expect(name).to eq('noise.gc')
+        expect(title).to eq('Junk')
+        expect(desc).to be_nil
       end
 
     end
@@ -42,11 +42,11 @@ module Skylight
     context 'invalid events' do
 
       it 'rejects unknown events' do
-        normalize('foo.bar').should == :skip
+        expect(normalize('foo.bar')).to eq(:skip)
       end
 
       it 'rejects unknown events prefixed with app' do
-        normalize('application.lul').should == :skip
+        expect(normalize('application.lul')).to eq(:skip)
       end
 
     end

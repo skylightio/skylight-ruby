@@ -10,9 +10,9 @@ if defined?(Rails)
         name, title, desc =
           normalize(path: "foo/bar")
 
-        name.should == "app.controller.send_file"
-        title.should == "send file"
-        desc.should == nil
+        expect(name).to eq("app.controller.send_file")
+        expect(title).to eq("send file")
+        expect(desc).to eq(nil)
       end
     end
   end

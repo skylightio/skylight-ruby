@@ -13,7 +13,7 @@ describe "Skylight::Middleware", :http, :agent do
 
   let :env do
     e = {}
-    e.stub(:hello)
+    allow(e).to receive(:hello)
     e
   end
 
@@ -32,8 +32,8 @@ describe "Skylight::Middleware", :http, :agent do
   end
 
   it 'tracks traces' do
-    Skylight.should_receive('trace').and_call_original
-    env.should_receive(:hello)
+    expect(Skylight).to receive('trace').and_call_original
+    expect(env).to receive(:hello)
 
     _, _, body = app.call(env)
     body.close
@@ -42,31 +42,31 @@ describe "Skylight::Middleware", :http, :agent do
     server.wait count: 1, resource: "/report"
 
     report = server.reports[0]
-    report.should_not be_nil
-    report.endpoints.count.should == 1
+    expect(report).to_not be_nil
+    expect(report.endpoints.count).to eq(1)
 
     ep = server.reports[0].endpoints[0]
-    ep.name.should == 'Rack'
-    ep.traces.count.should == 1
+    expect(ep.name).to eq('Rack')
+    expect(ep.traces.count).to eq(1)
 
     t = ep.traces[0]
-    t.spans.count.should == 2
+    expect(t.spans.count).to eq(2)
 
 
-    t.spans[0].should == span(
+    expect(t.spans[0]).to eq(span(
       event: event('app.rack.request'),
       started_at: 0,
-      duration: 3_000 )
+      duration: 3_000 ))
 
-    t.spans[1].should == span(
+    expect(t.spans[1]).to eq(span(
       parent: 0,
       event: event('app.block', 'hello'),
       started_at: 1_000,
-      duration:   2_000)
+      duration:   2_000))
   end
 
   it 'skips HEAD' do
-    Skylight.should_not_receive('trace')
+    expect(Skylight).to_not receive('trace')
 
     env['REQUEST_METHOD'] = 'HEAD'
 

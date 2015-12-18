@@ -29,21 +29,21 @@ describe "Skylight::Instrumenter", :http, :agent do
 
     it 'validates the token' do
       stub_token_verification
-      Skylight.start!(config).should be_truthy
+      expect(Skylight.start!(config)).to be_truthy
     end
 
     it 'warns about unvalidated tokens' do
       stub_token_verification(500)
-      Skylight.start!(config).should be_truthy
+      expect(Skylight.start!(config)).to be_truthy
     end
 
     it 'fails with invalid token' do
       stub_token_verification(401)
-      Skylight.start!(config).should be_falsey
+      expect(Skylight.start!(config)).to be_falsey
     end
 
     it "doesn't crash on failed config" do
-      Skylight::Config.stub(:new).and_raise(Skylight::ConfigError.new("Test Failure"))
+      allow(Skylight::Config).to receive(:new).and_raise(Skylight::ConfigError.new("Test Failure"))
       expect(Skylight::Instrumenter).to receive(:warn).
         with("[SKYLIGHT] [#{Skylight::VERSION}] Unable to start Instrumenter; msg=Test Failure; class=Skylight::ConfigError")
 
@@ -53,7 +53,7 @@ describe "Skylight::Instrumenter", :http, :agent do
     end
 
     it "doesn't crash on failed start" do
-      Skylight::Instrumenter.stub(:new).and_raise("Test Failure")
+      allow(Skylight::Instrumenter).to receive(:new).and_raise("Test Failure")
       expect(logger).to receive(:warn).
         with("[SKYLIGHT] [#{Skylight::VERSION}] Unable to start Instrumenter; msg=Test Failure; class=RuntimeError")
 
@@ -84,19 +84,19 @@ describe "Skylight::Instrumenter", :http, :agent do
         clock.unfreeze
         server.wait(count: 3)
 
-        server.reports[0].endpoints.count.should == 1
+        expect(server.reports[0].endpoints.count).to eq(1)
 
         ep = server.reports[0].endpoints[0]
-        ep.name.should == 'Testin'
-        ep.traces.count.should == 1
+        expect(ep.name).to eq('Testin')
+        expect(ep.traces.count).to eq(1)
 
         t = ep.traces[0]
-        t.spans.count.should == 1
-        t.uuid.should == 'TODO'
-        t.spans[0].should == span(
+        expect(t.spans.count).to eq(1)
+        expect(t.uuid).to eq('TODO')
+        expect(t.spans[0]).to eq(span(
           event:      event('app.rack'),
           started_at: 0,
-          duration:   10_000 )
+          duration:   10_000 ))
       end
 
       it 'ignores disabled parts of the trace' do
@@ -111,19 +111,19 @@ describe "Skylight::Instrumenter", :http, :agent do
         clock.unfreeze
         server.wait(count: 3)
 
-        server.reports[0].endpoints.count.should == 1
+        expect(server.reports[0].endpoints.count).to eq(1)
 
         ep = server.reports[0].endpoints[0]
-        ep.name.should == 'Testin'
-        ep.traces.count.should == 1
+        expect(ep.name).to eq('Testin')
+        expect(ep.traces.count).to eq(1)
 
         t = ep.traces[0]
-        t.spans.count.should == 1
-        t.uuid.should == 'TODO'
-        t.spans[0].should == span(
+        expect(t.spans.count).to eq(1)
+        expect(t.uuid).to eq('TODO')
+        expect(t.spans[0]).to eq(span(
           event:      event('app.rack'),
           started_at: 0,
-          duration:   10_000 )
+          duration:   10_000 ))
       end
 
       it "handles un-lexable SQL" do
@@ -138,26 +138,26 @@ describe "Skylight::Instrumenter", :http, :agent do
         clock.unfreeze
         server.wait(count: 3)
 
-        server.reports[0].endpoints.count.should == 1
+        expect(server.reports[0].endpoints.count).to eq(1)
 
         ep = server.reports[0].endpoints[0]
-        ep.name.should == 'Testin'
-        ep.traces.count.should == 1
+        expect(ep.name).to eq('Testin')
+        expect(ep.traces.count).to eq(1)
 
         t = ep.traces[0]
-        t.spans.count.should == 2
-        t.uuid.should == 'TODO'
+        expect(t.spans.count).to eq(2)
+        expect(t.uuid).to eq('TODO')
 
-        t.spans[0].should == span(
+        expect(t.spans[0]).to eq(span(
           event:      event('app.rack'),
           started_at: 0,
-          duration:   10_000 )
+          duration:   10_000 ))
 
-        t.spans[1].should == span(
+        expect(t.spans[1]).to eq(span(
           parent:     0,
           event:      event('db.sql.query', 'Load User'),
           started_at: 0,
-          duration:   10_000 )
+          duration:   10_000 ))
       end
 
       it "handles SQL with binary data" do
@@ -173,26 +173,26 @@ describe "Skylight::Instrumenter", :http, :agent do
         clock.unfreeze
         server.wait(count: 3)
 
-        server.reports[0].endpoints.count.should == 1
+        expect(server.reports[0].endpoints.count).to eq(1)
 
         ep = server.reports[0].endpoints[0]
-        ep.name.should == 'Testin'
-        ep.traces.count.should == 1
+        expect(ep.name).to eq('Testin')
+        expect(ep.traces.count).to eq(1)
 
         t = ep.traces[0]
-        t.spans.count.should == 2
-        t.uuid.should == 'TODO'
+        expect(t.spans.count).to eq(2)
+        expect(t.uuid).to eq('TODO')
 
-        t.spans[0].should == span(
+        expect(t.spans[0]).to eq(span(
           event:      event('app.rack'),
           started_at: 0,
-          duration:   10_000 )
+          duration:   10_000 ))
 
-        t.spans[1].should == span(
+        expect(t.spans[1]).to eq(span(
           parent:     0,
           event:      event('db.sql.query', 'Load User'),
           started_at: 0,
-          duration:   10_000 )
+          duration:   10_000 ))
       end
 
       it "handles invalid string encodings" do
@@ -208,26 +208,26 @@ describe "Skylight::Instrumenter", :http, :agent do
         clock.unfreeze
         server.wait(count: 3)
 
-        server.reports[0].endpoints.count.should == 1
+        expect(server.reports[0].endpoints.count).to eq(1)
 
         ep = server.reports[0].endpoints[0]
-        ep.name.should == 'Testin'
-        ep.traces.count.should == 1
+        expect(ep.name).to eq('Testin')
+        expect(ep.traces.count).to eq(1)
 
         t = ep.traces[0]
-        t.spans.count.should == 2
-        t.uuid.should == 'TODO'
+        expect(t.spans.count).to eq(2)
+        expect(t.uuid).to eq('TODO')
 
-        t.spans[0].should == span(
+        expect(t.spans[0]).to eq(span(
           event:      event('app.rack'),
           started_at: 0,
-          duration:   10_000 )
+          duration:   10_000 ))
 
-        t.spans[1].should == span(
+        expect(t.spans[1]).to eq(span(
           parent:     0,
           event:      event('db.sql.query', 'Load User'),
           started_at: 0,
-          duration:   10_000 )
+          duration:   10_000 ))
       end
 
       it "ignores endpoints" do
@@ -245,8 +245,8 @@ describe "Skylight::Instrumenter", :http, :agent do
         clock.unfreeze
         server.wait(count: 3)
 
-        server.reports[0].should have(1).endpoints
-        server.reports[0].endpoints.map(&:name).should == ["foo#bar"]
+        expect(server.reports[0]).to have(1).endpoints
+        expect(server.reports[0].endpoints.map(&:name)).to eq(["foo#bar"])
       end
 
       it "ignores multiple endpoints" do
@@ -266,8 +266,8 @@ describe "Skylight::Instrumenter", :http, :agent do
         clock.unfreeze
         server.wait(count: 3)
 
-        server.reports[0].should have(1).endpoints
-        server.reports[0].endpoints.map(&:name).should == ["foo#bar"]
+        expect(server.reports[0]).to have(1).endpoints
+        expect(server.reports[0].endpoints.map(&:name)).to eq(["foo#bar"])
       end
 
       it "ignores multiple endpoints with commas" do
@@ -286,8 +286,8 @@ describe "Skylight::Instrumenter", :http, :agent do
         clock.unfreeze
         server.wait(count: 3)
 
-        server.reports[0].should have(1).endpoints
-        server.reports[0].endpoints.map(&:name).should == ["foo#bar"]
+        expect(server.reports[0]).to have(1).endpoints
+        expect(server.reports[0].endpoints.map(&:name)).to eq(["foo#bar"])
       end
     end
 
@@ -305,11 +305,11 @@ describe "Skylight::Instrumenter", :http, :agent do
       with_endpoint("foo#bar") do
         100.times do
           description = SecureRandom.hex
-          instrumenter.limited_description(description).should == description
+          expect(instrumenter.limited_description(description)).to eq(description)
         end
 
         description = SecureRandom.hex
-        instrumenter.limited_description(description).should == Skylight::Instrumenter::TOO_MANY_UNIQUES
+        expect(instrumenter.limited_description(description)).to eq(Skylight::Instrumenter::TOO_MANY_UNIQUES)
       end
     end
 

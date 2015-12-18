@@ -83,7 +83,7 @@ if defined?(Grape)
     end
 
     it "instruments the endpoint body" do
-      Skylight::Trace.any_instance.stub(:instrument)
+      allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument)
           .with("app.grape.endpoint", "GET test", nil)
@@ -93,7 +93,7 @@ if defined?(Grape)
     end
 
     it "instuments mounted apps" do
-      Skylight::Trace.any_instance.stub(:instrument)
+      allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument)
           .with("app.grape.endpoint", "GET test", nil)
@@ -105,7 +105,7 @@ if defined?(Grape)
     end
 
     it "instruments more complex endpoints" do
-      Skylight::Trace.any_instance.stub(:instrument)
+      allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument)
           .with("app.grape.endpoint", "POST update/:id", nil)
@@ -117,7 +117,7 @@ if defined?(Grape)
     end
 
     it "instruments namespaced endpoints" do
-      Skylight::Trace.any_instance.stub(:instrument)
+      allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument)
           .with("app.grape.endpoint", "GET users list", nil)
@@ -129,7 +129,7 @@ if defined?(Grape)
     end
 
     it "instruments wildcard routes" do
-      Skylight::Trace.any_instance.stub(:instrument)
+      allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument)
           .with("app.grape.endpoint", "any *path", nil)
@@ -141,7 +141,7 @@ if defined?(Grape)
     end
 
     it "instruments failures" do
-      Skylight::Trace.any_instance.stub(:instrument)
+      allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument)
           .with("app.grape.endpoint", "GET raise", nil)
@@ -155,7 +155,7 @@ if defined?(Grape)
     end
 
     it "instruments filters" do
-      Skylight::Trace.any_instance.stub(:instrument)
+      allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       # TODO: Attempt to verify order
       expect_any_instance_of(Skylight::Trace).to receive(:instrument)

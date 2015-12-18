@@ -16,8 +16,8 @@ module Skylight
       it 'leaves the GC node out' do
         start!
 
-        gc.should be_enabled
-        gc.should_receive(:total_time).
+        expect(gc).to be_enabled
+        expect(gc).to receive(:total_time).
           exactly(2).times.and_return(0.0, 0.0)
 
         Skylight.trace 'Rack', 'app.rack' do |t|
@@ -27,8 +27,8 @@ module Skylight
         clock.unfreeze
         server.wait count: 3
 
-        trace.spans.count.should == 1
-        trace.spans[0].duration.should == 10_000
+        expect(trace.spans.count).to eq(1)
+        expect(trace.spans[0].duration).to eq(10_000)
       end
 
     end
@@ -38,8 +38,8 @@ module Skylight
       it 'adds a GC node' do
         start!
 
-        gc.should be_enabled
-        gc.should_receive(:total_time).
+        expect(gc).to be_enabled
+        expect(gc).to receive(:total_time).
           exactly(2).times.and_return(0.0, 100_000_000)
 
         Skylight.trace 'Rack', 'app.rack' do |t|
@@ -49,11 +49,11 @@ module Skylight
         clock.unfreeze
         server.wait count: 3
 
-        trace.spans.count.should == 2
-        span(0).duration.should == 10_000
+        expect(trace.spans.count).to eq(2)
+        expect(span(0).duration).to eq(10_000)
 
-        span(1).event.category.should == 'noise.gc'
-        span(1).duration.should == 1_000
+        expect(span(1).event.category).to eq('noise.gc')
+        expect(span(1).duration).to eq(1_000)
       end
 
     end
@@ -63,8 +63,8 @@ module Skylight
       it 'subtracts GC from the span and adds it at the end' do
         start!
 
-        gc.should be_enabled
-        gc.should_receive(:total_time).
+        expect(gc).to be_enabled
+        expect(gc).to receive(:total_time).
           exactly(4).times.and_return(0, 0, 100_000_000, 0)
 
         Skylight.trace 'Rack', 'app.rack' do |t|
@@ -76,16 +76,16 @@ module Skylight
         clock.unfreeze
         server.wait count: 3
 
-        trace.spans.count.should == 3
+        expect(trace.spans.count).to eq(3)
 
-        span(0).event.category.should == 'app.rack'
-        span(0).duration.should == 10_000
+        expect(span(0).event.category).to eq('app.rack')
+        expect(span(0).duration).to eq(10_000)
 
-        span(1).event.category.should == 'app.block'
-        span(1).duration.should == 9_000
+        expect(span(1).event.category).to eq('app.block')
+        expect(span(1).duration).to eq(9_000)
 
-        span(2).event.category.should == 'noise.gc'
-        span(2).duration.should == 1_000
+        expect(span(2).event.category).to eq('noise.gc')
+        expect(span(2).duration).to eq(1_000)
       end
     end
 

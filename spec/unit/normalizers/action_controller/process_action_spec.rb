@@ -6,7 +6,7 @@ module Skylight
     it "updates the trace's endpoint" do
       expect(trace).to receive(:endpoint=).and_call_original
       normalize(controller: "foo", action: "bar")
-      trace.endpoint.should == "foo#bar"
+      expect(trace.endpoint).to eq("foo#bar")
     end
 
   end

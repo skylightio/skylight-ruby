@@ -14,8 +14,8 @@ module SpecHelper
       name = nil
     end
 
-    group = self.class.metadata[:example_group]
-    group = group[:example_group] if group[:description].start_with?(BEHAVE_LIKE)
+    group = self.class.metadata
+    group = group[:parent_example_group] if group[:description].start_with?(BEHAVE_LIKE)
 
     description = group[:description_args]
     name ||= description[1] ? description[1] : description[0]

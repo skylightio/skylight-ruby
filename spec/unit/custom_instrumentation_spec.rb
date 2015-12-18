@@ -9,21 +9,21 @@ describe "Skylight::Instrumenter", :http, :agent do
   context 'when the instrumenter is not running' do
 
     it 'does not break code' do
-      hello.should_receive(:hello)
+      expect(hello).to receive(:hello)
 
       Skylight.trace 'Zomg', 'app.rack.request' do |t|
-        t.should be_nil
+        expect(t).to be_nil
 
         ret = Skylight.instrument category: 'foo.bar' do |s|
-          s.should be_nil
+          expect(s).to be_nil
           hello.hello
           1
         end
 
-        ret.should == 1
+        expect(ret).to eq(1)
       end
 
-      Skylight::Instrumenter.instance.should be_nil
+      expect(Skylight::Instrumenter.instance).to be_nil
     end
 
   end
@@ -40,7 +40,7 @@ describe "Skylight::Instrumenter", :http, :agent do
     end
 
     it 'tracks custom instrumentation metrics' do
-      hello.should_receive(:hello)
+      expect(hello).to receive(:hello)
 
       Skylight.trace 'Testin', 'app.rack.request' do |t|
         clock.skip 0.1
@@ -50,29 +50,29 @@ describe "Skylight::Instrumenter", :http, :agent do
           3
         end
 
-        ret.should == 3
+        expect(ret).to eq(3)
       end
 
       clock.unfreeze
       server.wait(count: 3)
 
-      server.reports[0].endpoints.count.should == 1
+      expect(server.reports[0].endpoints.count).to eq(1)
 
       ep = server.reports[0].endpoints[0]
-      ep.name.should == 'Testin'
-      ep.traces.count.should == 1
+      expect(ep.name).to eq('Testin')
+      expect(ep.traces.count).to eq(1)
 
       t = ep.traces[0]
-      t.spans.count.should == 2
-      t.spans[0].should == span(
+      expect(t.spans.count).to eq(2)
+      expect(t.spans[0]).to eq(span(
         event:      event('app.rack.request'),
         started_at: 0,
-        duration:   2_000 )
-      t.spans[1].should == span(
+        duration:   2_000 ))
+      expect(t.spans[1]).to eq(span(
         parent:     0,
         event:      event('app.foo'),
         started_at: 1_000,
-        duration:   1_000 )
+        duration:   1_000 ))
     end
 
     it 'recategorizes unknown events as other' do
@@ -89,11 +89,11 @@ describe "Skylight::Instrumenter", :http, :agent do
       ep = server.reports[0].endpoints[0]
       t  = ep.traces[0]
 
-      t.spans[1].should == span(
+      expect(t.spans[1]).to eq(span(
         parent:     0,
         event:      event('other.foo'),
         started_at: 1_000,
-        duration:   1_000)
+        duration:   1_000))
     end
 
     it 'sets a default category' do
@@ -110,11 +110,11 @@ describe "Skylight::Instrumenter", :http, :agent do
       ep = server.reports[0].endpoints[0]
       t  = ep.traces[0]
 
-      t.spans[1].should == span(
+      expect(t.spans[1]).to eq(span(
         parent:     0,
         event:      event('app.block', 'foo'),
         started_at: 1_000,
-        duration:   1_000)
+        duration:   1_000))
     end
 
     class MyClass
@@ -168,14 +168,14 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         clock.skip 0.1
         ret = inst.one(:zomg) { clock.skip 0.1; :one }
-        ret.should == :zomg
+        expect(ret).to eq(:zomg)
 
         clock.skip 0.1
         inst.two { clock.skip 0.1 }
 
         clock.skip 0.1
         ret = inst.three { clock.skip 0.1; :tres }
-        ret.should == :tres
+        expect(ret).to eq(:tres)
 
         clock.skip 0.1
         inst.custom { clock.skip 0.1 }
@@ -191,69 +191,69 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         clock.skip 0.1
         ret = (inst.myvar = :foo)
-        ret.should == :foo
-        inst.myvar.should == :foo
+        expect(ret).to eq(:foo)
+        expect(inst.myvar).to eq(:foo)
       end
 
       clock.unfreeze
       server.wait count: 3
 
-      server.reports[0].endpoints.count.should == 1
+      expect(server.reports[0].endpoints.count).to eq(1)
 
       ep = server.reports[0].endpoints[0]
-      ep.name.should == 'Testin'
-      ep.traces.count.should == 1
+      expect(ep.name).to eq('Testin')
+      expect(ep.traces.count).to eq(1)
 
       t = ep.traces[0]
-      t.spans.count.should == 8
+      expect(t.spans.count).to eq(8)
 
       # Root span
-      t.spans[0].should == span(
+      expect(t.spans[0]).to eq(span(
         event:      event('app.rack.request'),
         started_at: 0,
-        duration:   15_000 )
+        duration:   15_000 ))
 
-      t.spans[1].should == span(
+      expect(t.spans[1]).to eq(span(
         parent:     0,
         event:      event('app.method', 'MyClass#one'),
         started_at: 1_000,
-        duration:   1_000)
+        duration:   1_000))
 
-      t.spans[2].should == span(
+      expect(t.spans[2]).to eq(span(
         parent:     0,
         event:      event('app.method', 'MyClass#three'),
         started_at: 5_000,
-        duration:   1_000)
+        duration:   1_000))
 
-      t.spans[3].should == span(
+      expect(t.spans[3]).to eq(span(
         parent:     0,
         event:      event('app.winning', 'Win'),
         started_at: 7_000,
-        duration:   1_000)
+        duration:   1_000))
 
-      t.spans[4].should == span(
+      expect(t.spans[4]).to eq(span(
         parent:     0,
         event:      event('app.method', 'MyClass.singleton_method'),
         started_at: 9_000,
-        duration:   1_000)
+        duration:   1_000))
 
-      t.spans[5].should == span(
+      expect(t.spans[5]).to eq(span(
         parent:     0,
         event:      event('app.method', 'MyClass.singleton_method_without_options'),
         started_at: 11_000,
-        duration:   1_000)
+        duration:   1_000))
 
-      t.spans[6].should == span(
+      expect(t.spans[6]).to eq(span(
         parent:     0,
         event:      event('app.singleton', 'Singleton Method'),
         started_at: 13_000,
-        duration:   1_000)
+        duration:   1_000))
 
-      t.spans[7].should == span(
+      expect(t.spans[7]).to eq(span(
         parent:     0,
         event:      event('app.method', 'MyClass#myvar='),
         started_at: 15_000,
-        duration:   0)
+        duration:   0))
     end
 
   end

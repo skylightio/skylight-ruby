@@ -8,7 +8,7 @@ module Skylight
     end
 
     def set_file_path(path)
-      config.stub(file_path: File.expand_path(path, __FILE__))
+      allow(config).to receive(:file_path).and_return(File.expand_path(path, __FILE__))
       config.reload
     end
 

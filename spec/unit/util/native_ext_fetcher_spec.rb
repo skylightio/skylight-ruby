@@ -19,51 +19,51 @@ module Skylight::Util
     context 'fetching successfully' do
 
       it 'fetches the native extension' do
-        NativeExtFetcher.any_instance.should_receive(:http_get).
+        expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
           with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
           and_return([ :success, archive ])
 
         ret = fetch version: "1.0.0", arch: "linux-x86_64", checksum: checksum
 
-        ret.should == "win"
+        expect(ret).to eq("win")
       end
 
       it 'follows redirects' do
-        NativeExtFetcher.any_instance.should_receive(:http_get).
+        expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
           with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
           and_return([ :redirect, "https://example.org/zomg/bar.gz" ])
 
-        NativeExtFetcher.any_instance.should_receive(:http_get).
+        expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
           with("example.org", 443, true, "/zomg/bar.gz").
           and_return([ :success, archive ])
 
         ret = fetch version: "1.0.0", arch: "linux-x86_64", checksum: checksum
 
-        ret.should == "win"
+        expect(ret).to eq("win")
       end
 
       it 'retries on failure' do
-        NativeExtFetcher.any_instance.should_receive(:http_get) { raise "nope" }.
+        expect_any_instance_of(NativeExtFetcher).to receive(:http_get) { raise "nope" }.
           with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz")
 
-        NativeExtFetcher.any_instance.should_receive(:http_get).
+        expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
           with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
           and_return([ :success, archive ])
 
         ret = fetch version: "1.0.0", arch: "linux-x86_64", checksum: checksum
 
-        ret.should == "win"
+        expect(ret).to eq("win")
       end
 
       it 'writes the archive to the specified location' do
-        NativeExtFetcher.any_instance.should_receive(:http_get).
+        expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
           with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
           and_return([ :success, archive ])
 
         ret = fetch version: "1.0.0", arch: "linux-x86_64", target: tmp("skylight.a"), checksum: checksum
 
-        ret.should == "win"
-        File.read(tmp("skylight.a")).should == "win"
+        expect(ret).to eq("win")
+        expect(File.read(tmp("skylight.a"))).to eq("win")
       end
 
     end
@@ -71,13 +71,13 @@ module Skylight::Util
     context 'fetching unsuccessfully' do
 
       it 'verifies the checksum' do
-        NativeExtFetcher.any_instance.should_receive(:http_get).
+        expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
           with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
           and_return([ :success, archive ])
 
         ret = fetch version: "1.0.0", arch: "linux-x86_64", checksum: "abcdefghijklmnop"
 
-        ret.should be_nil
+        expect(ret).to be_nil
       end
 
     end

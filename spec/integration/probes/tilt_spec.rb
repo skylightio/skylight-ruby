@@ -9,9 +9,9 @@ describe 'Tilt integration', :tilt_probe, :agent do
       title: "template"
     }
 
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
-    tilt.render.should == "hello"
+    expect(tilt.render).to eq("hello")
   end
 
   it "instruments Tilt templates without a sky_virtual_path, using `Unknown template name`" do
@@ -22,8 +22,8 @@ describe 'Tilt integration', :tilt_probe, :agent do
       title: "Unknown template name"
     }
 
-    Skylight.should_receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
-    tilt.render.should == "hello"
+    expect(tilt.render).to eq("hello")
   end
 end

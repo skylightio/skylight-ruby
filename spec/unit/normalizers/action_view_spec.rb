@@ -12,44 +12,44 @@ module Skylight
       it "normalizes the notification name" do
         complete_payload = { identifier: "foo/bar" }.merge(group_payload)
         name, title, desc = normalize(complete_payload)
-        name.should == group_name
-        title.should == "foo/bar"
-        desc.should == nil
+        expect(name).to eq(group_name)
+        expect(title).to eq("foo/bar")
+        expect(desc).to eq(nil)
       end
 
       it "normalizes the title to a path relative to view paths" do
         complete_payload = { identifier: "/path/to/views/foo/bar", count: 10 }.merge(group_payload)
         name, title, desc = normalize(complete_payload)
-        name.should == group_name
-        title.should == "foo/bar"
-        desc.should == nil
+        expect(name).to eq(group_name)
+        expect(title).to eq("foo/bar")
+        expect(desc).to eq(nil)
       end
 
       it "normalizes the title to a path relative to rails root" do
         complete_payload = { identifier: "/path/to/other/path" }.merge(group_payload)
         name, title, desc = normalize(complete_payload)
-        name.should == group_name
-        title.should == "other/path"
-        desc.should == nil
+        expect(name).to eq(group_name)
+        expect(title).to eq("other/path")
+        expect(desc).to eq(nil)
       end
 
       it "normalizes the title to a path relative to Gem.path" do
         path = "/gem/path"
-        Gem.stub(path: [path])
+        allow(Gem).to receive(:path).and_return([path])
 
         complete_payload = { identifier: "#{path}/foo-1.0/views/bar.html.erb" }.merge(group_payload)
         name, title, desc = normalize(complete_payload)
-        name.should == group_name
-        title.should == "$GEM_PATH/foo-1.0/views/bar.html.erb"
-        desc.should == nil
+        expect(name).to eq(group_name)
+        expect(title).to eq("$GEM_PATH/foo-1.0/views/bar.html.erb")
+        expect(desc).to eq(nil)
       end
 
       it "prints Absolute Path if it's outside the root" do
         complete_payload = { identifier: "/other/path/to/stuff" }.merge(group_payload)
         name, title, desc = normalize(complete_payload)
-        name.should == group_name
-        title.should == "Absolute Path"
-        desc.should == nil
+        expect(name).to eq(group_name)
+        expect(title).to eq("Absolute Path")
+        expect(desc).to eq(nil)
       end
     end
 
