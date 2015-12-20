@@ -33,10 +33,10 @@ if enable
       # ENV['SKYLIGHT_TEST_IGNORE_TOKEN']   = true.to_s
 
       class ::MyApp < Rails::Application
-        if Rails.version =~ /^4\./
-          config.secret_key_base = '095f674153982a9ce59914b561f4522a'
-        else
+        if Rails.version =~ /^3\./
           config.secret_token = '095f674153982a9ce59914b561f4522a'
+        else
+          config.secret_key_base = '095f674153982a9ce59914b561f4522a'
         end
 
         if Rails.version =~ /^3/
@@ -59,11 +59,19 @@ if enable
       class ::UsersController < ActionController::Base
         include Skylight::Helpers
 
-        before_filter :authorized?
+        if respond_to?(:before_action)
+          before_action :authorized?
+        else
+          before_filter :authorized?
+        end
 
         def index
           Skylight.instrument category: 'app.inside' do
-            render text: "Hello"
+            if Rails.version =~ /^(3|4)\./
+              render text: "Hello"
+            else
+              render plain: "Hello"
+            end
             Skylight.instrument category: 'app.zomg' do
               # nothing
             end
@@ -73,7 +81,11 @@ if enable
 
         instrument_method
         def show
-          render text: "Hola: #{params[:id]}"
+          if Rails.version =~ /^(3|4)\./
+            render text: "Hola: #{params[:id]}"
+          else
+            render plain: "Hola: #{params[:id]}"
+          end
         end
 
         private
@@ -98,7 +110,11 @@ if enable
         include ActionController::Instrumentation
 
         def show
-          render text: "Zomg!"
+          if Rails.version =~ /^(3|4)\./
+            render text: "Zomg!"
+          else
+            render plain: "Zomg!"
+          end
         end
       end
     end

@@ -34,7 +34,7 @@ gemfile:
   - gemfiles/Gemfile.grape-0.10.0
   - gemfiles/Gemfile.grape-0.13.0
   - gemfiles/Gemfile.grape-edge
-  # Declared manually in the matrix include due to Mongoid compat issues
+  # Declared manually in the matrix
   # - gemfiles/Gemfile.rails-edge
 
 matrix:
@@ -46,8 +46,6 @@ matrix:
       gemfile: gemfiles/Gemfile.rails-4.1.x
     - rvm: 1.9.2
       gemfile: gemfiles/Gemfile.rails-4.2.x
-    - rvm: 1.9.2
-      gemfile: gemfiles/Gemfile.rails-edge
 
     # Seems unlikely anyone will be running these combos
     # If we want to support, we need to fix failing tests
@@ -67,12 +65,15 @@ matrix:
   include:
     # Mongoid requires ActiveModel ~> 4.0
     - rvm: 2.2.3
-      env: MONGOID_VERSION=skip
+      env:
+        - MONGOID_VERSION=skip
+        - RAILS_HEAD=true
       gemfile: gemfiles/Gemfile.rails-edge
     - rvm: 2.2.3
       env:
         - MONGOID_VERSION=skip
         - SKYLIGHT_DISABLE_AGENT=true
+        - RAILS_HEAD=true
       gemfile: gemfiles/Gemfile.rails-edge
     # Test old Tilt version (with Rails since Sinatra doesn't like old Tilt)
     - rvm: 2.2.3
