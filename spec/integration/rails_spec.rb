@@ -87,8 +87,14 @@ if enable
       end
 
       class ::MetalController < ActionController::Metal
-        include ActionController::Rendering
         # Ensure ActiveSupport::Notifications events are fired
+        if Rails.version =~ /^3\./
+          include ActionController::RackDelegation
+        end
+        # Weird that we need both Rendering modules
+        include AbstractController::Rendering
+        include ActionController::Rendering
+
         include ActionController::Instrumentation
 
         def show
