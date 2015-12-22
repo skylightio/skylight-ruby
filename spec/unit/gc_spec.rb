@@ -25,7 +25,7 @@ module Skylight
         end
 
         clock.unfreeze
-        server.wait count: 3
+        server.wait resource: '/report'
 
         expect(trace.spans.count).to eq(1)
         expect(trace.spans[0].duration).to eq(10_000)
@@ -47,7 +47,7 @@ module Skylight
         end
 
         clock.unfreeze
-        server.wait count: 3
+        server.wait resource: '/report'
 
         expect(trace.spans.count).to eq(2)
         expect(span(0).duration).to eq(10_000)
@@ -74,7 +74,7 @@ module Skylight
         end
 
         clock.unfreeze
-        server.wait count: 3
+        server.wait resource: '/report'
 
         expect(trace.spans.count).to eq(3)
 

@@ -20,7 +20,7 @@ module Skylight
       trace.done(a)
       trace.submit
 
-      server.wait count: 3
+      server.wait resource: '/report'
 
       expect(spans.count).to eq(2)
       expect(spans[0].event.category).to eq('app.rack.request')
@@ -46,7 +46,7 @@ module Skylight
       trace.done(a)
       trace.submit
 
-      server.wait count: 3
+      server.wait resource: '/report'
 
       expect(spans.count).to eq(6)
 
@@ -87,7 +87,7 @@ module Skylight
       clock.skip 0.001
       trace.submit
 
-      server.wait count: 3
+      server.wait resource: '/report'
 
       expect(spans.count).to eq(2)
       expect(spans[1].event.category).to eq('foo')
@@ -111,7 +111,7 @@ module Skylight
       clock.skip 0.1
       trace.submit
 
-      server.wait count: 3
+      server.wait resource: '/report'
 
       expect(spans.count).to eq(4)
 
@@ -135,7 +135,7 @@ module Skylight
       trace.done(a)
       trace.submit
 
-      server.wait count: 3
+      server.wait resource: '/report'
 
       expect(spans[1].event.title).to eq('How a foo is formed?')
       expect(spans[2].event.title).to eq('How a bar is formed?')
@@ -148,7 +148,7 @@ module Skylight
       trace.done(a)
       trace.submit
 
-      server.wait count: 3
+      server.wait resource: '/report'
 
       expect(spans[1].event.title).to       eq('FOO')
       expect(spans[1].event.description).to eq('How a foo is formed?')
@@ -169,7 +169,7 @@ module Skylight
       trace.done(a)
       trace.submit
 
-      server.wait count: 3
+      server.wait resource: '/report'
 
       expect(spans[1].event.title).to       eq('FOO')
       expect(spans[1].event.description).to eq(Skylight::Instrumenter::TOO_MANY_UNIQUES)

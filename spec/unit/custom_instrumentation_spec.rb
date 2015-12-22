@@ -54,7 +54,7 @@ describe "Skylight::Instrumenter", :http, :agent do
       end
 
       clock.unfreeze
-      server.wait(count: 3)
+      server.wait resource: '/report'
 
       expect(server.reports[0].endpoints.count).to eq(1)
 
@@ -84,7 +84,7 @@ describe "Skylight::Instrumenter", :http, :agent do
       end
 
       clock.unfreeze
-      server.wait count: 3
+      server.wait resource: '/report'
 
       ep = server.reports[0].endpoints[0]
       t  = ep.traces[0]
@@ -105,7 +105,7 @@ describe "Skylight::Instrumenter", :http, :agent do
       end
 
       clock.unfreeze
-      server.wait count: 3
+      server.wait resource: '/report'
 
       ep = server.reports[0].endpoints[0]
       t  = ep.traces[0]
@@ -196,7 +196,7 @@ describe "Skylight::Instrumenter", :http, :agent do
       end
 
       clock.unfreeze
-      server.wait count: 3
+      server.wait resource: '/report'
 
       expect(server.reports[0].endpoints.count).to eq(1)
 

@@ -82,7 +82,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(count: 3)
+        server.wait resource: '/report'
 
         expect(server.reports[0].endpoints.count).to eq(1)
 
@@ -109,7 +109,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(count: 3)
+        server.wait resource: '/report'
 
         expect(server.reports[0].endpoints.count).to eq(1)
 
@@ -136,7 +136,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(count: 3)
+        server.wait resource: '/report'
 
         expect(server.reports[0].endpoints.count).to eq(1)
 
@@ -171,7 +171,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(count: 3)
+        server.wait resource: '/report'
 
         expect(server.reports[0].endpoints.count).to eq(1)
 
@@ -206,7 +206,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(count: 3)
+        server.wait resource: '/report'
 
         expect(server.reports[0].endpoints.count).to eq(1)
 
@@ -243,7 +243,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(count: 3)
+        server.wait resource: '/report'
 
         expect(server.reports[0]).to have(1).endpoints
         expect(server.reports[0].endpoints.map(&:name)).to eq(["foo#bar"])
@@ -264,7 +264,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(count: 3)
+        server.wait resource: '/report'
 
         expect(server.reports[0]).to have(1).endpoints
         expect(server.reports[0].endpoints.map(&:name)).to eq(["foo#bar"])
@@ -284,7 +284,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         clock.unfreeze
-        server.wait(count: 3)
+        server.wait resource: '/report'
 
         expect(server.reports[0]).to have(1).endpoints
         expect(server.reports[0].endpoints.map(&:name)).to eq(["foo#bar"])

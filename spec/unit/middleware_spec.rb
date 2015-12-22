@@ -39,7 +39,7 @@ describe "Skylight::Middleware", :http, :agent do
     body.close
 
     clock.unfreeze
-    server.wait count: 1, resource: "/report"
+    server.wait resource: "/report"
 
     report = server.reports[0]
     expect(report).to_not be_nil
