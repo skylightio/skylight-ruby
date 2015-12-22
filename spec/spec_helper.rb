@@ -176,6 +176,14 @@ RSpec.configure do |config|
     end
   end
 
+  config.after :all do
+    # In Rails 3.2 when ActionController::Base is loaded, Test::Unit is initialized.
+    # This avoids it trying to auto-run tests in addition to RSpec.
+    if defined?(Test::Unit::AutoRunner)
+      Test::Unit::AutoRunner.need_auto_run = false
+    end
+  end
+
 end
 
 if defined?(Axiom::Types::Infinity)
