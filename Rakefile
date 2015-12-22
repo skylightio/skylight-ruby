@@ -146,6 +146,7 @@ task :run_travis_builds => :vagrant_up do |t|
   # Set variables here before we do with_clean_env
   no_clean = ENV['NO_CLEAN']
   rspec_args = ENV['RSPEC']
+  debug = ENV['DEBUG']
 
   # Avoids issue with vagrant existing as a gem
   Bundler.with_clean_env do
@@ -161,6 +162,8 @@ task :run_travis_builds => :vagrant_up do |t|
       ]
 
       commands += Array(build['env']).map{|env| "export #{env}" }
+
+      commands << "export DEBUG=1" if debug
 
       commands << "bundle update"
       commands << "bundle exec rake clean" unless no_clean
