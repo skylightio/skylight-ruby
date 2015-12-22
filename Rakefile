@@ -164,8 +164,13 @@ task :run_travis_builds => :vagrant_up do |t|
 
       commands << "bundle update"
       commands << "bundle exec rake clean" unless no_clean
-      commands << "bundle exec rake build"
-      commands << "bundle exec rspec #{rspec_args}"
+
+      if rspec_args
+        commands << "bundle exec rake build"
+        commands << "bundle exec rspec #{rspec_args}"
+      else
+        commands << "bundle exec rake"
+      end
 
       command = commands.join(" && ")
 
