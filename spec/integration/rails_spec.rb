@@ -139,7 +139,7 @@ if enable
       it 'successfully calls into rails' do
         call MyApp, env('/users')
 
-        server.wait count: 3
+        server.wait resource: '/report'
 
         batch = server.reports[0]
         expect(batch).to_not be nil
@@ -160,7 +160,7 @@ if enable
       it 'can instrument metal controllers' do
         call MyApp, env('/metal')
 
-        server.wait count: 3
+        server.wait resource: '/report'
 
         batch = server.reports[0]
         expect(batch).to_not be nil
