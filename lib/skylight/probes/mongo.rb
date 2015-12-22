@@ -1,6 +1,8 @@
 module Skylight
   module Probes
     module Mongo
+      CAT = "db.mongo.command".freeze
+
       class Probe
         def install
           ::Mongo::Monitoring::Global.subscribe(::Mongo::Monitoring::COMMAND, Subscriber.new)
@@ -106,7 +108,7 @@ module Skylight
             # format which would make it hard to merge.
 
             opts = {
-              category:    "db.mongo.command".freeze,
+              category:    CAT,
               title:       title,
               description: payload.empty? ? nil : payload.to_json
             }
