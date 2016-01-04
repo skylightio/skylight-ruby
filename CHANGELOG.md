@@ -1,3 +1,12 @@
+## 0.10.1 (January 4, 2016)
+
+* [FEATURE] Preliminary work for deploy tracking (not yet functional)
+* [BUGFIX] Don't crash if user config (~/.skylight) is empty
+* [BUGFIX] Better handling of unsupported moped versions
+* [IMPROVEMENT] Internal refactor of configuration handling
+* [IMPROVEMENT] Improve automated tests
+* [IMPROVEMENT] Fix tests in Rails 5 (No actual code changes required!)
+
 ## 0.10.0 (December 3, 2015)
 
 * [FEATURE] ActiveModel::Serializers Instrumentation. Always on in latest HEAD, for previous version add 'active_model_serializers' to probes list.
