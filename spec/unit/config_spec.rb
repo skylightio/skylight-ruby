@@ -204,30 +204,95 @@ module Skylight
 
     end
 
-    context 'deploy_id' do
+    context 'deploy' do
 
-      it 'uses provided deploy_id' do
-        config = Config.new deploy_id: "12345"
-        expect(config.deploy_id).to eq("12345")
+      it 'uses provided deploy' do
+        config = Config.new deploy: { id: "12345", git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572d", description: "Fix stuff" }
+        expect(config.deploy.id).to eq("12345")
+        expect(config.deploy.git_sha).to eq("19a8cfc47c10d8069916ae8adba0c9cb4c6c572d")
+        expect(config.deploy.description).to eq("Fix stuff")
       end
 
-      it 'detects Heroku ids' do
+      it 'uses sha if no id provided' do
+        config = Config.new deploy: { git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572d" }
+        expect(config.deploy.id).to eq("19a8cfc47c10d8069916ae8adba0c9cb4c6c572d")
+      end
+
+      it 'converts to query string' do
+        Timecop.freeze Time.at(1452620644) do
+          config = Config.new deploy: {
+            id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz",
+            git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dwhat?",
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et " \
+                          "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut " \
+                          "aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse " \
+                          "cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in " \
+                          "culpa qui officia deserunt mollit anim id est laborum."
+          }
+
+          expect(config.deploy.to_query_string).to eq(
+              "timestamp=1452620644" \
+                "&deploy_id=1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrs" \
+                "&git_sha=19a8cfc47c10d8069916ae8adba0c9cb4c6c572dw" \
+                "&description=Lorem+ipsum+dolor+sit+amet%2C+consectetur+adipiscing+elit%2C+sed+do+eiusmod+tempor+incididunt+ut+labore+et+dolore+" \
+                  "magna+aliqua.+Ut+enim+ad+minim+veniam%2C+quis+nostrud+exercitation+ullamco+laboris+nisi+ut+aliquip+ex+ea+commodo+consequat.+" \
+                  "Duis+aute+irure+dolor+in")
+        end
+      end
+
+      it 'detects Heroku' do
         config = Config.new :'heroku.dyno_info_path' => File.expand_path("../../support/heroku_dyno_info_sample", __FILE__)
-        expect(config.deploy_id).to eq("19a8cfc47c10d8069916ae8adba0c9cb4c6c572d")
+        expect(config.deploy.id).to eq(123)
+        expect(config.deploy.git_sha).to eq("19a8cfc47c10d8069916ae8adba0c9cb4c6c572d")
+        expect(config.deploy.description).to eq("Deploy 19a8cfc")
       end
 
-      # Travis does a copy without the git repo
-      if ENV['TRAVIS']
-        it 'returns nil when no deploys found' do
-          config = Config.new
-          expect(config.deploy_id).to be_nil
+      context 'with a git repo' do
+
+        around :each do |example|
+          Dir.mktmpdir do |dir|
+            @dir = dir
+            Dir.chdir(dir) do
+              system("git init > /dev/null")
+              system('git config --global user.email "you@example.com" > /dev/null')
+              system('git config --global user.name "Your Name" > /dev/null')
+              system("git commit -m \"Initial Commit\n\nMore info\" --allow-empty > /dev/null")
+              @sha = `git rev-parse HEAD`.strip
+              example.run
+            end
+          end
         end
-      else
-        it 'detects git ids' do
-          config = Config.new
+
+        it 'detects git' do
+          config = Config.new(root: @dir)
+
           # This will be the agent repo's current SHA
-          expect(config.deploy_id).to match(/^[a-f0-9]{40}$/)
+          expect(config.deploy.git_sha).to match(/^[a-f0-9]{40}$/)
+          expect(config.deploy.git_sha).to eq(@sha)
+
+          # Id should match SHA
+          expect(config.deploy.id).to eq(@sha)
+
+          expect(config.deploy.description).to eq('Initial Commit')
         end
+
+      end
+
+      context 'without a detectable deploy' do
+
+        around :each do |example|
+          Dir.mktmpdir do |dir|
+            Dir.chdir(dir) do
+              example.run
+            end
+          end
+        end
+
+        it 'returns nil' do
+          config = Config.new
+          expect(config.deploy).to be_nil
+        end
+
       end
 
     end
@@ -420,9 +485,9 @@ module Skylight
 
       let :config do
         Config.new(
+          authentication: "abc123",
           hostname:  "test.local",
-          root:      "/test",
-          deploy_id: "12345",
+          root:      "/tmp",
 
           # These are set in some envs and not others
           "daemon.ssl_cert_dir" => nil,
@@ -438,12 +503,12 @@ module Skylight
 
       it "converts to env" do
         expect(get_env).to eq({
+          "SKYLIGHT_AUTHENTICATION" => "abc123",
           "SKYLIGHT_VERSION"    => Skylight::VERSION,
-          "SKYLIGHT_ROOT"       => "/test",
+          "SKYLIGHT_ROOT"       => "/tmp",
           "SKYLIGHT_HOSTNAME"   => "test.local",
           "SKYLIGHT_AUTH_URL"   => "https://auth.skylight.io/agent",
           "SKYLIGHT_LAZY_START" => "true",
-          "SKYLIGHT_DEPLOY_ID"  => "12345",
           "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false"
         })
       end

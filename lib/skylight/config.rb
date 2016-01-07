@@ -1,4 +1,3 @@
-require 'uri'
 require 'yaml'
 require 'fileutils'
 require 'thread'
@@ -24,7 +23,11 @@ module Skylight
       'ROOT'          => :'root',
       'HOSTNAME'      => :'hostname',
       'SESSION_TOKEN' => :'session_token',
-      'DEPLOY_ID'     => :'deploy_id',
+
+      # == Deploy settings ==
+      'DEPLOY_ID'          => :'deploy.id',
+      'DEPLOY_GIT_SHA'     => :'deploy.git_sha',
+      'DEPLOY_DESCRIPTION' => :'deploy.description',
 
       # == Logging ==
       'LOG_FILE'       => :'log_file',
@@ -117,7 +120,6 @@ module Skylight
 
     NATIVE_ENV = [
       :'version',
-      :'authentication',
       :'root',
       :'hostname',
       :'deploy_id',
@@ -400,6 +402,8 @@ module Skylight
     def to_native_env
       ret = []
 
+      ret << "SKYLIGHT_AUTHENTICATION" << authentication_with_deploy
+
       NATIVE_ENV.each do |key|
         if value = send_or_get(key)
           env_key = ENV_TO_KEY.key(key) || key.upcase
@@ -466,6 +470,19 @@ authentication: #{self[:authentication]}
       self[:root] || Dir.pwd
     end
 
+    def authentication_with_deploy
+      token = get(:authentication)
+
+      if token && deploy
+        deploy_str = deploy.to_query_string
+        # A pipe should be a safe delimiter since it's not in the standard token
+        # and is encoded by URI
+        token += "|#{deploy.to_query_string}"
+      end
+
+      token
+    end
+
     def logger
       @logger ||=
         MUTEX.synchronize do
@@ -504,8 +521,8 @@ authentication: #{self[:authentication]}
       @alert_logger = logger
     end
 
-    def deploy_id
-      @deploy_id = Util::Deploy.detect_id(self)
+    def deploy
+      @deploy ||= Util::Deploy.build(self)
     end
 
   private
