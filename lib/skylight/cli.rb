@@ -39,7 +39,7 @@ The next step is for you to deploy your application to production. The
 easiest way is to just commit the config file to your source control
 repository and deploy from there. You can learn more about the process at:
 
-  http://docs.skylight.io/getting-started/#deploy
+  http://docs.skylight.io/getting-set-up/#deployment
 
 If you want to specify the authentication token as an environment variable,
 you should set the `SKYLIGHT_AUTHENTICATION` variable to:
