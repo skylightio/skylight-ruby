@@ -1,3 +1,8 @@
+## 1.0.0.beta1 (January 14, 2016)
+
+* [FEATURE] Deploy tracking support. Contact support@skylight.io to have this enabled for your account.
+* [BUGFIX] Correct documentation link in `skylight setup`.
+
 ## 0.10.1 (January 4, 2016)
 
 * [FEATURE] Preliminary work for deploy tracking (not yet functional)
