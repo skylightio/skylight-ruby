@@ -1,4 +1,8 @@
-## 1.0.0.beta1 (January 14, 2016)
+## 1.0.0.beta2 (January 14, 2016)
+
+* [BUGFIX] Fix version format so Rust agent can load config.
+
+## 1.0.0.beta1 (January 14, 2016) [YANKED]
 
 * [FEATURE] Deploy tracking support. Contact support@skylight.io to have this enabled for your account.
 * [BUGFIX] Correct documentation link in `skylight setup`.
