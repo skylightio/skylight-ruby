@@ -7,7 +7,11 @@
 * [FEATURE] Deploy tracking support. Contact support@skylight.io to have this enabled for your account.
 * [BUGFIX] Correct documentation link in `skylight setup`.
 
-## 0.10.1 (January 4, 2016)
+## 0.10.2 (January 19, 2016)
+
+* [BUGFIX] Fix git repository warning on startup. [Issue #58](https://github.com/skylightio/skylight-ruby/issues/58)
+
+## 0.10.1 (January 4, 2016) [YANKED]
 
 * [FEATURE] Preliminary work for deploy tracking (not yet functional)
 * [BUGFIX] Don't crash if user config (~/.skylight) is empty
