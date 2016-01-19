@@ -58,7 +58,7 @@ module Skylight
 
         def id
           Dir.chdir(config.root) do
-            rev = `git rev-parse HEAD`
+            rev = `git rev-parse HEAD 2>&1`
             rev.strip if $?.success?
           end
         end
