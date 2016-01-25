@@ -3,6 +3,9 @@ require 'spec_helper'
 if defined?(ActiveModel::Serializer)
   describe 'ActiveModel::Serializer', :active_model_serializers_probe, :agent, :instrumenter do
 
+    require 'action_controller'
+    require 'action_controller/serialization'
+
     # File changed name between versions
     %w(serializer serializers).each do |dir|
       begin
@@ -16,11 +19,14 @@ if defined?(ActiveModel::Serializer)
     # We don't actually support the RCs correctly, requires
     # a release after 0.10.0.rc3
     if version >= Gem::Version.new("0.10.0.rc1")
-      ActiveModel::Serializer.config.adapter = :json
-
       class Item < ActiveModelSerializers::Model
         attr_accessor :name, :value
       end
+
+      # This usually happens in a Railtie
+      ActionController::Base.send(:include, ActionController::Serialization)
+
+      ActiveModelSerializers.config.adapter = :json
     else
       class Item
         include ActiveModel::SerializerSupport
