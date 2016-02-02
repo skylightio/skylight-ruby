@@ -1,9 +1,6 @@
 ENV['MONGOID_VERSION'] = 'skip'
+ENV['TILT_VERSION'] = '~> 2.0'
 
 eval_gemfile File.expand_path('../Gemfile.base', __FILE__)
 
 gem 'sinatra', github: 'sinatra/sinatra'
-
-# To support 1.9.2
-gem 'activesupport', '< 4.0.0'
-gem 'i18n', '0.6.11'
