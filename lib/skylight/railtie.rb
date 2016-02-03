@@ -25,11 +25,17 @@ module Skylight
 
       if activate?
         if config
-          if Instrumenter.start!(config)
-            app.middleware.insert 0, Middleware, config: config
-            Rails.logger.info "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
-          else
-            Rails.logger.info "[SKYLIGHT] [#{Skylight::VERSION}] Unable to start"
+          begin
+            config.validate!
+
+            if Instrumenter.start!(config)
+              app.middleware.insert 0, Middleware, config: config
+              Rails.logger.info "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+            else
+              Rails.logger.info "[SKYLIGHT] [#{Skylight::VERSION}] Unable to start"
+            end
+          rescue ConfigError => e
+            Rails.logger.error "[SKYLIGHT] [#{Skylight::VERSION}] #{e.message}; disabling Skylight agent"
           end
         end
       elsif Rails.env.development?
@@ -72,12 +78,7 @@ module Skylight
 
       config[:'daemon.sockdir_path'] ||= tmp
       config[:'normalizers.render.view_paths'] = existent_paths(app.config.paths["app/views"]) + [Rails.root.to_s]
-      config.validate!
       config
-
-    rescue ConfigError => e
-      Rails.logger.error "[SKYLIGHT] [#{Skylight::VERSION}] #{e.message}; disabling Skylight agent"
-      nil
     end
 
     def configure_logging(config, app)
