@@ -1,3 +1,7 @@
+## 0.10.3 (February 2, 2016)
+
+* [BUGFIX] Don't validate configuration on disabled environments.
+
 ## 0.10.2 (January 19, 2016)
 
 * [BUGFIX] Fix git repository warning on startup. [Issue #58](https://github.com/skylightio/skylight-ruby/issues/58)
