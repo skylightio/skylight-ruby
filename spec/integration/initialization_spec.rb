@@ -54,6 +54,13 @@ describe "Initialization integration" do
           expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
         end
 
+        it "doesn't warn about validation errors" do
+          ENV['SKYLIGHT_AUTHENTICATION'] = nil
+
+          boot
+          expect(File.read("log/development.log")).to_not include "[SKYLIGHT] [#{Skylight::VERSION}] authentication token required; disabling Skylight agent"
+        end
+
       end
 
       context "test" do
@@ -72,6 +79,14 @@ describe "Initialization integration" do
           boot
           expect(File.read("log/production.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
         end
+
+        it "warns about validation errors" do
+          ENV['SKYLIGHT_AUTHENTICATION'] = nil
+
+          boot
+          expect(File.read("log/production.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] authentication token required; disabling Skylight agent"
+        end
+
       end
 
       context "custom enabled environment (staging)" do
