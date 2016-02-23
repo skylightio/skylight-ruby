@@ -134,5 +134,13 @@ module Skylight
       expect(desc).to eq("SELECT 𝒜 FROM zømg WHERE foo = ?")
     end
 
+    it "Handles arrays" do
+      name, title, desc = normalize(sql: "SELECT items[1] FROM zomg WHERE items[1] = 1")
+
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("SELECT FROM zomg")
+      expect(desc).to eq("SELECT items[1] FROM zomg WHERE items[1] = ?")
+    end
+
   end
 end
