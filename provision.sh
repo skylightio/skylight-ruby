@@ -13,6 +13,6 @@ rvm install 1.9.2
 rvm install 1.9.3
 rvm install 2.0.0
 rvm install 2.1.6
-rvm install 2.2.3
+rvm install 2.3.0
 
-rvm use 2.2.3 --default
+rvm use 2.3.0 --default

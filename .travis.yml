@@ -20,7 +20,7 @@ rvm:
   - 1.9.3
   - 2.0.0
   - 2.1.6
-  - 2.2.3
+  - 2.3.0
 
 gemfile:
   - gemfiles/Gemfile.rails-3.0.x
@@ -48,9 +48,9 @@ matrix:
 
     # Seems unlikely anyone will be running these combos
     # If we want to support, we need to fix failing tests
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       gemfile: gemfiles/Gemfile.rails-3.0.x
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       gemfile: gemfiles/Gemfile.rails-3.2.x
 
     # We don't need to test so many disabled combinations
@@ -63,49 +63,49 @@ matrix:
 
   include:
     # Mongoid requires ActiveModel ~> 4.0
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       env:
         - MONGOID_VERSION=skip
         - RAILS_HEAD=true
       gemfile: gemfiles/Gemfile.rails-edge
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       env:
         - MONGOID_VERSION=skip
         - SKYLIGHT_DISABLE_AGENT=true
         - RAILS_HEAD=true
       gemfile: gemfiles/Gemfile.rails-edge
     # Test old Tilt version (with Rails since Sinatra doesn't like old Tilt)
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       env:
         - TILT_VERSION=1.1
       gemfile: gemfiles/Gemfile.rails-4.1.x
     # Test old Sequel version
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       env:
         - SEQUEL_VERSION=3.12.0
       gemfile: gemfiles/Gemfile.sinatra-1.4.x
     # Mongo Integration
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       env:
         - TEST_MONGO_INTEGRATION=true
       gemfile: gemfiles/Gemfile.rails-4.2.x
       services: mongodb
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       env:
         - TEST_MONGO_INTEGRATION=true
         - MONGOID_VERSION="~> 4.0"
       gemfile: gemfiles/Gemfile.rails-4.2.x
       services: mongodb
     # Sinatra
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       gemfile: gemfiles/Gemfile.sinatra-edge
     # AMS
     # Default AMS is currently 0.9.3
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       env:
         - AMS_VERSION="~> 0.8.3"
       gemfile: gemfiles/Gemfile.rails-4.2.x
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       env:
         - AMS_VERSION=head
       gemfile: gemfiles/Gemfile.rails-4.2.x
