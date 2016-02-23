@@ -13,7 +13,12 @@ module Skylight
     desc "setup TOKEN", "Sets up a new app using the provided token"
     def setup(token=nil)
       if File.exist?(config_path)
-        say "Your app is already on Skylight. http://www.skylight.io", :green
+        say <<-OUT, :green
+A config/skylight.yml already exists for your application.
+
+Visit your app at https://www.skylight.io/app or remove config/skylight.yml
+to set it up as a new app in Skylight.
+        OUT
         return
       end
 

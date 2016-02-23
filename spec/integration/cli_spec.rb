@@ -100,6 +100,25 @@ describe "CLI integration", :http do
     end
   end
 
+  it "shows notice if config/skylight.yml already exists" do
+    with_standalone do
+      output = `bundle install`
+      puts output if ENV['DEBUG']
+
+      system("touch config/skylight.yml")
+
+      run_command("setup token") do |stdin, stdout, stderr|
+        begin
+          expect(read(stdout)).to match(%r{A config/skylight.yml already exists for your application.})
+        rescue
+          # Provide some potential debugging information
+          puts stderr.read if ENV['DEBUG']
+          raise
+        end
+      end
+    end
+  end
+
   def get_prompt(io, limit=100)
     prompt = io.readpartial(limit)
     print prompt if ENV['DEBUG']
