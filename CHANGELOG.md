@@ -1,3 +1,10 @@
+## 1.0.0.beta3 (February 23, 2016)
+
+* [BUGFIX] Update Rust Agent with SQL improvements, including handling for arrays and WITH
+* [BUGFIX] Don't validate config on disabled environments
+* [IMPROVEMENT] Better message when config/skylight.yml already exists
+* [IMPROVEMENT] Test new Sinatra versions
+
 ## 1.0.0.beta2 (January 14, 2016)
 
 * [BUGFIX] Fix version format so Rust agent can load config.
