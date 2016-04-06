@@ -34,7 +34,7 @@ module Skylight
         config.disable_dev_warning = true
 
         expect(config.disable_env_warning?).to be_falsy
-        config.disable_dev_warning = true
+        config.disable_env_warning = true
 
         config.save
         config.reload
