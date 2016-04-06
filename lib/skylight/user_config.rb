@@ -21,6 +21,10 @@ module Skylight
       disable_dev_warning
     end
 
+    def disable_env_warning?
+      disable_env_warning
+    end
+
     def reload
       config = File.exist?(file_path) ? YAML.load_file(file_path) : false
       return unless config
