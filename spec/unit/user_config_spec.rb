@@ -42,8 +42,9 @@ module Skylight
         expect(config.disable_dev_warning?).to eq(true)
         expect(config.disable_env_warning?).to eq(true)
 
-        expect(YAML.load_file(config.file_path)).to eq('disable_dev_warning' => true)
-        expect(YAML.load_file(config.file_path)).to eq('disable_env_warning' => true)
+        yaml = YAML.load_file(config.file_path)
+        expect(yaml).to include('disable_dev_warning' => true)
+        expect(yaml).to include('disable_env_warning' => true)
       ensure
         FileUtils.rm(config.file_path)
       end
