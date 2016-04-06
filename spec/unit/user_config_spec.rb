@@ -23,6 +23,7 @@ module Skylight
     it "loads from file" do
       set_file_path "../../support/skylight_user_config.yml"
       expect(config.disable_dev_warning?).to eq(true)
+      expect(config.disable_env_warning?).to eq(false)
     end
 
     it "writes to a new file" do
@@ -31,12 +32,19 @@ module Skylight
 
         expect(config.disable_dev_warning?).to be_falsy
         config.disable_dev_warning = true
+
+        expect(config.disable_env_warning?).to be_falsy
+        config.disable_env_warning = true
+
         config.save
-
         config.reload
-        expect(config.disable_dev_warning?).to eq(true)
 
-        expect(YAML.load_file(config.file_path)).to eq('disable_dev_warning' => true)
+        expect(config.disable_dev_warning?).to eq(true)
+        expect(config.disable_env_warning?).to eq(true)
+
+        yaml = YAML.load_file(config.file_path)
+        expect(yaml).to include('disable_dev_warning' => true)
+        expect(yaml).to include('disable_env_warning' => true)
       ensure
         FileUtils.rm(config.file_path)
       end

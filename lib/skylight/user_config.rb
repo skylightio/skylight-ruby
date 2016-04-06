@@ -3,7 +3,7 @@ require 'yaml'
 module Skylight
   class UserConfig
 
-    attr_accessor :disable_dev_warning
+    attr_accessor :disable_dev_warning, :disable_env_warning
 
     def self.instance
       @instance ||= new
@@ -21,11 +21,16 @@ module Skylight
       disable_dev_warning
     end
 
+    def disable_env_warning?
+      disable_env_warning
+    end
+
     def reload
       config = File.exist?(file_path) ? YAML.load_file(file_path) : false
       return unless config
 
       self.disable_dev_warning = !!config['disable_dev_warning']
+      self.disable_env_warning = !!config['disable_env_warning']
     end
 
     def save
@@ -37,7 +42,8 @@ module Skylight
 
     def to_hash
       {
-        'disable_dev_warning' => disable_dev_warning
+        'disable_dev_warning' => disable_dev_warning,
+        'disable_env_warning' => disable_env_warning
       }
     end
 

@@ -69,6 +69,14 @@ you should set the `SKYLIGHT_AUTHENTICATION` variable to:
         say "Development mode warning disabled", :green
       end
 
+      desc "disable_env_warning", "Disables warning about running Skylight in environments not defined in config.skylight.environments"
+      def disable_env_warning
+        user_config.disable_env_warning = true
+        user_config.save
+
+        say "Environment warning disabled", :green
+      end
+
     private
 
       def app_name
