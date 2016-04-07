@@ -125,6 +125,8 @@ matrix:
     - gemfile: gemfiles/Gemfile.rails-edge
     - env:
         - GRAPE_VERSION=edge
+    - env:
+        - AMS_VERSION=edge
 
 notifications:
   webhooks:
