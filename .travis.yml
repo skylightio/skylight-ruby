@@ -30,8 +30,7 @@ gemfile:
   - gemfiles/Gemfile.rails-4.2.x
   - gemfiles/Gemfile.sinatra-1.2.x
   - gemfiles/Gemfile.sinatra-1.4.x
-  - gemfiles/Gemfile.grape-0.10.0
-  - gemfiles/Gemfile.grape-0.13.0
+  - gemfiles/Gemfile.grape
   # Declared manually in the matrix
   # - gemfiles/Gemfile.sinatra-edge
   # - gemfiles/Gemfile.rails-edge
@@ -99,6 +98,15 @@ matrix:
     # Sinatra
     - rvm: 2.3.0
       gemfile: gemfiles/Gemfile.sinatra-edge
+    # Grape
+    - rvm: 2.3.0
+      env:
+        - GRAPE_VERSION=0.10.0
+      gemfile: gemfiles/Gemfile.grape
+    - rvm: 2.3.0
+      env:
+        - GRAPE_VERSION=edge
+      gemfile: gemfiles/Gemfile.grape
     # AMS
     # Default AMS is currently 0.9.3
     - rvm: 2.3.0

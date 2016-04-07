@@ -2,7 +2,12 @@ ENV['MONGOID_VERSION'] = 'skip'
 
 eval_gemfile File.expand_path('../Gemfile.base', __FILE__)
 
-gem 'grape', '~> 0.13.0'
+version = ENV['GRAPE_VERSION']
+if version == 'edge'
+  version = { github: 'intridea/grape' }
+end
+
+gem 'grape', version
 
 # To support 1.9.2
 gem 'activesupport', '< 4.0.0'
