@@ -115,7 +115,7 @@ matrix:
       gemfile: gemfiles/Gemfile.rails-4.2.x
     - rvm: 2.3.0
       env:
-        - AMS_VERSION=head
+        - AMS_VERSION=edge
       gemfile: gemfiles/Gemfile.rails-4.2.x
 
 
