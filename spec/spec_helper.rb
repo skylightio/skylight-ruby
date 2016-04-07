@@ -22,7 +22,7 @@ require "support/native"
 
 # Begin Probed libraries
 
-if ENV['AMS_VERSION'] == 'head'
+if ENV['AMS_VERSION'] == 'edge'
   require 'active_support/inflector'
 end
 
