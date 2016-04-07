@@ -123,7 +123,8 @@ matrix:
     # Testing edge is nice, but it probably shouldn't kill the build
     - gemfile: gemfiles/Gemfile.sinatra-edge
     - gemfile: gemfiles/Gemfile.rails-edge
-    - gemfile: gemfiles/Gemfile.grape-edge
+    - env:
+        - GRAPE_VERSION=edge
 
 notifications:
   webhooks:
