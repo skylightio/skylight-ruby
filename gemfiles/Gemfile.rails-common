@@ -5,3 +5,8 @@ if !ENV['SKIP_EXTERNAL'] && RUBY_VERSION != '1.9.2'
     gem 'active_model_serializers', ENV['AMS_VERSION']
   end
 end
+
+if RUBY_VERSION.to_f < 2
+  # Version 3.0 requires Ruby 2+
+  gem 'mime-types', '< 3.0'
+end
