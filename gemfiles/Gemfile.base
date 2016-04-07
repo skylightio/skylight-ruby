@@ -2,7 +2,12 @@ source "http://rubygems.org"
 
 gemspec path: File.expand_path('../..', __FILE__)
 
-gem 'rake'
+if RUBY_VERSION == '1.9.2'
+  gem 'rake', '~> 10.5'
+else
+  gem 'rake'
+end
+
 gem 'timecop'
 gem 'webmock'
 gem 'beefcake', '< 1.0' # 1.0 doesn't work with 1.9.2
@@ -16,7 +21,7 @@ unless ENV['SKIP_EXTERNAL']
   gem 'fakeredis'
 
   # The dependency bson requires 1.9.3+
-  if RUBY_VERSION >= '1.9.3'
+  if RUBY_VERSION != '1.9.2'
     gem 'mongo'
     gem 'moped', '>= 2.0'
 
