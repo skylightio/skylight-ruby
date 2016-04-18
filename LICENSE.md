@@ -39,14 +39,14 @@ for lost profits or data.
 Other Licenses
 ==============
 
-ActiveSupport
+Ruby on Rails
 -------------
 
-Copyright (c) 2005-2014 David Heinemeier Hansson
+Copyright (c) 2005-2016 David Heinemeier Hansson
 
 Released under the MIT License.
 
-Original source at https://github.com/rails/rails/tree/master/activesupport.
+Original source at https://github.com/rails/rails.
 
 
 HighLine

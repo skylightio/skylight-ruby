@@ -12,6 +12,11 @@ end
 
 if enable
 
+  TEST_VARIANTS = Gem::Version.new(Rails.version) >= Gem::Version.new('4.1');
+  if !TEST_VARIANTS
+    puts "[INFO] Skipping Rails format variants test. Must be at least Rails 4.1."
+  end
+
   describe 'Rails integration' do
 
     def boot
@@ -81,10 +86,24 @@ if enable
 
         instrument_method
         def show
-          if Rails.version =~ /^(3|4)\./
-            render text: "Hola: #{params[:id]}"
-          else
-            render plain: "Hola: #{params[:id]}"
+          request.variant = :tablet if params[:tablet]
+
+          respond_to do |format|
+            format.json do |json|
+              if TEST_VARIANTS
+                json.tablet { render json: { hola_tablet: params[:id] } }
+                json.none   { render json: { hola: params[:id] } }
+              else
+                render json: { hola: params[:id] }
+              end
+            end
+            format.html do
+              if Rails.version =~ /^(3|4)\./
+                render text: "Hola: #{params[:id]}"
+              else
+                render plain: "Hola: #{params[:id]}"
+              end
+            end
           end
         end
 
@@ -159,7 +178,8 @@ if enable
       end
 
       it 'successfully calls into rails' do
-        call MyApp, env('/users')
+        res = call MyApp, env('/users')
+        expect(res).to eq(["Hello"])
 
         server.wait resource: '/report'
 
@@ -167,7 +187,7 @@ if enable
         expect(batch).to_not be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("UsersController#index")
+        expect(endpoint.name).to eq("UsersController#index<sk-format>html</sk-format>")
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
@@ -179,6 +199,34 @@ if enable
         expect(names[0]).to eq('app.rack.request')
       end
 
+      it 'sets correct format' do
+        res = call MyApp, env('/users/1.json')
+        expect(res).to eq([{ hola: '1' }.to_json])
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("UsersController#show<sk-format>json</sk-format>")
+      end
+
+      if TEST_VARIANTS
+        it 'sets correct format with variant' do
+          res = call MyApp, env('/users/1.json?tablet=1')
+          expect(res).to eq([{ hola_tablet: '1' }.to_json])
+
+          server.wait resource: '/report'
+
+          batch = server.reports[0]
+          expect(batch).to_not be nil
+          expect(batch.endpoints.count).to eq(1)
+          endpoint = batch.endpoints[0]
+          expect(endpoint.name).to eq("UsersController#show<sk-format>json+tablet</sk-format>")
+        end
+      end
+
       it 'can instrument metal controllers' do
         call MyApp, env('/metal')
 
@@ -188,7 +236,7 @@ if enable
         expect(batch).to_not be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("MetalController#show")
+        expect(endpoint.name).to eq("MetalController#show<sk-format>html</sk-format>")
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
@@ -225,7 +273,7 @@ if enable
     end
 
     def env(path = '/', opts = {})
-      Rack::MockRequest.env_for(path, {})
+      Rack::MockRequest.env_for(path, opts)
     end
 
     def consume(resp)
