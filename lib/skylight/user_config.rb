@@ -14,7 +14,7 @@ module Skylight
     end
 
     def file_path
-      File.expand_path("~/.skylight")
+      File.expand_path(ENV["SKYLIGHT_USER_CONFIG_PATH"] || "~/.skylight")
     end
 
     def disable_dev_warning?

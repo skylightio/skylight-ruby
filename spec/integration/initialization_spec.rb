@@ -22,6 +22,7 @@ describe "Initialization integration" do
     with_standalone(dir: @tmpdir) do
       ENV['SKYLIGHT_AUTHENTICATION'] = 'lulz'
       ENV['SKYLIGHT_AGENT_STRATEGY'] = 'embedded'
+      ENV['SKYLIGHT_USER_CONFIG_PATH'] = "#{@tmpdir}/.skylight"
       example.run
     end
   end
