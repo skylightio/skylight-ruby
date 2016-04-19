@@ -35,7 +35,7 @@ if enable
       ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = "false"
       ENV['SKYLIGHT_AUTH_URL']             = "http://localhost:#{port}/agent/authenticate"
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
-      # ENV['SKYLIGHT_TEST_IGNORE_TOKEN']   = true.to_s
+      ENV['SKYLIGHT_SEPARATE_FORMATS']     = "true"
 
       class ::MyApp < Rails::Application
         if Rails.version =~ /^3\./
@@ -145,7 +145,7 @@ if enable
       ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = nil
       ENV['SKYLIGHT_AUTH_URL']             = nil
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = nil
-      # ENV['SKYLIGHT_TEST_IGNORE_TOKEN']   = nil
+      ENV['SKYLIGHT_SEPARATE_FORMATS']     = nil
 
       Skylight.stop!
 

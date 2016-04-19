@@ -3,6 +3,15 @@ require 'spec_helper'
 module Skylight
   describe "Normalizers", "process_action.action_controller", :agent do
 
+    before :each do
+      @original_separate_formats = config.separate_formats?
+      config.set(:separate_formats, true)
+    end
+
+    after :each do
+      config.set(:separate_formats, @original_separate_formats)
+    end
+
     it "updates the trace's endpoint" do
       expect(trace).to receive(:endpoint=).and_call_original
       normalize(controller: "foo", action: "bar", format: "html")
