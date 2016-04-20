@@ -59,6 +59,13 @@ module Skylight
           t { "middleware beginning trace" }
           trace = Skylight.trace "Rack", 'app.rack.request'
           resp = @app.call(env)
+
+          # Responses should be finished but in some situations they aren't
+          #   e.g. https://github.com/ruby-grape/grape/issues/1041
+          if resp.respond_to?(:finish)
+            resp = resp.finish
+          end
+
           resp[2] = BodyProxy.new(resp[2]) { trace.submit } if trace
           resp
         rescue Exception
