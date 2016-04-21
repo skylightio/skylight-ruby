@@ -86,6 +86,7 @@ module Skylight
 
       while curr = trace.notifications.pop
         if curr.name == name
+          normalize_after(trace, curr.span, name, payload)
           trace.done(curr.span) if curr.span
           return
         end
@@ -108,6 +109,10 @@ module Skylight
 
     def normalize(*args)
       @normalizers.normalize(*args)
+    end
+
+    def normalize_after(*args)
+      @normalizers.normalize_after(*args)
     end
 
   end

@@ -38,6 +38,13 @@ module Skylight
         @config = config
         setup if respond_to?(:setup)
       end
+
+      def normalize(trace, name, payload)
+        :skip
+      end
+
+      def normalize_after(trace, span, name, payload)
+      end
     end
 
     class RenderNormalizer < Normalizer
@@ -119,6 +126,10 @@ module Skylight
 
       def normalize(trace, name, payload)
         normalizer_for(name).normalize(trace, name, payload)
+      end
+
+      def normalize_after(trace, span, name, payload)
+        normalizer_for(name).normalize_after(trace, span, name, payload)
       end
 
       def normalizer_for(name)
