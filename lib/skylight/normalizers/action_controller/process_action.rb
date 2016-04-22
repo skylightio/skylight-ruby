@@ -18,7 +18,7 @@ module Skylight
         def normalize_after(trace, span, name, payload)
           return unless config.separate_formats?
 
-          format = [payload[:format], payload[:variant]].compact.flatten.join('+')
+          format = [payload[:rendered_format], payload[:variant]].compact.flatten.join('+')
           unless format.empty?
             trace.endpoint += "<sk-format>#{format}</sk-format>"
           end

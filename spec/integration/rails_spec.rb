@@ -12,7 +12,9 @@ end
 
 if enable
 
-  TEST_VARIANTS = Gem::Version.new(Rails.version) >= Gem::Version.new('4.1');
+  IS_RAILS_4_1_PLUS = Gem::Version.new(Rails.version) >= Gem::Version.new('4.1');
+
+  TEST_VARIANTS = IS_RAILS_4_1_PLUS
   if !TEST_VARIANTS
     puts "[INFO] Skipping Rails format variants test. Must be at least Rails 4.1."
   end
@@ -268,7 +270,7 @@ if enable
         expect(batch).to_not be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("MetalController#show<sk-format>html</sk-format>")
+        expect(endpoint.name).to eq("MetalController#show<sk-format>#{IS_RAILS_4_1_PLUS ? "text" : "html"}</sk-format>")
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 

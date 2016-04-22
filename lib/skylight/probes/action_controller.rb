@@ -8,6 +8,13 @@ module Skylight
             alias append_info_to_payload_without_sk append_info_to_payload
             def append_info_to_payload(payload)
               append_info_to_payload_without_sk(payload)
+              if respond_to?(:rendered_format)
+                rendered_mime = rendered_format
+              else
+                format = lookup_context.formats.first
+                rendered_mime = Mime[format.to_sym] if format
+              end
+              payload[:rendered_format] = rendered_mime.try(:ref)
               payload[:variant] = request.respond_to?(:variant) ? request.variant : nil
             end
           end
