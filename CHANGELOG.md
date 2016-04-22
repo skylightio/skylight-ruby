@@ -1,3 +1,8 @@
+## 1.0.0.beta4 (April 22, 2016)
+
+* [FEATURE] Track formats separately in Rails endpoints. Turn on with `separate_formats: true`.
+* [BUGFIX] Finish Rack::Responses in Middleware as some Rack apps don't do this
+
 ## 1.0.0.beta3 (February 23, 2016)
 
 * [BUGFIX] Update Rust Agent with SQL improvements, including handling for arrays and WITH
@@ -34,7 +39,7 @@
 
 ## 0.9.4 (November 23, 2015)
 
-* [FEATURE] Added instrumentation for official Mongo Ruby Driver (utilized by Mongoid 5+). Add 'mongo' to probes list to enable. 
+* [FEATURE] Added instrumentation for official Mongo Ruby Driver (utilized by Mongoid 5+). Add 'mongo' to probes list to enable.
 * [BUGFIX] SQL lexer now handles indentifiers beginning with underscores.
 * [BUGFIX] Excon instrumentation now works correctly.
 * [BUGFIX] Graceful handling of native agent failures on old OS X versions.
