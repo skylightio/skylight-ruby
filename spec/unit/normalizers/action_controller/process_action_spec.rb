@@ -21,7 +21,7 @@ module Skylight
     it "updates with additional format information" do
       normalize(controller: "foo", action: "bar", format: "json")
       expect(trace.endpoint).to eq("foo#bar")
-      normalize_after(controller: "foo", action: "bar", format: "json", variant: [:tablet])
+      normalize_after(controller: "foo", action: "bar", format: "*/*", rendered_format: 'json', variant: [:tablet], status: 200)
       expect(trace.endpoint).to eq("foo#bar<sk-format>json+tablet</sk-format>")
     end
 

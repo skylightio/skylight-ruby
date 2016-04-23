@@ -25,7 +25,13 @@ if enable
       MyApp.initialize!
 
       MyApp.routes.draw do
-        resources :users
+        resources :users do
+          collection do
+            get :failure
+            get :handled_failure
+            get :header
+          end
+        end
         get '/metal' => 'metal#show'
       end
     end
@@ -66,10 +72,18 @@ if enable
       class ::UsersController < ActionController::Base
         include Skylight::Helpers
 
+        class Error < StandardError; end
+
         if respond_to?(:before_action)
           before_action :authorized?
+          before_action :set_variant
         else
           before_filter :authorized?
+          before_filter :set_variant
+        end
+
+        rescue_from 'UsersController::Error' do |exception|
+          render json: { error: exception.message }, status: 500
         end
 
         def index
@@ -88,8 +102,6 @@ if enable
 
         instrument_method
         def show
-          request.variant = :tablet if params[:tablet]
-
           respond_to do |format|
             format.json do |json|
               if TEST_VARIANTS
@@ -109,6 +121,18 @@ if enable
           end
         end
 
+        def failure
+          raise "Fail!"
+        end
+
+        def handled_failure
+          raise Error, "Handled!"
+        end
+
+        def header
+          head 200
+        end
+
         private
 
           def authorized?
@@ -117,6 +141,11 @@ if enable
 
           # It's important for us to test a method ending in a special char
           instrument_method :authorized?, title: "Check authorization"
+
+          def set_variant
+            request.variant = :tablet if params[:tablet]
+          end
+
       end
 
       class ::MetalController < ActionController::Metal
@@ -246,6 +275,68 @@ if enable
         expect(endpoint.name).to eq("UsersController#show<sk-format>json</sk-format>")
       end
 
+      it 'sets rendered format, not requested' do
+        res = call MyApp, env('/users/1', 'HTTP_ACCEPT' => '*/*')
+        expect(res).to eq([{ hola: '1' }.to_json])
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("UsersController#show<sk-format>json</sk-format>")
+      end
+
+      it 'sets correct format for exceptions' do
+        res = call MyApp, env('/users/failure')
+        expect(res[0]).to be_blank # Some Rails versions are empty string some are nil
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("UsersController#failure<sk-format>exception</sk-format>")
+      end
+
+      it 'sets correct format for handled exceptions' do
+        res = call MyApp, env('/users/handled_failure')
+        expect(res).to eq([{ error: "Handled!" }.to_json])
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+
+        if IS_RAILS_4_1_PLUS
+          expect(endpoint.name).to eq("UsersController#handled_failure")
+        else
+          expect(endpoint.name).to eq("UsersController#handled_failure<sk-format>html</sk-format>")
+        end
+      end
+
+      it 'sets correct format for `head`' do
+        res = call MyApp, env('/users/header')
+        expect(res[0].strip).to eq('') # Some Rails versions have a space, some don't
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+
+        if IS_RAILS_4_1_PLUS
+          expect(endpoint.name).to eq("UsersController#header")
+        else
+          expect(endpoint.name).to eq("UsersController#header<sk-format>html</sk-format>")
+        end
+      end
+
       if TEST_VARIANTS
         it 'sets correct format with variant' do
           res = call MyApp, env('/users/1.json?tablet=1')
@@ -258,6 +349,19 @@ if enable
           expect(batch.endpoints.count).to eq(1)
           endpoint = batch.endpoints[0]
           expect(endpoint.name).to eq("UsersController#show<sk-format>json+tablet</sk-format>")
+        end
+
+        it 'sets correct format for `head` with variant' do
+          res = call MyApp, env('/users/header?tablet=1', 'HTTP_ACCEPT' => 'application/json')
+          expect(res[0].strip).to eq('') # Some Rails versions have a space, some don't
+
+          server.wait resource: '/report'
+
+          batch = server.reports[0]
+          expect(batch).to_not be nil
+          expect(batch.endpoints.count).to eq(1)
+          endpoint = batch.endpoints[0]
+          expect(endpoint.name).to eq("UsersController#header<sk-format>tablet</sk-format>")
         end
       end
 

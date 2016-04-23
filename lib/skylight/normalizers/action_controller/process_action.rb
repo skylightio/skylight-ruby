@@ -18,7 +18,17 @@ module Skylight
         def normalize_after(trace, span, name, payload)
           return unless config.separate_formats?
 
-          format = [payload[:rendered_format], payload[:variant]].compact.flatten.join('+')
+          # There are two known cases where we won't have a rendered format
+          # 1. Exceptions (in some Rails versions)
+          # 2. A `head` response out side of a `respond_to`.
+
+          if !payload[:status]
+            # This should mean it's an exception
+            format = 'exception'
+          else
+            format = [payload[:rendered_format], payload[:variant]].compact.flatten.join('+')
+          end
+
           unless format.empty?
             trace.endpoint += "<sk-format>#{format}</sk-format>"
           end
