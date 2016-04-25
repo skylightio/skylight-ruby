@@ -4,12 +4,12 @@ module Skylight
   describe "Normalizers", "process_action.action_controller", :agent do
 
     before :each do
-      @original_separate_formats = config.separate_formats?
-      config.set(:separate_formats, true)
+      @original_enable_segments = config.enable_segments?
+      config.set(:enable_segments, true)
     end
 
     after :each do
-      config.set(:separate_formats, @original_separate_formats)
+      config.set(:enable_segments, @original_enable_segments)
     end
 
     it "updates the trace's endpoint" do
@@ -22,7 +22,7 @@ module Skylight
       normalize(controller: "foo", action: "bar", format: "json")
       expect(trace.endpoint).to eq("foo#bar")
       normalize_after(controller: "foo", action: "bar", format: "*/*", rendered_format: 'json', variant: [:tablet], status: 200)
-      expect(trace.endpoint).to eq("foo#bar<sk-format>json+tablet</sk-format>")
+      expect(trace.endpoint).to eq("foo#bar<sk-segment>json+tablet</sk-segment>")
     end
 
   end

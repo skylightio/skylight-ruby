@@ -16,21 +16,21 @@ module Skylight
         end
 
         def normalize_after(trace, span, name, payload)
-          return unless config.separate_formats?
+          return unless config.enable_segments?
 
           # There are two known cases where we won't have a rendered format
           # 1. Exceptions (in some Rails versions)
           # 2. A `head` response out side of a `respond_to`.
 
-          if !payload[:status]
+          if payload[:exception] || payload[:status].to_s =~ /^[4,5]/
             # This should mean it's an exception
-            format = 'exception'
-          else
-            format = [payload[:rendered_format], payload[:variant]].compact.flatten.join('+')
+            segment = "error"
+          elsif payload[:rendered_format]
+            segment = [payload[:rendered_format], payload[:variant]].compact.flatten.join('+')
           end
 
-          unless format.empty?
-            trace.endpoint += "<sk-format>#{format}</sk-format>"
+          if segment
+            trace.endpoint += "<sk-segment>#{segment}</sk-segment>"
           end
         end
 

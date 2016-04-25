@@ -86,8 +86,11 @@ module Skylight
 
       while curr = trace.notifications.pop
         if curr.name == name
-          normalize_after(trace, curr.span, name, payload)
-          trace.done(curr.span) if curr.span
+          begin
+            normalize_after(trace, curr.span, name, payload)
+          ensure
+            trace.done(curr.span) if curr.span
+          end
           return
         end
       end

@@ -42,7 +42,7 @@ module Skylight
       # == Instrumenter ==
       "IGNORED_ENDPOINT" => :'ignored_endpoint',
       "IGNORED_ENDPOINTS" => :'ignored_endpoints',
-      "SEPARATE_FORMATS" => :'separate_formats',
+      "ENABLE_SEGMENTS" => :'enable_segments',
 
       # == Skylight Remote ==
       "AUTH_URL"                     => :'auth_url',
@@ -95,7 +95,7 @@ module Skylight
       :'log_level'            => 'INFO'.freeze,
       :'alert_log_file'       => '-'.freeze,
       :'log_sql_parse_errors' => false,
-      :'separate_formats'     => false,
+      :'enable_segments'      => false,
       :'hostname'             => Util::Hostname.default_hostname,
       :'heroku.dyno_info_path' => '/etc/heroku/dyno'
     }
@@ -527,8 +527,8 @@ authentication: #{self[:authentication]}
       @deploy ||= Util::Deploy.build(self)
     end
 
-    def separate_formats?
-      !!get(:separate_formats)
+    def enable_segments?
+      !!get(:enable_segments)
     end
 
   private
