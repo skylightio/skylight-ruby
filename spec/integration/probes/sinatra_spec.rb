@@ -7,7 +7,7 @@ if defined?(Sinatra)
 
     before do
       Skylight::Instrumenter.mock! do |trace|
-        expect(trace.endpoint).to eq(@expected_endpoint)
+        @current_trace = trace
       end
     end
 
@@ -36,34 +36,33 @@ if defined?(Sinatra)
     end
 
     it "creates a Trace for a Sinatra app" do
-      @expected_endpoint = "GET /named-template"
-
       expect(Skylight).to receive(:trace).with("Rack", "app.rack.request").and_call_original
 
       get "/named-template"
+      expect(@current_trace.endpoint).to eq("GET /named-template")
       expect(last_response.body).to eq("Hello from named template")
     end
 
     it "instruments named templates" do
-      @expected_endpoint = "GET /named-template"
-
       expect(Skylight).to receive(:instrument).with(
         category: "view.render.template",
         title: "hello"
       ).and_call_original
 
       get "/named-template"
+
+      expect(@current_trace.endpoint).to eq("GET /named-template")
     end
 
     it "instruments inline templates" do
-      @expected_endpoint = "GET /inline-template"
-
       expect(Skylight).to receive(:instrument).with(
         category: "view.render.template",
         title: "Inline template (erb)"
       ).and_call_original
 
       get "/inline-template"
+
+      expect(@current_trace.endpoint).to eq("GET /inline-template")
     end
   end
 end

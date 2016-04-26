@@ -57,6 +57,7 @@ module Skylight
       end
 
       def error(msg, *args)
+        raise msg if ENV['SKYLIGHT_RAISE_ON_ERROR']
         log :error, msg, *args
       end
 
