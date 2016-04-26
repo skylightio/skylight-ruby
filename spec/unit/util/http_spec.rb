@@ -21,7 +21,7 @@ module Skylight
     describe "proxy" do
 
       before :each do
-        stub_request(:get, "https://www.skylight.io/foobar").
+        stub_request(:get, "https://auth.skylight.io/foobar").
           to_return(:status => 200, :body => "", :headers => {})
       end
 
