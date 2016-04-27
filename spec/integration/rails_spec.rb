@@ -31,6 +31,7 @@ if enable
             get :handled_failure
             get :header
             get :status
+            get :no_template
           end
         end
         get '/metal' => 'metal#show'
@@ -83,7 +84,7 @@ if enable
           before_filter :set_variant
         end
 
-        rescue_from 'UsersController::Error' do |exception|
+        rescue_from 'Error' do |exception|
           render json: { error: exception.message }, status: 500
         end
 
@@ -145,6 +146,10 @@ if enable
           end
         end
 
+        def no_template
+          # This action has no template to auto-render
+        end
+
         private
 
           def authorized?
@@ -201,6 +206,7 @@ if enable
       # Clean slate
       Object.send(:remove_const, :MyApp)
       Object.send(:remove_const, :UsersController)
+      Object.send(:remove_const, :MetalController)
       Rails.application = nil
     end
 
@@ -262,7 +268,9 @@ if enable
         expect(batch).to_not be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("UsersController#index<sk-segment>html</sk-segment>")
+
+        segment = Rails.version =~ /^[34]\./ ? 'html' : 'text'
+        expect(endpoint.name).to eq("UsersController#index<sk-segment>#{segment}</sk-segment>")
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
@@ -381,6 +389,26 @@ if enable
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
         expect(endpoint.name).to eq("UsersController#status<sk-segment>error</sk-segment>")
+      end
+
+      it 'sets correct segment when no template is found' do
+        status, headers, body = call_full MyApp, env('/users/no_template')
+
+        if Rails.version =~ /^[34]\./
+          expect(status).to eq(500)
+        else
+          expect(status).to eq(406)
+        end
+
+        expect(body[0]).to be_blank
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("UsersController#no_template<sk-segment>error</sk-segment>")
       end
 
       if TEST_VARIANTS
