@@ -19,7 +19,7 @@ module Skylight
             end
           end
 
-          #if RAILS_VERSION < 4.2.1
+          if Gem::Version.new(Rails.version) < Gem::Version.new('4.2.1')
             # Backport https://github.com/rails/rails/pull/17978
             ::ActionController::Instrumentation.class_eval do
               def process_action(*args)
@@ -44,7 +44,7 @@ module Skylight
                   end
                 end
               end
-            #end
+            end
           end
         end
       end

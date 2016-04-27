@@ -18,14 +18,12 @@ module Skylight
         def normalize_after(trace, span, name, payload)
           return unless config.enable_segments?
 
-          # There are two known cases where we won't have a rendered format
-          # 1. Exceptions (in some Rails versions)
-          # 2. A `head` response out side of a `respond_to`.
-
-          if payload[:exception] || payload[:status].to_s =~ /^[4,5]/
-            # This should mean it's an exception
+          # Show 'error' if there's an unhandled exception or if the status is 4xx or 5xx
+          if payload[:exception] || payload[:status].to_s =~ /^[45]/
             segment = "error"
+          # We won't have a rendered_format if it's a `head` outside of a `respond_to` block.
           elsif payload[:rendered_format]
+            # We only show the variant if we actually have a format
             segment = [payload[:rendered_format], payload[:variant]].compact.flatten.join('+')
           end
 
