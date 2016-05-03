@@ -1,4 +1,3 @@
-require "sql_lexer"
 require "json"
 
 module Skylight
@@ -41,23 +40,7 @@ module Skylight
         private
 
         def extract_binds(payload, precalculated)
-          case config[:sql_mode]
-          when 'rust'.freeze
-            extract_rust(payload)
-          when 'ruby'.freeze
-            extract_ruby(payload, precalculated)
-          else
-            raise "Unrecognized sql_mode: #{config.sql_mode}"
-          end
-        end
-
-        def extract_rust(payload)
           Skylight.lex_sql(payload[:sql])
-        end
-
-        def extract_ruby(payload, precalculated)
-          name, title, _ = SqlLexer::Lexer.bindify(payload[:sql], precalculated, true)
-          [ name, title ]
         end
       end
     end

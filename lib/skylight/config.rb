@@ -41,7 +41,6 @@ module Skylight
       # == Instrumenter ==
       "IGNORED_ENDPOINT" => :'ignored_endpoint',
       "IGNORED_ENDPOINTS" => :'ignored_endpoints',
-      "SQL_MODE" => :'sql_mode',
       "SEPARATE_FORMATS" => :'separate_formats',
 
       # == Skylight Remote ==
@@ -90,7 +89,6 @@ module Skylight
     # Default values for Skylight configuration keys
     DEFAULTS = {
       :'auth_url'             => 'https://auth.skylight.io/agent',
-      :'sql_mode'             => 'rust',
       :'daemon.lazy_start'    => true,
       :'log_file'             => '-'.freeze,
       :'log_level'            => 'INFO'.freeze,

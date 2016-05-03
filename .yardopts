@@ -1,1 +1,1 @@
- --hide-api private --exclude lib/(skylight/vendor|sql_lexer) lib/**/*.rb
+ --hide-api private --exclude lib/(skylight/vendor) lib/**/*.rb
