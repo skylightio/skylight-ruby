@@ -6,7 +6,7 @@ begin
   require 'skylight'
   enable = true
 rescue LoadError
-  puts "[INFO] Skipping rails integration specs"
+  puts "[INFO] Skipping grape integration specs"
 end
 
 if enable
@@ -62,7 +62,7 @@ if enable
         stub_session_request
       end
 
-      it 'successfully calls into rails' do
+      it 'successfully calls into grape' do
         res = call env('/test')
         expect(res).to eq(["{:hello=>true}"])
 
