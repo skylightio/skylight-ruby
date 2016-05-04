@@ -36,6 +36,7 @@ gemfile:
   - gemfiles/Gemfile.sinatra-1.3.x
   - gemfiles/Gemfile.sinatra-1.4.x
   - gemfiles/Gemfile.grape
+  - gemfiles/Gemfile.padrino
   # Declared manually in the matrix
   # - gemfiles/Gemfile.sinatra-edge
   # - gemfiles/Gemfile.rails-edge
@@ -129,6 +130,11 @@ matrix:
     # Sinatra
     - rvm: 2.3.1
       gemfile: gemfiles/Gemfile.sinatra-edge
+    # Padrino
+    - rvm: 2.3.1
+      env:
+      - PADRINO_VERSION=edge
+      gemfile: gemfiles/Gemfile.padrino
     # Grape
     - rvm: 1.9.3
       env:

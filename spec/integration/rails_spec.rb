@@ -237,8 +237,12 @@ if enable
 
       context "configuration" do
 
-        it "sets log file" do
-          expect(Skylight::Instrumenter.instance.config['log_file']).to eq(MyApp.root.join('log/skylight.log').to_s)
+        unless defined?(Padrino)
+          it "sets log file" do
+            expect(Skylight::Instrumenter.instance.config['log_file']).to eq(MyApp.root.join('log/skylight.log').to_s)
+          end
+        else
+          pending "sets log file [can't test with Padrino present]"
         end
 
         context "on heroku" do

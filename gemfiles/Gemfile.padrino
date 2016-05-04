@@ -1,0 +1,8 @@
+eval_gemfile File.expand_path('../Gemfile.base', __FILE__)
+
+version = ENV['PADRINO_VERSION']
+if version == 'edge'
+  version = { github: 'padrino/padrino-framework' }
+end
+
+gem 'padrino', version

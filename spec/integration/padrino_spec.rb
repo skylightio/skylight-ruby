@@ -2,16 +2,16 @@ require 'spec_helper'
 
 enable = false
 begin
-  require 'sinatra'
+  require 'padrino'
   require 'skylight'
   enable = true
 rescue LoadError
-  puts "[INFO] Skipping sinatra integration specs"
+  puts "[INFO] Skipping padrino integration specs"
 end
 
 if enable
 
-  describe 'Sinatra integration' do
+  describe 'Padrino integration' do
 
     let(:show_sinatra_classes) { false }
 
@@ -23,15 +23,14 @@ if enable
       ENV['SKYLIGHT_AUTH_URL']             = "http://localhost:#{port}/agent"
       ENV['SKYLIGHT_VALIDATION_URL']       = "http://localhost:#{port}/agent/config"
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
-      ENV['SKYLIGHT_ENABLE_SEGMENTS']      = "true"
       ENV['SKYLIGHT_SHOW_SINATRA_CLASSES'] = show_sinatra_classes.to_s
 
       Skylight.start!
 
-      class ::MyApp < Sinatra::Base
+      class ::MyApp < Padrino::Application
         use Skylight::Middleware
 
-        get '/test' do
+        get :test do
           Skylight.instrument category: 'app.inside' do
             Skylight.instrument category: 'app.zomg' do
               # nothing
@@ -48,9 +47,8 @@ if enable
       ENV['SKYLIGHT_REPORT_URL']           = nil
       ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = nil
       ENV['SKYLIGHT_AUTH_URL']             = nil
-      ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = nil
       ENV['SKYLIGHT_VALIDATION_URL']       = nil
-      ENV['SKYLIGHT_ENABLE_SEGMENTS']      = nil
+      ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = nil
       ENV['SKYLIGHT_SHOW_SINATRA_CLASSES'] = nil
 
       Skylight.stop!
@@ -70,7 +68,7 @@ if enable
         stub_session_request
       end
 
-      it 'successfully calls into sinatra' do
+      it 'successfully calls into padrino' do
         res = call env('/test')
         expect(res).to eq(["Hello!"])
 
@@ -125,7 +123,7 @@ if enable
     def consume(resp)
       data = []
       resp[2].each{|p| data << p }
-      resp[2].close
+      resp[2].close if resp[2].respond_to?(:close)
       data
     end
 
