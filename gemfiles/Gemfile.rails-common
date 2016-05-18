@@ -1,8 +1,14 @@
 if !ENV['SKIP_EXTERNAL'] && RUBY_VERSION != '1.9.2'
   version = ENV['AMS_VERSION']
+
+  if !version && RUBY_VERSION.to_f < 2.0
+    version = '< 0.10'
+  end
+
   if version == 'edge'
     version = { github: 'rails-api/active_model_serializers' }
   end
+
   gem 'active_model_serializers', version
 end
 

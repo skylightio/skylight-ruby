@@ -108,10 +108,14 @@ matrix:
         - GRAPE_VERSION=edge
       gemfile: gemfiles/Gemfile.grape
     # AMS
-    # Default AMS is currently 0.9.3
+    # Default AMS is currently 0.10.0
     - rvm: 2.3.0
       env:
         - AMS_VERSION="~> 0.8.3"
+      gemfile: gemfiles/Gemfile.rails-4.2.x
+    - rvm: 2.3.0
+      env:
+        - AMS_VERSION="~> 0.9.5"
       gemfile: gemfiles/Gemfile.rails-4.2.x
     - rvm: 2.3.0
       env:
