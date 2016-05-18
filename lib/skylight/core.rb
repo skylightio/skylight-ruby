@@ -7,7 +7,9 @@ module Skylight
   # Load the native agent
   require 'skylight/native'
 
-  if defined?(Rails)
+  # Specifically check for Railtie since we've had at least one case of a
+  #   customer having Rails defined without having all of Rails loaded.
+  if defined?(Rails::Railtie)
     require 'skylight/railtie'
   end
 
