@@ -498,7 +498,10 @@ module Skylight
           "daemon.ssl_cert_dir" => nil,
           "daemon.ssl_cert_path" => nil,
           "daemon.exec_path" => nil,
-          "daemon.lib_path" => nil
+          "daemon.lib_path" => nil,
+
+          # Make sure the false value gets passed to the native env (true is default)
+          "daemon.lazy_start" => false
         )
       end
 
@@ -513,8 +516,8 @@ module Skylight
           "SKYLIGHT_ROOT"       => "/tmp",
           "SKYLIGHT_HOSTNAME"   => "test.local",
           "SKYLIGHT_AUTH_URL"   => "https://auth.skylight.io/agent",
-          "SKYLIGHT_LAZY_START" => "true",
-          "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false"
+          "SKYLIGHT_LAZY_START" => "false",
+          "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false",
         })
       end
 

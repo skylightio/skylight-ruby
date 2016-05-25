@@ -402,7 +402,8 @@ module Skylight
       ret << "SKYLIGHT_AUTHENTICATION" << authentication_with_deploy
 
       NATIVE_ENV.each do |key|
-        if value = send_or_get(key)
+        value = send_or_get(key)
+        unless value.nil?
           env_key = ENV_TO_KEY.key(key) || key.upcase
           ret << "SKYLIGHT_#{env_key}" << cast_for_env(value)
         end
