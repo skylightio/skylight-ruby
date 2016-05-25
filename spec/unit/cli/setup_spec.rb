@@ -7,7 +7,7 @@ describe 'skylight setup', :http, :agent do
   def cli
     @cli ||=
       begin
-        cli = Skylight::CLI.new
+        cli = Skylight::CLI::Base.new
         allow(cli).to receive(:highline).and_return(hl)
         allow(cli).to receive(:config).and_return(config)
         cli
