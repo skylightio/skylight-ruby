@@ -83,6 +83,10 @@ matrix:
       env:
         - SEQUEL_VERSION=3.12.0
       gemfile: gemfiles/Gemfile.sinatra-1.4.x
+    - rvm: 2.3.0
+      env:
+        - SEQUEL_VERSION=4.34.0 # Some changes were made in 4.35.0
+      gemfile: gemfiles/Gemfile.sinatra-1.4.x
     # Mongo Integration
     - rvm: 2.3.0
       env:
