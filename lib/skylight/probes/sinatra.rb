@@ -8,7 +8,9 @@ module Skylight
             alias compile_without_sk! compile!
 
             def compile!(verb, path, *args, &block)
-              compile_without_sk!(verb, path, *args, &block).tap do |_, _, _, wrapper|
+              compile_without_sk!(verb, path, *args, &block).tap do |_, _, keys_or_wrapper, wrapper|
+                wrapper ||= keys_or_wrapper
+
                 # Deal with the situation where the path is a regex, and the default behavior
                 # of Ruby stringification produces an unreadable mess
                 if path.is_a?(Regexp)
