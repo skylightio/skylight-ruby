@@ -504,6 +504,10 @@ authentication: #{self[:authentication]}
       @alert_logger = logger
     end
 
+    def on_heroku?
+      File.exist?(get(:'heroku.dyno_info_path'))
+    end
+
     def deploy_id
       @deploy_id = Util::Deploy.detect_id(self)
     end
