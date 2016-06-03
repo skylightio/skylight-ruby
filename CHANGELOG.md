@@ -9,7 +9,7 @@
 * [IMPROVEMENT] Allow Skylight to raise on logged errors, useful for testing and debugging
 * [IMPROVEMENT] Finish Rack::Responses in Middleware
 * [IMRPOVEMENT] Better message when config/skylight.yml already exists
-* [IMPROVEMENT] Update Rust Agent with SQL improvements
+* [IMPROVEMENT] Update Rust Agent with SQL improvements, including handling for arrays and WITH
 
 ## 0.10.3 (February 2, 2016)
 
