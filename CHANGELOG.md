@@ -1,23 +1,23 @@
 ## 1.0.0.beta4 (April 22, 2016)
 
-* [FEATURE] Track formats separately in Rails endpoints. Turn on with `separate_formats: true`.
-* [BUGFIX] Finish Rack::Responses in Middleware as some Rack apps don't do this
+* [FEATURE] WIP: Separate response type tracking for endpoints.
 
-## 1.0.0.beta3 (February 23, 2016)
+## 0.10.4 (June 3, 2016)
 
-* [BUGFIX] Update Rust Agent with SQL improvements, including handling for arrays and WITH
-* [BUGFIX] Don't validate config on disabled environments
-* [IMPROVEMENT] Better message when config/skylight.yml already exists
-* [IMPROVEMENT] Test new Sinatra versions
+* [BUGFIX] Sinatra instrumenation now works for latest master
+* [BUGFIX] Sequel support for 4.35.0
+* [BUGFIX] Handle latest ActiveModel::Serializers version
+* [BUGFIX] More precise check for existence of Rails
+* [BREAKING] Drop official support for Sinatra 1.2 (it likely never worked correctly)
+* [IMPROVEMENT] On Heroku, logs are now written to STDOUT
+* [IMPROVEMENT] Allow Skylight to raise on logged errors, useful for testing and debugging
+* [IMPROVEMENT] Finish Rack::Responses in Middleware
+* [IMRPOVEMENT] Better message when config/skylight.yml already exists
+* [IMPROVEMENT] Update Rust Agent with SQL improvements, including handling for arrays and WITH
 
-## 1.0.0.beta2 (January 14, 2016)
+## 0.10.3 (February 2, 2016)
 
-* [BUGFIX] Fix version format so Rust agent can load config.
-
-## 1.0.0.beta1 (January 14, 2016) [YANKED]
-
-* [FEATURE] Deploy tracking support. Contact support@skylight.io to have this enabled for your account.
-* [BUGFIX] Correct documentation link in `skylight setup`.
+* [BUGFIX] Don't validate configuration on disabled environments.
 
 ## 0.10.2 (January 19, 2016)
 
