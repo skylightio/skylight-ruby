@@ -1,3 +1,16 @@
+## 0.10.4 (June 3, 2016)
+
+* [BUGFIX] Sinatra instrumenation now works for latest master
+* [BUGFIX] Sequel support for 4.35.0
+* [BUGFIX] Handle latest ActiveModel::Serializers version
+* [BUGFIX] More precise check for existence of Rails
+* [BREAKING] Drop official support for Sinatra 1.2 (it likely never worked correctly)
+* [IMPROVEMENT] On Heroku, logs are now written to STDOUT
+* [IMPROVEMENT] Allow Skylight to raise on logged errors, useful for testing and debugging
+* [IMPROVEMENT] Finish Rack::Responses in Middleware
+* [IMRPOVEMENT] Better message when config/skylight.yml already exists
+* [IMPROVEMENT] Update Rust Agent with SQL improvements
+
 ## 0.10.3 (February 2, 2016)
 
 * [BUGFIX] Don't validate configuration on disabled environments.
@@ -22,7 +35,7 @@
 
 ## 0.9.4 (November 23, 2015)
 
-* [FEATURE] Added instrumentation for official Mongo Ruby Driver (utilized by Mongoid 5+). Add 'mongo' to probes list to enable. 
+* [FEATURE] Added instrumentation for official Mongo Ruby Driver (utilized by Mongoid 5+). Add 'mongo' to probes list to enable.
 * [BUGFIX] SQL lexer now handles indentifiers beginning with underscores.
 * [BUGFIX] Excon instrumentation now works correctly.
 * [BUGFIX] Graceful handling of native agent failures on old OS X versions.
