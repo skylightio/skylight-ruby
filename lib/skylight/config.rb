@@ -521,6 +521,10 @@ authentication: #{self[:authentication]}
       @alert_logger = logger
     end
 
+    def on_heroku?
+      File.exist?(get(:'heroku.dyno_info_path'))
+    end
+
     def deploy
       @deploy ||= Util::Deploy.build(self)
     end

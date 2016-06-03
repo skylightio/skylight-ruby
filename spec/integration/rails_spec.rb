@@ -163,6 +163,9 @@ if enable
 
     context "with agent", :http, :agent do
 
+      def pre_boot
+      end
+
       before :each do
         @original_environments = MyApp.config.skylight.environments.clone
         MyApp.config.skylight.environments << 'development'
@@ -170,11 +173,40 @@ if enable
         stub_token_verification
         stub_session_request
 
+        pre_boot
         boot
       end
 
       after :each do
         MyApp.config.skylight.environments = @original_environments
+      end
+
+      context "configuration" do
+
+        it "sets log file" do
+          expect(Skylight::Instrumenter.instance.config['log_file']).to eq(MyApp.root.join('log/skylight.log').to_s)
+        end
+
+        context "on heroku" do
+
+          def pre_boot
+            ENV['SKYLIGHT_HEROKU_DYNO_INFO_PATH'] = File.expand_path('../../support/heroku_dyno_info_sample', __FILE__)
+          end
+
+          after :each do
+            ENV['SKYLIGHT_HEROKU_DYNO_INFO_PATH'] = nil
+          end
+
+          it "recognizes heroku" do
+            expect(Skylight::Instrumenter.instance.config).to be_on_heroku
+          end
+
+          it "leaves log file as STDOUT" do
+            expect(Skylight::Instrumenter.instance.config['log_file']).to eq('-')
+          end
+
+        end
+
       end
 
       it 'successfully calls into rails' do

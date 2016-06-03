@@ -88,7 +88,7 @@ module Skylight
         # Configure the log file destination
         if log_file = app.config.skylight.log_file
           config['log_file'] = log_file
-        elsif !config.key?('log_file')
+        elsif !config.key?('log_file') && !config.on_heroku?
           config['log_file'] = File.join(Rails.root, 'log/skylight.log')
         end
 
