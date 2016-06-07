@@ -187,7 +187,7 @@ end
 
 # Some extra checks
 # -Werror is needed for the fast thread local storage
-$CFLAGS << " -Werror"
+$CFLAGS << " -Werror -Wno-error=extra-semi"
 
 checking_for 'fast thread local storage' do
   if try_compile("__thread int foo;")
