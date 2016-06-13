@@ -4,6 +4,7 @@ require 'net/http'
 require 'fileutils'
 require 'digest/sha2'
 require 'skylight/util/ssl'
+require 'skylight/util/proxy'
 
 # Used from extconf.rb
 module Skylight
@@ -92,9 +93,9 @@ module Skylight
               when :success
                 log "successfully downloaded native ext; out=#{out}"
                 return extra
-              else
+              when :redirect
                 log "fetching native ext; uri=#{uri}; redirected=#{res}"
-                uri = res
+                uri = extra
 
                 next
               end

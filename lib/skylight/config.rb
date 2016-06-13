@@ -8,6 +8,7 @@ require 'skylight/util/hostname'
 require 'skylight/util/logging'
 require 'skylight/util/platform'
 require 'skylight/util/ssl'
+require 'skylight/util/proxy'
 
 module Skylight
   class Config
@@ -243,7 +244,10 @@ module Skylight
 
       return ret unless env
 
-      ret[:proxy_url] = detect_proxy_url(env)
+      # Only set if it exists, we don't want to set to a nil value
+      if proxy_url = Util::Proxy.detect_url(env)
+        ret[:proxy_url] = proxy_url
+      end
 
       env.each do |k, val|
         # Support deprecated SK_ key prefix
@@ -263,13 +267,6 @@ module Skylight
       end
 
       ret
-    end
-
-    def self.detect_proxy_url(env)
-      if u = env['HTTP_PROXY'] || env['http_proxy']
-        u = "http://#{u}" unless u =~ %r[://]
-        u
-      end
     end
 
     # @api private
