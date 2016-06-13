@@ -277,6 +277,7 @@ module Skylight
   zomg: hello
   foo: bar
   stuff: nope
+  proxy_url: 127.0.0.1
   report:
     ssl: true
 
@@ -309,6 +310,10 @@ module Skylight
 
         it 'interpolates ERB' do
           expect(config['erb']).to eq('interpolated')
+        end
+
+        it 'sets proxy_url' do
+          expect(config['proxy_url']).to eq('127.0.0.1')
         end
 
       end
