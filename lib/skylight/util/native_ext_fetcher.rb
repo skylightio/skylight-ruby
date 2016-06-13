@@ -119,7 +119,7 @@ module Skylight
       end
 
       def http_get(host, port, use_ssl, path, out)
-        if http_proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
+        if http_proxy = Proxy.detect_url(ENV)
           log "connecting with proxy: #{http_proxy}"
           uri = URI.parse(http_proxy)
           p_host, p_port = uri.host, uri.port

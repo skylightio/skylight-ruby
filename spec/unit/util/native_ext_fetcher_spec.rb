@@ -4,12 +4,17 @@ require 'skylight/util/native_ext_fetcher'
 module Skylight::Util
   describe NativeExtFetcher do
 
-    before :each do
-      skip
+    around :each do |example|
+      WebMock.enable!
+      Dir.mktmpdir do |dir|
+        @target = dir
+        example.run
+      end
+      WebMock.disable!
     end
 
     let :archive do
-      compress("win")
+      File.read(File.expand_path("../../../support/win.tar.gz", __FILE__))
     end
 
     let :checksum do
@@ -19,51 +24,51 @@ module Skylight::Util
     context 'fetching successfully' do
 
       it 'fetches the native extension' do
-        expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
-          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
-          and_return([ :success, archive ])
+        stub_ext_request
 
-        ret = fetch version: "1.0.0", arch: "linux-x86_64", checksum: checksum
+        ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
+        expect(ret).to eq(true)
+        expect_valid_output
+      end
 
-        expect(ret).to eq("win")
+      it 'works with a proxy' do
+        begin
+          original_proxy = ENV['HTTP_PROXY']
+          ENV['HTTP_PROXY'] = "foo:bar@127.0.0.1:123"
+
+          expect(Net::HTTP).to receive(:start).
+            with("s3.amazonaws.com", 443, "127.0.0.1", 123, "foo", "bar", use_ssl: true).
+            and_return([ :success, checksum ])
+
+          ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
+          expect(ret).to eq(true)
+        ensure
+          ENV['HTTP_PROXY'] = original_proxy
+        end
       end
 
       it 'follows redirects' do
-        expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
-          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
-          and_return([ :redirect, "https://example.org/zomg/bar.gz" ])
+        stub_request(:get, "https://s3.amazonaws.com/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz").
+          with(:headers => {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}).
+          to_return(:status => 301, headers: { 'Location' => "https://example.org/zomg/bar.gz" })
 
-        expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
-          with("example.org", 443, true, "/zomg/bar.gz").
-          and_return([ :success, archive ])
+        stub_ext_request("https://example.org/zomg/bar.gz")
 
-        ret = fetch version: "1.0.0", arch: "linux-x86_64", checksum: checksum
-
-        expect(ret).to eq("win")
+        ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
+        expect(ret).to eq(true)
+        expect_valid_output
       end
 
       it 'retries on failure' do
         expect_any_instance_of(NativeExtFetcher).to receive(:http_get) { raise "nope" }.
-          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz")
+          with("s3.amazonaws.com", 443, true, "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File))
 
         expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
-          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
-          and_return([ :success, archive ])
+          with("s3.amazonaws.com", 443, true, "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File)).
+          and_return([ :success, checksum ])
 
-        ret = fetch version: "1.0.0", arch: "linux-x86_64", checksum: checksum
-
-        expect(ret).to eq("win")
-      end
-
-      it 'writes the archive to the specified location' do
-        expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
-          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
-          and_return([ :success, archive ])
-
-        ret = fetch version: "1.0.0", arch: "linux-x86_64", target: tmp("skylight.a"), checksum: checksum
-
-        expect(ret).to eq("win")
-        expect(File.read(tmp("skylight.a"))).to eq("win")
+        ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
+        expect(ret).to eq(true)
       end
 
     end
@@ -72,10 +77,10 @@ module Skylight::Util
 
       it 'verifies the checksum' do
         expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
-          with("github.com", 443, true, "/skylightio/skylight-rust/releases/download/1.0.0/libskylight.1.0.0.linux-x86_64.a.gz").
-          and_return([ :success, archive ])
+          with("s3.amazonaws.com", 443, true, "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File)).
+          and_return([ :success, checksum ])
 
-        ret = fetch version: "1.0.0", arch: "linux-x86_64", checksum: "abcdefghijklmnop"
+        ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: "abcdefghijklmnop"
 
         expect(ret).to be_nil
       end
@@ -86,8 +91,16 @@ module Skylight::Util
       NativeExtFetcher.fetch(opts)
     end
 
-    def compress(body)
-      Gzip.compress(body)
+    def stub_ext_request(url=nil)
+      url ||= "https://s3.amazonaws.com/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz"
+      stub_request(:get, url).
+        with(:headers => {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}).
+        to_return(:status => 200, :body => archive, :headers => {})
+    end
+
+    def expect_valid_output
+      expect(Dir.entries(@target)).to eq(['.', '..', 'win'])
+      expect(File.read("#{@target}/win")).to eq("win\n")
     end
 
   end
