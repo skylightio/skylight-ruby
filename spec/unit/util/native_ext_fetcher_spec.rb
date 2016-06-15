@@ -49,7 +49,6 @@ module Skylight::Util
 
       it 'follows redirects' do
         stub_request(:get, "https://s3.amazonaws.com/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz").
-          with(:headers => {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}).
           to_return(:status => 301, headers: { 'Location' => "https://example.org/zomg/bar.gz" })
 
         stub_ext_request("https://example.org/zomg/bar.gz")
@@ -94,12 +93,11 @@ module Skylight::Util
     def stub_ext_request(url=nil)
       url ||= "https://s3.amazonaws.com/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz"
       stub_request(:get, url).
-        with(:headers => {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}).
         to_return(:status => 200, :body => archive, :headers => {})
     end
 
     def expect_valid_output
-      expect(Dir.entries(@target)).to eq(['.', '..', 'win'])
+      expect(Dir.entries(@target).sort).to eq(['.', '..', 'win'])
       expect(File.read("#{@target}/win")).to eq("win\n")
     end
 
