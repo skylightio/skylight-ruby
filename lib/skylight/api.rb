@@ -3,6 +3,8 @@ require 'uri'
 module Skylight
   # @api private
   class Api
+    include Util::Logging
+
     attr_reader :config, :http
 
     class CreateFailed < StandardError
@@ -53,9 +55,11 @@ module Skylight
       when 400...500
         :invalid
       else
+        warn res.exception.message if res.exception
         :unknown
       end
-    rescue
+    rescue => e
+      warn e.message
       :unknown
     end
 
