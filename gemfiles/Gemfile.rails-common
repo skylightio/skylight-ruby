@@ -1,8 +1,12 @@
 if !ENV['SKIP_EXTERNAL'] && RUBY_VERSION != '1.9.2'
   version = ENV['AMS_VERSION']
 
-  if !version && RUBY_VERSION.to_f < 2.0
-    version = '< 0.10'
+  if !version
+    if RUBY_VERSION.to_f < 2.0
+      version = '< 0.10'
+    elsif RUBY_VERSION.to_f < 2.1
+      version = '< 0.10.1'
+    end
   end
 
   if version == 'edge'
