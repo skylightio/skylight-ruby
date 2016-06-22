@@ -1,3 +1,10 @@
+## 0.10.5 (June 22, 2016)
+
+* [BUGFIX] Fix issue with Grape multi-method naming
+* [BUGFIX] Add http to proxy_url for native fetching
+* [BUGFIX] Fix setting `proxy_url` in config YML
+* [IMPROVEMENT] Log errors during authentication validation
+
 ## 0.10.4 (June 3, 2016)
 
 * [BUGFIX] Sinatra instrumenation now works for latest master
