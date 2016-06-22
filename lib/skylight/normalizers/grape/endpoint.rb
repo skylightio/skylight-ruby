@@ -12,7 +12,7 @@ module Skylight
 
           def get_method(endpoint)
             method = endpoint.options[:method].first
-            method << "..." if endpoint.options[:method].length > 1
+            method = "#{method}..." if endpoint.options[:method].length > 1
             method
           end
 

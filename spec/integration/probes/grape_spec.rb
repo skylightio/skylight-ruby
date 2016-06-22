@@ -64,6 +64,10 @@ if defined?(Grape)
       get "raise" do
         fail 'Unexpected error'
       end
+
+      route ['GET', 'POST'], "data" do
+        "data"
+      end
     end
 
     def app
@@ -138,6 +142,18 @@ if defined?(Grape)
       delete "/app/missing"
 
       expect(@called_endpoint).to eq("GrapeTest::App [any] *path")
+    end
+
+    it "instruments multi method routes" do
+      allow_any_instance_of(Skylight::Trace).to receive(:instrument)
+
+      expect_any_instance_of(Skylight::Trace).to receive(:instrument)
+          .with("app.grape.endpoint", "GET... data", nil)
+          .once
+
+      get "/data"
+
+      expect(@called_endpoint).to eq("GrapeTest [GET...] data")
     end
 
     it "instruments failures" do
