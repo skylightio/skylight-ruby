@@ -3,6 +3,7 @@ require 'fileutils'
 require 'thread'
 require 'openssl'
 require 'erb'
+require 'json'
 require 'skylight/util/deploy'
 require 'skylight/util/hostname'
 require 'skylight/util/logging'
@@ -12,6 +13,8 @@ require 'skylight/util/proxy'
 
 module Skylight
   class Config
+    include Util::Logging
+
     # @api private
     MUTEX = Mutex.new
 
@@ -46,6 +49,7 @@ module Skylight
 
       # == Skylight Remote ==
       "AUTH_URL"                     => :'auth_url',
+      "VALIDATION_URL"               => :'validation_url',
       "AUTH_HTTP_DEFLATE"            => :'auth_http_deflate',
       "AUTH_HTTP_CONNECT_TIMEOUT"    => :'auth_http_connect_timeout',
       "AUTH_HTTP_READ_TIMEOUT"       => :'auth_http_read_timeout',
@@ -90,6 +94,7 @@ module Skylight
     # Default values for Skylight configuration keys
     DEFAULTS = {
       :'auth_url'             => 'https://auth.skylight.io/agent',
+      :'validation_url'       => 'https://auth.skylight.io/agent/config',
       :'daemon.lazy_start'    => true,
       :'log_file'             => '-'.freeze,
       :'log_level'            => 'INFO'.freeze,
@@ -117,7 +122,12 @@ module Skylight
     REQUIRED = {
       :'authentication' => "authentication token",
       :'hostname'       => "server hostname",
-      :'auth_url'       => "authentication url" }
+      :'auth_url'       => "authentication url",
+      :'validation_url'       => "config validation url" }
+
+    SERVER_VALIDATE = [
+      :'enable_segments'
+    ]
 
     NATIVE_ENV = [
       :'version',
@@ -269,6 +279,10 @@ module Skylight
       ret
     end
 
+    def api
+      @api ||= Api.new(self)
+    end
+
     # @api private
     def skip_validation?
       !!get(:skip_validation)
@@ -284,6 +298,7 @@ module Skylight
         end
       end
 
+      # FIXME: Why is this in the `validate!` method?
       # FIXME: Why not set the sockdir_path and pidfile_path explicitly?
       # That way we don't have to keep this in sync with the Rust repo.
       sockdir_path = self[:'daemon.sockdir_path'] || File.expand_path('.')
@@ -292,6 +307,61 @@ module Skylight
       check_permissions(pidfile_path, sockdir_path)
 
       true
+    end
+
+    # Maybe make a class to handle this?
+    def validate_with_server
+      url = URI.parse(get(:validation_url))
+
+      res = api.http.post(url.path, to_json)
+
+      case res.status
+      when 200...300
+        token_valid = true
+        config_valid = true
+      when 422
+        token_valid = true
+        config_valid = false
+
+        begin
+          corrected_config = res.body['corrected']
+
+          if errors = res.body['errors']
+            warn("Invalid configuration:")
+            errors.each do |k,v|
+              warn("  #{k} #{v}")
+            end
+          end
+        rescue
+          warn("Unable to parse server response: status=%s, body=%s", res.status, res.body)
+          token_valid = true
+          config_valid = false
+        end
+      when 400...500
+        token_valid = false
+        config_valid = false
+      else
+        warn("Unable to reach server for config validation")
+        token_valid = true
+        config_valid = false
+      end
+
+      unless token_valid
+        warn("Invalid authentication token")
+        return false
+      end
+
+      unless config_valid
+        # Use all defaults
+        corrected_config ||= Hash[SERVER_VALIDATE.map{|k| [k, DEFAULTS[k]] }]
+
+        corrected_config.each do |k,v|
+          info("Setting #{k} to #{v}")
+          set(k, v)
+        end
+      end
+
+      return true
     end
 
     def check_permissions(pidfile, sockdir_path)
@@ -394,6 +464,15 @@ module Skylight
       else
         default
       end
+    end
+
+    def to_json
+      JSON(
+        config: {
+          priority: @priority,
+          values:   @values
+        }
+      )
     end
 
     def to_native_env

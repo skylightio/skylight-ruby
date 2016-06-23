@@ -57,7 +57,7 @@ module Skylight
       end
 
       def error(msg, *args)
-        raise msg if ENV['SKYLIGHT_RAISE_ON_ERROR']
+        raise sprintf(msg, *args) if ENV['SKYLIGHT_RAISE_ON_ERROR']
         log :error, msg, *args
       end
 
@@ -70,8 +70,13 @@ module Skylight
       alias fmt       sprintf
 
       def log(level, msg, *args)
-        return unless respond_to?(:config)
-        return unless c = config
+        c = if respond_to?(:config)
+          config
+        elsif self.is_a?(Config)
+          self
+        end
+
+        return unless c
 
         if logger = c.logger
           return unless logger.respond_to?(level)

@@ -32,7 +32,7 @@ describe "Initialization integration" do
     pipe_cmd_in, pipe_cmd_out = IO.pipe
 
     # Have to add $native_lib_path to the LOAD_PATH here since we build in a different location for tests
-    cmd_pid = Process.spawn("RAILS_ENV=#{rails_env} ruby -I#{$native_lib_path} bin/rails runner '#noop'", :out => pipe_cmd_out, :err => pipe_cmd_out)
+    cmd_pid = Process.spawn("SKYLIGHT_ENABLE_TRACE_LOGS=1 DEBUG=1 RAILS_ENV=#{rails_env} ruby -I#{$native_lib_path} bin/rails runner '#noop'", :out => pipe_cmd_out, :err => pipe_cmd_out)
 
     Timeout.timeout(10) do
       Process.wait(cmd_pid)
@@ -85,7 +85,8 @@ describe "Initialization integration" do
           ENV['SKYLIGHT_AUTHENTICATION'] = nil
 
           boot
-          expect(File.read("log/production.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] authentication token required; disabling Skylight agent"
+          expect(File.read("log/production.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] Unable to start, see the Skylight logs for more details"
+          expect(File.read("log/skylight.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] Unable to start Instrumenter; msg=authentication token required; class=Skylight::ConfigError"
         end
 
       end

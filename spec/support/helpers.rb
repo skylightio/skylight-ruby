@@ -49,7 +49,8 @@ module SpecHelper
       report_http_deflate: false,
       report_http_connect_timeout: "1sec",
       report_http_read_timeout: "1sec",
-      auth_url: "http://localhost:#{port}/agent/authenticate",
+      auth_url: "http://localhost:#{port}/agent",
+      validation_url: "http://localhost:#{port}/agent/config",
       auth_http_deflate: false,
       auth_http_connect_timeout: "2sec",
       auth_http_read_timeout: "2sec",
@@ -68,7 +69,7 @@ module SpecHelper
   end
 
   def start!
-    stub_token_verification
+    stub_config_validation
     stub_session_request
     Skylight.start! config
   end

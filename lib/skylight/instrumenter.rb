@@ -85,7 +85,7 @@ module Skylight
       @config = config
       @subscriber = Subscriber.new(config, self)
 
-      @trace_info = @config[:trace_info] || TraceInfo.new
+      @trace_info = config[:trace_info] || TraceInfo.new
     end
 
     def current_trace
@@ -107,10 +107,9 @@ module Skylight
       end
 
       t { "starting instrumenter" }
-      @config.validate!
 
-      unless validate_authentication
-        warn "invalid authentication token"
+      unless config.validate_with_server
+        log_error "invalid config"
         return
       end
 
@@ -120,13 +119,14 @@ module Skylight
         return
       end
 
-      @config.gc.enable
+      config.gc.enable
       @subscriber.register!
 
       self
 
     rescue Exception => e
-      log_error "failed to start instrumenter; msg=%s; config=%s", e.message, @config.inspect
+      log_error e.backtrace.join("\n")
+      log_error "failed to start instrumenter; msg=%s; config=%s", e.message, config.inspect
       t { e.backtrace.join("\n") }
       nil
     end
@@ -252,33 +252,7 @@ module Skylight
     end
 
     def ignore?(trace)
-      @config.ignored_endpoints.include?(trace.endpoint)
-    end
-
-    # Validates that the provided authentication token is valid. This is done
-    # by issuing a request for a session token and checking the response
-    def validate_authentication
-      # If a session token is specified, don't bother attempting to validate
-      if config[:session_token]
-        debug "using pre-generated session token"
-        true
-      else
-        api = Api.new(config)
-        api.authentication = config[:authentication]
-
-        case res = api.validate_authentication
-        when :ok
-          true
-        when :invalid
-          false
-        when :unknown
-          warn "unable to validate authentication token"
-          true
-        else
-          error "[BUG] unexpected validate_token result; res=%s", res
-          true
-        end
-      end
+      config.ignored_endpoints.include?(trace.endpoint)
     end
 
   end

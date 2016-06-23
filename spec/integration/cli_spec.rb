@@ -59,47 +59,6 @@ describe "CLI integration", :http do
     end
   end
 
-  it "works without setup token" do
-    server.mock "/me" do |env|
-      expect(env['HTTP_X_EMAIL']).to eq("test@example.com")
-      expect(env['HTTP_X_PASSWORD']).to eq("testpass")
-
-      { me: { authentication_token: "testtoken" }}
-    end
-
-    server.mock "/apps", :post do |env|
-      expect(env['HTTP_AUTHORIZATION']).to eq("testtoken")
-      expect(env['rack.input']).to eq({ 'app' => { 'name' => 'Dummy' }})
-
-      # This would have more information really, but the CLI doesn't care
-      { app: { id: 'appid', token: 'apptoken' }}
-    end
-
-    with_standalone do
-      output = `bundle install`
-      puts output if ENV['DEBUG']
-
-      run_command("setup") do |stdin, stdout, stderr|
-        begin
-          expect(get_prompt(stdout, 200)).to match(%r{Please enter your email and password below or get a token from https://www.skylight.io/app/setup.})
-          expect(get_prompt(stdout)).to match(/Email:\s*$/)
-          fill_prompt(stdin, "test@example.com")
-
-          expect(get_prompt(stdout)).to match(/Password:\s*$/)
-          fill_prompt(stdin, "testpass", false)
-
-          expect(read(stdout)).to include("Congratulations. Your application is on Skylight!")
-
-          expect(YAML.load_file("config/skylight.yml")).to eq({"authentication"=>"apptoken"})
-        rescue
-          # Provide some potential debugging information
-          puts stderr.read if ENV['DEBUG']
-          raise
-        end
-      end
-    end
-  end
-
   it "shows notice if config/skylight.yml already exists" do
     with_standalone do
       output = `bundle install`
