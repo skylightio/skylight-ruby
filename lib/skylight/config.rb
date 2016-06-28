@@ -21,12 +21,12 @@ module Skylight
     # Map environment variable keys with Skylight configuration keys
     ENV_TO_KEY = {
       # == Authentication ==
-      'AUTHENTICATION' => :'authentication',
+      'AUTHENTICATION' => :authentication,
 
       # == App settings ==
-      'ROOT'          => :'root',
-      'HOSTNAME'      => :'hostname',
-      'SESSION_TOKEN' => :'session_token',
+      'ROOT'          => :root,
+      'HOSTNAME'      => :hostname,
+      'SESSION_TOKEN' => :session_token,
 
       # == Deploy settings ==
       'DEPLOY_ID'          => :'deploy.id',
@@ -34,29 +34,29 @@ module Skylight
       'DEPLOY_DESCRIPTION' => :'deploy.description',
 
       # == Logging ==
-      'LOG_FILE'       => :'log_file',
-      'LOG_LEVEL'      => :'log_level',
-      'ALERT_LOG_FILE' => :'alert_log_file',
-      'LOG_SQL_PARSE_ERRORS' => :'log_sql_parse_errors',
+      'LOG_FILE'       => :log_file,
+      'LOG_LEVEL'      => :log_level,
+      'ALERT_LOG_FILE' => :alert_log_file,
+      'LOG_SQL_PARSE_ERRORS' => :log_sql_parse_errors,
 
       # == Proxy ==
-      'PROXY_URL' => :'proxy_url',
+      'PROXY_URL' => :proxy_url,
 
       # == Instrumenter ==
-      "IGNORED_ENDPOINT" => :'ignored_endpoint',
-      "IGNORED_ENDPOINTS" => :'ignored_endpoints',
-      "ENABLE_SEGMENTS" => :'enable_segments',
+      "IGNORED_ENDPOINT" => :ignored_endpoint,
+      "IGNORED_ENDPOINTS" => :ignored_endpoints,
+      "ENABLE_SEGMENTS" => :enable_segments,
 
       # == Skylight Remote ==
-      "AUTH_URL"                     => :'auth_url',
-      "VALIDATION_URL"               => :'validation_url',
-      "AUTH_HTTP_DEFLATE"            => :'auth_http_deflate',
-      "AUTH_HTTP_CONNECT_TIMEOUT"    => :'auth_http_connect_timeout',
-      "AUTH_HTTP_READ_TIMEOUT"       => :'auth_http_read_timeout',
-      "REPORT_URL"                   => :'report_url',
-      "REPORT_HTTP_DEFLATE"          => :'report_http_deflate',
-      "REPORT_HTTP_CONNECT_TIMEOUT"  => :'report_http_connect_timeout',
-      "REPORT_HTTP_READ_TIMEOUT"     => :'report_http_read_timeout',
+      "AUTH_URL"                     => :auth_url,
+      "VALIDATION_URL"               => :validation_url,
+      "AUTH_HTTP_DEFLATE"            => :auth_http_deflate,
+      "AUTH_HTTP_CONNECT_TIMEOUT"    => :auth_http_connect_timeout,
+      "AUTH_HTTP_READ_TIMEOUT"       => :auth_http_read_timeout,
+      "REPORT_URL"                   => :report_url,
+      "REPORT_HTTP_DEFLATE"          => :report_http_deflate,
+      "REPORT_HTTP_CONNECT_TIMEOUT"  => :report_http_connect_timeout,
+      "REPORT_HTTP_READ_TIMEOUT"     => :report_http_read_timeout,
 
       # == Native agent settings ==
       #
@@ -93,15 +93,15 @@ module Skylight
 
     # Default values for Skylight configuration keys
     DEFAULTS = {
-      :'auth_url'             => 'https://auth.skylight.io/agent',
-      :'validation_url'       => 'https://auth.skylight.io/agent/config',
-      :'daemon.lazy_start'    => true,
-      :'log_file'             => '-'.freeze,
-      :'log_level'            => 'INFO'.freeze,
-      :'alert_log_file'       => '-'.freeze,
-      :'log_sql_parse_errors' => false,
-      :'enable_segments'      => false,
-      :'hostname'             => Util::Hostname.default_hostname,
+      :auth_url             => 'https://auth.skylight.io/agent',
+      :validation_url       => 'https://auth.skylight.io/agent/config',
+      :'daemon.lazy_start'  => true,
+      :log_file             => '-'.freeze,
+      :log_level            => 'INFO'.freeze,
+      :alert_log_file       => '-'.freeze,
+      :log_sql_parse_errors => false,
+      :enable_segments      => false,
+      :hostname             => Util::Hostname.default_hostname,
       :'heroku.dyno_info_path' => '/etc/heroku/dyno'
     }
 
@@ -120,30 +120,30 @@ module Skylight
     DEFAULTS.freeze
 
     REQUIRED = {
-      :'authentication' => "authentication token",
-      :'hostname'       => "server hostname",
-      :'auth_url'       => "authentication url",
-      :'validation_url'       => "config validation url" }
+      authentication: "authentication token",
+      hostname:       "server hostname",
+      auth_url:       "authentication url",
+      validation_url: "config validation url" }
 
     SERVER_VALIDATE = [
-      :'enable_segments'
+      :enable_segments
     ]
 
     NATIVE_ENV = [
-      :'version',
-      :'root',
-      :'hostname',
-      :'deploy_id',
-      :'session_token',
-      :'proxy_url',
-      :'auth_url',
-      :'auth_http_deflate',
-      :'auth_http_connect_timeout',
-      :'auth_http_read_timeout',
-      :'report_url',
-      :'report_http_deflate',
-      :'report_http_connect_timeout',
-      :'report_http_read_timeout',
+      :version,
+      :root,
+      :hostname,
+      :deploy_id,
+      :session_token,
+      :proxy_url,
+      :auth_url,
+      :auth_http_deflate,
+      :auth_http_connect_timeout,
+      :auth_http_read_timeout,
+      :report_url,
+      :report_http_deflate,
+      :report_http_connect_timeout,
+      :report_http_read_timeout,
       :'daemon.lazy_start',
       :'daemon.exec_path',
       :'daemon.lib_path',
@@ -529,7 +529,7 @@ authentication: #{self[:authentication]}
     def ignored_endpoints
       @ignored_endpoints ||=
         begin
-          ignored_endpoints = get(:'ignored_endpoints')
+          ignored_endpoints = get(:ignored_endpoints)
 
           # If, for some odd reason you have a comma in your endpoint name, use the
           # YML config instead.
@@ -537,7 +537,7 @@ authentication: #{self[:authentication]}
             ignored_endpoints = ignored_endpoints.split(/\s*,\s*/)
           end
 
-          val = Array(get(:'ignored_endpoint'))
+          val = Array(get(:ignored_endpoint))
           val.concat(Array(ignored_endpoints))
           val
         end
@@ -576,7 +576,7 @@ authentication: #{self[:authentication]}
         begin
           MUTEX.synchronize do
             unless l = @alert_logger
-              out = get(:'alert_log_file')
+              out = get(:alert_log_file)
 
               if out == '-'
                 out = Util::AlertLogger.new(load_logger)
@@ -619,7 +619,7 @@ authentication: #{self[:authentication]}
 
     def load_logger
       unless l = @logger
-        out = get(:'log_file')
+        out = get(:log_file)
         out = STDOUT if out == '-'
 
         unless IO === out
@@ -629,7 +629,7 @@ authentication: #{self[:authentication]}
 
         l = Logger.new(out)
         l.level =
-          case get(:'log_level')
+          case get(:log_level)
           when /^debug$/i then Logger::DEBUG
           when /^info$/i  then Logger::INFO
           when /^warn$/i  then Logger::WARN
