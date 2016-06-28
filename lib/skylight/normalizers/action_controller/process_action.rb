@@ -16,11 +16,19 @@ module Skylight
         end
 
         def normalize_after(trace, span, name, payload)
-          return unless config.separate_formats?
+          return unless config.enable_segments?
 
-          format = [payload[:format], payload[:variant]].compact.flatten.join('+')
-          unless format.empty?
-            trace.endpoint += "<sk-format>#{format}</sk-format>"
+          # Show 'error' if there's an unhandled exception or if the status is 4xx or 5xx
+          if payload[:exception] || payload[:status].to_s =~ /^[45]/
+            segment = "error"
+          # We won't have a rendered_format if it's a `head` outside of a `respond_to` block.
+          elsif payload[:rendered_format]
+            # We only show the variant if we actually have a format
+            segment = [payload[:rendered_format], payload[:variant]].compact.flatten.join('+')
+          end
+
+          if segment
+            trace.endpoint += "<sk-segment>#{segment}</sk-segment>"
           end
         end
 

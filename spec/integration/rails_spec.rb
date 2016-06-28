@@ -12,7 +12,9 @@ end
 
 if enable
 
-  TEST_VARIANTS = Gem::Version.new(Rails.version) >= Gem::Version.new('4.1');
+  IS_RAILS_4_1_PLUS = Gem::Version.new(Rails.version) >= Gem::Version.new('4.1');
+
+  TEST_VARIANTS = IS_RAILS_4_1_PLUS
   if !TEST_VARIANTS
     puts "[INFO] Skipping Rails format variants test. Must be at least Rails 4.1."
   end
@@ -23,7 +25,15 @@ if enable
       MyApp.initialize!
 
       MyApp.routes.draw do
-        resources :users
+        resources :users do
+          collection do
+            get :failure
+            get :handled_failure
+            get :header
+            get :status
+            get :no_template
+          end
+        end
         get '/metal' => 'metal#show'
       end
     end
@@ -33,9 +43,10 @@ if enable
       ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
       ENV['SKYLIGHT_REPORT_URL']           = "http://localhost:#{port}/report"
       ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = "false"
-      ENV['SKYLIGHT_AUTH_URL']             = "http://localhost:#{port}/agent/authenticate"
+      ENV['SKYLIGHT_AUTH_URL']             = "http://localhost:#{port}/agent"
+      ENV['SKYLIGHT_VALIDATION_URL']       = "http://localhost:#{port}/agent/config"
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
-      ENV['SKYLIGHT_SEPARATE_FORMATS']     = "true"
+      ENV['SKYLIGHT_ENABLE_SEGMENTS']      = "true"
 
       class ::MyApp < Rails::Application
         if Rails.version =~ /^3\./
@@ -64,10 +75,18 @@ if enable
       class ::UsersController < ActionController::Base
         include Skylight::Helpers
 
+        class Error < StandardError; end
+
         if respond_to?(:before_action)
           before_action :authorized?
+          before_action :set_variant
         else
           before_filter :authorized?
+          before_filter :set_variant
+        end
+
+        rescue_from 'Error' do |exception|
+          render json: { error: exception.message }, status: 500
         end
 
         def index
@@ -86,8 +105,6 @@ if enable
 
         instrument_method
         def show
-          request.variant = :tablet if params[:tablet]
-
           respond_to do |format|
             format.json do |json|
               if TEST_VARIANTS
@@ -107,6 +124,33 @@ if enable
           end
         end
 
+        def failure
+          raise "Fail!"
+        end
+
+        def handled_failure
+          raise Error, "Handled!"
+        end
+
+        def header
+          Skylight.instrument category: 'app.zomg' do
+            head 200
+          end
+        end
+
+        def status
+          s = params[:status] || 200
+          if Rails.version =~ /^(3|4)\./
+            render text: s, status: s
+          else
+            render plain: s, status: s
+          end
+        end
+
+        def no_template
+          # This action has no template to auto-render
+        end
+
         private
 
           def authorized?
@@ -115,6 +159,11 @@ if enable
 
           # It's important for us to test a method ending in a special char
           instrument_method :authorized?, title: "Check authorization"
+
+          def set_variant
+            request.variant = :tablet if params[:tablet]
+          end
+
       end
 
       class ::MetalController < ActionController::Metal
@@ -145,7 +194,7 @@ if enable
       ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = nil
       ENV['SKYLIGHT_AUTH_URL']             = nil
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = nil
-      ENV['SKYLIGHT_SEPARATE_FORMATS']     = nil
+      ENV['SKYLIGHT_ENABLE_SEGMENTS']      = nil
 
       Skylight.stop!
 
@@ -158,6 +207,7 @@ if enable
       # Clean slate
       Object.send(:remove_const, :MyApp)
       Object.send(:remove_const, :UsersController)
+      Object.send(:remove_const, :MetalController)
       Rails.application = nil
     end
 
@@ -170,7 +220,7 @@ if enable
         @original_environments = MyApp.config.skylight.environments.clone
         MyApp.config.skylight.environments << 'development'
 
-        stub_token_verification
+        stub_config_validation
         stub_session_request
 
         pre_boot
@@ -219,7 +269,9 @@ if enable
         expect(batch).to_not be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("UsersController#index<sk-format>html</sk-format>")
+
+        segment = Rails.version =~ /^[34]\./ ? 'html' : 'text'
+        expect(endpoint.name).to eq("UsersController#index<sk-segment>#{segment}</sk-segment>")
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
@@ -231,7 +283,7 @@ if enable
         expect(names[0]).to eq('app.rack.request')
       end
 
-      it 'sets correct format' do
+      it 'sets correct segment' do
         res = call MyApp, env('/users/1.json')
         expect(res).to eq([{ hola: '1' }.to_json])
 
@@ -241,11 +293,127 @@ if enable
         expect(batch).to_not be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("UsersController#show<sk-format>json</sk-format>")
+        expect(endpoint.name).to eq("UsersController#show<sk-segment>json</sk-segment>")
+      end
+
+      it 'sets rendered segment, not requested' do
+        res = call MyApp, env('/users/1', 'HTTP_ACCEPT' => '*/*')
+        expect(res).to eq([{ hola: '1' }.to_json])
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("UsersController#show<sk-segment>json</sk-segment>")
+      end
+
+      it 'sets correct segment for exceptions' do
+        res = call MyApp, env('/users/failure')
+        expect(res[0]).to be_blank # Some Rails versions are empty string some are nil
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("UsersController#failure<sk-segment>error</sk-segment>")
+      end
+
+      it 'sets correct segment for handled exceptions' do
+        status, headers, body = call_full MyApp, env('/users/handled_failure')
+        expect(status).to eq(500)
+        expect(body).to eq([{ error: "Handled!" }.to_json])
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+
+        expect(endpoint.name).to eq("UsersController#handled_failure<sk-segment>error</sk-segment>")
+      end
+
+      it 'sets correct segment for `head`' do
+        status, headers, body = call_full MyApp, env('/users/header')
+        expect(status).to eq(200)
+        expect(body[0].strip).to eq('') # Some Rails versions have a space, some don't
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+
+        if IS_RAILS_4_1_PLUS
+          expect(endpoint.name).to eq("UsersController#header")
+        else
+          expect(endpoint.name).to eq("UsersController#header<sk-segment>html</sk-segment>")
+        end
+
+        expect(endpoint.traces.count).to eq(1)
+        trace = endpoint.traces[0]
+        names = trace.spans.map { |s| s.event.category }
+
+        expect(names.length).to be >= 3
+        expect(names).to include('app.zomg')
+        expect(names[0]).to eq('app.rack.request')
+      end
+
+      it 'sets correct segment for 4xx responses' do
+        status, headers, body = call_full MyApp, env('/users/status?status=404')
+        expect(status).to eq(404)
+        expect(body).to eq(['404'])
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("UsersController#status<sk-segment>error</sk-segment>")
+      end
+
+      it 'sets correct segment for 5xx responses' do
+        status, headers, body = call_full MyApp, env('/users/status?status=500')
+        expect(status).to eq(500)
+        expect(body).to eq(['500'])
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("UsersController#status<sk-segment>error</sk-segment>")
+      end
+
+      it 'sets correct segment when no template is found' do
+        status, headers, body = call_full MyApp, env('/users/no_template')
+
+        if Rails.version =~ /^[34]\./
+          expect(status).to eq(500)
+        else
+          expect(status).to eq(406)
+        end
+
+        expect(body[0]).to be_blank
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("UsersController#no_template<sk-segment>error</sk-segment>")
       end
 
       if TEST_VARIANTS
-        it 'sets correct format with variant' do
+        it 'sets correct segment with variant' do
           res = call MyApp, env('/users/1.json?tablet=1')
           expect(res).to eq([{ hola_tablet: '1' }.to_json])
 
@@ -255,7 +423,21 @@ if enable
           expect(batch).to_not be nil
           expect(batch.endpoints.count).to eq(1)
           endpoint = batch.endpoints[0]
-          expect(endpoint.name).to eq("UsersController#show<sk-format>json+tablet</sk-format>")
+          expect(endpoint.name).to eq("UsersController#show<sk-segment>json+tablet</sk-segment>")
+        end
+
+        it 'sets correct segment for `head` with variant' do
+          status, headers, body = call_full MyApp, env('/users/header?tablet=1', 'HTTP_ACCEPT' => 'application/json')
+          expect(status).to eq(200)
+          expect(body[0].strip).to eq('') # Some Rails versions have a space, some don't
+
+          server.wait resource: '/report'
+
+          batch = server.reports[0]
+          expect(batch).to_not be nil
+          expect(batch.endpoints.count).to eq(1)
+          endpoint = batch.endpoints[0]
+          expect(endpoint.name).to eq("UsersController#header")
         end
       end
 
@@ -268,7 +450,7 @@ if enable
         expect(batch).to_not be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("MetalController#show<sk-format>html</sk-format>")
+        expect(endpoint.name).to eq("MetalController#show<sk-segment>#{IS_RAILS_4_1_PLUS ? "text" : "html"}</sk-segment>")
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
@@ -299,9 +481,14 @@ if enable
 
     end
 
-    def call(app, env)
+    def call_full(app, env)
       resp = app.call(env)
       consume(resp)
+      resp
+    end
+
+    def call(app, env)
+      call_full(app, env)[2]
     end
 
     def env(path = '/', opts = {})
@@ -312,7 +499,8 @@ if enable
       data = []
       resp[2].each{|p| data << p }
       resp[2].close
-      data
+      resp[2] = data
+      resp
     end
 
   end

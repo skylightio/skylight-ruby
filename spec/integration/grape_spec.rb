@@ -18,7 +18,8 @@ if enable
       ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
       ENV['SKYLIGHT_REPORT_URL']           = "http://localhost:#{port}/report"
       ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = "false"
-      ENV['SKYLIGHT_AUTH_URL']             = "http://localhost:#{port}/agent/authenticate"
+      ENV['SKYLIGHT_AUTH_URL']             = "http://localhost:#{port}/agent"
+      ENV['SKYLIGHT_VALIDATION_URL']       = "http://localhost:#{port}/agent/config"
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
 
       Skylight.start!
@@ -43,6 +44,7 @@ if enable
       ENV['SKYLIGHT_REPORT_URL']           = nil
       ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = nil
       ENV['SKYLIGHT_AUTH_URL']             = nil
+      ENV['SKYLIGHT_VALIDATION_URL']       = nil
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = nil
 
       Skylight.stop!
@@ -58,7 +60,7 @@ if enable
     context "with agent", :http, :agent do
 
       before :each do
-        stub_token_verification
+        stub_config_validation
         stub_session_request
       end
 

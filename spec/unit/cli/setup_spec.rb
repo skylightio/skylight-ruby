@@ -48,68 +48,6 @@ describe 'skylight setup', :http, :agent do
     expect(c[:authentication]).to eq('my-app-token')
   end
 
-  context 'logged out' do
-
-    def should_successfully_login
-      expect(hl).to receive(:ask).
-        with(/email/i).and_return('engineering@tilde.io')
-
-      expect(hl).to receive(:ask).
-        with(/password/i).and_return('enter')
-
-      server.mock "/me" do
-        { me:
-          { authentication_token: "dat-token" }}
-      end
-
-      should_successfully_create_app
-    end
-
-    it 'logs in and creates the app' do
-      should_successfully_login
-
-      expect(server.requests.count).to eq(2)
-
-      expect(server.requests[0]).to get_json("/me", {
-        'x-email' => 'engineering@tilde.io',
-        'x-password' => 'enter' })
-
-      expect(server.requests[1]).to post_json("/apps", {
-        input: { 'app' => { 'name' => 'Tmp' }} })
-    end
-
-    it 'asks for the login info again if it is incorrect' do
-      expect(hl).to receive(:ask).
-        with(/email/i).and_return('zomg')
-
-      expect(hl).to receive(:ask).
-        with(/password/i).and_return('lulz')
-
-      server.mock "/me" do
-        [ 401, {} ]
-      end
-
-      expect(cli).to receive(:say).with(/invalid/i, :red)
-
-      should_successfully_login
-
-      expect(server.requests.count).to eq(3)
-
-      expect(server.requests[0]).to get_json("/me", {
-        'x-email' => 'zomg',
-        'x-password' => 'lulz' })
-
-      expect(server.requests[1]).to get_json("/me", {
-        'x-email' => 'engineering@tilde.io',
-        'x-password' => 'enter' })
-
-      expect(server.requests[2]).to post_json("/apps", {
-        authorization: 'dat-token',
-        input: { 'app' => { 'name' => 'Tmp' }} })
-    end
-
-  end
-
   context 'with token' do
 
     it 'does not ask for login info' do

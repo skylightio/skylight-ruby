@@ -26,13 +26,11 @@ module Skylight
       if activate?
         if config
           begin
-            config.validate!
-
             if Instrumenter.start!(config)
               app.middleware.insert 0, Middleware, config: config
               Rails.logger.info "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
             else
-              Rails.logger.info "[SKYLIGHT] [#{Skylight::VERSION}] Unable to start"
+              Rails.logger.info "[SKYLIGHT] [#{Skylight::VERSION}] Unable to start, see the Skylight logs for more details"
             end
           rescue ConfigError => e
             Rails.logger.error "[SKYLIGHT] [#{Skylight::VERSION}] #{e.message}; disabling Skylight agent"

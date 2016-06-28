@@ -229,14 +229,14 @@ module SpecHelper
     "hey-guyz-i-am-a-token"
   end
 
-  def stub_token_verification(status=200)
-    server.mock "/agent/authenticate" do |env|
-      [status, { auth: { session: { token: token, expiry_ttl: 3.hours.to_i } } }]
+  def stub_config_validation(status=200, response={})
+    server.mock "/agent/config", :post do |env|
+      [status, response]
     end
   end
 
   def stub_session_request
-    server.mock "/agent/authenticate" do |env|
+    server.mock "/agent" do |env|
       { auth: { session: { token: token, expiry_ttl: 3.hours.to_i } } }
     end
   end

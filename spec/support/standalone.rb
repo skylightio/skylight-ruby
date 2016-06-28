@@ -18,7 +18,9 @@ module SpecHelper
       ENV['SKYLIGHT_GEM_PATH'] = APP_ROOT
 
       # Skylight config
-      ENV['SKYLIGHT_AUTH_URL'] = "http://localhost:#{port}"
+      ENV['SKYLIGHT_AUTH_URL'] = "http://localhost:#{port}/agent"
+      ENV['SKYLIGHT_APP_CREATE_URL'] = "http://localhost:#{port}/apps"
+      ENV['SKYLIGHT_VALIDATION_URL'] = "http://localhost:#{port}/agent/config"
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE'] = "false"
     end
   end

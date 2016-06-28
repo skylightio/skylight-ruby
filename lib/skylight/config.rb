@@ -3,6 +3,7 @@ require 'fileutils'
 require 'thread'
 require 'openssl'
 require 'erb'
+require 'json'
 require 'skylight/util/deploy'
 require 'skylight/util/hostname'
 require 'skylight/util/logging'
@@ -12,18 +13,20 @@ require 'skylight/util/proxy'
 
 module Skylight
   class Config
+    include Util::Logging
+
     # @api private
     MUTEX = Mutex.new
 
     # Map environment variable keys with Skylight configuration keys
     ENV_TO_KEY = {
       # == Authentication ==
-      'AUTHENTICATION' => :'authentication',
+      'AUTHENTICATION' => :authentication,
 
       # == App settings ==
-      'ROOT'          => :'root',
-      'HOSTNAME'      => :'hostname',
-      'SESSION_TOKEN' => :'session_token',
+      'ROOT'          => :root,
+      'HOSTNAME'      => :hostname,
+      'SESSION_TOKEN' => :session_token,
 
       # == Deploy settings ==
       'DEPLOY_ID'          => :'deploy.id',
@@ -31,28 +34,30 @@ module Skylight
       'DEPLOY_DESCRIPTION' => :'deploy.description',
 
       # == Logging ==
-      'LOG_FILE'       => :'log_file',
-      'LOG_LEVEL'      => :'log_level',
-      'ALERT_LOG_FILE' => :'alert_log_file',
-      'LOG_SQL_PARSE_ERRORS' => :'log_sql_parse_errors',
+      'LOG_FILE'       => :log_file,
+      'LOG_LEVEL'      => :log_level,
+      'ALERT_LOG_FILE' => :alert_log_file,
+      'LOG_SQL_PARSE_ERRORS' => :log_sql_parse_errors,
 
       # == Proxy ==
-      'PROXY_URL' => :'proxy_url',
+      'PROXY_URL' => :proxy_url,
 
       # == Instrumenter ==
-      "IGNORED_ENDPOINT" => :'ignored_endpoint',
-      "IGNORED_ENDPOINTS" => :'ignored_endpoints',
-      "SEPARATE_FORMATS" => :'separate_formats',
+      "IGNORED_ENDPOINT" => :ignored_endpoint,
+      "IGNORED_ENDPOINTS" => :ignored_endpoints,
+      "ENABLE_SEGMENTS" => :enable_segments,
 
       # == Skylight Remote ==
-      "AUTH_URL"                     => :'auth_url',
-      "AUTH_HTTP_DEFLATE"            => :'auth_http_deflate',
-      "AUTH_HTTP_CONNECT_TIMEOUT"    => :'auth_http_connect_timeout',
-      "AUTH_HTTP_READ_TIMEOUT"       => :'auth_http_read_timeout',
-      "REPORT_URL"                   => :'report_url',
-      "REPORT_HTTP_DEFLATE"          => :'report_http_deflate',
-      "REPORT_HTTP_CONNECT_TIMEOUT"  => :'report_http_connect_timeout',
-      "REPORT_HTTP_READ_TIMEOUT"     => :'report_http_read_timeout',
+      "AUTH_URL"                     => :auth_url,
+      "APP_CREATE_URL"               => :app_create_url,
+      "VALIDATION_URL"               => :validation_url,
+      "AUTH_HTTP_DEFLATE"            => :auth_http_deflate,
+      "AUTH_HTTP_CONNECT_TIMEOUT"    => :auth_http_connect_timeout,
+      "AUTH_HTTP_READ_TIMEOUT"       => :auth_http_read_timeout,
+      "REPORT_URL"                   => :report_url,
+      "REPORT_HTTP_DEFLATE"          => :report_http_deflate,
+      "REPORT_HTTP_CONNECT_TIMEOUT"  => :report_http_connect_timeout,
+      "REPORT_HTTP_READ_TIMEOUT"     => :report_http_read_timeout,
 
       # == Native agent settings ==
       #
@@ -89,14 +94,16 @@ module Skylight
 
     # Default values for Skylight configuration keys
     DEFAULTS = {
-      :'auth_url'             => 'https://auth.skylight.io/agent',
-      :'daemon.lazy_start'    => true,
-      :'log_file'             => '-'.freeze,
-      :'log_level'            => 'INFO'.freeze,
-      :'alert_log_file'       => '-'.freeze,
-      :'log_sql_parse_errors' => false,
-      :'separate_formats'     => false,
-      :'hostname'             => Util::Hostname.default_hostname,
+      :auth_url             => 'https://auth.skylight.io/agent',
+      :app_create_url       => 'https://www.skylight.io/apps',
+      :validation_url       => 'https://auth.skylight.io/agent/config',
+      :'daemon.lazy_start'  => true,
+      :log_file             => '-'.freeze,
+      :log_level            => 'INFO'.freeze,
+      :alert_log_file       => '-'.freeze,
+      :log_sql_parse_errors => false,
+      :enable_segments      => false,
+      :hostname             => Util::Hostname.default_hostname,
       :'heroku.dyno_info_path' => '/etc/heroku/dyno'
     }
 
@@ -115,25 +122,30 @@ module Skylight
     DEFAULTS.freeze
 
     REQUIRED = {
-      :'authentication' => "authentication token",
-      :'hostname'       => "server hostname",
-      :'auth_url'       => "authentication url" }
+      authentication: "authentication token",
+      hostname:       "server hostname",
+      auth_url:       "authentication url",
+      validation_url: "config validation url" }
+
+    SERVER_VALIDATE = [
+      :enable_segments
+    ]
 
     NATIVE_ENV = [
-      :'version',
-      :'root',
-      :'hostname',
-      :'deploy_id',
-      :'session_token',
-      :'proxy_url',
-      :'auth_url',
-      :'auth_http_deflate',
-      :'auth_http_connect_timeout',
-      :'auth_http_read_timeout',
-      :'report_url',
-      :'report_http_deflate',
-      :'report_http_connect_timeout',
-      :'report_http_read_timeout',
+      :version,
+      :root,
+      :hostname,
+      :deploy_id,
+      :session_token,
+      :proxy_url,
+      :auth_url,
+      :auth_http_deflate,
+      :auth_http_connect_timeout,
+      :auth_http_read_timeout,
+      :report_url,
+      :report_http_deflate,
+      :report_http_connect_timeout,
+      :report_http_read_timeout,
       :'daemon.lazy_start',
       :'daemon.exec_path',
       :'daemon.lib_path',
@@ -269,6 +281,10 @@ module Skylight
       ret
     end
 
+    def api
+      @api ||= Api.new(self)
+    end
+
     # @api private
     def skip_validation?
       !!get(:skip_validation)
@@ -284,6 +300,7 @@ module Skylight
         end
       end
 
+      # TODO: Move this out of the validate! method: https://github.com/tildeio/direwolf-agent/issues/273
       # FIXME: Why not set the sockdir_path and pidfile_path explicitly?
       # That way we don't have to keep this in sync with the Rust repo.
       sockdir_path = self[:'daemon.sockdir_path'] || File.expand_path('.')
@@ -292,6 +309,43 @@ module Skylight
       check_permissions(pidfile_path, sockdir_path)
 
       true
+    end
+
+    # Maybe make a class to handle this?
+    def validate_with_server
+      res = api.validate_config
+
+      unless res.token_valid?
+        warn("Invalid authentication token")
+        return false
+      end
+
+      if res.is_error_response?
+        warn("Unable to reach server for config validation")
+      end
+
+      unless res.config_valid?
+        warn("Invalid configuration") unless res.is_error_response?
+        if errors = res.validation_errors
+          errors.each do |k,v|
+            warn("  #{k} #{v}")
+          end
+        end
+
+        corrected_config = res.corrected_config
+        unless corrected_config
+          # Use defaults if no corrected config is available. This will happen if the request failed.
+          corrected_config = Hash[SERVER_VALIDATE.map{|k| [k, DEFAULTS[k]] }]
+        end
+
+        info("Updating config values:")
+        corrected_config.each do |k,v|
+          info("  setting #{k} to #{v}")
+          set(k, v)
+        end
+      end
+
+      return true
     end
 
     def check_permissions(pidfile, sockdir_path)
@@ -396,6 +450,15 @@ module Skylight
       end
     end
 
+    def to_json
+      JSON(
+        config: {
+          priority: @priority,
+          values:   @values
+        }
+      )
+    end
+
     def to_native_env
       ret = []
 
@@ -450,7 +513,7 @@ authentication: #{self[:authentication]}
     def ignored_endpoints
       @ignored_endpoints ||=
         begin
-          ignored_endpoints = get(:'ignored_endpoints')
+          ignored_endpoints = get(:ignored_endpoints)
 
           # If, for some odd reason you have a comma in your endpoint name, use the
           # YML config instead.
@@ -458,7 +521,7 @@ authentication: #{self[:authentication]}
             ignored_endpoints = ignored_endpoints.split(/\s*,\s*/)
           end
 
-          val = Array(get(:'ignored_endpoint'))
+          val = Array(get(:ignored_endpoint))
           val.concat(Array(ignored_endpoints))
           val
         end
@@ -497,7 +560,7 @@ authentication: #{self[:authentication]}
         begin
           MUTEX.synchronize do
             unless l = @alert_logger
-              out = get(:'alert_log_file')
+              out = get(:alert_log_file)
 
               if out == '-'
                 out = Util::AlertLogger.new(load_logger)
@@ -527,8 +590,8 @@ authentication: #{self[:authentication]}
       @deploy ||= Util::Deploy.build(self)
     end
 
-    def separate_formats?
-      !!get(:separate_formats)
+    def enable_segments?
+      !!get(:enable_segments)
     end
 
   private
@@ -540,7 +603,7 @@ authentication: #{self[:authentication]}
 
     def load_logger
       unless l = @logger
-        out = get(:'log_file')
+        out = get(:log_file)
         out = STDOUT if out == '-'
 
         unless IO === out
@@ -550,7 +613,7 @@ authentication: #{self[:authentication]}
 
         l = Logger.new(out)
         l.level =
-          case get(:'log_level')
+          case get(:log_level)
           when /^debug$/i then Logger::DEBUG
           when /^info$/i  then Logger::INFO
           when /^warn$/i  then Logger::WARN

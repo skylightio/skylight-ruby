@@ -18,19 +18,15 @@ module Skylight
       register(Doctor, "doctor", "doctor", "Run some basic tests to look out for common problems")
 
       desc "setup TOKEN", "Sets up a new app using the provided token"
-      def setup(token=nil)
+      def setup(token)
         if File.exist?(config_path)
           say <<-OUT, :green
-  A config/skylight.yml already exists for your application.
+A config/skylight.yml already exists for your application.
 
-  Visit your app at https://www.skylight.io/app or remove config/skylight.yml
-  to set it up as a new app in Skylight.
+Visit your app at https://www.skylight.io/app or remove config/skylight.yml
+to set it up as a new app in Skylight.
           OUT
           return
-        end
-
-        unless token
-          api.authentication = login
         end
 
         res = api.create_app(app_name, token)
@@ -42,21 +38,21 @@ module Skylight
         say "Congratulations. Your application is on Skylight! http://www.skylight.io", :green
         say <<-OUT
 
-  The application was registered for you and we generated a config file
-  containing your API token at:
+The application was registered for you and we generated a config file
+containing your API token at:
 
-    #{relative_config_path}
+  #{relative_config_path}
 
-  The next step is for you to deploy your application to production. The
-  easiest way is to just commit the config file to your source control
-  repository and deploy from there. You can learn more about the process at:
+The next step is for you to deploy your application to production. The
+easiest way is to just commit the config file to your source control
+repository and deploy from there. You can learn more about the process at:
 
-    http://docs.skylight.io/getting-set-up/#deployment
+  http://docs.skylight.io/getting-set-up/#deployment
 
-  If you want to specify the authentication token as an environment variable,
-  you should set the `SKYLIGHT_AUTHENTICATION` variable to:
+If you want to specify the authentication token as an environment variable,
+you should set the `SKYLIGHT_AUTHENTICATION` variable to:
 
-    #{config[:authentication]}
+  #{config[:authentication]}
 
         OUT
       rescue Api::CreateFailed => e
@@ -114,25 +110,6 @@ module Skylight
           end
       end
 
-      def login
-        say "Please enter your email and password below or get a token from https://www.skylight.io/app/setup.", :cyan
-
-        10.times do
-          email    = highline.ask("Email: ")
-          password = highline.ask("Password: ") { |q| q.echo = "*" }
-
-          if token = api.login(email, password)
-            return token
-          end
-
-          say "Sorry. That email and password was invalid. Please try again", :red
-          puts
-        end
-
-        say "Could not login", :red
-        return
-      end
-
       # Is this duplicated?
       def relative_config_path
         'config/skylight.yml'
@@ -143,11 +120,7 @@ module Skylight
       end
 
       def api
-        @api ||= Api.new(config)
-      end
-
-      def highline
-        @highline ||= HighLine.new
+        config.api
       end
 
       def user_config
