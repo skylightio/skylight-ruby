@@ -50,6 +50,7 @@ module SpecHelper
       report_http_connect_timeout: "1sec",
       report_http_read_timeout: "1sec",
       auth_url: "http://localhost:#{port}/agent",
+      app_create_url: "http://localhost:#{port}/apps",
       validation_url: "http://localhost:#{port}/agent/config",
       auth_http_deflate: false,
       auth_http_connect_timeout: "2sec",

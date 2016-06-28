@@ -34,13 +34,24 @@ describe "Skylight::Instrumenter", :http, :agent do
 
     it 'warns about unvalidated tokens' do
       stub_config_validation(500)
-      # FIXME: Ensure warning
+
       expect(Skylight.start!(config)).to be_truthy
+
+      logger_out.rewind
+      out = logger_out.read
+      expect(out).to include("Unable to reach server for config validation")
+      expect(out).to include("Updating config values:")
+      expect(out).to include("setting enable_segments to false")
     end
 
     it 'fails with invalid token' do
       stub_config_validation(401)
+
       expect(Skylight.start!(config)).to be_falsey
+
+      logger_out.rewind
+      out = logger_out.read
+      expect(out).to include("Invalid authentication token")
     end
 
     it "doesn't keep invalid config values" do
@@ -51,9 +62,10 @@ describe "Skylight::Instrumenter", :http, :agent do
 
       logger_out.rewind
       out = logger_out.read
-      expect(out).to include("Invalid configuration:")
+      expect(out).to include("Invalid configuration")
       expect(out).to include("enable_segments not allowed to be set")
-      expect(out).to include("Setting enable_segments to false")
+      expect(out).to include("Updating config values:")
+      expect(out).to include("setting enable_segments to false")
 
       expect(config.enable_segments?).to be_falsey
     end
@@ -67,7 +79,8 @@ describe "Skylight::Instrumenter", :http, :agent do
       logger_out.rewind
       out = logger_out.read
       expect(out).to include('Unable to reach server for config validation')
-      expect(out).to include('Setting enable_segments to false')
+      expect(out).to include("Updating config values:")
+      expect(out).to include('setting enable_segments to false')
 
       expect(config.enable_segments?).to be_falsey
     end

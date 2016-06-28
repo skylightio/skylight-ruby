@@ -120,12 +120,8 @@ you should set the `SKYLIGHT_AUTHENTICATION` variable to:
       end
 
       def api
-        @api ||= Api.new(config)
+        config.api
       end
-
-    def api
-      config.api
-    end
 
       def user_config
         UserConfig.instance

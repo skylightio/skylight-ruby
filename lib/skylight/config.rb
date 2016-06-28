@@ -49,6 +49,7 @@ module Skylight
 
       # == Skylight Remote ==
       "AUTH_URL"                     => :auth_url,
+      "APP_CREATE_URL"               => :app_create_url,
       "VALIDATION_URL"               => :validation_url,
       "AUTH_HTTP_DEFLATE"            => :auth_http_deflate,
       "AUTH_HTTP_CONNECT_TIMEOUT"    => :auth_http_connect_timeout,
@@ -94,6 +95,7 @@ module Skylight
     # Default values for Skylight configuration keys
     DEFAULTS = {
       :auth_url             => 'https://auth.skylight.io/agent',
+      :app_create_url       => 'https://www.skylight.io/apps',
       :validation_url       => 'https://auth.skylight.io/agent/config',
       :'daemon.lazy_start'  => true,
       :log_file             => '-'.freeze,
@@ -311,52 +313,34 @@ module Skylight
 
     # Maybe make a class to handle this?
     def validate_with_server
-      url = URI.parse(get(:validation_url))
+      res = api.validate_config
 
-      res = api.http.post(url.path, to_json)
-
-      case res.status
-      when 200...300
-        token_valid = true
-        config_valid = true
-      when 422
-        token_valid = true
-        config_valid = false
-
-        begin
-          corrected_config = res.body['corrected']
-
-          if errors = res.body['errors']
-            warn("Invalid configuration:")
-            errors.each do |k,v|
-              warn("  #{k} #{v}")
-            end
-          end
-        rescue
-          warn("Unable to parse server response: status=%s, body=%s", res.status, res.body)
-          token_valid = true
-          config_valid = false
-        end
-      when 400...500
-        token_valid = false
-        config_valid = false
-      else
-        warn("Unable to reach server for config validation")
-        token_valid = true
-        config_valid = false
-      end
-
-      unless token_valid
+      unless res.token_valid?
         warn("Invalid authentication token")
         return false
       end
 
-      unless config_valid
-        # Use all defaults
-        corrected_config ||= Hash[SERVER_VALIDATE.map{|k| [k, DEFAULTS[k]] }]
+      if res.is_error_response?
+        warn("Unable to reach server for config validation")
+      end
 
+      unless res.config_valid?
+        warn("Invalid configuration") unless res.is_error_response?
+        if errors = res.validation_errors
+          errors.each do |k,v|
+            warn("  #{k} #{v}")
+          end
+        end
+
+        corrected_config = res.corrected_config
+        unless corrected_config
+          # Use defaults if no corrected config is available. This will happen if the request failed.
+          corrected_config = Hash[SERVER_VALIDATE.map{|k| [k, DEFAULTS[k]] }]
+        end
+
+        info("Updating config values:")
         corrected_config.each do |k,v|
-          info("Setting #{k} to #{v}")
+          info("  setting #{k} to #{v}")
           set(k, v)
         end
       end

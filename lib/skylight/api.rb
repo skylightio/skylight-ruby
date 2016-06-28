@@ -31,28 +31,88 @@ module Skylight
       end
     end
 
-    def initialize(config, service = :auth)
-      @config = config
-      @http   = Util::HTTP.new(config, service)
+    class ConfigValidationResults
+
+      include Util::Logging
+
+      attr_reader :raw_response
+
+      def initialize(config, raw_response)
+        @config = config
+        @raw_response = raw_response
+      end
+
+      def is_error_response?
+        raw_response.is_a?(Util::HTTP::ErrorResponse) || status > 499
+      end
+
+      def status
+        raw_response.status
+      end
+
+      def body
+        unless raw_response.body.is_a?(Hash)
+          warn("Unable to parse server response: status=%s, body=%s", raw_response.status, raw_response.body)
+          return {}
+        end
+
+        raw_response.body
+      end
+
+      def token_valid?
+        # Don't prevent boot if it's an error response, so assume token is valid
+        return true if is_error_response?
+        # A 2xx response means everything is good!
+        return true if raw_response.success?
+        # A 422 means an invalid config, but the token must be valid if we got this far
+        return true if status === 422
+      end
+
+      def config_valid?
+        # Only assume config is good if we have positive confirmation
+        raw_response.success?
+      end
+
+      def validation_errors
+        return if config_valid?
+        body['errors']
+      rescue => e
+
+      end
+
+      def corrected_config
+        return if config_valid?
+        body['corrected']
+      end
+
     end
 
-    def login(email, password)
-      http.authentication = config[:authentication]
-      res = http.get('/me', 'X-Email' => email, 'X-Password' => password)
-
-      if res && res.success?
-        res.get('me.authentication_token')
-      end
+    def initialize(config)
+      @config = config
     end
 
     def create_app(name, token=nil)
       params = { app: { name: name } }
       params[:token] = token if token
 
-      http.authentication = config[:authentication]
-      res = http.post('/apps', params)
+      res = http_request(:app_create, :post, params)
+
       raise CreateFailed, res unless res.success?
       res
+    end
+
+    def validate_config
+      res = http_request(:validation, :post, config.to_json)
+      ConfigValidationResults.new(config, res)
+    end
+
+    private
+
+    # TODO: Improve handling here: https://github.com/tildeio/direwolf-agent/issues/274
+    def http_request(service, method, *args)
+      http = Util::HTTP.new(config, service)
+      uri = URI.parse(config.get("#{service}_url"))
+      http.send(method, uri.path, *args)
     end
 
   end
