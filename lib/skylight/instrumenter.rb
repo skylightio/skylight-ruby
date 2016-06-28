@@ -85,7 +85,7 @@ module Skylight
       @config = config
       @subscriber = Subscriber.new(config, self)
 
-      @trace_info = config[:trace_info] || TraceInfo.new
+      @trace_info = @config[:trace_info] || TraceInfo.new
     end
 
     def current_trace
@@ -125,7 +125,6 @@ module Skylight
       self
 
     rescue Exception => e
-      log_error e.backtrace.join("\n")
       log_error "failed to start instrumenter; msg=%s; config=%s", e.message, config.inspect
       t { e.backtrace.join("\n") }
       nil

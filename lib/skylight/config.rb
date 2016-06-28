@@ -300,7 +300,7 @@ module Skylight
         end
       end
 
-      # FIXME: Why is this in the `validate!` method?
+      # TODO: Move this out of the validate! method: https://github.com/tildeio/direwolf-agent/issues/273
       # FIXME: Why not set the sockdir_path and pidfile_path explicitly?
       # That way we don't have to keep this in sync with the Rust repo.
       sockdir_path = self[:'daemon.sockdir_path'] || File.expand_path('.')
