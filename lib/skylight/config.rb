@@ -286,14 +286,7 @@ module Skylight
     end
 
     # @api private
-    def skip_validation?
-      !!get(:skip_validation)
-    end
-
-    # @api private
     def validate!
-      return true if skip_validation?
-
       REQUIRED.each do |k, v|
         unless get(k)
           raise ConfigError, "#{v} required"
@@ -311,7 +304,6 @@ module Skylight
       true
     end
 
-    # Maybe make a class to handle this?
     def validate_with_server
       res = api.validate_config
 
