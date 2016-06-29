@@ -330,10 +330,13 @@ module Skylight
           corrected_config = Hash[SERVER_VALIDATE.map{|k| [k, DEFAULTS[k]] }]
         end
 
-        info("Updating config values:")
-        corrected_config.each do |k,v|
-          info("  setting #{k} to #{v}")
-          set(k, v)
+        config_to_update = corrected_config.select{|k,v| get(k) != v }
+        unless config_to_update.empty?
+          info("Updating config values:")
+          config_to_update.each do |k,v|
+            info("  setting #{k} to #{v}")
+            set(k, v)
+          end
         end
       end
 

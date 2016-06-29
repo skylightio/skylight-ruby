@@ -32,18 +32,6 @@ describe "Skylight::Instrumenter", :http, :agent do
       expect(Skylight.start!(config)).to be_truthy
     end
 
-    it 'warns about unvalidated tokens' do
-      stub_config_validation(500)
-
-      expect(Skylight.start!(config)).to be_truthy
-
-      logger_out.rewind
-      out = logger_out.read
-      expect(out).to include("Unable to reach server for config validation")
-      expect(out).to include("Updating config values:")
-      expect(out).to include("setting enable_segments to false")
-    end
-
     it 'fails with invalid token' do
       stub_config_validation(401)
 
@@ -70,19 +58,39 @@ describe "Skylight::Instrumenter", :http, :agent do
       expect(config.enable_segments?).to be_falsey
     end
 
-    it "resets validated values to default if server not reachable" do
-      config.set(:enable_segments, true)
-      stub_config_validation(500)
+    context "when server not reachable" do
 
-      expect(Skylight.start!(config)).to be_truthy
+      before(:each) do
+        stub_config_validation(500)
+      end
 
-      logger_out.rewind
-      out = logger_out.read
-      expect(out).to include('Unable to reach server for config validation')
-      expect(out).to include("Updating config values:")
-      expect(out).to include('setting enable_segments to false')
+      it "resets validated values to default" do
+        config.set(:enable_segments, true)
 
-      expect(config.enable_segments?).to be_falsey
+        expect(Skylight.start!(config)).to be_truthy
+
+        logger_out.rewind
+        out = logger_out.read
+        puts out
+        expect(out).to include('Unable to reach server for config validation')
+        expect(out).to include("Updating config values:")
+        expect(out).to include('setting enable_segments to false')
+
+        expect(config.enable_segments?).to be_falsey
+      end
+
+      it "doesn't notify about values already at default" do
+        expect(Skylight.start!(config)).to be_truthy
+
+        logger_out.rewind
+        out = logger_out.read
+        expect(out).to include('Unable to reach server for config validation')
+        expect(out).to_not include("Updating config values:")
+        expect(out).to_not include('setting enable_segments to false')
+
+        expect(config.enable_segments?).to be_falsey
+      end
+
     end
 
     it "doesn't crash on failed config" do

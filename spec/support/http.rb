@@ -231,6 +231,7 @@ module SpecHelper
 
   def stub_config_validation(status=200, response={})
     server.mock "/agent/config", :post do |env|
+      expect(JSON.parse(env['rack.input']).keys).to eq(['config'])
       [status, response]
     end
   end
