@@ -5,7 +5,7 @@ module Skylight
   class Api
     include Util::Logging
 
-    attr_reader :config, :http
+    attr_reader :config
 
     class CreateFailed < StandardError
       attr_reader :res
