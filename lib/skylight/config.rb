@@ -443,7 +443,7 @@ module Skylight
     end
 
     def to_json
-      JSON(
+      JSON.generate(
         config: {
           priority: @priority,
           values:   @values
