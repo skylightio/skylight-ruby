@@ -102,7 +102,7 @@ module Skylight
     end
 
     def validate_config
-      res = http_request(:validation, :post, config.to_json)
+      res = http_request(:validation, :post, config)
       ConfigValidationResults.new(config, res)
     end
 
