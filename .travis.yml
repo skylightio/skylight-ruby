@@ -74,15 +74,10 @@ matrix:
   include:
     # Mongoid requires ActiveModel ~> 4.0
     - rvm: 2.3.1
-      env:
-        - MONGOID_VERSION=skip
-        - RAILS_HEAD=true
       gemfile: gemfiles/Gemfile.rails-edge
     - rvm: 2.3.1
       env:
-        - MONGOID_VERSION=skip
         - SKYLIGHT_DISABLE_AGENT=true
-        - RAILS_HEAD=true
       gemfile: gemfiles/Gemfile.rails-edge
     # Test old Tilt version (with Rails since Sinatra doesn't like old Tilt)
     - rvm: 2.3.1

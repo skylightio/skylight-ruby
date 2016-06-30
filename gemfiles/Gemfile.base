@@ -18,7 +18,9 @@ else
   gem 'webmock'
 end
 
-if ruby_version < Gem::Version.new('2.2.2')
+if ENV['RAILS_EDGE']
+  gem 'rack', github: 'rack/rack', branch: 'master'
+elsif ruby_version < Gem::Version.new('2.2.2')
   gem 'rack', '< 2.0'
 else
   gem 'rack'
