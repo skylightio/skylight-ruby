@@ -43,7 +43,7 @@ describe "Skylight::Instrumenter", :http, :agent do
     end
 
     it "doesn't keep invalid config values" do
-      config.set(:enable_segments, true)
+      config.set('test.enable_segments', true)
       stub_config_validation(422, { corrected: { enable_segments: false }, errors: { enable_segments: "not allowed to be set" } })
 
       expect(Skylight.start!(config)).to be_truthy
@@ -65,7 +65,7 @@ describe "Skylight::Instrumenter", :http, :agent do
       end
 
       it "resets validated values to default" do
-        config.set(:enable_segments, true)
+        config.set('test.enable_segments', true)
 
         expect(Skylight.start!(config)).to be_truthy
 

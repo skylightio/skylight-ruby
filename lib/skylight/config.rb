@@ -335,6 +335,11 @@ module Skylight
           info("Updating config values:")
           config_to_update.each do |k,v|
             info("  setting #{k} to #{v}")
+
+            # This is a weird way to handle priorities
+            # See https://github.com/tildeio/direwolf-agent/issues/275
+            k = "#{environment}.#{k}" if environment
+
             set(k, v)
           end
         end

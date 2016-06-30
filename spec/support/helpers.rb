@@ -25,7 +25,7 @@ module SpecHelper
   end
 
   def config
-    @config ||= Skylight::Config.new(test_config_values)
+    @config ||= Skylight::Config.new(:test, test_config_values)
   end
 
   def agent_strategy
