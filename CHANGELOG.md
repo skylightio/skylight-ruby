@@ -1,6 +1,19 @@
-## 1.0.0.beta4 (April 22, 2016)
+## 1.0.0-beta5 (June 29, 2016)
 
-* [FEATURE] WIP: Separate response type tracking for endpoints.
+* [BETA FEATURE] Track separate segments for endpoints. Contact support@skylight.io to have this feature enabled for your account.
+* [FEATURE] Initial 'skylight doctor' command
+* [BREAKING] Removed old `skylight setup` without creation token
+* [BREAKING] Remove Ruby based SQL lexer
+* [IMPROVEMENT] Internal refactors
+* [IMPROVEMENT] On Heroku, log to STDOUT instead of logfile
+* [BUGFIX] Correctly pass 'false' config values to Rust agent
+
+## 0.10.5 (June 22, 2016)
+
+* [BUGFIX] Fix issue with Grape multi-method naming
+* [BUGFIX] Add http to proxy_url for native fetching
+* [BUGFIX] Fix setting `proxy_url` in config YML
+* [IMPROVEMENT] Log errors during authentication validation
 
 ## 0.10.4 (June 3, 2016)
 
