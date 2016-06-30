@@ -20,7 +20,7 @@ rvm:
   - 1.9.3
   - 2.0.0
   - 2.1.6
-  - 2.3.0
+  - 2.3.1
 
 gemfile:
   - gemfiles/Gemfile.rails-3.0.x
@@ -28,6 +28,7 @@ gemfile:
   - gemfiles/Gemfile.rails-4.0.x
   - gemfiles/Gemfile.rails-4.1.x
   - gemfiles/Gemfile.rails-4.2.x
+  - gemfiles/Gemfile.rails-5.x
   - gemfiles/Gemfile.sinatra-1.3.x
   - gemfiles/Gemfile.sinatra-1.4.x
   - gemfiles/Gemfile.grape
@@ -45,11 +46,21 @@ matrix:
     - rvm: 1.9.2
       gemfile: gemfiles/Gemfile.rails-4.2.x
 
+    # Rails 5+ requires Ruby 2.2.2+
+    - rvm: 1.9.2
+      gemfile: gemfiles/Gemfile.rails-5.x
+    - rvm: 1.9.3
+      gemfile: gemfiles/Gemfile.rails-5.x
+    - rvm: 2.0.0
+      gemfile: gemfiles/Gemfile.rails-5.x
+    - rvm: 2.1.6
+      gemfile: gemfiles/Gemfile.rails-5.x
+
     # Seems unlikely anyone will be running these combos
     # If we want to support, we need to fix failing tests
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       gemfile: gemfiles/Gemfile.rails-3.0.x
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       gemfile: gemfiles/Gemfile.rails-3.2.x
 
     # We don't need to test so many disabled combinations
@@ -62,66 +73,66 @@ matrix:
 
   include:
     # Mongoid requires ActiveModel ~> 4.0
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       env:
         - MONGOID_VERSION=skip
         - RAILS_HEAD=true
       gemfile: gemfiles/Gemfile.rails-edge
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       env:
         - MONGOID_VERSION=skip
         - SKYLIGHT_DISABLE_AGENT=true
         - RAILS_HEAD=true
       gemfile: gemfiles/Gemfile.rails-edge
     # Test old Tilt version (with Rails since Sinatra doesn't like old Tilt)
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       env:
         - TILT_VERSION=1.1
       gemfile: gemfiles/Gemfile.rails-4.1.x
     # Test old Sequel version
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       env:
         - SEQUEL_VERSION=3.12.0
       gemfile: gemfiles/Gemfile.sinatra-1.4.x
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       env:
         - SEQUEL_VERSION=4.34.0 # Some changes were made in 4.35.0
       gemfile: gemfiles/Gemfile.sinatra-1.4.x
     # Mongo Integration
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       env:
         - TEST_MONGO_INTEGRATION=true
       gemfile: gemfiles/Gemfile.rails-4.2.x
       services: mongodb
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       env:
         - TEST_MONGO_INTEGRATION=true
         - MONGOID_VERSION="~> 4.0"
       gemfile: gemfiles/Gemfile.rails-4.2.x
       services: mongodb
     # Sinatra
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       gemfile: gemfiles/Gemfile.sinatra-edge
     # Grape
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       env:
         - GRAPE_VERSION=0.10.0
       gemfile: gemfiles/Gemfile.grape
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       env:
         - GRAPE_VERSION=edge
       gemfile: gemfiles/Gemfile.grape
     # AMS
     # Default AMS is currently 0.10.0
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       env:
         - AMS_VERSION="~> 0.8.3"
       gemfile: gemfiles/Gemfile.rails-4.2.x
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       env:
         - AMS_VERSION="~> 0.9.5"
       gemfile: gemfiles/Gemfile.rails-4.2.x
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       env:
         - AMS_VERSION=edge
       gemfile: gemfiles/Gemfile.rails-4.2.x
