@@ -91,6 +91,35 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(config.enable_segments?).to be_falsey
       end
 
+      context "with an exception" do
+
+        before :each do
+          ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+          allow_any_instance_of(Skylight::Util::HTTP).to receive(:do_request).and_raise("request failed")
+        end
+
+        after :each do
+          ENV['SKYLIGHT_RAISE_ON_ERROR'] = 'true'
+        end
+
+        it "resets validated values to default" do
+          config.set('test.enable_segments', true)
+
+          #expect(Skylight.start!(config)).to be_truthy
+          Skylight.start!(config)
+
+          logger_out.rewind
+          out = logger_out.read
+          puts out
+          expect(out).to include('Unable to reach server for config validation')
+          expect(out).to include("Updating config values:")
+          expect(out).to include('setting enable_segments to false')
+
+          expect(config.enable_segments?).to be_falsey
+        end
+
+      end
+
     end
 
     it "doesn't crash on failed config" do

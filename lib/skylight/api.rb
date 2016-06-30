@@ -51,6 +51,8 @@ module Skylight
       end
 
       def body
+        return nil if is_error_response?
+
         unless raw_response.body.is_a?(Hash)
           warn("Unable to parse server response: status=%s, body=%s", raw_response.status, raw_response.body)
           return {}
@@ -75,14 +77,12 @@ module Skylight
 
       def validation_errors
         return if config_valid?
-        body['errors']
-      rescue => e
-
+        body ? body['errors'] : nil
       end
 
       def corrected_config
         return if config_valid?
-        body['corrected']
+        body ? body['corrected'] : nil
       end
 
     end
