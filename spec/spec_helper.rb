@@ -3,6 +3,10 @@ APP_ROOT = File.expand_path("../..", __FILE__)
 require 'rubygems'
 require 'bundler/setup'
 
+# Do this at the start
+require "codeclimate-test-reporter"
+CodeClimate::TestReporter.start
+
 # Require dependencies
 require 'yaml'
 require 'timecop'
