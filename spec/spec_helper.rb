@@ -4,8 +4,12 @@ require 'rubygems'
 require 'bundler/setup'
 
 # Do this at the start
-require "codeclimate-test-reporter"
-CodeClimate::TestReporter.start
+begin
+  require "codeclimate-test-reporter"
+  CodeClimate::TestReporter.start
+rescue LoadError
+  puts "Skipping CodeClimate coverage reporting"
+end
 
 # Require dependencies
 require 'yaml'
