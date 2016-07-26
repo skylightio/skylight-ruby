@@ -13,8 +13,8 @@ end
 include FileUtils
 include Skylight::Util
 
-def run_cmd(cmd)
-  puts "$ #{cmd}"
+def run_cmd(cmd, env={})
+  puts "system(#{env.inspect} #{cmd})"
   system("#{cmd} 2>&1")
 end
 
@@ -41,12 +41,16 @@ namespace :build do
     mkdir_p TARGET_DIR
     mkdir_p File.dirname(RUBY_EXT)
 
+    # Default to true for local use
+    strict = ENV['SKYLIGHT_EXT_STRICT'] !~ /^false$/i
+
     chdir TARGET_DIR do
       Bundler.with_clean_env do
         env = { SKYLIGHT_LIB_PATH: native,
-                SKYLIGHT_REQUIRED: true}.map{|k,v| "#{k}=#{v}" if v }.compact.join(' ')
+                SKYLIGHT_REQUIRED: true,
+                SKYLIGHT_EXT_STRICT: strict }
 
-        run_cmd "#{env} ruby #{extconf}" or abort "failed to configure ruby ext"
+        run_cmd("ruby #{extconf}", env) or abort "failed to configure ruby ext"
 
         run_cmd "make" or abort "failed to build ruby ext"
       end
