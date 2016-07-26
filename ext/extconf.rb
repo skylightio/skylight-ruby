@@ -205,15 +205,6 @@ checking_for 'fast thread local storage' do
   end
 end
 
-#     spec = nil
-#     checking_for('thread_specific', '%s') do
-#       spec = %w[__declspec(thread) __thread].find {|th|
-#         try_compile("#{th} int foo;", "", :werror => true)
-#       }
-#       spec or 'no'
-#     end
-#     $defs << "-DRB_THREAD_SPECIFIC=#{spec}" if spec
-
 # Flag -std=c99 required for older build systems
 $CFLAGS << " -std=c99 -Wall -fno-strict-aliasing"
 
