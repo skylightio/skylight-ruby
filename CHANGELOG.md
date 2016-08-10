@@ -1,3 +1,7 @@
+## 0.10.6 (August 10, 2016)
+
+* [BUGFIX] Turn off -Werror and -pedantic for builds. [Issue #64](https://github.com/skylightio/skylight-ruby/issues/64)
+
 ## 0.10.5 (June 22, 2016)
 
 * [BUGFIX] Fix issue with Grape multi-method naming
