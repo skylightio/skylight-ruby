@@ -24,6 +24,8 @@ SKYLIGHT_SOURCE_URL = ENV['SKYLIGHT_SOURCE_URL']
 SKYLIGHT_VERSION = ENV['SKYLIGHT_VERSION']
 SKYLIGHT_CHECKSUM = ENV['SKYLIGHT_CHECKSUM']
 
+SKYLIGHT_EXT_STRICT = ENV.key?("SKYLIGHT_EXT_STRICT") && ENV['SKYLIGHT_EXT_STRICT'] =~ /^true$/i
+
 # Setup logger
 LOG = Logger.new(MultiIO.new(STDOUT, File.open(SKYLIGHT_INSTALL_LOG, 'a')))
 
@@ -185,9 +187,16 @@ unless have_func('rb_thread_call_without_gvl', 'ruby/thread.h')
   have_func('rb_thread_blocking_region') or abort "Ruby is unexpectedly missing rb_thread_blocking_region. This should not happen."
 end
 
-# Some extra checks
-# -Werror is needed for the fast thread local storage
-$CFLAGS << " -Werror"
+# Previous comment stated:
+#   -Werror is needed for the fast thread local storage
+#
+# Despite this comment, everything appears to build fine without the flag on. Since this
+#   flag can cause issues for some customers we're turning it off by default. However,
+#   in development and CI, we still have the option of turning it back on to help catch
+#   potential issues.
+if SKYLIGHT_EXT_STRICT
+  $CFLAGS << " -Werror"
+end
 
 checking_for 'fast thread local storage' do
   if try_compile("__thread int foo;")
@@ -196,17 +205,13 @@ checking_for 'fast thread local storage' do
   end
 end
 
-#     spec = nil
-#     checking_for('thread_specific', '%s') do
-#       spec = %w[__declspec(thread) __thread].find {|th|
-#         try_compile("#{th} int foo;", "", :werror => true)
-#       }
-#       spec or 'no'
-#     end
-#     $defs << "-DRB_THREAD_SPECIFIC=#{spec}" if spec
-
 # Flag -std=c99 required for older build systems
-$CFLAGS << " -std=c99 -pedantic -Wall -fno-strict-aliasing"
+$CFLAGS << " -std=c99 -Wall -fno-strict-aliasing"
+
+# Allow stricter checks to be turned on for development or debugging
+if SKYLIGHT_EXT_STRICT
+  $CFLAGS << " -pedantic"
+end
 
 # TODO: Compute the relative path to the location
 create_makefile 'skylight_native', File.expand_path('..', __FILE__) # or fail "could not create makefile"
