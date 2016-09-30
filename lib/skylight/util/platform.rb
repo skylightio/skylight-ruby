@@ -6,6 +6,8 @@ module Skylight
     module Platform
       # Normalize the platform OS
       OS = case os = RbConfig::CONFIG['host_os'].downcase
+      when /linux-musl/
+        "linux-musl"
       when /linux/
         "linux"
       when /darwin/
