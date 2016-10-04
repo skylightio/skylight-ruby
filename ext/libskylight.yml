@@ -1,6 +1,7 @@
 ---
-version: "1.0.0-4a74d28"
+version: "1.0.1-5a25d4e"
 checksums:
-  x86-linux:     "66e1b9fd8c9223febf8e7febb56a2ad71714ab61193d153e2bf0f462409cb4f7"
-  x86_64-linux:  "40d7e0822610244d916df5488a83af5bdc7b2aa8b2410abc672a42cfab629f3f"
-  x86_64-darwin: "1484612b150317f1debdcaeab9bea806749d8be9ac132b8cd1b92781d1972b46"
+  x86-linux:         "abe2eb31d0e51b58fae0220a92efaf0a7c4db298cad387a2aa23d59f42bf70a3"
+  x86_64-linux:      "f4501e796f0c866fb137aec78140af7b2e21fb3eb2b6758bf98ee0da1e55ffd0"
+  x86_64-linux-musl: "370f4bb9cb7658629caa9ba7945f0456b53aa1b09cfb7e7c88e12959758e3de3"
+  x86_64-darwin:     "6167c4f35244779d0d20ca573c4fd23b4205f75edfa80395933768e2a002c156"
