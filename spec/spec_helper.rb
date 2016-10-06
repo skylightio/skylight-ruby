@@ -94,7 +94,7 @@ Dir[File.expand_path('../support/*.rb', __FILE__)].each do |f|
   require "support/#{File.basename(f, ".rb")}"
 end
 
-all_probes = %w(Excon Net::HTTP ::HTTPClient Redis Tilt::Template Sinatra::Base Sequel ActionView::TemplateRenderer)
+all_probes = %w(Excon Net::HTTP HTTPClient Redis Tilt::Template Sinatra::Base Sequel ActionView::TemplateRenderer)
 installed_probes = Skylight::Probes.installed.keys
 skipped_probes = all_probes - installed_probes
 
