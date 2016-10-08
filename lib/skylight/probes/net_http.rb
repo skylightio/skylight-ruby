@@ -4,12 +4,27 @@ module Skylight
   module Probes
     module NetHTTP
       class Probe
+        DISABLED_KEY = :__skylight_net_http_disabled
+
+        class << self
+          def disable
+            Thread.current[DISABLED_KEY] = true
+            yield
+          ensure
+            Thread.current[DISABLED_KEY] = false
+          end
+
+          def disabled?
+            !!Thread.current[DISABLED_KEY]
+          end
+        end
+
         def install
           Net::HTTP.class_eval do
             alias request_without_sk request
 
             def request(req, body = nil, &block)
-              unless started?
+              if !started? || Skylight::Probes::NetHTTP::Probe.disabled?
                 return request_without_sk(req, body, &block)
               end
 
