@@ -14,7 +14,16 @@ module Skylight
     end
 
     def file_path
-      File.expand_path(ENV["SKYLIGHT_USER_CONFIG_PATH"] || "~/.skylight")
+      config_path = ENV.fetch("SKYLIGHT_USER_CONFIG_PATH") do
+        require "etc"
+        home_dir = File.expand_path("~") || Etc.getpwuid.dir || (ENV["USER"] && File.expand_path("~#{ENV['USER']}"))
+        if home_dir
+          File.join(home_dir, ".skylight")
+        else
+          raise KeyError, "SKYLIGHT_USER_CONFIG_PATH must be defined since the home directory cannot be inferred"
+        end
+      end
+      File.expand_path(config_path)
     end
 
     def disable_dev_warning?
