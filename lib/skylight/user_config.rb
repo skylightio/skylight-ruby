@@ -17,7 +17,7 @@ module Skylight
       unless @file_path
         config_path = ENV.fetch("SKYLIGHT_USER_CONFIG_PATH") do
           require "etc"
-          home_dir = File.expand_path("~") || Etc.getpwuid.dir || (ENV["USER"] && File.expand_path("~#{ENV['USER']}"))
+          home_dir = ENV['HOME'] || Etc.getpwuid.dir || (ENV["USER"] && File.expand_path("~#{ENV['USER']}"))
           if home_dir
             File.join(home_dir, ".skylight")
           else
