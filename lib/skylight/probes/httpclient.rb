@@ -2,7 +2,7 @@ require 'skylight/formatters/http'
 
 module Skylight
   module Probes
-    module HTTPClientProbe
+    module HTTPClient
       class Probe
         def install
           ::HTTPClient.class_eval do
@@ -24,6 +24,6 @@ module Skylight
       end # class Probe
     end # module Probes::HTTPClient
 
-    register("HTTPClient", "httpclient", HTTPClientProbe::Probe.new)
+    register("HTTPClient", "httpclient", HTTPClient::Probe.new)
   end
 end
