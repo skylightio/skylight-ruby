@@ -6,17 +6,15 @@ module Skylight
       class Probe
         DISABLED_KEY = :__skylight_net_http_disabled
 
-        class << self
-          def disable
-            Thread.current[DISABLED_KEY] = true
-            yield
-          ensure
-            Thread.current[DISABLED_KEY] = false
-          end
+        def self.disable
+          Thread.current[DISABLED_KEY] = true
+          yield
+        ensure
+          Thread.current[DISABLED_KEY] = false
+        end
 
-          def disabled?
-            !!Thread.current[DISABLED_KEY]
-          end
+        def self.disabled?
+          !!Thread.current[DISABLED_KEY]
         end
 
         def install
