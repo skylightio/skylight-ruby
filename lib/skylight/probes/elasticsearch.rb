@@ -13,7 +13,9 @@ module Skylight
 
                 # Prevent Net::HTTP instrumenter from firing
                 Skylight::Probes::NetHTTP::Probe.disable do
-                  perform_request_without_sk(method, path, *args, &block)
+                  Skylight::Probes::HTTPClient::Probe.disable do
+                    perform_request_without_sk(method, path, *args, &block)
+                  end
                 end
               end
             end
