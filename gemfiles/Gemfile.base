@@ -39,6 +39,7 @@ unless ENV['SKIP_EXTERNAL']
   gem 'excon'
   gem 'redis'
   gem 'fakeredis'
+  gem 'httpclient'
 
   # The dependency bson requires 1.9.3+
   if RUBY_VERSION != '1.9.2'
