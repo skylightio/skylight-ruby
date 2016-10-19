@@ -2,7 +2,7 @@
 
 * [BETA FEATURE] Support musl-based OSes (including Alpine Linux)
 
-## 1.0.0-beta5 (June 29, 2016)
+## 1.0.0 (October 19, 2016)
 
 * [BETA FEATURE] Track separate segments for endpoints. Contact support@skylight.io to have this feature enabled for your account.
 * [FEATURE] Initial 'skylight doctor' command
