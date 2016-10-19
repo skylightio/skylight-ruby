@@ -1,12 +1,15 @@
-## 1.0.0-beta5 (June 29, 2016)
+## 1.0.0 (October 19, 2016)
 
 * [BETA FEATURE] Track separate segments for endpoints. Contact support@skylight.io to have this feature enabled for your account.
 * [FEATURE] Initial 'skylight doctor' command
 * [BREAKING] Removed old `skylight setup` without creation token
 * [BREAKING] Remove Ruby based SQL lexer
 * [IMPROVEMENT] Internal refactors
-* [IMPROVEMENT] On Heroku, log to STDOUT instead of logfile
 * [BUGFIX] Correctly pass 'false' config values to Rust agent
+
+## 0.10.6 (August 10, 2016)
+
+* [BUGFIX] Turn off -Werror and -pedantic for builds. [Issue #64](https://github.com/skylightio/skylight-ruby/issues/64)
 
 ## 0.10.5 (June 22, 2016)
 
