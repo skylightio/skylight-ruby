@@ -10,7 +10,7 @@ module Skylight
               append_info_to_payload_without_sk(payload)
               if respond_to?(:rendered_format)
                 rendered_mime = rendered_format
-              else
+              elsif respond_to?(:lookup_context)
                 format = lookup_context.formats.first
                 rendered_mime = Mime[format.to_sym] if format
               end
