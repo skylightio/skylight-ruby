@@ -171,18 +171,21 @@ if enable
         if Rails.version =~ /^3\./
           include ActionController::RackDelegation
         end
-        # Weird that we need both Rendering modules
-        include AbstractController::Rendering
-        include ActionController::Rendering
 
         include ActionController::Instrumentation
 
         def show
-          if Rails.version =~ /^(3|4)\./
-            render text: "Zomg!"
-          else
-            render plain: "Zomg!"
-          end
+          render({
+            status: 200,
+            text: "Zomg!"
+          })
+        end
+
+        def render(options={})
+          self.status = options[:status] || 200
+          self.content_type = 'text/html; charset=utf-8'
+          self.headers['Content-Length'] = options[:text].bytesize.to_s
+          self.response_body = options[:text]
         end
       end
     end
@@ -450,7 +453,7 @@ if enable
         expect(batch).to_not be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("MetalController#show<sk-segment>#{IS_RAILS_4_1_PLUS ? "text" : "html"}</sk-segment>")
+        expect(endpoint.name).to eq("MetalController#show")
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
