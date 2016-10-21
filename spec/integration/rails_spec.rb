@@ -453,7 +453,7 @@ if enable
         expect(batch).to_not be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("MetalController#show")
+        expect(endpoint.name).to eq("MetalController#show<sk-segment>html</sk-segment>")
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
