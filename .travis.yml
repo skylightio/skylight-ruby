@@ -16,10 +16,9 @@ env:
     - SKYLIGHT_DISABLE_AGENT=true
 
 rvm:
-  - 1.9.2
   - 1.9.3
   - 2.0.0
-  - 2.1.6
+  - 2.1.10
   - 2.3.1
 
 gemfile:
@@ -39,21 +38,19 @@ gemfile:
 matrix:
   exclude:
     # Rails 4.0+ requires Ruby 2.0+
-    - rvm: 1.9.2
+    - rvm: 1.9.3
       gemfile: gemfiles/Gemfile.rails-4.0.x
-    - rvm: 1.9.2
+    - rvm: 1.9.3
       gemfile: gemfiles/Gemfile.rails-4.1.x
-    - rvm: 1.9.2
+    - rvm: 1.9.3
       gemfile: gemfiles/Gemfile.rails-4.2.x
 
     # Rails 5+ requires Ruby 2.2.2+
-    - rvm: 1.9.2
-      gemfile: gemfiles/Gemfile.rails-5.x
     - rvm: 1.9.3
       gemfile: gemfiles/Gemfile.rails-5.x
     - rvm: 2.0.0
       gemfile: gemfiles/Gemfile.rails-5.x
-    - rvm: 2.1.6
+    - rvm: 2.1.10
       gemfile: gemfiles/Gemfile.rails-5.x
 
     # Seems unlikely anyone will be running these combos
@@ -68,12 +65,10 @@ matrix:
       env: SKYLIGHT_DISABLE_AGENT=true
     - rvm: 2.0.0
       env: SKYLIGHT_DISABLE_AGENT=true
-    - rvm: 2.1.6
+    - rvm: 2.1.10
       env: SKYLIGHT_DISABLE_AGENT=true
 
     # Latest Grape does not work on Ruby < 2.1
-    - rvm: 1.9.2
-      gemfile: gemfiles/Gemfile.grape
     - rvm: 1.9.3
       gemfile: gemfiles/Gemfile.grape
     - rvm: 2.0.0
@@ -122,10 +117,6 @@ matrix:
     - rvm: 2.3.1
       gemfile: gemfiles/Gemfile.sinatra-edge
     # Grape
-    - rvm: 1.9.2
-      env:
-        - GRAPE_VERSION=0.17.0
-      gemfile: gemfiles/Gemfile.grape
     - rvm: 1.9.3
       env:
         - GRAPE_VERSION=0.17.0
