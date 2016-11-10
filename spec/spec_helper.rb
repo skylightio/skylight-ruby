@@ -5,8 +5,8 @@ require 'bundler/setup'
 
 # Do this at the start
 begin
-  require "codeclimate-test-reporter"
-  CodeClimate::TestReporter.start
+  require 'simplecov'
+  SimpleCov.start
 rescue LoadError
   puts "Skipping CodeClimate coverage reporting"
 end

@@ -2,6 +2,8 @@ language: ruby
 cache: bundler
 sudo: false
 
+after_script: 'if [[ -n "$CODECLIMATE_REPO_TOKEN" ]]; then bundle exec codeclimate-test-reporter; fi'
+
 env:
   global:
     - SKYLIGHT_ENABLE_TRACE_LOGS=true
