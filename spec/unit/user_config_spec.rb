@@ -50,7 +50,6 @@ module Skylight
 
       it "uses USER if no HOME or Etc.getpwuid information" do
         pending "hard to set up correct environment"
-        return
 
         # Not 100% sure this stub is correct
         Etc.stub(getpwuid: double(dir: nil))
