@@ -5,7 +5,8 @@ gemspec path: File.expand_path('../..', __FILE__)
 ruby_version = Gem::Version.new(RUBY_VERSION)
 
 if ENV['CODECLIMATE_REPO_TOKEN']
-  gem "codeclimate-test-reporter", require: nil
+  gem "simplecov"
+  gem "codeclimate-test-reporter", "~> 1.0"
 end
 
 if RUBY_VERSION == '1.9.2'
