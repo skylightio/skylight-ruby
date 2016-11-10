@@ -14,7 +14,7 @@ module Skylight
 
             # Normally auto-loaded, but we haven't loaded Rails by the time Skylight is loaded
             require 'skylight/railtie'
-            require File.expand_path('config/application', Dir.pwd)
+            require rails_rb
           else
             say "No Rails application detected", :red
             abort "Currently `skylight doctor` only works with Rails applications"
@@ -53,10 +53,6 @@ module Skylight
 
       def check_config
         say "Checking for valid configuration"
-
-        # MEGAHAX
-        railtie = Skylight::Railtie.send(:new)
-        config = railtie.send(:load_skylight_config, Rails.application)
 
         indent do
           begin
@@ -127,6 +123,17 @@ module Skylight
       def status
         say "All checks passed!", :green
       end
+
+      private
+
+        # Overwrite the default helper method to load from Rails
+        def config
+          return @config if @config
+
+          # MEGAHAX
+          railtie = Skylight::Railtie.send(:new)
+          @config = railtie.send(:load_skylight_config, Rails.application)
+        end
     end
   end
 end
