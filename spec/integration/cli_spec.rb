@@ -24,7 +24,7 @@ describe "CLI integration", :http do
           expect(read(stdout)).to include("Congratulations. Your application is on Skylight!")
 
           expect(YAML.load_file("config/skylight.yml")).to eq({"authentication"=>"apptoken"})
-        rescue
+        rescue RSpec::Expectations::ExpectationNotMetError
           # Provide some potential debugging information
           puts stderr.read if ENV['DEBUG']
           raise
@@ -50,7 +50,7 @@ describe "CLI integration", :http do
           expect(output).to include('{"request"=>"invalid app create token"}')
 
           expect(File.exist?("config/skylight.yml")).to be_falsey
-        rescue
+        rescue RSpec::Expectations::ExpectationNotMetError
           # Provide some potential debugging information
           puts stderr.read if ENV['DEBUG']
           raise
@@ -69,7 +69,7 @@ describe "CLI integration", :http do
       run_command("setup token") do |stdin, stdout, stderr|
         begin
           expect(read(stdout)).to match(%r{A config/skylight.yml already exists for your application.})
-        rescue
+        rescue RSpec::Expectations::ExpectationNotMetError
           # Provide some potential debugging information
           puts stderr.read if ENV['DEBUG']
           raise
