@@ -3,6 +3,23 @@ require 'spec_helper'
 module Skylight
   describe Config do
 
+    def with_file(opts={})
+      f = Tempfile.new('foo')
+      FileUtils.chmod 0400, f if opts[:writable] == false
+      yield f
+    ensure
+      f.close
+      f.unlink
+    end
+
+    def with_dir(opts={})
+      Dir.mktmpdir do |d|
+        FileUtils.mkdir("#{d}/nested")
+        FileUtils.chmod 0400, "#{d}/nested" if opts[:writable] == false
+        yield "#{d}/nested"
+      end
+    end
+
     context 'basic lookup' do
 
       let :config do
@@ -458,6 +475,81 @@ module Skylight
         expect {
           config['agent.interval'] = 5
         }.to_not raise_error
+      end
+
+      context "permissions" do
+
+        it "requires the pidfile_path file to be writeable if it exists" do
+          with_file(writable: false) do |f|
+            config.set(:'daemon.pidfile_path', f.path)
+
+            expect {
+              config.validate!
+            }.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path")
+          end
+        end
+
+        it "requires the pidfile_path directory to be writeable if file doesn't exist" do
+          with_dir(writable: false) do |d|
+            config.set(:'daemon.pidfile_path', "#{d}/bar")
+
+            expect {
+              config.validate!
+            }.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path")
+          end
+        end
+
+        it "requires the sockdir_path to be writeable" do
+          with_dir(writable: false) do |d|
+            config.set(:'daemon.sockdir_path', d)
+            config.set(:'daemon.pidfile_path', "skylight.pid") # Otherwise based on sockdir_path and will error first
+
+            expect {
+              config.validate!
+            }.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set daemon.sockdir_path in your config to a writable path")
+          end
+        end
+
+        it "requires the log_file file to be writeable if it exists" do
+          with_file(writable: false) do |f|
+            config.set(:log_file, f.path)
+
+            expect {
+              config.validate!
+            }.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set log_file in your config to a writable path")
+          end
+        end
+
+        it "requires the log_file directory to be writeable if file doesn't exist" do
+          with_dir(writable: false) do |d|
+            config.set(:log_file, "#{d}/bar")
+
+            expect {
+              config.validate!
+            }.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set log_file in your config to a writable path")
+          end
+        end
+
+        it "requires the alert_log_file file to be writeable if it exists" do
+          with_file(writable: false) do |f|
+            config.set(:alert_log_file, f.path)
+
+            expect {
+              config.validate!
+            }.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set alert_log_file in your config to a writable path")
+          end
+        end
+
+        it "requires the alert_log_file directory to be writeable if file doesn't exist" do
+          with_dir(writable: false) do |d|
+            config.set(:alert_log_file, "#{d}/bar")
+
+            expect {
+              config.validate!
+            }.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set alert_log_file in your config to a writable path")
+          end
+        end
+
       end
 
     end
