@@ -446,6 +446,37 @@ module Skylight
 
     end
 
+    context "loggers" do
+
+      def log_out(logger)
+        # If this stops working, consider switching to checking the actual output of STDOUT or the IO instead.
+        logger.instance_variable_get(:@logdev).dev
+      end
+
+      it "creates a logger" do
+        c = Config.new(log_file: '-')
+        expect(log_out(c.logger)).to eq(STDOUT)
+
+        with_file do |f|
+          c = Config.new(log_file: f.path)
+          expect(log_out(c.logger).path).to eq(f.path)
+        end
+      end
+
+      it "creates an alert_logger" do
+        c = Config.new(alert_log_file: '-')
+        out = log_out(c.alert_logger)
+        expect(out).to be_a(Util::AlertLogger)
+        expect(log_out(out.instance_variable_get(:@logger))).to eq(STDOUT)
+
+        with_file do |f|
+          c = Config.new(alert_log_file: f.path)
+          expect(log_out(c.alert_logger).path).to eq(f.path)
+        end
+      end
+
+    end
+
     context "validations" do
 
       let :config do
@@ -502,7 +533,7 @@ module Skylight
         it "requires the sockdir_path to be writeable" do
           with_dir(writable: false) do |d|
             config.set(:'daemon.sockdir_path', d)
-            config.set(:'daemon.pidfile_path', "skylight.pid") # Otherwise based on sockdir_path and will error first
+            config.set(:'daemon.pidfile_path', "~/skylight.pid") # Otherwise based on sockdir_path and will error first
 
             expect {
               config.validate!
