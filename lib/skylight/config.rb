@@ -296,8 +296,8 @@ module Skylight
       # TODO: Move this out of the validate! method: https://github.com/tildeio/direwolf-agent/issues/273
       # FIXME: Why not set the sockdir_path and pidfile_path explicitly?
       # That way we don't have to keep this in sync with the Rust repo.
-      sockdir_path = self[:'daemon.sockdir_path'] || File.expand_path('.')
-      pidfile_path = self[:'daemon.pidfile_path'] || File.expand_path('skylight.pid', sockdir_path)
+      sockdir_path = File.expand_path(self[:'daemon.sockdir_path'] || '.', root)
+      pidfile_path = File.expand_path(self[:'daemon.pidfile_path'] || 'skylight.pid', sockdir_path)
       log_file = self[:log_file]
       alert_log_file = self[:alert_log_file]
 
@@ -570,26 +570,17 @@ authentication: #{self[:authentication]}
     end
 
     def alert_logger
-      @alert_logger ||=
-        begin
-          MUTEX.synchronize do
-            unless l = @alert_logger
-              out = get(:alert_log_file)
+      @alert_logger ||= MUTEX.synchronize do
+        unless l = @alert_logger
+          out = get(:alert_log_file)
+          out = Util::AlertLogger.new(load_logger) if out == '-'
 
-              if out == '-'
-                out = Util::AlertLogger.new(load_logger)
-              elsif !(IO === out)
-                out = File.expand_path(out, root)
-                FileUtils.mkdir_p(File.dirname(out))
-              end
-
-              l = Logger.new(out)
-              l.level = Logger::DEBUG
-            end
-
-            l
-          end
+          l = create_logger(out)
+          l.level = Logger::DEBUG
         end
+
+        l
+      end
     end
 
     def alert_logger=(logger)
@@ -615,17 +606,24 @@ authentication: #{self[:authentication]}
       `stat -f -L -c %T #{path} 2>&1`.strip == 'nfs'
     end
 
+    def create_logger(out)
+      if out.is_a?(String)
+        out = File.expand_path(out, root)
+        # May be redundant since we also do this in the permissions check
+        FileUtils.mkdir_p(File.dirname(out))
+      end
+
+      Logger.new(out)
+    rescue
+      Logger.new(STDOUT)
+    end
+
     def load_logger
       unless l = @logger
         out = get(:log_file)
         out = STDOUT if out == '-'
 
-        unless IO === out
-          out = File.expand_path(out, root)
-          FileUtils.mkdir_p(File.dirname(out))
-        end
-
-        l = Logger.new(out)
+        l = create_logger(out)
         l.level =
           case get(:log_level)
           when /^debug$/i then Logger::DEBUG
