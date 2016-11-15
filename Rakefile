@@ -162,7 +162,8 @@ task :run_travis_builds => :vagrant_up do |t|
         "rvm use #{build['rvm']}",
         "gem install bundler",
         "export SKYLIGHT_SOCKDIR_PATH=/tmp", # Avoid NFS issues
-        "export BUNDLE_GEMFILE=\\$PWD/#{build['gemfile']}" # Escape PWD so it runs on Vagrant, not local box
+        "export BUNDLE_GEMFILE=\\$PWD/#{build['gemfile']}", # Escape PWD so it runs on Vagrant, not local box
+        "export SKYLIGHT_TEST_DIR=/tmp"
       ]
 
       commands += Array(build['env']).map{|env| "export #{env}" }

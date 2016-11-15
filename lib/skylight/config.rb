@@ -296,10 +296,15 @@ module Skylight
       # TODO: Move this out of the validate! method: https://github.com/tildeio/direwolf-agent/issues/273
       # FIXME: Why not set the sockdir_path and pidfile_path explicitly?
       # That way we don't have to keep this in sync with the Rust repo.
-      sockdir_path = self[:'daemon.sockdir_path'] || File.expand_path('.')
-      pidfile_path = self[:'daemon.pidfile_path'] || File.expand_path('skylight.pid', sockdir_path)
+      sockdir_path = File.expand_path(self[:'daemon.sockdir_path'] || '.', root)
+      pidfile_path = File.expand_path(self[:'daemon.pidfile_path'] || 'skylight.pid', sockdir_path)
+      log_file = self[:log_file]
+      alert_log_file = self[:alert_log_file]
 
-      check_permissions(pidfile_path, sockdir_path)
+      check_file_permissions(pidfile_path, "daemon.pidfile_path or daemon.sockdir_path")
+      check_sockdir_permissions(sockdir_path)
+      check_logfile_permissions(log_file, "log_file")
+      check_logfile_permissions(alert_log_file, "alert_log_file")
 
       true
     end
@@ -348,29 +353,38 @@ module Skylight
       return true
     end
 
-    def check_permissions(pidfile, sockdir_path)
-      pidfile_root = File.dirname(pidfile)
+    def check_file_permissions(file, key)
+      file_root = File.dirname(file)
 
-      FileUtils.mkdir_p pidfile_root
-      FileUtils.mkdir_p sockdir_path
+      # Try to make the directory, don't blow up if we can't. Our writable? check will fail later.
+      FileUtils.mkdir_p file_root rescue nil
 
-      if File.exist?(pidfile)
-        unless FileTest.writable?(pidfile)
-          raise ConfigError, "File `#{pidfile}` not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path"
-        end
-      else
-        unless FileTest.writable?(pidfile_root)
-          raise ConfigError, "Directory `#{pidfile_root}` not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path"
-        end
+      if File.exist?(file) && !FileTest.writable?(file)
+        raise ConfigError, "File `#{file}` is not writable. Please set #{key} in your config to a writable path"
       end
+
+      unless FileTest.writable?(file_root)
+        raise ConfigError, "Directory `#{file_root}` is not writable. Please set #{key} in your config to a writable path"
+      end
+    end
+
+    def check_sockdir_permissions(sockdir_path)
+      # Try to make the directory, don't blow up if we can't. Our writable? check will fail later.
+      FileUtils.mkdir_p sockdir_path rescue nil
 
       unless FileTest.writable?(sockdir_path)
-        raise ConfigError, "Directory `#{sockdir_path}` not writable. Please set daemon.sockdir_path in your config to a writable path"
+        raise ConfigError, "Directory `#{sockdir_path}` is not writable. Please set daemon.sockdir_path in your config to a writable path"
       end
 
-      if check_nfs(pidfile)
+      if check_nfs(sockdir_path)
         raise ConfigError, "Directory `#{sockdir_path}` is an NFS mount and will not allow sockets. Please set daemon.sockdir_path in your config to a non-NFS path."
       end
+    end
+
+    def check_logfile_permissions(log_file, key)
+      return if log_file == '-' # STDOUT
+      log_file = File.expand_path(log_file, root)
+      check_file_permissions(log_file, key)
     end
 
     def key?(key)
@@ -556,26 +570,17 @@ authentication: #{self[:authentication]}
     end
 
     def alert_logger
-      @alert_logger ||=
-        begin
-          MUTEX.synchronize do
-            unless l = @alert_logger
-              out = get(:alert_log_file)
+      @alert_logger ||= MUTEX.synchronize do
+        unless l = @alert_logger
+          out = get(:alert_log_file)
+          out = Util::AlertLogger.new(load_logger) if out == '-'
 
-              if out == '-'
-                out = Util::AlertLogger.new(load_logger)
-              elsif !(IO === out)
-                out = File.expand_path(out, root)
-                FileUtils.mkdir_p(File.dirname(out))
-              end
-
-              l = Logger.new(out)
-              l.level = Logger::DEBUG
-            end
-
-            l
-          end
+          l = create_logger(out)
+          l.level = Logger::DEBUG
         end
+
+        l
+      end
     end
 
     def alert_logger=(logger)
@@ -601,17 +606,24 @@ authentication: #{self[:authentication]}
       `stat -f -L -c %T #{path} 2>&1`.strip == 'nfs'
     end
 
+    def create_logger(out)
+      if out.is_a?(String)
+        out = File.expand_path(out, root)
+        # May be redundant since we also do this in the permissions check
+        FileUtils.mkdir_p(File.dirname(out))
+      end
+
+      Logger.new(out)
+    rescue
+      Logger.new(STDOUT)
+    end
+
     def load_logger
       unless l = @logger
         out = get(:log_file)
         out = STDOUT if out == '-'
 
-        unless IO === out
-          out = File.expand_path(out, root)
-          FileUtils.mkdir_p(File.dirname(out))
-        end
-
-        l = Logger.new(out)
+        l = create_logger(out)
         l.level =
           case get(:log_level)
           when /^debug$/i then Logger::DEBUG
