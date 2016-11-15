@@ -2,6 +2,12 @@
 
 * [BETA FEATURE] Support musl-based OSes (including Alpine Linux)
 
+## 1.0.1 (November 15, 2016)
+
+* [BUGFIX] Gracefully handle non-writable log files
+* [BUGFIX] Fix skylight doctor's handling of config files
+* [BUGFIX] Support MetalControllers that don't use ActionController::Rendering
+
 ## 1.0.0 (October 19, 2016)
 
 * [BETA FEATURE] Track separate segments for endpoints. Contact support@skylight.io to have this feature enabled for your account.
