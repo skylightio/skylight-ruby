@@ -115,6 +115,14 @@ matrix:
         - MONGOID_VERSION="~> 4.0"
       gemfile: gemfiles/Gemfile.rails-4.2.x
       services: mongodb
+    # Elasticsearch Integration
+    - rvm: 2.3.1
+      env:
+        - TEST_ELASTICSEARCH_INTEGRATION=true
+      gemfile: gemfiles/Gemfile.rails-4.2.x
+      services: elasticsearch
+      before_script:
+        - sleep 10
     # Sinatra
     - rvm: 2.3.1
       gemfile: gemfiles/Gemfile.sinatra-edge

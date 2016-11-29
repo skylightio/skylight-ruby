@@ -228,4 +228,13 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
     expect(response2).to be_a(Net::HTTPOK)
   end
 
+  it "does not instrument when disabled" do
+    expect(Skylight).to_not receive(:instrument)
+
+    Skylight::Probes::NetHTTP::Probe.disable do
+      response = Net::HTTP.get_response(uri)
+      expect(response).to be_a(Net::HTTPOK)
+    end
+  end
+
 end
