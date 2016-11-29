@@ -15,7 +15,7 @@ module Skylight
                   content_type
                 elsif content_type.respond_to?(:to_s)
                   type_str = content_type.to_s.split(';').first
-                  Mime::Type.lookup(type_str) unless type_str.empty?
+                  Mime::Type.lookup(type_str) if type_str && !type_str.empty?
                 end
               end
               payload[:rendered_format] = rendered_mime.try(:ref)
