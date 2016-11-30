@@ -241,6 +241,11 @@ module Skylight
         return false
       end
 
+      if throttle?
+        t { fmt "throttling trace" }
+        return false
+      end
+
       begin
         native_submit_trace(trace)
         true
@@ -252,6 +257,10 @@ module Skylight
 
     def ignore?(trace)
       config.ignored_endpoints.include?(trace.endpoint)
+    end
+
+    def throttle?
+      @config.throttle_rate < 1 && Random.rand >= @config.throttle_rate
     end
 
   end
