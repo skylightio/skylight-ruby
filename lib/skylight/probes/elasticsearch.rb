@@ -11,13 +11,18 @@ module Skylight
                                                       method: method,
                                                       path:   path do
 
-                # Prevent Net::HTTP instrumenter from firing
-                Skylight::Probes::NetHTTP::Probe.disable do
-                  Skylight::Probes::HTTPClient::Probe.disable do
+                # Prevent HTTP-related probes from firing
+                disable_skylight_probe(:NetHTTP) do
+                  disable_skylight_probe(:HTTPClient) do
                     perform_request_without_sk(method, path, *args, &block)
                   end
                 end
               end
+            end
+
+            def disable_skylight_probe(class_name, &block)
+              klass = Skylight::Probes.const_get(class_name).const_get(:Probe) rescue nil
+              klass ? klass.disable(&block) : block.call
             end
           end
         end
