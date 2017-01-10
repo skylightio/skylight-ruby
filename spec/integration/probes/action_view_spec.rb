@@ -13,9 +13,9 @@ if defined?(ActionPack) && [ActionPack::VERSION::MAJOR, ActionPack::VERSION::MIN
         handler = ::ActionView::Template.handler_for_extension("erb")
         case name
         when "our-layout"
-          [::ActionView::Template.new("<<%= yield %>>", "test layout", handler, locals: {})]
+          [::ActionView::Template.new("<<%= yield %>>", "test layout", handler, {})]
         when "our-template"
-          [::ActionView::Template.new("Hello World", "test template", handler, locals: {})]
+          [::ActionView::Template.new("Hello World", "test template", handler, {})]
         else
           raise ArgumentError, "no template"
         end
