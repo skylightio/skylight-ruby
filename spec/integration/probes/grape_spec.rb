@@ -133,15 +133,17 @@ if defined?(Grape)
     end
 
     it "instruments wildcard routes" do
+      wildcard = Gem::Version.new(Grape::VERSION) >= Gem::Version.new("0.19") ? "*" : "any"
+
       allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument)
-          .with("app.grape.endpoint", "any *path", nil)
+          .with("app.grape.endpoint", "#{wildcard} *path", nil)
           .once
 
       delete "/app/missing"
 
-      expect(@called_endpoint).to eq("GrapeTest::App [any] *path")
+      expect(@called_endpoint).to eq("GrapeTest::App [#{wildcard}] *path")
     end
 
     it "instruments multi method routes" do
