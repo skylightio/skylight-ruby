@@ -35,7 +35,6 @@ if enable
           end
         end
         get '/metal' => 'metal#show'
-        get '/metal/empty_type' => 'metal#empty_type'
       end
     end
 
@@ -179,13 +178,6 @@ if enable
           render({
             status: 200,
             text: "Zomg!"
-          })
-        end
-
-        def empty_type
-          render({
-            content_type: '',
-            text: 'Empty'
           })
         end
 
@@ -450,25 +442,6 @@ if enable
           endpoint = batch.endpoints[0]
           expect(endpoint.name).to eq("UsersController#header")
         end
-      end
-
-      it 'handles empty content types' do
-        call MyApp, env('/metal/empty_type')
-
-        server.wait resource: '/report'
-
-        batch = server.reports[0]
-        expect(batch).to_not be nil
-        expect(batch.endpoints.count).to eq(1)
-        endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("MetalController#empty_type")
-        expect(endpoint.traces.count).to eq(1)
-        trace = endpoint.traces[0]
-
-        names = trace.spans.map { |s| s.event.category }
-
-        expect(names.length).to be >= 1
-        expect(names[0]).to eq('app.rack.request')
       end
 
       it 'can instrument metal controllers' do
