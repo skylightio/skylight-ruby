@@ -114,8 +114,6 @@ def get_travis_builds
     end
   end
 
-  builds += config["matrix"]["include"]
-
   config["matrix"]["exclude"].each do |build|
     builds.reject! do |b|
       build.to_a.all? do |(k,v)|
@@ -124,6 +122,8 @@ def get_travis_builds
       end
     end
   end
+
+  builds += config["matrix"]["include"]
 
   builds.each.with_index do |build, index|
     build["number"] = index + 1
