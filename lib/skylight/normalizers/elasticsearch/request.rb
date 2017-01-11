@@ -12,7 +12,7 @@ module Skylight
           desc = {}
           desc[:type] = path[1] if path[1]
           desc[:id] = '?' if path[2]
-          [ CAT, title, desc.presence ]
+          [ CAT, title, desc.presence.try(:to_json) ]
         end
       end
     end

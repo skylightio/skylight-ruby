@@ -14,7 +14,7 @@ module Skylight
       category, title, description = normalize(method: 'GET', path: 'foo/bar/baz')
       expect(category).to    eq("db.elasticsearch.request")
       expect(title).to       eq("GET foo")
-      expect(description).to eq({type: 'bar', id: '?'})
+      expect(description).to eq("{\"type\":\"bar\",\"id\":\"?\"}")
     end
   end
 end
