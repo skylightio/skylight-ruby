@@ -46,6 +46,7 @@ module Skylight
       "IGNORED_ENDPOINT" => :ignored_endpoint,
       "IGNORED_ENDPOINTS" => :ignored_endpoints,
       "ENABLE_SEGMENTS" => :enable_segments,
+      "SHOW_SINATRA_CLASSES" => :'show_sinatra_classes',
 
       # == Skylight Remote ==
       "AUTH_URL"                     => :auth_url,
@@ -103,6 +104,7 @@ module Skylight
       :alert_log_file       => '-'.freeze,
       :log_sql_parse_errors => false,
       :enable_segments      => false,
+      :show_sinatra_classes => false,
       :hostname             => Util::Hostname.default_hostname,
       :'heroku.dyno_info_path' => '/etc/heroku/dyno'
     }
@@ -597,6 +599,10 @@ authentication: #{self[:authentication]}
 
     def enable_segments?
       !!get(:enable_segments)
+    end
+
+    def show_sinatra_classes?
+      !!get(:show_sinatra_classes)
     end
 
   private

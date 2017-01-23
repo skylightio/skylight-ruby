@@ -50,7 +50,12 @@ module Skylight
 
                 # Set the endpoint name to the route name
                 route = env['sinatra.route']
-                trace.endpoint = route if route
+                if route
+                  if instrumenter.config.show_sinatra_classes?
+                    route = "#{self.class.name} #{route}"
+                  end
+                  trace.endpoint = route
+                end
               end
             end
 
