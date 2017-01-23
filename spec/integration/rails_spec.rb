@@ -197,6 +197,7 @@ if enable
       ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = nil
       ENV['SKYLIGHT_AUTH_URL']             = nil
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = nil
+      ENV['SKYLIGHT_VALIDATION_URL']       = nil
       ENV['SKYLIGHT_ENABLE_SEGMENTS']      = nil
 
       Skylight.stop!
