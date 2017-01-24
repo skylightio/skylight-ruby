@@ -552,7 +552,7 @@ authentication: #{self[:authentication]}
         deploy_str = deploy.to_query_string
         # A pipe should be a safe delimiter since it's not in the standard token
         # and is encoded by URI
-        token += "|#{deploy.to_query_string}"
+        token += "|#{deploy_str}"
       end
 
       token
