@@ -594,10 +594,25 @@ module Skylight
         expect(c[:proxy_url]).to eq('http://bar.com:9872')
       end
 
+      it "uses unconvential proxy env vars" do
+        c = Config.load({environment: :production}, 'HTTP_PROXY' => 'xyz://foo.com:9872')
+        expect(c[:proxy_url]).to eq('xyz://foo.com:9872')
+      end
+
       it "normalizes convential proxy env vars" do
         # Curl doesn't require http:// prefix
         c = Config.load({environment: :production}, 'HTTP_PROXY' => 'foo.com:9872')
         expect(c[:proxy_url]).to eq('http://foo.com:9872')
+      end
+
+      it "skips empty proxy env vars" do
+        c = Config.load({environment: :production}, 'HTTP_PROXY' => '')
+        expect(c[:proxy_url]).to be_nil
+      end
+
+      it "skips nil proxy env vars" do
+        c = Config.load({environment: :production})
+        expect(c[:proxy_url]).to be_nil
       end
 
       it "prioritizes skylight's proxy env var" do
