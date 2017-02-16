@@ -6,10 +6,16 @@ module Skylight
     module Platform
       # Normalize the platform OS
       OS = case os = RbConfig::CONFIG['host_os'].downcase
-      when /linux-musl/
-        "linux-musl"
       when /linux/
-        "linux"
+        # The official ruby-alpine Docker containers pre-build Ruby. As a result,
+        #   Ruby doesn't know that it's on a musl-based platform. `ldd` is the
+        #   only reliable way to detect musl that we've found.
+        # See https://github.com/skylightio/skylight-ruby/issues/92
+        if ENV['SKYLIGHT_MUSL'] || `ldd --version 2>&1` =~ /musl/
+          "linux-musl"
+        else
+          "linux"
+        end
       when /darwin/
         "darwin"
       when /freebsd/
