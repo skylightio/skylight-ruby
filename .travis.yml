@@ -65,6 +65,12 @@ matrix:
     - rvm: 2.4.0
       gemfile: gemfiles/Gemfile.rails-3.2.x
 
+    # Unsupported
+    - rvm: 2.4.0
+      gemfile: gemfiles/Gemfile.rails-4.0.x
+    - rvm: 2.4.0
+      gemfile: gemfiles/Gemfile.rails-4.1.x
+
     # We don't need to test so many disabled combinations
     - rvm: 1.9.3
       env: SKYLIGHT_DISABLE_AGENT=true
