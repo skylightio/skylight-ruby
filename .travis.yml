@@ -91,9 +91,11 @@ matrix:
       gemfile: gemfiles/Gemfile.rails-5.x
       env:
         - secure: "dGdkneTJSwPJ8QXfUhhG6fSxGpZPgX5pidYm3cA6o4VsErAF3m5r5cyTO54Swzb9m0Ib2mLfqJtcd0n+0IJFTRxGQe98H0QDpBE8UAf0H8AjXwHmjYpVzSxm/iPZDIuDTkDsfFLxaQ1NbOiSm2joUoU70icNyIAArvN3bh/fMpM="
-    # Mongoid requires ActiveModel ~> 4.0
     - rvm: 2.4.0
       gemfile: gemfiles/Gemfile.rails-edge
+      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
+      env:
+        -
     - rvm: 2.4.0
       env:
         - SKYLIGHT_DISABLE_AGENT=true
@@ -102,7 +104,7 @@ matrix:
     - rvm: 2.4.0
       env:
         - TILT_VERSION=1.1
-      gemfile: gemfiles/Gemfile.rails-4.1.x
+      gemfile: gemfiles/Gemfile.rails-4.2.x
     # Test old Sequel version
     - rvm: 2.4.0
       env:
@@ -135,6 +137,13 @@ matrix:
     # Sinatra
     - rvm: 2.4.0
       gemfile: gemfiles/Gemfile.sinatra-edge
+      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
+      env:
+        -
+    - rvm: 2.4.0
+      gemfile: gemfiles/Gemfile.sinatra-edge
+      env:
+        - SKYLIGHT_DISABLE_AGENT=true
     # Grape
     - rvm: 1.9.3
       env:
