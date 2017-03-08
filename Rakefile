@@ -125,6 +125,20 @@ def get_travis_builds
 
   builds += config["matrix"]["include"]
 
+
+  builds.each do |b|
+    config["matrix"]["allow_failures"].each do |build|
+      b['allow_failure'] ||= build.to_a.all? do |(k,v)|
+        v = Array(v) if k == 'env'
+        b[k] == v
+      end
+    end
+  end
+
+  # Move allowed_failures to the end
+  allowed_failures = builds.select{|b| b['allow_failure']}
+  builds = (builds - allowed_failures) + allowed_failures
+
   builds.each.with_index do |build, index|
     build["number"] = index + 1
   end
