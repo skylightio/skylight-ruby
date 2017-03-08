@@ -3,4 +3,4 @@ ENV['TILT_VERSION'] = '~> 2.0'
 
 eval_gemfile File.expand_path('../Gemfile.base', __FILE__)
 
-gem 'sinatra', github: 'sinatra/sinatra'
+gem 'sinatra', git: 'https://github.com/sinatra/sinatra'

@@ -4,7 +4,7 @@ eval_gemfile File.expand_path('../Gemfile.base', __FILE__)
 
 version = ENV['GRAPE_VERSION']
 if version == 'edge'
-  version = { github: 'intridea/grape' }
+  version = { git: 'https://github.com/intridea/grape' }
 end
 
 gem 'grape', version

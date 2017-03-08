@@ -4,5 +4,5 @@ ENV['RAILS_EDGE'] = 'true'
 eval_gemfile File.expand_path('../Gemfile.base', __FILE__)
 eval_gemfile File.expand_path('../Gemfile.rails-common', __FILE__)
 
-gem 'arel', github: 'rails/arel', branch: 'master'
-gem 'rails', github: 'rails/rails', branch: 'master'
+gem 'arel', git: 'https://github.com/rails/arel', branch: 'master'
+gem 'rails', git: 'https://github.com/rails/rails', branch: 'master'
