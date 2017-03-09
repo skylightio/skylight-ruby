@@ -1,6 +1,13 @@
-## Master
+## 1.1.0 (March 9, 2017)
 
-* [BETA FEATURE] Support musl-based OSes (including Alpine Linux)
+* [FEATURE] Support musl-based OSes (including Alpine Linux)
+* [FEATURE] Add Elasticsearch Probe
+* [FEATURE] Add HTTPClient probe (#76)j
+* [IMPROVEMENT] Update tested Ruby versions, drop 1.9.2
+* [BUGFIX] Fix HTTP_PROXY handling of empty strings (#90)
+* [BUGFIX] Don't crash on empty content_type strings
+* [BUGFIX] Use more robust method to detect home dir (#75)
+* [BUGFIX] Add option to suppress environment warning (#62)
 
 ## 1.0.1 (November 15, 2016)
 
