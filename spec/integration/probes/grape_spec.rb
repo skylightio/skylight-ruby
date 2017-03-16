@@ -96,7 +96,7 @@ if defined?(Grape)
       get "/test"
     end
 
-    it "instuments mounted apps" do
+    it "instruments mounted apps" do
       allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument)
