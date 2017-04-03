@@ -102,7 +102,7 @@ module Skylight
       :log_level            => 'INFO'.freeze,
       :alert_log_file       => '-'.freeze,
       :log_sql_parse_errors => false,
-      :enable_segments      => false,
+      :enable_segments      => true,
       :hostname             => Util::Hostname.default_hostname,
       :'heroku.dyno_info_path' => '/etc/heroku/dyno'
     }
@@ -128,7 +128,8 @@ module Skylight
       validation_url: "config validation url" }
 
     SERVER_VALIDATE = [
-      :enable_segments
+      # Nothing is validated for now, but this is a list of symbols
+      # for the key we want to validate.
     ]
 
     NATIVE_ENV = [

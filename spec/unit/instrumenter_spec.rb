@@ -42,21 +42,24 @@ describe "Skylight::Instrumenter", :http, :agent do
       expect(out).to include("Invalid authentication token")
     end
 
-    it "doesn't keep invalid config values" do
-      config.set('test.enable_segments', true)
-      stub_config_validation(422, { corrected: { enable_segments: false }, errors: { enable_segments: "not allowed to be set" } })
+    # We don't currently have any server validated config values,
+    # but we should bring this test back if we add some again.
+    #
+    #   it "doesn't keep invalid config values" do
+    #     config.set('test.enable_segments', true)
+    #     stub_config_validation(422, { corrected: { enable_segments: false }, errors: { enable_segments: "not allowed to be set" } })
+    #
+    #     expect(Skylight.start!(config)).to be_truthy
+    #
+    #     logger_out.rewind
+    #     out = logger_out.read
+    #     expect(out).to include("Invalid configuration")
+    #     expect(out).to include("enable_segments not allowed to be set")
+    #     expect(out).to include("Updating config values:")
+    #     expect(out).to include("setting enable_segments to false")
 
-      expect(Skylight.start!(config)).to be_truthy
-
-      logger_out.rewind
-      out = logger_out.read
-      expect(out).to include("Invalid configuration")
-      expect(out).to include("enable_segments not allowed to be set")
-      expect(out).to include("Updating config values:")
-      expect(out).to include("setting enable_segments to false")
-
-      expect(config.enable_segments?).to be_falsey
-    end
+    #     expect(config.enable_segments?).to be_falsey
+    #   end
 
     context "when server not reachable" do
 
@@ -64,32 +67,35 @@ describe "Skylight::Instrumenter", :http, :agent do
         stub_config_validation(500)
       end
 
-      it "resets validated values to default" do
-        config.set('test.enable_segments', true)
-
-        expect(Skylight.start!(config)).to be_truthy
-
-        logger_out.rewind
-        out = logger_out.read
-        puts out
-        expect(out).to include('Unable to reach server for config validation')
-        expect(out).to include("Updating config values:")
-        expect(out).to include('setting enable_segments to false')
-
-        expect(config.enable_segments?).to be_falsey
-      end
-
-      it "doesn't notify about values already at default" do
-        expect(Skylight.start!(config)).to be_truthy
-
-        logger_out.rewind
-        out = logger_out.read
-        expect(out).to include('Unable to reach server for config validation')
-        expect(out).to_not include("Updating config values:")
-        expect(out).to_not include('setting enable_segments to false')
-
-        expect(config.enable_segments?).to be_falsey
-      end
+      # We don't currently have any server validated config values,
+      # but we should bring this test back if we add some again.
+      #
+      #   it "resets validated values to default" do
+      #     config.set('test.enable_segments', true)
+      #
+      #     expect(Skylight.start!(config)).to be_truthy
+      #
+      #     logger_out.rewind
+      #     out = logger_out.read
+      #     puts out
+      #     expect(out).to include('Unable to reach server for config validation')
+      #     expect(out).to include("Updating config values:")
+      #     expect(out).to include('setting enable_segments to false')
+      #
+      #     expect(config.enable_segments?).to be_falsey
+      #   end
+      #
+      #   it "doesn't notify about values already at default" do
+      #     expect(Skylight.start!(config)).to be_truthy
+      #
+      #     logger_out.rewind
+      #     out = logger_out.read
+      #     expect(out).to include('Unable to reach server for config validation')
+      #     expect(out).to_not include("Updating config values:")
+      #     expect(out).to_not include('setting enable_segments to false')
+      #
+      #     expect(config.enable_segments?).to be_falsey
+      #   end
 
       context "with an exception" do
 
@@ -102,21 +108,24 @@ describe "Skylight::Instrumenter", :http, :agent do
           ENV['SKYLIGHT_RAISE_ON_ERROR'] = 'true'
         end
 
-        it "resets validated values to default" do
-          config.set('test.enable_segments', true)
-
-          #expect(Skylight.start!(config)).to be_truthy
-          Skylight.start!(config)
-
-          logger_out.rewind
-          out = logger_out.read
-          puts out
-          expect(out).to include('Unable to reach server for config validation')
-          expect(out).to include("Updating config values:")
-          expect(out).to include('setting enable_segments to false')
-
-          expect(config.enable_segments?).to be_falsey
-        end
+        # We don't currently have any server validated config values,
+        # but we should bring this test back if we add some again.
+        #
+        #   it "resets validated values to default" do
+        #     config.set('test.enable_segments', true)
+        #
+        #     #expect(Skylight.start!(config)).to be_truthy
+        #     Skylight.start!(config)
+        #
+        #     logger_out.rewind
+        #     out = logger_out.read
+        #     puts out
+        #     expect(out).to include('Unable to reach server for config validation')
+        #     expect(out).to include("Updating config values:")
+        #     expect(out).to include('setting enable_segments to false')
+        #
+        #     expect(config.enable_segments?).to be_falsey
+        #   end
 
       end
 
