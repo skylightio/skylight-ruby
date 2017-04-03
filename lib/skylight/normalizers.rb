@@ -147,7 +147,8 @@ module Skylight
         active_support/cache
         elasticsearch/request
         grape/endpoint
-        moped/query).each do |file|
+        moped/query
+        couch_potato/query).each do |file|
       require "skylight/normalizers/#{file}"
     end
   end
