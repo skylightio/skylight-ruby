@@ -1,3 +1,7 @@
+## 1.2.0 (April 3, 2017)
+
+* [FEATURE] Response Type tracking for all applications. (Previously known as Segments.)
+
 ## 1.1.0 (March 9, 2017)
 
 * [FEATURE] Support musl-based OSes (including Alpine Linux)
