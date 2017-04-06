@@ -151,6 +151,7 @@ module Skylight
         active_model_serializers/render
         active_record/sql
         active_support/cache
+        active_job/enqueue_at
         elasticsearch/request
         grape/endpoint
         moped/query
