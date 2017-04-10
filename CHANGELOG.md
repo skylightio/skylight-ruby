@@ -1,4 +1,4 @@
-## 1.2.0 (April 3, 2017)
+## 1.2.0 (April 10, 2017)
 
 * [FEATURE] Response Type tracking for all applications. (Previously known as Segments.)
 
