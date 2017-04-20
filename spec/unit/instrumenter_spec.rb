@@ -338,6 +338,25 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(server.reports[0].endpoints.map(&:name)).to eq(["foo#bar"])
       end
 
+      it "ignores endpoints with segments" do
+        config[:ignored_endpoint] = "foo#heartbeat"
+        instrumenter = Skylight::Instrumenter.new(config)
+
+        Skylight.trace 'foo#bar<sk-segment>json</sk-segment>', 'app.rack' do |t|
+          clock.skip 1
+        end
+
+        Skylight.trace 'foo#heartbeat<sk-segment>json</sk-segment>', 'app.rack' do |t|
+          clock.skip 1
+        end
+
+        clock.unfreeze
+        server.wait resource: '/report'
+
+        expect(server.reports[0]).to have(1).endpoints
+        expect(server.reports[0].endpoints.map(&:name)).to eq(["foo#bar<sk-segment>json</sk-segment>"])
+      end
+
       it "ignores multiple endpoints" do
         config[:ignored_endpoint] = "foo#heartbeat"
         config[:ignored_endpoints] = ["bar#heartbeat", "baz#heartbeat"]

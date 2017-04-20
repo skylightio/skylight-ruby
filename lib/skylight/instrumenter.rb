@@ -251,7 +251,7 @@ module Skylight
     end
 
     def ignore?(trace)
-      config.ignored_endpoints.include?(trace.endpoint)
+      config.ignored_endpoints.include?(trace.endpoint.sub(%r{<sk-segment>.+</sk-segment>}, ''))
     end
 
   end
