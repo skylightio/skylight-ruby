@@ -1,3 +1,7 @@
+## 1.2.1 (April 20, 2017)
+
+* [BUGFIX] Ignored heartbeat endpoints with response types weren't actually ignored. They now will be!
+
 ## 1.2.0 (April 10, 2017)
 
 * [FEATURE] Response Type tracking for all applications. (Previously known as Segments.)
