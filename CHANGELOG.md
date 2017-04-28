@@ -1,3 +1,7 @@
+## 1.2.2 (April 28, 2017)
+
+* [BUGFIX] Update bundled SSL certificates to avoid an authentication issue some users encountered due to a new skylight.io certificate.
+
 ## 1.2.1 (April 20, 2017)
 
 * [BUGFIX] Ignored heartbeat endpoints with response types weren't actually ignored. They now will be!
