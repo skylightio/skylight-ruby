@@ -29,7 +29,16 @@ module Skylight
       READ_EXCEPTIONS << Net::ReadTimeout if defined?(Net::ReadTimeout)
       READ_EXCEPTIONS.freeze
 
-      class StartError < StandardError; end
+      class StartError < StandardError
+        attr_reader :original
+
+        def initialize(e)
+          @original = e
+          super e.inspect
+        end
+
+      end
+
       class ReadResponseError < StandardError; end
 
       def initialize(config, service = :auth, opts = {})
@@ -101,7 +110,7 @@ module Skylight
           client = http.start
         rescue => e
           # TODO: Retry here
-          raise StartError, e.inspect
+          raise StartError, e
         end
 
         begin
