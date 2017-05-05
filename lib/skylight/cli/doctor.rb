@@ -5,6 +5,28 @@ module Skylight
 
       desc "Run some basic tests to look out for common errors"
 
+      def check_ssl
+        say "Checking SSL"
+        http = Util::HTTP.new(config)
+        indent do
+          req = http.get("/")
+          if req.success?
+            say "OK", :green
+          else
+            if req.exception.is_a?(Util::HTTP::StartError) && req.exception.original.is_a?(OpenSSL::SSL::SSLError)
+              say "Failed to verify SSL certificate.", :red
+              if Util::SSL.ca_cert_file?
+                say "Certificates located at #{Util::SSL.ca_cert_file_or_default} may be out of date.", :yellow
+                say "Please update your local certificates or try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your environment.", :yellow
+              end
+            else
+              say "Unable to reach Skylight servers.", :red
+            end
+          end
+        end
+        say "\n"
+      end
+
       def check_rails
         say "Checking for Rails"
 
@@ -131,8 +153,12 @@ module Skylight
           return @config if @config
 
           # MEGAHAX
-          railtie = Skylight::Railtie.send(:new)
-          @config = railtie.send(:load_skylight_config, Rails.application)
+          if is_rails?
+            railtie = Skylight::Railtie.send(:new)
+            @config = railtie.send(:load_skylight_config, Rails.application)
+          else
+            super
+          end
         end
     end
   end
