@@ -78,7 +78,10 @@ module Skylight
             say "Configuration is valid", :green
           rescue ConfigError => e
             say "Configuration is invalid", :red
-            say "  #{e.message}", :red
+            indent do
+              say e.message, :red
+              say "This may occur if you are configuring with ENV variables and didn't set them in this shell."
+            end
             abort
           end
         end
