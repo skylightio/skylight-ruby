@@ -33,10 +33,6 @@ module Skylight
         indent do
           if is_rails?
             say "Rails application detected", :green
-
-            # Normally auto-loaded, but we haven't loaded Rails by the time Skylight is loaded
-            require 'skylight/railtie'
-            require rails_rb
           else
             say "No Rails application detected", :red
             abort "Currently `skylight doctor` only works with Rails applications"
@@ -154,6 +150,10 @@ module Skylight
 
           # MEGAHAX
           if is_rails?
+            # Normally auto-loaded, but we haven't loaded Rails by the time Skylight is loaded
+            require 'skylight/railtie'
+            require rails_rb
+
             railtie = Skylight::Railtie.send(:new)
             @config = railtie.send(:load_skylight_config, Rails.application)
           else
