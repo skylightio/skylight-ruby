@@ -1,3 +1,9 @@
+## 1.3.0 (May 17, 2017)
+
+* [FEATURE] Add normalizer for couch_potato. (Thanks @cobot)
+* [IMPROVEMENT] `skylight doctor` now validates SSL configuration
+* [IMPROVEMENT] Add ENV option to force use of bundled SSL certificates
+
 ## 1.2.2 (April 28, 2017)
 
 * [BUGFIX] Update bundled SSL certificates to avoid an authentication issue some users encountered due to a new skylight.io certificate.
