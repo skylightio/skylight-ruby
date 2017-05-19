@@ -56,7 +56,7 @@ you should set the `SKYLIGHT_AUTHENTICATION` variable to:
 
         OUT
       rescue Api::CreateFailed => e
-        say "Could not create the application", :red
+        say "Could not create the application. Please run `skylight doctor` for diagnostics.", :red
         say e.to_s, :yellow
       rescue Interrupt
       end

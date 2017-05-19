@@ -17,7 +17,8 @@ module Skylight
               say "Failed to verify SSL certificate.", :red
               if Util::SSL.ca_cert_file?
                 say "Certificates located at #{Util::SSL.ca_cert_file_or_default} may be out of date.", :yellow
-                say "Please update your local certificates or try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your environment.", :yellow
+                say "If you are on a Mac with RVM installed, you may update your certificates by running `rvm osx-ssl-certs update all`", :yellow
+                say "Otherwise, please update your local certificates or try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your environment.", :yellow
               end
             else
               say "Unable to reach Skylight servers.", :red
