@@ -13,6 +13,7 @@ module Skylight
           if req.success?
             say "OK", :green
           else
+            encountered_error!
             if req.exception.is_a?(Util::HTTP::StartError) && req.exception.original.is_a?(OpenSSL::SSL::SSLError)
               say "Failed to verify SSL certificate.", :red
               if Util::SSL.ca_cert_file?
@@ -39,8 +40,9 @@ module Skylight
           if is_rails?
             say "Rails application detected", :green
           else
-            say "No Rails application detected", :red
-            abort "Currently `skylight doctor` only works with Rails applications"
+            say "No Rails application detected", :yellow
+            say "Additional `skylight doctor` checks only work with Rails applications.", :yellow
+            done!
           end
         end
 
@@ -54,6 +56,8 @@ module Skylight
           if Skylight.native?
             say "Native agent installed", :green
           else
+            encountered_error!
+
             say "Unable to load native extension", :yellow
 
             indent do
@@ -67,7 +71,7 @@ module Skylight
               end
             end
 
-            abort
+            done!
           end
         end
 
@@ -82,12 +86,15 @@ module Skylight
             config.validate!
             say "Configuration is valid", :green
           rescue ConfigError => e
+            encountered_error!
+
             say "Configuration is invalid", :red
             indent do
               say e.message, :red
               say "This may occur if you are configuring with ENV variables and didn't set them in this shell."
             end
-            abort
+
+            done!
           end
         end
 
@@ -116,8 +123,11 @@ module Skylight
           if started
             say "Successfully started", :green
           else
+            encountered_error!
+
             say "Failed to start", :red
-            abort
+
+            done!
           end
 
           say "Waiting for daemon... "
@@ -139,6 +149,8 @@ module Skylight
           if daemon_running
             say "Success", :green
           else
+            encountered_error!
+
             say "Failed", :red
           end
         end
@@ -146,8 +158,8 @@ module Skylight
         say "\n"
       end
 
-      def status
-        say "All checks passed!", :green
+      def wrap_up
+        done!
       end
 
       private
@@ -179,6 +191,29 @@ module Skylight
             @has_rvm = system("which rvm > /dev/null");
           end
           @has_rvm
+        end
+
+        def encountered_error!
+          @has_errors = true
+        end
+
+        def has_errors?
+          @has_errors
+        end
+
+        def done!
+          shell.padding = 0
+          say "\n\n"
+
+          if has_errors?
+            say "Skylight Doctor found some errors. Please review the output above.", :red
+            say "If you have any further questions, please contact support@skylight.io.", :yellow
+            exit 1
+          else
+            say "All checks passed!", :green
+            say "If you're still having trouble, please contact support@skylight.io.", :yellow
+            exit 0
+          end
         end
 
     end
