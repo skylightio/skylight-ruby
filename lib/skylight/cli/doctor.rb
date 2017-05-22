@@ -17,8 +17,12 @@ module Skylight
               say "Failed to verify SSL certificate.", :red
               if Util::SSL.ca_cert_file?
                 say "Certificates located at #{Util::SSL.ca_cert_file_or_default} may be out of date.", :yellow
-                say "If you are on a Mac with RVM installed, you may update your certificates by running `rvm osx-ssl-certs update all`", :yellow
-                say "Otherwise, please update your local certificates or try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your environment.", :yellow
+                if is_mac? && has_rvm?
+                  say "Please update your certificates with RVM by running `rvm osx-ssl-certs update all`.", :yellow
+                  say "Alternatively, try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your environment.", :yellow
+                else
+                  say "Please update your local certificates or try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your environment.", :yellow
+                end
               end
             else
               say "Unable to reach Skylight servers.", :red
@@ -164,6 +168,19 @@ module Skylight
             super
           end
         end
+
+        def is_mac?
+          Util::Platform::OS == 'darwin'
+        end
+
+        # NOTE: This check won't work correctly on Windows
+        def has_rvm?
+          if @has_rvm.nil?
+            @has_rvm = system("which rvm > /dev/null");
+          end
+          @has_rvm
+        end
+
     end
   end
 end
