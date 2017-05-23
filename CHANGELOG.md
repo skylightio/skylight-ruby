@@ -1,3 +1,7 @@
+## 1.3.1 (May 17, 2017)
+
+* [IMPROVEMENT] Better suggestions in `skylight doctor`.
+
 ## 1.3.0 (May 17, 2017)
 
 * [FEATURE] Add normalizer for couch_potato. (Thanks @cobot)
