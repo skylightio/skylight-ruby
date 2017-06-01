@@ -398,6 +398,10 @@ module Skylight
           expect(config['proxy_url']).to eq('127.0.0.1')
         end
 
+        it 'interpolates ERB' do
+          config['erb'].should == 'interpolated'
+        end
+
       end
 
       context 'invalid' do
