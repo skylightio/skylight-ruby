@@ -48,6 +48,22 @@ if enable
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
       ENV['SKYLIGHT_ENABLE_SEGMENTS']      = "true"
 
+      class CustomMiddleware
+
+        def initialize(app)
+          @app = app
+        end
+
+        def call(env)
+          if env["PATH_INFO"] == "/middleware"
+            return [200, { }, ["CustomMiddleware"]]
+          end
+
+          @app.call(env)
+        end
+
+      end
+
       class ::MyApp < Rails::Application
         if Rails.version =~ /^3\./
           config.secret_token = '095f674153982a9ce59914b561f4522a'
@@ -67,6 +83,8 @@ if enable
         config.logger.level = Logger::DEBUG
 
         config.eager_load = false
+
+        config.middleware.use CustomMiddleware
       end
 
       # We include instrument_method in multiple places to ensure
@@ -279,12 +297,63 @@ if enable
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
-        names = trace.spans.map { |s| s.event.category }
+        app_spans = trace.spans.map{|s| [s.event.category, s.event.title] }.select{|s| s[0] =~ /^app./ }
+        expect(app_spans).to eq([
+          ["app.rack.request", nil],
+          ["app.controller.request", "UsersController#index"],
+          ["app.method", "Check authorization"],
+          ["app.method", "UsersController#index"],
+          ["app.inside", nil],
+          ["app.zomg", nil]
+        ])
+      end
 
-        expect(names.length).to be >= 3
-        expect(names).to include('app.zomg')
-        expect(names).to include('app.inside')
-        expect(names[0]).to eq('app.rack.request')
+      it 'successfully instruments middleware', :middleware_probe do
+        call MyApp, env('/users')
+        server.wait resource: '/report'
+
+        trace = server.reports[0].endpoints[0].traces[0]
+
+        app_and_rack_spans = trace.spans.map{|s| [s.event.category, s.event.title] }.select{|s| s[0] =~ /^(app|rack)./ }
+
+        # We know the first one
+        expect(app_and_rack_spans[0]).to eq(["app.rack.request", nil])
+
+        # But the middlewares will be variable, depending on the Rails version
+        count = 0
+        while true do
+          break if app_and_rack_spans[count+1][0] != "rack.middleware"
+          count += 1
+        end
+
+        # We should have at least 1, but in reality a lot more
+        expect(count).to be > 1
+
+        # This one should be in all versions
+        expect(app_and_rack_spans).to include(["rack.middleware", "CustomMiddleware"])
+
+        # Check the rest
+        expect(app_and_rack_spans[(count+1)..-1]).to eq([
+          ["app.controller.request", "UsersController#index"],
+          ["app.method", "Check authorization"],
+          ["app.method", "UsersController#index"],
+          ["app.inside", nil],
+          ["app.zomg", nil]
+        ])
+      end
+
+      it 'successfully names requests handled by middleware', :middleware_probe do
+        res = call MyApp, env('/middleware')
+        expect(res).to eq(["CustomMiddleware"])
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+
+        expect(endpoint.name).to eq("CustomMiddleware")
       end
 
       it 'sets correct segment' do
