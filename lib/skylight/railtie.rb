@@ -17,6 +17,10 @@ module Skylight
     #   Also available: excon, redis, sinatra, tilt, sequel
     config.skylight.probes = ['net_http', 'action_controller', 'action_view', 'grape']
 
+    # The position in the middleware stack to place Skylight
+    # Default is first, but can be `{ after: Middleware::Name }` or `{ before: Middleware::Name }`
+    config.skylight.middleware_position = 0
+
     initializer 'skylight.configure' do |app|
       # Load probes even when agent is inactive to catch probe related bugs sooner
       load_probes
@@ -27,8 +31,7 @@ module Skylight
         if config
           begin
             if Instrumenter.start!(config)
-              # Insert the middleware at the front to capture as much as we can
-              app.middleware.insert 0, Middleware, config: config
+              set_middleware_position(app, config)
               Rails.logger.info "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
             else
               Rails.logger.info "[SKYLIGHT] [#{Skylight::VERSION}] Unable to start, see the Skylight logs for more details"
@@ -120,6 +123,32 @@ module Skylight
       probes = config.skylight.probes || []
       probes.each do |p|
         require "skylight/probes/#{p}"
+      end
+    end
+
+    def middleware_position
+      config.skylight.middleware_position.is_a?(Hash) ? config.skylight.middleware_position.symbolize_keys : config.skylight.middleware_position
+    end
+
+    def insert_middleware(app, config)
+      if middleware_position.has_key?(:after)
+        app.middleware.insert_after(middleware_position[:after], Skylight::Middleware, config: config)
+      elsif middleware_position.has_key?(:before)
+        app.middleware.insert_before(middleware_position[:before], Skylight::Middleware, config: config)
+      else
+        raise "The middleware position you have set is invalid. Please be sure `config.skylight.middleware_position` is set up correctly."
+      end
+    end
+
+    def set_middleware_position(app, config)
+      if middleware_position.is_a?(Integer)
+        app.middleware.insert middleware_position, Middleware, config: config
+      elsif middleware_position.is_a?(Hash) && middleware_position.keys.count == 1
+        insert_middleware(app, config)
+      elsif middleware_position.nil?
+        app.middleware.insert 0, Middleware, config: config
+      else
+        raise "The middleware position you have set is invalid. Please be sure `config.skylight.middleware_position` is set up correctly."
       end
     end
   end

@@ -209,6 +209,7 @@ if enable
     end
 
     after :each do
+      MyApp.config.skylight.middleware_position = 0
       ENV['SKYLIGHT_AUTHENTICATION']       = nil
       ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = nil
       ENV['SKYLIGHT_REPORT_URL']           = nil
@@ -354,6 +355,19 @@ if enable
         endpoint = batch.endpoints[0]
 
         expect(endpoint.name).to eq("CustomMiddleware")
+      end
+
+      it 'does not instrument middleware if Skylight position is after', :middleware_probe do
+        MyApp.config.skylight.middleware_position = { after: CustomMiddleware }
+        call MyApp, env('/users')
+        server.wait resource: '/report'
+
+        trace = server.reports[0].endpoints[0].traces[0]
+
+        titles = trace.spans.map{ |s| [s.event.title] }
+
+        # If Skylight runs after CustomMiddleware, we shouldn't see it
+        expect(titles).to_not include("CustomMiddleware")
       end
 
       it 'sets correct segment' do
