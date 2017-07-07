@@ -38,6 +38,7 @@ module Skylight
 
   # @api private
   TIERS = %w(
+    rack
     api
     app
     view
