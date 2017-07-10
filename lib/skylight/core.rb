@@ -68,6 +68,12 @@ module Skylight
     Instrumenter.stop!(*args)
   end
 
+  # Check tracing
+  def self.tracing?
+    inst = Instrumenter.instance
+    inst && inst.current_trace
+  end
+
   # Start a trace
   def self.trace(endpoint=nil, cat=nil, title=nil)
     unless inst = Instrumenter.instance
