@@ -59,6 +59,10 @@ end
 require 'net/http'
 require 'skylight/probes/net_http'
 
+if ENV['TEST_MIDDLEWARE_PROBE']
+  require "skylight/probes/middleware"
+end
+
 # End Probed Libraries
 
 
@@ -94,7 +98,7 @@ Dir[File.expand_path('../support/*.rb', __FILE__)].each do |f|
   require "support/#{File.basename(f, ".rb")}"
 end
 
-all_probes = %w(Excon Net::HTTP HTTPClient Redis Tilt::Template Sinatra::Base Sequel ActionView::TemplateRenderer)
+all_probes = %w(Excon Net::HTTP HTTPClient Redis Tilt::Template Sinatra::Base Sequel ActionView::TemplateRenderer ActionDispatch::MiddlewareStack::Middleware)
 installed_probes = Skylight::Probes.installed.keys
 skipped_probes = all_probes - installed_probes
 
@@ -104,6 +108,10 @@ puts "Skipping probes: #{skipped_probes.join(", ")}"  unless skipped_probes.empt
 
 ENV['SKYLIGHT_RAISE_ON_ERROR'] = "true"
 
+
+rspec_probe_tags = {
+  "ActionDispatch::MiddlewareStack::Middleware" => "middleware"
+}
 
 RSpec.configure do |config|
   config.color = true
@@ -129,7 +137,7 @@ RSpec.configure do |config|
     args = {}
 
     skipped_probes.each do |p|
-      probe_name = p.downcase.gsub('::', '_')
+      probe_name = rspec_probe_tags[p] || p.downcase.gsub('::', '_')
       args["#{probe_name}_probe".to_sym] = true
     end
 

@@ -27,6 +27,7 @@ module Skylight
         if config
           begin
             if Instrumenter.start!(config)
+              # Insert the middleware at the front to capture as much as we can
               app.middleware.insert 0, Middleware, config: config
               Rails.logger.info "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
             else

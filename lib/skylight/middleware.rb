@@ -40,6 +40,17 @@ module Skylight
       end
     end
 
+    def self.with_after_close(resp, &block)
+      # Responses should be finished but in some situations they aren't
+      #   e.g. https://github.com/ruby-grape/grape/issues/1041
+      if resp.respond_to?(:finish)
+        resp = resp.finish
+      end
+
+      resp[2] = BodyProxy.new(resp[2], &block)
+      resp
+    end
+
     include Util::Logging
 
     # For Util::Logging
@@ -51,7 +62,13 @@ module Skylight
     end
 
     def call(env)
-      if env["REQUEST_METHOD"] == "HEAD"
+      # Skylight can handle double tracing, but avoid the BodyProxy if we don't need it
+      # This generally shouldn't happen, but older verions of Rails can allow the same
+      # middleware to be inserted multiple times
+      if Skylight.tracing?
+        t { "already tracing, skipping" }
+        @app.call(env)
+      elsif env["REQUEST_METHOD"] == "HEAD"
         t { "middleware skipping HEAD" }
         @app.call(env)
       else
@@ -60,14 +77,11 @@ module Skylight
           trace = Skylight.trace "Rack", 'app.rack.request'
           resp = @app.call(env)
 
-          # Responses should be finished but in some situations they aren't
-          #   e.g. https://github.com/ruby-grape/grape/issues/1041
-          if resp.respond_to?(:finish)
-            resp = resp.finish
+          if trace
+            Middleware.with_after_close(resp) { trace.submit }
+          else
+            resp
           end
-
-          resp[2] = BodyProxy.new(resp[2]) { trace.submit } if trace
-          resp
         rescue Exception
           t { "middleware exception: #{trace}"}
           trace.submit if trace

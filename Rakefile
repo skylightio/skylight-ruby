@@ -147,7 +147,9 @@ def get_travis_builds
 end
 
 task :vagrant_up do
-  system("vagrant up --provision")
+  unless ENV['SKIP_PROVISION']
+    system("vagrant up --provision")
+  end
 end
 
 task :run_travis_builds => :vagrant_up do |t|

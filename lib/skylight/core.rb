@@ -38,6 +38,7 @@ module Skylight
 
   # @api private
   TIERS = %w(
+    rack
     api
     app
     view
@@ -65,6 +66,12 @@ module Skylight
   # Stop instrumenting
   def self.stop!(*args)
     Instrumenter.stop!(*args)
+  end
+
+  # Check tracing
+  def self.tracing?
+    inst = Instrumenter.instance
+    inst && inst.current_trace
   end
 
   # Start a trace

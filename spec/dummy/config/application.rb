@@ -10,4 +10,3 @@ module Dummy
     config.skylight.environments += ['staging']
   end
 end
-
