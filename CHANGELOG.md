@@ -1,3 +1,10 @@
+## 1.4.0-beta (July 13, 2017)
+
+* [FEATURE] Add probe for Rack Middlewares. To enable, add 'middleware' to `config.skylight.probes` list.
+* [IMPROVEMENT] Increase limit for items tracked in a requests
+* [IMPROVEMENT] Allow for more fine-grained control over position of Skylight::Middleware
+* [IMPROVEMENT] Avoid processing Skylight::Middleware unnecessarily
+
 ## 1.3.1 (May 17, 2017)
 
 * [IMPROVEMENT] Better suggestions in `skylight doctor`.
