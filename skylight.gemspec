@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.email       = ["engineering@tilde.io"]
   s.homepage    = "http://www.skylight.io"
   s.summary     = "Skylight is a smart profiler for Rails apps"
+  s.license     = "Nonstandard"
 
   s.required_ruby_version = ">= 1.9.2"
 
