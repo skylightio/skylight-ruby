@@ -64,11 +64,6 @@ if defined?(ActiveModel::Serializer)
       # Used by AM::S (older only?)
       def url_options; {} end
 
-      # Work without routes in Rails 3.0
-      def method_for_action(action_name)
-        action_name
-      end
-
       private
 
         def items
@@ -89,14 +84,6 @@ if defined?(ActiveModel::Serializer)
         controller.dispatch(action, request, ActionDispatch::TestResponse.new)
       else
         controller.dispatch(action, request)
-      end
-    end
-
-    before :each do
-      # When running with Rails 3.0 this gets defined but is nil
-      if defined?(Rails.application) && !Rails.application
-        application = double(env_defaults: {}, env_config: {}, config: nil)
-        allow(Rails).to receive(:application).and_return(application)
       end
     end
 

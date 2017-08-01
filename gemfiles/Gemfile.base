@@ -9,35 +9,17 @@ if ENV['CODECLIMATE_REPO_TOKEN']
   gem "codeclimate-test-reporter", "~> 1.0"
 end
 
-if RUBY_VERSION == '1.9.2'
-  gem 'rake', '~> 10.5'
-else
-  gem 'rake'
-end
-
+gem 'rake'
 gem 'timecop'
-
-if ruby_version < Gem::Version.new('2.0.0')
-  gem 'webmock', '< 2.0'
-  gem 'addressable', '~> 2.4.0'
-else
-  gem 'webmock'
-  if ruby_version < Gem::Version.new('2.1.0')
-    # webmock > addressable > public_suffix
-    # public_suffix 4 doesn't support 2.0
-    gem 'public_suffix', '< 3.0'
-  end
-end
+gem 'webmock'
 
 if ENV['RAILS_EDGE']
   gem 'rack', git: 'https://github.com/rack/rack', branch: 'master'
-elsif ruby_version < Gem::Version.new('2.2.2')
-  gem 'rack', '< 2.0'
 else
   gem 'rack'
 end
 
-gem 'beefcake', '< 1.0' # 1.0 doesn't work with 1.9.2
+gem 'beefcake'
 gem 'rspec', '~> 3.4.0'
 gem 'rspec-collection_matchers'
 gem 'rack-test'
@@ -51,19 +33,15 @@ unless ENV['SKIP_EXTERNAL']
   gem 'redis'
   gem 'fakeredis'
   gem 'httpclient'
+  gem 'mongo'
   gem 'faraday'
 
-  # The dependency bson requires 1.9.3+
-  if RUBY_VERSION != '1.9.2'
-    gem 'mongo'
+  unless ENV['MOPED_VERSION'] == 'skip'
+    gem 'moped', (ENV['MOPED_VERSION'] || '>= 2.0.7')
+  end
 
-    unless ENV['MOPED_VERSION'] == 'skip'
-      gem 'moped', (ENV['MOPED_VERSION'] || '>= 2.0.7')
-    end
-
-    unless ENV['MONGOID_VERSION'] == 'skip'
-      gem 'mongoid', (ENV['MONGOID_VERSION'] || '>= 5.0.0')
-    end
+  unless ENV['MONGOID_VERSION'] == 'skip'
+    gem 'mongoid', (ENV['MONGOID_VERSION'] || '>= 5.0.0')
   end
 
   unless ENV['SKIP_ELASTICSEARCH']

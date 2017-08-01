@@ -24,8 +24,6 @@ module Skylight
       expect(subject.is_available?("Nonexistent")).to be_falsey
 
       expect(subject.is_available?("Skylight::Nonexistent")).to be_falsey
-      # For some reason this can behave slightly differently than the previous one in certain
-      # versions of Rails. In 2.2.0 they appear to behave identically.
       expect(subject.is_available?("Skylight::Fail")).to be_falsey
     end
 

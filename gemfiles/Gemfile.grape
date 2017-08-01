@@ -9,10 +9,6 @@ end
 
 gem 'grape', version
 
-if RUBY_VERSION < '2.2.2'
-  gem 'activesupport', '< 4.0.0'
-end
-
 if RUBY_VERSION < '2.1.0'
   gem 'axiom-types', '0.0.5'
   gem 'i18n', '0.6.11'

@@ -65,17 +65,7 @@ if enable
       end
 
       class ::MyApp < Rails::Application
-        if Rails.version =~ /^3\./
-          config.secret_token = '095f674153982a9ce59914b561f4522a'
-        else
-          config.secret_key_base = '095f674153982a9ce59914b561f4522a'
-        end
-
-        if Rails.version =~ /^3/
-          # Workaround for initialization issue with 3.2
-          config.action_view.stylesheet_expansions = {}
-          config.action_view.javascript_expansions = {}
-        end
+        config.secret_key_base = '095f674153982a9ce59914b561f4522a'
 
         config.active_support.deprecation = :stderr
 
@@ -125,7 +115,7 @@ if enable
 
         def index
           Skylight.instrument category: 'app.inside' do
-            if Rails.version =~ /^(3|4)\./
+            if Rails.version =~ /^4\./
               render text: "Hello"
             else
               render plain: "Hello"
@@ -149,7 +139,7 @@ if enable
               end
             end
             format.html do
-              if Rails.version =~ /^(3|4)\./
+              if Rails.version =~ /^4\./
                 render text: "Hola: #{params[:id]}"
               else
                 render plain: "Hola: #{params[:id]}"
@@ -174,7 +164,7 @@ if enable
 
         def status
           s = params[:status] || 200
-          if Rails.version =~ /^(3|4)\./
+          if Rails.version =~ /^4\./
             render text: s, status: s
           else
             render plain: s, status: s
@@ -201,11 +191,6 @@ if enable
       end
 
       class ::MetalController < ActionController::Metal
-        # Ensure ActiveSupport::Notifications events are fired
-        if Rails.version =~ /^3\./
-          include ActionController::RackDelegation
-        end
-
         include ActionController::Instrumentation
 
         def show
@@ -236,12 +221,6 @@ if enable
       ENV['SKYLIGHT_ENABLE_SEGMENTS']      = nil
 
       Skylight.stop!
-
-      if Rails.version =~ /^3.0/
-        Rails::Application.class_eval do
-          @@instance = nil
-        end
-      end
 
       # Clean slate
       Object.send(:remove_const, :MyApp)
@@ -291,7 +270,7 @@ if enable
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
 
-        segment = Rails.version =~ /^[34]\./ ? 'html' : 'text'
+        segment = Rails.version =~ /^4\./ ? 'html' : 'text'
         expect(endpoint.name).to eq("UsersController#index<sk-segment>#{segment}</sk-segment>")
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
@@ -495,7 +474,7 @@ if enable
       it 'sets correct segment when no template is found' do
         status, headers, body = call_full MyApp, env('/users/no_template')
 
-        if Rails.version =~ /^[34]\./
+        if Rails.version =~ /^4\./
           expect(status).to eq(500)
         else
           expect(status).to eq(406)

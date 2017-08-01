@@ -3,14 +3,6 @@ module Skylight
     module ActionView
       class Probe
         def install
-          # Rails 3.0 didn't have ActionView::TemplateRenderer, but it also
-          # didn't have the bug that this probe is trying to fix. In Rails
-          # 3.1, a templating engine refactor moved the layout rendering out
-          # of the existing instrumentation, making any other events that
-          # happen inside of the layout appear to happen directly inside the
-          # parent (usually the controller).
-          return if [ActionPack::VERSION::MAJOR, ActionPack::VERSION::MINOR] == [3, 0]
-
           ::ActionView::TemplateRenderer.class_eval do
             alias render_with_layout_without_sk render_with_layout
 
@@ -22,7 +14,7 @@ module Skylight
                   # Rails 5
                   layout = find_layout(path, locals.keys, [formats.first])
                 else
-                  # Rails 3, 4
+                  # Rails 4
                   layout = find_layout(path, locals.keys)
                 end
               end
