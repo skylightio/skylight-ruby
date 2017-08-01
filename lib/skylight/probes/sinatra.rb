@@ -3,6 +3,12 @@ module Skylight
     module Sinatra
       class Probe
         def install
+          if ::Sinatra::VERSION < '1.4.0'
+            # Using $stderr here isn't great, but we don't have a logger accessible
+            $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] Sinatra must be version 1.4.0 or greater."
+            return
+          end
+
           class << ::Sinatra::Base
             alias build_without_sk build
             alias compile_without_sk! compile!
@@ -18,15 +24,6 @@ module Skylight
                   wrapper.instance_variable_set(:@route_name, "#{verb} #{human_readable}")
                 else
                   wrapper.instance_variable_set(:@route_name, "#{verb} #{path}")
-                end
-
-                # Newer versions of Sinatra populate env['sinatra.route']. Polyfill older
-                # versions in a targeted but hackish way.
-                if ::Sinatra::VERSION < '1.4.0'
-                  def wrapper.[](app, args)
-                    app.env['sinatra.route'] = @route_name
-                    super
-                  end
                 end
               end
             end

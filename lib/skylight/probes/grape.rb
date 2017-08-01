@@ -18,12 +18,6 @@ module Skylight
             return
           end
 
-          # Grape relies on this but does doesn't correctly require it.
-          # However, when using ActiveSupport 4 it is implicitly loaded,
-          #   in AS 3, it will fail.
-          # https://github.com/ruby-grape/grape/issues/1087
-          require 'active_support/core_ext/hash/except'
-
           ::Grape::Endpoint.class_eval do
             alias initialize_without_sk initialize
             def initialize(*args, &block)

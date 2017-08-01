@@ -12,13 +12,6 @@ end
 
 if enable
 
-  IS_RAILS_4_1_PLUS = Gem::Version.new(Rails.version) >= Gem::Version.new('4.1');
-
-  TEST_VARIANTS = IS_RAILS_4_1_PLUS
-  if !TEST_VARIANTS
-    puts "[INFO] Skipping Rails format variants test. Must be at least Rails 4.1."
-  end
-
   describe 'Rails integration' do
 
     def boot
@@ -131,12 +124,8 @@ if enable
         def show
           respond_to do |format|
             format.json do |json|
-              if TEST_VARIANTS
-                json.tablet { render json: { hola_tablet: params[:id] } }
-                json.none   { render json: { hola: params[:id] } }
-              else
-                render json: { hola: params[:id] }
-              end
+              json.tablet { render json: { hola_tablet: params[:id] } }
+              json.none   { render json: { hola: params[:id] } }
             end
             format.html do
               if Rails.version =~ /^4\./
@@ -428,11 +417,7 @@ if enable
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
 
-        if IS_RAILS_4_1_PLUS
-          expect(endpoint.name).to eq("UsersController#header")
-        else
-          expect(endpoint.name).to eq("UsersController#header<sk-segment>html</sk-segment>")
-        end
+        expect(endpoint.name).to eq("UsersController#header")
 
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
@@ -491,33 +476,31 @@ if enable
         expect(endpoint.name).to eq("UsersController#no_template<sk-segment>error</sk-segment>")
       end
 
-      if TEST_VARIANTS
-        it 'sets correct segment with variant' do
-          res = call MyApp, env('/users/1.json?tablet=1')
-          expect(res).to eq([{ hola_tablet: '1' }.to_json])
+      it 'sets correct segment with variant' do
+        res = call MyApp, env('/users/1.json?tablet=1')
+        expect(res).to eq([{ hola_tablet: '1' }.to_json])
 
-          server.wait resource: '/report'
+        server.wait resource: '/report'
 
-          batch = server.reports[0]
-          expect(batch).to_not be nil
-          expect(batch.endpoints.count).to eq(1)
-          endpoint = batch.endpoints[0]
-          expect(endpoint.name).to eq("UsersController#show<sk-segment>json+tablet</sk-segment>")
-        end
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("UsersController#show<sk-segment>json+tablet</sk-segment>")
+      end
 
-        it 'sets correct segment for `head` with variant' do
-          status, headers, body = call_full MyApp, env('/users/header?tablet=1', 'HTTP_ACCEPT' => 'application/json')
-          expect(status).to eq(200)
-          expect(body[0].strip).to eq('') # Some Rails versions have a space, some don't
+      it 'sets correct segment for `head` with variant' do
+        status, headers, body = call_full MyApp, env('/users/header?tablet=1', 'HTTP_ACCEPT' => 'application/json')
+        expect(status).to eq(200)
+        expect(body[0].strip).to eq('') # Some Rails versions have a space, some don't
 
-          server.wait resource: '/report'
+        server.wait resource: '/report'
 
-          batch = server.reports[0]
-          expect(batch).to_not be nil
-          expect(batch.endpoints.count).to eq(1)
-          endpoint = batch.endpoints[0]
-          expect(endpoint.name).to eq("UsersController#header")
-        end
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("UsersController#header")
       end
 
       it 'can instrument metal controllers' do

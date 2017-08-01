@@ -25,12 +25,10 @@ rvm:
   - 2.4.1
 
 gemfile:
-  - gemfiles/Gemfile.rails-4.0.x
-  - gemfiles/Gemfile.rails-4.1.x
   - gemfiles/Gemfile.rails-4.2.x
   - gemfiles/Gemfile.rails-5.x
-  - gemfiles/Gemfile.sinatra-1.3.x
   - gemfiles/Gemfile.sinatra-1.4.x
+  - gemfiles/Gemfile.sinatra-2.0.x
   - gemfiles/Gemfile.grape
   # Declared manually in the matrix
   # - gemfiles/Gemfile.sinatra-edge
@@ -61,13 +59,9 @@ matrix:
     # Test old Tilt version (with Rails since Sinatra doesn't like old Tilt)
     - rvm: 2.4.1
       env:
-        - TILT_VERSION=1.1
+        - TILT_VERSION=1.4.1
       gemfile: gemfiles/Gemfile.rails-4.2.x
     - rvm: 2.4.1
-      env:
-        - SEQUEL_VERSION=3.12.0
-      gemfile: gemfiles/Gemfile.sinatra-1.4.x
-    - rvm: 2.4.0
       env:
         - SEQUEL_VERSION=4.34.0 # Some changes were made in 4.35.0
       gemfile: gemfiles/Gemfile.sinatra-1.4.x
