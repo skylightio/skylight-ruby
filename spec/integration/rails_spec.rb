@@ -379,7 +379,7 @@ if enable
 
       it 'sets correct segment for exceptions' do
         res = call MyApp, env('/users/failure')
-        expect(res[0]).to be_blank # Some Rails versions are empty string some are nil
+        expect(res).to be_empty
 
         server.wait resource: '/report'
 
