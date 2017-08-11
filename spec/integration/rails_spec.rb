@@ -31,6 +31,8 @@ if enable
       end
     end
 
+    class ControllerError < StandardError; end
+
     before :each do
       ENV['SKYLIGHT_AUTHENTICATION']       = "lulz"
       ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
@@ -92,8 +94,6 @@ if enable
       class ::UsersController < ActionController::Base
         include Skylight::Helpers
 
-        class Error < StandardError; end
-
         if respond_to?(:before_action)
           before_action :authorized?
           before_action :set_variant
@@ -102,7 +102,7 @@ if enable
           before_filter :set_variant
         end
 
-        rescue_from 'Error' do |exception|
+        rescue_from 'ControllerError' do |exception|
           render json: { error: exception.message }, status: 500
         end
 
@@ -142,7 +142,7 @@ if enable
         end
 
         def handled_failure
-          raise Error, "Handled!"
+          raise ControllerError, "Handled!"
         end
 
         def header
