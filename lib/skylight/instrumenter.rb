@@ -18,7 +18,7 @@ module Skylight
     end
 
     def process_sql(sql)
-      Skylight.lex_sql(sql)
+      Skylight.lex_sql(sql, config[:use_old_sql_lexer])
     end
   end
 end
