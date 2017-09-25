@@ -11,10 +11,13 @@ module Skylight
                                                       method: method,
                                                       path:   path do
 
+
                 # Prevent HTTP-related probes from firing
-                disable_skylight_probe(:NetHTTP) do
-                  disable_skylight_probe(:HTTPClient) do
-                    perform_request_without_sk(method, path, *args, &block)
+                Skylight::Normalizers::Faraday::Request.disable do
+                  disable_skylight_probe(:NetHTTP) do
+                    disable_skylight_probe(:HTTPClient) do
+                      perform_request_without_sk(method, path, *args, &block)
+                    end
                   end
                 end
               end

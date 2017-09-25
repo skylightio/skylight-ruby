@@ -46,6 +46,7 @@ unless ENV['SKIP_EXTERNAL']
   gem 'redis'
   gem 'fakeredis'
   gem 'httpclient'
+  gem 'faraday'
 
   # The dependency bson requires 1.9.3+
   if RUBY_VERSION != '1.9.2'

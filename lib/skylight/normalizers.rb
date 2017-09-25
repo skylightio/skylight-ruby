@@ -148,6 +148,7 @@ module Skylight
         elasticsearch/request
         grape/endpoint
         moped/query
+        faraday/request
         couch_potato/query).each do |file|
       require "skylight/normalizers/#{file}"
     end

@@ -34,7 +34,7 @@ if ENV['AMS_VERSION'] == 'edge'
   require 'active_support/inflector'
 end
 
-%w(excon tilt sinatra sequel grape mongo moped mongoid active_model_serializers httpclient elasticsearch).each do |library|
+%w(excon tilt sinatra sequel grape faraday mongo moped mongoid active_model_serializers httpclient elasticsearch).each do |library|
   begin
     require library
     require "skylight/probes/#{library}"
@@ -98,7 +98,7 @@ Dir[File.expand_path('../support/*.rb', __FILE__)].each do |f|
   require "support/#{File.basename(f, ".rb")}"
 end
 
-all_probes = %w(Excon Net::HTTP HTTPClient Redis Tilt::Template Sinatra::Base Sequel ActionView::TemplateRenderer ActionDispatch::MiddlewareStack::Middleware)
+all_probes = %w(Excon Faraday Net::HTTP HTTPClient Redis Tilt::Template Sinatra::Base Sequel ActionView::TemplateRenderer ActionDispatch::MiddlewareStack::Middleware)
 installed_probes = Skylight::Probes.installed.keys
 skipped_probes = all_probes - installed_probes
 
