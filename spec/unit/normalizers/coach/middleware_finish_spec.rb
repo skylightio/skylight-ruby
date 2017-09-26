@@ -3,6 +3,9 @@ require 'spec_helper'
 module Skylight
   describe "Normalizers", "coach.middleware.finish", :agent do
 
+    # Coach instrumentation is only available in Ruby 2+
+    skip unless RUBY_VERSION.split.first.to_i > 1
+
     before :each do
       @original_enable_segments = config.enable_segments?
       config.set(:enable_segments, true)
