@@ -116,6 +116,8 @@ rspec_probe_tags = {
 RSpec.configure do |config|
   config.color = true
 
+  config.example_status_persistence_file_path = File.expand_path("../../tmp/rspec-examples.txt", __FILE__)
+
   unless defined?(Moped) && defined?(Mongoid)
     config.filter_run_excluding moped: true
   end
