@@ -45,6 +45,7 @@ module SpecHelper
       authentication: "lulz",
       log: log_path,
       log_level: :debug,
+      user_config_path: tmp("user_config.yml"),
       report_url: "http://localhost:#{port}/report",
       report_http_deflate: false,
       report_http_connect_timeout: "1sec",

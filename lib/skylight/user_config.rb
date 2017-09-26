@@ -5,24 +5,21 @@ module Skylight
 
     attr_accessor :disable_dev_warning, :disable_env_warning
 
-    def self.instance
-      @instance ||= new
-    end
-
-    def initialize
+    def initialize(config)
+      @config = config
       reload
     end
 
     def file_path
       return @file_path if @file_path
 
-      config_path = ENV.fetch("SKYLIGHT_USER_CONFIG_PATH") do
+      config_path = @config[:user_config_path] || begin
         require "etc"
         home_dir = ENV['HOME'] || Etc.getpwuid.dir || (ENV["USER"] && File.expand_path("~#{ENV['USER']}"))
         if home_dir
           File.join(home_dir, ".skylight")
         else
-          raise KeyError, "SKYLIGHT_USER_CONFIG_PATH must be defined since the home directory cannot be inferred"
+          raise ConfigError, "The Skylight `user_config_path` must be defined since the home directory cannot be inferred"
         end
       end
 

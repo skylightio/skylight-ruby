@@ -4,7 +4,7 @@ module Skylight
   describe UserConfig do
 
     let :config do
-      UserConfig.new
+      UserConfig.new(Config.load)
     end
 
     def set_file_path(path)
@@ -64,7 +64,7 @@ module Skylight
         with_env('HOME' => nil, 'USER' => nil) do
           expect {
             config.file_path
-          }.to raise_error(KeyError, "SKYLIGHT_USER_CONFIG_PATH must be defined since the home directory cannot be inferred")
+          }.to raise_error(ConfigError, "The Skylight `user_config_path` must be defined since the home directory cannot be inferred")
         end
       end
     end

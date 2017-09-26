@@ -59,6 +59,9 @@ module Skylight
       "REPORT_HTTP_CONNECT_TIMEOUT"  => :report_http_connect_timeout,
       "REPORT_HTTP_READ_TIMEOUT"     => :report_http_read_timeout,
 
+      # == User config settings ==
+      "USER_CONFIG_PATH"             => :'user_config_path',
+
       # == Native agent settings ==
       #
       "LAZY_START"                   => :'daemon.lazy_start',
@@ -598,6 +601,10 @@ authentication: #{self[:authentication]}
 
     def enable_segments?
       !!get(:enable_segments)
+    end
+
+    def user_config
+      @user_config ||= UserConfig.new(self)
     end
 
   private

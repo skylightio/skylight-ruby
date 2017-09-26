@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'tmpdir'
+require 'fileutils'
 
 describe "Initialization integration" do
 
@@ -20,10 +21,12 @@ describe "Initialization integration" do
   around :each do |example|
     # Any ENV vars set inside of with_clean_env will be reset
     with_standalone(dir: @tmpdir) do
+      user_config_path = "#{@tmpdir}/skylight_user_config.yml"
       ENV['SKYLIGHT_AUTHENTICATION'] = 'lulz'
       ENV['SKYLIGHT_AGENT_STRATEGY'] = 'embedded'
-      ENV['SKYLIGHT_USER_CONFIG_PATH'] = "#{@tmpdir}/.skylight"
+      ENV['SKYLIGHT_USER_CONFIG_PATH'] = user_config_path
       example.run
+      FileUtils.rm_f user_config_path
     end
   end
 
@@ -64,6 +67,13 @@ describe "Initialization integration" do
 
           boot
           expect(File.read("log/development.log")).to_not include "[SKYLIGHT] [#{Skylight::VERSION}] authentication token required; disabling Skylight agent"
+        end
+
+        it "doesn't warn in development mode if disable_dev_warning has been set" do
+          # `bundle exec skylight disable_dev_warning`
+          Skylight::CLI::Base.new.disable_dev_warning
+
+          boot.should_not include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
         end
 
       end
