@@ -158,5 +158,8 @@ module Skylight
         couch_potato/query).each do |file|
       require "skylight/normalizers/#{file}"
     end
+
+    # The following are not required by default as they are of dubious usefulness:
+    # - active_record/instantiation
   end
 end
