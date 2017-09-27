@@ -6,16 +6,6 @@ module Skylight
     # Coach instrumentation is only available in Ruby 2+
     skip unless RUBY_VERSION.split.first.to_i > 1
 
-    before :each do
-      @original_enable_segments = config.enable_segments?
-      config.set(:enable_segments, true)
-    end
-
-    after :each do
-      config.set(:enable_segments, @original_enable_segments)
-    end
-
-    let(:enable_segments) { false }
     let(:event) { { middleware: "Auth" } }
 
     it "updates the trace's endpoint" do
