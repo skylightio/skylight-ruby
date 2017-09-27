@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   # Dependencies
-  s.add_dependency('activesupport', '>= 3.0.0')
+  s.add_dependency('activesupport', '>= 4.2.0')
 
   # Executables
   s.executables = %w(skylight)
