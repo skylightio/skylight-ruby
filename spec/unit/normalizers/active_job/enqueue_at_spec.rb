@@ -11,6 +11,9 @@ end
 if enable
   module Skylight
     describe "ActiveJob", "enqueue_at.active_job", :agent do
+      # Not enabled by default due to questionable usefulness
+      require "skylight/normalizers/active_job/enqueue_at"
+
       class TestJob < ::ActiveJob::Base
       end
 

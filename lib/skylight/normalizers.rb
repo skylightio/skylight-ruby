@@ -151,7 +151,6 @@ module Skylight
         active_model_serializers/render
         active_record/sql
         active_support/cache
-        active_job/enqueue_at
         elasticsearch/request
         grape/endpoint
         moped/query
@@ -162,5 +161,6 @@ module Skylight
 
     # The following are not required by default as they are of dubious usefulness:
     # - active_record/instantiation
+    # - active_job/enqueue_at
   end
 end
