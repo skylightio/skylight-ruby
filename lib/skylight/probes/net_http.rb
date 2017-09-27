@@ -3,6 +3,7 @@ require 'skylight/formatters/http'
 module Skylight
   module Probes
     module NetHTTP
+      # Probe for instrumenting Net::HTTP requests. Works by monkeypatching the default Net::HTTP#request method.
       class Probe
         DISABLED_KEY = :__skylight_net_http_disabled
 

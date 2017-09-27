@@ -3,6 +3,7 @@ require "json"
 module Skylight
   module Normalizers
     module ActiveRecord
+      # Normalizer for SQL requests
       class SQL < Normalizer
         register "sql.active_record"
         register "sql.sequel"
@@ -10,6 +11,12 @@ module Skylight
 
         CAT = "db.sql.query".freeze
 
+        # @param trace [Skylight::Messages::Trace::Builder] ignored, only present to match API
+        # @param name [String] ignored, only present to match API
+        # @param payload [Hash]
+        # @option payload [String] [:name] The SQL operation
+        # @option payload [Hash] [:binds] The bound parameters
+        # @return [Array]
         def normalize(trace, name, payload)
           case payload[:name]
           when "SCHEMA".freeze, "CACHE".freeze

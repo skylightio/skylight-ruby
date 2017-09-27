@@ -1,6 +1,7 @@
 module Skylight
   module Probes
     module Excon
+      # Probe for instrumenting Excon requests. Installs {Excon::Middleware} to achieve this.
       class Probe
         def install
           if defined?(::Excon::Middleware)

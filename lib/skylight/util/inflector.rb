@@ -1,9 +1,11 @@
 module Skylight
   module Util
+
+    # String Inflector methods
+    #
+    # From https://github.com/rails/rails/blob/f8e5022c73679f41db9bb6743179bab4571fb28e/activesupport/lib/active_support/inflector/methods.rb
     module Inflector
       extend self
-
-      # From https://github.com/rails/rails/blob/f8e5022c73679f41db9bb6743179bab4571fb28e/activesupport/lib/active_support/inflector/methods.rb
 
       # Tries to find a constant with the name specified in the argument string.
       #

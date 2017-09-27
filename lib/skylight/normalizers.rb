@@ -47,6 +47,7 @@ module Skylight
       end
     end
 
+    # Base Normalizer for Rails rendering
     class RenderNormalizer < Normalizer
       include Util::AllocationFree
 
@@ -54,6 +55,11 @@ module Skylight
         @paths = config['normalizers.render.view_paths'] || []
       end
 
+      # Generic normalizer for renders
+      # @param category [String]
+      # @param payload [Hash]
+      # @option payload [String] :identifier
+      # @return [Array]
       def normalize_render(category, payload)
         if path = payload[:identifier]
           title = relative_path(path)

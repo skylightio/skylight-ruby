@@ -6,6 +6,15 @@ module Skylight
 
         CAT = "db.mongo.query".freeze
 
+        # Normalizes a Moped operation
+        #
+        # @param trace [Skylight::Messages::Trace::Builder] ignored, only present to match API
+        # @param name [String] ignored, only present to match API
+        # @param payload [Hash]
+        # @option payload [Array<Moped::Protocol::*>] :ops array of performed operations. Supported operations are
+        #   `Query`, `GetMore`, `Insert`, `Update`, and `Delete`.
+        # @option payload [String] :prefix ignored, provided by Moped
+        # @return [Array, :skip] the normalized array or `:skip` if not a known operation type
         def normalize(trace, name, payload)
           # payload: { prefix: "  MOPED: #{address.resolved}", ops: operations }
 

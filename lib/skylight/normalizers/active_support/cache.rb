@@ -33,6 +33,7 @@ if defined?(ActiveSupport::Cache::Store.instrument)
   end
 
   unless deprecated
+    # @api private
     class ActiveSupport::Cache::Store
       def self.instrument
         true
