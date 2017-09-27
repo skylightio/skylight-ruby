@@ -24,11 +24,13 @@ module Skylight
     end
 
     module Logging
+
       def self.trace?
         ENV[TRACE_ENV_KEY]
       end
 
       if trace?
+        # The second set is picked up by YARD
         def trace(msg, *args)
           log :debug, msg, *args
         end
@@ -37,25 +39,44 @@ module Skylight
           log :debug, yield
         end
       else
-        def trace(*)
+        # Logs if `ENV[TRACE_ENV_KEY]` is set.
+        #
+        # @param (see #debug)
+        #
+        # See {TRACE_ENV_KEY}.
+        def trace(msg, *args)
         end
 
+        # Evaluates and logs the result of the block if `ENV[TRACE_ENV_KEY]` is set
+        #
+        # @yield block to be evaluted
+        # @yieldreturn arguments for {#debug}
+        #
+        # See {TRACE_ENV_KEY}.
         def t
         end
       end
 
+      # @param msg (see #log)
+      # @param args (see #log)
       def debug(msg, *args)
         log :debug, msg, *args
       end
 
+      # @param msg (see #log)
+      # @param args (see #log)
       def info(msg, *args)
         log :info, msg, *args
       end
 
+      # @param msg (see #log)
+      # @param args (see #log)
       def warn(msg, *args)
         log :warn, msg, *args
       end
 
+      # @param msg (see #log)
+      # @param args (see #log)
       def error(msg, *args)
         raise sprintf(msg, *args) if ENV['SKYLIGHT_RAISE_ON_ERROR']
         log :error, msg, *args
@@ -67,8 +88,15 @@ module Skylight
       alias log_warn  warn
       alias log_error error
 
-      alias fmt       sprintf
+      # Alias for `Kernel#sprintf`
+      # @return [String]
+      def fmt(*args)
+        sprintf(*args)
+      end
 
+      # @param level [String,Symbol] the method on `logger` to use for logging
+      # @param msg [String] the message to log
+      # @param args [Array] values for `Kernel#sprintf` on `msg`
       def log(level, msg, *args)
         c = if respond_to?(:config)
           config

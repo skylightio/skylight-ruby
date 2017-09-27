@@ -1,6 +1,7 @@
 module Skylight
   module Normalizers
     module ActionController
+      # Normalizer for processing a Rails controller action
       class ProcessAction < Normalizer
         register "process_action.action_controller"
 
@@ -10,6 +11,12 @@ module Skylight
         #   Additional keys available in `normalize_after`: status, view_runtime
         #     Along with ones added by probe: variant
 
+        # @param trace [Skylight::Messages::Trace::Builder]
+        # @param name [String] ignored, only present to match API
+        # @param payload [Hash]
+        # @option payload [String] :controller Controller name
+        # @option payload [String] :action Action name
+        # @return [Array]
         def normalize(trace, name, payload)
           trace.endpoint = controller_action(payload)
           [ CAT, trace.endpoint, nil ]

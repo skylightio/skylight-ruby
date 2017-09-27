@@ -9,6 +9,7 @@ require 'skylight/util/proxy'
 # Used from extconf.rb
 module Skylight
   module Util
+    # Utility class for fetching the native extension from a URL
     class NativeExtFetcher
       BASE_URL = "https://s3.amazonaws.com/skylight-agent-packages/skylight-native"
       MAX_REDIRECTS = 5
@@ -18,6 +19,8 @@ module Skylight
 
       class FetchError < StandardError; end
 
+      # Creates a new fetcher and fetches
+      # @param opts [Hash]
       def self.fetch(opts = {})
         fetcher = new(
           opts[:source] || BASE_URL,
@@ -32,6 +35,14 @@ module Skylight
         fetcher.fetch
       end
 
+      # @param source [String] the base url to download from
+      # @param target [String] file to download as
+      # @param version [String] version to download
+      # @param checksum [String] checksum of the archive
+      # @param arch [String] platform architecture, e.g. `linux-x86_64`
+      # @param required [Boolean] whether the download is required to be successful
+      # @param platform
+      # @param log [Logger]
       def initialize(source, target, version, checksum, arch, required, platform, log)
         raise "source required" unless source
         raise "target required" unless target
@@ -48,6 +59,9 @@ module Skylight
         @log = log
       end
 
+      # Fetch the native extension, verify, inflate, and save (if applicable)
+      #
+      # @return [String] the inflated archive
       def fetch
         log "fetching native ext; curr-platform=#{@platform}; " \
           "requested-arch=#{@arch}; version=#{@version}"
@@ -118,6 +132,15 @@ module Skylight
         return
       end
 
+      # Get with `Net::HTTP`
+      #
+      # @param host [String] host for `Net::HTTP` request
+      # @param port [String,Integer] port for `Net::HTTP` request
+      # @param use_ssl [Boolean] whether SSL should be used for this request
+      # @param path [String] the path to request
+      # @param out [IO]
+      #
+      # If `ENV['HTTP_PROXY']` is set, it will be used as a proxy for this request.
       def http_get(host, port, use_ssl, path, out)
         if http_proxy = Proxy.detect_url(ENV)
           log "connecting with proxy: #{http_proxy}"
@@ -158,6 +181,10 @@ module Skylight
         end
       end
 
+      # Verify the checksum of the archive
+      #
+      # @param actual [String]
+      # @return [Boolean] whether the checksum matches
       def verify_checksum(actual)
         unless @checksum == actual
           log "checksum mismatch; expected=#{@checksum}; actual=#{actual}"
@@ -174,15 +201,26 @@ module Skylight
         "skylight_#{@arch}.tar.gz"
       end
 
+      # The url that will be fetched
+      #
+      # @return String
       def source_uri
         "#{@source}/#{@version}/#{basename}"
       end
 
+      # Split the uri string into its component parts
+      #
+      # @param uri [String] the uri
+      # @return [Array<String>] the host, port, scheme, and request_uri
       def deconstruct_uri(uri)
         uri = URI(uri)
         [ uri.host, uri.port, uri.scheme == 'https', uri.request_uri ]
       end
 
+      # Log an error and raise if `required` is `true`
+      #
+      # @param err [String]
+      # @return [void]
       def maybe_raise(err)
         error err
 
@@ -191,11 +229,20 @@ module Skylight
         end
       end
 
+      # Log an `info` to the `logger`
+      #
+      # @param msg [String]
+      # @return [void]
       def log(msg)
         msg = "[SKYLIGHT] #{msg}"
         @log.info msg
       end
 
+      # Log an `error` to the `logger`
+      #
+      # @param msg [String]
+      # @param e [Exception] the exception associated with the error
+      # @return [void]
       def error(msg, e=nil)
         msg = "[SKYLIGHT] #{msg}"
         msg << "\n#{e.backtrace.join("\n")}" if e

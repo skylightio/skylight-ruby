@@ -1,5 +1,6 @@
 require 'skylight/version'
 
+# Root Skylight namespace
 module Skylight
   # @api private
   TRACE_ENV_KEY = 'SKYLIGHT_ENABLE_TRACE_LOGS'.freeze

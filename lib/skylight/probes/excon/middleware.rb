@@ -3,6 +3,8 @@ require 'skylight/formatters/http'
 module Skylight
   module Probes
     module Excon
+
+      # Middleware for Excon that instruments requests
       class Middleware < ::Excon::Middleware::Base
 
         # This probably won't work since config isn't defined
