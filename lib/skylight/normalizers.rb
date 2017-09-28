@@ -161,5 +161,6 @@ module Skylight
 
     # The following are not required by default as they are of dubious usefulness:
     # - active_record/instantiation
+    # - active_job/enqueue_at
   end
 end
