@@ -13,9 +13,10 @@ module Skylight
     config.skylight.config_path = "config/skylight.yml"
 
     # The probes to load
-    #   net_http, action_controller, action_view, and grape are on by default
-    #   Also available: excon, redis, sinatra, tilt, sequel
-    config.skylight.probes = ['net_http', 'action_controller', 'action_view', 'grape']
+    #   net_http, action_controller, action_view, middleware, and grape are on by default
+    #   See https://www.skylight.io/support/getting-more-from-skylight#available-instrumentation-options
+    #   for a full list.
+    config.skylight.probes = ['net_http', 'action_controller', 'action_view', 'middleware', 'grape']
 
     # The position in the middleware stack to place Skylight
     # Default is first, but can be `{ after: Middleware::Name }` or `{ before: Middleware::Name }`
