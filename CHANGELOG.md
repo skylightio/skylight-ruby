@@ -4,7 +4,7 @@
 * [FEATURE] Rack Middleware probe enabled by default
 * [FEATURE] ActiveRecord Instantiation instrumentation
 * [IMPROVEMENT] Improved handling of the user-level configuration options
-* [EXPERIMENTAL] ActionJob Enqueue instrumentation. (Only tracks the enqueuing of new jobs. Does not instrument jobs themselves. Off by default since it's not clear how useful it is. To enable: `require 'skylight/normalizers/active_job/enqueue_at`.)
+* [EXPERIMENTAL] ActionJob Enqueue instrumentation. (Only tracks the enqueuing of new jobs. Does not instrument jobs themselves. Off by default since it's not clear how useful it is. To enable: `require 'skylight/normalizers/active_job/enqueue_at'`.)
 * [EXPERIMENTAL] FreeBSD support. (This should work automatically on FreeBSD systems, but real-world testing has been minimal.)
 
 ## 1.4.0-beta (July 13, 2017)
