@@ -8,7 +8,7 @@ module Skylight
 
         def normalize(trace, name, payload)
           # Payload also includes `:record_count` but this will be variable
-          [ CAT, payload[:class_name], nil]
+          [ CAT, "#{payload[:class_name]} Instantiation", nil]
         end
 
       end

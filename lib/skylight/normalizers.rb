@@ -149,6 +149,7 @@ module Skylight
         action_view/render_partial
         action_view/render_template
         active_model_serializers/render
+        active_record/instantiation
         active_record/sql
         active_support/cache
         elasticsearch/request
@@ -160,7 +161,6 @@ module Skylight
     end
 
     # The following are not required by default as they are of dubious usefulness:
-    # - active_record/instantiation
     # - active_job/enqueue_at
   end
 end
