@@ -1,18 +1,14 @@
-## 1.4.0-beta.2 (September 28, 2017)
+## 1.4.0 (October 4, 2017)
 
-* [FEATURE] Faraday instrumentation
-* [FEATURE] Rack Middleware probe enabled by default
+* [FEATURE] Add probe for Rack Middlewares
 * [FEATURE] ActiveRecord Instantiation instrumentation
-* [IMPROVEMENT] Improved handling of the user-level configuration options
-* [EXPERIMENTAL] ActionJob Enqueue instrumentation. (Only tracks the enqueuing of new jobs. Does not instrument jobs themselves. Off by default since it's not clear how useful it is. To enable: `require 'skylight/normalizers/active_job/enqueue_at'`.)
-* [EXPERIMENTAL] FreeBSD support. (This should work automatically on FreeBSD systems, but real-world testing has been minimal.)
-
-## 1.4.0-beta (July 13, 2017)
-
-* [FEATURE] Add probe for Rack Middlewares. To enable, add 'middleware' to `config.skylight.probes` list.
+* [FEATURE] Faraday instrumentation. Add 'faraday' to your probes list.
 * [IMPROVEMENT] Increase limit for items tracked in a requests
 * [IMPROVEMENT] Allow for more fine-grained control over position of Skylight::Middleware
+* [IMPROVEMENT] Improved handling of the user-level configuration options
 * [IMPROVEMENT] Avoid processing Skylight::Middleware unnecessarily
+* [EXPERIMENTAL] FreeBSD support. (This should work automatically on FreeBSD systems, but real-world testing has been minimal.)
+* [EXPERIMENTAL] ActionJob Enqueue instrumentation. (Only tracks the enqueuing of new jobs. Does not instrument jobs themselves. Off by default since it's not clear how useful it is. To enable: `require 'skylight/normalizers/active_job/enqueue_at'`.)
 
 ## 1.3.1 (May 17, 2017)
 
