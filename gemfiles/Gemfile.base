@@ -22,6 +22,11 @@ if ruby_version < Gem::Version.new('2.0.0')
   gem 'addressable', '~> 2.4.0'
 else
   gem 'webmock'
+  if ruby_version < Gem::Version.new('2.1.0')
+    # webmock > addressable > public_suffix
+    # public_suffix 4 doesn't support 2.0
+    gem 'public_suffix', '< 3.0'
+  end
 end
 
 if ENV['RAILS_EDGE']
