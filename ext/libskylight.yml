@@ -1,8 +1,8 @@
 ---
-version: "1.4.0-7aecded"
+version: "1.4.1-33c50db"
 checksums:
-  x86-linux:         "79162dfc4dee8954869d2820e60e8d15d4f4915f66e29bedd15e68030acd5b27"
-  x86_64-linux:      "117ac0ff29240a518717fcf52f7cd3eeec69a135c481693b8eb259bb4c2b528c"
-  x86_64-linux-musl: "bab4030060eb4b83d0543839e0f51b09545d7d5b20c3f7dd35ae6f81f3189499"
-  x86_64-darwin:     "1c0fdb68c0dde34a1b0842403db2ea2ca6a0de2fb7d729e869f395f6d10383b5"
-  x86_64-freebsd:    "1b81c47c154c7dcb40787f159e663bc3c97c204c5baedf2d741e5f561fa41ecd"
+  x86-linux:         "2c82641166a4b2303ba365b2e841b0f41366aec61aa7167a71e0507886267ec6"
+  x86_64-linux:      "981c3f7091fc0c13d0ebaabbbee98781ce56c64c6349819df4461ac9c21a1fa5"
+  x86_64-linux-musl: "62cf4bf8436ad27befd26d54fe84c830d7893abea86e3b813aac9a0bbd0cca34"
+  x86_64-darwin:     "f141cc1b5063caa11f1ec953a333ef83b72cd25cca938666de71ad42d831af6a"
+  x86_64-freebsd:    "c71d958fdba4c6ea1f62aea03474e2b479e787d5e21a436dabf00218ea25d2b0"
