@@ -614,8 +614,10 @@ if enable
         pre_boot
         boot
       end
+
       after :each do
         MyApp.config.skylight.environments = @original_environments
+        ENV['SKYLIGHT_ENABLED'] = nil
       end
 
       it_behaves_like 'without agent'
