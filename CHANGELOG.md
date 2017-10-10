@@ -1,3 +1,7 @@
+## 1.4.1 (October 10, 2017)
+
+* [BUGFIX] Fix an issue that would prevent the daemon from starting up on FreeBSD.
+
 ## 1.4.0 (October 4, 2017)
 
 * [FEATURE] Add probe for Rack Middlewares
