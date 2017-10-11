@@ -1,3 +1,7 @@
+## 1.4.2 (October 11, 2017)
+
+* [BUGFIX] For experimental deploy tracking support, resolve an error that occurred if the Git SHA and description were not set.
+
 ## 1.4.1 (October 10, 2017)
 
 * [BUGFIX] Fix an issue that would prevent the daemon from starting up on FreeBSD.
