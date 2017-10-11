@@ -40,8 +40,8 @@ module Skylight
           URI.encode_www_form(
             timestamp:   timestamp,
             deploy_id:   id.to_s[0..100], # Keep this sane
-            git_sha:     git_sha[0..40], # A valid SHA will never exceed 40
-            description: description[0..255]) # Avoid massive descriptions
+            git_sha:     git_sha ? git_sha[0..40] : nil, # A valid SHA will never exceed 40
+            description: description ? description[0..255] : nil) # Avoid massive descriptions
         end
 
       end
