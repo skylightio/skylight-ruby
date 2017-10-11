@@ -1,5 +1,6 @@
 require 'json'
 require 'uri'
+require 'skylight/util/logging'
 
 module Skylight
   module Util
@@ -47,6 +48,14 @@ module Skylight
       end
 
       class DefaultDeploy < EmptyDeploy
+        include Logging
+
+        def initialize(*)
+          super
+          if description && !id
+            warn "The configured deploy will be ignored as an id or git_sha must be provided."
+          end
+        end
 
         def id
           config.get(:'deploy.id') || git_sha
