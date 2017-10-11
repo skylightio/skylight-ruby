@@ -257,6 +257,18 @@ module Skylight
         end
       end
 
+      it 'only requires the id' do
+        Timecop.freeze Time.at(1452620644) do
+          config = Config.new deploy: {
+            id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz"
+          }
+
+          expect(config.deploy.to_query_string).to eq(
+              "timestamp=1452620644" \
+                "&deploy_id=1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrs&git_sha&description")
+        end
+      end
+
       it 'detects Heroku' do
         config = Config.new :'heroku.dyno_info_path' => File.expand_path("../../support/heroku_dyno_info_sample", __FILE__)
         expect(config.deploy.id).to eq(123)
