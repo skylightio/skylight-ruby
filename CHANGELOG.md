@@ -1,3 +1,7 @@
+## 1.5.0-pre
+
+* [FEATURE] Option to enable or disable agent by setting SKYLIGHT_ENABLE via ENV.
+
 ## 1.4.2 (October 11, 2017)
 
 * [BUGFIX] For experimental deploy tracking support, resolve an error that occurred if the Git SHA and description were not set.
