@@ -41,6 +41,7 @@ gemfile:
   # - gemfiles/Gemfile.rails-edge
 
 matrix:
+  fast_finish: true
   exclude:
     # Rails 4.0+ requires Ruby 2.0+
     - rvm: 1.9.3
