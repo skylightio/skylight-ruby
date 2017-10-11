@@ -234,25 +234,7 @@ if enable
       Rails.application = nil
     end
 
-    context "with agent", :http, :agent do
-
-      def pre_boot
-      end
-
-      before :each do
-        @original_environments = MyApp.config.skylight.environments.clone
-        MyApp.config.skylight.environments << 'development'
-
-        stub_config_validation
-        stub_session_request
-
-        pre_boot
-        boot
-      end
-
-      after :each do
-        MyApp.config.skylight.environments = @original_environments
-      end
+    shared_examples "with agent" do
 
       context "configuration" do
 
@@ -549,11 +531,54 @@ if enable
 
     end
 
-    context "without agent" do
+    context "activated from application.rb", :http, :agent do
+
+      def pre_boot
+      end
 
       before :each do
-        boot
+        @original_environments = MyApp.config.skylight.environments.clone
+        MyApp.config.skylight.environments << 'development'
 
+        stub_config_validation
+        stub_session_request
+
+        pre_boot
+        boot
+      end
+
+      after :each do
+        MyApp.config.skylight.environments = @original_environments
+      end
+
+      it_behaves_like 'with agent'
+    end
+
+    context "activated from ENV", :http, :agent do
+
+      def pre_boot
+      end
+
+      before :each do
+        ENV['SKYLIGHT_ENABLED'] = "true"
+
+        stub_config_validation
+        stub_session_request
+
+        pre_boot
+        boot
+      end
+
+      after :each do
+        ENV['SKYLIGHT_ENABLED'] = nil
+      end
+
+      it_behaves_like 'with agent'
+    end
+
+    shared_examples "without agent" do
+
+      before :each do
         # Sanity check that we are indeed running without an active agent
         expect(Skylight::Instrumenter.instance).to be_nil
       end
@@ -567,6 +592,37 @@ if enable
       end
 
     end
+
+    context "without configuration" do
+      before :each do
+        boot
+      end
+
+      it_behaves_like 'without agent'
+    end
+
+    context "deactivated from ENV" do
+      def pre_boot
+      end
+
+      before :each do
+        ENV['SKYLIGHT_ENABLED'] = "false"
+
+        @original_environments = MyApp.config.skylight.environments.clone
+        MyApp.config.skylight.environments << 'development'
+
+        pre_boot
+        boot
+      end
+
+      after :each do
+        MyApp.config.skylight.environments = @original_environments
+        ENV['SKYLIGHT_ENABLED'] = nil
+      end
+
+      it_behaves_like 'without agent'
+    end
+
 
     def call_full(app, env)
       resp = app.call(env)

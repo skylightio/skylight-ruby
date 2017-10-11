@@ -117,7 +117,11 @@ module Skylight
     end
 
     def activate?
-      environments.include?(Rails.env.to_s)
+      if ENV.key?("SKYLIGHT_ENABLED")
+        ENV["SKYLIGHT_ENABLED"] !~ /^false$/i
+      else
+        environments.include?(Rails.env.to_s)
+      end
     end
 
     def load_probes
