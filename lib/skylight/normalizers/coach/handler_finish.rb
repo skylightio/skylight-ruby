@@ -26,26 +26,10 @@ module Skylight
           response_status = payload.fetch(:response, {}).fetch(:status, '').to_s
           segments << "error" if response_status.start_with?('4', '5')
 
-          segments.concat(extract_skylight_segments(payload))
-
           if segments.any?
             trace.endpoint += "<sk-segment>#{segments.join("+")}</sk-segment>"
           end
         end
-
-        private
-
-          # Coach provides a metadata logging facility which can be used to tag requests
-          # during execution. It's particularly useful for users to apply segments to the
-          # current Skylight trace by logging metadata with keys that have a
-          # skylight_segment_ prefix.
-          def extract_skylight_segments(payload)
-            metadata_keys = payload.fetch(:metadata, {}).keys
-            metadata_keys.map do |key|
-              match = key.to_s.match(/^skylight_segment_(\S+)/)
-              match && match[1]
-            end.compact
-          end
       end
     end
   end

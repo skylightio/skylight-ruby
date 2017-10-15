@@ -21,14 +21,5 @@ module Skylight
       expect(trace.endpoint).to eq("Auth<sk-segment>error</sk-segment>")
     end
 
-    it "adds segment when Coach logs :skylight_segment_* key" do
-      normalize(event)
-      normalize_after(event.merge(
-        metadata: { random_key: true, skylight_segment_admin: true }
-      ))
-
-      expect(trace.endpoint).to eq("Auth<sk-segment>admin</sk-segment>")
-    end
-
   end
 end
