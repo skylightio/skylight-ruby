@@ -176,28 +176,6 @@ matrix:
       env:
         - AMS_VERSION=edge
       gemfile: gemfiles/Gemfile.rails-4.2.x
-    # Middleware
-    - rvm: 1.9.3
-      env:
-        - TEST_MIDDLEWARE_PROBE=1
-      gemfile: gemfiles/Gemfile.rails-3.0.x
-    - rvm: 1.9.3
-      env:
-        - TEST_MIDDLEWARE_PROBE=1
-      gemfile: gemfiles/Gemfile.rails-3.2.x
-    - rvm: 2.0.0
-      env:
-        - TEST_MIDDLEWARE_PROBE=1
-      gemfile: gemfiles/Gemfile.rails-4.0.x
-    - rvm: 2.4.0
-      env:
-        - TEST_MIDDLEWARE_PROBE=1
-      gemfile: gemfiles/Gemfile.rails-4.2.x
-    - rvm: 2.4.0
-      env:
-        - TEST_MIDDLEWARE_PROBE=1
-      gemfile: gemfiles/Gemfile.rails-5.x
-
 
   allow_failures:
     # Testing edge is nice, but it probably shouldn't kill the build
