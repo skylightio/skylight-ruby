@@ -84,7 +84,23 @@ if enable
 
         config.eager_load = false
 
+        # This class has no name
+        config.middleware.use(Class.new do
+          def initialize(app)
+            @app = app
+          end
+
+          def call(env)
+            if env["PATH_INFO"] == "/anonymous"
+              return [200, { }, ["Anonymous"]]
+            end
+
+            @app.call(env)
+          end
+        end)
+
         config.middleware.use CustomMiddleware
+
       end
 
       # We include instrument_method in multiple places to ensure
@@ -309,11 +325,11 @@ if enable
           count += 1
         end
 
-        # We should have at least 1, but in reality a lot more
-        expect(count).to be > 1
+        # We should have at least 2, but in reality a lot more
+        expect(count).to be > 2
 
         # This one should be in all versions
-        expect(app_and_rack_spans).to include(["rack.middleware", "CustomMiddleware"])
+        expect(app_and_rack_spans).to include(["rack.middleware", "Anonymous Middleware"], ["rack.middleware", "CustomMiddleware"])
 
         # Check the rest
         expect(app_and_rack_spans[(count+1)..-1]).to eq([
@@ -338,6 +354,21 @@ if enable
 
         expect(endpoint.name).to eq("CustomMiddleware")
       end
+
+      it 'successfully names requests handled by anonymous middleware', :middleware_probe do
+        res = call MyApp, env('/anonymous')
+        expect(res).to eq(["Anonymous"])
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+
+        expect(endpoint.name).to eq("Anonymous Middleware")
+      end
+
 
       it 'does not instrument middleware if Skylight position is after', :middleware_probe do
         MyApp.config.skylight.middleware_position = { after: CustomMiddleware }
