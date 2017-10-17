@@ -160,6 +160,13 @@ module Skylight
       require "skylight/normalizers/#{file}"
     end
 
+    # Coach instrumentation is only available in Ruby 2+
+    if RUBY_VERSION.split.first.to_i > 1
+      %w(coach/handler_finish coach/middleware_finish).each do |file|
+        require "skylight/normalizers/#{file}"
+      end
+    end
+
     # The following are not required by default as they are of dubious usefulness:
     # - active_job/enqueue_at
   end
