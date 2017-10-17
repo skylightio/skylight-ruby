@@ -58,10 +58,7 @@ end
 
 require 'net/http'
 require 'skylight/probes/net_http'
-
-if ENV['TEST_MIDDLEWARE_PROBE']
-  require "skylight/probes/middleware"
-end
+require "skylight/probes/middleware"
 
 # End Probed Libraries
 
