@@ -25,9 +25,11 @@ module Skylight
                   return call_without_sk(*args, &block) unless trace
 
                   begin
-                    trace.endpoint = self.class.name
+                    name = self.class.name || "Anonymous Middleware"
 
-                    span = Skylight.instrument(title: self.class.name, category: "rack.middleware")
+                    trace.endpoint = name
+
+                    span = Skylight.instrument(title: name, category: "rack.middleware")
                     resp = call_without_sk(*args, &block)
 
                     Skylight::Middleware.with_after_close(resp) { trace.done(span) }
