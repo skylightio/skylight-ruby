@@ -153,8 +153,6 @@ module Skylight
         active_record/sql
         active_support/cache
         elasticsearch/request
-        coach/handler_finish
-        coach/middleware_finish
         grape/endpoint
         moped/query
         faraday/request
