@@ -1,3 +1,7 @@
+## 1.4.3 (October 18, 2017)
+
+* [BUGFIX] In rare cases, Rails Middleware can be anonymous classes. We now handle those without raising an exception.
+
 ## 1.4.2 (October 11, 2017)
 
 * [BUGFIX] For experimental deploy tracking support, resolve an error that occurred if the Git SHA and description were not set.
