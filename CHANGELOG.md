@@ -1,6 +1,11 @@
 ## 1.5.0-pre
 
+* [FEATURE] Coach instrumentation. Enabled automatically via ActiveSupport::Notifications.
 * [FEATURE] Option to enable or disable agent by setting SKYLIGHT_ENABLE via ENV.
+
+## 1.4.3 (October 18, 2017)
+
+* [BUGFIX] In rare cases, Rails Middleware can be anonymous classes. We now handle those without raising an exception.
 
 ## 1.4.2 (October 11, 2017)
 
