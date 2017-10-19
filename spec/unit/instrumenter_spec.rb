@@ -3,7 +3,7 @@ require 'securerandom'
 require 'base64'
 require "stringio"
 
-describe "Skylight::Instrumenter", :http, :agent do
+describe "Skylight::Core::Instrumenter", :http, :agent do
 
   context "boot" do
 
@@ -101,7 +101,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         before :each do
           ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
-          allow_any_instance_of(Skylight::Util::HTTP).to receive(:do_request).and_raise("request failed")
+          allow_any_instance_of(Skylight::Core::Util::HTTP).to receive(:do_request).and_raise("request failed")
         end
 
         after :each do
@@ -132,9 +132,9 @@ describe "Skylight::Instrumenter", :http, :agent do
     end
 
     it "doesn't crash on failed config" do
-      allow_any_instance_of(Skylight::Config).to receive(:validate!).and_raise(Skylight::ConfigError.new("Test Failure"))
-      expect(Skylight::Instrumenter).to receive(:warn).
-        with("[SKYLIGHT] [#{Skylight::VERSION}] Unable to start Instrumenter; msg=Test Failure; class=Skylight::ConfigError")
+      allow_any_instance_of(Skylight::Core::Config).to receive(:validate!).and_raise(Skylight::Core::ConfigError.new("Test Failure"))
+      expect(Skylight::Core::Instrumenter).to receive(:warn).
+        with("[SKYLIGHT] [#{Skylight::Core::VERSION}] Unable to start Instrumenter; msg=Test Failure; class=Skylight::Core::ConfigError")
 
       expect do
         Skylight.start!
@@ -142,9 +142,9 @@ describe "Skylight::Instrumenter", :http, :agent do
     end
 
     it "doesn't crash on failed start" do
-      allow(Skylight::Instrumenter).to receive(:new).and_raise("Test Failure")
+      allow(Skylight::Core::Instrumenter).to receive(:new).and_raise("Test Failure")
       expect(logger).to receive(:warn).
-        with("[SKYLIGHT] [#{Skylight::VERSION}] Unable to start Instrumenter; msg=Test Failure; class=RuntimeError")
+        with("[SKYLIGHT] [#{Skylight::Core::VERSION}] Unable to start Instrumenter; msg=Test Failure; class=RuntimeError")
 
       expect do
         Skylight.start!(config)
@@ -321,7 +321,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
       it "ignores endpoints" do
         config[:ignored_endpoint] = "foo#heartbeat"
-        instrumenter = Skylight::Instrumenter.new(config)
+        instrumenter = Skylight::Core::Instrumenter.new(config)
 
         Skylight.trace 'foo#bar', 'app.rack' do |t|
           clock.skip 1
@@ -340,7 +340,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
       it "ignores endpoints with segments" do
         config[:ignored_endpoint] = "foo#heartbeat"
-        instrumenter = Skylight::Instrumenter.new(config)
+        instrumenter = Skylight::Core::Instrumenter.new(config)
 
         Skylight.trace 'foo#bar<sk-segment>json</sk-segment>', 'app.rack' do |t|
           clock.skip 1
@@ -408,7 +408,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
     it "limits unique descriptions to 100" do
       config[:trace_info] = Struct.new(:current).new
-      instrumenter = Skylight::Instrumenter.new(config)
+      instrumenter = Skylight::Core::Instrumenter.new(config)
 
       with_endpoint("foo#bar") do
         100.times do
@@ -417,7 +417,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         end
 
         description = SecureRandom.hex
-        expect(instrumenter.limited_description(description)).to eq(Skylight::Instrumenter::TOO_MANY_UNIQUES)
+        expect(instrumenter.limited_description(description)).to eq(Skylight::Core::Instrumenter::TOO_MANY_UNIQUES)
       end
     end
 

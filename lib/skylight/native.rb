@@ -1,4 +1,4 @@
-require 'skylight/util/platform'
+require 'skylight/core/util/platform'
 
 module Skylight
   # @api private
@@ -10,14 +10,14 @@ module Skylight
   end
 
   def self.libskylight_path
-    ENV['SKYLIGHT_LIB_PATH'] || File.expand_path("../native/#{Util::Platform.tuple}", __FILE__)
+    ENV['SKYLIGHT_LIB_PATH'] || File.expand_path("../native/#{Core::Util::Platform.tuple}", __FILE__)
   end
 
   skylight_required = ENV.key?("SKYLIGHT_REQUIRED") && ENV['SKYLIGHT_REQUIRED'] !~ /^false$/i
 
   begin
     unless ENV.key?("SKYLIGHT_DISABLE_AGENT") && ENV['SKYLIGHT_DISABLE_AGENT'] !~ /^false$/i
-      lib = "#{libskylight_path}/libskylight.#{Util::Platform.libext}"
+      lib = "#{libskylight_path}/libskylight.#{Core::Util::Platform.libext}"
 
       if File.exist?(lib)
         # First attempt to require the native extension
@@ -40,9 +40,11 @@ module Skylight
   end
 
   unless Skylight.native?
-    class Instrumenter
-      def self.native_new(*args)
-        allocate
+    module Core
+      class Instrumenter
+        def self.native_new(*args)
+          allocate
+        end
       end
     end
   end
@@ -54,7 +56,7 @@ module Skylight
 
     if File.exist?(install_log) && File.read(install_log) =~ /ERROR/
       config.alert_logger.error \
-          "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension failed to install. " \
+          "[SKYLIGHT] [#{Skylight::Core::VERSION}] The Skylight native extension failed to install. " \
           "Please check #{install_log} and notify support@skylight.io. " \
           "The missing extension will not affect the functioning of your application."
     end
@@ -63,7 +65,7 @@ module Skylight
   # @api private
   def self.warn_skylight_native_missing(config)
     config.alert_logger.error \
-      "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for " \
+      "[SKYLIGHT] [#{Skylight::Core::VERSION}] The Skylight native extension for " \
       "your platform wasn't found. Supported operating systems are " \
       "Linux 2.6.18+ and Mac OS X 10.8+. The missing extension will not " \
       "affect the functioning of your application. If you are on a " \

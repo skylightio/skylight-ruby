@@ -3,7 +3,7 @@ require 'uri'
 module Skylight
   # @api private
   class Api
-    include Util::Logging
+    include Core::Util::Logging
 
     attr_reader :config
 
@@ -33,7 +33,7 @@ module Skylight
 
     class ConfigValidationResults
 
-      include Util::Logging
+      include Core::Util::Logging
 
       attr_reader :raw_response
 
@@ -43,7 +43,7 @@ module Skylight
       end
 
       def is_error_response?
-        raw_response.is_a?(Util::HTTP::ErrorResponse) || status > 499
+        raw_response.is_a?(Core::Util::HTTP::ErrorResponse) || status > 499
       end
 
       def status
@@ -110,10 +110,20 @@ module Skylight
 
     # TODO: Improve handling here: https://github.com/tildeio/direwolf-agent/issues/274
     def http_request(service, method, *args)
-      http = Util::HTTP.new(config, service)
+      http = Core::Util::HTTP.new(config, service)
       uri = URI.parse(config.get("#{service}_url"))
       http.send(method, uri.path, *args)
     end
 
+  end
+
+  module Core
+    class Config
+
+      def api
+        @api ||= Api.new(self)
+      end
+
+    end
   end
 end

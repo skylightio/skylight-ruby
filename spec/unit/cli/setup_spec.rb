@@ -44,7 +44,7 @@ describe 'skylight setup', :http, :agent do
 
     expect(tmp('config/skylight.yml')).to exist
 
-    c = Skylight::Config.load(file: tmp('config/skylight.yml'))
+    c = Skylight::Core::Config.load(file: tmp('config/skylight.yml'))
     expect(c[:authentication]).to eq('my-app-token')
   end
 
@@ -75,7 +75,7 @@ describe 'skylight setup', :http, :agent do
       end
 
       expect(cli).to receive(:say).with("Could not create the application. Please run `bundle exec skylight doctor` for diagnostics.", :red).ordered
-      expect(cli).to receive(:say).with("Skylight::Util::HTTP::Response: Fail", :yellow).ordered
+      expect(cli).to receive(:say).with("Skylight::Core::Util::HTTP::Response: Fail", :yellow).ordered
 
       cli.setup('foobar')
     end

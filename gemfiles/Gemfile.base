@@ -19,11 +19,6 @@ else
   gem 'rack'
 end
 
-gem 'beefcake'
-gem 'rspec', '~> 3.4.0'
-gem 'rspec-collection_matchers'
-gem 'rack-test'
-
 if ENV['NOKOGIRI_VERSION']
   gem 'nokogiri', ENV['NOKOGIRI_VERSION']
 end

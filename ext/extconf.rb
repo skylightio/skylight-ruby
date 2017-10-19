@@ -5,12 +5,38 @@ require 'logger'
 require 'fileutils'
 
 $:.unshift File.expand_path("../../lib", __FILE__)
-require 'skylight/version'
-require 'skylight/util/multi_io'
-require 'skylight/util/native_ext_fetcher'
-require 'skylight/util/platform'
 
-include Skylight::Util
+require 'skylight/version'
+
+# Don't use the gem for dev
+if File.exists?(File.expand_path("../../Gemfile", __FILE__))
+  # This approach won't work in production since skylight-core isn't in the skylight gem
+  $:.unshift File.expand_path("../../skylight-core/lib", __FILE__)
+else
+  # Is there a better way to get this into lib?
+  gem 'skylight-core', Skylight::Core::VERSION.tr('-', '.')
+end
+
+require 'skylight/native_ext_fetcher'
+require 'skylight/core/util/platform'
+
+# Util allowing proxying writes to multiple location
+class MultiIO
+
+  def initialize(*targets)
+      @targets = targets
+  end
+
+  def write(*args)
+    @targets.each {|t| t.write(*args)}
+  end
+
+  def close
+    @targets.each(&:close)
+  end
+end
+
+include Skylight::Core::Util
 
 SKYLIGHT_INSTALL_LOG = File.expand_path("../install.log", __FILE__)
 SKYLIGHT_REQUIRED   = ENV.key?("SKYLIGHT_REQUIRED") && ENV['SKYLIGHT_REQUIRED'] !~ /^false$/i
@@ -126,7 +152,7 @@ if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(
   end
 
   begin
-    res = NativeExtFetcher.fetch(
+    res = Skylight::NativeExtFetcher.fetch(
       source:   SKYLIGHT_SOURCE_URL,
       version:  version,
       target:   hdrpath,

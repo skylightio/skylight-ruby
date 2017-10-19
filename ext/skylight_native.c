@@ -73,6 +73,7 @@ STR2BUF(VALUE str) {
  * Ruby GVL helpers
  */
 
+// FIXME: This conditional doesn't logically cover every case
 #if defined(HAVE_RB_THREAD_CALL_WITHOUT_GVL) && \
     defined(HAVE_RUBY_THREAD_H)
 
@@ -98,6 +99,7 @@ typedef VALUE (*blocking_fn_t)(void*);
  */
 
 VALUE rb_mSkylight;
+VALUE rb_mCore;
 VALUE rb_mUtil;
 VALUE rb_cClock;
 VALUE rb_cTrace;
@@ -133,7 +135,7 @@ load_libskylight(VALUE klass, VALUE path) {
 
 /*
  *
- * class Skylight::Util::Clock
+ * class Skylight::Core::Util::Clock
  *
  */
 
@@ -145,7 +147,7 @@ clock_high_res_time(VALUE self) {
 
 /*
  *
- * class Skylight::Instrumenter
+ * class Skylight::Core::Instrumenter
  *
  */
 
@@ -262,7 +264,7 @@ instrumenter_track_desc(VALUE self, VALUE rb_endpoint, VALUE rb_desc) {
 
 /*
  *
- * class Skylight::Trace
+ * class Skylight::Core::Trace
  *
  */
 
@@ -465,11 +467,13 @@ void Init_skylight_native() {
   rb_define_singleton_method(rb_mSkylight, "load_libskylight", load_libskylight, 1);
   rb_define_singleton_method(rb_mSkylight, "lex_sql", lex_sql, 1);
 
-  rb_mUtil  = rb_define_module_under(rb_mSkylight, "Util");
+  rb_mCore = rb_define_module_under(rb_mSkylight, "Core");
+
+  rb_mUtil  = rb_define_module_under(rb_mCore, "Util");
   rb_cClock = rb_define_class_under(rb_mUtil, "Clock", rb_cObject);
   rb_define_method(rb_cClock, "native_hrtime", clock_high_res_time, 0);
 
-  rb_cTrace = rb_define_class_under(rb_mSkylight, "Trace", rb_cObject);
+  rb_cTrace = rb_define_class_under(rb_mCore, "Trace", rb_cObject);
   rb_define_singleton_method(rb_cTrace, "native_new", trace_new, 3);
   rb_define_method(rb_cTrace, "native_get_started_at", trace_get_started_at, 0);
   rb_define_method(rb_cTrace, "native_get_endpoint", trace_get_endpoint, 0);
@@ -480,7 +484,7 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_span_set_title", trace_span_set_title, 2);
   rb_define_method(rb_cTrace, "native_span_set_description", trace_span_set_description, 2);
 
-  rb_cInstrumenter = rb_define_class_under(rb_mSkylight, "Instrumenter", rb_cObject);
+  rb_cInstrumenter = rb_define_class_under(rb_mCore, "Instrumenter", rb_cObject);
   rb_define_singleton_method(rb_cInstrumenter, "native_new", instrumenter_new, 1);
   rb_define_method(rb_cInstrumenter, "native_start", instrumenter_start, 0);
   rb_define_method(rb_cInstrumenter, "native_stop", instrumenter_stop, 0);

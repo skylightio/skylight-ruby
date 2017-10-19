@@ -85,7 +85,7 @@ module Skylight
           begin
             config.validate!
             say "Configuration is valid", :green
-          rescue ConfigError => e
+          rescue Core::ConfigError => e
             encountered_error!
 
             say "Configuration is invalid", :red
@@ -111,7 +111,7 @@ module Skylight
           logger.level = Logger::DEBUG
           # Remove excess formatting
           logger.formatter = proc { |severity, datetime, progname, msg|
-            msg = msg.sub("[SKYLIGHT] [#{Skylight::VERSION}] ", '')
+            msg = msg.sub("[SKYLIGHT] [#{Skylight::Core::VERSION}] ", '')
             say "#{severity} - #{msg}" # Definitely non-standard
           }
           config.logger = logger
@@ -171,7 +171,7 @@ module Skylight
           # MEGAHAX
           if is_rails?
             # Normally auto-loaded, but we haven't loaded Rails by the time Skylight is loaded
-            require 'skylight/railtie'
+            require 'skylight/core/railtie'
             require rails_rb
 
             railtie = Skylight::Railtie.send(:new)

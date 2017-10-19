@@ -1,18 +1,18 @@
 require 'spec_helper'
-require 'skylight/instrumenter'
+require 'skylight/core/instrumenter'
 
 if defined?(Sinatra)
   describe 'Sinatra integration', :sinatra_probe, :agent do
     include Rack::Test::Methods
 
     before do
-      Skylight::Instrumenter.mock! do |trace|
+      Skylight::Core::Instrumenter.mock! do |trace|
         @current_trace = trace
       end
     end
 
     after do
-      Skylight::Instrumenter.stop!
+      Skylight::Core::Instrumenter.stop!
     end
 
     class SinatraTest < ::Sinatra::Base

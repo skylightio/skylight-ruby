@@ -4,8 +4,27 @@ sudo: false
 
 before_install:
   - gem install bundler
+  - |
+    if [[ -n "$CODECLIMATE_REPO_TOKEN" ]]; then
+      export CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
+      curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      chmod +x ./cc-test-reporter
+    fi
 
-after_script: 'if [[ -n "$CODECLIMATE_REPO_TOKEN" ]]; then bundle exec codeclimate-test-reporter; fi'
+before_script:
+  - if [[ -n "$CODECLIMATE_REPO_TOKEN" ]]; then ./cc-test-reporter before-build; fi
+
+script:
+  - pushd skylight-core
+  - bundle exec rake
+  - popd
+  - bundle exec rake
+
+after_script: |
+  if [[ -n "$CODECLIMATE_REPO_TOKEN" ]]; then
+    ./cc-test-reporter sum-coverage -p2 coverage/.resultset.json skylight-core/coverage/.resultset.json
+    ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+  fi
 
 env:
   global:
@@ -58,6 +77,7 @@ matrix:
     - rvm: 2.4
       gemfile: gemfiles/Gemfile.rails-5.1.x
       env:
+        # CODECLIMATE_REPO_TOKEN
         - secure: "dGdkneTJSwPJ8QXfUhhG6fSxGpZPgX5pidYm3cA6o4VsErAF3m5r5cyTO54Swzb9m0Ib2mLfqJtcd0n+0IJFTRxGQe98H0QDpBE8UAf0H8AjXwHmjYpVzSxm/iPZDIuDTkDsfFLxaQ1NbOiSm2joUoU70icNyIAArvN3bh/fMpM="
     - rvm: 2.4
       gemfile: gemfiles/Gemfile.rails-edge

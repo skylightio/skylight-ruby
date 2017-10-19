@@ -13,7 +13,6 @@ end
 
 # Require dependencies
 require 'yaml'
-require 'timecop'
 require 'beefcake'
 require 'rspec'
 require 'rspec/collection_matchers'
@@ -37,7 +36,7 @@ end
 %w(excon tilt sinatra sequel grape faraday mongo moped mongoid active_model_serializers httpclient elasticsearch).each do |library|
   begin
     require library
-    require "skylight/probes/#{library}"
+    require "skylight/core/probes/#{library}"
   rescue LoadError
   end
 end
@@ -45,20 +44,20 @@ end
 begin
   require 'redis'
   require 'fakeredis/rspec'
-  require 'skylight/probes/redis'
+  require 'skylight/core/probes/redis'
 rescue LoadError
 end
 
 begin
   require 'action_dispatch'
   require 'action_view'
-  require 'skylight/probes/action_view'
+  require 'skylight/core/probes/action_view'
 rescue LoadError
 end
 
 require 'net/http'
-require 'skylight/probes/net_http'
-require "skylight/probes/middleware"
+require 'skylight/core/probes/net_http'
+require "skylight/core/probes/middleware"
 
 # End Probed Libraries
 
@@ -90,13 +89,20 @@ WORKER_SPAWN_TIMEOUT = get_worker_spawn_timeout
 
 # End Normalize Libraries
 
+module SpecHelper
+end
+
 # Require support files
+Dir[File.expand_path('../../skylight-core/spec/support/*.rb', __FILE__)].each do |f|
+  require_relative f
+end
+
 Dir[File.expand_path('../support/*.rb', __FILE__)].each do |f|
-  require "support/#{File.basename(f, ".rb")}"
+  require_relative f
 end
 
 all_probes = %w(Excon Faraday Net::HTTP HTTPClient Redis Tilt::Template Sinatra::Base Sequel ActionView::TemplateRenderer ActionDispatch::MiddlewareStack::Middleware)
-installed_probes = Skylight::Probes.installed.keys
+installed_probes = Skylight::Core::Probes.installed.keys
 skipped_probes = all_probes - installed_probes
 
 puts "Testing probes: #{installed_probes.join(", ")}" unless installed_probes.empty?
@@ -122,7 +128,7 @@ RSpec.configure do |config|
   e = ENV.clone
 
   config.before :each do
-    Skylight::Config::ENV_TO_KEY.keys.each do |key|
+    Skylight::Core::Config::ENV_TO_KEY.keys.each do |key|
       key = "SKYLIGHT_#{key}"
       ENV[key] = e[key]
     end
@@ -171,10 +177,10 @@ RSpec.configure do |config|
     begin
       mock_clock! # This happens before the before(:each) below
       clock.freeze
-      Skylight::Instrumenter.mock!
+      Skylight::Core::Instrumenter.mock!
       Skylight.trace("Test") { example.run }
     ensure
-      Skylight::Instrumenter.stop!
+      Skylight::Core::Instrumenter.stop!
     end
   end
 
@@ -191,7 +197,7 @@ RSpec.configure do |config|
     reset_clock!
 
     # Reset the starting paths
-    Skylight::Probes.instance_variable_set(:@require_hooks, {})
+    Skylight::Core::Probes.instance_variable_set(:@require_hooks, {})
 
     # Remove the ProbeTestClass if it exists so that the probe won't find it
     if defined?(SpecHelper::ProbeTestClass)

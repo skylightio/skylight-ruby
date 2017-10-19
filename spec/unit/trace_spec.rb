@@ -1,6 +1,7 @@
 require 'spec_helper'
 
-module Skylight
+# This lives here because it depends on the native agent
+module Skylight::Core
   describe Trace, :http, :agent do
 
     before :each do
@@ -173,10 +174,10 @@ module Skylight
     it 'limits unique descriptions' do
       trace = Skylight.trace 'Rack', 'app.rack.request'
 
-      expect(Skylight::Instrumenter.instance).to receive(:limited_description).
+      expect(Instrumenter.instance).to receive(:limited_description).
         at_least(:once).
         with(any_args()).
-        and_return(Skylight::Instrumenter::TOO_MANY_UNIQUES)
+        and_return(Instrumenter::TOO_MANY_UNIQUES)
 
       a = trace.instrument 'foo', 'FOO', 'How a foo is formed?'
       trace.record :bar, 'BAR', 'How a bar is formed?'
@@ -186,9 +187,9 @@ module Skylight
       server.wait resource: '/report'
 
       expect(spans[1].event.title).to       eq('FOO')
-      expect(spans[1].event.description).to eq(Skylight::Instrumenter::TOO_MANY_UNIQUES)
+      expect(spans[1].event.description).to eq(Instrumenter::TOO_MANY_UNIQUES)
       expect(spans[2].event.title).to       eq('BAR')
-      expect(spans[2].event.description).to eq(Skylight::Instrumenter::TOO_MANY_UNIQUES)
+      expect(spans[2].event.description).to eq(Instrumenter::TOO_MANY_UNIQUES)
     end
 
     def spans

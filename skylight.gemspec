@@ -1,35 +1,42 @@
-$:.push "#{File.expand_path('..', __FILE__)}/lib"
+# coding: utf-8
+version = File.read(File.expand_path("../SKYLIGHT_VERSION", __FILE__)).strip.gsub("-", ".")
 
-# Maintain your gem's version:
-require "skylight/version"
+Gem::Specification.new do |spec|
+  spec.name        = "skylight"
+  spec.version     = version
+  spec.authors     = ["Tilde, Inc."]
+  spec.email       = ["engineering@tilde.io"]
 
-Gem::Specification.new do |s|
-  s.name        = "skylight"
-  s.version     = Skylight::VERSION.gsub("-", ".")
-  s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Tilde, Inc."]
-  s.email       = ["engineering@tilde.io"]
-  s.homepage    = "http://www.skylight.io"
-  s.summary     = "Skylight is a smart profiler for Rails apps"
-  s.license     = "Nonstandard"
+  spec.summary     = "Skylight is a smart profiler for Rails, Sinatra, and other Ruby apps."
+  spec.homepage    = "http://www.skylight.io"
+  spec.license     = "Nonstandard"
 
-  s.required_ruby_version = ">= 2.2.7"
+  spec.required_ruby_version = ">= 2.2.7"
 
-  files  = `git ls-files`.split("\n") rescue []
+  files = `git ls-files`.split("\n") rescue []
   files &= (
     Dir['lib/**/*.{rb,pem}'] +
     Dir['ext/**/*.{h,c,rb,yml}'] +
     Dir['*.md'])
+  files -= Dir['skylight-core']
 
-  s.files         = files
-  s.require_paths = ["lib"]
+  spec.files         = files
+  spec.require_paths = ["lib"]
 
   # Dependencies
-  s.add_dependency('activesupport', '>= 4.2.0')
+  spec.add_dependency 'skylight-core',   version
+
+  spec.add_development_dependency "bundler", "~> 1.15"
+  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rspec", "~> 3.7"
+  spec.add_development_dependency "rspec-collection_matchers", "~> 1.1"
+  spec.add_development_dependency "beefcake", "< 1.0"
+  spec.add_development_dependency "webmock"
+  spec.add_development_dependency "rack-test"
 
   # Executables
-  s.executables = %w(skylight)
+  spec.executables = %w(skylight)
 
   # Extensions
-  s.extensions << "ext/extconf.rb"
+  spec.extensions << "ext/extconf.rb"
 end

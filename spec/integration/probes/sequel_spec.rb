@@ -16,16 +16,16 @@ describe 'Sequel integration', :sequel_probe, :agent do
   end
 
   around do |example|
-    Skylight::Instrumenter.mock!
+    Skylight::Core::Instrumenter.mock!
     Skylight.trace("Rack") { example.run }
   end
 
   after do
-    Skylight::Instrumenter.stop!
+    Skylight::Core::Instrumenter.stop!
   end
 
   let(:trace) {
-    Skylight::Instrumenter.instance.current_trace
+    Skylight::Core::Instrumenter.instance.current_trace
   }
 
   it "instruments SQL queries" do

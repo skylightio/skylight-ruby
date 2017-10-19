@@ -15,7 +15,7 @@ module Skylight
 
       def config
         # Calling .load checks ENV variables
-        @config ||= Config.load
+        @config ||= Core::Config.load
       end
 
       # Sets the output padding while executing a block and resets it.
