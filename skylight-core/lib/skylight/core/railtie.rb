@@ -126,9 +126,7 @@ module Skylight::Core
 
     def load_probes
       probes = config.skylight.probes || []
-      probes.each do |p|
-        require "skylight/core/probes/#{p}"
-      end
+      Skylight.probe(*probes)
     end
 
     def middleware_position

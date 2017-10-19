@@ -115,6 +115,11 @@ module Skylight
   # @api private
   DEFAULT_OPTIONS = { category: DEFAULT_CATEGORY }
 
+  # Install probes
+  def self.probe(*probes)
+    Skylight::Core::Probes.probe(*probes)
+  end
+
   # Start instrumenting
   def self.start!(*args)
     Core::Instrumenter.start!(*args)

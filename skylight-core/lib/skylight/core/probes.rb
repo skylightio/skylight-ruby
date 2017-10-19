@@ -1,6 +1,28 @@
 module Skylight::Core
   # @api private
   module Probes
+
+    @@available = nil
+
+    def self.available
+      unless @@available
+        root = File.expand_path("../probes", __FILE__)
+        @@available = Dir["#{root}/*.rb"].map{|f| File.basename(f, '.rb') }
+      end
+      @@available
+    end
+
+    def self.probe(*probes)
+      unknown = probes.map(&:to_s) - available
+      unless unknown.empty?
+        raise ArgumentError, "unknown probes: #{unknown.join(', ')}"
+      end
+
+      probes.each do |p|
+        require "skylight/core/probes/#{p}"
+      end
+    end
+
     class ProbeRegistration
       attr_reader :klass_name, :require_paths, :probe
 
