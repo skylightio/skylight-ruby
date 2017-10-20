@@ -21,6 +21,7 @@ unless ENV['SKYLIGHT_DISABLE_AGENT']
           alias limited_description_without_mock limited_description
 
           def self.mock!(&callback)
+            raise "already mocked" if @instance
             @instance = self.allocate.tap do |inst|
               inst.instance_eval do
                 initialize Config.new(mock_submission: callback || proc {})
