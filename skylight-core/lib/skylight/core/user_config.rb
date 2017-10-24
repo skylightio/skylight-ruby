@@ -1,4 +1,5 @@
 require 'yaml'
+require 'skylight/core/errors'
 
 module Skylight::Core
   class UserConfig

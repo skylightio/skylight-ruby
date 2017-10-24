@@ -45,7 +45,7 @@ module Skylight::Core
         @config = config
 
         unless url = config["#{service}_url"]
-          raise ArgumentError, "no URL specified"
+          raise ArgumentError, "no URL specified for #{service}"
         end
 
         url = URI.parse(url)

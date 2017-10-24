@@ -4,7 +4,7 @@ module Skylight::Core
   describe Util::HTTP do
 
     let :config do
-      Config.new
+      Config.new(auth_url: "https://auth.skylight.io/agent")
     end
 
     before :each do
@@ -36,7 +36,7 @@ module Skylight::Core
       end
 
       it "gets details from HTTP_PROXY" do
-        http = Util::HTTP.new(Config.load({},
+        http = Util::HTTP.new(Config.load({ auth_url: "https://auth.skylight.io/agent" },
           'HTTP_PROXY' => "http://testing:otherpass@proxy.example.com:4321"))
 
         expect(Net::HTTP).to receive(:new).

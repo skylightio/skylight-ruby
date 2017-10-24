@@ -117,13 +117,4 @@ module Skylight
 
   end
 
-  module Core
-    class Config
-
-      def api
-        @api ||= Api.new(self)
-      end
-
-    end
-  end
 end

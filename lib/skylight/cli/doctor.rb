@@ -171,7 +171,7 @@ module Skylight
           # MEGAHAX
           if is_rails?
             # Normally auto-loaded, but we haven't loaded Rails by the time Skylight is loaded
-            require 'skylight/core/railtie'
+            require 'skylight/railtie'
             require rails_rb
 
             railtie = Skylight::Railtie.send(:new)

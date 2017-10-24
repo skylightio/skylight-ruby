@@ -3,26 +3,28 @@ require 'rails'
 
 module Skylight::Core
   # @api private
-  class Railtie < Rails::Railtie
-    config.skylight = ActiveSupport::OrderedOptions.new
+  module Railtie
+    extend ActiveSupport::Concern
 
-    # The environments in which skylight should be enabled
-    config.skylight.environments = ['production']
+    included do
+      def self.root_key; :skylight end
+      def self.config_class; Config end
+      def self.gem_name; 'Skylight' end
+      def self.log_file_name; 'skylight' end
+      def self.version; Skylight::Core::VERSION end
+    end
 
-    # The path to the configuration file
-    config.skylight.config_path = "config/skylight.yml"
+  private
 
-    # The probes to load
-    #   net_http, action_controller, action_view, middleware, and grape are on by default
-    #   See https://www.skylight.io/support/getting-more-from-skylight#available-instrumentation-options
-    #   for a full list.
-    config.skylight.probes = ['net_http', 'action_controller', 'action_view', 'middleware', 'grape']
+    def log_prefix
+      "[#{self.class.gem_name.upcase}] [#{self.class.version}]"
+    end
 
-    # The position in the middleware stack to place Skylight
-    # Default is first, but can be `{ after: Middleware::Name }` or `{ before: Middleware::Name }`
-    config.skylight.middleware_position = 0
+    def development_warning
+      "#{log_prefix} Running #{self.class.gem_name} in development mode. No data will be reported until you deploy your app."
+    end
 
-    initializer 'skylight.configure' do |app|
+    def run_initializer(app)
       # Load probes even when agent is inactive to catch probe related bugs sooner
       load_probes
 
@@ -33,27 +35,25 @@ module Skylight::Core
           begin
             if Instrumenter.start!(config)
               set_middleware_position(app, config)
-              Rails.logger.info "[SKYLIGHT] [#{Skylight::Core::VERSION}] Skylight agent enabled"
+              Rails.logger.info "#{log_prefix} #{self.class.gem_name} agent enabled"
             else
-              Rails.logger.info "[SKYLIGHT] [#{Skylight::Core::VERSION}] Unable to start, see the Skylight logs for more details"
+              Rails.logger.info "#{log_prefix} Unable to start, see the #{self.class.gem_name} logs for more details"
             end
           rescue ConfigError => e
-            Rails.logger.error "[SKYLIGHT] [#{Skylight::Core::VERSION}] #{e.message}; disabling Skylight agent"
+            Rails.logger.error "#{log_prefix} #{e.message}; disabling #{self.class.gem_name} agent"
           end
         end
       elsif Rails.env.development?
+        # FIXME: The CLI isn't part of core so we should change this message
         unless config.user_config.disable_dev_warning?
-          log_warning config, "[SKYLIGHT] [#{Skylight::Core::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app.\n" \
-                                "(To disable this message for all local apps, run `skylight disable_dev_warning`.)"
+          log_warning config, development_warning
         end
       elsif !Rails.env.test?
         unless config.user_config.disable_env_warning?
-          log_warning config, "[SKYLIGHT] [#{Skylight::Core::VERSION}] You are running in the #{Rails.env} environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
+          log_warning config, "#{log_prefix} You are running in the #{Rails.env} environment but haven't added it to config.#{self.class.root_key}.environments, so no data will be sent to skylight.io."
         end
       end
     end
-
-  private
 
     def log_warning(config, msg)
       if config
@@ -72,11 +72,11 @@ module Skylight::Core
       path = nil unless File.exist?(path)
 
       unless tmp = app.config.paths['tmp'].first
-        Rails.logger.error "[SKYLIGHT] [#{Skylight::Core::VERSION}] tmp directory missing from rails configuration"
+        Rails.logger.error "#{log_prefix} tmp directory missing from rails configuration"
         return nil
       end
 
-      config = Config.load(file: path, environment: Rails.env.to_s)
+      config = self.class.config_class.load(file: path, environment: Rails.env.to_s)
       config[:root] = Rails.root
 
       configure_logging(config, app)
@@ -87,18 +87,18 @@ module Skylight::Core
     end
 
     def configure_logging(config, app)
-      if logger = app.config.skylight.logger
+      if logger = skylight_config(app).logger
         config.logger = logger
       else
         # Configure the log file destination
-        if log_file = app.config.skylight.log_file
+        if log_file = skylight_config(app).log_file
           config['log_file'] = log_file
         elsif !config.key?('log_file') && !config.on_heroku?
-          config['log_file'] = File.join(Rails.root, 'log/skylight.log')
+          config['log_file'] = File.join(Rails.root, "log/#{self.class.log_file_name}.log")
         end
 
         # Configure the log level
-        if level = app.config.skylight.log_level
+        if level = skylight_config(app).log_level
           config['log_level'] = level
         elsif !config.key?('log_level')
           if level = app.config.log_level
@@ -109,37 +109,38 @@ module Skylight::Core
     end
 
     def config_path(app)
-      File.expand_path(config.skylight.config_path, app.root)
+      File.expand_path(skylight_config.config_path, app.root)
     end
 
     def environments
-      Array(config.skylight.environments).map { |e| e && e.to_s }.compact
+      Array(skylight_config.environments).map { |e| e && e.to_s }.compact
     end
 
     def activate?
-      if ENV.key?("SKYLIGHT_ENABLED")
-        ENV["SKYLIGHT_ENABLED"] !~ /^false$/i
+      key = "#{self.class.config_class.native_env_prefix}ENABLED"
+      if ENV.key?(key)
+        ENV[key] !~ /^false$/i
       else
         environments.include?(Rails.env.to_s)
       end
     end
 
     def load_probes
-      probes = config.skylight.probes || []
+      probes = skylight_config.probes || []
       Skylight.probe(*probes)
     end
 
     def middleware_position
-      config.skylight.middleware_position.is_a?(Hash) ? config.skylight.middleware_position.symbolize_keys : config.skylight.middleware_position
+      skylight_config.middleware_position.is_a?(Hash) ? skylight_config.middleware_position.symbolize_keys : skylight_config.middleware_position
     end
 
     def insert_middleware(app, config)
       if middleware_position.has_key?(:after)
-        app.middleware.insert_after(middleware_position[:after], Skylight::Middleware, config: config)
+        app.middleware.insert_after(middleware_position[:after], Middleware, config: config)
       elsif middleware_position.has_key?(:before)
-        app.middleware.insert_before(middleware_position[:before], Skylight::Middleware, config: config)
+        app.middleware.insert_before(middleware_position[:before], Middleware, config: config)
       else
-        raise "The middleware position you have set is invalid. Please be sure `config.skylight.middleware_position` is set up correctly."
+        raise "The middleware position you have set is invalid. Please be sure `config.#{self.class.root_key}.middleware_position` is set up correctly."
       end
     end
 
@@ -151,8 +152,13 @@ module Skylight::Core
       elsif middleware_position.nil?
         app.middleware.insert 0, Middleware, config: config
       else
-        raise "The middleware position you have set is invalid. Please be sure `config.skylight.middleware_position` is set up correctly."
+        raise "The middleware position you have set is invalid. Please be sure `config.#{self.class.root_key}.middleware_position` is set up correctly."
       end
     end
+
+    def skylight_config(target=self)
+      target.config.send(self.class.root_key)
+    end
+
   end
 end

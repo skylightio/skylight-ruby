@@ -4,7 +4,7 @@ enable = false
 begin
   require 'rails'
   require 'action_controller/railtie'
-  require 'skylight/core/railtie'
+  require 'skylight/railtie'
   enable = true
 rescue LoadError
   puts "[INFO] Skipping rails integration specs"

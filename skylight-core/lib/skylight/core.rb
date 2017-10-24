@@ -2,20 +2,11 @@ require 'skylight/core/version'
 
 module Skylight
   module Core
-    # @api private
-    class ConfigError < RuntimeError; end
-
     autoload :Normalizers,  'skylight/core/normalizers'
   end
 
   # @api private
   TRACE_ENV_KEY = 'SKYLIGHT_ENABLE_TRACE_LOGS'.freeze
-
-  # Specifically check for Railtie since we've had at least one case of a
-  #   customer having Rails defined without having all of Rails loaded.
-  if defined?(Rails::Railtie)
-    require 'skylight/core/railtie'
-  end
 
   # When Skylight.native? is true, we should have the following:
   #   * Skylight::Core::Util::Clock#native_hrtime
@@ -88,10 +79,6 @@ module Skylight
   require 'skylight/core/subscriber'
 
   require 'skylight/core/probes'
-
-  # Shorthand
-  Helpers = Core::Helpers
-  Middleware = Core::Middleware
 
   # @api private
   TIERS = %w(

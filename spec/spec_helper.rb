@@ -11,6 +11,8 @@ rescue LoadError
   puts "Skipping CodeClimate coverage reporting"
 end
 
+require 'timecop'
+
 require 'webmock/rspec'
 WebMock.disable!
 
