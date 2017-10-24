@@ -107,10 +107,15 @@ module Skylight
 
                 def native_span_set_title(sp, title)
                   mock_spans[sp][:title] = title
+
                 end
 
                 def native_span_set_description(sp, desc)
                   mock_spans[sp][:desc] = desc
+                end
+
+                def native_span_set_meta(sp, meta)
+                  mock_spans[sp][:meta] = meta
                 end
 
                 def native_stop_span(span, time)

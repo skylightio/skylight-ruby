@@ -13,6 +13,8 @@ module Skylight
 
       # Start a trace to have it available in the trace method
       Skylight.trace("Test", "app.request")
+      
+      stub_const("ActiveRecord::Base", double(connection_config: { adapter: "postgres", database: "testdb" }))
     end
 
     after :each do
@@ -34,12 +36,13 @@ module Skylight
     end
 
     it "Processes uncached queries" do
-      name, title, desc =
+      name, title, desc, meta =
         normalize(name: "Foo Load", sql: "select * from foo")
 
       expect(name).to eq("db.sql.query")
       expect(title).to eq("SELECT FROM foo")
       expect(desc).to eq("select * from foo")
+      expect(meta).to eq({ adapter: "postgres", database: "testdb" })
     end
 
     it "Pulls out binds" do

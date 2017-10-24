@@ -412,6 +412,12 @@ trace_span_set_description(VALUE self, VALUE span, VALUE desc) {
 }
 
 static VALUE
+trace_span_set_meta(VALUE self, VALUE span, VALUE meta) {
+  // No-op
+  return Qnil;
+}
+
+static VALUE
 lex_sql(VALUE klass, VALUE rb_sql) {
   sky_buf_t sql;
   sky_buf_t title;
@@ -480,6 +486,7 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_stop_span", trace_stop_span, 2);
   rb_define_method(rb_cTrace, "native_span_set_title", trace_span_set_title, 2);
   rb_define_method(rb_cTrace, "native_span_set_description", trace_span_set_description, 2);
+  rb_define_method(rb_cTrace, "native_span_set_meta", trace_span_set_meta, 2);
 
   VALUE rb_cInstrumenter = rb_const_get(rb_mSkylight, rb_intern("Instrumenter"));
   rb_define_singleton_method(rb_cInstrumenter, "native_new", instrumenter_new, 1);

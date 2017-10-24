@@ -32,7 +32,7 @@ module Skylight::Core
       @spans = []
 
       # create the root node
-      @root = start(native_get_started_at, cat, title, desc, normalize: false)
+      @root = start(native_get_started_at, cat, title, desc, nil, normalize: false)
 
       @gc = config.gc.track unless ENV.key?("SKYLIGHT_DISABLE_GC_TRACKING")
     end
@@ -57,7 +57,7 @@ module Skylight::Core
 
       time = Util::Clock.nanos - gc_time
 
-      stop(start(time, cat, title, desc), time)
+      stop(start(time, cat, title, desc, nil), time)
 
       nil
     rescue => e
@@ -66,7 +66,7 @@ module Skylight::Core
       nil
     end
 
-    def instrument(cat, title=nil, desc=nil)
+    def instrument(cat, title=nil, desc=nil, meta={})
       return if @broken
       t { "instrument: #{cat}, #{title}" }
 
@@ -83,7 +83,7 @@ module Skylight::Core
         debug "cat=%s, title=%s, desc=%s", cat, title, desc
       end
 
-      start(now - gc_time, cat, title, desc)
+      start(now - gc_time, cat, title, desc, meta)
     rescue => e
       error "failed to instrument span; msg=%s", e.message
       @broken = true
@@ -111,7 +111,7 @@ module Skylight::Core
 
       if time > 0
         t { fmt "tracking GC time; duration=%d", time }
-        stop(start(now - time, GC_CAT, nil, nil), now)
+        stop(start(now - time, GC_CAT, nil, nil, nil), now)
       end
 
       stop(@root, now)
@@ -140,12 +140,13 @@ module Skylight::Core
 
   private
 
-    def start(time, cat, title, desc, opts={})
+    def start(time, cat, title, desc, meta, opts={})
       time = self.class.normalize_time(time) unless opts[:normalize] == false
 
       sp = native_start_span(time, cat.to_s)
       native_span_set_title(sp, title.to_s) if title
       native_span_set_description(sp, desc.to_s) if desc
+      native_span_set_meta(sp, meta) if meta
 
       @spans << sp
       t { "started span: #{sp} - #{cat}, #{title}" }
