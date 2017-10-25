@@ -66,6 +66,11 @@ module Skylight::Core
       Skylight
     end
 
+    # Allow for overwriting
+    def endpoint_name(env)
+      "Rack"
+    end
+
     def call(env)
       if env["REQUEST_METHOD"] == "HEAD"
         t { "middleware skipping HEAD" }
@@ -73,7 +78,7 @@ module Skylight::Core
       else
         begin
           t { "middleware beginning trace" }
-          trace = instrumentable.trace("Rack", 'app.rack.request')
+          trace = instrumentable.trace(endpoint_name(env), 'app.rack.request')
           resp = @app.call(env)
 
           if trace
