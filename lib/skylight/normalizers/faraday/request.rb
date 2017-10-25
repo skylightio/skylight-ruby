@@ -28,6 +28,8 @@ module Skylight
           uri.host, uri.port, uri.path, uri.query)
           description = opts[:title]
 
+          # We use "Faraday" as the title to differentiate it in the UI in 
+          # case it's wrapping or is wrapped by another HTTP backend
           [opts[:category], "Faraday", description]
         end
       end
