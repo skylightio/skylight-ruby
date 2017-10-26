@@ -125,7 +125,11 @@ module Skylight::Core
 
           def end_instrumentation(event)
             if original_event = @events.delete(event.operation_id)
-              Skylight::Core::Fanout.done(original_event)
+              meta = {}
+              if event.is_a?(::Mongo::Monitoring::Event::CommandFailed)
+                meta[:exception] = ["CommandFailed", event.message]
+              end
+              Skylight::Core::Fanout.done(original_event, meta)
             end
           rescue Exception => e
             error "failed to end instrumentation for Mongo; msg=%s", e.message

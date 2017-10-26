@@ -90,9 +90,14 @@ module Skylight::Core
       nil
     end
 
-    def done(span)
+    def done(span, meta=nil)
       return unless span
       return if @broken
+
+      if meta && (meta[:exception_object] || meta[:exception])
+        native_span_set_exception(span, meta[:exception_object], meta[:exception])
+      end
+
       stop(span, Util::Clock.nanos - gc_time)
     rescue => e
       error "failed to close span; msg=%s", e.message

@@ -416,16 +416,31 @@ if enable
       end
 
       it 'sets correct segment for exceptions' do
-        res = call MyApp, env('/users/failure')
-        expect(res).to be_empty
+        original_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
+        # Turn off for this test, since it will log a ton, due to the mock
+        ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+        begin
+          # TODO: This native_span_set_exception stuff should probably get its own test
+          args = [anything]
+          args << (Rails::VERSION::MAJOR >= 5 ? an_instance_of(RuntimeError) : nil)
+          args << ["RuntimeError", "Fail!"]
 
-        server.wait resource: '/report'
+          expect_any_instance_of(Skylight::Core::Trace).to \
+            receive(:native_span_set_exception).with(*args).and_call_original
 
-        batch = server.reports[0]
-        expect(batch).to_not be nil
-        expect(batch.endpoints.count).to eq(1)
-        endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("UsersController#failure<sk-segment>error</sk-segment>")
+          res = call MyApp, env('/users/failure')
+          expect(res).to be_empty
+
+          server.wait resource: '/report'
+
+          batch = server.reports[0]
+          expect(batch).to_not be nil
+          expect(batch.endpoints.count).to eq(1)
+          endpoint = batch.endpoints[0]
+          expect(endpoint.name).to eq("UsersController#failure<sk-segment>error</sk-segment>")
+        ensure
+          ENV['SKYLIGHT_RAISE_ON_ERROR'] = original_raise_on_error
+        end
       end
 
       it 'sets correct segment for handled exceptions' do

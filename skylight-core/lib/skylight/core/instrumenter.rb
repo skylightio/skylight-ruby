@@ -177,9 +177,9 @@ module Skylight::Core
       self.class.match?(string, regex)
     end
 
-    def done(span)
+    def done(span, meta=nil)
       return unless trace = @trace_info.current
-      trace.done(span)
+      trace.done(span, meta)
     end
 
     def instrument(cat, title=nil, desc=nil, meta=nil)
@@ -207,10 +207,14 @@ module Skylight::Core
 
       return sp unless block_given?
 
+      meta = {}
       begin
         yield sp
+      rescue Exception => e
+        meta = { exception: [e.class.name, e.message], exception_object: e }
+        raise e
       ensure
-        trace.done(sp)
+        trace.done(sp, meta)
       end
     end
 

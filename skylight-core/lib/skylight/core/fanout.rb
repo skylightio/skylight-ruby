@@ -33,9 +33,9 @@ module Skylight
         end
       end
 
-      def self.done(spans)
+      def self.done(spans, meta=nil)
         spans.reverse.each do |(target, span)|
-          target.done(span)
+          target.done(span, meta)
         end
       end
 

@@ -39,10 +39,10 @@ module Skylight::Core
                       # trace.done(span)
                       Skylight::Core::Fanout.done(spans)
                     end
-                  rescue Exception
+                  rescue Exception => e
                     # FIXME: Log this?
                     # trace.done(span)
-                    Skylight::Core::Fanout.done(spans)
+                    Skylight::Core::Fanout.done(spans, exception_object: e)
                     raise
                   end
                 end

@@ -98,6 +98,7 @@ module Skylight
             category    = opts[:category] || DEFAULT_CATEGORY
             title       = opts[:title]
             desc        = opts[:description]
+            meta        = opts[:meta]
             if opts.key?(:annotations)
               warn "call to #instrument included deprecated annotations"
             end
@@ -105,15 +106,16 @@ module Skylight
             category    = DEFAULT_CATEGORY
             title       = opts.to_s
             desc        = nil
+            meta        = nil
           end
 
-          instrumenter.instrument(category, title, desc, &block)
+          instrumenter.instrument(category, title, desc, meta, &block)
         end
 
         # End a span
-        def done(span)
+        def done(span, meta=nil)
           return unless instrumenter
-          instrumenter.done(span)
+          instrumenter.done(span, meta)
         end
 
         # Temporarily disable

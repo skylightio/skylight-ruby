@@ -26,7 +26,7 @@ module Skylight::Core
           return unless config.enable_segments?
 
           # Show 'error' if there's an unhandled exception or if the status is 4xx or 5xx
-          if payload[:exception] || payload[:status].to_s =~ /^[45]/
+          if payload[:exception] || payload[:exception_object] || payload[:status].to_s =~ /^[45]/
             segment = "error"
           # We won't have a rendered_format if it's a `head` outside of a `respond_to` block.
           elsif payload[:rendered_format]

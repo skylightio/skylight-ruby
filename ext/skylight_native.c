@@ -325,6 +325,11 @@ trace_set_endpoint(VALUE self, VALUE endpoint) {
 }
 
 static VALUE
+trace_set_exception(VALUE self, VALUE exception) {
+  return Qnil;
+}
+
+static VALUE
 trace_get_uuid(VALUE self) {
   sky_trace_t* trace;
   sky_buf_t uuid;
@@ -413,7 +418,11 @@ trace_span_set_description(VALUE self, VALUE span, VALUE desc) {
 
 static VALUE
 trace_span_set_meta(VALUE self, VALUE span, VALUE meta) {
-  // No-op
+  return Qnil;
+}
+
+static VALUE
+trace_span_set_exception(VALUE self, VALUE span, VALUE exception, VALUE exception_details) {
   return Qnil;
 }
 
@@ -481,12 +490,14 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_get_started_at", trace_get_started_at, 0);
   rb_define_method(rb_cTrace, "native_get_endpoint", trace_get_endpoint, 0);
   rb_define_method(rb_cTrace, "native_set_endpoint", trace_set_endpoint, 1);
+  rb_define_method(rb_cTrace, "native_set_exception", trace_set_exception, 1);
   rb_define_method(rb_cTrace, "native_get_uuid", trace_get_uuid, 0);
   rb_define_method(rb_cTrace, "native_start_span", trace_start_span, 2);
   rb_define_method(rb_cTrace, "native_stop_span", trace_stop_span, 2);
   rb_define_method(rb_cTrace, "native_span_set_title", trace_span_set_title, 2);
   rb_define_method(rb_cTrace, "native_span_set_description", trace_span_set_description, 2);
   rb_define_method(rb_cTrace, "native_span_set_meta", trace_span_set_meta, 2);
+  rb_define_method(rb_cTrace, "native_span_set_exception", trace_span_set_exception, 3);
 
   VALUE rb_cInstrumenter = rb_const_get(rb_mSkylight, rb_intern("Instrumenter"));
   rb_define_singleton_method(rb_cInstrumenter, "native_new", instrumenter_new, 1);
