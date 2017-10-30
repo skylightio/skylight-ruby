@@ -3,7 +3,7 @@ require 'yaml'
 require 'beefcake'
 require 'rspec'
 require 'rspec/collection_matchers'
-
+require 'rack/test'
 
 module SpecHelper
 end
@@ -71,6 +71,10 @@ RSpec.configure do |config|
     config.filter_run_excluding moped: true
   end
 
+  if ENV['SKYLIGHT_DISABLE_AGENT']
+    config.filter_run_excluding agent: true
+  end
+
   e = ENV.clone
 
   config.before :each do
@@ -127,6 +131,10 @@ RSpec.configure do |config|
 
   config.before :each do
     mock_clock!
+  end
+
+  config.before :each, http: true do
+    start_server
   end
 
   config.after :each do

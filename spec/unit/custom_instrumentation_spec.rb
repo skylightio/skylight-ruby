@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 # Tested here since it requires native
+# FIXME: Switch to use mocking
 describe Skylight::Core::Instrumenter, :http, :agent do
 
   let :hello do

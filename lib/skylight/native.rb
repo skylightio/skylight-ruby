@@ -39,6 +39,7 @@ module Skylight
     raise if skylight_required
   end
 
+  # FIXME: This could be handled better with the separate gems
   unless Skylight.native?
     module Core
       class Instrumenter

@@ -2,8 +2,16 @@ source "https://rubygems.org"
 
 git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
-gem 'pry'
-gem 'pry-byebug'
+gem 'rails', ">= 5.0.2"
+gem 'sinatra', "2.0.0.rc1"
+
+gem 'active_model_serializers'
+
+group :development do
+  gem 'yard'
+  gem 'pry'
+  gem 'pry-byebug'
+end
 
 if ENV['CODECLIMATE_REPO_TOKEN']
   gem "simplecov"

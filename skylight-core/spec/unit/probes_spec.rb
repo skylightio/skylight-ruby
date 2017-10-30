@@ -20,7 +20,7 @@ module Skylight::Core
     subject { Probes }
 
     it "can determine const availability" do
-      expect(subject.is_available?("Skylight")).to be_truthy
+      expect(subject.is_available?("Skylight::Core")).to be_truthy
       expect(subject.is_available?("Skylight::Core::Probes")).to be_truthy
       expect(subject.is_available?("Nonexistent")).to be_falsey
 
@@ -29,40 +29,40 @@ module Skylight::Core
     end
 
     it "installs probe if constant is available" do
-      subject.register("Skylight", "skylight", probe)
+      subject.register("Skylight::Core", "skylight/core", probe)
 
       expect(probe.install_count).to eq(1)
     end
 
     it "installs probe on first require" do
-      subject.register("SpecHelper::ProbeTestClass", "skylight", probe)
+      subject.register("SpecHelper::ProbeTestClass", "skylight/core", probe)
 
       expect(probe.install_count).to eq(0)
 
-      # HAX: We trick it into thinking that the require 'skylight' loaded ProbeTestClass
+      # HAX: We trick it into thinking that the require 'skylight/core' loaded ProbeTestClass
       # NOTE: ProbeTestClass is a special class that is automatically removed after specs
       SpecHelper.module_eval "class ProbeTestClass; end"
-      require 'skylight'
+      require 'skylight/core'
 
       expect(probe.install_count).to eq(1)
 
       # Make sure a second require doesn't install again
-      require 'skylight'
+      require 'skylight/core'
 
       expect(probe.install_count).to eq(1)
     end
 
     it "does not install probes that are not required or available" do
-      subject.register("SpecHelper::ProbeTestClass", "skylight", probe)
+      subject.register("SpecHelper::ProbeTestClass", "skylight/core", probe)
 
       expect(probe.install_count).to eq(0)
     end
 
     it "does not install probes that are required but remain unavailable" do
-      subject.register("SpecHelper::ProbeTestClass", "skylight", probe)
+      subject.register("SpecHelper::ProbeTestClass", "skylight/core", probe)
 
       # Require, but don't create TestClass
-      require "skylight"
+      require "skylight/core"
 
       expect(probe.install_count).to eq(0)
     end

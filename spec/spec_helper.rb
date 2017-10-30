@@ -16,8 +16,6 @@ require 'timecop'
 require 'webmock/rspec'
 WebMock.disable!
 
-require 'rack/test'
-
 # Loads Skylight + the native extension such that missing the native extension
 # will report more helpful errors
 require "support/native"
@@ -61,16 +59,4 @@ RSpec.configure do |config|
   config.example_status_persistence_file_path = File.expand_path("../../tmp/rspec-examples.txt", __FILE__)
 
   config.include SpecHelper
-
-  if ENV['SKYLIGHT_DISABLE_AGENT']
-    config.filter_run_excluding agent: true
-  end
-
-  config.before :each, http: true do
-    start_server
-  end
-
-  config.after :each do
-    cleanup_all_spawned_workers
-  end
 end

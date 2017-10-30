@@ -29,7 +29,7 @@ module Skylight::Core
             end
 
             def build(*args, &block)
-              self.use Skylight::Middleware
+              self.use Skylight::Core::Middleware
               build_without_sk(*args, &block)
             end
           end

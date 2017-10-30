@@ -3,6 +3,7 @@ require 'securerandom'
 require 'base64'
 require "stringio"
 
+# FIXME: Move some of these tests to core with mocking
 describe "Skylight::Core::Instrumenter", :http, :agent do
 
   context "boot" do
