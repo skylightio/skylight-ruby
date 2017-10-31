@@ -29,7 +29,7 @@ module SpecHelper
           # If we get here then we got a Ctrl-C which we really wanted RSpec to catch
           LOCK.synchronize do
             # Yes, this is a private API, but we want to let RSpec shut down cleanly
-            RSpec.wants_to_quit = true
+            RSpec.world.wants_to_quit = true
           end
         rescue Exception => e
           # Prevent errors from being silently swallowed
