@@ -186,6 +186,8 @@ task :run_travis_builds => :vagrant_up do |t|
 
       commands << "export DEBUG=1" if debug
 
+      commands << "bundle update"
+
       commands << "pushd skylight-core"
       if rspec_args
         commands << "bundle exec rspec #{rspec_args}"
@@ -194,7 +196,6 @@ task :run_travis_builds => :vagrant_up do |t|
       end
       commands << "popd"
 
-      commands << "bundle update"
       commands << "bundle exec rake clean" unless no_clean
 
       if rspec_args
