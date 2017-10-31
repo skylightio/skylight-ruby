@@ -47,6 +47,9 @@ module SpecHelper
           retry
         end
       end
+    rescue => e
+      @started = false
+      raise e
     end
 
     def self.status
