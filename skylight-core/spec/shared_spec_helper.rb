@@ -78,7 +78,7 @@ module Skylight
           mock_instrumenter_klass = Class.new(self.instrumenter_class) do
             def self.trace_class
               @trace_class ||= Class.new(super) do
-                def self.native_new(start, uuid, endpoint)
+                def self.native_new(start, uuid, endpoint, meta)
                   inst = allocate
                   inst.instance_variable_set(:@start, start)
                   inst

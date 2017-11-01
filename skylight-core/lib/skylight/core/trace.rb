@@ -4,11 +4,11 @@ module Skylight::Core
 
     include Util::Logging
 
-    attr_reader :instrumenter, :endpoint, :notifications
+    attr_reader :instrumenter, :endpoint, :notifications, :meta
 
-    def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil)
-      inst = native_new(normalize_time(start), "TODO", endpoint)
-      inst.send(:initialize, instrumenter, cat, title, desc)
+    def self.new(instrumenter, endpoint, start, cat, title=nil, desc=nil, meta=nil)
+      inst = native_new(normalize_time(start), "TODO", endpoint, meta)
+      inst.send(:initialize, instrumenter, cat, title, desc, meta)
       inst.endpoint = endpoint
       inst
     end
@@ -20,7 +20,7 @@ module Skylight::Core
       (time.to_i / 100_000).to_i
     end
 
-    def initialize(instrumenter, cat, title, desc)
+    def initialize(instrumenter, cat, title, desc, meta)
       raise ArgumentError, 'instrumenter is required' unless instrumenter
 
       @instrumenter = instrumenter
@@ -32,7 +32,10 @@ module Skylight::Core
       @spans = []
 
       # create the root node
-      @root = start(native_get_started_at, cat, title, desc, nil, normalize: false)
+      @root = start(native_get_started_at, cat, title, desc, meta, normalize: false)
+
+      # Also store meta for later access
+      @meta = meta
 
       @gc = config.gc.track unless ENV.key?("SKYLIGHT_DISABLE_GC_TRACKING")
     end

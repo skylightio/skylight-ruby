@@ -266,8 +266,10 @@ instrumenter_track_desc(VALUE self, VALUE rb_endpoint, VALUE rb_desc) {
  */
 
 static VALUE
-trace_new(VALUE klass, VALUE start, VALUE uuid, VALUE endpoint) {
+trace_new(VALUE klass, VALUE start, VALUE uuid, VALUE endpoint, VALUE meta) {
   sky_trace_t* trace;
+
+  UNUSED(meta);
 
   CHECK_NUMERIC(start);
   CHECK_TYPE(uuid, T_STRING);
@@ -486,7 +488,7 @@ void Init_skylight_native() {
   rb_define_method(rb_cClock, "native_hrtime", clock_high_res_time, 0);
 
   VALUE rb_cTrace = rb_const_get(rb_mSkylight, rb_intern("Trace"));
-  rb_define_singleton_method(rb_cTrace, "native_new", trace_new, 3);
+  rb_define_singleton_method(rb_cTrace, "native_new", trace_new, 4);
   rb_define_method(rb_cTrace, "native_get_started_at", trace_get_started_at, 0);
   rb_define_method(rb_cTrace, "native_get_endpoint", trace_get_endpoint, 0);
   rb_define_method(rb_cTrace, "native_set_endpoint", trace_set_endpoint, 1);

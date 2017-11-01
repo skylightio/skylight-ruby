@@ -128,7 +128,7 @@ module Skylight::Core
       native_stop
     end
 
-    def trace(endpoint, cat, title=nil, desc=nil)
+    def trace(endpoint, cat, title=nil, desc=nil, meta=nil)
       # If a trace is already in progress, continue with that one
       if trace = @trace_info.current
         return yield(trace) if block_given?
@@ -136,7 +136,7 @@ module Skylight::Core
       end
 
       begin
-        trace = self.class.trace_class.new(self, endpoint, Util::Clock.nanos, cat, title, desc)
+        trace = self.class.trace_class.new(self, endpoint, Util::Clock.nanos, cat, title, desc, meta)
       rescue Exception => e
         log_error e.message
         t { e.backtrace.join("\n") }
