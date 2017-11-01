@@ -66,7 +66,7 @@ module Skylight::Core
       nil
     end
 
-    def instrument(cat, title=nil, desc=nil, meta={})
+    def instrument(cat, title=nil, desc=nil, meta=nil)
       return if @broken
       t { "instrument: #{cat}, #{title}" }
 

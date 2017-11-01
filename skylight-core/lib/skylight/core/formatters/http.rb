@@ -14,7 +14,8 @@ module Skylight
         # @return [Hash] a hash containing `:category`, `:title`, and `:annotations`
         def self.build_opts(method, scheme, host, port, path, query)
           { category: "api.http.#{method.downcase}",
-            title:    "#{method.upcase} #{host}" }
+            title:    "#{method.upcase} #{host}",
+            meta:     { host: host } }
         end
       end
     end

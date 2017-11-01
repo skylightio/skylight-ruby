@@ -16,10 +16,10 @@ if ENV['TEST_ELASTICSEARCH_INTEGRATION']
     end
 
     it "instruments without affecting default instrumenter" do
-      expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", nil).and_call_original.once
+      expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", nil, nil).and_call_original.once
       client.indices.create(index: 'skylight-test')
 
-      expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", {type: 'person', id: '?'}.to_json).and_call_original.once
+      expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", {type: 'person', id: '?'}.to_json, nil).and_call_original.once
       client.index(index: 'skylight-test', type: 'person', id: '1', body: {name: 'Joe'})
     end
 

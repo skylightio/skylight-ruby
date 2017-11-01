@@ -11,7 +11,7 @@ if ENV['TEST_MONGO_INTEGRATION']
     end
 
     it "instruments without affecting default instrumenter" do
-      expect(current_trace).to receive(:instrument).with("db.mongo.query", "INSERT artists", nil).and_call_original.once
+      expect(current_trace).to receive(:instrument).with("db.mongo.query", "INSERT artists", nil, nil).and_call_original.once
       expect(Moped::Loggable).to receive(:log_operations).at_least(:once)
 
       session = build_session

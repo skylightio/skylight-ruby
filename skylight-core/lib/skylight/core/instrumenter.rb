@@ -182,7 +182,7 @@ module Skylight::Core
       trace.done(span)
     end
 
-    def instrument(cat, title=nil, desc=nil)
+    def instrument(cat, title=nil, desc=nil, meta=nil)
       raise ArgumentError, 'cat is required' unless cat
 
       unless trace = @trace_info.current
@@ -200,7 +200,7 @@ module Skylight::Core
 
       cat = "other.#{cat}" unless match?(cat, Skylight::TIER_REGEX)
 
-      unless sp = trace.instrument(cat, title, desc)
+      unless sp = trace.instrument(cat, title, desc, meta)
         return yield if block_given?
         return
       end
