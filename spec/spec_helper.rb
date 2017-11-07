@@ -44,7 +44,7 @@ end
 
 begin
   require 'redis'
-  require 'fakeredis'
+  require 'fakeredis/rspec'
   require 'skylight/probes/redis'
 rescue LoadError
 end
