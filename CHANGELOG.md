@@ -1,3 +1,7 @@
+## 1.4.4 (November 7, 2017)
+
+* [BUGFIX] The minimum glibc requirement was errorneously bumped to 2.15. We have returned it to 2.5.
+
 ## 1.4.3 (October 18, 2017)
 
 * [BUGFIX] In rare cases, Rails Middleware can be anonymous classes. We now handle those without raising an exception.
