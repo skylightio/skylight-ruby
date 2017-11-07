@@ -24,7 +24,7 @@ describe 'Excon integration', :excon_probe, :http, :agent, :instrumenter do
 
     expected = {
       cat: "api.http.get",
-      title: "GET localhost",
+      title: "GET 127.0.0.1",
       duration: 1
     }
     expect(current_trace.mock_spans[1]).to include(expected)
@@ -68,7 +68,7 @@ describe 'Excon integration', :excon_probe, :http, :agent, :instrumenter do
 
         Excon.send(verb, server_uri)
 
-        expect(current_trace.mock_spans[1]).to include(cat: "api.http.#{verb}", title: "#{verb.upcase} localhost")
+        expect(current_trace.mock_spans[1]).to include(cat: "api.http.#{verb}", title: "#{verb.upcase} 127.0.0.1")
       end
     end
 
@@ -82,7 +82,7 @@ describe 'Excon integration', :excon_probe, :http, :agent, :instrumenter do
 
       Excon.get("#{server_uri}/path/to/file")
 
-      expect(current_trace.mock_spans[1]).to include(cat: "api.http.get", title: "GET localhost")
+      expect(current_trace.mock_spans[1]).to include(cat: "api.http.get", title: "GET 127.0.0.1")
     end
 
     it "describes queries" do
@@ -90,7 +90,7 @@ describe 'Excon integration', :excon_probe, :http, :agent, :instrumenter do
 
       Excon.get("#{server_uri}/path/to/file?foo=bar&baz=qux")
 
-      expect(current_trace.mock_spans[1]).to include(cat: "api.http.get", title: "GET localhost")
+      expect(current_trace.mock_spans[1]).to include(cat: "api.http.get", title: "GET 127.0.0.1")
     end
   end
 

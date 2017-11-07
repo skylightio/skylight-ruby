@@ -41,10 +41,10 @@ if enable
     before :each do
       ENV['SKYLIGHT_AUTHENTICATION']       = "lulz"
       ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
-      ENV['SKYLIGHT_REPORT_URL']           = "http://localhost:#{port}/report"
+      ENV['SKYLIGHT_REPORT_URL']           = "http://127.0.0.1:#{port}/report"
       ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = "false"
-      ENV['SKYLIGHT_AUTH_URL']             = "http://localhost:#{port}/agent"
-      ENV['SKYLIGHT_VALIDATION_URL']       = "http://localhost:#{port}/agent/config"
+      ENV['SKYLIGHT_AUTH_URL']             = "http://127.0.0.1:#{port}/agent"
+      ENV['SKYLIGHT_VALIDATION_URL']       = "http://127.0.0.1:#{port}/agent/config"
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
       ENV['SKYLIGHT_ENABLE_SEGMENTS']      = "true"
 
