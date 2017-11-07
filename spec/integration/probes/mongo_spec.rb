@@ -5,7 +5,7 @@ if ENV['TEST_MONGO_INTEGRATION']
   describe 'Mongo integration with offial driver', :mongo_probe, :instrumenter do
 
     let :client do
-      Mongo::Client.new([ 'localhost:27017' ], :database => 'echo_test')
+      Mongo::Client.new([ '127.0.0.1:27017' ], :database => 'echo_test')
     end
 
     it "instruments insert_one" do

@@ -42,7 +42,7 @@ module SpecHelper
 
       Timeout.timeout(30) do
         begin
-          sock = TCPSocket.new 'localhost', port
+          sock = TCPSocket.new '127.0.0.1', port
           sock.close
         rescue Errno::ECONNREFUSED
           sleep 1
@@ -222,7 +222,7 @@ module SpecHelper
   end
 
   def server_uri
-    "http://localhost:#{port}"
+    "http://127.0.0.1:#{port}"
   end
 
   def token
