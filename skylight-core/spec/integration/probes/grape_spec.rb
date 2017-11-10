@@ -8,13 +8,13 @@ if defined?(Grape)
 
     before do
       @called_endpoint = nil
-      Skylight::Core::Instrumenter.mock! do |trace|
+      mock_instrumenter! do |trace|
         @called_endpoint = trace.endpoint
       end
     end
 
     after do
-      Skylight::Core::Instrumenter.stop!
+      Skylight.stop!
     end
 
     class GrapeTest < Grape::API

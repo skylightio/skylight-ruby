@@ -111,10 +111,10 @@ RSpec.configure do |config|
     begin
       mock_clock! # This happens before the before(:each) below
       clock.freeze
-      Skylight::Core::Instrumenter.mock!
+      mock_instrumenter!
       Skylight.trace("Test") { example.run }
     ensure
-      Skylight::Core::Instrumenter.stop!
+      Skylight.stop!
     end
   end
 

@@ -134,7 +134,7 @@ describe "Skylight::Core::Instrumenter", :http, :agent do
 
     it "doesn't crash on failed config" do
       allow_any_instance_of(Skylight::Core::Config).to receive(:validate!).and_raise(Skylight::Core::ConfigError.new("Test Failure"))
-      expect(Skylight::Core::Instrumenter).to receive(:warn).
+      expect(Skylight).to receive(:warn).
         with("[SKYLIGHT] [#{Skylight::Core::VERSION}] Unable to start Instrumenter; msg=Test Failure; class=Skylight::Core::ConfigError")
 
       expect do

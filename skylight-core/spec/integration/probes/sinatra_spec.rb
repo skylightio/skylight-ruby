@@ -6,13 +6,13 @@ if defined?(Sinatra)
     include Rack::Test::Methods
 
     before do
-      Skylight::Core::Instrumenter.mock! do |trace|
+      mock_instrumenter! do |trace|
         @current_trace = trace
       end
     end
 
     after do
-      Skylight::Core::Instrumenter.stop!
+      Skylight.stop!
     end
 
     class SinatraTest < ::Sinatra::Base

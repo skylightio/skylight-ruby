@@ -40,7 +40,7 @@ module Skylight::Core
 
             def dispatch!(*args, &block)
               dispatch_without_sk!(*args, &block).tap do
-                instrumenter = Skylight::Core::Instrumenter.instance
+                instrumenter = Skylight.instrumenter
                 next unless instrumenter
                 trace = instrumenter.current_trace
                 next unless trace

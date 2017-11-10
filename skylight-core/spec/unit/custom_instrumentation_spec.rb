@@ -24,7 +24,7 @@ module Skylight::Core
           expect(ret).to eq(1)
         end
 
-        expect(Instrumenter.instance).to be_nil
+        expect(Skylight.instrumenter).to be_nil
       end
 
     end

@@ -21,7 +21,7 @@ module Skylight::Core
               middleware.instance_eval do
                 alias call_without_sk call
                 def call(*args, &block)
-                  trace = Skylight::Core::Instrumenter.try(:instance).try(:current_trace)
+                  trace = Skylight.instrumenter.try(:current_trace)
                   return call_without_sk(*args, &block) unless trace
 
                   begin

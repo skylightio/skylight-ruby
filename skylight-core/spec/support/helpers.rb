@@ -77,7 +77,7 @@ module SpecHelper
   end
 
   def current_trace
-    inst = Skylight::Core::Instrumenter.instance
+    inst = Skylight.instrumenter
     inst ? inst.current_trace : nil
   end
 end

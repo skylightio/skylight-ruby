@@ -174,7 +174,7 @@ module Skylight::Core
     it 'limits unique descriptions' do
       trace = Skylight.trace 'Rack', 'app.rack.request'
 
-      expect(Instrumenter.instance).to receive(:limited_description).
+      expect(Skylight.instrumenter).to receive(:limited_description).
         at_least(:once).
         with(any_args()).
         and_return(Instrumenter::TOO_MANY_UNIQUES)

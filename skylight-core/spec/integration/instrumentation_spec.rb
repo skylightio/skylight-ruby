@@ -8,13 +8,13 @@ module Skylight::Core
 
     before do
       @called_endpoint = nil
-      Instrumenter.mock! do |trace|
+      mock_instrumenter! do |trace|
         @called_endpoint = trace.endpoint
       end
     end
 
     after do
-      Instrumenter.stop!
+      Skylight.stop!
     end
 
     def app

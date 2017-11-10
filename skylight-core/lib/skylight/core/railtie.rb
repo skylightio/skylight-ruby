@@ -33,7 +33,7 @@ module Skylight::Core
       if activate?
         if config
           begin
-            if Instrumenter.start!(config)
+            if Skylight.start!(config)
               set_middleware_position(app, config)
               Rails.logger.info "#{log_prefix} #{self.class.gem_name} agent enabled"
             else

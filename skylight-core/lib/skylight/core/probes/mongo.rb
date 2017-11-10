@@ -36,7 +36,7 @@ module Skylight::Core
 
         # For logging
         def config
-          instrumenter = Skylight::Core::Instrumenter.instance
+          instrumenter = Skylight.instrumenter
           instrumenter ? instrumenter.config : nil
         end
 

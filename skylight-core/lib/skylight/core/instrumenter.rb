@@ -31,45 +31,11 @@ module Skylight::Core
       end
     end
 
-    def self.instance
-      @instance
-    end
-
-    # Do start
-    # @param [Config] config The config
-    def self.start!(config = nil)
-      return @instance if @instance
-
-      LOCK.synchronize do
-        return @instance if @instance
-        @instance = new(config).start!
-      end
-    rescue => e
-      message = sprintf("[SKYLIGHT] [#{VERSION}] Unable to start Instrumenter; msg=%s; class=%s", e.message, e.class)
-      if config && config.respond_to?(:logger)
-        config.logger.warn message
-      else
-        warn message
-      end
-      false
-    end
-
-    def self.stop!
-      LOCK.synchronize do
-        return unless @instance
-        # This is only really helpful for getting specs to pass.
-        @instance.current_trace = nil
-
-        @instance.shutdown
-        @instance = nil
-      end
-    end
-
-    at_exit do
-      stop!
-    end
-
     attr_reader :config, :gc, :trace_info
+
+    def self.trace_class
+      Trace
+    end
 
     def self.new(config)
       config ||= {}
@@ -149,7 +115,7 @@ module Skylight::Core
       end
 
       begin
-        trace = Trace.new(self, endpoint, Util::Clock.nanos, cat, title, desc)
+        trace = self.class.trace_class.new(self, endpoint, Util::Clock.nanos, cat, title, desc)
       rescue Exception => e
         log_error e.message
         t { e.backtrace.join("\n") }
@@ -180,8 +146,8 @@ module Skylight::Core
       @disabled
     end
 
-    @scanner = StringScanner.new('')
     def self.match?(string, regex)
+      @scanner ||= StringScanner.new('')
       @scanner.string = string
       @scanner.match?(regex)
     end
