@@ -217,6 +217,7 @@ module Skylight::Core
         native_submit_trace(trace)
         true
       rescue => e
+        puts "RESCUE"
         warn "failed to submit trace to worker; err=%s", e
         false
       end

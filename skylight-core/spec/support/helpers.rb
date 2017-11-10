@@ -73,11 +73,11 @@ module SpecHelper
   def start!
     stub_config_validation
     stub_session_request
-    Skylight.start! config
+    Skylight::Test.start! config
   end
 
   def current_trace
-    inst = Skylight.instrumenter
+    inst = Skylight::Test.instrumenter
     inst ? inst.current_trace : nil
   end
 end

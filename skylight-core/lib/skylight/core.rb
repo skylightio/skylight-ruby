@@ -2,6 +2,7 @@ require 'skylight/core/version'
 
 module Skylight
   module Core
+    # Is this autoload even useful?
     autoload :Normalizers,  'skylight/core/normalizers'
   end
 
@@ -77,6 +78,7 @@ module Skylight
   require 'skylight/core/util'
   require 'skylight/core/middleware'
   require 'skylight/core/subscriber'
+  require 'skylight/core/instrumentable'
 
   require 'skylight/core/probes'
 
@@ -102,107 +104,11 @@ module Skylight
   # @api private
   DEFAULT_OPTIONS = { category: DEFAULT_CATEGORY }
 
-  LOCK = Mutex.new
-
   # Install probes
   def self.probe(*probes)
-    Skylight::Core::Probes.probe(*probes)
+    Core::Probes.probe(*probes)
   end
 
-  # TODO: Move some of this out of the Core gem
-  def self.instrumenter
-    @instrumenter
-  end
+  # include Core::Instrumentable
 
-  # Start instrumenting
-  def self.start!(config=nil)
-    return @instrumenter if @instrumenter
-
-    LOCK.synchronize do
-      return @instrumenter if @instrumenter
-      @instrumenter = Core::Instrumenter.new(config).start!
-    end
-  rescue => e
-    message = sprintf("[SKYLIGHT] [#{VERSION}] Unable to start Instrumenter; msg=%s; class=%s", e.message, e.class)
-    if config && config.respond_to?(:logger)
-      config.logger.warn message
-    else
-      warn message
-    end
-    false
-  end
-
-  # Stop instrumenting
-  def self.stop!
-    LOCK.synchronize do
-      return unless @instrumenter
-      # This is only really helpful for getting specs to pass.
-      @instrumenter.current_trace = nil
-
-      @instrumenter.shutdown
-      @instrumenter = nil
-    end
-  end
-
-  at_exit do
-    stop!
-  end
-
-  # Check tracing
-  def self.tracing?
-    instrumenter && instrumenter.current_trace
-  end
-
-  # Start a trace
-  def self.trace(endpoint=nil, cat=nil, title=nil)
-    unless instrumenter
-      return yield if block_given?
-      return
-    end
-
-    if block_given?
-      instrumenter.trace(endpoint, cat || DEFAULT_CATEGORY, title) { yield }
-    else
-      instrumenter.trace(endpoint, cat || DEFAULT_CATEGORY, title)
-    end
-  end
-
-  # Instrument
-  def self.instrument(opts = DEFAULT_OPTIONS, &block)
-    unless instrumenter
-      return yield if block_given?
-      return
-    end
-
-    if Hash === opts
-      category    = opts[:category] || DEFAULT_CATEGORY
-      title       = opts[:title]
-      desc        = opts[:description]
-      if opts.key?(:annotations)
-        warn "call to #instrument included deprecated annotations"
-      end
-    else
-      category    = DEFAULT_CATEGORY
-      title       = opts.to_s
-      desc        = nil
-    end
-
-    instrumenter.instrument(category, title, desc, &block)
-  end
-
-  # End a span
-  def self.done(span)
-    return unless instrumenter
-    instrumenter.done(span)
-  end
-
-  # Temporarily disable
-  def self.disable
-    unless instrumenter
-      return yield if block_given?
-      return
-    end
-
-    instrumenter.disable { yield }
-  end
 end

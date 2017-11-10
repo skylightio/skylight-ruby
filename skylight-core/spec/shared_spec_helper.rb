@@ -64,6 +64,27 @@ puts "Skipping probes: #{skipped_probes.join(", ")}"  unless skipped_probes.empt
 
 ENV['SKYLIGHT_RAISE_ON_ERROR'] = "true"
 
+# TODO: Move into support
+module Skylight
+  module Test
+    include Skylight::Core::Instrumentable
+
+    def self.mock!(&callback)
+      config = Core::Config.new(mock_submission: callback || proc {})
+      @instrumenter = Core::MockInstrumenter.new(config).start!
+    end
+
+    class Middleware < Skylight::Core::Middleware
+
+      def instrumentable
+        Skylight::Test
+      end
+
+    end
+  end
+end
+
+
 RSpec.configure do |config|
   config.color = true
 
@@ -111,10 +132,10 @@ RSpec.configure do |config|
     begin
       mock_clock! # This happens before the before(:each) below
       clock.freeze
-      mock_instrumenter!
-      Skylight.trace("Test") { example.run }
+      Skylight::Test.mock!
+      Skylight::Test.trace("Test") { example.run }
     ensure
-      Skylight.stop!
+      Skylight::Test.stop!
     end
   end
 

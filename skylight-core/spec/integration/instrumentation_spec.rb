@@ -8,18 +8,18 @@ module Skylight::Core
 
     before do
       @called_endpoint = nil
-      mock_instrumenter! do |trace|
+      Skylight::Test.mock! do |trace|
         @called_endpoint = trace.endpoint
       end
     end
 
     after do
-      Skylight.stop!
+      Skylight::Test.stop!
     end
 
     def app
       @app ||= Rack::Builder.new do
-        use Middleware
+        use Skylight::Test::Middleware
         run lambda { |env|
           # This will cause the normalizer to return a :skip
           ActiveSupport::Notifications.instrument("unmatched.test") do
