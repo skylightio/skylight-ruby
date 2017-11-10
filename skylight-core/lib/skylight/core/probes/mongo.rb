@@ -115,7 +115,8 @@ module Skylight::Core
             opts = {
               category:    CAT,
               title:       title,
-              description: payload.empty? ? nil : payload.to_json
+              description: payload.empty? ? nil : payload.to_json,
+              meta:        { database: event.database_name }
             }
 
             @events[event.operation_id] = Skylight::Core::Fanout.instrument(opts)
