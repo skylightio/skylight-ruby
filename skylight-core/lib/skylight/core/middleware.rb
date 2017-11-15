@@ -62,35 +62,24 @@ module Skylight::Core
       @config = opts[:config]
     end
 
-    # Must be overwritten by a sub-class to point to something Instrumentable
-    def instrumentable
-      raise "not implemented"
-    end
-
     def call(env)
-      # Skylight can handle double tracing, but avoid the BodyProxy if we don't need it
-      # This generally shouldn't happen, but older verions of Rails can allow the same
-      # middleware to be inserted multiple times
-      if instrumentable.tracing?
-        t { "already tracing, skipping" }
-        @app.call(env)
-      elsif env["REQUEST_METHOD"] == "HEAD"
+      if env["REQUEST_METHOD"] == "HEAD"
         t { "middleware skipping HEAD" }
         @app.call(env)
       else
         begin
           t { "middleware beginning trace" }
-          trace = instrumentable.trace "Rack", 'app.rack.request'
+          traces = Skylight::Core::Fanout.trace("Rack", 'app.rack.request').compact
           resp = @app.call(env)
 
-          if trace
-            Middleware.with_after_close(resp) { trace.submit }
+          unless traces.empty?
+            Middleware.with_after_close(resp) { traces.each(&:submit) }
           else
             resp
           end
         rescue Exception
-          t { "middleware exception: #{trace}"}
-          trace.submit if trace
+          t { "middleware exception: #{traces}"}
+          traces.each(&:submit) if traces
           raise
         end
       end

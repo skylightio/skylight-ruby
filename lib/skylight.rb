@@ -19,4 +19,6 @@ module Skylight
   end
 
   Core::Instrumenter.config_class = Config
+
+  include Core::Instrumentable
 end

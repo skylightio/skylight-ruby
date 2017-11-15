@@ -113,14 +113,14 @@ module Skylight::Core
               description: payload.empty? ? nil : payload.to_json
             }
 
-            @events[event.operation_id] = Skylight.instrument(opts)
+            @events[event.operation_id] = Skylight::Core::Fanout.instrument(opts)
           rescue Exception => e
             error "failed to begin instrumentation for Mongo; msg=%s", e.message
           end
 
           def end_instrumentation(event)
             if original_event = @events.delete(event.operation_id)
-              Skylight.done(original_event)
+              Skylight::Core::Fanout.done(original_event)
             end
           rescue Exception => e
             error "failed to end instrumentation for Mongo; msg=%s", e.message

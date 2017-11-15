@@ -49,14 +49,14 @@ module Skylight::Core
 
             opts = Formatters::HTTP.build_opts(method, scheme, host, port, path, query)
 
-            @requests[datum.object_id] = Skylight.instrument(opts)
+            @requests[datum.object_id] = Skylight::Core::Fanout.instrument(opts)
           rescue Exception => e
             error "failed to begin instrumentation for Excon; msg=%s", e.message
           end
 
           def end_instrumentation(datum)
             if request = @requests.delete(datum.object_id)
-              Skylight.done(request)
+              Skylight::Core::Fanout.done(request)
             end
           rescue Exception => e
             error "failed to end instrumentation for Excon; msg=%s", e.message

@@ -9,7 +9,7 @@ describe 'Tilt integration', :tilt_probe, :agent do
       title: "template"
     }
 
-    expect(Skylight).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight::Test).to receive(:instrument).with(expected).and_call_original
 
     expect(tilt.render).to eq("hello")
   end
@@ -22,7 +22,7 @@ describe 'Tilt integration', :tilt_probe, :agent do
       title: "Unknown template name"
     }
 
-    expect(Skylight).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight::Test).to receive(:instrument).with(expected).and_call_original
 
     expect(tilt.render).to eq("hello")
   end

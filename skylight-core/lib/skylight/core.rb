@@ -73,6 +73,7 @@ module Skylight
   require 'skylight/core/gc'
   require 'skylight/core/helpers'
   require 'skylight/core/instrumenter'
+  require 'skylight/core/fanout'
   require 'skylight/core/trace'
   require 'skylight/core/vm/gc'
   require 'skylight/core/util'
@@ -108,7 +109,5 @@ module Skylight
   def self.probe(*probes)
     Core::Probes.probe(*probes)
   end
-
-  # include Core::Instrumentable
 
 end

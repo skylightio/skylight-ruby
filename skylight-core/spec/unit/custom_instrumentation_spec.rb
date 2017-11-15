@@ -12,10 +12,10 @@ module Skylight::Core
       it 'does not break code' do
         expect(hello).to receive(:hello)
 
-        Skylight.trace 'Zomg', 'app.rack.request' do |t|
+        Skylight::Test.trace 'Zomg', 'app.rack.request' do |t|
           expect(t).to be_nil
 
-          ret = Skylight.instrument category: 'foo.bar' do |s|
+          ret = Skylight::Test.instrument category: 'foo.bar' do |s|
             expect(s).to be_nil
             hello.hello
             1
@@ -24,7 +24,7 @@ module Skylight::Core
           expect(ret).to eq(1)
         end
 
-        expect(Skylight.instrumenter).to be_nil
+        expect(Skylight::Test.instrumenter).to be_nil
       end
 
     end

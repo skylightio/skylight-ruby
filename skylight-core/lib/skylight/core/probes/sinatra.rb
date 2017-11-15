@@ -40,14 +40,16 @@ module Skylight::Core
 
             def dispatch!(*args, &block)
               dispatch_without_sk!(*args, &block).tap do
-                instrumenter = Skylight.instrumenter
-                next unless instrumenter
-                trace = instrumenter.current_trace
-                next unless trace
+                Skylight::Core::Fanout.registered.each do |target|
+                  instrumenter = target.instrumenter
+                  next unless instrumenter
+                  trace = instrumenter.current_trace
+                  next unless trace
 
-                # Set the endpoint name to the route name
-                route = env['sinatra.route']
-                trace.endpoint = route if route
+                  # Set the endpoint name to the route name
+                  route = env['sinatra.route']
+                  trace.endpoint = route if route
+                end
               end
             end
 

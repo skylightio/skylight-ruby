@@ -8,7 +8,7 @@ if defined?(Grape)
 
     before do
       @called_endpoint = nil
-      mock_instrumenter! do |trace|
+      Skylight::Test.mock! do |trace|
         @called_endpoint = trace.endpoint
       end
     end

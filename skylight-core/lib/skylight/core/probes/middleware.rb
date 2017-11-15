@@ -21,21 +21,25 @@ module Skylight::Core
               middleware.instance_eval do
                 alias call_without_sk call
                 def call(*args, &block)
-                  trace = Skylight.instrumenter.try(:current_trace)
-                  return call_without_sk(*args, &block) unless trace
+                  traces = Skylight::Core::Fanout.registered.map{|r| r.instrumenter.try(&:current_trace) }.compact
+                  return call_without_sk(*args, &block) if traces.empty?
 
                   begin
                     name = self.class.name || "Anonymous Middleware"
 
-                    trace.endpoint = name
+                    traces.each{|t| t.endpoint = name }
 
-                    span = Skylight.instrument(title: name, category: "rack.middleware")
+                    spans = Skylight::Core::Fanout.instrument(title: name, category: "rack.middleware")
                     resp = call_without_sk(*args, &block)
 
-                    Skylight::Core::Middleware.with_after_close(resp) { trace.done(span) }
+                    Skylight::Core::Middleware.with_after_close(resp) do
+                      # trace.done(span)
+                      Skylight::Core::Fanout.done(spans)
+                    end
                   rescue Exception
                     # FIXME: Log this?
-                    trace.done(span)
+                    # trace.done(span)
+                    Skylight::Core::Fanout.done(spans)
                     raise
                   end
                 end

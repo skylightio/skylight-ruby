@@ -18,8 +18,8 @@ module Skylight::Core
           !!Thread.current[DISABLED_KEY]
         end
 
-        def install(instrumentable)
-          Net::HTTP.class_eval <<-RUBY, __FILE__, __LINE__
+        def install
+          Net::HTTP.class_eval do
             alias request_without_sk request
 
             def request(req, body = nil, &block)
@@ -44,11 +44,11 @@ module Skylight::Core
 
               opts = Formatters::HTTP.build_opts(method, scheme, host, port, path, query)
 
-              #{instrumentable}.instrument(opts) do
+              Skylight::Core::Fanout.instrument(opts) do
                 request_without_sk(req, body, &block)
               end
             end
-          RUBY
+          end
         end
       end
     end

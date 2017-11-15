@@ -16,7 +16,7 @@ describe 'Sequel integration', :sequel_probe, :agent do
   end
 
   around do |example|
-    mock_instrumenter!
+    Skylight::Test.mock!
     Skylight.trace("Rack") { example.run }
   end
 

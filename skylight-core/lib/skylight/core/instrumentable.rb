@@ -20,6 +20,8 @@ module Skylight
             end
           end
         end
+
+        Skylight::Core::Fanout.register(base)
       end
 
       module ClassMethods
