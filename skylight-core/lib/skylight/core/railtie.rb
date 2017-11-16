@@ -11,6 +11,7 @@ module Skylight::Core
       def self.config_class; Config end
       def self.gem_name; 'Skylight' end
       def self.log_file_name; 'skylight' end
+      def self.namespace; Skylight end
       def self.version; Skylight::Core::VERSION end
     end
 
@@ -33,7 +34,7 @@ module Skylight::Core
       if activate?
         if config
           begin
-            if Skylight.start!(config)
+            if self.class.namespace.start!(config)
               set_middleware_position(app, config)
               Rails.logger.info "#{log_prefix} #{self.class.gem_name} agent enabled"
             else
