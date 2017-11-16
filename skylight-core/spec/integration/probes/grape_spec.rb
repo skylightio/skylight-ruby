@@ -78,7 +78,7 @@ if defined?(Grape)
     end
 
     it "creates a Trace for a Grape app" do
-      expect(TestNamespace).to receive(:trace).with("Rack", "app.rack.request", nil, nil, nil).and_call_original
+      expect(TestNamespace).to receive(:trace).with("Rack", "app.rack.request", nil, nil).and_call_original
 
       get "/test"
 
