@@ -21,7 +21,10 @@ module Skylight::Core
               middleware.instance_eval do
                 alias call_without_sk call
                 def call(*args, &block)
-                  traces = Skylight::Core::Fanout.registered.map{|r| r.instrumenter.try(&:current_trace) }.compact
+                  traces = Skylight::Core::Fanout.registered.map do |r|
+                    r.instrumenter ? r.instrumenter.current_trace : nil
+                  end.compact
+
                   return call_without_sk(*args, &block) if traces.empty?
 
                   begin
