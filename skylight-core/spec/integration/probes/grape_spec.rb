@@ -14,7 +14,7 @@ if defined?(Grape)
     end
 
     after do
-      Skylight.stop!
+      Skylight::Test.stop!
     end
 
     class GrapeTest < Grape::API
@@ -39,7 +39,7 @@ if defined?(Grape)
 
         namespace :admin do
           before do
-            Skylight.instrument("verifying admin")
+            Skylight::Test.instrument("verifying admin")
           end
 
           get :secret do
@@ -78,7 +78,7 @@ if defined?(Grape)
     end
 
     it "creates a Trace for a Grape app" do
-      expect(Skylight).to receive(:trace).with("Rack", "app.rack.request").and_call_original
+      expect(Skylight::Test).to receive(:trace).with("Rack", "app.rack.request").and_call_original
 
       get "/test"
 

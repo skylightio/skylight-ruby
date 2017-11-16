@@ -17,15 +17,15 @@ describe 'Sequel integration', :sequel_probe, :agent do
 
   around do |example|
     Skylight::Test.mock!
-    Skylight.trace("Rack") { example.run }
+    Skylight::Test.trace("Rack") { example.run }
   end
 
   after do
-    Skylight.stop!
+    Skylight::Test.stop!
   end
 
   let(:trace) {
-    Skylight.instrumenter.current_trace
+    Skylight::Test.instrumenter.current_trace
   }
 
   it "instruments SQL queries" do
