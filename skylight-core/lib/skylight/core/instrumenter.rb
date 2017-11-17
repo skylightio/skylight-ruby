@@ -11,16 +11,6 @@ module Skylight::Core
 
     include Util::Logging
 
-    @@config_class = Config
-
-    def self.config_class
-      @@config_class
-    end
-
-    def self.config_class=(val)
-      @@config_class = val
-    end
-
     class TraceInfo
       def current
         Thread.current[KEY]
@@ -38,8 +28,6 @@ module Skylight::Core
     end
 
     def self.new(config)
-      config ||= {}
-      config = config_class.load(config) unless config.is_a?(config_class)
       config.validate!
 
       inst = native_new(config.to_native_env)

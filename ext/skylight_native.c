@@ -463,17 +463,22 @@ lex_sql(VALUE klass, VALUE rb_sql) {
 }
 
 void Init_skylight_native() {
+  VALUE rb_cCoreTrace;
+  VALUE rb_cCoreInstrumenter;
+
   rb_mSkylight = rb_define_module("Skylight");
   rb_define_singleton_method(rb_mSkylight, "load_libskylight", load_libskylight, 1);
   rb_define_singleton_method(rb_mSkylight, "lex_sql", lex_sql, 1);
 
   rb_mCore = rb_define_module_under(rb_mSkylight, "Core");
 
+  // FIXME: Don't put these under Core
   rb_mUtil  = rb_define_module_under(rb_mCore, "Util");
   rb_cClock = rb_define_class_under(rb_mUtil, "Clock", rb_cObject);
   rb_define_method(rb_cClock, "native_hrtime", clock_high_res_time, 0);
 
-  rb_cTrace = rb_define_class_under(rb_mCore, "Trace", rb_cObject);
+  rb_cCoreTrace = rb_const_get(rb_mCore, rb_intern("Trace"));
+  rb_cTrace = rb_define_class_under(rb_mSkylight, "Trace", rb_cCoreTrace);
   rb_define_singleton_method(rb_cTrace, "native_new", trace_new, 3);
   rb_define_method(rb_cTrace, "native_get_started_at", trace_get_started_at, 0);
   rb_define_method(rb_cTrace, "native_get_endpoint", trace_get_endpoint, 0);
@@ -484,7 +489,8 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_span_set_title", trace_span_set_title, 2);
   rb_define_method(rb_cTrace, "native_span_set_description", trace_span_set_description, 2);
 
-  rb_cInstrumenter = rb_define_class_under(rb_mCore, "Instrumenter", rb_cObject);
+  rb_cCoreInstrumenter = rb_const_get(rb_mCore, rb_intern("Instrumenter"));
+  rb_cInstrumenter = rb_define_class_under(rb_mSkylight, "Instrumenter", rb_cCoreInstrumenter);
   rb_define_singleton_method(rb_cInstrumenter, "native_new", instrumenter_new, 1);
   rb_define_method(rb_cInstrumenter, "native_start", instrumenter_start, 0);
   rb_define_method(rb_cInstrumenter, "native_stop", instrumenter_stop, 0);

@@ -1,8 +1,10 @@
 require 'skylight/version'
-require 'skylight/native'
 require 'skylight/core'
+require 'skylight/trace'
+require 'skylight/instrumenter'
 require 'skylight/api'
 require 'skylight/config'
+require 'skylight/native'
 
 module Skylight
   # Used from the CLI
@@ -18,7 +20,13 @@ module Skylight
     require 'skylight/railtie'
   end
 
-  Core::Instrumenter.config_class = Config
-
   include Core::Instrumentable
+
+  def self.instrumenter_class
+    Instrumenter
+  end
+
+  def self.config_class
+    Config
+  end
 end

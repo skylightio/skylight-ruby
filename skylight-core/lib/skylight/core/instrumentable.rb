@@ -36,7 +36,11 @@ module Skylight
 
           LOCK.synchronize do
             return @instrumenter if @instrumenter
-            @instrumenter = Core::Instrumenter.new(config).start!
+
+            config ||= {}
+            config = config_class.load(config) unless config.is_a?(config_class)
+
+            @instrumenter = instrumenter_class.new(config).start!
           end
         rescue => e
           message = sprintf("[SKYLIGHT] [#{VERSION}] Unable to start Instrumenter; msg=%s; class=%s", e.message, e.class)

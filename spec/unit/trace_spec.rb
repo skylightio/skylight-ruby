@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 # This lives here because it depends on the native agent
-module Skylight::Core
+module Skylight
   describe Trace, :http, :agent do
 
     before :each do
