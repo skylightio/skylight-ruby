@@ -425,7 +425,7 @@ if enable
           args << (Rails::VERSION::MAJOR >= 5 ? an_instance_of(RuntimeError) : nil)
           args << ["RuntimeError", "Fail!"]
 
-          expect_any_instance_of(Skylight::Core::Trace).to \
+          expect_any_instance_of(Skylight::Trace).to \
             receive(:native_span_set_exception).with(*args).and_call_original
 
           res = call MyApp, env('/users/failure')
