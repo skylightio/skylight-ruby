@@ -31,6 +31,10 @@ module Skylight::Core
       Trace
     end
 
+    def self.native_new
+      raise "not implemented"
+    end
+
     def self.new(config)
       config.validate!
 
@@ -46,6 +50,22 @@ module Skylight::Core
 
       key = "#{KEY}_#{self.class.trace_class.name}".gsub(/\W/, '_')
       @trace_info = @config[:trace_info] || TraceInfo.new(key)
+    end
+
+    def native_start
+      raise "not implemented"
+    end
+
+    def native_stop
+      raise "not implemented"
+    end
+
+    def native_track_desc
+      raise "not implemented"
+    end
+
+    def native_submit_trace
+      raise "not implemented"
     end
 
     def current_trace
