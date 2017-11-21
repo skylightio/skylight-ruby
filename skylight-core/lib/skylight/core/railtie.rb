@@ -9,6 +9,7 @@ module Skylight::Core
     included do
       def self.root_key; :skylight end
       def self.config_class; Config end
+      def self.middleware_class; Middleware end
       def self.gem_name; 'Skylight' end
       def self.log_file_name; 'skylight' end
       def self.namespace; Skylight end
@@ -137,9 +138,9 @@ module Skylight::Core
 
     def insert_middleware(app, config)
       if middleware_position.has_key?(:after)
-        app.middleware.insert_after(middleware_position[:after], Middleware, config: config)
+        app.middleware.insert_after(middleware_position[:after], self.class.middleware_class, config: config)
       elsif middleware_position.has_key?(:before)
-        app.middleware.insert_before(middleware_position[:before], Middleware, config: config)
+        app.middleware.insert_before(middleware_position[:before], self.class.middleware_class, config: config)
       else
         raise "The middleware position you have set is invalid. Please be sure `config.#{self.class.root_key}.middleware_position` is set up correctly."
       end
@@ -147,11 +148,11 @@ module Skylight::Core
 
     def set_middleware_position(app, config)
       if middleware_position.is_a?(Integer)
-        app.middleware.insert middleware_position, Middleware, config: config
+        app.middleware.insert middleware_position, self.class.middleware_class, config: config
       elsif middleware_position.is_a?(Hash) && middleware_position.keys.count == 1
         insert_middleware(app, config)
       elsif middleware_position.nil?
-        app.middleware.insert 0, Middleware, config: config
+        app.middleware.insert 0, self.class.middleware_class, config: config
       else
         raise "The middleware position you have set is invalid. Please be sure `config.#{self.class.root_key}.middleware_position` is set up correctly."
       end

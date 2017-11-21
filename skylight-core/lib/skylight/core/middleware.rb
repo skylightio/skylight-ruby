@@ -62,6 +62,10 @@ module Skylight::Core
       @config = opts[:config]
     end
 
+    def instrumentable
+      Skylight
+    end
+
     def call(env)
       if env["REQUEST_METHOD"] == "HEAD"
         t { "middleware skipping HEAD" }
@@ -69,17 +73,17 @@ module Skylight::Core
       else
         begin
           t { "middleware beginning trace" }
-          traces = Skylight::Core::Fanout.trace("Rack", 'app.rack.request').compact
+          trace = instrumentable.trace("Rack", 'app.rack.request')
           resp = @app.call(env)
 
-          unless traces.empty?
-            Middleware.with_after_close(resp) { traces.each(&:submit) }
+          if trace
+            Middleware.with_after_close(resp) { trace.submit }
           else
             resp
           end
         rescue Exception
-          t { "middleware exception: #{traces}"}
-          traces.each(&:submit) if traces
+          t { "middleware exception: #{trace}"}
+          trace.submit if trace
           raise
         end
       end

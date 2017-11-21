@@ -5,6 +5,7 @@ module Skylight
     include Skylight::Core::Railtie
 
     def self.config_class; Skylight::Config end
+    def self.middleware_class; Skylight::Middleware end
 
     config.skylight = ActiveSupport::OrderedOptions.new
 
