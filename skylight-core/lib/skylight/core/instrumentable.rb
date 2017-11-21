@@ -2,10 +2,10 @@ module Skylight
   module Core
     module Instrumentable
 
-      LOCK = Mutex.new
-
       def self.included(base)
         base.extend(ClassMethods)
+
+        base.const_set(:LOCK, Mutex.new)
 
         base.class_eval do
           at_exit do
