@@ -12,12 +12,16 @@ module Skylight::Core
     include Util::Logging
 
     class TraceInfo
+      def initialize(key=KEY)
+        @key = key
+      end
+
       def current
-        Thread.current[KEY]
+        Thread.current[@key]
       end
 
       def current=(trace)
-        Thread.current[KEY] = trace
+        Thread.current[@key] = trace
       end
     end
 
@@ -40,7 +44,8 @@ module Skylight::Core
       @config = config
       @subscriber = Subscriber.new(config, self)
 
-      @trace_info = @config[:trace_info] || TraceInfo.new
+      key = "#{KEY}_#{self.class.trace_class.name}".gsub(/\W/, '_')
+      @trace_info = @config[:trace_info] || TraceInfo.new(key)
     end
 
     def current_trace
