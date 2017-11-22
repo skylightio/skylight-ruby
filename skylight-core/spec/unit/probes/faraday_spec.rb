@@ -4,7 +4,7 @@ module Skylight
   module Probes
     describe "Faraday:Probe", :faraday_probe, :probes do
       it "is registered" do
-        reg = Skylight::Core::Probes.installed["Faraday"]
+        reg = Skylight::Core::Probes.installed["Faraday"].first
         expect(reg.klass_name).to eq("Faraday")
         expect(reg.require_paths).to eq(["faraday"])
         expect(reg.probe).to be_a(Skylight::Core::Probes::Faraday::Probe)

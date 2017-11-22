@@ -7,19 +7,23 @@ module Skylight::Core
     def self.available
       unless @@available
         root = File.expand_path("../probes", __FILE__)
-        @@available = Dir["#{root}/*.rb"].map{|f| File.basename(f, '.rb') }
+        @@available = {}
+        Dir["#{root}/*.rb"].each do |f|
+          name = File.basename(f, '.rb')
+          @@available[name] = "skylight/core/probes/#{name}"
+        end
       end
       @@available
     end
 
     def self.probe(*probes)
-      unknown = probes.map(&:to_s) - available
+      unknown = probes.map(&:to_s) - available.keys
       unless unknown.empty?
         raise ArgumentError, "unknown probes: #{unknown.join(', ')}"
       end
 
       probes.each do |p|
-        require "skylight/core/probes/#{p}"
+        require available[p.to_s]
       end
     end
 
@@ -53,7 +57,8 @@ module Skylight::Core
       registration = ProbeRegistration.new(*args)
 
       if is_available?(registration.klass_name)
-        installed[registration.klass_name] = registration
+        installed[registration.klass_name] ||= []
+        installed[registration.klass_name] << registration
         registration.install
       else
         register_require_hook(registration)
@@ -61,28 +66,33 @@ module Skylight::Core
     end
 
     def self.require_hook(require_path)
-      registration = lookup_by_require_path(require_path)
-      return unless registration
+      registrations = lookup_by_require_path(require_path)
+      return unless registrations
 
-      # Double check constant is available
-      if is_available?(registration.klass_name)
-        installed[registration.klass_name] = registration
-        registration.install
+      registrations.each do |registration|
+        # Double check constant is available
+        if is_available?(registration.klass_name)
+          installed[registration.klass_name] ||= []
+          installed[registration.klass_name] << registration
+          registration.install
 
-        # Don't need this to be called again
-        unregister_require_hook(registration)
+          # Don't need this to be called again
+          unregister_require_hook(registration)
+        end
       end
     end
 
     def self.register_require_hook(registration)
       registration.require_paths.each do |p|
-        require_hooks[p] = registration
+        require_hooks[p] ||= []
+        require_hooks[p] << registration
       end
     end
 
     def self.unregister_require_hook(registration)
       registration.require_paths.each do |p|
-        require_hooks.delete(p)
+        require_hooks[p].delete(registration)
+        require_hooks.delete(p) if require_hook[p].empty?
       end
     end
 

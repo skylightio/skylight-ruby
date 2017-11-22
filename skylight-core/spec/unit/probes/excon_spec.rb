@@ -6,7 +6,7 @@ module Skylight
       describe "Probe", :probes do
 
         it "is registered" do
-          reg = Skylight::Core::Probes.installed["Excon"]
+          reg = Skylight::Core::Probes.installed["Excon"].first
           expect(reg.klass_name).to eq("Excon")
           expect(reg.require_paths).to eq(["excon"])
           expect(reg.probe).to be_a(Skylight::Core::Probes::Excon::Probe)

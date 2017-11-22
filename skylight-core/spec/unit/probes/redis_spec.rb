@@ -5,7 +5,7 @@ module Skylight
     describe "Redis:Probe", :redis_probe, :probes do
 
       it "is registered" do
-        reg = Skylight::Core::Probes.installed["Redis"]
+        reg = Skylight::Core::Probes.installed["Redis"].first
         expect(reg.klass_name).to eq("Redis")
         expect(reg.require_paths).to eq(["redis"])
         expect(reg.probe).to be_a(Skylight::Core::Probes::Redis::Probe)

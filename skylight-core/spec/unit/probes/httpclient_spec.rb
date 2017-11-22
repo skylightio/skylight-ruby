@@ -5,7 +5,7 @@ module Skylight
     describe "HTTPClient:Probe", :httpclient_probe, :probes do
 
       it "is registered" do
-        reg = Skylight::Core::Probes.installed["HTTPClient"]
+        reg = Skylight::Core::Probes.installed["HTTPClient"].first
         expect(reg.klass_name).to eq("HTTPClient")
         expect(reg.require_paths).to eq(["httpclient"])
         expect(reg.probe).to be_a(Skylight::Core::Probes::HTTPClient::Probe)

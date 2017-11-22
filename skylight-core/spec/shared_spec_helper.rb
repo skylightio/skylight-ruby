@@ -23,7 +23,7 @@ end
 %w(excon tilt sinatra sequel grape faraday mongo moped mongoid active_model_serializers httpclient elasticsearch).each do |library|
   begin
     require library
-    Skylight.probe(library)
+    Skylight::Core::Probes.probe(library)
   rescue LoadError
   end
 end
@@ -31,21 +31,21 @@ end
 begin
   require 'redis'
   require 'fakeredis/rspec'
-  Skylight.probe(:redis)
+  Skylight::Core::Probes.probe(:redis)
 rescue LoadError
 end
 
 begin
   require 'action_dispatch'
   require 'action_view'
-  Skylight.probe(:action_view)
+  Skylight::Core::Probes.probe(:action_view)
 rescue LoadError
 end
 
 require 'net/http'
-Skylight.probe(:net_http)
+Skylight::Core::Probes.probe(:net_http)
 
-Skylight.probe(:middleware)
+Skylight::Core::Probes.probe(:middleware)
 
 # End Probed Libraries
 

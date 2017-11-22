@@ -129,7 +129,7 @@ module Skylight::Core
 
     def load_probes
       probes = skylight_config.probes || []
-      Skylight.probe(*probes)
+      Probes.probe(*probes)
     end
 
     def middleware_position

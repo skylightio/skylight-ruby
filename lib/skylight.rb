@@ -29,4 +29,10 @@ module Skylight
   def self.config_class
     Config
   end
+
+  # Install probes
+  def self.probe(*probes)
+    Core::Probes.probe(*probes)
+  end
+
 end

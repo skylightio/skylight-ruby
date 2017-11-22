@@ -5,7 +5,7 @@ module Skylight
     describe "NetHTTP:Probe", :net_http_probe, :probes do
 
       it "is registered" do
-        reg = Skylight::Core::Probes.installed["Net::HTTP"]
+        reg = Skylight::Core::Probes.installed["Net::HTTP"].first
         expect(reg.klass_name).to eq("Net::HTTP")
         expect(reg.require_paths).to eq(["net/http"])
         expect(reg.probe).to be_a(Skylight::Core::Probes::NetHTTP::Probe)
