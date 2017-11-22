@@ -5,7 +5,6 @@ module Skylight::Core
   # @api private
   class Instrumenter
     KEY  = :__skylight_current_trace
-    LOCK = Mutex.new
 
     TOO_MANY_UNIQUES = "<too many unique descriptions>"
 

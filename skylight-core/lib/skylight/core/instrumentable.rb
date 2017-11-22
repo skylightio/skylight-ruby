@@ -34,7 +34,7 @@ module Skylight
         def start!(config=nil)
           return @instrumenter if @instrumenter
 
-          LOCK.synchronize do
+          const_get(:LOCK).synchronize do
             return @instrumenter if @instrumenter
 
             config ||= {}
@@ -54,7 +54,7 @@ module Skylight
 
         # Stop instrumenting
         def stop!
-          LOCK.synchronize do
+          const_get(:LOCK).synchronize do
             return unless @instrumenter
             # This is only really helpful for getting specs to pass.
             @instrumenter.current_trace = nil
