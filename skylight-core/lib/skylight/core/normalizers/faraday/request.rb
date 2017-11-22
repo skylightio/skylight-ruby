@@ -24,10 +24,10 @@ module Skylight::Core
             return :skip
           end
 
-          opts = Formatters::HTTP.build_opts(payload[:method], uri.scheme,
-          uri.host, uri.port, uri.path, uri.query)
+          opts = Formatters::HTTP.build_opts(payload[:method], uri.scheme, uri.host, uri.port, uri.path, uri.query)
+          description = opts[:title]
 
-          # We use "Faraday" as the title to differentiate it in the UI in 
+          # We use "Faraday" as the title to differentiate it in the UI in
           # case it's wrapping or is wrapped by another HTTP backend
           [opts[:category], "Faraday", description, opts[:meta]]
         end
