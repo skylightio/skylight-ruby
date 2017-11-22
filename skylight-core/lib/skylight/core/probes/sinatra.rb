@@ -10,7 +10,6 @@ module Skylight::Core
           end
 
           class << ::Sinatra::Base
-            alias build_without_sk build
             alias compile_without_sk! compile!
 
             def compile!(verb, path, *args, &block)
@@ -26,11 +25,6 @@ module Skylight::Core
                   wrapper.instance_variable_set(:@route_name, "#{verb} #{path}")
                 end
               end
-            end
-
-            def build(*args, &block)
-              self.use Skylight::Core::Middleware
-              build_without_sk(*args, &block)
             end
           end
 

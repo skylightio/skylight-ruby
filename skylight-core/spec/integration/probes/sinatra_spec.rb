@@ -16,6 +16,8 @@ if defined?(Sinatra)
     end
 
     class SinatraTest < ::Sinatra::Base
+      use Skylight::Test::Middleware
+
       disable :show_exceptions
 
       template :hello do
