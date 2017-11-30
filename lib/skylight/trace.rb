@@ -134,7 +134,7 @@ module Skylight
 
       @instrumenter.process(self)
     rescue Exception => e
-      error e
+      error e.message
       t { e.backtrace.join("\n") }
     end
 

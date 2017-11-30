@@ -78,8 +78,8 @@ module Skylight
       # @param msg (see #log)
       # @param args (see #log)
       def error(msg, *args)
-        raise sprintf(msg, *args) if ENV['SKYLIGHT_RAISE_ON_ERROR']
         log :error, msg, *args
+        raise sprintf(msg, *args) if ENV['SKYLIGHT_RAISE_ON_ERROR']
       end
 
       alias log_trace trace
