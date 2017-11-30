@@ -86,9 +86,6 @@ module Skylight
           t { "middleware exception: #{trace}"}
           trace.submit if trace
           raise
-        ensure
-          t { "middleware release: #{trace}"}
-          trace.release if trace
         end
       end
     end
