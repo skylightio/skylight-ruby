@@ -26,7 +26,8 @@ module Skylight
         @closed
       end
 
-      # N.B. This method is a special case to address the bug described by #434.
+      # N.B. This method is a special case to address the bug described by
+      # https://github.com/rack/rack/issues/434.
       # We are applying this special case for #each only. Future bugs of this
       # class will be handled by requesting users to patch their ruby
       # implementation, to save adding too many methods in this class.
