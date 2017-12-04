@@ -82,50 +82,64 @@ module Skylight
     end
 
     it 'force closes any open span on build' do
-      trace = Skylight.trace 'Rack', 'app.rack.request'
-      trace.instrument 'foo'
-      clock.skip 0.001
-      trace.submit
+      begin
+        original_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
+        ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
 
-      server.wait resource: '/report'
+        trace = Skylight.trace 'Rack', 'app.rack.request'
+        trace.instrument 'foo'
+        clock.skip 0.001
+        trace.submit
 
-      expect(spans.count).to eq(2)
-      expect(spans[1].event.category).to eq('foo')
-      expect(spans[1].started_at).to eq(0)
-      expect(spans[1].duration).to eq(10)
+        server.wait resource: '/report'
 
-      expect(spans[0].event.category).to eq('app.rack.request')
+        expect(spans.count).to eq(2)
+        expect(spans[1].event.category).to eq('foo')
+        expect(spans[1].started_at).to eq(0)
+        expect(spans[1].duration).to eq(10)
+
+        expect(spans[0].event.category).to eq('app.rack.request')
+      ensure
+        ENV['SKYLIGHT_RAISE_ON_ERROR'] = original_raise_on_error
+      end
     end
 
     it 'closes any spans that were not properly closed' do
-      trace = Skylight.trace 'Rack', 'app.rack.request'
-      a = trace.instrument 'foo'
-      clock.skip 0.1
-      b = trace.instrument 'bar'
-      clock.skip 0.1
-      trace.instrument 'baz'
-      clock.skip 0.1
-      trace.done(a)
-      clock.skip 0.1
-      trace.done(b)
-      clock.skip 0.1
-      trace.submit
+      begin
+        original_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
+        ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
 
-      server.wait resource: '/report'
+        trace = Skylight.trace 'Rack', 'app.rack.request'
+        a = trace.instrument 'foo'
+        clock.skip 0.1
+        b = trace.instrument 'bar'
+        clock.skip 0.1
+        trace.instrument 'baz'
+        clock.skip 0.1
+        trace.done(a)
+        clock.skip 0.1
+        trace.done(b)
+        clock.skip 0.1
+        trace.submit
 
-      expect(spans.count).to eq(4)
+        server.wait resource: '/report'
 
-      expect(spans[0].event.category).to eq('app.rack.request')
-      expect(spans[0].duration).to       eq(4000)
+        expect(spans.count).to eq(4)
 
-      expect(spans[1].event.category).to eq('foo')
-      expect(spans[1].duration).to       eq(3000)
+        expect(spans[0].event.category).to eq('app.rack.request')
+        expect(spans[0].duration).to       eq(4000)
 
-      expect(spans[2].event.category).to eq('bar')
-      expect(spans[2].duration).to       eq(2000)
+        expect(spans[1].event.category).to eq('foo')
+        expect(spans[1].duration).to       eq(3000)
 
-      expect(spans[3].event.category).to eq('baz')
-      expect(spans[3].duration).to       eq(1000)
+        expect(spans[2].event.category).to eq('bar')
+        expect(spans[2].duration).to       eq(2000)
+
+        expect(spans[3].event.category).to eq('baz')
+        expect(spans[3].duration).to       eq(1000)
+      ensure
+        ENV['SKYLIGHT_RAISE_ON_ERROR'] = original_raise_on_error
+      end
     end
 
     it 'tracks the title' do

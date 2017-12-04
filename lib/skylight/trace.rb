@@ -29,6 +29,8 @@ module Skylight
 
       @notifications = []
 
+      @spans = []
+
       # create the root node
       @root = start(native_get_started_at, cat, title, desc, normalize: false)
 
@@ -132,7 +134,7 @@ module Skylight
 
       @instrumenter.process(self)
     rescue Exception => e
-      error e
+      error e.message
       t { e.backtrace.join("\n") }
     end
 
@@ -144,10 +146,22 @@ module Skylight
       sp = native_start_span(time, cat.to_s)
       native_span_set_title(sp, title.to_s) if title
       native_span_set_description(sp, desc.to_s) if desc
+
+      @spans << sp
+      t { "started span: #{sp} - #{cat}, #{title}" }
+
       sp
     end
 
     def stop(span, time)
+      t { "stopping span: #{span}" }
+
+      expected = @spans.pop
+      unless span == expected
+        error "invalid span nesting"
+        t { "expected=#{expected}, actual=#{span}" }
+      end
+
       time = self.class.normalize_time(time)
       native_stop_span(span, time)
       nil
