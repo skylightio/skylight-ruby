@@ -117,5 +117,13 @@ module ::Kernel
     end
 
     ret
+  rescue LoadError
+    # Support pre-2.0 style requires
+    if name =~ %r{^skylight/probes/(.+)}
+      warn "[DEPRECATION] Requiring Skylight probes by path is deprecated. Use `Skylight.probe(:#{$1})` instead."
+      require "skylight/core/probes/#{$1}"
+    else
+      raise
+    end
   end
 end
