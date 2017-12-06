@@ -1,3 +1,7 @@
+## 2.0.0-pre
+
+* [BREAKING] Drop support for a number of deprecated libraries, including Rails prior to 4.2, Ruby prior to 2.2, and Sinatra prior to 1.4.
+
 ## 1.5.0 (December 6, 2017)
 
 * [FEATURE] [Coach](https://github.com/gocardless/coach) instrumentation. Enabled automatically via ActiveSupport::Notifications.
