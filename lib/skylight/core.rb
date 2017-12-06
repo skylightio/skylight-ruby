@@ -15,7 +15,6 @@ module Skylight
   end
 
   require 'active_support/notifications'
-  require 'skylight/compat' # Require after AS::N
 
   # Require VM specific things
   require 'skylight/config'

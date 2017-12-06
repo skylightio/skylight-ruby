@@ -24,8 +24,6 @@ module SpecHelper
         begin
           @inst = Server.new
           @rack = Rack::Server.new(opts.merge(app: @inst))
-          # Rack 1.2 (required by Rails 3.0) has a bug that prevents setting the app properly
-          @rack.instance_variable_set('@app', @inst )
           @rack.start
 
           # If we get here then we got a Ctrl-C which we really wanted RSpec to catch
@@ -238,7 +236,8 @@ module SpecHelper
 
   def stub_session_request
     server.mock "/agent" do |env|
-      { auth: { session: { token: token, expiry_ttl: 3.hours.to_i } } }
+      # TTL: 3 hours
+      { auth: { session: { token: token, expiry_ttl: 10800 } } }
     end
   end
 

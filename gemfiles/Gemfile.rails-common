@@ -1,22 +1,9 @@
-if !ENV['SKIP_EXTERNAL'] && RUBY_VERSION != '1.9.2'
+if !ENV['SKIP_EXTERNAL']
   version = ENV['AMS_VERSION']
-
-  if !version
-    if RUBY_VERSION.to_f < 2.0
-      version = '< 0.10'
-    elsif RUBY_VERSION.to_f < 2.1
-      version = '< 0.10.1'
-    end
-  end
 
   if version == 'edge'
     version = { git: 'https://github.com/rails-api/active_model_serializers' }
   end
 
   gem 'active_model_serializers', version
-end
-
-if RUBY_VERSION.to_f < 2
-  # Version 3.0 requires Ruby 2+
-  gem 'mime-types', '< 3.0'
 end

@@ -3,11 +3,6 @@ require 'spec_helper'
 module Skylight
   describe "Normalizers", "coach.handler.finish", :agent do
 
-    # Coach instrumentation is only available in Ruby 2+
-    before :each do
-      skip "only available in Ruby 2+" unless RUBY_VERSION.split.first.to_i > 1
-    end
-
     let(:event) { { middleware: "Auth" } }
 
     it "updates the trace's endpoint" do

@@ -4,8 +4,8 @@ ENV['TILT_VERSION'] = '~> 2.0'
 
 eval_gemfile 'gemfiles/Gemfile.base'
 
-gem 'rails', ">= 5.0.2"
-gem 'sinatra', "2.0.0.rc1"
+gem 'rails', "~> 5.1.0"
+gem 'sinatra', "~> 2.0.0"
 
 group :development do
   gem 'yard'

@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.summary     = "Skylight is a smart profiler for Rails apps"
   s.license     = "Nonstandard"
 
-  s.required_ruby_version = ">= 1.9.2"
+  s.required_ruby_version = ">= 2.2.7"
 
   files  = `git ls-files`.split("\n") rescue []
   files &= (
@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   # Dependencies
-  s.add_dependency('activesupport', '>= 3.0.0')
+  s.add_dependency('activesupport', '>= 4.2.0')
 
   # Executables
   s.executables = %w(skylight)
