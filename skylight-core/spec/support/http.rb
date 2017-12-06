@@ -156,7 +156,7 @@ module SpecHelper
 
 
 
-      json = ['application/json', 'application/json; charset=UTF-8'].shuffle.first
+      json = ['application/json', 'application/json; charset=UTF-8'].sample
 
       LOCK.synchronize do
         @requests << env

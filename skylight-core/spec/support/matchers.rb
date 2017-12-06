@@ -49,7 +49,7 @@ module SpecHelper
           k = 'rack.input' if k == :input
 
           unless SPECIAL_HEADERS.include?(k)
-            k = k.to_s.upcase.gsub('-', '_')
+            k = k.to_s.upcase.tr('-', '_')
             k = "HTTP_#{k}" unless SPECIAL_HEADERS.include?(k)
           end
 
