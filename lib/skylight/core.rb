@@ -89,12 +89,6 @@ module Skylight
     end
   end
 
-  # End a trace
-  def self.done(span)
-    return unless inst = Instrumenter.instance
-    inst.done(span)
-  end
-
   # Instrument
   def self.instrument(opts = DEFAULT_OPTIONS, &block)
     unless inst = Instrumenter.instance
@@ -116,6 +110,12 @@ module Skylight
     end
 
     inst.instrument(category, title, desc, &block)
+  end
+
+  # End a span
+  def self.done(span)
+    return unless inst = Instrumenter.instance
+    inst.done(span)
   end
 
   # Temporarily disable
