@@ -223,13 +223,13 @@ if enable
       context "configuration" do
 
         it "sets log file" do
-          expect(Skylight::Instrumenter.instance.config['log_file']).to eq(MyApp.root.join('log/skylight.log').to_s)
+          expect(Skylight.instrumenter.config['log_file']).to eq(MyApp.root.join('log/skylight.log').to_s)
         end
 
         context "on heroku" do
 
           def pre_boot
-            ENV['SKYLIGHT_HEROKU_DYNO_INFO_PATH'] = File.expand_path('../../support/heroku_dyno_info_sample', __FILE__)
+            ENV['SKYLIGHT_HEROKU_DYNO_INFO_PATH'] = File.expand_path('../../../skylight-core/spec/support/heroku_dyno_info_sample', __FILE__)
           end
 
           after :each do
@@ -237,11 +237,11 @@ if enable
           end
 
           it "recognizes heroku" do
-            expect(Skylight::Instrumenter.instance.config).to be_on_heroku
+            expect(Skylight.instrumenter.config).to be_on_heroku
           end
 
           it "leaves log file as STDOUT" do
-            expect(Skylight::Instrumenter.instance.config['log_file']).to eq('-')
+            expect(Skylight.instrumenter.config['log_file']).to eq('-')
           end
 
         end
@@ -573,7 +573,7 @@ if enable
 
       before :each do
         # Sanity check that we are indeed running without an active agent
-        expect(Skylight::Instrumenter.instance).to be_nil
+        expect(Skylight.instrumenter).to be_nil
       end
 
       it "allows calls to Skylight.instrument" do

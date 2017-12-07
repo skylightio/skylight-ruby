@@ -73,6 +73,7 @@ STR2BUF(VALUE str) {
  * Ruby GVL helpers
  */
 
+// FIXME: This conditional doesn't logically cover every case
 #if defined(HAVE_RB_THREAD_CALL_WITHOUT_GVL) && \
     defined(HAVE_RUBY_THREAD_H)
 
@@ -98,10 +99,9 @@ typedef VALUE (*blocking_fn_t)(void*);
  */
 
 VALUE rb_mSkylight;
+VALUE rb_mCore;
 VALUE rb_mUtil;
 VALUE rb_cClock;
-VALUE rb_cTrace;
-VALUE rb_cInstrumenter;
 
 static const char* no_instrumenter_msg =
   "Instrumenter not currently running";
@@ -133,7 +133,7 @@ load_libskylight(VALUE klass, VALUE path) {
 
 /*
  *
- * class Skylight::Util::Clock
+ * class Skylight::Core::Util::Clock
  *
  */
 
@@ -145,7 +145,7 @@ clock_high_res_time(VALUE self) {
 
 /*
  *
- * class Skylight::Instrumenter
+ * class Skylight::Core::Instrumenter
  *
  */
 
@@ -155,7 +155,6 @@ instrumenter_new(VALUE klass, VALUE rb_env) {
   sky_buf_t env[256];
   int i, envc;
 
-  UNUSED(klass);
   CHECK_TYPE(rb_env, T_ARRAY);
 
   if (RARRAY_LEN(rb_env) >= 256) {
@@ -178,7 +177,7 @@ instrumenter_new(VALUE klass, VALUE rb_env) {
       sky_instrumenter_new(env, envc, &instrumenter),
       "failed to initialize instrumenter");
 
-  return Data_Wrap_Struct(rb_cInstrumenter, NULL, sky_instrumenter_free, instrumenter);
+  return Data_Wrap_Struct(klass, NULL, sky_instrumenter_free, instrumenter);
 }
 
 static void*
@@ -262,7 +261,7 @@ instrumenter_track_desc(VALUE self, VALUE rb_endpoint, VALUE rb_desc) {
 
 /*
  *
- * class Skylight::Trace
+ * class Skylight::Core::Trace
  *
  */
 
@@ -270,7 +269,6 @@ static VALUE
 trace_new(VALUE klass, VALUE start, VALUE uuid, VALUE endpoint) {
   sky_trace_t* trace;
 
-  UNUSED(klass);
   CHECK_NUMERIC(start);
   CHECK_TYPE(uuid, T_STRING);
   CHECK_TYPE(endpoint, T_STRING);
@@ -281,7 +279,7 @@ trace_new(VALUE klass, VALUE start, VALUE uuid, VALUE endpoint) {
 
   sky_clear_allocation_count();
 
-  return Data_Wrap_Struct(rb_cTrace, NULL, sky_trace_free, trace);
+  return Data_Wrap_Struct(klass, NULL, sky_trace_free, trace);
 }
 
 static VALUE
@@ -465,11 +463,14 @@ void Init_skylight_native() {
   rb_define_singleton_method(rb_mSkylight, "load_libskylight", load_libskylight, 1);
   rb_define_singleton_method(rb_mSkylight, "lex_sql", lex_sql, 1);
 
-  rb_mUtil  = rb_define_module_under(rb_mSkylight, "Util");
+  rb_mCore = rb_define_module_under(rb_mSkylight, "Core");
+
+  // FIXME: Don't put these under Core
+  rb_mUtil  = rb_define_module_under(rb_mCore, "Util");
   rb_cClock = rb_define_class_under(rb_mUtil, "Clock", rb_cObject);
   rb_define_method(rb_cClock, "native_hrtime", clock_high_res_time, 0);
 
-  rb_cTrace = rb_define_class_under(rb_mSkylight, "Trace", rb_cObject);
+  VALUE rb_cTrace = rb_const_get(rb_mSkylight, rb_intern("Trace"));
   rb_define_singleton_method(rb_cTrace, "native_new", trace_new, 3);
   rb_define_method(rb_cTrace, "native_get_started_at", trace_get_started_at, 0);
   rb_define_method(rb_cTrace, "native_get_endpoint", trace_get_endpoint, 0);
@@ -480,7 +481,7 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_span_set_title", trace_span_set_title, 2);
   rb_define_method(rb_cTrace, "native_span_set_description", trace_span_set_description, 2);
 
-  rb_cInstrumenter = rb_define_class_under(rb_mSkylight, "Instrumenter", rb_cObject);
+  VALUE rb_cInstrumenter = rb_const_get(rb_mSkylight, rb_intern("Instrumenter"));
   rb_define_singleton_method(rb_cInstrumenter, "native_new", instrumenter_new, 1);
   rb_define_method(rb_cInstrumenter, "native_start", instrumenter_start, 0);
   rb_define_method(rb_cInstrumenter, "native_stop", instrumenter_stop, 0);

@@ -3,7 +3,7 @@ $:.unshift File.expand_path('../lib', __FILE__)
 require 'bundler/setup'
 require 'fileutils'
 require 'rbconfig'
-require 'skylight/util/platform'
+require 'skylight/core/util/platform'
 
 begin
   require 'yard'
@@ -11,7 +11,7 @@ rescue LoadError
 end
 
 include FileUtils
-include Skylight::Util
+include Skylight::Core::Util
 
 def run_cmd(cmd, env={})
   puts "system(#{env.inspect} #{cmd})"
@@ -35,7 +35,7 @@ namespace :build do
   end
 
   file RUBY_EXT => C_SRC do
-    extconf = File.expand_path("../ext/extconf.rb", __FILE__)
+    extconf = File.expand_path("#{ROOT}/ext/extconf.rb", __FILE__)
 
     # Make sure that the directory is present
     mkdir_p TARGET_DIR
@@ -63,8 +63,8 @@ task :build => RUBY_EXT
 
 desc "clean build artifacts"
 task :clean do
-  rm_rf "lib/skylight/native"
-  rm_f "ext/install.log"
+  rm_rf "#{ROOT}/lib/skylight/native"
+  rm_f "#{ROOT}/ext/install.log"
   rm_rf TARGET_DIR
 end
 
@@ -187,6 +187,15 @@ task :run_travis_builds => :vagrant_up do |t|
       commands << "export DEBUG=1" if debug
 
       commands << "bundle update"
+
+      commands << "pushd skylight-core"
+      if rspec_args
+        commands << "bundle exec rspec #{rspec_args}"
+      else
+        commands << "bundle exec rake"
+      end
+      commands << "popd"
+
       commands << "bundle exec rake clean" unless no_clean
 
       if rspec_args

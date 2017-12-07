@@ -1,5 +1,5 @@
 # Ignore the temporary directory
-/tmp
+tmp
 
 # Ignore logs
 /log/
@@ -41,3 +41,7 @@ skylight_dlopen.c
 
 # Vagrant
 /.vagrant
+
+# Coverage
+cc-test-reporter
+coverage

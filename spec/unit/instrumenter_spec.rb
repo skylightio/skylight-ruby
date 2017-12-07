@@ -3,6 +3,7 @@ require 'securerandom'
 require 'base64'
 require "stringio"
 
+# FIXME: Move some of these tests to core with mocking
 describe "Skylight::Instrumenter", :http, :agent do
 
   context "boot" do
@@ -101,7 +102,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         before :each do
           ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
-          allow_any_instance_of(Skylight::Util::HTTP).to receive(:do_request).and_raise("request failed")
+          allow_any_instance_of(Skylight::Core::Util::HTTP).to receive(:do_request).and_raise("request failed")
         end
 
         after :each do
@@ -132,19 +133,19 @@ describe "Skylight::Instrumenter", :http, :agent do
     end
 
     it "doesn't crash on failed config" do
-      allow_any_instance_of(Skylight::Config).to receive(:validate!).and_raise(Skylight::ConfigError.new("Test Failure"))
-      expect(Skylight::Instrumenter).to receive(:warn).
-        with("[SKYLIGHT] [#{Skylight::VERSION}] Unable to start Instrumenter; msg=Test Failure; class=Skylight::ConfigError")
+      allow(config).to receive(:validate!).and_raise(Skylight::Core::ConfigError.new("Test Failure"))
+      expect(logger).to receive(:warn).
+        with("[SKYLIGHT] [#{Skylight::Core::VERSION}] Unable to start Instrumenter; msg=Test Failure; class=Skylight::Core::ConfigError")
 
       expect do
-        Skylight.start!
+        Skylight.start!(config)
       end.to_not raise_error
     end
 
     it "doesn't crash on failed start" do
       allow(Skylight::Instrumenter).to receive(:new).and_raise("Test Failure")
       expect(logger).to receive(:warn).
-        with("[SKYLIGHT] [#{Skylight::VERSION}] Unable to start Instrumenter; msg=Test Failure; class=RuntimeError")
+        with("[SKYLIGHT] [#{Skylight::Core::VERSION}] Unable to start Instrumenter; msg=Test Failure; class=RuntimeError")
 
       expect do
         Skylight.start!(config)

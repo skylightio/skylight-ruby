@@ -1,31 +1,11 @@
 require 'spec_helper'
 
-describe "Skylight::Instrumenter", :http, :agent do
+# Tested here since it requires native
+# FIXME: Switch to use mocking
+describe Skylight::Core::Instrumenter, :http, :agent do
 
   let :hello do
     double('hello')
-  end
-
-  context 'when the instrumenter is not running' do
-
-    it 'does not break code' do
-      expect(hello).to receive(:hello)
-
-      Skylight.trace 'Zomg', 'app.rack.request' do |t|
-        expect(t).to be_nil
-
-        ret = Skylight.instrument category: 'foo.bar' do |s|
-          expect(s).to be_nil
-          hello.hello
-          1
-        end
-
-        expect(ret).to eq(1)
-      end
-
-      expect(Skylight::Instrumenter.instance).to be_nil
-    end
-
   end
 
   context 'when the instrumenter is running' do
