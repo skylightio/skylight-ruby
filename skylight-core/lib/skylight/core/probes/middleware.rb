@@ -36,12 +36,10 @@ module Skylight::Core
                     resp = call_without_sk(*args, &block)
 
                     Skylight::Core::Middleware.with_after_close(resp) do
-                      # trace.done(span)
                       Skylight::Core::Fanout.done(spans)
                     end
                   rescue Exception => e
                     # FIXME: Log this?
-                    # trace.done(span)
                     Skylight::Core::Fanout.done(spans, exception_object: e)
                     raise
                   end
