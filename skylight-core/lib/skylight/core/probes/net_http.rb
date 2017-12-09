@@ -44,7 +44,13 @@ module Skylight::Core
 
               opts = Formatters::HTTP.build_opts(method, scheme, host, port, path, query)
 
-              Skylight::Core::Fanout.instrument(opts) do
+              Skylight::Core::Fanout.instrument(opts) do |spans|
+                spans.each do |(instrumentable, span)|
+                  # TODO: Should we make something more generic?
+                  if (header = instrumentable.correlation_header)
+                    req[header] = instrumentable.span_correlation_header(span)
+                  end
+                end
                 request_without_sk(req, body, &block)
               end
             end

@@ -22,7 +22,7 @@ module Skylight
         if block_given?
           spans = instrument(*args)
           begin
-            yield
+            yield spans
           ensure
             done(spans)
           end

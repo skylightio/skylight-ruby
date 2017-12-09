@@ -429,6 +429,11 @@ trace_span_set_exception(VALUE self, VALUE span, VALUE exception, VALUE exceptio
 }
 
 static VALUE
+trace_span_get_correlation_header(VALUE self, VALUE span_id) {
+  return Qnil;
+}
+
+static VALUE
 lex_sql(VALUE klass, VALUE rb_sql) {
   sky_buf_t sql;
   sky_buf_t title;
@@ -500,6 +505,7 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_span_set_description", trace_span_set_description, 2);
   rb_define_method(rb_cTrace, "native_span_set_meta", trace_span_set_meta, 2);
   rb_define_method(rb_cTrace, "native_span_set_exception", trace_span_set_exception, 3);
+  rb_define_method(rb_cTrace, "native_span_get_correlation_header", trace_span_get_correlation_header, 1);
 
   VALUE rb_cInstrumenter = rb_const_get(rb_mSkylight, rb_intern("Instrumenter"));
   rb_define_singleton_method(rb_cInstrumenter, "native_new", instrumenter_new, 1);

@@ -177,11 +177,6 @@ module Skylight::Core
       self.class.match?(string, regex)
     end
 
-    def done(span, meta=nil)
-      return unless trace = @trace_info.current
-      trace.done(span, meta)
-    end
-
     def instrument(cat, title=nil, desc=nil, meta=nil)
       raise ArgumentError, 'cat is required' unless cat
 
@@ -216,6 +211,16 @@ module Skylight::Core
       ensure
         trace.done(sp, meta)
       end
+    end
+
+    def span_correlation_header(span)
+      return unless trace = @trace_info.current
+      trace.span_correlation_header(span)
+    end
+
+    def done(span, meta=nil)
+      return unless trace = @trace_info.current
+      trace.done(span, meta)
     end
 
     def limited_description(description)

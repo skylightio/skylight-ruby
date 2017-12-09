@@ -34,6 +34,10 @@ module Skylight
           @instrumenter
         end
 
+        def correlation_header
+          nil
+        end
+
         # Start instrumenting
         def start!(config=nil)
           return @instrumenter if @instrumenter
@@ -110,6 +114,11 @@ module Skylight
           end
 
           instrumenter.instrument(category, title, desc, meta, &block)
+        end
+
+        def span_correlation_header(span)
+          return unless instrumenter
+          instrumenter.span_correlation_header(span)
         end
 
         # End a span

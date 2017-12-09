@@ -93,6 +93,10 @@ module Skylight::Core
       nil
     end
 
+    def span_correlation_header(span)
+      native_span_get_correlation_header(span)
+    end
+
     def done(span, meta=nil)
       return unless span
       return if @broken
