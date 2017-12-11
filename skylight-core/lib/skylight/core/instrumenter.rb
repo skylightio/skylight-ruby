@@ -75,20 +75,13 @@ module Skylight::Core
       @trace_info.current = trace
     end
 
+    def check_install!
+      true
+    end
+
     def start!
-      # Warn if there was an error installing Skylight.
       # We do this here since we can't report these issues via Gem install without stopping install entirely.
-
-      # FIXME: This is in skylight, not core
-      if defined?(Skylight.check_install_errors)
-        Skylight.check_install_errors(config)
-      end
-
-      # FIXME: This is in skylight, not core
-      if !Skylight.native? && defined?(Skylight.warn_skylight_native_missing)
-        Skylight.warn_skylight_native_missing(config)
-        return
-      end
+      check_install!
 
       t { "starting instrumenter" }
 
