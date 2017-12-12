@@ -1,4 +1,4 @@
-module Skylight::Core
+module Skylight
   # Instrumenting a specific method will cause an event to be created every time that method is called.
   # The event will be inserted at the appropriate place in the Skylight trace.
   #
@@ -131,7 +131,6 @@ module Skylight::Core
 
     private
 
-      # FIXME: Use of Skylight module here is incorrect
       def __sk_instrument_method_on(klass, name, title, opts)
         category = (opts[:category] || "app.method").to_s
         title    = (opts[:title] || title).to_s

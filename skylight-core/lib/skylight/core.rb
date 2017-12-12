@@ -63,7 +63,6 @@ module Skylight
   require 'skylight/core/config'
   require 'skylight/core/user_config'
   require 'skylight/core/gc'
-  require 'skylight/core/helpers'
   require 'skylight/core/instrumenter'
   require 'skylight/core/fanout'
   require 'skylight/core/trace'
