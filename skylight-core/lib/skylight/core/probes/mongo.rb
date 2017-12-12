@@ -36,9 +36,13 @@ module Skylight::Core
 
         # For logging
         def config
-          # FIXME: Don't use Skylight module in Core
-          instrumenter = Skylight.instrumenter
-          instrumenter ? instrumenter.config : nil
+          # Just log to the first instrumentable's config for now.
+          # FIXME: Revisit this
+          if (instrumentable = Fanout.registered.first)
+            if (instrumenter = instrumentable.instrumenter)
+              instrumenter.config
+            end
+          end
         end
 
         private
