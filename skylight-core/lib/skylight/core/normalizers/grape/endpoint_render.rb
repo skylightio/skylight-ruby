@@ -6,7 +6,7 @@ module Skylight::Core
 
         CAT = "app.grape.endpoint".freeze
 
-        def normalize(trace, name, payload)
+        def normalize(trace, name, payload, instrumenter)
           if endpoint = payload[:endpoint]
             path = get_path(endpoint)
             namespace = get_namespace(endpoint)
