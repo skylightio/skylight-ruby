@@ -16,5 +16,9 @@ module Skylight
         return
       end
     end
+
+    def process_sql(sql)
+      Skylight.lex_sql(sql)
+    end
   end
 end

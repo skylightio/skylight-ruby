@@ -33,7 +33,7 @@ module Skylight::Core
           end
 
           begin
-            extracted_title, sql = extract_binds(payload, binds)
+            extracted_title, sql = extract_binds(instrumenter, payload, binds)
             [ name, extracted_title || title, sql ]
           rescue => e
             # FIXME: Rust errors get written to STDERR and don't come through here
@@ -46,8 +46,8 @@ module Skylight::Core
 
         private
 
-        def extract_binds(payload, precalculated)
-          Skylight.lex_sql(payload[:sql])
+        def extract_binds(instrumenter, payload, precalculated)
+          instrumenter.process_sql(payload[:sql])
         end
       end
     end

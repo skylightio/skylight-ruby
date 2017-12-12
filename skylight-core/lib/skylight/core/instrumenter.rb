@@ -231,5 +231,10 @@ module Skylight::Core
       config.ignored_endpoints.include?(trace.endpoint.sub(%r{<sk-segment>.+</sk-segment>}, ''))
     end
 
+    # Return [title, sql]
+    def process_sql(sql)
+      [nil, sql]
+    end
+
   end
 end

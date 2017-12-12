@@ -6,6 +6,19 @@ require 'date'
 module Skylight
   describe "Normalizers", "sql.active_record", :agent do
 
+    before :each do
+      Skylight.send(:extend, Skylight::Test::Mocking)
+      Skylight.mock!
+    end
+
+    after :each do
+      Skylight.stop!
+    end
+
+    def normalize_instrumenter
+      Skylight.instrumenter
+    end
+
     it "skips SCHEMA queries" do
       expect(normalize(name: "SCHEMA")).to eq(:skip)
     end
