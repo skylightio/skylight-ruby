@@ -4,7 +4,7 @@ module Skylight::Core
       class EndpointRun < Endpoint
         register "endpoint_run.grape"
 
-        def normalize(trace, name, payload, instrumenter)
+        def normalize(trace, name, payload)
           trace.endpoint = get_endpoint_name(payload[:endpoint]) if payload[:endpoint]
 
           # We don't necessarily want this to be all instrumented since it's fairly internal.

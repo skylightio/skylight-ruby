@@ -13,7 +13,7 @@ module Skylight::Core
         # within a Coach::Handler.
         #
         # We can expect the payload to have the :middleware key.
-        def normalize(trace, name, payload, instrumenter)
+        def normalize(trace, name, payload)
           trace.endpoint = payload[:middleware]
           [ CAT, payload[:middleware], nil ]
         end

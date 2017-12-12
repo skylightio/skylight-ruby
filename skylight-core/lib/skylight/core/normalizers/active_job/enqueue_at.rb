@@ -6,7 +6,7 @@ module Skylight::Core
 
         CAT = "other.job.enqueue_at".freeze
 
-        def normalize(_trace, _name, payload, _instrumenter)
+        def normalize(_trace, _name, payload)
 					title = "Enqueue #{payload[:job].class}"
 
 					adapter_class_name = payload[:adapter].class.name

@@ -8,10 +8,6 @@ module SpecHelper
   BEHAVE_LIKE = "it should behave like".freeze
   PAYLOAD = {}.freeze
 
-  def normalize_instrumenter
-    TestNamespace.instrumenter
-  end
-
   def normalize(name=nil, payload=nil)
     process_normalize(:normalize, name, payload)
   end
@@ -35,9 +31,9 @@ module SpecHelper
       name ||= description[1] ? description[1] : description[0]
 
       if meth == :normalize_after
-        normalizers.normalize_after(trace, 0, name, payload, normalize_instrumenter)
+        normalizers.normalize_after(trace, 0, name, payload)
       else
-        normalizers.normalize(trace, name, payload, normalize_instrumenter)
+        normalizers.normalize(trace, name, payload)
       end
     end
 

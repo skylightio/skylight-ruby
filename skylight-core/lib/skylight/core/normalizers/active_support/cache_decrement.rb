@@ -7,7 +7,7 @@ module Skylight::Core
         CAT = "app.cache.decrement".freeze
         TITLE = "cache decrement"
 
-        def normalize(trace, name, payload, instrumenter)
+        def normalize(trace, name, payload)
           [ CAT, TITLE, nil ]
         end
       end

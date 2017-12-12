@@ -39,11 +39,11 @@ module Skylight::Core
         setup if respond_to?(:setup)
       end
 
-      def normalize(trace, name, payload, instrumenter)
+      def normalize(trace, name, payload)
         :skip
       end
 
-      def normalize_after(trace, span, name, payload, instrumenter)
+      def normalize_after(trace, span, name, payload)
       end
     end
 
@@ -130,12 +130,12 @@ module Skylight::Core
         @normalizers.keys
       end
 
-      def normalize(trace, name, payload, instrumenter)
-        normalizer_for(name).normalize(trace, name, payload, instrumenter)
+      def normalize(trace, name, payload)
+        normalizer_for(name).normalize(trace, name, payload)
       end
 
-      def normalize_after(trace, span, name, payload, instrumenter)
-        normalizer_for(name).normalize_after(trace, span, name, payload, instrumenter)
+      def normalize_after(trace, span, name, payload)
+        normalizer_for(name).normalize_after(trace, span, name, payload)
       end
 
       def normalizer_for(name)

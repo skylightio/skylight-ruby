@@ -110,12 +110,12 @@ module Skylight::Core
 
   private
 
-    def normalize(trace, name, payload)
-      @normalizers.normalize(trace, name, payload, @instrumenter)
+    def normalize(*args)
+      @normalizers.normalize(*args)
     end
 
-    def normalize_after(trace, span, name, payload)
-      @normalizers.normalize_after(trace, span, name, payload, @instrumenter)
+    def normalize_after(*args)
+      @normalizers.normalize_after(*args)
     end
 
   end

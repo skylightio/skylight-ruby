@@ -6,7 +6,7 @@ module Skylight::Core
 
         CAT = "app.grape.filters".freeze
 
-        def normalize(trace, name, payload, instrumenter)
+        def normalize(trace, name, payload)
           filters = payload[:filters]
           type = payload[:type]
 

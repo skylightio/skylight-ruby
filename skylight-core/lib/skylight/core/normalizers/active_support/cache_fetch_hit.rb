@@ -7,7 +7,7 @@ module Skylight::Core
         CAT = "app.cache.fetch_hit".freeze
         TITLE = "cache fetch hit"
 
-        def normalize(trace, name, payload, instrumenter)
+        def normalize(trace, name, payload)
           [ CAT, TITLE, nil ]
         end
       end

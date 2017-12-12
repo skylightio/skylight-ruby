@@ -6,7 +6,7 @@ module Skylight::Core
 
         CAT = "view.render.active_model_serializers".freeze
 
-        def normalize(trace, name, payload, instrumenter)
+        def normalize(trace, name, payload)
           serializer_class = payload[:serializer]
 
           title = serializer_class.name.sub(/^ActiveModel::(Serializer::)?/, '')

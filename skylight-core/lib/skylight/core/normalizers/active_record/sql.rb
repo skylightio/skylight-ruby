@@ -17,7 +17,7 @@ module Skylight::Core
         # @option payload [String] [:name] The SQL operation
         # @option payload [Hash] [:binds] The bound parameters
         # @return [Array]
-        def normalize(trace, name, payload, instrumenter)
+        def normalize(trace, name, payload)
           case payload[:name]
           when "SCHEMA".freeze, "CACHE".freeze
             return :skip
