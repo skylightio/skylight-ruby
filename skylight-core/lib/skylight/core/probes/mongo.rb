@@ -36,6 +36,7 @@ module Skylight::Core
 
         # For logging
         def config
+          # FIXME: Don't use Skylight module in Core
           instrumenter = Skylight.instrumenter
           instrumenter ? instrumenter.config : nil
         end

@@ -131,6 +131,7 @@ module Skylight::Core
 
     private
 
+      # FIXME: Use of Skylight module here is incorrect
       def __sk_instrument_method_on(klass, name, title, opts)
         category = (opts[:category] || "app.method").to_s
         title    = (opts[:title] || title).to_s
