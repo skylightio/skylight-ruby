@@ -9,7 +9,7 @@ curl -sSL https://get.rvm.io | bash -s
 
 source /home/vagrant/.rvm/scripts/rvm
 
-rvm install 2.2.7
-rvm install 2.4.1
+rvm install 2.2
+rvm install 2.4
 
-rvm use 2.4.1 --default
+rvm use 2.4 --default
