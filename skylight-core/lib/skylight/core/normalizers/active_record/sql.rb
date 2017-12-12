@@ -33,7 +33,7 @@ module Skylight::Core
           end
 
           begin
-            extracted_title, sql = extract_binds(instrumenter, payload, binds)
+            extracted_title, sql = extract_binds(trace.instrumenter, payload, binds)
             [ name, extracted_title || title, sql ]
           rescue => e
             # FIXME: Rust errors get written to STDERR and don't come through here

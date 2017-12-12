@@ -7,16 +7,20 @@ module Skylight
   describe "Normalizers", "sql.active_record", :agent do
 
     before :each do
+      # Mock Skylight itself so the SQL lexer is active
       Skylight.send(:extend, Skylight::Test::Mocking)
       Skylight.mock!
+
+      # Start a trace to have it available in the trace method
+      Skylight.trace("Test", "app.request")
     end
 
     after :each do
       Skylight.stop!
     end
 
-    def normalize_instrumenter
-      Skylight.instrumenter
+    def trace
+      Skylight.instrumenter.current_trace
     end
 
     it "skips SCHEMA queries" do
