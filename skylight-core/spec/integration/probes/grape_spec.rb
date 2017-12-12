@@ -39,7 +39,7 @@ if defined?(Grape)
 
         namespace :admin do
           before do
-            TestNamespace.instrument("verifying admin")
+            TestNamespace.instrument("verifying admin") { sleep 0.1 }
           end
 
           get :secret do
