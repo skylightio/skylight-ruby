@@ -9,7 +9,7 @@ module SpecHelper
   PAYLOAD = {}.freeze
 
   def normalize_instrumenter
-    Skylight::Test.instrumenter
+    TestNamespace.instrumenter
   end
 
   def normalize(name=nil, payload=nil)

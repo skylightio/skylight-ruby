@@ -64,23 +64,98 @@ puts "Skipping probes: #{skipped_probes.join(", ")}"  unless skipped_probes.empt
 
 ENV['SKYLIGHT_RAISE_ON_ERROR'] = "true"
 
-# TODO: Move into support
+# TODO: Move elsewhere
 module Skylight
   module Test
-    include Skylight::Core::Instrumentable
+    module Mocking
 
-    def self.mock!(&callback)
-      config = Core::Config.new(mock_submission: callback || proc {})
-      @instrumenter = Core::MockInstrumenter.new(config).start!
-    end
+      unless ENV['SKYLIGHT_DISABLE_AGENT']
+        def mock!(&callback)
+          config = Core::Config.new(mock_submission: callback || proc {})
 
-    class Middleware < Skylight::Core::Middleware
+          mock_instrumenter_klass = Class.new(self.instrumenter_class) do
+            def self.trace_class
+              @trace_class ||= Class.new(super) do
+                def self.native_new(start, uuid, endpoint)
+                  inst = allocate
+                  inst.instance_variable_set(:@start, start)
+                  inst
+                end
 
-      def instrumentable
-        Skylight::Test
+                def mock_spans
+                  @mock_spans ||= []
+                end
+
+                def native_get_started_at
+                  @start
+                end
+
+                def native_set_endpoint(*args)
+                end
+
+                def native_start_span(time, cat)
+                  span = {
+                    start: time,
+                    cat: cat
+                  }
+                  mock_spans << span
+                  # Return integer like the native method does
+                  mock_spans.index(span)
+                end
+
+                def native_span_set_title(sp, title)
+                  mock_spans[sp][:title] = title
+                end
+
+                def native_span_set_description(sp, desc)
+                  mock_spans[sp][:desc] = desc
+                end
+
+                def native_stop_span(span, time)
+                  span = mock_spans[span]
+                  span[:duration] = time - span[:start]
+                  nil
+                end
+              end
+            end
+
+            def self.native_new(*)
+              allocate
+            end
+
+            def native_start
+              true
+            end
+
+            def native_submit_trace(trace)
+              config[:mock_submission].call(trace)
+            end
+
+            def native_stop
+            end
+
+            def limited_description(description)
+              description
+            end
+          end
+
+          @instrumenter = mock_instrumenter_klass.new(config).start!
+        end
       end
-
     end
+  end
+end
+
+module TestNamespace
+  include Skylight::Core::Instrumentable
+  extend Skylight::Test::Mocking
+
+  class Middleware < Skylight::Core::Middleware
+
+    def instrumentable
+      TestNamespace
+    end
+
   end
 end
 
@@ -132,10 +207,10 @@ RSpec.configure do |config|
     begin
       mock_clock! # This happens before the before(:each) below
       clock.freeze
-      Skylight::Test.mock!
-      Skylight::Test.trace("Test") { example.run }
+      TestNamespace.mock!
+      TestNamespace.trace("Test") { example.run }
     ensure
-      Skylight::Test.stop!
+      TestNamespace.stop!
     end
   end
 
