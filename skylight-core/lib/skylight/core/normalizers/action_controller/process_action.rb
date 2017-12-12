@@ -17,12 +17,12 @@ module Skylight::Core
         # @option payload [String] :controller Controller name
         # @option payload [String] :action Action name
         # @return [Array]
-        def normalize(trace, name, payload)
+        def normalize(trace, name, payload, instrumenter)
           trace.endpoint = controller_action(payload)
           [ CAT, trace.endpoint, nil ]
         end
 
-        def normalize_after(trace, span, name, payload)
+        def normalize_after(trace, span, name, payload, instrumenter)
           return unless config.enable_segments?
 
           # Show 'error' if there's an unhandled exception or if the status is 4xx or 5xx

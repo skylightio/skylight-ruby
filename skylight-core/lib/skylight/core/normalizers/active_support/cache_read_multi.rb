@@ -7,7 +7,7 @@ module Skylight::Core
         CAT = "app.cache.read_multi".freeze
         TITLE = "cache read multi"
 
-        def normalize(trace, name, payload)
+        def normalize(trace, name, payload, instrumenter)
           [ CAT, TITLE, nil ]
         end
       end

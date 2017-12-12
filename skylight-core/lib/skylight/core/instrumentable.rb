@@ -26,6 +26,10 @@ module Skylight
 
       module ClassMethods
 
+        def instrumenter_class
+          Skylight::Core::Instrumenter
+        end
+
         def instrumenter
           @instrumenter
         end

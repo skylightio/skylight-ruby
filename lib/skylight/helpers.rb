@@ -1,4 +1,4 @@
-module Skylight::Core
+module Skylight
   # Instrumenting a specific method will cause an event to be created every time that method is called.
   # The event will be inserted at the appropriate place in the Skylight trace.
   #

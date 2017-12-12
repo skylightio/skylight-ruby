@@ -12,7 +12,7 @@ module Skylight::Core
         # @param payload (see RenderNormalizer#normalize_render)
         # @option payload (see RenderNormalizer#normalize_render)
         # @return (see RenderNormalizer#normalize_render)
-        def normalize(trace, name, payload)
+        def normalize(trace, name, payload, instrumenter)
           normalize_render(CAT, payload)
         end
       end

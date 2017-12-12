@@ -6,7 +6,7 @@ module Skylight::Core
 
         CAT = "db.elasticsearch.request".freeze
 
-        def normalize(trace, name, payload)
+        def normalize(trace, name, payload, instrumenter)
           path = payload[:path].split('/')
           title = [payload[:method], path[0]].compact.join(' ')
           desc = {}

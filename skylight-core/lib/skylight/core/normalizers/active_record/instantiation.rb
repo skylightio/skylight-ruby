@@ -6,7 +6,7 @@ module Skylight::Core
 
         CAT = "db.active_record.instantiation".freeze
 
-        def normalize(trace, name, payload)
+        def normalize(trace, name, payload, instrumenter)
           # Payload also includes `:record_count` but this will be variable
           [ CAT, "#{payload[:class_name]} Instantiation", nil]
         end

@@ -9,7 +9,8 @@ module Skylight
   # @api private
   TRACE_ENV_KEY = 'SKYLIGHT_ENABLE_TRACE_LOGS'.freeze
 
-  # When Skylight.native? is true, we should have the following:
+  # Some methods exepected to be defined by the native code (OUTDATED)
+  #
   #   * Skylight::Core::Util::Clock#native_hrtime
   #       - returns current time in nanoseconds
   #   * Skylight::Core::Trace#native_new(start, uuid, endpoint)
@@ -57,21 +58,11 @@ module Skylight
   #       - description is a string
   #       - returns truthy unless uniqueness cap exceeded
 
-  # FIXME: This is a hack
-  class << self
-    unless method_defined?(:native?)
-      def native?
-        false
-      end
-    end
-  end
-
   require 'active_support/notifications'
 
   require 'skylight/core/config'
   require 'skylight/core/user_config'
   require 'skylight/core/gc'
-  require 'skylight/core/helpers'
   require 'skylight/core/instrumenter'
   require 'skylight/core/fanout'
   require 'skylight/core/trace'

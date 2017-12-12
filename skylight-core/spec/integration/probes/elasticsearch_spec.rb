@@ -10,7 +10,7 @@ if ENV['TEST_ELASTICSEARCH_INTEGRATION']
 
     before do
       # Delete index if it exists
-      Skylight::Test.disable do
+      TestNamespace.disable do
         client.indices.delete(index: 'skylight-test') rescue nil
       end
     end
