@@ -59,6 +59,24 @@ if enable
 
       end
 
+      class NonConformingMiddleware
+        def initialize(app)
+          @app = app
+        end
+
+        def call(env)
+          res = @app.call(env)
+
+          # NOTE: We are intentionally throwing away the response without calling close
+          # This is to emulate a non-conforming Middleware
+          if env["PATH_INFO"] == "/non-conforming"
+            return [200, { }, ["NonConforming"]]
+          end
+
+          res
+        end
+      end
+
       class ::MyApp < Rails::Application
         config.secret_key_base = '095f674153982a9ce59914b561f4522a'
 
@@ -84,6 +102,7 @@ if enable
           end
         end)
 
+        config.middleware.use NonConformingMiddleware
         config.middleware.use CustomMiddleware
 
       end
@@ -349,6 +368,25 @@ if enable
 
         # If Skylight runs after CustomMiddleware, we shouldn't see it
         expect(titles).to_not include("CustomMiddleware")
+      end
+
+      it "handles middleware that don't conform to SPEC", :middleware_probe do
+        original_skylight_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
+        begin
+          ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+
+          call MyApp, env('/non-conforming')
+          server.wait resource: '/report'
+
+          trace = server.reports[0].endpoints[0].traces[0]
+
+          titles = trace.spans.map{ |s| [s.event.title] }
+
+          # If Skylight runs after CustomMiddleware, we shouldn't see it
+          expect(titles).to_not include("CustomMiddleware")
+        ensure
+          ENV['SKYLIGHT_RAISE_ON_ERROR'] = original_skylight_raise_on_error
+        end
       end
 
       it 'sets correct segment' do

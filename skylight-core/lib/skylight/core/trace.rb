@@ -159,6 +159,7 @@ module Skylight::Core
       expected = @spans.pop
       unless span == expected
         error "invalid span nesting"
+        # TODO: Actually log span title here
         t { "expected=#{expected}, actual=#{span}" }
       end
 

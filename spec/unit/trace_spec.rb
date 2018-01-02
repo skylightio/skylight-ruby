@@ -113,9 +113,9 @@ module Skylight
         trace = Skylight.trace 'Rack', 'app.rack.request'
         a = trace.instrument 'foo'
         clock.skip 0.1
-        b = trace.instrument 'bar'
+        trace.instrument 'bar'
         clock.skip 0.1
-        trace.instrument 'baz'
+        b = trace.instrument 'baz'
         clock.skip 0.1
         trace.done(a)
         clock.skip 0.1
