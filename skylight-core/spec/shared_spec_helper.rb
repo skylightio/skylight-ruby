@@ -4,6 +4,7 @@ require 'beefcake'
 require 'rspec'
 require 'rspec/collection_matchers'
 require 'rack/test'
+require 'webmock'
 
 module SpecHelper
 end
@@ -25,6 +26,7 @@ end
     require library
     Skylight::Core::Probes.probe(library)
   rescue LoadError
+    puts "Unable to load #{library}"
   end
 end
 
@@ -162,6 +164,9 @@ end
 
 RSpec.configure do |config|
   config.color = true
+
+  config.include WebMock::API
+  config.include WebMock::Matchers
 
   unless defined?(Moped) && defined?(Mongoid)
     config.filter_run_excluding moped: true
