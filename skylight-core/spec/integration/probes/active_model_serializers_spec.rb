@@ -23,6 +23,9 @@ if defined?(ActiveModel::Serializer)
         attr_accessor :name, :value
       end
 
+      # FIXME: Remove one https://github.com/rails/rails/pull/31637 has been merged.
+      require 'active_support/core_ext/string/strip'
+
       # This usually happens in a Railtie
       ActionController::Base.send(:include, ActionController::Serialization)
 
