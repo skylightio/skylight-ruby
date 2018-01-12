@@ -77,6 +77,14 @@ if defined?(Grape)
       end
     end
 
+    def expect_endpoint_instrument(title)
+      allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
+
+      expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
+          .with("app.grape.endpoint", title, nil, nil)
+          .once
+    end
+
     it "creates a Trace for a Grape app" do
       expect(TestNamespace).to receive(:trace).with("Rack", "app.rack.request", nil, nil).and_call_original
 
@@ -87,21 +95,13 @@ if defined?(Grape)
     end
 
     it "instruments the endpoint body" do
-      allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-
-      expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", "GET test", nil, nil)
-          .once
+      expect_endpoint_instrument("GET test")
 
       get "/test"
     end
 
     it "instruments mounted apps" do
-      allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-
-      expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", "GET test", nil, nil)
-          .once
+      expect_endpoint_instrument("GET test")
 
       get "/app/test"
 
@@ -109,11 +109,7 @@ if defined?(Grape)
     end
 
     it "instruments more complex endpoints" do
-      allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-
-      expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", "POST update/:id", nil, nil)
-          .once
+      expect_endpoint_instrument("POST update/:id")
 
       post "/app/update/1"
 
@@ -121,11 +117,7 @@ if defined?(Grape)
     end
 
     it "instruments namespaced endpoints" do
-      allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-
-      expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", "GET users list", nil, nil)
-          .once
+      expect_endpoint_instrument("GET users list")
 
       get "/app/users/list"
 
