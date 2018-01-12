@@ -67,22 +67,6 @@ module Skylight::Core
       raise "not implemented"
     end
 
-    def native_start
-      raise "not implemented"
-    end
-
-    def native_stop
-      raise "not implemented"
-    end
-
-    def native_track_desc
-      raise "not implemented"
-    end
-
-    def native_submit_trace
-      raise "not implemented"
-    end
-
     def current_trace
       @trace_info.current
     end

@@ -24,7 +24,7 @@ module Skylight::Core
         binds = payload[:binds]
 
         if binds && !binds.empty?
-          binds = binds.map { |col, val| val.inspect }
+          binds = binds.map { |_col, val| val.inspect }
         end
 
         begin
@@ -41,7 +41,7 @@ module Skylight::Core
 
       private
 
-      def extract_binds(instrumenter, payload, precalculated)
+      def extract_binds(instrumenter, payload, _precalculated)
         instrumenter.process_sql(payload[:sql])
       end
     end

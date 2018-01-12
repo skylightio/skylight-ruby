@@ -67,11 +67,11 @@ module Skylight::Core
     end
 
     # Allow for overwriting
-    def endpoint_name(env)
+    def endpoint_name(_env)
       "Rack"
     end
 
-    def endpoint_meta(env)
+    def endpoint_meta(_env)
       nil
     end
 
