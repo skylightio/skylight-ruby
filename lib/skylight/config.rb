@@ -96,7 +96,7 @@ module Skylight
     end
 
     def self.required_keys
-      @required_keys || super.merge(
+      @required_keys ||= super.merge(
         authentication: "authentication token",
         hostname:       "server hostname",
         auth_url:       "authentication url",
