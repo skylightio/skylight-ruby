@@ -38,7 +38,7 @@ if defined?(Sinatra)
     end
 
     it "creates a Trace for a Sinatra app" do
-      expect(TestNamespace).to receive(:trace).with("Rack", "app.rack.request").and_call_original
+        expect(TestNamespace).to receive(:trace).with("Rack", "app.rack.request", nil, nil).and_call_original
 
       get "/named-template"
       expect(@current_trace.endpoint).to eq("GET /named-template")

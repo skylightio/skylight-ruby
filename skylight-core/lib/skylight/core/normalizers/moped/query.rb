@@ -41,19 +41,19 @@ module Skylight::Core
           hash = extract_binds(operation.selector)
           description = hash.to_json
 
-          [CAT, title, description]
+          [CAT, title, description, { database: operation.database }]
         end
 
         def normalize_get_more(operation)
           title = normalize_title("GET_MORE".freeze, operation)
 
-          [CAT, title, nil]
+          [CAT, title, nil, { database: operation.database }]
         end
 
         def normalize_insert(operation)
           title = normalize_title("INSERT".freeze, operation)
 
-          [CAT, title, nil]
+          [CAT, title, nil, { database: operation.database }]
         end
 
         def normalize_update(operation)
@@ -64,7 +64,7 @@ module Skylight::Core
 
           description = { selector: selector_hash, update: update_hash }.to_json
 
-          [CAT, title, description]
+          [CAT, title, description, { database: operation.database }]
         end
 
         def normalize_delete(operation)
@@ -73,7 +73,7 @@ module Skylight::Core
           hash = extract_binds(operation.selector)
           description = hash.to_json
 
-          [CAT, title, description]
+          [CAT, title, description, { database: operation.database }]
         end
 
         def normalize_title(type, operation)

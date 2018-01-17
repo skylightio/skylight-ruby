@@ -8,7 +8,7 @@ module Skylight
   class Config < Core::Config
 
     def self.env_to_key
-      super.merge(
+      @env_to_key ||= super.merge(
         # == Authentication ==
         'AUTHENTICATION' => :authentication,
 
@@ -96,7 +96,7 @@ module Skylight
     end
 
     def self.required_keys
-      super.merge(
+      @required_keys ||= super.merge(
         authentication: "authentication token",
         hostname:       "server hostname",
         auth_url:       "authentication url",
@@ -105,7 +105,7 @@ module Skylight
     end
 
     def self.native_env_keys
-      super + [
+      @native_env_keys ||= super + [
         :version,
         :root,
         :hostname,
@@ -143,14 +143,14 @@ module Skylight
     end
 
     def self.legacy_keys
-      super.merge(
+      @legacy_keys ||= super.merge(
         :'agent.sockfile_path' => :'daemon.sockdir_path',
         :'agent.lockfile'      => :'daemon.pidfile_path'
       )
     end
 
     def self.validators
-      super.merge(
+      @validators ||= super.merge(
         :'agent.interval' => [lambda { |v, c| Integer === v && v > 0 }, "must be an integer greater than 0"]
       )
     end

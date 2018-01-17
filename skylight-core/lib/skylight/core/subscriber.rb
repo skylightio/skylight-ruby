@@ -58,15 +58,14 @@ module Skylight::Core
       unless result == :skip
         case result.size
         when 4
-          error "old style normalizer; name=#{name.inspect}; normalizer=#{@normalizers.normalizer_for(name).class}"
-          cat, title, desc, _ = result
+          cat, title, desc, meta = result
         when 3
           cat, title, desc = result
         else
           raise "Invalid normalizer result: #{result.inspect}"
         end
 
-        span = trace.instrument(cat, title, desc)
+        span = trace.instrument(cat, title, desc, meta)
       end
 
       trace.notifications << Notification.new(name, span)
@@ -89,7 +88,10 @@ module Skylight::Core
           begin
             normalize_after(trace, curr.span, name, payload)
           ensure
-            trace.done(curr.span) if curr.span
+            meta = { }
+            meta[:exception] = payload[:exception] if payload[:exception]
+            meta[:exception_object] = payload[:exception_object] if payload[:exception_object]
+            trace.done(curr.span, meta) if curr.span
           end
           return
         end

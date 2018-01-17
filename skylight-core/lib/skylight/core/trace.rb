@@ -4,11 +4,11 @@ module Skylight::Core
 
     include Util::Logging
 
-    attr_reader :instrumenter, :endpoint, :notifications
+    attr_reader :instrumenter, :endpoint, :notifications, :meta
 
-    def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil)
-      inst = native_new(normalize_time(start), "TODO", endpoint)
-      inst.send(:initialize, instrumenter, cat, title, desc)
+    def self.new(instrumenter, endpoint, start, cat, title=nil, desc=nil, meta=nil)
+      inst = native_new(normalize_time(start), "TODO", endpoint, meta)
+      inst.send(:initialize, instrumenter, cat, title, desc, meta)
       inst.endpoint = endpoint
       inst
     end
@@ -20,7 +20,7 @@ module Skylight::Core
       (time.to_i / 100_000).to_i
     end
 
-    def initialize(instrumenter, cat, title, desc)
+    def initialize(instrumenter, cat, title, desc, meta)
       raise ArgumentError, 'instrumenter is required' unless instrumenter
 
       @instrumenter = instrumenter
@@ -32,7 +32,10 @@ module Skylight::Core
       @spans = []
 
       # create the root node
-      @root = start(native_get_started_at, cat, title, desc, normalize: false)
+      @root = start(native_get_started_at, cat, title, desc, meta, normalize: false)
+
+      # Also store meta for later access
+      @meta = meta
 
       @gc = config.gc.track unless ENV.key?("SKYLIGHT_DISABLE_GC_TRACKING")
     end
@@ -57,7 +60,7 @@ module Skylight::Core
 
       time = Util::Clock.nanos - gc_time
 
-      stop(start(time, cat, title, desc), time)
+      stop(start(time, cat, title, desc, nil), time)
 
       nil
     rescue => e
@@ -66,7 +69,7 @@ module Skylight::Core
       nil
     end
 
-    def instrument(cat, title=nil, desc=nil)
+    def instrument(cat, title=nil, desc=nil, meta=nil)
       return if @broken
       t { "instrument: #{cat}, #{title}" }
 
@@ -83,16 +86,25 @@ module Skylight::Core
         debug "cat=%s, title=%s, desc=%s", cat, title, desc
       end
 
-      start(now - gc_time, cat, title, desc)
+      start(now - gc_time, cat, title, desc, meta)
     rescue => e
       error "failed to instrument span; msg=%s", e.message
       @broken = true
       nil
     end
 
-    def done(span)
+    def span_correlation_header(span)
+      native_span_get_correlation_header(span)
+    end
+
+    def done(span, meta=nil)
       return unless span
       return if @broken
+
+      if meta && (meta[:exception_object] || meta[:exception])
+        native_span_set_exception(span, meta[:exception_object], meta[:exception])
+      end
+
       stop(span, Util::Clock.nanos - gc_time)
     rescue => e
       error "failed to close span; msg=%s", e.message
@@ -111,7 +123,7 @@ module Skylight::Core
 
       if time > 0
         t { fmt "tracking GC time; duration=%d", time }
-        stop(start(now - time, GC_CAT, nil, nil), now)
+        stop(start(now - time, GC_CAT, nil, nil, nil), now)
       end
 
       stop(@root, now)
@@ -140,12 +152,13 @@ module Skylight::Core
 
   private
 
-    def start(time, cat, title, desc, opts={})
+    def start(time, cat, title, desc, meta, opts={})
       time = self.class.normalize_time(time) unless opts[:normalize] == false
 
       sp = native_start_span(time, cat.to_s)
       native_span_set_title(sp, title.to_s) if title
       native_span_set_description(sp, desc.to_s) if desc
+      native_span_set_meta(sp, meta) if meta
 
       @spans << sp
       t { "started span: #{sp} - #{cat}, #{title}" }

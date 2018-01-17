@@ -115,7 +115,8 @@ module Skylight::Core
             opts = {
               category:    CAT,
               title:       title,
-              description: payload.empty? ? nil : payload.to_json
+              description: payload.empty? ? nil : payload.to_json,
+              meta:        { database: event.database_name }
             }
 
             @events[event.operation_id] = Skylight::Core::Fanout.instrument(opts)
@@ -125,7 +126,11 @@ module Skylight::Core
 
           def end_instrumentation(event)
             if original_event = @events.delete(event.operation_id)
-              Skylight::Core::Fanout.done(original_event)
+              meta = {}
+              if event.is_a?(::Mongo::Monitoring::Event::CommandFailed)
+                meta[:exception] = ["CommandFailed", event.message]
+              end
+              Skylight::Core::Fanout.done(original_event, meta)
             end
           rescue Exception => e
             error "failed to end instrumentation for Mongo; msg=%s", e.message

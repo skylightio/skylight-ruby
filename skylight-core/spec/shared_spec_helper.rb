@@ -78,7 +78,7 @@ module Skylight
           mock_instrumenter_klass = Class.new(self.instrumenter_class) do
             def self.trace_class
               @trace_class ||= Class.new(super) do
-                def self.native_new(start, uuid, endpoint)
+                def self.native_new(start, _uuid, _endpoint, _meta)
                   inst = allocate
                   inst.instance_variable_set(:@start, start)
                   inst
@@ -107,10 +107,20 @@ module Skylight
 
                 def native_span_set_title(sp, title)
                   mock_spans[sp][:title] = title
+
                 end
 
                 def native_span_set_description(sp, desc)
                   mock_spans[sp][:desc] = desc
+                end
+
+                def native_span_set_meta(sp, meta)
+                  mock_spans[sp][:meta] = meta
+                end
+
+                def native_span_set_exception(sp, exception_object, exception)
+                  mock_spans[sp][:exception_object] = exception_object
+                  mock_spans[sp][:exception] = exception
                 end
 
                 def native_stop_span(span, time)

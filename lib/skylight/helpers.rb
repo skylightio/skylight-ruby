@@ -145,10 +145,14 @@ module Skylight
               title:       #{title.inspect},
               description: #{desc.inspect})
 
+            meta = {}
             begin
               send(:before_instrument_#{name}, *args, &blk)
+            rescue Exception => e
+              meta[:exception_object] = e
+              raise e
             ensure
-              Skylight.done(span) if span
+              Skylight.done(span, meta) if span
             end
           end
         RUBY

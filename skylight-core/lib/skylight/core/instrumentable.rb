@@ -34,6 +34,10 @@ module Skylight
           @instrumenter
         end
 
+        def correlation_header
+          nil
+        end
+
         # Start instrumenting
         def start!(config=nil)
           return @instrumenter if @instrumenter
@@ -74,16 +78,16 @@ module Skylight
         end
 
         # Start a trace
-        def trace(endpoint=nil, cat=nil, title=nil)
+        def trace(endpoint=nil, cat=nil, title=nil, meta=nil)
           unless instrumenter
             return yield if block_given?
             return
           end
 
           if block_given?
-            instrumenter.trace(endpoint, cat || DEFAULT_CATEGORY, title) { yield }
+            instrumenter.trace(endpoint, cat || DEFAULT_CATEGORY, title, nil, meta) { yield }
           else
-            instrumenter.trace(endpoint, cat || DEFAULT_CATEGORY, title)
+            instrumenter.trace(endpoint, cat || DEFAULT_CATEGORY, title, nil, meta)
           end
         end
 
@@ -98,6 +102,7 @@ module Skylight
             category    = opts[:category] || DEFAULT_CATEGORY
             title       = opts[:title]
             desc        = opts[:description]
+            meta        = opts[:meta]
             if opts.key?(:annotations)
               warn "call to #instrument included deprecated annotations"
             end
@@ -105,15 +110,21 @@ module Skylight
             category    = DEFAULT_CATEGORY
             title       = opts.to_s
             desc        = nil
+            meta        = nil
           end
 
-          instrumenter.instrument(category, title, desc, &block)
+          instrumenter.instrument(category, title, desc, meta, &block)
+        end
+
+        def span_correlation_header(span)
+          return unless instrumenter
+          instrumenter.span_correlation_header(span)
         end
 
         # End a span
-        def done(span)
+        def done(span, meta=nil)
           return unless instrumenter
-          instrumenter.done(span)
+          instrumenter.done(span, meta)
         end
 
         # Temporarily disable

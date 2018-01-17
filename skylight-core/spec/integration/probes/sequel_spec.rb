@@ -44,7 +44,8 @@ describe 'Sequel integration', :sequel_probe, :agent do
       #  RegexMatcher.new(/^SELECT count\(\*\) AS \? FROM `items` LIMIT \?$/i)
       # Without native lexer:
       'SQL',
-      "SELECT count(*) AS 'count' FROM `items` LIMIT 1"
+      "SELECT count(*) AS 'count' FROM `items` LIMIT 1",
+      nil
     ).and_call_original
 
     db[:items].count
