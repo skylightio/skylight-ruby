@@ -434,7 +434,7 @@ trace_span_get_correlation_header(VALUE self, VALUE span_id) {
 }
 
 static VALUE
-lex_sql(VALUE klass, VALUE rb_sql) {
+lex_sql(VALUE klass, VALUE rb_sql, VALUE rb_use_old_lexer) {
   sky_buf_t sql;
   sky_buf_t title;
   sky_buf_t statement;
@@ -458,9 +458,13 @@ lex_sql(VALUE klass, VALUE rb_sql) {
     .len = RSTRING_LEN(rb_sql),
   };
 
-  CHECK_FFI(
-      sky_lex_sql(sql, &title, &statement),
+  if (RTEST(rb_use_old_lexer)) {
+    CHECK_FFI(sky_lex_sql_old(sql, &title, &statement),
+      "native lex_sql_old failed");
+  } else {
+    CHECK_FFI(sky_lex_sql(sql, &title, &statement),
       "native lex_sql failed");
+  }
 
   // Set the statement return
   rb_str_set_len(rb_statement, statement.len);
@@ -483,7 +487,7 @@ lex_sql(VALUE klass, VALUE rb_sql) {
 void Init_skylight_native() {
   rb_mSkylight = rb_define_module("Skylight");
   rb_define_singleton_method(rb_mSkylight, "load_libskylight", load_libskylight, 1);
-  rb_define_singleton_method(rb_mSkylight, "lex_sql", lex_sql, 1);
+  rb_define_singleton_method(rb_mSkylight, "lex_sql", lex_sql, 2);
 
   rb_mCore = rb_define_module_under(rb_mSkylight, "Core");
 

@@ -22,6 +22,9 @@ module Skylight
         'DEPLOY_GIT_SHA'     => :'deploy.git_sha',
         'DEPLOY_DESCRIPTION' => :'deploy.description',
 
+        # == Sql Lexer ==
+        'USE_OLD_SQL_LEXER' => :use_old_sql_lexer,
+
         # == Instrumenter ==
         "IGNORED_ENDPOINT" => :ignored_endpoint,
         "IGNORED_ENDPOINTS" => :ignored_endpoints,
@@ -76,7 +79,8 @@ module Skylight
           :app_create_url       => 'https://www.skylight.io/apps',
           :validation_url       => 'https://auth.skylight.io/agent/config',
           :'daemon.lazy_start'  => true,
-          :hostname             => Core::Util::Hostname.default_hostname
+          :hostname             => Core::Util::Hostname.default_hostname,
+          :use_old_sql_lexer    => false
         )
 
         if Core::Util::Platform::OS != 'darwin'
