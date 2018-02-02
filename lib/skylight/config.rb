@@ -1,8 +1,8 @@
 require 'openssl'
 require 'skylight/core/util/deploy'
-require 'skylight/core/util/hostname'
 require 'skylight/core/util/platform'
-require 'skylight/core/util/ssl'
+require 'skylight/util/hostname'
+require 'skylight/util/ssl'
 
 module Skylight
   class Config < Core::Config
@@ -79,13 +79,13 @@ module Skylight
           :app_create_url       => 'https://www.skylight.io/apps',
           :validation_url       => 'https://auth.skylight.io/agent/config',
           :'daemon.lazy_start'  => true,
-          :hostname             => Core::Util::Hostname.default_hostname,
+          :hostname             => Util::Hostname.default_hostname,
           :use_old_sql_lexer    => false
         )
 
         if Core::Util::Platform::OS != 'darwin'
-          ret[:'daemon.ssl_cert_path'] = Core::Util::SSL.ca_cert_file_or_default
-          ret[:'daemon.ssl_cert_dir'] = Core::Util::SSL.ca_cert_dir
+          ret[:'daemon.ssl_cert_path'] = Util::SSL.ca_cert_file_or_default
+          ret[:'daemon.ssl_cert_dir'] = Util::SSL.ca_cert_dir
         end
 
         if Skylight.native?

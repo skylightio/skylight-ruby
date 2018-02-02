@@ -1,7 +1,7 @@
 require 'socket'
 require 'securerandom'
 
-module Skylight::Core
+module Skylight
   module Util
     module Hostname
       def self.default_hostname

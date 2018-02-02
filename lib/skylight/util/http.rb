@@ -4,9 +4,9 @@ require 'openssl'
 require 'net/http'
 require 'net/https'
 require 'skylight/core/util/gzip'
-require 'skylight/core/util/ssl'
+require 'skylight/util/ssl'
 
-module Skylight::Core
+module Skylight
   module Util
     class HTTP
       CONTENT_ENCODING = 'content-encoding'.freeze
@@ -19,7 +19,7 @@ module Skylight::Core
       DEFLATE          = 'deflate'.freeze
       GZIP             = 'gzip'.freeze
 
-      include Logging
+      include Core::Util::Logging
 
       attr_accessor :authentication
       attr_reader :host, :port

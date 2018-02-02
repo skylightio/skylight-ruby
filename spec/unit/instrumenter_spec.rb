@@ -102,7 +102,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         before :each do
           ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
-          allow_any_instance_of(Skylight::Core::Util::HTTP).to receive(:do_request).and_raise("request failed")
+          allow_any_instance_of(Skylight::Util::HTTP).to receive(:do_request).and_raise("request failed")
         end
 
         after :each do

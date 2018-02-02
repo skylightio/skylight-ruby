@@ -1,4 +1,5 @@
 require 'uri'
+require 'skylight/util/http'
 
 module Skylight
   # @api private
@@ -43,7 +44,7 @@ module Skylight
       end
 
       def is_error_response?
-        raw_response.is_a?(Core::Util::HTTP::ErrorResponse) || status > 499
+        raw_response.is_a?(Util::HTTP::ErrorResponse) || status > 499
       end
 
       def status
@@ -110,7 +111,7 @@ module Skylight
 
     # TODO: Improve handling here: https://github.com/tildeio/direwolf-agent/issues/274
     def http_request(service, method, *args)
-      http = Core::Util::HTTP.new(config, service)
+      http = Util::HTTP.new(config, service)
       uri = URI.parse(config.get("#{service}_url"))
       http.send(method, uri.path, *args)
     end

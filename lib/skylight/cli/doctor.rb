@@ -1,3 +1,5 @@
+require 'skylight/util/http'
+
 module Skylight
   module CLI
     class Doctor < Thor::Group
@@ -7,17 +9,17 @@ module Skylight
 
       def check_ssl
         say "Checking SSL"
-        http = Core::Util::HTTP.new(config)
+        http = Util::HTTP.new(config)
         indent do
           req = http.get("/", "Accept" => "text/html")
           if req.success?
             say "OK", :green
           else
             encountered_error!
-            if req.exception.is_a?(Core::Util::HTTP::StartError) && req.exception.original.is_a?(OpenSSL::SSL::SSLError)
+            if req.exception.is_a?(Util::HTTP::StartError) && req.exception.original.is_a?(OpenSSL::SSL::SSLError)
               say "Failed to verify SSL certificate.", :red
-              if Core::Util::SSL.ca_cert_file?
-                say "Certificates located at #{Core::Util::SSL.ca_cert_file_or_default} may be out of date.", :yellow
+              if Util::SSL.ca_cert_file?
+                say "Certificates located at #{Util::SSL.ca_cert_file_or_default} may be out of date.", :yellow
                 if is_mac? && has_rvm?
                   say "Please update your certificates with RVM by running `rvm osx-ssl-certs update all`.", :yellow
                   say "Alternatively, try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your environment.", :yellow
