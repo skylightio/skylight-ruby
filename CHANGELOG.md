@@ -1,3 +1,7 @@
+## 2.0.0-beta2
+
+* [BUGFIX] Fix an issue with custom SSL certs.
+
 ## 2.0.0-beta1
 
 * [FEATURE] New SQL lexer to support a wider variety of SQL queries.
