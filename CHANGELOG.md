@@ -1,4 +1,8 @@
-## 2.0.0-beta1
+## 2.0.0-beta2 (February 5, 2017)
+
+* [BUGFIX] Fix incorrect module path that caused installation issues
+
+## 2.0.0-beta1 (February 5, 2017)
 
 * [FEATURE] New SQL lexer to support a wider variety of SQL queries.
 * [BREAKING] Drop support for a number of deprecated libraries, including Rails prior to 4.2, Ruby prior to 2.2, and Sinatra prior to 1.4.
