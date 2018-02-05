@@ -14,7 +14,7 @@ if File.exists?(File.expand_path("../../Gemfile", __FILE__))
   $:.unshift File.expand_path("../../skylight-core/lib", __FILE__)
 else
   # Is there a better way to get this into lib?
-  gem 'skylight-core', Skylight::Core::VERSION.tr('-', '.')
+  gem 'skylight-core', Skylight::VERSION.tr('-', '.')
 end
 
 require 'skylight/native_ext_fetcher'
