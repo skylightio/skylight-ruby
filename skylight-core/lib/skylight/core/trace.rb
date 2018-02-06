@@ -94,6 +94,7 @@ module Skylight::Core
     end
 
     def span_correlation_header(span)
+      return unless span
       native_span_get_correlation_header(span)
     end
 
