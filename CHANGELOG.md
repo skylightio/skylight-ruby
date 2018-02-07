@@ -1,3 +1,7 @@
+## 1.5.1 (February 7, 2018)
+
+* [BUGFIX] `skylight doctor` no longer erroneously reports inability to reach Skylight servers.
+
 ## 1.5.0 (December 6, 2017)
 
 * [FEATURE] [Coach](https://github.com/gocardless/coach) instrumentation. Enabled automatically via ActiveSupport::Notifications.
