@@ -11,7 +11,7 @@ module Skylight
         say "Checking SSL"
         http = Util::HTTP.new(config)
         indent do
-          req = http.get("/", "Accept" => "text/html")
+          req = http.get("/status")
           if req.success?
             say "OK", :green
           else
