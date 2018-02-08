@@ -8,6 +8,7 @@ module Skylight::Core
 
     def initialize(config)
       @config = config
+      @file_path = nil
       reload
     end
 
