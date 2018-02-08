@@ -9,7 +9,7 @@ module Skylight::Core
       end
 
       def write(*args)
-        STDERR.write *args
+        STDERR.write(*args)
 
         # Try to avoid writing to STDOUT/STDERR twice
         logger_logdev = @logger.instance_variable_get(:@logdev)
