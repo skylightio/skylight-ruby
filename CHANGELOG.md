@@ -14,7 +14,7 @@
 ## 1.5.0 (December 6, 2017)
 
 * [FEATURE] [Coach](https://github.com/gocardless/coach) instrumentation. Enabled automatically via ActiveSupport::Notifications.
-* [FEATURE] Option to enable or disable agent by setting SKYLIGHT_ENABLE via ENV.
+* [FEATURE] Option to enable or disable agent by setting SKYLIGHT_ENABLED via ENV.
 * [IMPROVEMENT] Better logging for certain error cases.
 * [BUGFIX] Backport a SPEC compliance fix for older Rack::ETag to resolve case where the Middleware probe could cause empty traces.
 * [BUGFIX] Fix a case where using the non-block form of `Skylight.instrument` with `Skylight.done` could cause lost trace data.
