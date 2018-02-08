@@ -9,9 +9,6 @@ rescue LoadError
   puts "Skipping CodeClimate coverage reporting"
 end
 
-require 'webmock/rspec'
-WebMock.disable!
-
 require 'skylight/core'
 
 require_relative 'shared_spec_helper'

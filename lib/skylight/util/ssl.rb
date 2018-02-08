@@ -1,6 +1,6 @@
 require 'openssl'
 
-module Skylight::Core
+module Skylight
   module Util
     class SSL
       DEFAULT_CA_FILE  = File.expand_path('../../data/cacert.pem', __FILE__)

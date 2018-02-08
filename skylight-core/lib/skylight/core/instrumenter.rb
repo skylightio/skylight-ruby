@@ -75,20 +75,13 @@ module Skylight::Core
       @trace_info.current = trace
     end
 
+    def check_install!
+      true
+    end
+
     def start!
-      # Warn if there was an error installing Skylight.
       # We do this here since we can't report these issues via Gem install without stopping install entirely.
-
-      # FIXME: This is in skylight, not core
-      if defined?(Skylight.check_install_errors)
-        Skylight.check_install_errors(config)
-      end
-
-      # FIXME: This is in skylight, not core
-      if !Skylight.native? && defined?(Skylight.warn_skylight_native_missing)
-        Skylight.warn_skylight_native_missing(config)
-        return
-      end
+      check_install!
 
       t { "starting instrumenter" }
 
@@ -119,7 +112,7 @@ module Skylight::Core
       native_stop
     end
 
-    def trace(endpoint, cat, title=nil, desc=nil)
+    def trace(endpoint, cat, title=nil, desc=nil, meta=nil)
       # If a trace is already in progress, continue with that one
       if trace = @trace_info.current
         return yield(trace) if block_given?
@@ -127,7 +120,7 @@ module Skylight::Core
       end
 
       begin
-        trace = self.class.trace_class.new(self, endpoint, Util::Clock.nanos, cat, title, desc)
+        trace = self.class.trace_class.new(self, endpoint, Util::Clock.nanos, cat, title, desc, meta)
       rescue Exception => e
         log_error e.message
         t { e.backtrace.join("\n") }
@@ -168,12 +161,7 @@ module Skylight::Core
       self.class.match?(string, regex)
     end
 
-    def done(span)
-      return unless trace = @trace_info.current
-      trace.done(span)
-    end
-
-    def instrument(cat, title=nil, desc=nil)
+    def instrument(cat, title=nil, desc=nil, meta=nil)
       raise ArgumentError, 'cat is required' unless cat
 
       unless trace = @trace_info.current
@@ -191,18 +179,32 @@ module Skylight::Core
 
       cat = "other.#{cat}" unless match?(cat, Skylight::TIER_REGEX)
 
-      unless sp = trace.instrument(cat, title, desc)
+      unless sp = trace.instrument(cat, title, desc, meta)
         return yield if block_given?
         return
       end
 
       return sp unless block_given?
 
+      meta = {}
       begin
         yield sp
+      rescue Exception => e
+        meta = { exception: [e.class.name, e.message], exception_object: e }
+        raise e
       ensure
-        trace.done(sp)
+        trace.done(sp, meta)
       end
+    end
+
+    def span_correlation_header(span)
+      return unless trace = @trace_info.current
+      trace.span_correlation_header(span)
+    end
+
+    def done(span, meta=nil)
+      return unless trace = @trace_info.current
+      trace.done(span, meta)
     end
 
     def limited_description(description)
@@ -236,6 +238,11 @@ module Skylight::Core
 
     def ignore?(trace)
       config.ignored_endpoints.include?(trace.endpoint.sub(%r{<sk-segment>.+</sk-segment>}, ''))
+    end
+
+    # Return [title, sql]
+    def process_sql(sql)
+      [nil, sql]
     end
 
   end

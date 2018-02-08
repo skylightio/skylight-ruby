@@ -3,15 +3,17 @@ module Skylight::Core
     # A more precise clock
     class Clock
 
-      if Skylight.native?
-        def tick
-          native_hrtime
+      def self.use_native!
+        class_eval do
+          def tick
+            native_hrtime
+          end
         end
-      else
-        def tick
-          now = Time.now
-          now.to_i * 1_000_000_000 + now.usec * 1_000
-        end
+      end
+
+      def tick
+        now = Time.now
+        now.to_i * 1_000_000_000 + now.usec * 1_000
       end
 
       # TODO: rename to secs

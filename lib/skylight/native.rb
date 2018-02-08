@@ -39,7 +39,9 @@ module Skylight
     raise if skylight_required
   end
 
-  unless Skylight.native?
+  if Skylight.native?
+    Skylight::Core::Util::Clock.use_native!
+  else
     class Instrumenter
       def self.native_new(*args)
         allocate

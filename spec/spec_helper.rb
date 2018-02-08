@@ -13,9 +13,6 @@ end
 
 require 'timecop'
 
-require 'webmock/rspec'
-WebMock.disable!
-
 # Loads Skylight + the native extension such that missing the native extension
 # will report more helpful errors
 require "support/native"

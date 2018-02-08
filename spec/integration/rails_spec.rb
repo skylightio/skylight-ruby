@@ -59,6 +59,24 @@ if enable
 
       end
 
+      class NonConformingMiddleware
+        def initialize(app)
+          @app = app
+        end
+
+        def call(env)
+          res = @app.call(env)
+
+          # NOTE: We are intentionally throwing away the response without calling close
+          # This is to emulate a non-conforming Middleware
+          if env["PATH_INFO"] == "/non-conforming"
+            return [200, { }, ["NonConforming"]]
+          end
+
+          res
+        end
+      end
+
       class ::MyApp < Rails::Application
         config.secret_key_base = '095f674153982a9ce59914b561f4522a'
 
@@ -84,6 +102,7 @@ if enable
           end
         end)
 
+        config.middleware.use NonConformingMiddleware
         config.middleware.use CustomMiddleware
 
       end
@@ -351,6 +370,25 @@ if enable
         expect(titles).to_not include("CustomMiddleware")
       end
 
+      it "handles middleware that don't conform to SPEC", :middleware_probe do
+        original_skylight_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
+        begin
+          ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+
+          call MyApp, env('/non-conforming')
+          server.wait resource: '/report'
+
+          trace = server.reports[0].endpoints[0].traces[0]
+
+          titles = trace.spans.map{ |s| [s.event.title] }
+
+          # If Skylight runs after CustomMiddleware, we shouldn't see it
+          expect(titles).to_not include("CustomMiddleware")
+        ensure
+          ENV['SKYLIGHT_RAISE_ON_ERROR'] = original_skylight_raise_on_error
+        end
+      end
+
       it 'sets correct segment' do
         res = call MyApp, env('/users/1.json')
         expect(res).to eq([{ hola: '1' }.to_json])
@@ -378,16 +416,31 @@ if enable
       end
 
       it 'sets correct segment for exceptions' do
-        res = call MyApp, env('/users/failure')
-        expect(res).to be_empty
+        original_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
+        # Turn off for this test, since it will log a ton, due to the mock
+        ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+        begin
+          # TODO: This native_span_set_exception stuff should probably get its own test
+          args = [anything]
+          args << (Rails::VERSION::MAJOR >= 5 ? an_instance_of(RuntimeError) : nil)
+          args << ["RuntimeError", "Fail!"]
 
-        server.wait resource: '/report'
+          expect_any_instance_of(Skylight::Trace).to \
+            receive(:native_span_set_exception).with(*args).and_call_original
 
-        batch = server.reports[0]
-        expect(batch).to_not be nil
-        expect(batch.endpoints.count).to eq(1)
-        endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("UsersController#failure<sk-segment>error</sk-segment>")
+          res = call MyApp, env('/users/failure')
+          expect(res).to be_empty
+
+          server.wait resource: '/report'
+
+          batch = server.reports[0]
+          expect(batch).to_not be nil
+          expect(batch.endpoints.count).to eq(1)
+          endpoint = batch.endpoints[0]
+          expect(endpoint.name).to eq("UsersController#failure<sk-segment>error</sk-segment>")
+        ensure
+          ENV['SKYLIGHT_RAISE_ON_ERROR'] = original_raise_on_error
+        end
       end
 
       it 'sets correct segment for handled exceptions' do
@@ -634,7 +687,7 @@ if enable
     def consume(resp)
       data = []
       resp[2].each{|p| data << p }
-      resp[2].close
+      resp[2].close if resp[2].respond_to?(:close)
       resp[2] = data
       resp
     end

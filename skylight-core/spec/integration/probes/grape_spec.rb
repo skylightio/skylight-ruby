@@ -8,13 +8,13 @@ if defined?(Grape)
 
     before do
       @called_endpoint = nil
-      Skylight::Test.mock! do |trace|
+      TestNamespace.mock! do |trace|
         @called_endpoint = trace.endpoint
       end
     end
 
     after do
-      Skylight::Test.stop!
+      TestNamespace.stop!
     end
 
     class GrapeTest < Grape::API
@@ -39,7 +39,7 @@ if defined?(Grape)
 
         namespace :admin do
           before do
-            Skylight::Test.instrument("verifying admin")
+            TestNamespace.instrument("verifying admin") { sleep 0.1 }
           end
 
           get :secret do
@@ -72,13 +72,21 @@ if defined?(Grape)
 
     def app
       Rack::Builder.new do
-        use Skylight::Test::Middleware
+        use TestNamespace::Middleware
         run GrapeTest
       end
     end
 
+    def expect_endpoint_instrument(title)
+      allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
+
+      expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
+          .with("app.grape.endpoint", title, nil, nil)
+          .once
+    end
+
     it "creates a Trace for a Grape app" do
-      expect(Skylight::Test).to receive(:trace).with("Rack", "app.rack.request").and_call_original
+      expect(TestNamespace).to receive(:trace).with("Rack", "app.rack.request", nil, nil).and_call_original
 
       get "/test"
 
@@ -87,21 +95,13 @@ if defined?(Grape)
     end
 
     it "instruments the endpoint body" do
-      allow_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-
-      expect_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-          .with("app.grape.endpoint", "GET test", nil)
-          .once
+      expect_endpoint_instrument("GET test")
 
       get "/test"
     end
 
     it "instruments mounted apps" do
-      allow_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-
-      expect_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-          .with("app.grape.endpoint", "GET test", nil)
-          .once
+      expect_endpoint_instrument("GET test")
 
       get "/app/test"
 
@@ -109,11 +109,7 @@ if defined?(Grape)
     end
 
     it "instruments more complex endpoints" do
-      allow_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-
-      expect_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-          .with("app.grape.endpoint", "POST update/:id", nil)
-          .once
+      expect_endpoint_instrument("POST update/:id")
 
       post "/app/update/1"
 
@@ -121,11 +117,7 @@ if defined?(Grape)
     end
 
     it "instruments namespaced endpoints" do
-      allow_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-
-      expect_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-          .with("app.grape.endpoint", "GET users list", nil)
-          .once
+      expect_endpoint_instrument("GET users list")
 
       get "/app/users/list"
 
@@ -135,10 +127,10 @@ if defined?(Grape)
     it "instruments wildcard routes" do
       wildcard = Gem::Version.new(Grape::VERSION) >= Gem::Version.new("0.19") ? "*" : "any"
 
-      allow_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
+      allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
 
-      expect_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-          .with("app.grape.endpoint", "#{wildcard} *path", nil)
+      expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
+          .with("app.grape.endpoint", "#{wildcard} *path", nil, nil)
           .once
 
       delete "/app/missing"
@@ -147,10 +139,10 @@ if defined?(Grape)
     end
 
     it "instruments multi method routes" do
-      allow_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
+      allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
 
-      expect_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-          .with("app.grape.endpoint", "GET... data", nil)
+      expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
+          .with("app.grape.endpoint", "GET... data", nil, nil)
           .once
 
       get "/data"
@@ -159,10 +151,10 @@ if defined?(Grape)
     end
 
     it "instruments failures" do
-      allow_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
+      allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
 
-      expect_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-          .with("app.grape.endpoint", "GET raise", nil)
+      expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
+          .with("app.grape.endpoint", "GET raise", nil, nil)
           .once
 
       expect{
@@ -173,19 +165,19 @@ if defined?(Grape)
     end
 
     it "instruments filters" do
-      allow_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
+      allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
 
       # TODO: Attempt to verify order
-      expect_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-          .with("app.grape.filters", "Before Filters", nil)
+      expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
+          .with("app.grape.filters", "Before Filters", nil, nil)
           .once
 
-      expect_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-          .with("app.block", "verifying admin", nil)
+      expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
+          .with("app.block", "verifying admin", nil, nil)
           .once
 
-      expect_any_instance_of(Skylight::Core::MockTrace).to receive(:instrument)
-          .with("app.grape.endpoint", "GET admin secret", nil)
+      expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
+          .with("app.grape.endpoint", "GET admin secret", nil, nil)
           .once
 
       get "/app/admin/secret"

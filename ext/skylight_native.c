@@ -266,8 +266,10 @@ instrumenter_track_desc(VALUE self, VALUE rb_endpoint, VALUE rb_desc) {
  */
 
 static VALUE
-trace_new(VALUE klass, VALUE start, VALUE uuid, VALUE endpoint) {
+trace_new(VALUE klass, VALUE start, VALUE uuid, VALUE endpoint, VALUE meta) {
   sky_trace_t* trace;
+
+  UNUSED(meta);
 
   CHECK_NUMERIC(start);
   CHECK_TYPE(uuid, T_STRING);
@@ -321,6 +323,11 @@ trace_set_endpoint(VALUE self, VALUE endpoint) {
       sky_trace_set_endpoint(trace, STR2BUF(endpoint)),
       "native Trace#set_endpoint failed");
 
+  return Qnil;
+}
+
+static VALUE
+trace_set_exception(VALUE self, VALUE exception) {
   return Qnil;
 }
 
@@ -412,7 +419,22 @@ trace_span_set_description(VALUE self, VALUE span, VALUE desc) {
 }
 
 static VALUE
-lex_sql(VALUE klass, VALUE rb_sql) {
+trace_span_set_meta(VALUE self, VALUE span, VALUE meta) {
+  return Qnil;
+}
+
+static VALUE
+trace_span_set_exception(VALUE self, VALUE span, VALUE exception, VALUE exception_details) {
+  return Qnil;
+}
+
+static VALUE
+trace_span_get_correlation_header(VALUE self, VALUE span_id) {
+  return Qnil;
+}
+
+static VALUE
+lex_sql(VALUE klass, VALUE rb_sql, VALUE rb_use_old_lexer) {
   sky_buf_t sql;
   sky_buf_t title;
   sky_buf_t statement;
@@ -436,9 +458,13 @@ lex_sql(VALUE klass, VALUE rb_sql) {
     .len = RSTRING_LEN(rb_sql),
   };
 
-  CHECK_FFI(
-      sky_lex_sql(sql, &title, &statement),
+  if (RTEST(rb_use_old_lexer)) {
+    CHECK_FFI(sky_lex_sql_old(sql, &title, &statement),
+      "native lex_sql_old failed");
+  } else {
+    CHECK_FFI(sky_lex_sql(sql, &title, &statement),
       "native lex_sql failed");
+  }
 
   // Set the statement return
   rb_str_set_len(rb_statement, statement.len);
@@ -461,7 +487,7 @@ lex_sql(VALUE klass, VALUE rb_sql) {
 void Init_skylight_native() {
   rb_mSkylight = rb_define_module("Skylight");
   rb_define_singleton_method(rb_mSkylight, "load_libskylight", load_libskylight, 1);
-  rb_define_singleton_method(rb_mSkylight, "lex_sql", lex_sql, 1);
+  rb_define_singleton_method(rb_mSkylight, "lex_sql", lex_sql, 2);
 
   rb_mCore = rb_define_module_under(rb_mSkylight, "Core");
 
@@ -471,15 +497,19 @@ void Init_skylight_native() {
   rb_define_method(rb_cClock, "native_hrtime", clock_high_res_time, 0);
 
   VALUE rb_cTrace = rb_const_get(rb_mSkylight, rb_intern("Trace"));
-  rb_define_singleton_method(rb_cTrace, "native_new", trace_new, 3);
+  rb_define_singleton_method(rb_cTrace, "native_new", trace_new, 4);
   rb_define_method(rb_cTrace, "native_get_started_at", trace_get_started_at, 0);
   rb_define_method(rb_cTrace, "native_get_endpoint", trace_get_endpoint, 0);
   rb_define_method(rb_cTrace, "native_set_endpoint", trace_set_endpoint, 1);
+  rb_define_method(rb_cTrace, "native_set_exception", trace_set_exception, 1);
   rb_define_method(rb_cTrace, "native_get_uuid", trace_get_uuid, 0);
   rb_define_method(rb_cTrace, "native_start_span", trace_start_span, 2);
   rb_define_method(rb_cTrace, "native_stop_span", trace_stop_span, 2);
   rb_define_method(rb_cTrace, "native_span_set_title", trace_span_set_title, 2);
   rb_define_method(rb_cTrace, "native_span_set_description", trace_span_set_description, 2);
+  rb_define_method(rb_cTrace, "native_span_set_meta", trace_span_set_meta, 2);
+  rb_define_method(rb_cTrace, "native_span_set_exception", trace_span_set_exception, 3);
+  rb_define_method(rb_cTrace, "native_span_get_correlation_header", trace_span_get_correlation_header, 1);
 
   VALUE rb_cInstrumenter = rb_const_get(rb_mSkylight, rb_intern("Instrumenter"));
   rb_define_singleton_method(rb_cInstrumenter, "native_new", instrumenter_new, 1);

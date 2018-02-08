@@ -20,10 +20,11 @@ describe 'Faraday integration', :faraday_probe, :http, :faraday, :agent do
   it "instruments get requests" do
     expected = {
       category: "api.http.get",
-      title: "GET 127.0.0.1"
+      title: "GET 127.0.0.1",
+      meta: { host: "127.0.0.1" }
     }
 
-    expect(Skylight::Test).to receive(:instrument).with(expected).and_call_original
+    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
 
     client = Faraday.new(url: server_uri)
 
@@ -35,10 +36,11 @@ describe 'Faraday integration', :faraday_probe, :http, :faraday, :agent do
   it "instruments post requests" do
     expected = {
       category: "api.http.post",
-      title: "POST 127.0.0.1"
+      title: "POST 127.0.0.1",
+      meta: { host: "127.0.0.1" }
     }
 
-    expect(Skylight::Test).to receive(:instrument).with(expected).and_call_original
+    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
 
     client = Faraday.new(url: server_uri)
 
@@ -50,10 +52,11 @@ describe 'Faraday integration', :faraday_probe, :http, :faraday, :agent do
   it "instruments multipart post requests" do
     expected = {
       category: "api.http.post",
-      title: "POST 127.0.0.1"
+      title: "POST 127.0.0.1",
+      meta: { host: "127.0.0.1" }
     }
 
-    expect(Skylight::Test).to receive(:instrument).with(expected).and_call_original
+    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
 
     client = Faraday.new(url: server_uri)
 
@@ -73,10 +76,11 @@ describe 'Faraday integration', :faraday_probe, :http, :faraday, :agent do
   it "instruments head requests" do
     expected = {
       category: "api.http.head",
-      title: "HEAD 127.0.0.1"
+      title: "HEAD 127.0.0.1",
+      meta: { host: "127.0.0.1" }
     }
 
-    expect(Skylight::Test).to receive(:instrument).with(expected).and_call_original
+    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
 
     client = Faraday.new(url: server_uri)
 
@@ -88,10 +92,11 @@ describe 'Faraday integration', :faraday_probe, :http, :faraday, :agent do
   it "instruments Faraday.methodname static methods" do
     expected = {
       category: "api.http.get",
-      title: "GET 127.0.0.1"
+      title: "GET 127.0.0.1",
+      meta: { host: "127.0.0.1" }
     }
 
-    expect(Skylight::Test).to receive(:instrument).with(expected).and_call_original
+    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
 
     response = Faraday.get(uri)
     expect(response).to be_a(Faraday::Response)

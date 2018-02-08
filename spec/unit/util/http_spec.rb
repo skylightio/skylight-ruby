@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Skylight::Core
+module Skylight
   describe Util::HTTP do
 
     let :config do

@@ -4,6 +4,7 @@ require 'beefcake'
 require 'rspec'
 require 'rspec/collection_matchers'
 require 'rack/test'
+require 'webmock'
 
 module SpecHelper
 end
@@ -25,6 +26,7 @@ end
     require library
     Skylight::Core::Probes.probe(library)
   rescue LoadError
+    puts "Unable to load #{library}"
   end
 end
 
@@ -64,29 +66,33 @@ puts "Skipping probes: #{skipped_probes.join(", ")}"  unless skipped_probes.empt
 
 ENV['SKYLIGHT_RAISE_ON_ERROR'] = "true"
 
-# TODO: Move into support
-module Skylight
-  module Test
-    include Skylight::Core::Instrumentable
+module TestNamespace
+  include Skylight::Core::Instrumentable
 
-    def self.mock!(&callback)
-      config = Core::Config.new(mock_submission: callback || proc {})
-      @instrumenter = Core::MockInstrumenter.new(config).start!
+  unless ENV['SKYLIGHT_DISABLE_AGENT']
+    require 'skylight/core/test'
+    extend Skylight::Core::Test::Mocking
+  end
+
+  def self.config_class
+    Skylight::Core::Config
+  end
+
+  class Middleware < Skylight::Core::Middleware
+
+    def instrumentable
+      TestNamespace
     end
 
-    class Middleware < Skylight::Core::Middleware
-
-      def instrumentable
-        Skylight::Test
-      end
-
-    end
   end
 end
 
 
 RSpec.configure do |config|
   config.color = true
+
+  config.include WebMock::API
+  config.include WebMock::Matchers
 
   unless defined?(Moped) && defined?(Mongoid)
     config.filter_run_excluding moped: true
@@ -132,10 +138,10 @@ RSpec.configure do |config|
     begin
       mock_clock! # This happens before the before(:each) below
       clock.freeze
-      Skylight::Test.mock!
-      Skylight::Test.trace("Test") { example.run }
+      TestNamespace.mock!
+      TestNamespace.trace("Test") { example.run }
     ensure
-      Skylight::Test.stop!
+      TestNamespace.stop!
     end
   end
 

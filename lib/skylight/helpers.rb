@@ -1,4 +1,4 @@
-module Skylight::Core
+module Skylight
   # Instrumenting a specific method will cause an event to be created every time that method is called.
   # The event will be inserted at the appropriate place in the Skylight trace.
   #
@@ -145,10 +145,14 @@ module Skylight::Core
               title:       #{title.inspect},
               description: #{desc.inspect})
 
+            meta = {}
             begin
               send(:before_instrument_#{name}, *args, &blk)
+            rescue Exception => e
+              meta[:exception_object] = e
+              raise e
             ensure
-              Skylight.done(span) if span
+              Skylight.done(span, meta) if span
             end
           end
         RUBY

@@ -56,7 +56,11 @@ module Skylight::Core
 
           def end_instrumentation(datum)
             if request = @requests.delete(datum.object_id)
-              Skylight::Core::Fanout.done(request)
+              meta = { }
+              if datum[:error].is_a?(Exception)
+                meta[:exception_object] = datum[:error]
+              end
+              Skylight::Core::Fanout.done(request, meta)
             end
           rescue Exception => e
             error "failed to end instrumentation for Excon; msg=%s", e.message

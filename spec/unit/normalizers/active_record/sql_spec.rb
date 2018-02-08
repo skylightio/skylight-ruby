@@ -6,6 +6,38 @@ require 'date'
 module Skylight
   describe "Normalizers", "sql.active_record", :agent do
 
+    before :all do
+      # Mock Skylight itself so the SQL lexer is active
+      Skylight.send(:extend, Skylight::Core::Test::Mocking)
+    end
+
+    before :each do
+      WebMock.enable!
+
+      stub_request(:post, "https://auth.skylight.io/agent/config").
+        to_return(status: 200, body: "", headers: {})
+
+      ENV['SKYLIGHT_AUTHENTICATION'] = 'zomg'
+
+      Skylight.mock!
+
+      # Start a trace to have it available in the trace method
+      Skylight.trace("Test", "app.request")
+
+      stub_const("ActiveRecord::Base", double(connection_config: { adapter: "postgres", database: "testdb" }))
+    end
+
+    after :each do
+      ENV['SKYLIGHT_AUTHENTICATION'] = nil
+      Skylight.stop!
+
+      WebMock.disable!
+    end
+
+    def trace
+      Skylight.instrumenter.current_trace
+    end
+
     it "skips SCHEMA queries" do
       expect(normalize(name: "SCHEMA")).to eq(:skip)
     end
@@ -17,12 +49,13 @@ module Skylight
     end
 
     it "Processes uncached queries" do
-      name, title, desc =
+      name, title, desc, meta =
         normalize(name: "Foo Load", sql: "select * from foo")
 
       expect(name).to eq("db.sql.query")
       expect(title).to eq("SELECT FROM foo")
       expect(desc).to eq("select * from foo")
+      expect(meta).to eq({ adapter: "postgres", database: "testdb" })
     end
 
     it "Pulls out binds" do

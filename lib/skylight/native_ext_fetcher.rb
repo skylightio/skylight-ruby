@@ -3,7 +3,7 @@ require 'logger'
 require 'net/http'
 require 'fileutils'
 require 'digest/sha2'
-require 'skylight/core/util/ssl'
+require 'skylight/util/ssl'
 require 'skylight/core/util/proxy'
 
 # Used from extconf.rb
@@ -152,7 +152,7 @@ module Skylight
       opts[:use_ssl] = use_ssl
 
       if use_ssl
-        opts[:ca_file] = Core::Util::SSL.ca_cert_file_or_default
+        opts[:ca_file] = Util::SSL.ca_cert_file_or_default
       end
 
       Net::HTTP.start(host, port, p_host, p_port, p_user, p_pass, use_ssl: use_ssl) do |http|

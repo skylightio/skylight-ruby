@@ -75,7 +75,7 @@ describe 'skylight setup', :http, :agent do
       end
 
       expect(cli).to receive(:say).with("Could not create the application. Please run `bundle exec skylight doctor` for diagnostics.", :red).ordered
-      expect(cli).to receive(:say).with("Skylight::Core::Util::HTTP::Response: Fail", :yellow).ordered
+      expect(cli).to receive(:say).with("Skylight::Util::HTTP::Response: Fail", :yellow).ordered
 
       cli.setup('foobar')
     end

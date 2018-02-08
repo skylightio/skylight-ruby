@@ -1,14 +1,14 @@
 require 'openssl'
 require 'skylight/core/util/deploy'
-require 'skylight/core/util/hostname'
 require 'skylight/core/util/platform'
-require 'skylight/core/util/ssl'
+require 'skylight/util/hostname'
+require 'skylight/util/ssl'
 
 module Skylight
   class Config < Core::Config
 
     def self.env_to_key
-      super.merge(
+      @env_to_key ||= super.merge(
         # == Authentication ==
         'AUTHENTICATION' => :authentication,
 
@@ -21,6 +21,9 @@ module Skylight
         'DEPLOY_ID'          => :'deploy.id',
         'DEPLOY_GIT_SHA'     => :'deploy.git_sha',
         'DEPLOY_DESCRIPTION' => :'deploy.description',
+
+        # == Sql Lexer ==
+        'USE_OLD_SQL_LEXER' => :use_old_sql_lexer,
 
         # == Instrumenter ==
         "IGNORED_ENDPOINT" => :ignored_endpoint,
@@ -76,12 +79,13 @@ module Skylight
           :app_create_url       => 'https://www.skylight.io/apps',
           :validation_url       => 'https://auth.skylight.io/agent/config',
           :'daemon.lazy_start'  => true,
-          :hostname             => Core::Util::Hostname.default_hostname
+          :hostname             => Util::Hostname.default_hostname,
+          :use_old_sql_lexer    => false
         )
 
         if Core::Util::Platform::OS != 'darwin'
-          ret[:'daemon.ssl_cert_path'] = Core::Util::SSL.ca_cert_file_or_default
-          ret[:'daemon.ssl_cert_dir'] = Core::Util::SSL.ca_cert_dir
+          ret[:'daemon.ssl_cert_path'] = Util::SSL.ca_cert_file_or_default
+          ret[:'daemon.ssl_cert_dir'] = Util::SSL.ca_cert_dir
         end
 
         if Skylight.native?
@@ -96,7 +100,7 @@ module Skylight
     end
 
     def self.required_keys
-      super.merge(
+      @required_keys ||= super.merge(
         authentication: "authentication token",
         hostname:       "server hostname",
         auth_url:       "authentication url",
@@ -105,7 +109,7 @@ module Skylight
     end
 
     def self.native_env_keys
-      super + [
+      @native_env_keys ||= super + [
         :version,
         :root,
         :hostname,
@@ -143,14 +147,14 @@ module Skylight
     end
 
     def self.legacy_keys
-      super.merge(
+      @legacy_keys ||= super.merge(
         :'agent.sockfile_path' => :'daemon.sockdir_path',
         :'agent.lockfile'      => :'daemon.pidfile_path'
       )
     end
 
     def self.validators
-      super.merge(
+      @validators ||= super.merge(
         :'agent.interval' => [lambda { |v, c| Integer === v && v > 0 }, "must be an integer greater than 0"]
       )
     end

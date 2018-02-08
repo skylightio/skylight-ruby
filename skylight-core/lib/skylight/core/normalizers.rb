@@ -154,11 +154,13 @@ module Skylight::Core
         active_support/cache
         coach/handler_finish
         coach/middleware_finish
+        couch_potato/query
+        data_mapper/sql
         elasticsearch/request
+        faraday/request
         grape/endpoint
         moped/query
-        faraday/request
-        couch_potato/query).each do |file|
+        sequel/sql).each do |file|
       require "skylight/core/normalizers/#{file}"
     end
 
