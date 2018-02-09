@@ -232,6 +232,7 @@ module Skylight::Core
         true
       rescue => e
         warn "failed to submit trace to worker; err=%s", e
+        t { "BACKTRACE:\n#{e.backtrace.join("\n")}" }
         false
       end
     end
