@@ -3,6 +3,7 @@ module Skylight
     module Instrumentable
 
       def self.included(base)
+        base.extend(Util::Logging)
         base.extend(ClassMethods)
 
         base.const_set(:LOCK, Mutex.new)
@@ -135,6 +136,11 @@ module Skylight
           end
 
           instrumenter.disable { yield }
+        end
+
+        def config
+          return unless instrumenter
+          instrumenter.config
         end
 
       end
