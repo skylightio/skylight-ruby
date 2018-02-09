@@ -101,7 +101,7 @@ describe "Initialization integration" do
 
           boot
           expect(File.read("log/production.log")).to include "[SKYLIGHT] [#{Skylight::Core::VERSION}] Unable to start, see the Skylight logs for more details"
-          expect(File.read("log/skylight.log")).to include "[SKYLIGHT] [#{Skylight::Core::VERSION}] Unable to start Instrumenter; msg=authentication token required; class=Skylight::Core::ConfigError"
+          expect(File.read("log/skylight.log")).to include "Skylight: Unable to start Instrumenter; msg=authentication token required; class=Skylight::Core::ConfigError"
         end
 
       end

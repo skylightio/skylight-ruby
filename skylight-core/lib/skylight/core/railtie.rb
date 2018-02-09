@@ -119,7 +119,7 @@ module Skylight::Core
     end
 
     def activate?
-      key = "#{self.class.config_class.native_env_prefix}ENABLED"
+      key = "#{self.class.config_class.env_prefix}ENABLED"
       if ENV.key?(key)
         ENV[key] !~ /^false$/i
       else

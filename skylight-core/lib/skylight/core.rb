@@ -6,9 +6,6 @@ module Skylight
     autoload :Normalizers,  'skylight/core/normalizers'
   end
 
-  # @api private
-  TRACE_ENV_KEY = 'SKYLIGHT_ENABLE_TRACE_LOGS'.freeze
-
   # Some methods exepected to be defined by the native code (OUTDATED)
   #
   #   * Skylight::Core::Util::Clock#native_hrtime

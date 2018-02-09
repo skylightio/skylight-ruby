@@ -12,7 +12,7 @@ module Skylight::Core
 
           if version < Gem::Version.new("0.10.0")
             # Using $stderr here isn't great, but we don't have a logger accessible
-            $stderr.puts "[SKYLIGHT] [#{Skylight::Core::VERSION}] The Grape probe only works with version 0.10.0+ " \
+            $stderr.puts "[SKYLIGHT::CORE] [#{Skylight::Core::VERSION}] The Grape probe only works with version 0.10.0+ " \
                           "and will be disabled."
 
             return

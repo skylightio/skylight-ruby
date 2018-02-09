@@ -81,7 +81,7 @@ module Skylight::Core
       desc          = @instrumenter.limited_description(desc)
 
       if desc == Instrumenter::TOO_MANY_UNIQUES
-        debug "[SKYLIGHT] [#{Skylight::Core::VERSION}] A payload description produced <too many uniques>"
+        debug "A payload description produced <too many uniques>"
         debug "original desc=%s", original_desc
         debug "cat=%s, title=%s, desc=%s", cat, title, desc
       end

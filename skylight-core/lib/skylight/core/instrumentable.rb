@@ -3,6 +3,7 @@ module Skylight
     module Instrumentable
 
       def self.included(base)
+        base.extend(Util::Logging)
         base.extend(ClassMethods)
 
         base.const_set(:LOCK, Mutex.new)
@@ -51,11 +52,11 @@ module Skylight
             @instrumenter = instrumenter_class.new(config).start!
           end
         rescue => e
-          message = sprintf("[SKYLIGHT] [#{VERSION}] Unable to start Instrumenter; msg=%s; class=%s", e.message, e.class)
+          message = sprintf("Unable to start Instrumenter; msg=%s; class=%s", e.message, e.class)
           if config && config.respond_to?(:logger)
             config.logger.warn message
           else
-            warn message
+            warn "[#{name.upcase}] #{message}"
           end
           false
         end
@@ -135,6 +136,11 @@ module Skylight
           end
 
           instrumenter.disable { yield }
+        end
+
+        def config
+          return unless instrumenter
+          instrumenter.config
         end
 
       end
