@@ -25,36 +25,41 @@ module Skylight::Core
 
     module Logging
 
-      def self.trace?
-        ENV[Skylight::TRACE_ENV_KEY]
+      def log_env_prefix
+        if c = config_for_logging
+          c.class.env_prefix
+        else
+          "SKYLIGHT_"
+        end
       end
 
-      if trace?
-        # The second set is picked up by YARD
-        def trace(msg, *args)
-          log :debug, msg, *args
-        end
+      def trace?
+        !!ENV["#{log_env_prefix}ENABLE_TRACE_LOGS"]
+      end
 
-        def t
-          log :debug, yield
-        end
-      else
-        # Logs if `ENV[TRACE_ENV_KEY]` is set.
-        #
-        # @param (see #debug)
-        #
-        # See {TRACE_ENV_KEY}.
-        def trace(msg, *args)
-        end
+      def raise_on_error?
+        !!ENV["#{log_env_prefix}RAISE_ON_ERROR"]
+      end
 
-        # Evaluates and logs the result of the block if `ENV[TRACE_ENV_KEY]` is set
-        #
-        # @yield block to be evaluted
-        # @yieldreturn arguments for {#debug}
-        #
-        # See {TRACE_ENV_KEY}.
-        def t
-        end
+      # Logs if tracing
+      #
+      # @param (see #debug)
+      #
+      # See {trace?}.
+      def trace(msg, *args)
+        return unless trace?
+        log :debug, msg, *args
+      end
+
+      # Evaluates and logs the result of the block if tracing
+      #
+      # @yield block to be evaluted
+      # @yieldreturn arguments for {#debug}
+      #
+      # See {trace?}.
+      def t
+        return unless trace?
+        log :debug, yield
       end
 
       # @param msg (see #log)
@@ -79,7 +84,7 @@ module Skylight::Core
       # @param args (see #log)
       def error(msg, *args)
         log :error, msg, *args
-        raise sprintf(msg, *args) if ENV['SKYLIGHT_RAISE_ON_ERROR']
+        raise sprintf(msg, *args) if raise_on_error?
       end
 
       alias log_trace trace
@@ -94,29 +99,36 @@ module Skylight::Core
         sprintf(*args)
       end
 
-      # @param level [String,Symbol] the method on `logger` to use for logging
-      # @param msg [String] the message to log
-      # @param args [Array] values for `Kernel#sprintf` on `msg`
-      def log(level, msg, *args)
-        c = if respond_to?(:config)
+      def config_for_logging
+        if respond_to?(:config)
           config
         elsif self.is_a?(Config)
           self
         end
+      end
 
-        return unless c
+      # @param level [String,Symbol] the method on `logger` to use for logging
+      # @param msg [String] the message to log
+      # @param args [Array] values for `Kernel#sprintf` on `msg`
+      def log(level, msg, *args)
+        c = config_for_logging
+        logger = c ? c.logger : nil
 
-        if logger = c.logger
-          return unless logger.respond_to?(level)
-
-          if args.length > 0
-            logger.send level, sprintf("[SKYLIGHT] [#{Skylight::Core::VERSION}] #{msg}", *args)
+        if logger
+          if logger.respond_to?(level)
+            logger.send level, msg, *args
+            return
           else
-            logger.send level, "[SKYLIGHT] [#{Skylight::Core::VERSION}] #{msg}"
+            Kernel.warn "Invalid logger"
           end
         end
+
+        # Fallback
+        module_name = self.is_a?(Module) ? name : self.class.name
+        root_name = module_name.split('::').first.upcase
+        puts sprintf("[#{root_name}] #{msg}", *args)
       rescue Exception => e
-        if ENV[Skylight::TRACE_ENV_KEY]
+        if trace?
           puts "[ERROR] #{e.message}"
           puts e.backtrace
         end

@@ -14,8 +14,9 @@ module Skylight::Core
     # @api private
     MUTEX = Mutex.new
 
+    def self.log_name; "Skylight" end
     def self.env_matcher; /^(?:SK|SKYLIGHT)_(.+)$/ end
-    def self.native_env_prefix; "SKYLIGHT_" end
+    def self.env_prefix; "SKYLIGHT_" end
 
     # Map environment variable keys with Skylight configuration keys
     def self.env_to_key
@@ -320,7 +321,7 @@ module Skylight::Core
         value = send_or_get(key)
         unless value.nil?
           env_key = self.class.env_to_key.key(key) || key.upcase
-          ret << "#{self.class.native_env_prefix}#{env_key}" << cast_for_env(value)
+          ret << "#{self.class.env_prefix}#{env_key}" << cast_for_env(value)
         end
       end
 
@@ -412,15 +413,19 @@ module Skylight::Core
   private
 
     def create_logger(out)
-      if out.is_a?(String)
-        out = File.expand_path(out, root)
-        # May be redundant since we also do this in the permissions check
-        FileUtils.mkdir_p(File.dirname(out))
-      end
+      l = begin
+        if out.is_a?(String)
+          out = File.expand_path(out, root)
+          # May be redundant since we also do this in the permissions check
+          FileUtils.mkdir_p(File.dirname(out))
+        end
 
-      Logger.new(out)
-    rescue
-      Logger.new(STDOUT)
+        Logger.new(out)
+      rescue
+        Logger.new(STDOUT)
+      end
+      l.progname = self.class.log_name
+      l
     end
 
     def load_logger

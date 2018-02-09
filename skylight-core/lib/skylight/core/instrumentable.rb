@@ -51,11 +51,11 @@ module Skylight
             @instrumenter = instrumenter_class.new(config).start!
           end
         rescue => e
-          message = sprintf("[SKYLIGHT] [#{VERSION}] Unable to start Instrumenter; msg=%s; class=%s", e.message, e.class)
+          message = sprintf("Unable to start Instrumenter; msg=%s; class=%s", e.message, e.class)
           if config && config.respond_to?(:logger)
             config.logger.warn message
           else
-            warn message
+            warn "[#{name.upcase}] #{message}"
           end
           false
         end

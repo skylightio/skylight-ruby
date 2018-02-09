@@ -6,7 +6,7 @@ module Skylight::Core
         def install
           unless defined?(::Moped::Instrumentable)
             # Using $stderr here isn't great, but we don't have a logger accessible
-            $stderr.puts "[SKYLIGHT] [#{Skylight::Core::VERSION}] The installed version of Moped doesn't " \
+            $stderr.puts "[SKYLIGHT::CORE] [#{Skylight::Core::VERSION}] The installed version of Moped doesn't " \
                           "support instrumentation. The Moped probe will be disabled."
 
             return

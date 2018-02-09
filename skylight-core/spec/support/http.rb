@@ -197,7 +197,7 @@ module SpecHelper
     end
 
     def trace(line, *args)
-      if Skylight::Core::Util::Logging.trace?
+      if ENV['SKYLIGHT_ENABLE_TRACE_LOGS']
         printf("[HTTP Server] #{line}\n", *args)
       end
     end
