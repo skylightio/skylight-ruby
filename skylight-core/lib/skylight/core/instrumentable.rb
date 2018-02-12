@@ -53,8 +53,9 @@ module Skylight
           end
         rescue => e
           message = sprintf("Unable to start Instrumenter; msg=%s; class=%s", e.message, e.class)
-          if config && config.respond_to?(:logger)
-            config.logger.warn message
+          if config && config.respond_to?(:log_error) && config.respond_to?(:log_trace)
+            config.log_error message
+            config.log_trace e.backtrace.join("\n")
           else
             warn "[#{name.upcase}] #{message}"
           end
