@@ -19,6 +19,9 @@ describe "Skylight::Instrumenter", :http, :agent do
     end
 
     before :each do
+      @original_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
+      ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+
       @old_logger = config.logger
       config.logger = logger
     end
@@ -26,6 +29,7 @@ describe "Skylight::Instrumenter", :http, :agent do
     after :each do
       Skylight.stop!
       config.logger = @old_logger
+      ENV['SKYLIGHT_RAISE_ON_ERROR'] = @original_raise_on_error
     end
 
     it 'validates the token' do
@@ -101,12 +105,7 @@ describe "Skylight::Instrumenter", :http, :agent do
       context "with an exception" do
 
         before :each do
-          ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
           allow_any_instance_of(Skylight::Util::HTTP).to receive(:do_request).and_raise("request failed")
-        end
-
-        after :each do
-          ENV['SKYLIGHT_RAISE_ON_ERROR'] = 'true'
         end
 
         # We don't currently have any server validated config values,
@@ -134,8 +133,8 @@ describe "Skylight::Instrumenter", :http, :agent do
 
     it "doesn't crash on failed config" do
       allow(config).to receive(:validate!).and_raise(Skylight::Core::ConfigError.new("Test Failure"))
-      expect(logger).to receive(:warn).
-        with("Unable to start Instrumenter; msg=Test Failure; class=Skylight::Core::ConfigError")
+      expect(config).to receive(:log_warn).
+        with("Unable to start Instrumenter due to a configuration error: Test Failure")
 
       expect do
         Skylight.start!(config)
@@ -144,7 +143,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
     it "doesn't crash on failed start" do
       allow(Skylight::Instrumenter).to receive(:new).and_raise("Test Failure")
-      expect(logger).to receive(:warn).
+      expect(config).to receive(:log_error).
         with("Unable to start Instrumenter; msg=Test Failure; class=RuntimeError")
 
       expect do
