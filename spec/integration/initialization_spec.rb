@@ -63,11 +63,14 @@ describe "Initialization integration" do
           expect(boot).to include "[SKYLIGHT] [#{Skylight::Core::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
         end
 
+        # FIXME: This is a very fragile test, due to the "to_not"
         it "doesn't warn about validation errors" do
           ENV['SKYLIGHT_AUTHENTICATION'] = nil
 
           boot
-          expect(File.read("log/development.log")).to_not include "[SKYLIGHT] [#{Skylight::Core::VERSION}] authentication token required; disabling Skylight agent"
+
+          expect(File.read("log/development.log")).to_not include "[SKYLIGHT] [#{Skylight::Core::VERSION}] Unable to start, see the Skylight logs for more details"
+          expect(File.read("log/skylight.log")).to_not include "Skylight: Unable to start Instrumenter due to a configuration error: authentication token required"
         end
 
         it "doesn't warn in development mode if disable_dev_warning has been set" do
@@ -101,7 +104,7 @@ describe "Initialization integration" do
 
           boot
           expect(File.read("log/production.log")).to include "[SKYLIGHT] [#{Skylight::Core::VERSION}] Unable to start, see the Skylight logs for more details"
-          expect(File.read("log/skylight.log")).to include "Skylight: Unable to start Instrumenter; msg=authentication token required; class=Skylight::Core::ConfigError"
+          expect(File.read("log/skylight.log")).to include "Skylight: Unable to start Instrumenter due to a configuration error: authentication token required"
         end
 
       end
