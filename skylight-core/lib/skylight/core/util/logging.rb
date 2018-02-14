@@ -116,7 +116,11 @@ module Skylight::Core
 
         if logger
           if logger.respond_to?(level)
-            logger.send level, msg, *args
+            if args.length > 0
+              logger.send level, sprintf(msg, *args)
+            else
+              logger.send level, msg
+            end
             return
           else
             Kernel.warn "Invalid logger"
