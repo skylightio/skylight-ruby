@@ -222,7 +222,7 @@ module Skylight
       it "converts to env" do
         expect(get_env).to eq({
           "SKYLIGHT_AUTHENTICATION" => "abc123",
-          "SKYLIGHT_VERSION"    => Skylight::Core::VERSION,
+          "SKYLIGHT_VERSION"    => Skylight::VERSION,
           "SKYLIGHT_ROOT"       => "/tmp",
           "SKYLIGHT_HOSTNAME"   => "test.local",
           "SKYLIGHT_AUTH_URL"   => "https://auth.skylight.io/agent",
