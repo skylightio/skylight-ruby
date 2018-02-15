@@ -9,17 +9,7 @@ module Skylight
         base.const_set(:LOCK, Mutex.new)
 
         base.class_eval do
-          at_exit do
-            if RUBY_VERSION == '1.9.2'
-              # workaround for MRI bug losing exit status in at_exit block
-              # http://bugs.ruby-lang.org/issues/5218
-              exit_status = $!.status if $!.is_a?(SystemExit)
-              stop!
-              exit exit_status if exit_status
-            else
-              stop!
-            end
-          end
+          at_exit { stop! }
         end
 
         Skylight::Core::Fanout.register(base)
