@@ -135,7 +135,7 @@ module Skylight::Core
 
       ensure
         @trace_info.current = nil
-        t { "submitting trace" }
+        t { "instrumenter submitting trace" }
         trace.submit
       end
     end

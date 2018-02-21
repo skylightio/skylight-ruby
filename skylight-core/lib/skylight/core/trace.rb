@@ -131,9 +131,9 @@ module Skylight::Core
     end
 
     def submit
-      return if @broken
+      t { "submitting trace; broken=#{@broken}" }
 
-      t { "submitting trace" }
+      return if @broken
 
       if @submitted
         t { "already submitted" }
