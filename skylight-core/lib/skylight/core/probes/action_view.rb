@@ -10,11 +10,9 @@ module Skylight::Core
               layout = nil
 
               if path
-                if method(:find_layout).arity == 3
-                  # Rails 5
+                if ::ActionView.gem_version >= Gem::Version.new('5.x')
                   layout = find_layout(path, locals.keys, [formats.first])
                 else
-                  # Rails 4
                   layout = find_layout(path, locals.keys)
                 end
               end
