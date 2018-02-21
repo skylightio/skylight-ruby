@@ -9,8 +9,8 @@ if ENV['CODECLIMATE_REPO_TOKEN']
   gem "codeclimate-test-reporter", "~> 1.0"
 end
 
-if RUBY_VERSION == '1.9.2'
-  gem 'rake', '~> 10.5'
+if RUBY_VERSION < '2.0.0'
+  gem 'rake', '~> 12.2.1'
 else
   gem 'rake'
 end
@@ -37,7 +37,7 @@ else
   gem 'rack'
 end
 
-gem 'beefcake', '< 1.0' # 1.0 doesn't work with 1.9.2
+gem 'beefcake'
 gem 'rspec', '~> 3.4.0'
 gem 'rspec-collection_matchers'
 gem 'rack-test'
@@ -48,22 +48,24 @@ end
 
 unless ENV['SKIP_EXTERNAL']
   gem 'excon'
-  gem 'redis'
+
+  if RUBY_VERSION < '2.2.2'
+    gem 'redis', '~> 3.0'
+  else
+    gem 'redis'
+  end
+
   gem 'fakeredis'
   gem 'httpclient'
   gem 'faraday'
+  gem 'mongo'
 
-  # The dependency bson requires 1.9.3+
-  if RUBY_VERSION != '1.9.2'
-    gem 'mongo'
+  unless ENV['MOPED_VERSION'] == 'skip'
+    gem 'moped', (ENV['MOPED_VERSION'] || '>= 2.0.7')
+  end
 
-    unless ENV['MOPED_VERSION'] == 'skip'
-      gem 'moped', (ENV['MOPED_VERSION'] || '>= 2.0.7')
-    end
-
-    unless ENV['MONGOID_VERSION'] == 'skip'
-      gem 'mongoid', (ENV['MONGOID_VERSION'] || '>= 5.0.0')
-    end
+  unless ENV['MONGOID_VERSION'] == 'skip'
+    gem 'mongoid', (ENV['MONGOID_VERSION'] || '>= 5.0.0')
   end
 
   unless ENV['SKIP_ELASTICSEARCH']
