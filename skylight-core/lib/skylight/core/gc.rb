@@ -30,6 +30,11 @@ module Skylight::Core
       @profiler.enable if @profiler
     end
 
+    # Total time in microseconds for GC over entire process lifetime
+    def total_time
+      @profiler ? @profiler.total_time : nil
+    end
+
     def track
       unless @profiler
         win = Window.new(nil)
