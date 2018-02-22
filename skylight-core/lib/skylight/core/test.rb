@@ -56,6 +56,9 @@ module Skylight
                   mock_spans[sp][:meta] = meta
                 end
 
+                def native_span_started(sp)
+                end
+
                 def native_span_set_exception(sp, exception_object, exception)
                   mock_spans[sp][:exception_object] = exception_object
                   mock_spans[sp][:exception] = exception

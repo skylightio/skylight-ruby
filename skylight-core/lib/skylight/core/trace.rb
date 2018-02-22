@@ -160,6 +160,7 @@ module Skylight::Core
       native_span_set_title(sp, title.to_s) if title
       native_span_set_description(sp, desc.to_s) if desc
       native_span_set_meta(sp, meta) if meta
+      native_span_started(sp)
 
       @spans << sp
       t { "started span: #{sp} - #{cat}, #{title}" }

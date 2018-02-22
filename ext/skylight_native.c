@@ -424,6 +424,11 @@ trace_span_set_meta(VALUE self, VALUE span, VALUE meta) {
 }
 
 static VALUE
+trace_span_started(VALUE self) {
+  return Qnil;
+}
+
+static VALUE
 trace_span_set_exception(VALUE self, VALUE span, VALUE exception, VALUE exception_details) {
   return Qnil;
 }
@@ -508,6 +513,7 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_span_set_title", trace_span_set_title, 2);
   rb_define_method(rb_cTrace, "native_span_set_description", trace_span_set_description, 2);
   rb_define_method(rb_cTrace, "native_span_set_meta", trace_span_set_meta, 2);
+  rb_define_method(rb_cTrace, "native_span_started", trace_span_started, 1);
   rb_define_method(rb_cTrace, "native_span_set_exception", trace_span_set_exception, 3);
   rb_define_method(rb_cTrace, "native_span_get_correlation_header", trace_span_get_correlation_header, 1);
 
