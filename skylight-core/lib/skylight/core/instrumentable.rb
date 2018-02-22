@@ -29,6 +29,10 @@ module Skylight
           nil
         end
 
+        def probe(*args)
+          Skylight::Core::Probes.probe(*args)
+        end
+
         # Start instrumenting
         def start!(config=nil)
           return @instrumenter if @instrumenter
