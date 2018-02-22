@@ -3,12 +3,10 @@ module Skylight
     module Sinatra
       class Probe
         def install
-          puts "Installed"
           class << ::Sinatra::Base
             alias build_without_sk build
 
             def build(*args, &block)
-              puts "Using Middleware"
               self.use Skylight::Middleware
               build_without_sk(*args, &block)
             end

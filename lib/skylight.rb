@@ -28,9 +28,4 @@ module Skylight
     Config
   end
 
-  # Install probes
-  def self.probe(*probes)
-    Core::Probes.probe(*probes)
-  end
-
 end
