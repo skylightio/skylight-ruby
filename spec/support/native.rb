@@ -7,10 +7,6 @@ require 'skylight/core/util/platform'
 require 'skylight/instrumenter'
 require 'skylight/trace'
 
-# We build skylight_native here for testing
-$native_lib_path = File.expand_path("../../../target/#{Skylight::Core::Util::Platform.tuple}", __FILE__)
-$LOAD_PATH << $native_lib_path
-
 unless ENV['SKYLIGHT_DISABLE_AGENT']
   ENV['SKYLIGHT_REQUIRED'] = 'true'
 

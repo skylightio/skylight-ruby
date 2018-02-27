@@ -4,7 +4,7 @@ require 'open3'
 describe "CLI integration", :http do
 
   def run_command(cmd, &block)
-    Open3.popen3({ "RUBYLIB" => $native_lib_path }, "bundle exec skylight #{cmd}", &block)
+    Open3.popen3("bundle exec skylight #{cmd}", &block)
   end
 
   it "works with setup token" do
