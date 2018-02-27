@@ -352,6 +352,7 @@ if enable
 
         # Check the rest
         expect(app_and_rack_spans[(count+1)..-1]).to eq([
+          ["rack.app", "ActionDispatch::Routing::RouteSet"],
           ["app.controller.request", "UsersController#index"],
           ["app.method", "Check authorization"],
           ["app.method", "UsersController#index"],
