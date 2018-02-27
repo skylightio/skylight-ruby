@@ -3,10 +3,6 @@
 
 require 'skylight/util/platform'
 
-# We build skylight_native here for testing
-$native_lib_path = File.expand_path("../../../target/#{Skylight::Util::Platform.tuple}", __FILE__)
-$LOAD_PATH << $native_lib_path
-
 unless ENV['SKYLIGHT_DISABLE_AGENT']
   ENV['SKYLIGHT_REQUIRED'] = 'true'
 

@@ -27,6 +27,8 @@ Gem::Specification.new do |s|
   # Dependencies
   s.add_dependency('activesupport', '>= 3.0.0')
 
+  s.add_development_dependency "rake-compiler", "~> 1.0.4"
+
   # Executables
   s.executables = %w(skylight)
 
