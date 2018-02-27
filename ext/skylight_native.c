@@ -102,6 +102,8 @@ VALUE rb_mSkylight;
 VALUE rb_mCore;
 VALUE rb_mUtil;
 VALUE rb_cClock;
+VALUE rb_cTrace;
+VALUE rb_cInstrumenter;
 
 static const char* no_instrumenter_msg =
   "Instrumenter not currently running";
@@ -328,6 +330,8 @@ trace_set_endpoint(VALUE self, VALUE endpoint) {
 
 static VALUE
 trace_set_exception(VALUE self, VALUE exception) {
+  UNUSED(self);
+  UNUSED(exception);
   return Qnil;
 }
 
@@ -420,21 +424,31 @@ trace_span_set_description(VALUE self, VALUE span, VALUE desc) {
 
 static VALUE
 trace_span_set_meta(VALUE self, VALUE span, VALUE meta) {
+  UNUSED(self);
+  UNUSED(span);
+  UNUSED(meta);
   return Qnil;
 }
 
 static VALUE
 trace_span_started(VALUE self) {
+  UNUSED(self);
   return Qnil;
 }
 
 static VALUE
 trace_span_set_exception(VALUE self, VALUE span, VALUE exception, VALUE exception_details) {
+  UNUSED(self);
+  UNUSED(span);
+  UNUSED(exception);
+  UNUSED(exception_details);
   return Qnil;
 }
 
 static VALUE
 trace_span_get_correlation_header(VALUE self, VALUE span_id) {
+  UNUSED(self);
+  UNUSED(span_id);
   return Qnil;
 }
 
@@ -501,7 +515,7 @@ void Init_skylight_native() {
   rb_cClock = rb_define_class_under(rb_mUtil, "Clock", rb_cObject);
   rb_define_method(rb_cClock, "native_hrtime", clock_high_res_time, 0);
 
-  VALUE rb_cTrace = rb_const_get(rb_mSkylight, rb_intern("Trace"));
+  rb_cTrace = rb_const_get(rb_mSkylight, rb_intern("Trace"));
   rb_define_singleton_method(rb_cTrace, "native_new", trace_new, 4);
   rb_define_method(rb_cTrace, "native_get_started_at", trace_get_started_at, 0);
   rb_define_method(rb_cTrace, "native_get_endpoint", trace_get_endpoint, 0);
@@ -517,7 +531,7 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_span_set_exception", trace_span_set_exception, 3);
   rb_define_method(rb_cTrace, "native_span_get_correlation_header", trace_span_get_correlation_header, 1);
 
-  VALUE rb_cInstrumenter = rb_const_get(rb_mSkylight, rb_intern("Instrumenter"));
+  rb_cInstrumenter = rb_const_get(rb_mSkylight, rb_intern("Instrumenter"));
   rb_define_singleton_method(rb_cInstrumenter, "native_new", instrumenter_new, 1);
   rb_define_method(rb_cInstrumenter, "native_start", instrumenter_start, 0);
   rb_define_method(rb_cInstrumenter, "native_stop", instrumenter_stop, 0);
