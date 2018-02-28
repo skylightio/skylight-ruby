@@ -357,18 +357,24 @@ if enable
         expect(endpoint.name).to eq("Anonymous Middleware")
       end
 
+      context "with middleware_position" do
 
-      it 'does not instrument middleware if Skylight position is after', :middleware_probe do
-        MyApp.config.skylight.middleware_position = { after: CustomMiddleware }
-        call MyApp, env('/users')
-        server.wait resource: '/report'
+        def pre_boot
+          MyApp.config.skylight.middleware_position = { after: CustomMiddleware }
+        end
 
-        trace = server.reports[0].endpoints[0].traces[0]
+        it 'does not instrument middleware if Skylight position is after', :middleware_probe do
+          call MyApp, env('/users')
+          server.wait resource: '/report'
 
-        titles = trace.spans.map{ |s| [s.event.title] }
+          trace = server.reports[0].endpoints[0].traces[0]
 
-        # If Skylight runs after CustomMiddleware, we shouldn't see it
-        expect(titles).to_not include("CustomMiddleware")
+          titles = trace.spans.map{ |s| s.event.title }
+
+          # If Skylight runs after CustomMiddleware, we shouldn't see it
+          expect(titles).to_not include("CustomMiddleware")
+        end
+
       end
 
       it "handles middleware that don't conform to SPEC", :middleware_probe do
