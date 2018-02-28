@@ -73,4 +73,10 @@ describe "Skylight::Middleware", :http, :agent do
     app.call(env)
   end
 
+  it 'can handle frozen arrays' do
+    expect{ Skylight::Middleware
+      .with_after_close([200, {}, []].freeze) { true } }
+      .to_not raise_error
+  end
+
 end
