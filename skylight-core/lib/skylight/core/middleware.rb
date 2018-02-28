@@ -47,9 +47,7 @@ module Skylight::Core
       if resp.respond_to?(:finish)
         resp = resp.finish
       end
-
-      resp[2] = BodyProxy.new(resp[2], &block)
-      resp
+      [resp[0], resp[1], BodyProxy.new(resp[2], &block)]
     end
 
     include Util::Logging
