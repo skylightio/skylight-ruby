@@ -38,8 +38,7 @@ describe "Initialization integration" do
     FileUtils.rm_rf 'log'
     FileUtils.mkdir 'log'
 
-    # Have to add $native_lib_path to the LOAD_PATH here since we build in a different location for tests
-    cmd = "SKYLIGHT_ENABLE_TRACE_LOGS=1 DEBUG=1 RAILS_ENV=#{rails_env} ruby -I#{$native_lib_path} bin/rails runner '#noop'"
+    cmd = "SKYLIGHT_ENABLE_TRACE_LOGS=1 DEBUG=1 RAILS_ENV=#{rails_env} ruby bin/rails runner '#noop'"
     cmd_pid = Process.spawn(cmd, :out => pipe_cmd_out, :err => pipe_cmd_out)
 
     Timeout.timeout(10) do

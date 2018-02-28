@@ -1,78 +1,49 @@
-$:.unshift File.expand_path('../lib', __FILE__)
-
 require 'bundler/setup'
 require 'fileutils'
 require 'rbconfig'
-require 'skylight/core/util/platform'
+require 'rake/extensiontask'
+
+class ExtensionTask < Rake::ExtensionTask
+
+  attr_accessor :native_lib_path
+
+  def source_files
+    files = super
+    files += FileList["#{native_lib_path}/*.{c,h}"] if native_lib_path
+    files
+  end
+
+  def sh(*cmd)
+    original_env = ENV.to_hash
+    ENV['SKYLIGHT_REQUIRED'] = 'true'
+    ENV['SKYLIGHT_EXT_STRICT'] = ENV['SKYLIGHT_EXT_STRICT'] !~ /^false$/i ? 'true' : nil
+    super
+  ensure
+    ENV.replace(original_env)
+  end
+
+end
+
+ExtensionTask.new do |ext|
+  ext.name = 'skylight_native'
+  ext.ext_dir = 'ext'
+  ext.source_pattern = "*.{c,h}"
+  ext.native_lib_path = ENV['SKYLIGHT_LIB_PATH']
+end
+
+CLEAN << File.expand_path("../ext/install.log", __FILE__)
+CLOBBER << File.expand_path("../lib/skylight/native", __FILE__)
 
 begin
   require 'yard'
 rescue LoadError
 end
 
-include FileUtils
-include Skylight::Core::Util
-
-def run_cmd(cmd, env={})
-  puts "system(#{env.inspect} #{cmd})"
-  system("#{cmd} 2>&1")
-end
-
-ROOT = File.expand_path("..", __FILE__)
-
-# Ruby extension output
-TARGET_DIR = "#{ROOT}/target/#{Platform.tuple}"
-
-# Normally this ends up in /lib, but for local dev it's easier to put it here
-RUBY_EXT = "#{TARGET_DIR}/skylight_native.#{Platform.dlext}"
-
-namespace :build do
-  C_SRC = Dir["#{ROOT}/ext/{*.c,extconf.rb}"]
-
-  # If the native lib location is specified locally, depend on it as well
-  if native = ENV['SKYLIGHT_LIB_PATH']
-    C_SRC.concat Dir[File.expand_path("../*.{c,h}", native)]
-  end
-
-  file RUBY_EXT => C_SRC do
-    extconf = File.expand_path("#{ROOT}/ext/extconf.rb", __FILE__)
-
-    # Make sure that the directory is present
-    mkdir_p TARGET_DIR
-    mkdir_p File.dirname(RUBY_EXT)
-
-    # Default to true for local use
-    strict = ENV['SKYLIGHT_EXT_STRICT'] !~ /^false$/i
-
-    chdir TARGET_DIR do
-      Bundler.with_clean_env do
-        env = { SKYLIGHT_LIB_PATH: native,
-                SKYLIGHT_REQUIRED: true,
-                SKYLIGHT_EXT_STRICT: strict }
-
-        run_cmd("ruby #{extconf}", env) or abort "failed to configure ruby ext"
-
-        run_cmd "make" or abort "failed to build ruby ext"
-      end
-    end
-  end
-end
-
-desc "build the ruby extension"
-task :build => RUBY_EXT
-
-desc "clean build artifacts"
-task :clean do
-  rm_rf "#{ROOT}/lib/skylight/native"
-  rm_f "#{ROOT}/ext/install.log"
-  rm_rf TARGET_DIR
-end
-
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = '--order random'
 end
-task :spec => :build
+task :spec => :compile
 
 namespace :vendor do
   namespace :update do

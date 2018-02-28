@@ -246,7 +246,7 @@ $CFLAGS << " -std=c99 -Wall -fno-strict-aliasing"
 
 # Allow stricter checks to be turned on for development or debugging
 if SKYLIGHT_EXT_STRICT
-  $CFLAGS << " -pedantic"
+  $CFLAGS << " -Wextra"
 end
 
 # TODO: Compute the relative path to the location
