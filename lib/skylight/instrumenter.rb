@@ -181,6 +181,11 @@ module Skylight
       trace.done(span)
     end
 
+    def broken!
+      return unless trace = @trace_info.current
+      trace.broken!
+    end
+
     def instrument(cat, title=nil, desc=nil)
       raise ArgumentError, 'cat is required' unless cat
 

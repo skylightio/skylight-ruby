@@ -118,6 +118,11 @@ module Skylight
     inst.done(span)
   end
 
+  def self.broken!
+    return unless inst = Instrumenter.instance
+    inst.broken!
+  end
+
   # Temporarily disable
   def self.disable
     unless inst = Instrumenter.instance
