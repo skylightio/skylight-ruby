@@ -39,6 +39,7 @@ if enable
     end
 
     before :each do
+      @original_env = ENV.to_hash
       ENV['SKYLIGHT_AUTHENTICATION']       = "lulz"
       ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
       ENV['SKYLIGHT_REPORT_URL']           = "http://127.0.0.1:#{port}/report"
@@ -47,6 +48,11 @@ if enable
       ENV['SKYLIGHT_VALIDATION_URL']       = "http://127.0.0.1:#{port}/agent/config"
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
       ENV['SKYLIGHT_ENABLE_SEGMENTS']      = "true"
+
+      if ENV['DEBUG']
+        ENV['SKYLIGHT_ENABLE_TRACE_LOGS']    = "true"
+        ENV['SKYLIGHT_LOG_FILE']             = "-"
+      end
 
       class CustomMiddleware
 
@@ -64,7 +70,7 @@ if enable
 
       end
 
-      class NonConformingMiddleware
+      class NonClosingMiddleware
         def initialize(app)
           @app = app
         end
@@ -74,11 +80,39 @@ if enable
 
           # NOTE: We are intentionally throwing away the response without calling close
           # This is to emulate a non-conforming Middleware
-          if env["PATH_INFO"] == "/non-conforming"
-            return [200, { }, ["NonConforming"]]
+          if env["PATH_INFO"] == "/non-closing"
+            return [200, { }, ["NonClosing"]]
           end
 
           res
+        end
+      end
+
+      class NonArrayMiddleware
+        def initialize(app)
+          @app = app
+        end
+
+        def call(env)
+          if env["PATH_INFO"] == "/non-array"
+            return Rack::Response.new(["NonArray"])
+          end
+
+          @app.call(env)
+        end
+      end
+
+      class InvalidMiddleware
+        def initialize(app)
+          @app = app
+        end
+
+        def call(env)
+          if env["PATH_INFO"] == "/invalid"
+            return "Hello"
+          end
+
+          @app.call(env)
         end
       end
 
@@ -117,7 +151,9 @@ if enable
           end
         end)
 
-        config.middleware.use NonConformingMiddleware
+        config.middleware.use NonClosingMiddleware
+        config.middleware.use NonArrayMiddleware
+        config.middleware.use InvalidMiddleware
         config.middleware.use CustomMiddleware
 
       end
@@ -245,14 +281,8 @@ if enable
 
     after :each do
       MyApp.config.skylight.middleware_position = 0
-      ENV['SKYLIGHT_AUTHENTICATION']       = nil
-      ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = nil
-      ENV['SKYLIGHT_REPORT_URL']           = nil
-      ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = nil
-      ENV['SKYLIGHT_AUTH_URL']             = nil
-      ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = nil
-      ENV['SKYLIGHT_VALIDATION_URL']       = nil
-      ENV['SKYLIGHT_ENABLE_SEGMENTS']      = nil
+
+      ENV.replace(@original_env)
 
       Skylight.stop!
 
@@ -281,10 +311,6 @@ if enable
 
           def pre_boot
             ENV['SKYLIGHT_HEROKU_DYNO_INFO_PATH'] = File.expand_path('../../support/heroku_dyno_info_sample', __FILE__)
-          end
-
-          after :each do
-            ENV['SKYLIGHT_HEROKU_DYNO_INFO_PATH'] = nil
           end
 
           it "recognizes heroku" do
@@ -409,23 +435,34 @@ if enable
 
       end
 
-      it "handles middleware that don't conform to SPEC", :middleware_probe do
-        original_skylight_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
-        begin
+      context "middleware that don't conform to Rack SPEC" do
+
+        it "handles middleware that don't close body", :middleware_probe do
           ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
 
-          call MyApp, env('/non-conforming')
+          call MyApp, env('/non-closing')
           server.wait resource: '/report'
 
           trace = server.reports[0].endpoints[0].traces[0]
 
-          titles = trace.spans.map{ |s| [s.event.title] }
+          titles = trace.spans.map{ |s| s.event.title }
 
-          # If Skylight runs after CustomMiddleware, we shouldn't see it
-          expect(titles).to_not include("CustomMiddleware")
-        ensure
-          ENV['SKYLIGHT_RAISE_ON_ERROR'] = original_skylight_raise_on_error
+          expect(titles).to include("NonClosingMiddleware")
         end
+
+        it "handles middleware that returns a non-array that is coercable", :middleware_probe do
+          ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+
+          call MyApp, env('/non-array')
+          server.wait resource: '/report'
+
+          trace = server.reports[0].endpoints[0].traces[0]
+
+          titles = trace.spans.map{ |s| s.event.title }
+
+          expect(titles).to include("NonArrayMiddleware")
+        end
+
       end
 
       it 'sets correct segment' do
@@ -455,8 +492,11 @@ if enable
       end
 
       it 'sets correct segment for exceptions' do
+        # Turn off for this test, since it will log a ton, due to the mock
+        ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+
         res = call MyApp, env('/users/failure')
-        expect(res[0]).to be_blank # Some Rails versions are empty string some are nil
+        expect(res).to be_blank # Some Rails versions are empty string some are nil
 
         server.wait resource: '/report'
 
@@ -645,10 +685,6 @@ if enable
         boot
       end
 
-      after :each do
-        ENV['SKYLIGHT_ENABLED'] = nil
-      end
-
       it_behaves_like 'with agent'
     end
 
@@ -693,7 +729,6 @@ if enable
 
       after :each do
         MyApp.config.skylight.environments = @original_environments
-        ENV['SKYLIGHT_ENABLED'] = nil
       end
 
       it_behaves_like 'without agent'
