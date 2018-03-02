@@ -391,6 +391,22 @@ trace_stop_span(VALUE self, VALUE span, VALUE time) {
 }
 
 static VALUE
+trace_span_get_category(VALUE self, VALUE span) {
+  sky_trace_t* trace;
+  sky_buf_t category;
+
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+
+  CHECK_TYPE(span, T_FIXNUM);
+
+  CHECK_FFI(
+      sky_trace_span_get_category(trace, FIX2UINT(span), &category),
+      "native Trace#span_get_category failed");
+
+  return BUF2STR(category);
+}
+
+static VALUE
 trace_span_set_title(VALUE self, VALUE span, VALUE title) {
   sky_trace_t* trace;
 
@@ -404,6 +420,22 @@ trace_span_set_title(VALUE self, VALUE span, VALUE title) {
       "native Trace#span_set_title failed");
 
   return Qnil;
+}
+
+static VALUE
+trace_span_get_title(VALUE self, VALUE span) {
+  sky_trace_t* trace;
+  sky_buf_t title;
+
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+
+  CHECK_TYPE(span, T_FIXNUM);
+
+  CHECK_FFI(
+      sky_trace_span_get_title(trace, FIX2UINT(span), &title),
+      "native Trace#span_get_title failed");
+
+  return BUF2STR(title);
 }
 
 static VALUE
@@ -524,7 +556,9 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_get_uuid", trace_get_uuid, 0);
   rb_define_method(rb_cTrace, "native_start_span", trace_start_span, 2);
   rb_define_method(rb_cTrace, "native_stop_span", trace_stop_span, 2);
+  rb_define_method(rb_cTrace, "native_span_get_category", trace_span_get_category, 1);
   rb_define_method(rb_cTrace, "native_span_set_title", trace_span_set_title, 2);
+  rb_define_method(rb_cTrace, "native_span_get_title", trace_span_get_title, 1);
   rb_define_method(rb_cTrace, "native_span_set_description", trace_span_set_description, 2);
   rb_define_method(rb_cTrace, "native_span_set_meta", trace_span_set_meta, 2);
   rb_define_method(rb_cTrace, "native_span_started", trace_span_started, 1);
