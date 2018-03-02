@@ -47,8 +47,12 @@ module Skylight
       @instrumenter.config
     end
 
+    def broken?
+      !!@broken
+    end
+
     def record(cat, title=nil, desc=nil)
-      return if @broken
+      return if broken?
 
       title.freeze if title.is_a?(String)
       desc.freeze  if desc.is_a?(String)
@@ -92,7 +96,7 @@ module Skylight
 
     def done(span)
       return unless span
-      return if @broken
+      return if broken?
       stop(span, Util::Clock.nanos - gc_time)
     rescue => e
       error "failed to close span; msg=%s", e.message
@@ -123,7 +127,7 @@ module Skylight
     end
 
     def submit
-      return if @broken
+      return if broken?
 
       t { "submitting trace" }
 
@@ -166,6 +170,8 @@ module Skylight
         error "invalid span nesting"
         # TODO: Actually log span title here
         t { "expected=#{expected}, actual=#{span}" }
+
+        broken!
       end
 
       time = self.class.normalize_time(time)
