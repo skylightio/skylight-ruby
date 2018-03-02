@@ -65,7 +65,7 @@ module Skylight::Core
       nil
     rescue => e
       error "failed to record span; msg=%s", e.message
-      @broken = true
+      broken!
       nil
     end
 
@@ -89,7 +89,7 @@ module Skylight::Core
       start(now - gc_time, cat, title, desc, meta)
     rescue => e
       error "failed to instrument span; msg=%s", e.message
-      @broken = true
+      broken!
       nil
     end
 
@@ -109,13 +109,18 @@ module Skylight::Core
       stop(span, Util::Clock.nanos - gc_time)
     rescue => e
       error "failed to close span; msg=%s", e.message
-      @broken = true
+      broken!
       nil
     end
 
     def release
       return unless @instrumenter.current_trace == self
       @instrumenter.current_trace = nil
+    end
+
+    def broken!
+      debug "trace is broken"
+      @broken = true
     end
 
     def traced
