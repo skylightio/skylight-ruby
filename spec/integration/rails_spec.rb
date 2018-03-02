@@ -405,17 +405,12 @@ if enable
 
       context "middleware that don't conform to Rack SPEC" do
 
-        it "handles middleware that don't close body", :middleware_probe do
+        it "doesn't report middleware that don't close body", :middleware_probe do
           ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
 
+          expect_any_instance_of(Skylight::Core::Instrumenter).to_not receive(:process)
+
           call MyApp, env('/non-closing')
-          server.wait resource: '/report'
-
-          trace = server.reports[0].endpoints[0].traces[0]
-
-          titles = trace.spans.map{ |s| s.event.title }
-
-          expect(titles).to include("NonClosingMiddleware")
         end
 
         it "handles middleware that returns a non-array that is coercable", :middleware_probe do

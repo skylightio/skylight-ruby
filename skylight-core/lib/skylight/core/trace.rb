@@ -50,8 +50,12 @@ module Skylight::Core
       @instrumenter.config
     end
 
+    def broken?
+      !!@broken
+    end
+
     def record(cat, title=nil, desc=nil)
-      return if @broken
+      return if broken?
 
       title.freeze if title.is_a?(String)
       desc.freeze  if desc.is_a?(String)
@@ -70,7 +74,7 @@ module Skylight::Core
     end
 
     def instrument(cat, title=nil, desc=nil, meta=nil)
-      return if @broken
+      return if broken?
       t { "instrument: #{cat}, #{title}" }
 
       title.freeze if title.is_a?(String)
@@ -100,7 +104,7 @@ module Skylight::Core
 
     def done(span, meta=nil)
       return unless span
-      return if @broken
+      return if broken?
 
       if meta && (meta[:exception_object] || meta[:exception])
         native_span_set_exception(span, meta[:exception_object], meta[:exception])
@@ -136,9 +140,9 @@ module Skylight::Core
     end
 
     def submit
-      t { "submitting trace; broken=#{@broken}" }
+      t { "submitting trace; broken=#{broken?}" }
 
-      return if @broken
+      return if broken?
 
       if @submitted
         t { "already submitted" }
@@ -181,6 +185,8 @@ module Skylight::Core
         error "invalid span nesting"
         # TODO: Actually log span title here
         t { "expected=#{expected}, actual=#{span}" }
+
+        broken!
       end
 
       time = self.class.normalize_time(time)
