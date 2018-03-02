@@ -42,12 +42,14 @@ module Skylight::Core
     end
 
     def self.with_after_close(resp, &block)
-      # Responses should be finished but in some situations they aren't
+      # Responses should be arrays but in some situations they aren't
       #   e.g. https://github.com/ruby-grape/grape/issues/1041
-      if resp.respond_to?(:finish)
-        resp = resp.finish
-      end
-      [resp[0], resp[1], BodyProxy.new(resp[2], &block)]
+      # The safest approach seems to be to rely on implicit destructuring
+      #   since that is currently what Rack::Lint does.
+      # See also https://github.com/rack/rack/issues/1239
+      status, headers, body = resp
+
+      [status, headers, BodyProxy.new(body, &block)]
     end
 
     include Util::Logging
