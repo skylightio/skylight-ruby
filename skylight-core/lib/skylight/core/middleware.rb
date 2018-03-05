@@ -76,6 +76,10 @@ module Skylight::Core
     end
 
     def call(env)
+      if instrumentable.tracing?
+        error "Already instrumenting. Make sure the Middleware hasn't been added more than once."
+      end
+
       if env["REQUEST_METHOD"] == "HEAD"
         t { "middleware skipping HEAD" }
         @app.call(env)
