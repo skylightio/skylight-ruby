@@ -14,27 +14,33 @@ if enable
 
   describe 'Rails integration' do
 
-    def boot
-      MyApp.initialize!
+    def run_in_isolation(&blk)
+      read, write = IO.pipe
+      read.binmode
+      write.binmode
 
-      MyApp.routes.draw do
-        resources :users do
-          collection do
-            get :failure
-            get :handled_failure
-            get :header
-            get :status
-            get :no_template
-          end
+      pid = fork do
+        read.close
+
+        test_result = begin
+          yield
+        rescue Exception => e
+          e
         end
-        get '/metal' => 'metal#show'
+
+        result = Marshal.dump(test_result)
+
+        write.puts [result].pack("m")
+        exit!
       end
+
+      write.close
+      result = read.read
+      Process.wait2(pid)
+      Marshal.load(result.unpack("m")[0])
     end
 
-    class ControllerError < StandardError; end
-
-    before :each do
-      @original_env = ENV.to_hash
+    def set_env
       ENV['SKYLIGHT_AUTHENTICATION']       = "lulz"
       ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
       ENV['SKYLIGHT_REPORT_URL']           = "http://127.0.0.1:#{port}/report"
@@ -48,223 +54,32 @@ if enable
         ENV['SKYLIGHT_ENABLE_TRACE_LOGS']    = "true"
         ENV['SKYLIGHT_LOG_FILE']             = "-"
       end
-
-      class CustomMiddleware
-
-        def initialize(app)
-          @app = app
-        end
-
-        def call(env)
-          if env["PATH_INFO"] == "/middleware"
-            return [200, { }, ["CustomMiddleware"]]
-          end
-
-          @app.call(env)
-        end
-
-      end
-
-      class NonClosingMiddleware
-        def initialize(app)
-          @app = app
-        end
-
-        def call(env)
-          res = @app.call(env)
-
-          # NOTE: We are intentionally throwing away the response without calling close
-          # This is to emulate a non-conforming Middleware
-          if env["PATH_INFO"] == "/non-closing"
-            return [200, { }, ["NonClosing"]]
-          end
-
-          res
-        end
-      end
-
-      class NonArrayMiddleware
-        def initialize(app)
-          @app = app
-        end
-
-        def call(env)
-          if env["PATH_INFO"] == "/non-array"
-            return Rack::Response.new(["NonArray"])
-          end
-
-          @app.call(env)
-        end
-      end
-
-      class InvalidMiddleware
-        def initialize(app)
-          @app = app
-        end
-
-        def call(env)
-          if env["PATH_INFO"] == "/invalid"
-            return "Hello"
-          end
-
-          @app.call(env)
-        end
-      end
-
-      class ::MyApp < Rails::Application
-        config.secret_key_base = '095f674153982a9ce59914b561f4522a'
-
-        config.active_support.deprecation = :stderr
-
-        config.logger = Logger.new(STDOUT)
-        config.logger.level = Logger::DEBUG
-
-        config.eager_load = false
-
-        # This class has no name
-        config.middleware.use(Class.new do
-          def initialize(app)
-            @app = app
-          end
-
-          def call(env)
-            if env["PATH_INFO"] == "/anonymous"
-              return [200, { }, ["Anonymous"]]
-            end
-
-            @app.call(env)
-          end
-        end)
-
-        config.middleware.use NonClosingMiddleware
-        config.middleware.use NonArrayMiddleware
-        config.middleware.use InvalidMiddleware
-        config.middleware.use CustomMiddleware
-
-      end
-
-      # We include instrument_method in multiple places to ensure
-      # that all of them work.
-
-      class ::UsersController < ActionController::Base
-        include Skylight::Helpers
-
-        if respond_to?(:before_action)
-          before_action :authorized?
-          before_action :set_variant
-        else
-          before_filter :authorized?
-          before_filter :set_variant
-        end
-
-        rescue_from 'ControllerError' do |exception|
-          render json: { error: exception.message }, status: 500
-        end
-
-        def index
-          Skylight.instrument category: 'app.inside' do
-            if Rails.version =~ /^4\./
-              render text: "Hello"
-            else
-              render plain: "Hello"
-            end
-            Skylight.instrument category: 'app.zomg' do
-              # nothing
-            end
-          end
-        end
-        instrument_method :index
-
-        instrument_method
-        def show
-          respond_to do |format|
-            format.json do |json|
-              json.tablet { render json: { hola_tablet: params[:id] } }
-              json.none   { render json: { hola: params[:id] } }
-            end
-            format.html do
-              if Rails.version =~ /^4\./
-                render text: "Hola: #{params[:id]}"
-              else
-                render plain: "Hola: #{params[:id]}"
-              end
-            end
-          end
-        end
-
-        def failure
-          raise "Fail!"
-        end
-
-        def handled_failure
-          raise ControllerError, "Handled!"
-        end
-
-        def header
-          Skylight.instrument category: 'app.zomg' do
-            head 200
-          end
-        end
-
-        def status
-          s = params[:status] || 200
-          if Rails.version =~ /^4\./
-            render text: s, status: s
-          else
-            render plain: s, status: s
-          end
-        end
-
-        def no_template
-          # This action has no template to auto-render
-        end
-
-        private
-
-          def authorized?
-            true
-          end
-
-          # It's important for us to test a method ending in a special char
-          instrument_method :authorized?, title: "Check authorization"
-
-          def set_variant
-            request.variant = :tablet if params[:tablet]
-          end
-
-      end
-
-      class ::MetalController < ActionController::Metal
-        include ActionController::Instrumentation
-
-        def show
-          render({
-            status: 200,
-            text: "Zomg!"
-          })
-        end
-
-        def render(options={})
-          self.status = options[:status] || 200
-          self.content_type = options[:content_type] || 'text/html; charset=utf-8'
-          self.headers['Content-Length'] = options[:text].bytesize.to_s
-          self.response_body = options[:text]
-        end
-      end
     end
 
     after :each do
-      MyApp.config.skylight.middleware_position = 0
-
-      ENV.replace(@original_env)
-
+      # TODO: Do we need this?
       Skylight.stop!
+    end
 
-      # Clean slate
-      Object.send(:remove_const, :MyApp)
-      Object.send(:remove_const, :UsersController)
-      Object.send(:remove_const, :MetalController)
-      Rails.application = nil
+    def boot
+      require 'support/rails_app'
+      set_env
+      pre_boot
+      MyApp.boot
+    end
+
+    around(:each) do |example|
+      ret = run_in_isolation do
+        boot
+        example.run
+        example.executed?
+      end
+
+      if ret.is_a?(Exception)
+        raise ret
+      end
+
+      example.instance_variable_set(:@executed, ret)
     end
 
     shared_examples "with agent" do
@@ -616,42 +431,29 @@ if enable
 
     end
 
-    context "activated from application.rb", :http, :agent do
+    context "activated from application.rb", :agent do
 
       def pre_boot
-      end
-
-      before :each do
-        @original_environments = MyApp.config.skylight.environments.clone
         MyApp.config.skylight.environments << 'development'
+
+        start_server
 
         stub_config_validation
         stub_session_request
-
-        pre_boot
-        boot
-      end
-
-      after :each do
-        MyApp.config.skylight.environments = @original_environments
       end
 
       it_behaves_like 'with agent'
     end
 
-    context "activated from ENV", :http, :agent do
+    context "activated from ENV", :agent do
 
       def pre_boot
-      end
-
-      before :each do
         ENV['SKYLIGHT_ENABLED'] = "true"
+
+        start_server
 
         stub_config_validation
         stub_session_request
-
-        pre_boot
-        boot
       end
 
       it_behaves_like 'with agent'
@@ -659,6 +461,7 @@ if enable
 
     shared_examples "without agent" do
 
+      # Is this running at the right time?
       before :each do
         # Sanity check that we are indeed running without an active agent
         expect(Skylight.instrumenter).to be_nil
@@ -675,29 +478,15 @@ if enable
     end
 
     context "without configuration" do
-      before :each do
-        boot
-      end
+      def pre_boot; end
 
       it_behaves_like 'without agent'
     end
 
     context "deactivated from ENV" do
       def pre_boot
-      end
-
-      before :each do
         ENV['SKYLIGHT_ENABLED'] = "false"
-
-        @original_environments = MyApp.config.skylight.environments.clone
         MyApp.config.skylight.environments << 'development'
-
-        pre_boot
-        boot
-      end
-
-      after :each do
-        MyApp.config.skylight.environments = @original_environments
       end
 
       it_behaves_like 'without agent'
