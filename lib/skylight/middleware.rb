@@ -63,13 +63,11 @@ module Skylight
     end
 
     def call(env)
-      # Skylight can handle double tracing, but avoid the BodyProxy if we don't need it
-      # This generally shouldn't happen, but older verions of Rails can allow the same
-      # middleware to be inserted multiple times
       if Skylight.tracing?
-        t { "already tracing, skipping" }
-        @app.call(env)
-      elsif env["REQUEST_METHOD"] == "HEAD"
+        error "Already instrumenting. Make sure the Middleware hasn't been added more than once."
+      end
+
+      if env["REQUEST_METHOD"] == "HEAD"
         t { "middleware skipping HEAD" }
         @app.call(env)
       else
