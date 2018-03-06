@@ -128,6 +128,11 @@ module Skylight
           instrumenter.done(span, meta)
         end
 
+        def broken!
+          return unless instrumenter
+          instrumenter.broken!
+        end
+
         # Temporarily disable
         def disable
           unless instrumenter

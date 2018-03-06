@@ -14,26 +14,33 @@ if enable
 
   describe 'Rails integration' do
 
-    def boot
-      MyApp.initialize!
+    def run_in_isolation(&blk)
+      read, write = IO.pipe
+      read.binmode
+      write.binmode
 
-      MyApp.routes.draw do
-        resources :users do
-          collection do
-            get :failure
-            get :handled_failure
-            get :header
-            get :status
-            get :no_template
-          end
+      pid = fork do
+        read.close
+
+        test_result = begin
+          yield
+        rescue Exception => e
+          e
         end
-        get '/metal' => 'metal#show'
+
+        result = Marshal.dump(test_result)
+
+        write.puts [result].pack("m")
+        exit!
       end
+
+      write.close
+      result = read.read
+      Process.wait2(pid)
+      Marshal.load(result.unpack("m")[0])
     end
 
-    class ControllerError < StandardError; end
-
-    before :each do
+    def set_env
       ENV['SKYLIGHT_AUTHENTICATION']       = "lulz"
       ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
       ENV['SKYLIGHT_REPORT_URL']           = "http://127.0.0.1:#{port}/report"
@@ -43,198 +50,36 @@ if enable
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
       ENV['SKYLIGHT_ENABLE_SEGMENTS']      = "true"
 
-      class CustomMiddleware
-
-        def initialize(app)
-          @app = app
-        end
-
-        def call(env)
-          if env["PATH_INFO"] == "/middleware"
-            return [200, { }, ["CustomMiddleware"]]
-          end
-
-          @app.call(env)
-        end
-
-      end
-
-      class NonConformingMiddleware
-        def initialize(app)
-          @app = app
-        end
-
-        def call(env)
-          res = @app.call(env)
-
-          # NOTE: We are intentionally throwing away the response without calling close
-          # This is to emulate a non-conforming Middleware
-          if env["PATH_INFO"] == "/non-conforming"
-            return [200, { }, ["NonConforming"]]
-          end
-
-          res
-        end
-      end
-
-      class ::MyApp < Rails::Application
-        config.secret_key_base = '095f674153982a9ce59914b561f4522a'
-
-        config.active_support.deprecation = :stderr
-
-        config.logger = Logger.new(STDOUT)
-        config.logger.level = Logger::DEBUG
-
-        config.eager_load = false
-
-        # This class has no name
-        config.middleware.use(Class.new do
-          def initialize(app)
-            @app = app
-          end
-
-          def call(env)
-            if env["PATH_INFO"] == "/anonymous"
-              return [200, { }, ["Anonymous"]]
-            end
-
-            @app.call(env)
-          end
-        end)
-
-        config.middleware.use NonConformingMiddleware
-        config.middleware.use CustomMiddleware
-
-      end
-
-      # We include instrument_method in multiple places to ensure
-      # that all of them work.
-
-      class ::UsersController < ActionController::Base
-        include Skylight::Helpers
-
-        if respond_to?(:before_action)
-          before_action :authorized?
-          before_action :set_variant
-        else
-          before_filter :authorized?
-          before_filter :set_variant
-        end
-
-        rescue_from 'ControllerError' do |exception|
-          render json: { error: exception.message }, status: 500
-        end
-
-        def index
-          Skylight.instrument category: 'app.inside' do
-            if Rails.version =~ /^4\./
-              render text: "Hello"
-            else
-              render plain: "Hello"
-            end
-            Skylight.instrument category: 'app.zomg' do
-              # nothing
-            end
-          end
-        end
-        instrument_method :index
-
-        instrument_method
-        def show
-          respond_to do |format|
-            format.json do |json|
-              json.tablet { render json: { hola_tablet: params[:id] } }
-              json.none   { render json: { hola: params[:id] } }
-            end
-            format.html do
-              if Rails.version =~ /^4\./
-                render text: "Hola: #{params[:id]}"
-              else
-                render plain: "Hola: #{params[:id]}"
-              end
-            end
-          end
-        end
-
-        def failure
-          raise "Fail!"
-        end
-
-        def handled_failure
-          raise ControllerError, "Handled!"
-        end
-
-        def header
-          Skylight.instrument category: 'app.zomg' do
-            head 200
-          end
-        end
-
-        def status
-          s = params[:status] || 200
-          if Rails.version =~ /^4\./
-            render text: s, status: s
-          else
-            render plain: s, status: s
-          end
-        end
-
-        def no_template
-          # This action has no template to auto-render
-        end
-
-        private
-
-          def authorized?
-            true
-          end
-
-          # It's important for us to test a method ending in a special char
-          instrument_method :authorized?, title: "Check authorization"
-
-          def set_variant
-            request.variant = :tablet if params[:tablet]
-          end
-
-      end
-
-      class ::MetalController < ActionController::Metal
-        include ActionController::Instrumentation
-
-        def show
-          render({
-            status: 200,
-            text: "Zomg!"
-          })
-        end
-
-        def render(options={})
-          self.status = options[:status] || 200
-          self.content_type = options[:content_type] || 'text/html; charset=utf-8'
-          self.headers['Content-Length'] = options[:text].bytesize.to_s
-          self.response_body = options[:text]
-        end
+      if ENV['DEBUG']
+        ENV['SKYLIGHT_ENABLE_TRACE_LOGS']    = "true"
+        ENV['SKYLIGHT_LOG_FILE']             = "-"
       end
     end
 
     after :each do
-      MyApp.config.skylight.middleware_position = 0
-      ENV['SKYLIGHT_AUTHENTICATION']       = nil
-      ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = nil
-      ENV['SKYLIGHT_REPORT_URL']           = nil
-      ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = nil
-      ENV['SKYLIGHT_AUTH_URL']             = nil
-      ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = nil
-      ENV['SKYLIGHT_VALIDATION_URL']       = nil
-      ENV['SKYLIGHT_ENABLE_SEGMENTS']      = nil
-
+      # TODO: Do we need this?
       Skylight.stop!
+    end
 
-      # Clean slate
-      Object.send(:remove_const, :MyApp)
-      Object.send(:remove_const, :UsersController)
-      Object.send(:remove_const, :MetalController)
-      Rails.application = nil
+    def boot
+      require 'support/rails_app'
+      set_env
+      pre_boot
+      MyApp.boot
+    end
+
+    around(:each) do |example|
+      ret = run_in_isolation do
+        boot
+        example.run
+        example.executed?
+      end
+
+      if ret.is_a?(Exception)
+        raise ret
+      end
+
+      example.instance_variable_set(:@executed, ret)
     end
 
     shared_examples "with agent" do
@@ -249,10 +94,6 @@ if enable
 
           def pre_boot
             ENV['SKYLIGHT_HEROKU_DYNO_INFO_PATH'] = File.expand_path('../../../skylight-core/spec/support/heroku_dyno_info_sample', __FILE__)
-          end
-
-          after :each do
-            ENV['SKYLIGHT_HEROKU_DYNO_INFO_PATH'] = nil
           end
 
           it "recognizes heroku" do
@@ -357,37 +198,49 @@ if enable
         expect(endpoint.name).to eq("Anonymous Middleware")
       end
 
+      context "with middleware_position" do
 
-      it 'does not instrument middleware if Skylight position is after', :middleware_probe do
-        MyApp.config.skylight.middleware_position = { after: CustomMiddleware }
-        call MyApp, env('/users')
-        server.wait resource: '/report'
+        def pre_boot
+          MyApp.config.skylight.middleware_position = { after: CustomMiddleware }
+        end
 
-        trace = server.reports[0].endpoints[0].traces[0]
-
-        titles = trace.spans.map{ |s| [s.event.title] }
-
-        # If Skylight runs after CustomMiddleware, we shouldn't see it
-        expect(titles).to_not include("CustomMiddleware")
-      end
-
-      it "handles middleware that don't conform to SPEC", :middleware_probe do
-        original_skylight_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
-        begin
-          ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
-
-          call MyApp, env('/non-conforming')
+        it 'does not instrument middleware if Skylight position is after', :middleware_probe do
+          call MyApp, env('/users')
           server.wait resource: '/report'
 
           trace = server.reports[0].endpoints[0].traces[0]
 
-          titles = trace.spans.map{ |s| [s.event.title] }
+          titles = trace.spans.map{ |s| s.event.title }
 
           # If Skylight runs after CustomMiddleware, we shouldn't see it
           expect(titles).to_not include("CustomMiddleware")
-        ensure
-          ENV['SKYLIGHT_RAISE_ON_ERROR'] = original_skylight_raise_on_error
         end
+
+      end
+
+      context "middleware that don't conform to Rack SPEC" do
+
+        it "doesn't report middleware that don't close body", :middleware_probe do
+          ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+
+          expect_any_instance_of(Skylight::Core::Instrumenter).to_not receive(:process)
+
+          call MyApp, env('/non-closing')
+        end
+
+        it "handles middleware that returns a non-array that is coercable", :middleware_probe do
+          ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+
+          call MyApp, env('/non-array')
+          server.wait resource: '/report'
+
+          trace = server.reports[0].endpoints[0].traces[0]
+
+          titles = trace.spans.map{ |s| s.event.title }
+
+          expect(titles).to include("NonArrayMiddleware")
+        end
+
       end
 
       it 'sets correct segment' do
@@ -417,31 +270,31 @@ if enable
       end
 
       it 'sets correct segment for exceptions' do
-        original_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
         # Turn off for this test, since it will log a ton, due to the mock
         ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
-        begin
-          # TODO: This native_span_set_exception stuff should probably get its own test
-          args = [anything]
-          args << (Rails::VERSION::MAJOR >= 5 ? an_instance_of(RuntimeError) : nil)
-          args << ["RuntimeError", "Fail!"]
 
-          expect_any_instance_of(Skylight::Trace).to \
-            receive(:native_span_set_exception).with(*args).and_call_original
+        # TODO: This native_span_set_exception stuff should probably get its own test
+        # NOTE: This tests handling by the Subscriber. The Middleware probe may catch the exception again.
+        args = [anything]
+        args << (Rails::VERSION::MAJOR >= 5 ? an_instance_of(RuntimeError) : nil)
+        args << ["RuntimeError", "Fail!"]
 
-          res = call MyApp, env('/users/failure')
-          expect(res).to be_empty
+        allow_any_instance_of(Skylight::Trace).to \
+          receive(:native_span_set_exception).and_call_original
 
-          server.wait resource: '/report'
+        expect_any_instance_of(Skylight::Trace).to \
+          receive(:native_span_set_exception).with(*args).once.and_call_original
 
-          batch = server.reports[0]
-          expect(batch).to_not be nil
-          expect(batch.endpoints.count).to eq(1)
-          endpoint = batch.endpoints[0]
-          expect(endpoint.name).to eq("UsersController#failure<sk-segment>error</sk-segment>")
-        ensure
-          ENV['SKYLIGHT_RAISE_ON_ERROR'] = original_raise_on_error
-        end
+        res = call MyApp, env('/users/failure')
+        expect(res).to be_empty
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("UsersController#failure<sk-segment>error</sk-segment>")
       end
 
       it 'sets correct segment for handled exceptions' do
@@ -578,46 +431,29 @@ if enable
 
     end
 
-    context "activated from application.rb", :http, :agent do
+    context "activated from application.rb", :agent do
 
       def pre_boot
-      end
-
-      before :each do
-        @original_environments = MyApp.config.skylight.environments.clone
         MyApp.config.skylight.environments << 'development'
+
+        start_server
 
         stub_config_validation
         stub_session_request
-
-        pre_boot
-        boot
-      end
-
-      after :each do
-        MyApp.config.skylight.environments = @original_environments
       end
 
       it_behaves_like 'with agent'
     end
 
-    context "activated from ENV", :http, :agent do
+    context "activated from ENV", :agent do
 
       def pre_boot
-      end
-
-      before :each do
         ENV['SKYLIGHT_ENABLED'] = "true"
+
+        start_server
 
         stub_config_validation
         stub_session_request
-
-        pre_boot
-        boot
-      end
-
-      after :each do
-        ENV['SKYLIGHT_ENABLED'] = nil
       end
 
       it_behaves_like 'with agent'
@@ -625,6 +461,7 @@ if enable
 
     shared_examples "without agent" do
 
+      # Is this running at the right time?
       before :each do
         # Sanity check that we are indeed running without an active agent
         expect(Skylight.instrumenter).to be_nil
@@ -641,30 +478,15 @@ if enable
     end
 
     context "without configuration" do
-      before :each do
-        boot
-      end
+      def pre_boot; end
 
       it_behaves_like 'without agent'
     end
 
     context "deactivated from ENV" do
       def pre_boot
-      end
-
-      before :each do
         ENV['SKYLIGHT_ENABLED'] = "false"
-
-        @original_environments = MyApp.config.skylight.environments.clone
         MyApp.config.skylight.environments << 'development'
-
-        pre_boot
-        boot
-      end
-
-      after :each do
-        MyApp.config.skylight.environments = @original_environments
-        ENV['SKYLIGHT_ENABLED'] = nil
       end
 
       it_behaves_like 'without agent'

@@ -105,7 +105,7 @@ module Skylight
       end
     end
 
-    it 'closes any spans that were not properly closed' do
+    it 'marks broken for invalid span nesting' do
       begin
         original_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
         ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
@@ -113,13 +113,29 @@ module Skylight
         trace = Skylight.trace 'Rack', 'app.rack.request'
         a = trace.instrument 'foo'
         clock.skip 0.1
-        trace.instrument 'bar'
-        clock.skip 0.1
-        b = trace.instrument 'baz'
+        b = trace.instrument 'bar'
         clock.skip 0.1
         trace.done(a)
+
+        expect(trace).to be_broken
+      ensure
+        ENV['SKYLIGHT_RAISE_ON_ERROR'] = original_raise_on_error
+      end
+    end
+
+    it 'closes any spans that were not properly closed' do
+      begin
+        original_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
+        ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+
+        trace = Skylight.trace 'Rack', 'app.rack.request'
+        trace.instrument 'foo'
         clock.skip 0.1
-        trace.done(b)
+        trace.instrument 'bar'
+        clock.skip 0.1
+        a = trace.instrument 'baz'
+        clock.skip 0.1
+        trace.done(a)
         clock.skip 0.1
         trace.submit
 
@@ -131,10 +147,10 @@ module Skylight
         expect(spans[0].duration).to       eq(4000)
 
         expect(spans[1].event.category).to eq('foo')
-        expect(spans[1].duration).to       eq(3000)
+        expect(spans[1].duration).to       eq(4000)
 
         expect(spans[2].event.category).to eq('bar')
-        expect(spans[2].duration).to       eq(2000)
+        expect(spans[2].duration).to       eq(3000)
 
         expect(spans[3].event.category).to eq('baz')
         expect(spans[3].duration).to       eq(1000)

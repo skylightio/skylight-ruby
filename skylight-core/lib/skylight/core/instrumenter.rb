@@ -202,6 +202,11 @@ module Skylight::Core
       trace.span_correlation_header(span)
     end
 
+    def broken!
+      return unless trace = @trace_info.current
+      trace.broken!
+    end
+
     def done(span, meta=nil)
       return unless trace = @trace_info.current
       trace.done(span, meta)
