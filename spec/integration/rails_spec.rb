@@ -261,9 +261,11 @@ if enable
       Skylight.stop!
 
       # Clean slate
+      # It's really too bad we can't run RSpec tests in a fork
       Object.send(:remove_const, :MyApp)
       Object.send(:remove_const, :UsersController)
       Object.send(:remove_const, :MetalController)
+      Rails::Railtie::Configuration.class_variable_set(:@@app_middleware, nil)
       Rails.application = nil
     end
 
