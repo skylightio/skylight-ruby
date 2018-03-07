@@ -67,10 +67,15 @@ if defined?(YARD)
   YARD::Rake::YardocTask.new
 end
 
-def get_travis_builds
+def travis_config
   require 'yaml'
-  config = YAML.load_file(".travis.yml")
+  @travis_config ||= YAML.load_file(".travis.yml")
+end
 
+def travis_builds
+  return @travis_builds if @travis_builds
+
+  config = travis_config
   builds = []
 
   config["env"]["matrix"].each do |env|
@@ -114,7 +119,7 @@ def get_travis_builds
     build["number"] = index + 1
   end
 
-  builds
+  @travis_builds = builds
 end
 
 task :vagrant_up do
@@ -124,7 +129,7 @@ task :vagrant_up do
 end
 
 task :run_travis_builds => :vagrant_up do |t|
-  builds = get_travis_builds
+  builds = travis_builds
 
   if number = ENV['JOB']
     if build = builds.find{|b| b['number'] == number.to_i }
@@ -150,8 +155,9 @@ task :run_travis_builds => :vagrant_up do |t|
         "gem install bundler",
         "export SKYLIGHT_SOCKDIR_PATH=/tmp", # Avoid NFS issues
         "export BUNDLE_GEMFILE=\\$PWD/#{build['gemfile']}", # Escape PWD so it runs on Vagrant, not local box
-        "export SKYLIGHT_TEST_DIR=/tmp"
       ]
+
+      commands += travis_config['env']['global'].map{|env| "export #{env}" }
 
       commands += Array(build['env']).map{|env| "export #{env}" }
 
@@ -200,9 +206,7 @@ task :run_travis_builds => :vagrant_up do |t|
 end
 
 task :list_travis_builds do
-  builds = get_travis_builds
-
-  builds.each do |build|
+  travis_builds.each do |build|
     puts "#{build['number']}: #{build.inspect}"
   end
 end
