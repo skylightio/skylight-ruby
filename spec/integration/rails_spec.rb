@@ -297,6 +297,7 @@ if enable
         Rails::Application.class_variable_set(:@@instance, nil)
         ActionController::Routing.send(:remove_const, :Routes)
       end
+      Rails::Railtie::Configuration.class_variable_set(:@@app_middleware, nil)
       Rails.application = nil
     end
 
