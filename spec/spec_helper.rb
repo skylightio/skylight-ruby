@@ -21,8 +21,9 @@ require "support/native"
 
 require_relative '../skylight-core/spec/shared_spec_helper'
 
-require "support/standalone"
-require "support/helpers"
+Dir[File.expand_path('../support/*.rb', __FILE__)].each do |f|
+  require f
+end
 
 # Similar to above, but this is for waiting for the embedded HTTP server to
 # receive requests. The HTTP server is used to mock out the Skylight hosted
