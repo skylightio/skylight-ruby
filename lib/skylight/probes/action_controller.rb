@@ -31,10 +31,15 @@ module Skylight
                   :controller => self.class.name,
                   :action     => self.action_name,
                   :params     => request.filtered_parameters,
-                  :format     => request.format.try(:ref),
                   :method     => request.request_method,
                   :path       => (request.fullpath rescue "unknown")
                 }
+
+                if Gem::Version.new(Rails.version) < Gem::Version.new('3.1')
+                  raw_payload[:formats] = request.formats.map(&:to_sym)
+                else
+                  raw_payload[:format] = request.format.try(:ref)
+                end
 
                 ActiveSupport::Notifications.instrument("start_processing.action_controller", raw_payload.dup)
 

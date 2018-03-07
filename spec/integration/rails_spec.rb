@@ -95,6 +95,7 @@ if enable
 
         def call(env)
           if env["PATH_INFO"] == "/non-array"
+            # NOTE: This requires Rack 1.3+ for `to_ary`
             return Rack::Response.new(["NonArray"])
           end
 
@@ -286,16 +287,16 @@ if enable
 
       Skylight.stop!
 
-      if Rails.version =~ /^3.0/
-        Rails::Application.class_eval do
-          @@instance = nil
-        end
-      end
 
       # Clean slate
+      # It's really too bad we can't run RSpec tests in a fork
       Object.send(:remove_const, :MyApp)
       Object.send(:remove_const, :UsersController)
       Object.send(:remove_const, :MetalController)
+      if Rails.version =~ /^3.0/
+        Rails::Application.class_variable_set(:@@instance, nil)
+        ActionController::Routing.send(:remove_const, :Routes)
+      end
       Rails.application = nil
     end
 
@@ -445,17 +446,20 @@ if enable
           call MyApp, env('/non-closing')
         end
 
-        it "handles middleware that returns a non-array that is coercable", :middleware_probe do
-          ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+        # Rack::Response doesn't have to_ary until 1.3
+        if Gem::Version.new(Rack.release) >= Gem::Version.new("1.3")
+          it "handles middleware that returns a non-array that is coercable", :middleware_probe do
+            ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
 
-          call MyApp, env('/non-array')
-          server.wait resource: '/report'
+            call MyApp, env('/non-array')
+            server.wait resource: '/report'
 
-          trace = server.reports[0].endpoints[0].traces[0]
+            trace = server.reports[0].endpoints[0].traces[0]
 
-          titles = trace.spans.map{ |s| s.event.title }
+            titles = trace.spans.map{ |s| s.event.title }
 
-          expect(titles).to include("NonArrayMiddleware")
+            expect(titles).to include("NonArrayMiddleware")
+          end
         end
 
       end
@@ -491,7 +495,11 @@ if enable
         ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
 
         res = call MyApp, env('/users/failure')
-        expect(res).to be_blank # Some Rails versions are empty string some are nil
+        if Rails.version =~ /^3\.0/
+          expect(res).to eq([""])
+        else
+          expect(res).to be_empty
+        end
 
         server.wait resource: '/report'
 
