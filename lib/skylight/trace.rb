@@ -167,9 +167,20 @@ module Skylight
 
       expected = @spans.pop
       unless span == expected
-        error "invalid span nesting"
-        # TODO: Actually log span title here
-        t { "expected=#{expected}, actual=#{span}" }
+        message = "[E0001] Spans were closed out of order.\n"
+
+        if Skylight::Util::Logging.trace?
+          message << "Expected #{expected}, but received #{span}. See prior logs to match id to a name.\n" \
+                        "If the received span was a Middleware it may be one that doesn't fully conform to " \
+                        "the Rack SPEC."
+        else
+          message << "To debug this issue set `SKYLIGHT_ENABLE_TRACE_LOGS=true` " \
+                        "in your environment. (Beware, it is quite noisy!)\n"
+        end
+
+        message << "This request will not be tracked. Please contact support@skylight.io for more information."
+
+        error message
 
         broken!
       end
