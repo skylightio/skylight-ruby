@@ -6,6 +6,7 @@ require 'skylight/core/util/platform'
 
 require 'skylight/instrumenter'
 require 'skylight/trace'
+require 'skylight/errors'
 
 unless ENV['SKYLIGHT_DISABLE_AGENT']
   ENV['SKYLIGHT_REQUIRED'] = 'true'

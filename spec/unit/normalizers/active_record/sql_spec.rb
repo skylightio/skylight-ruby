@@ -111,7 +111,7 @@ module Skylight
     end
 
     it "Produces an error if the SQL isn't parsable" do
-      expect(config.logger).to receive(:warn).with(/failed to extract binds in SQL/).once
+      expect(config.logger).to receive(:error).with(/Failed to extract binds/).once
       config[:log_sql_parse_errors] = true
 
       name, title, desc =
