@@ -85,7 +85,8 @@ module Skylight::Core
       desc          = @instrumenter.limited_description(desc)
 
       if desc == Instrumenter::TOO_MANY_UNIQUES
-        debug "A payload description produced <too many uniques>"
+        error "[SKYLIGHT] [#{Skylight::VERSION}] [E0002] You've exceeded the number of unique span descriptions per-request " \
+                  "for endpoint: #{endpoint}."
         debug "original desc=%s", original_desc
         debug "cat=%s, title=%s, desc=%s", cat, title, desc
       end

@@ -188,24 +188,30 @@ module Skylight
     end
 
     it 'limits unique descriptions' do
-      trace = Skylight.trace 'Rack', 'app.rack.request'
+      original_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
+      ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+      begin
+        trace = Skylight.trace 'Rack', 'app.rack.request'
 
-      expect(Skylight.instrumenter).to receive(:limited_description).
-        at_least(:once).
-        with(any_args()).
-        and_return(Instrumenter::TOO_MANY_UNIQUES)
+        expect(Skylight.instrumenter).to receive(:limited_description).
+          at_least(:once).
+          with(any_args()).
+          and_return(Instrumenter::TOO_MANY_UNIQUES)
 
-      a = trace.instrument 'foo', 'FOO', 'How a foo is formed?'
-      trace.record :bar, 'BAR', 'How a bar is formed?'
-      trace.done(a)
-      trace.submit
+        a = trace.instrument 'foo', 'FOO', 'How a foo is formed?'
+        trace.record :bar, 'BAR', 'How a bar is formed?'
+        trace.done(a)
+        trace.submit
 
-      server.wait resource: '/report'
+        server.wait resource: '/report'
 
-      expect(spans[1].event.title).to       eq('FOO')
-      expect(spans[1].event.description).to eq(Instrumenter::TOO_MANY_UNIQUES)
-      expect(spans[2].event.title).to       eq('BAR')
-      expect(spans[2].event.description).to eq(Instrumenter::TOO_MANY_UNIQUES)
+        expect(spans[1].event.title).to       eq('FOO')
+        expect(spans[1].event.description).to eq(Instrumenter::TOO_MANY_UNIQUES)
+        expect(spans[2].event.title).to       eq('BAR')
+        expect(spans[2].event.description).to eq(Instrumenter::TOO_MANY_UNIQUES)
+      ensure
+        ENV['SKYLIGHT_RAISE_ON_ERROR'] = original_raise_on_error
+      end
     end
 
     def spans
