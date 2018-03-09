@@ -85,7 +85,7 @@ module Skylight::Core
       desc          = @instrumenter.limited_description(desc)
 
       if desc == Instrumenter::TOO_MANY_UNIQUES
-        error "[SKYLIGHT] [#{Skylight::VERSION}] [E0002] You've exceeded the number of unique span descriptions per-request " \
+        error "[E0002] You've exceeded the number of unique span descriptions per-request " \
                   "for endpoint: #{endpoint}."
         debug "original desc=%s", original_desc
         debug "cat=%s, title=%s, desc=%s", cat, title, desc
@@ -183,7 +183,7 @@ module Skylight::Core
 
       expected = @spans.pop
       unless span == expected
-        message = "Spans were closed out of order. Expected to see '#{native_span_get_title(expected)}', " \
+        message = "[E0001] Spans were closed out of order. Expected to see '#{native_span_get_title(expected)}', " \
                     "but got '#{native_span_get_title(span)}' instead."
 
         if native_span_get_category(span) == "rack.middleware"
