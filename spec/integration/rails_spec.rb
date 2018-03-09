@@ -118,6 +118,7 @@ if enable
 
         config.logger = Logger.new(STDOUT)
         config.logger.level = Logger::DEBUG
+        config.logger.progname = "Rails"
 
         config.eager_load = false
 
