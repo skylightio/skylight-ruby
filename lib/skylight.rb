@@ -6,6 +6,7 @@ require 'skylight/middleware'
 require 'skylight/api'
 require 'skylight/helpers'
 require 'skylight/config'
+require 'skylight/errors'
 require 'skylight/native'
 
 module Skylight

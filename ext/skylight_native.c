@@ -44,10 +44,11 @@ STR2BUF(VALUE str) {
   };
 }
 
-#define CHECK_FFI(success, message)               \
+#define CHECK_FFI(code, method_name)              \
   do {                                            \
-    if ((success) != 0 ) {                        \
-      rb_raise(rb_eRuntimeError, message);        \
+    if ((code) != 0 ) {                           \
+      VALUE error_class = rb_funcall(rb_eNativeError, rb_intern("for_code"), 1, INT2NUM(code)); \
+      rb_raise(error_class, method_name);         \
       return Qnil;                                \
     }                                             \
   } while(0)
@@ -99,6 +100,7 @@ typedef VALUE (*blocking_fn_t)(void*);
  */
 
 VALUE rb_mSkylight;
+VALUE rb_eNativeError;
 VALUE rb_mCore;
 VALUE rb_mUtil;
 VALUE rb_cClock;
@@ -110,6 +112,7 @@ static const char* no_instrumenter_msg =
 
 static const char* consumed_trace_msg =
   "Trace objects cannot be used once it has been submitted to the instrumenter";
+
 
 static VALUE
 load_libskylight(VALUE klass, VALUE path) {
@@ -177,7 +180,7 @@ instrumenter_new(VALUE klass, VALUE rb_env) {
 
   CHECK_FFI(
       sky_instrumenter_new(env, envc, &instrumenter),
-      "failed to initialize instrumenter");
+      "Instrumenter#native_new");
 
   return Data_Wrap_Struct(klass, NULL, sky_instrumenter_free, instrumenter);
 }
@@ -215,7 +218,7 @@ instrumenter_stop(VALUE self) {
 
   CHECK_FFI(
       sky_instrumenter_stop(instrumenter),
-      "native Instrumenter#stop failed");
+      "Instrumenter#native_stop");
 
   sky_deactivate_memprof();
 
@@ -251,7 +254,7 @@ instrumenter_track_desc(VALUE self, VALUE rb_endpoint, VALUE rb_desc) {
 
   CHECK_FFI(
       sky_instrumenter_track_desc(instrumenter, STR2BUF(rb_endpoint), STR2BUF(rb_desc), &tracked),
-      "native Instrumenter#track_desc failed");
+      "Instrumenter#native_track_desc");
 
   if (tracked) {
     return Qtrue;
@@ -279,7 +282,7 @@ trace_new(VALUE klass, VALUE start, VALUE uuid, VALUE endpoint, VALUE meta) {
 
   CHECK_FFI(
       sky_trace_new(NUM2ULL(start), STR2BUF(uuid), STR2BUF(endpoint), &trace),
-      "native Trace#new failed");
+      "Trace#native_new");
 
   sky_clear_allocation_count();
 
@@ -295,7 +298,7 @@ trace_get_started_at(VALUE self) {
 
   CHECK_FFI(
       sky_trace_start(trace, &start),
-      "native Trace#started_at failed");
+      "Trace#native_get_started_at");
 
   return ULL2NUM(start);
 }
@@ -309,7 +312,7 @@ trace_get_endpoint(VALUE self) {
 
   CHECK_FFI(
       sky_trace_endpoint(trace, &endpoint),
-      "native Trace#endpoint failed");
+      "Trace#native_get_endpoint");
 
   return BUF2STR(endpoint);
 }
@@ -323,7 +326,7 @@ trace_set_endpoint(VALUE self, VALUE endpoint) {
 
   CHECK_FFI(
       sky_trace_set_endpoint(trace, STR2BUF(endpoint)),
-      "native Trace#set_endpoint failed");
+      "Trace#native_set_endpoint");
 
   return Qnil;
 }
@@ -344,7 +347,7 @@ trace_get_uuid(VALUE self) {
 
   CHECK_FFI(
       sky_trace_uuid(trace, &uuid),
-      "native Trace#uuid failed");
+      "Trace#native_get_uuid");
 
   return BUF2STR(uuid);
 }
@@ -361,7 +364,7 @@ trace_start_span(VALUE self, VALUE time, VALUE category) {
 
   CHECK_FFI(
       sky_trace_instrument(trace, NUM2ULL(time), STR2BUF(category), &span),
-      "native Trace#start_span failed");
+      "Trace#native_start_span");
 
   if (sky_have_memprof()) {
     sky_trace_span_add_uint_annotation(trace, span, 2, sky_consume_allocations());
@@ -385,7 +388,7 @@ trace_stop_span(VALUE self, VALUE span, VALUE time) {
 
   CHECK_FFI(
       sky_trace_span_done(trace, FIX2UINT(span), NUM2ULL(time)),
-      "native Trace#stop_span failed");
+      "Trace#native_stop_span");
 
   return Qnil;
 }
@@ -401,7 +404,7 @@ trace_span_get_category(VALUE self, VALUE span) {
 
   CHECK_FFI(
       sky_trace_span_get_category(trace, FIX2UINT(span), &category),
-      "native Trace#span_get_category failed");
+      "Trace#native_span_get_category");
 
   return BUF2STR(category);
 }
@@ -433,7 +436,7 @@ trace_span_get_title(VALUE self, VALUE span) {
 
   CHECK_FFI(
       sky_trace_span_get_title(trace, FIX2UINT(span), &title),
-      "native Trace#span_get_title failed");
+      "Trace#native_span_get_title");
 
   return BUF2STR(title);
 }
@@ -449,7 +452,7 @@ trace_span_set_description(VALUE self, VALUE span, VALUE desc) {
 
   CHECK_FFI(
       sky_trace_span_set_desc(trace, FIX2UINT(span), STR2BUF(desc)),
-      "native Trace#span_set_description failed");
+      "Trace#native_span_set_description");
 
   return Qnil;
 }
@@ -511,10 +514,10 @@ lex_sql(VALUE klass, VALUE rb_sql, VALUE rb_use_old_lexer) {
 
   if (RTEST(rb_use_old_lexer)) {
     CHECK_FFI(sky_lex_sql_old(sql, &title, &statement),
-      "native lex_sql_old failed");
+      "Skylight#lex_sql (old)");
   } else {
     CHECK_FFI(sky_lex_sql(sql, &title, &statement),
-      "native lex_sql failed");
+      "Skylight#lex_sql");
   }
 
   // Set the statement return
@@ -537,6 +540,9 @@ lex_sql(VALUE klass, VALUE rb_sql, VALUE rb_use_old_lexer) {
 
 void Init_skylight_native() {
   rb_mSkylight = rb_define_module("Skylight");
+
+  rb_eNativeError = rb_const_get(rb_mSkylight, rb_intern("NativeError"));
+
   rb_define_singleton_method(rb_mSkylight, "load_libskylight", load_libskylight, 1);
   rb_define_singleton_method(rb_mSkylight, "lex_sql", lex_sql, 2);
 
