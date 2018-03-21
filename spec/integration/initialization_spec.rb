@@ -76,7 +76,7 @@ describe "Initialization integration" do
           # `bundle exec skylight disable_dev_warning`
           Skylight::CLI::Base.new.disable_dev_warning
 
-          boot.should_not include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
+          expect(boot).to_not include "development mode"
         end
 
       end
