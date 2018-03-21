@@ -1,3 +1,11 @@
+## 1.6.0 (March 21, 2018)
+
+* [FEATURE] Time spent the Rails router is now identified separately in the trace
+* [IMPROVEMENT] Improved logging for a number of error cases
+* [IMPROVEMENT] Middleware probe should now accept anything allowed by Rack::Lint
+* [IMPROVEMENT] We were using arity checks to determine Rails version but due to other libraries' monkey patches this could sometimes fail. We just check version numbers now.
+* [BUGFIX] Middleware probe no longer errors when Middleware returns a frozen array
+
 ## 1.5.1 (February 7, 2018)
 
 * [BUGFIX] `skylight doctor` no longer erroneously reports inability to reach Skylight servers.
