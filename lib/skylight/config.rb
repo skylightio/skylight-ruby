@@ -632,13 +632,18 @@ authentication: #{self[:authentication]}
         out = STDOUT if out == '-'
 
         l = create_logger(out)
-        l.level =
-          case get(:log_level)
-          when /^debug$/i then Logger::DEBUG
-          when /^info$/i  then Logger::INFO
-          when /^warn$/i  then Logger::WARN
-          when /^error$/i then Logger::ERROR
-          end
+
+        if ENV[TRACE_ENV_KEY]
+          l.level = Logger::DEBUG
+        else
+          l.level =
+            case get(:log_level)
+            when /^debug$/i then Logger::DEBUG
+            when /^info$/i  then Logger::INFO
+            when /^warn$/i  then Logger::WARN
+            when /^error$/i then Logger::ERROR
+            end
+        end
       end
 
       l
