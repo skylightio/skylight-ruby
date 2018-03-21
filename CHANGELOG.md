@@ -7,6 +7,15 @@
 * [FEATURE] New SQL lexer to support a wider variety of SQL queries.
 * [BREAKING] Drop support for a number of deprecated libraries, including Rails prior to 4.2, Ruby prior to 2.2, and Sinatra prior to 1.4.
 
+## 1.6.0 (March 21, 2018)
+
+* [FEATURE] Time spent the Rails router is now identified separately in the trace
+* [IMPROVEMENT] Switch logger to debug mode if tracing is enabled
+* [IMPROVEMENT] Improved logging for a number of error cases
+* [IMPROVEMENT] Middleware probe should now accept anything allowed by Rack::Lint
+* [IMPROVEMENT] We were using arity checks to determine Rails version but due to other libraries' monkey patches this could sometimes fail. We just check version numbers now.
+* [BUGFIX] Middleware probe no longer errors when Middleware returns a frozen array
+
 ## 1.5.1 (February 7, 2018)
 
 * [BUGFIX] `skylight doctor` no longer erroneously reports inability to reach Skylight servers.
