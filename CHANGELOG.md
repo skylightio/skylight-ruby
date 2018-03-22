@@ -1,3 +1,11 @@
+## 2.0.0-beta3 (March 22, 2017)
+
+* [BREAKING] `log_sql_parse_errors` config option is now on by default.
+* [IMPROVEMENT] Improved handling of errors generated in the Rust agent.
+* [IMPROVEMENT] Add a probe method to Instrumentable as a shortcut
+* [IMRPOVEMENT] Add logging to Instrumentable for easier access
+* [IMPROVEMENT] Improved logging during startup
+
 ## 2.0.0-beta2 (February 5, 2017)
 
 * [BUGFIX] Fix incorrect module path that caused installation issues
