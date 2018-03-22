@@ -48,7 +48,7 @@ module Skylight::Core
         :log_file             => '-'.freeze,
         :log_level            => 'INFO'.freeze,
         :alert_log_file       => '-'.freeze,
-        :log_sql_parse_errors => false,
+        :log_sql_parse_errors => true,
         :enable_segments      => true,
         :'heroku.dyno_info_path' => '/etc/heroku/dyno'
       }
