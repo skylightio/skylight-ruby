@@ -78,7 +78,7 @@ module Skylight
 
           expect(config.deploy.to_query_string).to eq(
               "timestamp=1452620644" \
-                "&deploy_id=1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrs&git_sha&description")
+                "&deploy_id=1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrs")
         end
       end
 

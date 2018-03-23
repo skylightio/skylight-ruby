@@ -113,7 +113,6 @@ module Skylight
         :version,
         :root,
         :hostname,
-        :deploy_id,
         :session_token,
         :auth_url,
         :auth_http_deflate,
