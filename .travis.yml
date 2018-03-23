@@ -122,6 +122,15 @@ matrix:
       services: elasticsearch
       before_script:
         - sleep 10
+    # Sidekiq Integration
+    - rvm: 2.5
+      env:
+        - SIDEKIQ_VERSION=4.2.10
+      gemfile: gemfiles/Gemfile.rails-5.1.x
+    - rvm: 2.5
+      env:
+        - SIDEKIQ_VERSION=none
+      gemfile: gemfiles/Gemfile.rails-5.1.x
     # Sinatra
     - rvm: 2.5
       gemfile: gemfiles/Gemfile.sinatra-edge
