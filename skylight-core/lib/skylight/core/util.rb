@@ -4,7 +4,6 @@ module Skylight::Core
     # Used from the main lib
     require 'skylight/core/util/allocation_free'
     require 'skylight/core/util/clock'
-    require 'skylight/core/util/deploy'
     require 'skylight/core/util/logging'
 
     # Used from the CLI

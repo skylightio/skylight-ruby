@@ -2,7 +2,7 @@ require 'json'
 require 'uri'
 require 'skylight/core/util/logging'
 
-module Skylight::Core
+module Skylight
   module Util
 
     module Deploy
@@ -50,7 +50,7 @@ module Skylight::Core
       end
 
       class DefaultDeploy < EmptyDeploy
-        include Logging
+        include Core::Util::Logging
 
         def initialize(*)
           super

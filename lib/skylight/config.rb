@@ -1,5 +1,5 @@
 require 'openssl'
-require 'skylight/core/util/deploy'
+require 'skylight/util/deploy'
 require 'skylight/core/util/platform'
 require 'skylight/util/hostname'
 require 'skylight/util/ssl'
@@ -277,7 +277,7 @@ authentication: #{self[:authentication]}
     end
 
     def deploy
-      @deploy ||= Core::Util::Deploy.build(self)
+      @deploy ||= Util::Deploy.build(self)
     end
 
   private
