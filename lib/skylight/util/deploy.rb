@@ -1,5 +1,4 @@
 require 'json'
-require 'uri'
 require 'skylight/core/util/logging'
 
 module Skylight
@@ -37,14 +36,14 @@ module Skylight
           nil
         end
 
-        def to_query_string
+        def to_query_hash
           hash = {
             timestamp:   timestamp,
             deploy_id:   id.to_s[0..100] # Keep this sane
           }
           hash[:git_sha] = git_sha[0..40] if git_sha # A valid SHA will never exceed 40
           hash[:description] = description[0..255] if description # Avoid massive descriptions
-          URI.encode_www_form(hash)
+          hash
         end
 
       end

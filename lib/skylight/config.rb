@@ -1,4 +1,5 @@
 require 'openssl'
+require 'skylight/util/component'
 require 'skylight/util/deploy'
 require 'skylight/core/util/platform'
 require 'skylight/util/hostname'
@@ -16,6 +17,10 @@ module Skylight
         'ROOT'          => :root,
         'HOSTNAME'      => :hostname,
         'SESSION_TOKEN' => :session_token,
+
+        # == Component settings ==
+        'COMPONENT_ENVIRONMENT' => :'component.environment',
+        'COMPONENT_TYPE' => :'component.type',
 
         # == Deploy settings ==
         'DEPLOY_ID'          => :'deploy.id',
@@ -81,6 +86,8 @@ module Skylight
           :auth_url             => 'https://auth.skylight.io/agent',
           :app_create_url       => 'https://www.skylight.io/apps',
           :validation_url       => 'https://auth.skylight.io/agent/config',
+          :'component.environment' => 'production',
+          :'component.type'     => 'web',
           :'daemon.lazy_start'  => true,
           :hostname             => Util::Hostname.default_hostname,
           :use_old_sql_lexer    => false,
@@ -243,7 +250,7 @@ module Skylight
     def to_native_env
       ret = super
 
-      ret << "SKYLIGHT_AUTHENTICATION" << authentication_with_deploy
+      ret << "SKYLIGHT_AUTHENTICATION" << authentication_with_meta
       ret << "SKYLIGHT_VALIDATE_AUTHENTICATION" << "false"
 
       ret
@@ -267,14 +274,17 @@ authentication: #{self[:authentication]}
     #
     #
 
-    def authentication_with_deploy
+    def authentication_with_meta
       token = get(:authentication)
 
-      if token && deploy
-        deploy_str = deploy.to_query_string
+      if token
+        meta = { }
+        meta.merge!(deploy.to_query_hash) if deploy
+        meta[:component] = component.to_s if component
+
         # A pipe should be a safe delimiter since it's not in the standard token
         # and is encoded by URI
-        token += "|#{deploy_str}"
+        token += "|#{URI.encode_www_form(meta)}"
       end
 
       token
@@ -282,6 +292,13 @@ authentication: #{self[:authentication]}
 
     def deploy
       @deploy ||= Util::Deploy.build(self)
+    end
+
+    def component
+      @component ||= Util::Component.new(get(:'component.environment'),
+                                         get(:'component.type'))
+    rescue ArgumentError => e
+      raise Core::ConfigError, e.message
     end
 
   private
