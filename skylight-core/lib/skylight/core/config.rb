@@ -98,6 +98,8 @@ module Skylight::Core
       @values   = {}
       @priority = {}
       @regexp   = nil
+      @alert_logger = nil
+      @logger = nil
 
       p = attrs.delete(:priority)
 
