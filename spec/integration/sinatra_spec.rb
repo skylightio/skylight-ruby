@@ -62,7 +62,7 @@ if enable
         stub_session_request
       end
 
-      it 'successfully calls into grape' do
+      it 'successfully calls into sinatra' do
         res = call env('/test')
         expect(res).to eq(["Hello"])
 
