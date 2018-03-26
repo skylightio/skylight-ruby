@@ -1,12 +1,14 @@
 require 'spec_helper'
 require 'skylight/core/instrumenter'
 
-# Here because we need the agent
-module Skylight::Core
+module Skylight
+  # Doesn't require a running agent, but mocking is turned off when the agent is disabled
   describe 'Instrumentation integration', :agent do
     include Rack::Test::Methods
 
     before do
+      Core::Normalizers.register("unmatched.test", Core::Normalizers::Normalizer)
+
       @called_endpoint = nil
       TestNamespace.mock! do |trace|
         @called_endpoint = trace.endpoint
@@ -15,6 +17,7 @@ module Skylight::Core
 
     after do
       TestNamespace.stop!
+      Core::Normalizers.unregister("unmatched.test")
     end
 
     def app
@@ -30,7 +33,8 @@ module Skylight::Core
     end
 
     it "it handles a :skip" do
-      expect_any_instance_of(Subscriber).not_to receive(:error)
+
+      expect_any_instance_of(Core::Subscriber).not_to receive(:error)
 
       get "/"
 
