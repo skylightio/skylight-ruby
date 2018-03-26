@@ -6,11 +6,6 @@ require 'date'
 module Skylight
   describe "Normalizers", "sql.active_record", :agent do
 
-    before :all do
-      # Mock Skylight itself so the SQL lexer is active
-      Skylight.send(:extend, Skylight::Core::Test::Mocking)
-    end
-
     before :each do
       WebMock.enable!
 
@@ -19,23 +14,29 @@ module Skylight
 
       ENV['SKYLIGHT_AUTHENTICATION'] = 'zomg'
 
-      Skylight.mock!
+      @trace = nil
+      TestNamespace.mock! do |trace|
+        @trace = trace
+      end
+
+      allow(TestNamespace.instrumenter).to receive(:process_sql) do |sql|
+        Skylight.lex_sql(sql, config[:use_old_sql_lexer])
+      end
 
       # Start a trace to have it available in the trace method
-      Skylight.trace("Test", "app.request")
+      TestNamespace.trace("Test", "app.request")
 
       stub_const("ActiveRecord::Base", double(connection_config: { adapter: "postgres", database: "testdb" }))
     end
 
     after :each do
       ENV['SKYLIGHT_AUTHENTICATION'] = nil
-      Skylight.stop!
-
+      TestNamespace.stop!
       WebMock.disable!
     end
 
     def trace
-      Skylight.instrumenter.current_trace
+      TestNamespace.instrumenter.current_trace
     end
 
     it "skips SCHEMA queries" do
