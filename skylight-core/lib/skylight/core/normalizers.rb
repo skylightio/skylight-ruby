@@ -12,6 +12,10 @@ module Skylight::Core
       klass
     end
 
+    def self.unregister(name)
+      @registry.delete(name)
+    end
+
     def self.build(config)
       normalizers = {}
 
@@ -139,7 +143,10 @@ module Skylight::Core
       end
 
       def normalizer_for(name)
-        @normalizers[name] || DEFAULT
+        # We never expect to hit the default case since we only register listeners
+        # for items that we know have normalizers. For now, though, we'll play it
+        # safe and provide a fallback.
+        @normalizers.fetch(name, DEFAULT)
       end
     end
 
