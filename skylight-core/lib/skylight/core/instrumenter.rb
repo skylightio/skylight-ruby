@@ -30,7 +30,7 @@ module Skylight::Core
       Trace
     end
 
-    def self.native_new
+    def self.native_new(_config_env)
       raise "not implemented"
     end
 
@@ -59,11 +59,11 @@ module Skylight::Core
       raise "not implemented"
     end
 
-    def native_track_desc
+    def native_track_desc(_endpoint, _description)
       raise "not implemented"
     end
 
-    def native_submit_trace
+    def native_submit_trace(_trace)
       raise "not implemented"
     end
 
