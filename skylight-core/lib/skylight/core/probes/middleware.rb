@@ -2,10 +2,26 @@ module Skylight::Core
   module Probes
     module Middleware
       class Probe
+        DISABLED_KEY = :__skylight_middleware_disabled
+
+        def self.disable!
+          @disabled = true
+        end
+
+        def self.enable!
+          @disabled = false
+        end
+
+        def self.disabled?
+          !!@disabled
+        end
+
         def self.add_instrumentation(middleware, default_name: "Anonymous Middleware", category: "rack.middleware")
           middleware.instance_eval <<-RUBY, __FILE__, __LINE__ + 1
             alias call_without_sk call
             def call(*args, &block)
+              return call_without_sk(*args, &block) if Skylight::Core::Probes::Middleware::Probe.disabled?
+
               traces = Skylight::Core::Fanout.registered.map do |r|
                 r.instrumenter ? r.instrumenter.current_trace : nil
               end.compact
