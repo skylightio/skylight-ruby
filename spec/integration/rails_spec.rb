@@ -408,12 +408,24 @@ if enable
 
       context "middleware that don't conform to Rack SPEC" do
 
+        after :each do
+          Skylight::Core::Probes::Middleware::Probe.enable!
+        end
+
         it "doesn't report middleware that don't close body", :middleware_probe do
           ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
 
           expect_any_instance_of(Skylight::Core::Instrumenter).to_not receive(:process)
 
           call MyApp, env('/non-closing')
+        end
+
+        it "disables probe when middleware don't close body", :middleware_probe do
+          ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+
+          call MyApp, env('/non-closing')
+
+          expect(Skylight::Core::Probes::Middleware::Probe).to be_disabled
         end
 
         it "handles middleware that returns a non-array that is coercable", :middleware_probe do

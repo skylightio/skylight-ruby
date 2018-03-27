@@ -186,9 +186,15 @@ module Skylight::Core
         message = "[E0001] Spans were closed out of order. Expected to see '#{native_span_get_title(expected)}', " \
                     "but got '#{native_span_get_title(span)}' instead."
 
-        if native_span_get_category(span) == "rack.middleware"
-          message << "\n#{native_span_get_title(span)} may be a Middleware that doesn't fully conform " \
-                      "to the Rack SPEC."
+        if native_span_get_category(span) == "rack.middleware" &&
+            Probes.installed.keys.include?("ActionDispatch::MiddlewareStack::Middleware")
+          if Probes::Middleware::Probe.disabled?
+            message << "\nWe disabled the Middleware probe but unfortunately, this didn't solve the issue."
+          else
+            Probes::Middleware::Probe.disable!
+            message << "\n#{native_span_get_title(span)} may be a Middleware that doesn't fully conform " \
+                        "to the Rack SPEC. We've disabled the Middleware probe to see if that resolves the issue."
+          end
         end
 
         message << "\nThis request will not be tracked. Please contact support@skylight.io for more information."
