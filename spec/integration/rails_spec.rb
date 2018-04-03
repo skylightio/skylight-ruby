@@ -25,6 +25,7 @@ if enable
             get :header
             get :status
             get :no_template
+            get :too_many_spans
           end
         end
         get '/metal' => 'metal#show'
@@ -218,6 +219,20 @@ if enable
 
         def no_template
           # This action has no template to auto-render
+        end
+
+        def too_many_spans
+          # Max is 2048
+          2050.times do
+            Skylight.instrument category: 'app.zomg' do
+              # nothing
+            end
+          end
+          if Rails.version =~ /^4\./
+            render text: "There's too many of them!"
+          else
+            render plain: "There's too many of them!"
+          end
         end
 
         private
@@ -439,6 +454,55 @@ if enable
           titles = trace.spans.map{ |s| s.event.title }
 
           expect(titles).to include("NonArrayMiddleware")
+        end
+
+      end
+
+      context 'with too many spans' do
+
+        context 'with reporting turned on' do
+
+          def pre_boot
+            ENV['SKYLIGHT_REPORT_MAX_SPANS_EXCEEDED'] = 'true'
+          end
+
+          it 'handles too many spans' do
+            segment = Rails.version =~ /^4\./ ? 'html' : 'text'
+
+            expect_any_instance_of(Skylight::Trace).to receive(:error).
+                with(/\[E%04d\].+endpoint=%s/, 3, "UsersController#too_many_spans<sk-segment>#{segment}</sk-segment>")
+
+            res = call MyApp, env('/users/too_many_spans')
+
+            server.wait resource: '/report'
+
+            batch = server.reports[0]
+            expect(batch).to_not be nil
+            expect(batch.endpoints.count).to eq(1)
+            endpoint = batch.endpoints[0]
+
+            expect(endpoint.name).to eq("UsersController#too_many_spans<sk-segment>#{segment}</sk-segment>")
+            expect(endpoint.traces.count).to eq(1)
+            trace = endpoint.traces[0]
+
+            spans = trace.spans.map{|s| [s.event.category, s.event.title] }
+
+            expect(spans).to eq([["app.rack.request", nil],
+                                  ["error.code.3", nil]])
+          end
+
+        end
+
+        context 'without reporting' do
+
+          it 'handles too many spans' do
+            ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+
+            expect_any_instance_of(Skylight::Instrumenter).to_not receive(:process)
+
+            call MyApp, env('/users/too_many_spans')
+          end
+
         end
 
       end
