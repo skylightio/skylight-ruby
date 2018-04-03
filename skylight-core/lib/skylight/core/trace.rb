@@ -54,6 +54,11 @@ module Skylight::Core
       !!@broken
     end
 
+    def maybe_broken(e)
+      error "failed to instrument span; msg=%s", e.message
+      broken!
+    end
+
     def record(cat, title=nil, desc=nil)
       return if broken?
 
@@ -68,8 +73,7 @@ module Skylight::Core
 
       nil
     rescue => e
-      error "failed to record span; msg=%s", e.message
-      broken!
+      maybe_broken(e)
       nil
     end
 
@@ -93,8 +97,7 @@ module Skylight::Core
 
       start(now - gc_time, cat, title, desc, meta)
     rescue => e
-      error "failed to instrument span; msg=%s", e.message
-      broken!
+      maybe_broken(e)
       nil
     end
 
@@ -104,7 +107,10 @@ module Skylight::Core
     end
 
     def done(span, meta=nil)
+      # `span` will be `nil` if we failed to start instrumenting, such as in
+      # the case of too many spans in a request.
       return unless span
+
       return if broken?
 
       if meta && (meta[:exception_object] || meta[:exception])
@@ -129,14 +135,9 @@ module Skylight::Core
     end
 
     def traced
-      time = gc_time
+      gc = gc_time
       now = Util::Clock.nanos
-
-      if time > 0
-        t { fmt "tracking GC time; duration=%d", time }
-        stop(start(now - time, GC_CAT, nil, nil, nil), now)
-      end
-
+      track_gc(gc, now)
       stop(@root, now)
     end
 
@@ -162,6 +163,13 @@ module Skylight::Core
     end
 
   private
+
+    def track_gc(time, now)
+      if time > 0
+        t { fmt "tracking GC time; duration=%d", time }
+        stop(start(now - time, GC_CAT, nil, nil, nil), now)
+      end
+    end
 
     def start(time, cat, title, desc, meta, opts={})
       time = self.class.normalize_time(time) unless opts[:normalize] == false
