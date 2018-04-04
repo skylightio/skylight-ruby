@@ -1,5 +1,6 @@
 require 'thread'
 require 'strscan'
+require 'securerandom'
 
 module Skylight::Core
   # @api private
@@ -24,7 +25,7 @@ module Skylight::Core
       end
     end
 
-    attr_reader :config, :gc, :trace_info
+    attr_reader :log_id, :config, :gc, :trace_info
 
     def self.trace_class
       Trace
@@ -43,12 +44,17 @@ module Skylight::Core
     end
 
     def initialize(config)
+      @log_id = SecureRandom.hex(3) # Not guaranteed unique, but good enough for logging
       @gc = config.gc
       @config = config
       @subscriber = Subscriber.new(config, self)
 
       key = "#{KEY}_#{self.class.trace_class.name}".gsub(/\W/, '_')
       @trace_info = @config[:trace_info] || TraceInfo.new(key)
+    end
+
+    def log_context
+      @log_context ||= { inst: log_id }
     end
 
     def native_start
