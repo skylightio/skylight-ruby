@@ -65,7 +65,7 @@ module Skylight
 
       nil
     rescue => e
-      error "failed to record span; msg=%s", e.message
+      error "failed to record span; msg=%s; endpoint=%s", e.message, endpoint
       broken!
       nil
     end
@@ -90,7 +90,7 @@ module Skylight
 
       start(now - gc_time, cat, title, desc)
     rescue => e
-      error "failed to instrument span; msg=%s", e.message
+      error "failed to instrument span; msg=%s; endpoint=%s", e.message, endpoint
       broken!
       nil
     end
@@ -100,7 +100,7 @@ module Skylight
       return if broken?
       stop(span, Util::Clock.nanos - gc_time)
     rescue => e
-      error "failed to close span; msg=%s", e.message
+      error "failed to close span; msg=%s; endpoint=%s", e.message, endpoint
       broken!
       nil
     end
