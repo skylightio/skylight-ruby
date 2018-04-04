@@ -105,6 +105,8 @@ end
 # Allow hooking require
 # @api private
 module ::Kernel
+  private
+
   alias require_without_sk require
 
   def require(name)
