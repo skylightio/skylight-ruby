@@ -46,8 +46,10 @@ STR2BUF(VALUE str) {
 
 #define CHECK_FFI(code, method_name)              \
   do {                                            \
-    if ((code) != 0 ) {                           \
-      VALUE error_class = rb_funcall(rb_eNativeError, rb_intern("for_code"), 1, INT2NUM(code)); \
+    /* Ensure single execution if code is function call */ \
+    int c = (code);                               \
+    if (c != 0 ) {                                \
+      VALUE error_class = rb_funcall(rb_eNativeError, rb_intern("for_code"), 1, INT2NUM(c)); \
       rb_raise(error_class, method_name);         \
       return Qnil;                                \
     }                                             \
