@@ -1,10 +1,12 @@
+require 'securerandom'
+
 module Skylight::Core
   class Trace
     GC_CAT = 'noise.gc'.freeze
 
     include Util::Logging
 
-    attr_reader :instrumenter, :endpoint, :notifications, :meta
+    attr_reader :log_id, :instrumenter, :endpoint, :notifications, :meta
 
     def self.new(instrumenter, endpoint, start, cat, title=nil, desc=nil, meta=nil)
       inst = native_new(normalize_time(start), "TODO", endpoint, meta)
@@ -23,6 +25,7 @@ module Skylight::Core
     def initialize(instrumenter, cat, title, desc, meta)
       raise ArgumentError, 'instrumenter is required' unless instrumenter
 
+      @log_id = SecureRandom.hex(3) # Not guaranteed unique, but good enough for logging
       @instrumenter = instrumenter
       @submitted = false
       @broken = false
@@ -38,6 +41,10 @@ module Skylight::Core
       @meta = meta
 
       @gc = config.gc.track unless ENV.key?("SKYLIGHT_DISABLE_GC_TRACKING")
+    end
+
+    def log_context
+      @log_context ||= instrumenter.log_context.merge(trace: log_id)
     end
 
     def endpoint=(value)

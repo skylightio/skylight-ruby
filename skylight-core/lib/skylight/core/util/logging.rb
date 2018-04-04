@@ -25,6 +25,10 @@ module Skylight::Core
 
     module Logging
 
+      def log_context
+        {}
+      end
+
       def log_env_prefix
         if c = config_for_logging
           c.class.env_prefix
@@ -113,6 +117,8 @@ module Skylight::Core
       def log(level, msg, *args)
         c = config_for_logging
         logger = c ? c.logger : nil
+
+        msg = log_context.map{|(k,v)| "#{k}=#{v}; " }.join << msg
 
         if logger
           if logger.respond_to?(level)
