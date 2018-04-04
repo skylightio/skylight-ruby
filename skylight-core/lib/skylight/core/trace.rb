@@ -55,7 +55,7 @@ module Skylight::Core
     end
 
     def maybe_broken(e)
-      error "failed to instrument span; msg=%s", e.message
+      error "failed to instrument span; msg=%s; endpoint=%s", e.message, endpoint
       broken!
     end
 
@@ -119,7 +119,7 @@ module Skylight::Core
 
       stop(span, Util::Clock.nanos - gc_time)
     rescue => e
-      error "failed to close span; msg=%s", e.message
+      error "failed to close span; msg=%s; endpoint=%s", e.message, endpoint
       broken!
       nil
     end
