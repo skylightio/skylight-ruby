@@ -4,9 +4,6 @@ module Skylight::Core
   # @api private
   class Middleware
 
-    # Request id code from ActionDispatch::RequestId
-    X_REQUEST_ID = "X-Request-Id".freeze
-
     class BodyProxy
       def initialize(body, &block)
         @body, @block, @closed = body, block, false
@@ -81,6 +78,8 @@ module Skylight::Core
         begin
           t { "middleware beginning trace" }
           trace = instrumentable.trace(endpoint_name(env), 'app.rack.request', nil, endpoint_meta(env))
+          t { "middleware began trace=#{trace.log_id}" }
+
           resp = @app.call(env)
 
           if trace
@@ -116,6 +115,7 @@ module Skylight::Core
         nil
       end
 
+      # Request ID code based on ActionDispatch::RequestId
       def set_request_id(env)
         existing_request_id = env["action_dispatch.request_id"] || env['HTTP_X_REQUEST_ID'];
         @current_request_id = env["skylight.request_id"] = make_request_id(existing_request_id)
