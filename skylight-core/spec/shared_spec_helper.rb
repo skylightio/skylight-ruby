@@ -44,6 +44,12 @@ begin
 rescue LoadError
 end
 
+begin
+  require 'action_dispatch/middleware/request_id'
+  Skylight::Core::Probes.probe(:'action_dispatch/request_id')
+rescue LoadError
+end
+
 require 'net/http'
 Skylight::Core::Probes.probe(:net_http)
 

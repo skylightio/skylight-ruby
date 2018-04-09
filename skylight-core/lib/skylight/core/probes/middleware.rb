@@ -49,7 +49,7 @@ module Skylight::Core
         end
 
         def install
-          ActionDispatch::MiddlewareStack.class_eval do
+          ::ActionDispatch::MiddlewareStack.class_eval do
             alias build_without_sk build
 
             if ::ActionPack.gem_version >= Gem::Version.new('5.x')
@@ -69,7 +69,7 @@ module Skylight::Core
             end
           end
 
-          ActionDispatch::MiddlewareStack::Middleware.class_eval do
+          ::ActionDispatch::MiddlewareStack::Middleware.class_eval do
             alias build_without_sk build
             def build(*args)
               sk_instrument_middleware(build_without_sk(*args))

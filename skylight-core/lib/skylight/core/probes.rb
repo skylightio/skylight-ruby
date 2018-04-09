@@ -1,3 +1,5 @@
+require 'pathname'
+
 module Skylight::Core
   # @api private
   module Probes
@@ -6,10 +8,10 @@ module Skylight::Core
 
     def self.available
       unless @@available
-        root = File.expand_path("../probes", __FILE__)
+        root = Pathname.new(File.expand_path("../probes", __FILE__))
         @@available = {}
-        Dir["#{root}/*.rb"].each do |f|
-          name = File.basename(f, '.rb')
+        Dir["#{root}/**/*.rb"].each do |f|
+          name = Pathname.new(f).relative_path_from(root).sub_ext('').to_s
           @@available[name] = "skylight/core/probes/#{name}"
         end
       end

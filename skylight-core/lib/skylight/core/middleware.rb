@@ -1,6 +1,11 @@
+require 'securerandom'
+
 module Skylight::Core
   # @api private
   class Middleware
+
+    # Request id code from ActionDispatch::RequestId
+    X_REQUEST_ID = "X-Request-Id".freeze
 
     class BodyProxy
       def initialize(body, &block)
@@ -62,20 +67,9 @@ module Skylight::Core
       @config = opts[:config]
     end
 
-    def instrumentable
-      Skylight
-    end
-
-    # Allow for overwriting
-    def endpoint_name(_env)
-      "Rack"
-    end
-
-    def endpoint_meta(_env)
-      nil
-    end
-
     def call(env)
+      set_request_id(env)
+
       if instrumentable.tracing?
         error "Already instrumenting. Make sure the Middleware hasn't been added more than once."
       end
@@ -101,5 +95,42 @@ module Skylight::Core
         end
       end
     end
+
+    private
+
+      def log_context
+        # Don't cache this, it will change
+        { request_id: @current_request_id }
+      end
+
+      def instrumentable
+        Skylight
+      end
+
+      # Allow for overwriting
+      def endpoint_name(_env)
+        "Rack"
+      end
+
+      def endpoint_meta(_env)
+        nil
+      end
+
+      def set_request_id(env)
+        existing_request_id = env["action_dispatch.request_id"] || env['HTTP_X_REQUEST_ID'];
+        @current_request_id = env["skylight.request_id"] = make_request_id(existing_request_id)
+      end
+
+      def make_request_id(request_id)
+        if request_id && !request_id.empty?
+          request_id.gsub(/[^\w\-]/, "".freeze).first(255)
+        else
+          internal_request_id
+        end
+      end
+
+      def internal_request_id
+        SecureRandom.uuid
+      end
   end
 end

@@ -123,6 +123,9 @@ if enable
 
         config.eager_load = false
 
+        # Log request ids
+        config.log_tags = Rails.version =~ /^4\./ ? [ :uuid ] : [ :request_id ]
+
         # This class has no name
         config.middleware.use(Class.new do
           def initialize(app)
