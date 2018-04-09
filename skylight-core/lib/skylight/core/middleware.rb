@@ -99,7 +99,8 @@ module Skylight::Core
 
       def log_context
         # Don't cache this, it will change
-        { request_id: @current_request_id }
+        inst_id = instrumentable.instrumenter ? instrumentable.instrumenter.log_id : nil
+        { request_id: @current_request_id, inst: inst_id }
       end
 
       def instrumentable
