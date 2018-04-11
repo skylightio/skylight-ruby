@@ -25,26 +25,27 @@ module Skylight::Core
       end
     end
 
-    attr_reader :log_id, :config, :gc, :trace_info
+    attr_reader :uuid, :config, :gc, :trace_info
 
     def self.trace_class
       Trace
     end
 
-    def self.native_new(_config_env)
+    def self.native_new(_uuid, _config_env)
       raise "not implemented"
     end
 
     def self.new(config)
       config.validate!
 
-      inst = native_new(config.to_native_env)
-      inst.send(:initialize, config)
+      uuid = SecureRandom.uuid
+      inst = native_new(uuid, config.to_native_env)
+      inst.send(:initialize, uuid, config)
       inst
     end
 
-    def initialize(config)
-      @log_id = SecureRandom.hex(3) # Not guaranteed unique, but good enough for logging
+    def initialize(uuid, config)
+      @uuid = uuid
       @gc = config.gc
       @config = config
       @subscriber = Subscriber.new(config, self)
@@ -54,7 +55,7 @@ module Skylight::Core
     end
 
     def log_context
-      @log_context ||= { inst: log_id }
+      @log_context ||= { inst: uuid }
     end
 
     def native_start
@@ -141,7 +142,7 @@ module Skylight::Core
 
       ensure
         @trace_info.current = nil
-        t { "instrumenter submitting trace" }
+        t { "instrumenter submitting trace; trace=#{trace.uuid}" }
         trace.submit
       end
     end
@@ -178,7 +179,7 @@ module Skylight::Core
       cat = cat.to_s
 
       unless match?(cat, Skylight::CATEGORY_REGEX)
-        warn "invalid skylight instrumentation category; value=%s", cat
+        warn "invalid skylight instrumentation category; trace=%s; value=%s", trace.uuid, cat
         return yield if block_given?
         return
       end
@@ -231,10 +232,10 @@ module Skylight::Core
     end
 
     def process(trace)
-      t { fmt "processing trace" }
+      t { fmt "processing trace=#{trace.uuid}" }
 
       if ignore?(trace)
-        t { fmt "ignoring trace" }
+        t { fmt "ignoring trace=#{trace.uuid}" }
         return false
       end
 
@@ -242,7 +243,7 @@ module Skylight::Core
         native_submit_trace(trace)
         true
       rescue => e
-        warn "failed to submit trace to worker; err=%s", e
+        warn "failed to submit trace to worker; trace=%s, err=%s", trace.uuid, e
         t { "BACKTRACE:\n#{e.backtrace.join("\n")}" }
         false
       end

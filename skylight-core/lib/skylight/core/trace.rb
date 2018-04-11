@@ -6,11 +6,14 @@ module Skylight::Core
 
     include Util::Logging
 
-    attr_reader :log_id, :instrumenter, :endpoint, :notifications, :meta
+    attr_reader :instrumenter, :endpoint, :notifications, :meta
+    attr_accessor :uuid
 
     def self.new(instrumenter, endpoint, start, cat, title=nil, desc=nil, meta=nil)
-      inst = native_new(normalize_time(start), "TODO", endpoint, meta)
+      uuid = SecureRandom.uuid
+      inst = native_new(normalize_time(start), uuid, endpoint, meta)
       inst.send(:initialize, instrumenter, cat, title, desc, meta)
+      inst.uuid = uuid
       inst.endpoint = endpoint
       inst
     end
@@ -25,7 +28,6 @@ module Skylight::Core
     def initialize(instrumenter, cat, title, desc, meta)
       raise ArgumentError, 'instrumenter is required' unless instrumenter
 
-      @log_id = SecureRandom.hex(3) # Not guaranteed unique, but good enough for logging
       @instrumenter = instrumenter
       @submitted = false
       @broken = false
@@ -44,7 +46,7 @@ module Skylight::Core
     end
 
     def log_context
-      @log_context ||= instrumenter.log_context.merge(trace: log_id)
+      @log_context ||= { trace: uuid }
     end
 
     def endpoint=(value)

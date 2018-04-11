@@ -78,7 +78,7 @@ module Skylight::Core
         begin
           t { "middleware beginning trace" }
           trace = instrumentable.trace(endpoint_name(env), 'app.rack.request', nil, endpoint_meta(env))
-          t { "middleware began trace=#{trace.log_id}" }
+          t { "middleware began trace=#{trace.uuid}" }
 
           resp = @app.call(env)
 
@@ -99,7 +99,7 @@ module Skylight::Core
 
       def log_context
         # Don't cache this, it will change
-        inst_id = instrumentable.instrumenter ? instrumentable.instrumenter.log_id : nil
+        inst_id = instrumentable.instrumenter ? instrumentable.instrumenter.uuid : nil
         { request_id: @current_request_id, inst: inst_id }
       end
 
