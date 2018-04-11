@@ -79,6 +79,7 @@ module Skylight::Core
     end
 
     def current_trace=(trace)
+      t { "setting current_trace=#{trace ? trace.uuid : "nil"}; thread=#{Thread.current.object_id}" }
       @trace_info.current = trace
     end
 

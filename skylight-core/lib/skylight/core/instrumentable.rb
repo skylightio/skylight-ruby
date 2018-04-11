@@ -63,7 +63,10 @@ module Skylight
 
         # Stop instrumenting
         def stop!
+          t { "stop!" }
+
           const_get(:LOCK).synchronize do
+            t { "stop! synchronized" }
             return unless @instrumenter
             # This is only really helpful for getting specs to pass.
             @instrumenter.current_trace = nil
@@ -75,6 +78,7 @@ module Skylight
 
         # Check tracing
         def tracing?
+          t { "checking tracing?; thread=#{Thread.current.object_id}"}
           instrumenter && instrumenter.current_trace
         end
 

@@ -68,7 +68,7 @@ module Skylight::Core
       set_request_id(env)
 
       if instrumentable.tracing?
-        error "Already instrumenting. Make sure the Middleware hasn't been added more than once."
+        error "Already instrumenting. Make sure the Skylight Rack Middleware hasn't been added more than once."
       end
 
       if env["REQUEST_METHOD"] == "HEAD"
