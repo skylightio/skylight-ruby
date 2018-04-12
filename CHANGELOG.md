@@ -1,3 +1,9 @@
+## 1.6.1 (April 12, 2018)
+
+* [IMPROVEMENT] Include endpoint name in error logging
+* [BUGFIX] Make sure to correctly release broken traces
+* [BUGFIX] Keep the `require` method private when overwriting
+
 ## 1.6.0 (March 21, 2018)
 
 * [FEATURE] Time spent the Rails router is now identified separately in the trace
