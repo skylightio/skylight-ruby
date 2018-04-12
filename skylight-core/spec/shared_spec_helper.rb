@@ -21,7 +21,7 @@ if ENV['AMS_VERSION'] == 'edge'
   require 'active_support/inflector'
 end
 
-%w(excon tilt sinatra sequel grape faraday mongo moped mongoid active_model_serializers httpclient elasticsearch).each do |library|
+%w(excon tilt sinatra sequel faraday mongo moped mongoid active_model_serializers httpclient elasticsearch).each do |library|
   begin
     require library
     Skylight::Core::Probes.probe(library)
