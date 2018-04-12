@@ -159,6 +159,27 @@ module Skylight
       end
     end
 
+    it 'cleans up current_trace when broken' do
+      begin
+        original_raise_on_error = ENV['SKYLIGHT_RAISE_ON_ERROR']
+        ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+
+        trace = Skylight.trace 'Rack', 'app.rack.request'
+        a = trace.instrument 'foo'
+        clock.skip 0.1
+        b = trace.instrument 'bar'
+        clock.skip 0.1
+        # Force out of order
+        trace.done(a)
+
+        expect(Skylight.instrumenter.current_trace).to eq(trace)
+        trace.submit
+        expect(Skylight.instrumenter.current_trace).to be_nil
+      ensure
+        ENV['SKYLIGHT_RAISE_ON_ERROR'] = original_raise_on_error
+      end
+    end
+
     it 'tracks the title' do
       trace = Skylight.trace 'Rack', 'app.rack.request'
       a = trace.instrument 'foo', 'How a foo is formed?'
