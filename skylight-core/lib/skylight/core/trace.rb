@@ -149,16 +149,21 @@ module Skylight::Core
     end
 
     def submit
-      t { "submitting trace; broken=#{broken?}" }
+      t { "submitting trace" }
 
-      return if broken?
+      # This must always be called to clean up properly
+      release
+
+      if broken?
+        t { "broken, not submitting" }
+        return
+      end
 
       if @submitted
         t { "already submitted" }
         return
       end
 
-      release
       @submitted = true
 
       traced
