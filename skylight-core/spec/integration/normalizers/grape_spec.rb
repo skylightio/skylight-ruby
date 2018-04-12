@@ -1,9 +1,14 @@
 require 'spec_helper'
 require 'skylight/core/instrumenter'
 
+begin
+  require 'grape'
+rescue LoadError
+  warn "Skipping Grape tests since it isn't installed."
+end
+
 if defined?(Grape)
-  # FIXME: We should also add unit specs for the grape normalizers
-  describe 'Grape integration', :grape_probe, :agent do
+  describe 'Grape integration', :agent do
     include Rack::Test::Methods
 
     before do
