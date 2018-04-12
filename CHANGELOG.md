@@ -1,4 +1,14 @@
-## 2.0.0-beta3 (March 22, 2017)
+## 2.0.0-rc (April 12, 2018)
+
+* [BREAKING] Drop support for Grape prior to 0.13
+* [IMPROVEMENT] Auto-disable Middleware probe if it appears to be causing issues
+* [IMPROVEMENT] More detailed logging and improved error handling
+* [IMPROVEMENT] Fix Ruby Warnings (Thanks @amatsuda!)
+* [BUGFIX] Make sure to correctly release broken traces
+* [BUGFIX] Keep the `require` method private when overwriting
+* [BUGFIX] Don't run Rust calls twice on error
+
+## 2.0.0-beta3 (March 22, 2018)
 
 * [BREAKING] `log_sql_parse_errors` config option is now on by default.
 * [IMPROVEMENT] Improved handling of errors generated in the Rust agent.
@@ -6,11 +16,11 @@
 * [IMRPOVEMENT] Add logging to Instrumentable for easier access
 * [IMPROVEMENT] Improved logging during startup
 
-## 2.0.0-beta2 (February 5, 2017)
+## 2.0.0-beta2 (February 5, 2018)
 
 * [BUGFIX] Fix incorrect module path that caused installation issues
 
-## 2.0.0-beta1 (February 5, 2017)
+## 2.0.0-beta1 (February 5, 2018)
 
 * [FEATURE] New SQL lexer to support a wider variety of SQL queries.
 * [BREAKING] Drop support for a number of deprecated libraries, including Rails prior to 4.2, Ruby prior to 2.2, and Sinatra prior to 1.4.
