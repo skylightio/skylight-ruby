@@ -1,4 +1,4 @@
-## 2.0.0-rc (April 12, 2018)
+## Unreleased
 
 * [BREAKING] Drop support for Grape prior to 0.13
 * [IMPROVEMENT] Auto-disable Middleware probe if it appears to be causing issues
