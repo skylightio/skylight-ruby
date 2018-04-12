@@ -166,6 +166,8 @@ describe "Skylight::Instrumenter", :http, :agent do
       end
 
       it 'records the trace' do
+        allow(SecureRandom).to receive(:uuid).once.and_return("test-uuid")
+
         Skylight.trace 'Testin', 'app.rack' do |t|
           clock.skip 1
         end
@@ -181,7 +183,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         t = ep.traces[0]
         expect(t.spans.count).to eq(1)
-        expect(t.uuid).to eq('TODO')
+        expect(t.uuid).to eq('test-uuid')
         expect(t.spans[0]).to eq(span(
           event:      event('app.rack'),
           started_at: 0,
@@ -189,6 +191,8 @@ describe "Skylight::Instrumenter", :http, :agent do
       end
 
       it 'ignores disabled parts of the trace' do
+        allow(SecureRandom).to receive(:uuid).once.and_return("test-uuid")
+
         Skylight.trace 'Testin', 'app.rack' do |t|
           Skylight.disable do
             ActiveSupport::Notifications.instrument('sql.active_record', name: "Load User", sql: "SELECT * FROM posts", binds: []) do
@@ -208,7 +212,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         t = ep.traces[0]
         expect(t.spans.count).to eq(1)
-        expect(t.uuid).to eq('TODO')
+        expect(t.uuid).to eq('test-uuid')
         expect(t.spans[0]).to eq(span(
           event:      event('app.rack'),
           started_at: 0,
@@ -216,6 +220,8 @@ describe "Skylight::Instrumenter", :http, :agent do
       end
 
       it "handles un-lexable SQL" do
+        allow(SecureRandom).to receive(:uuid).once.and_return("test-uuid")
+
         bad_sql = "!!!"
 
         Skylight.trace 'Testin', 'app.rack' do |t|
@@ -235,7 +241,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         t = ep.traces[0]
         expect(t.spans.count).to eq(2)
-        expect(t.uuid).to eq('TODO')
+        expect(t.uuid).to eq('test-uuid')
 
         expect(t.spans[0]).to eq(span(
           event:      event('app.rack'),
@@ -250,6 +256,8 @@ describe "Skylight::Instrumenter", :http, :agent do
       end
 
       it "handles SQL with binary data" do
+        allow(SecureRandom).to receive(:uuid).once.and_return("test-uuid")
+
         bad_sql = "SELECT ???LOL??? \xCE ;;;NOTSQL;;;".force_encoding("BINARY")
         encoded_sql = Base64.encode64(bad_sql)
 
@@ -270,7 +278,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         t = ep.traces[0]
         expect(t.spans.count).to eq(2)
-        expect(t.uuid).to eq('TODO')
+        expect(t.uuid).to eq('test-uuid')
 
         expect(t.spans[0]).to eq(span(
           event:      event('app.rack'),
@@ -285,6 +293,8 @@ describe "Skylight::Instrumenter", :http, :agent do
       end
 
       it "handles invalid string encodings" do
+        allow(SecureRandom).to receive(:uuid).once.and_return("test-uuid")
+
         bad_sql = "SELECT ???LOL??? \xCE ;;;NOTSQL;;;".force_encoding("UTF-8")
         encoded_sql = Base64.encode64(bad_sql)
 
@@ -305,7 +315,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         t = ep.traces[0]
         expect(t.spans.count).to eq(2)
-        expect(t.uuid).to eq('TODO')
+        expect(t.uuid).to eq('test-uuid')
 
         expect(t.spans[0]).to eq(span(
           event:      event('app.rack'),

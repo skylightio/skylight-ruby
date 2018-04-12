@@ -157,11 +157,12 @@ clock_high_res_time(VALUE self) {
  */
 
 static VALUE
-instrumenter_new(VALUE klass, VALUE rb_env) {
+instrumenter_new(VALUE klass, VALUE rb_uuid, VALUE rb_env) {
   sky_instrumenter_t* instrumenter;
   sky_buf_t env[256];
   int i, envc;
 
+  CHECK_TYPE(rb_uuid, T_STRING);
   CHECK_TYPE(rb_env, T_ARRAY);
 
   if (RARRAY_LEN(rb_env) >= 256) {
@@ -181,7 +182,7 @@ instrumenter_new(VALUE klass, VALUE rb_env) {
   }
 
   CHECK_FFI(
-      sky_instrumenter_new(env, envc, &instrumenter),
+      sky_instrumenter_new(STR2BUF(rb_uuid), env, envc, &instrumenter),
       "Instrumenter#native_new");
 
   return Data_Wrap_Struct(klass, NULL, sky_instrumenter_free, instrumenter);
@@ -574,7 +575,7 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_span_get_correlation_header", trace_span_get_correlation_header, 1);
 
   rb_cInstrumenter = rb_const_get(rb_mSkylight, rb_intern("Instrumenter"));
-  rb_define_singleton_method(rb_cInstrumenter, "native_new", instrumenter_new, 1);
+  rb_define_singleton_method(rb_cInstrumenter, "native_new", instrumenter_new, 2);
   rb_define_method(rb_cInstrumenter, "native_start", instrumenter_start, 0);
   rb_define_method(rb_cInstrumenter, "native_stop", instrumenter_stop, 0);
   rb_define_method(rb_cInstrumenter, "native_submit_trace", instrumenter_submit_trace, 1);

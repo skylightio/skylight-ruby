@@ -134,9 +134,11 @@ module Skylight::Core
         end
 
         # Fallback
-        module_name = self.is_a?(Module) ? name : self.class.name
-        root_name = module_name.split('::').first.upcase
-        puts sprintf("[#{root_name}] #{msg}", *args)
+        if module_name = self.is_a?(Module) ? name : self.class.name
+          root_name = module_name.split('::').first.upcase
+          msg.prepend("[#{root_name}] ")
+        end
+        puts sprintf(msg, *args)
       rescue Exception => e
         if trace?
           puts "[ERROR] #{e.message}"

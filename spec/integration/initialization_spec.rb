@@ -31,15 +31,22 @@ describe "Initialization integration" do
   end
 
   # FIXME: Sometimes this can hang for no apparent reason
-  def boot
+  def boot(debug: true)
     pipe_cmd_in, pipe_cmd_out = IO.pipe
 
     # Reset logs
     FileUtils.rm_rf 'log'
     FileUtils.mkdir 'log'
 
-    cmd = "SKYLIGHT_ENABLE_TRACE_LOGS=1 DEBUG=1 RAILS_ENV=#{rails_env} ruby bin/rails runner '#noop'"
-    cmd_pid = Process.spawn(cmd, :out => pipe_cmd_out, :err => pipe_cmd_out)
+    original_trace = ENV['SKYLIGHT_ENABLE_TRACE_LOGS']
+    ENV.delete('SKYLIGHT_ENABLE_TRACE_LOGS')
+
+    env = { 'RAILS_ENV' => rails_env }
+    env.merge!('SKYLIGHT_ENABLE_TRACE_LOGS' => '1', 'DEBUG' => '1') if debug
+    cmd = "ruby bin/rails runner '#noop'"
+    cmd_pid = Process.spawn(env, cmd, :out => pipe_cmd_out, :err => pipe_cmd_out)
+
+    ENV['SKYLIGHT_ENABLE_TRACE_LOGS'] = original_trace
 
     Timeout.timeout(10) do
       Process.wait(cmd_pid)
@@ -85,7 +92,7 @@ describe "Initialization integration" do
         let(:rails_env) { "test" }
 
         it "doesn't boot or warn" do
-          expect(boot).to eq("")
+          expect(boot(debug: false)).to eq("")
         end
 
       end
@@ -148,7 +155,7 @@ describe "Initialization integration" do
       let(:rails_env) { "test" }
 
       it "doesn't boot or warn" do
-        expect(boot).to eq("")
+        expect(boot(debug: false)).to eq("")
       end
 
     end

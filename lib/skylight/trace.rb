@@ -6,6 +6,15 @@ module Skylight
       @too_many_spans = false
     end
 
+    def uuid
+      native_get_uuid
+    end
+
+    def uuid=(value)
+      # We can't change the UUID so just check to make sure we weren't trying to change
+      raise "unable to change uuid" unless value == uuid
+    end
+
     def too_many_spans!
       @too_many_spans = true
     end
