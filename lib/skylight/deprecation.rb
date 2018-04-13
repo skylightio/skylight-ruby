@@ -1,35 +1,55 @@
 require 'active_support/deprecation'
 
 module Skylight
+  SKYLIGHT_GEM_ROOT = File.expand_path("../../..", __FILE__) + "/"
+
   if ActiveSupport::Deprecation.respond_to?(:new)
-    DEPRECATOR = ActiveSupport::Deprecation.new('2.0', 'skylight')
+    class Deprecation < ActiveSupport::Deprecation
+      private
+
+        def ignored_callstack(path)
+          path.start_with?(SKYLIGHT_GEM_ROOT)
+        end
+    end
   else
     # Rails 3.x
-    DEPRECATOR = Module.new do
-      class << self
-        attr_accessor :silenced
+    class Deprecation
+      attr_accessor :silenced
+      attr_reader :deprecation_horizon, :gem_name
 
-        # Silence deprecation warnings within the block.
-        def silence
-          old_silenced, @silenced = @silenced, true
-          yield
-        ensure
-          @silenced = old_silenced
+      def initialize(deprecation_horizon, gem_name)
+        @deprecation_horizon = deprecation_horizon
+        @gem_name = gem_name
+      end
+
+      # Silence deprecation warnings within the block.
+      def silence
+        old_silenced, @silenced = @silenced, true
+        yield
+      ensure
+        @silenced = old_silenced
+      end
+
+      def deprecation_warning(deprecated_method_name, message = nil)
+        return if silenced
+
+        msg = "#{deprecated_method_name} is deprecated and will be removed from #{gem_name} #{deprecation_horizon}"
+        case message
+          when Symbol then msg << " (use #{message} instead)"
+          when String then msg << " (#{message})"
         end
 
-        def deprecation_warning(msg)
-          return if silenced
-          ActiveSupport::Deprecation.warn("#{msg} is deprecated and will be removed from skylight 2.0", extract_callstack(caller))
-        end
+        ActiveSupport::Deprecation.warn(msg, extract_callstack(caller))
+      end
 
-        private
+      private
 
         def extract_callstack(callstack)
-          skylight_gem_root = File.expand_path("../../../..", __FILE__) + "/"
-          filtered = callstack.reject { |line| line.start_with?(skylight_gem_root) }
+          filtered = callstack.reject { |line| line.start_with?(SKYLIGHT_GEM_ROOT) }
           filtered.empty? ? callstack : filtered
         end
-      end
     end
   end
+
+  DEPRECATOR = Deprecation.new('2.0', 'skylight')
 end
