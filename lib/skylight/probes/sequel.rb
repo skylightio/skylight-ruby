@@ -4,6 +4,10 @@ module Skylight
     module Sequel
       class Probe
         def install
+          if Gem::Version.new(::Sequel.version) < Gem::Version.new('4.0')
+            Skylight::DEPRECATOR.deprecation_warning("Support for Sequel versions before 4.0")
+          end
+
           require 'sequel/database/logging'
 
           method_name = ::Sequel::Database.method_defined?(:log_connection_yield) ? 'log_connection_yield' : 'log_yield'

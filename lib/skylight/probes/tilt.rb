@@ -4,6 +4,10 @@ module Skylight
     module Tilt
       class Probe
         def install
+          if Gem::Version.new(::Tilt::VERSION) < Gem::Version.new('1.4.1')
+            Skylight::DEPRECATOR.deprecation_warning("Support for Tilt versions before 1.4.1")
+          end
+
           ::Tilt::Template.class_eval do
             alias render_without_sk render
 
