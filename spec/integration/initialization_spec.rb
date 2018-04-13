@@ -82,7 +82,7 @@ describe "Initialization integration" do
         let(:rails_env) { "test" }
 
         it "doesn't boot or warn" do
-          expect(boot).to eq("")
+          expect(strip_deprecations(boot)).to eq("")
         end
 
       end
@@ -145,7 +145,7 @@ describe "Initialization integration" do
       let(:rails_env) { "test" }
 
       it "doesn't boot or warn" do
-        expect(boot).to eq("")
+        expect(strip_deprecations(boot)).to eq("")
       end
 
     end
@@ -177,6 +177,10 @@ describe "Initialization integration" do
 
     end
 
+  end
+
+  def strip_deprecations(string)
+    string.split("\n").reject{|l| l =~ /^DEPRECATION/ }.join("\n")
   end
 
 end

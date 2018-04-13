@@ -1,7 +1,9 @@
 require 'skylight/version'
+require 'skylight/deprecation'
 
 # Root Skylight namespace
 module Skylight
+
   # @api private
   TRACE_ENV_KEY = 'SKYLIGHT_ENABLE_TRACE_LOGS'.freeze
 
@@ -11,6 +13,10 @@ module Skylight
   # Specifically check for Railtie since we've had at least one case of a
   #   customer having Rails defined without having all of Rails loaded.
   if defined?(Rails::Railtie)
+    if Gem::Version.new(Rails.version) < Gem::Version.new('4.2.0')
+      DEPRECATOR.deprecation_warning("Support for Rails versions before 4.2")
+    end
+
     require 'skylight/railtie'
   end
 
