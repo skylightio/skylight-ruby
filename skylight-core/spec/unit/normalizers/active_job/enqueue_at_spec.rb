@@ -9,10 +9,15 @@ rescue LoadError
 end
 
 if enable
-  module Skylight
+  module Skylight::Core
     describe "ActiveJob", "enqueue_at.active_job", :agent do
-      # Not enabled by default due to questionable usefulness
-      require "skylight/core/normalizers/active_job/enqueue_at"
+      before do
+        Normalizers.enable("active_job")
+      end
+
+      after do
+        Normalizers.disable("active_job")
+      end
 
       class TestJob < ::ActiveJob::Base
       end
@@ -24,7 +29,7 @@ if enable
         name, title, desc = normalize(adapter: adapter, job: job)
 
         expect(name).to eq("other.job.enqueue_at")
-        expect(title).to eq("Enqueue Skylight::TestJob")
+        expect(title).to eq("Enqueue Skylight::Core::TestJob")
         expect(desc).to eq("{ adapter: 'inline', queue: 'default' }")
       end
     end

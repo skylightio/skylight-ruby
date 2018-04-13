@@ -7,33 +7,51 @@ module Skylight::Core
 
     DEFAULT = Default.new
 
-    def self.register(name, klass)
-      (@registry ||= {})[name] = klass
-      klass
+    def self.registry
+      @registry ||= {}
+    end
+
+    def self.register(name, klass, opts={})
+      enabled = opts[:enabled] != false
+      registry[name] = [klass, enabled]
     end
 
     def self.unregister(name)
       @registry.delete(name)
     end
 
+    def self.enable(*names, enabled: true)
+      names.each do |name|
+        matches = registry.select{|n,_| n =~ /(^|\.)#{name}$/ }
+        raise ArgumentError, "no normalizers match #{name}" if matches.empty?
+        matches.values.each{|v| v[1] = enabled }
+      end
+    end
+
+    def self.disable(*names)
+      enable(*names, enabled: false)
+    end
+
     def self.build(config)
       normalizers = {}
 
-      (@registry || {}).each do |k, klass|
+      registry.each do |key, (klass, enabled)|
+        next if !enabled
+
         unless klass.method_defined?(:normalize)
           # TODO: Warn
           next
         end
 
-        normalizers[k] = klass.new(config)
+        normalizers[key] = klass.new(config)
       end
 
       Container.new(normalizers)
     end
 
     class Normalizer
-      def self.register(name)
-        Normalizers.register(name, self)
+      def self.register(name, opts={})
+        Normalizers.register(name, self, opts)
       end
 
       attr_reader :config
@@ -51,6 +69,7 @@ module Skylight::Core
       end
     end
 
+    # FIXME: Move this elsewhere
     # Base Normalizer for Rails rendering
     class RenderNormalizer < Normalizer
       include Util::AllocationFree
@@ -155,6 +174,7 @@ module Skylight::Core
         action_view/render_collection
         action_view/render_partial
         action_view/render_template
+        active_job/enqueue_at
         active_model_serializers/render
         active_record/instantiation
         active_record/sql
@@ -169,8 +189,5 @@ module Skylight::Core
         sequel/sql).each do |file|
       require "skylight/core/normalizers/#{file}"
     end
-
-    # The following are not required by default as they are of dubious usefulness:
-    # - active_job/enqueue_at
   end
 end
