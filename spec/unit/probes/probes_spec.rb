@@ -30,13 +30,13 @@ module Skylight
     end
 
     it "installs probe if constant is available" do
-      subject.register("Skylight", "skylight", probe)
+      register(:skylight, "Skylight", "skylight", probe)
 
       expect(probe.install_count).to eq(1)
     end
 
     it "installs probe on first require" do
-      subject.register("SpecHelper::ProbeTestClass", "skylight", probe)
+      register(:probe_test, "SpecHelper::ProbeTestClass", "skylight", probe)
 
       expect(probe.install_count).to eq(0)
 
@@ -54,18 +54,43 @@ module Skylight
     end
 
     it "does not install probes that are not required or available" do
-      subject.register("SpecHelper::ProbeTestClass", "skylight", probe)
+      register(:probe_test, "SpecHelper::ProbeTestClass", "skylight", probe)
 
       expect(probe.install_count).to eq(0)
     end
 
     it "does not install probes that are required but remain unavailable" do
-      subject.register("SpecHelper::ProbeTestClass", "skylight", probe)
+      register(:probe_test, "SpecHelper::ProbeTestClass", "skylight", probe)
 
       # Require, but don't create TestClass
       require "skylight"
 
       expect(probe.install_count).to eq(0)
+    end
+
+    it "warns about probes loaded via require" do
+      expect(Skylight::DEPRECATOR).to receive(:deprecation_warning).with("Enabling probes via `require` alone", "use `Skylight.probe(:probe_test)` instead")
+
+      # We're not actually requiring here, but since we're bypassing the API it looks like we are
+      subject.register(:probe_test, "SpecHelper::ProbeTestClass", "skylight", probe)
+    end
+
+    it "does not warn about probes loaded via API" do
+      expect(Skylight::DEPRECATOR).to_not receive(:deprecation_warning)
+
+      allow(Skylight::Probes).to receive(:available).and_return({ 'probe_test' => "skylight/probes/probe_test" })
+      allow(Skylight::Probes).to receive(:require).with("skylight/probes/probe_test") do |path|
+        subject.register(:probe_test, "SpecHelper::ProbeTestClass", "skylight", probe)
+      end
+
+      Skylight.probe(:probe_test)
+    end
+
+    def register(*args)
+      Skylight::DEPRECATOR.silence do
+        # This will raise a deprecation warning about require since we're not using `Skylight.probe`
+        subject.register(*args)
+      end
     end
   end
 end

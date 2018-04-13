@@ -156,6 +156,6 @@ module Skylight
       end
     end
 
-    register("Mongo", "mongo", Mongo::Probe.new)
+    register(:mongo, "Mongo", "mongo", Mongo::Probe.new)
   end
 end

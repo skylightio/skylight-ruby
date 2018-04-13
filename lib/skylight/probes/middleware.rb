@@ -74,6 +74,6 @@ module Skylight
       end
     end
 
-    register("ActionDispatch::MiddlewareStack::Middleware", "actionpack/action_dispatch", Middleware::Probe.new)
+    register(:middleware, "ActionDispatch::MiddlewareStack::Middleware", "actionpack/action_dispatch", Middleware::Probe.new)
   end
 end
