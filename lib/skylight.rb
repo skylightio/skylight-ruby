@@ -29,4 +29,6 @@ module Skylight
     Config
   end
 
+  Core::Probes.add_path(File.expand_path("skylight/probes", __dir__))
+
 end

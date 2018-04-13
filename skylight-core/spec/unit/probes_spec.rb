@@ -29,13 +29,13 @@ module Skylight::Core
     end
 
     it "installs probe if constant is available" do
-      subject.register("Skylight::Core", "skylight/core", probe)
+      register(:skylight, "Skylight::Core", "skylight/core", probe)
 
       expect(probe.install_count).to eq(1)
     end
 
     it "installs probe on first require" do
-      subject.register("SpecHelper::ProbeTestClass", "skylight/core", probe)
+      register(:probe_test, "SpecHelper::ProbeTestClass", "skylight/core", probe)
 
       expect(probe.install_count).to eq(0)
 
@@ -53,18 +53,25 @@ module Skylight::Core
     end
 
     it "does not install probes that are not required or available" do
-      subject.register("SpecHelper::ProbeTestClass", "skylight/core", probe)
+      register(:probe_test, "SpecHelper::ProbeTestClass", "skylight/core", probe)
 
       expect(probe.install_count).to eq(0)
     end
 
     it "does not install probes that are required but remain unavailable" do
-      subject.register("SpecHelper::ProbeTestClass", "skylight/core", probe)
+      register(:probe_test, "SpecHelper::ProbeTestClass", "skylight/core", probe)
 
       # Require, but don't create TestClass
       require "skylight/core"
 
       expect(probe.install_count).to eq(0)
+    end
+
+    def register(*args)
+      Skylight::DEPRECATOR.silence do
+        # This will raise a deprecation warning about require since we're not using `Skylight.probe`
+        subject.register(*args)
+      end
     end
   end
 end

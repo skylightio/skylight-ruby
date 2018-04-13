@@ -3,36 +3,11 @@ require 'pathname'
 module Skylight::Core
   # @api private
   module Probes
-
-    @@available = nil
-
-    def self.available
-      unless @@available
-        root = Pathname.new(File.expand_path("../probes", __FILE__))
-        @@available = {}
-        Dir["#{root}/**/*.rb"].each do |f|
-          name = Pathname.new(f).relative_path_from(root).sub_ext('').to_s
-          @@available[name] = "skylight/core/probes/#{name}"
-        end
-      end
-      @@available
-    end
-
-    def self.probe(*probes)
-      unknown = probes.map(&:to_s) - available.keys
-      unless unknown.empty?
-        raise ArgumentError, "unknown probes: #{unknown.join(', ')}"
-      end
-
-      probes.each do |p|
-        require available[p.to_s]
-      end
-    end
-
     class ProbeRegistration
-      attr_reader :klass_name, :require_paths, :probe
+      attr_reader :name, :klass_name, :require_paths, :probe
 
-      def initialize(klass_name, require_paths, probe)
+      def initialize(name, klass_name, require_paths, probe)
+        @name = name
         @klass_name = klass_name
         @require_paths = Array(require_paths)
         @probe = probe
@@ -43,64 +18,93 @@ module Skylight::Core
       end
     end
 
-    def self.require_hooks
-      @require_hooks ||= {}
-    end
+    class << self
 
-    def self.installed
-      @installed ||= {}
-    end
-
-    def self.is_available?(klass_name)
-      !!Util::Inflector.safe_constantize(klass_name)
-    end
-
-    def self.register(*args)
-      registration = ProbeRegistration.new(*args)
-
-      if is_available?(registration.klass_name)
-        installed[registration.klass_name] ||= []
-        installed[registration.klass_name] << registration
-        registration.install
-      else
-        register_require_hook(registration)
+      def paths
+        @paths ||= []
       end
-    end
 
-    def self.require_hook(require_path)
-      registrations = lookup_by_require_path(require_path)
-      return unless registrations
+      def add_path(path)
+        root = Pathname.new(path)
+        Pathname.glob(root.join("./**/*.rb")).each do |f|
+          name = f.relative_path_from(root).sub_ext('').to_s
+          if available.key?(name)
+            raise "duplicate probe name: #{name}; original=#{available[name]}; new=#{f}"
+          end
+          available[name] = f
+        end
+      end
 
-      registrations.each do |registration|
+      def available
+        @available ||= {}
+      end
+
+      def probe(*probes)
+        unknown = probes.map(&:to_s) - available.keys
+        unless unknown.empty?
+          raise ArgumentError, "unknown probes: #{unknown.join(', ')}"
+        end
+
+        probes.each do |p|
+          require available[p.to_s]
+        end
+      end
+
+      def require_hooks
+        @require_hooks ||= {}
+      end
+
+      def installed
+        @installed ||= {}
+      end
+
+      def is_available?(klass_name)
+        !!Skylight::Core::Util::Inflector.safe_constantize(klass_name)
+      end
+
+      def register(name, *args)
+        registration = ProbeRegistration.new(name, *args)
+
+        if is_available?(registration.klass_name)
+          installed[registration.klass_name] = registration
+          registration.install
+        else
+          register_require_hook(registration)
+        end
+      end
+
+      def require_hook(require_path)
+        registration = lookup_by_require_path(require_path)
+        return unless registration
+
         # Double check constant is available
         if is_available?(registration.klass_name)
-          installed[registration.klass_name] ||= []
-          installed[registration.klass_name] << registration
+          installed[registration.klass_name] = registration
           registration.install
 
           # Don't need this to be called again
           unregister_require_hook(registration)
         end
       end
-    end
 
-    def self.register_require_hook(registration)
-      registration.require_paths.each do |p|
-        require_hooks[p] ||= []
-        require_hooks[p] << registration
+      def register_require_hook(registration)
+        registration.require_paths.each do |p|
+          require_hooks[p] = registration
+        end
+      end
+
+      def unregister_require_hook(registration)
+        registration.require_paths.each do |p|
+          require_hooks.delete(p)
+        end
+      end
+
+      def lookup_by_require_path(require_path)
+        require_hooks[require_path]
       end
     end
 
-    def self.unregister_require_hook(registration)
-      registration.require_paths.each do |p|
-        require_hooks[p].delete(registration)
-        require_hooks.delete(p) if require_hook[p].empty?
-      end
-    end
-
-    def self.lookup_by_require_path(require_path)
-      require_hooks[require_path]
-    end
+    add_path(File.expand_path("./probes", __dir__))
   end
 end
 
@@ -121,13 +125,5 @@ module ::Kernel
     end
 
     ret
-  rescue LoadError
-    # Support pre-2.0 style requires
-    if name =~ %r{^skylight/probes/(.+)}
-      warn "[DEPRECATION] Requiring Skylight probes by path is deprecated. Use `Skylight.probe(:#{$1})` instead."
-      require "skylight/core/probes/#{$1}"
-    else
-      raise
-    end
   end
 end

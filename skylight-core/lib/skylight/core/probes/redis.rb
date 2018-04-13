@@ -66,6 +66,6 @@ module Skylight::Core
       end
     end
 
-    register("Redis", "redis", Redis::Probe.new)
+    register(:redis, "Redis", "redis", Redis::Probe.new)
   end
 end

@@ -34,6 +34,6 @@ module Skylight::Core
       end
     end
 
-    register("Moped", "moped", Moped::Probe.new)
+    register(:moped, "Moped", "moped", Moped::Probe.new)
   end
 end

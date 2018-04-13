@@ -30,6 +30,6 @@ module Skylight::Core
       end
     end
 
-    register("ActionView::TemplateRenderer", "action_view", ActionView::Probe.new)
+    register(:action_view, "ActionView::TemplateRenderer", "action_view", ActionView::Probe.new)
   end
 end

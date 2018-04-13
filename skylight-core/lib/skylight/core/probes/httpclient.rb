@@ -41,6 +41,6 @@ module Skylight::Core
       end # class Probe
     end # module Probes::HTTPClient
 
-    register("HTTPClient", "httpclient", HTTPClient::Probe.new)
+    register(:httpclient, "HTTPClient", "httpclient", HTTPClient::Probe.new)
   end
 end
