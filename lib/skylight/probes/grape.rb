@@ -5,10 +5,12 @@ module Skylight
         def install
           version = Gem::Version.new(::Grape::VERSION)
 
-          if version > Gem::Version.new("0.12.1")
+          if version >= Gem::Version.new("0.13.0")
             # AS::N is built in to newer versions
             return
           end
+
+          Skylight::DEPRECATOR.deprecation_warning("Support for Grape versions before 0.13.0")
 
           if version < Gem::Version.new("0.10.0")
             # Using $stderr here isn't great, but we don't have a logger accessible
