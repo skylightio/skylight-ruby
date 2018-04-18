@@ -2,7 +2,7 @@ module Skylight
   module Normalizers
     module ActiveJob
       class EnqueueAt < Normalizer
-        register "enqueue_at.active_job"
+        register "enqueue_at.active_job", enabled: false
 
         CAT = "other.job.enqueue_at".freeze
 

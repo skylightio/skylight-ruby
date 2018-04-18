@@ -7,29 +7,47 @@ module Skylight
 
     DEFAULT = Default.new
 
-    def self.register(name, klass)
-      (@registry ||= {})[name] = klass
-      klass
+    def self.registry
+      @registry ||= {}
+    end
+
+    def self.register(name, klass, opts)
+      enabled = opts[:enabled] != false
+      registry[name] = [klass, enabled]
+    end
+
+    def self.enable(*names)
+      names.each do |name|
+        matches = registry.select{|n,_| n =~ /(^|\.)#{name}$/ }
+        raise ArgumentError, "no normalizers match #{name}" if matches.empty?
+        matches.each{|k,v| v[1] = true }
+      end
     end
 
     def self.build(config)
       normalizers = {}
 
-      (@registry || {}).each do |k, klass|
+      registry.each do |key, (klass, enabled)|
+        if !enabled
+          # For now we use anyway, but in 2.0 we'll stop using disabled normalizers
+          DEPRECATOR.deprecation_warning("Enabling non-default normalizers via `require`",
+            "use `Skylight.enable_normalizer('#{key}')` instead")
+        end
+
         unless klass.method_defined?(:normalize)
           # TODO: Warn
           next
         end
 
-        normalizers[k] = klass.new(config)
+        normalizers[key] = klass.new(config)
       end
 
       Container.new(normalizers)
     end
 
     class Normalizer
-      def self.register(name)
-        Normalizers.register(name, self)
+      def self.register(name, opts={})
+        Normalizers.register(name, self, opts)
       end
 
       attr_reader :config
@@ -47,6 +65,7 @@ module Skylight
       end
     end
 
+    # FIXME: Move this elsewhere
     # Base Normalizer for Rails rendering
     class RenderNormalizer < Normalizer
       include Util::AllocationFree

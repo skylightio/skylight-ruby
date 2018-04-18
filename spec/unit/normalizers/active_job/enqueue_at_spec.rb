@@ -14,6 +14,9 @@ if enable
       # Not enabled by default due to questionable usefulness
       require "skylight/normalizers/active_job/enqueue_at"
 
+      # Do this to avoid deprecation warnings in other specs
+      Skylight::Normalizers.enable("active_job")
+
       class TestJob < ::ActiveJob::Base
       end
 

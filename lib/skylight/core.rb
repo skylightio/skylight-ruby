@@ -65,6 +65,10 @@ module Skylight
   # @api private
   DEFAULT_OPTIONS = { category: DEFAULT_CATEGORY }
 
+  def self.enable_normalizer(*names)
+    Normalizers.enable(*names)
+  end
+
   # Start instrumenting
   def self.start!(*args)
     Instrumenter.start!(*args)
