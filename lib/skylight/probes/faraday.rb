@@ -17,6 +17,6 @@ module Skylight
       end
     end
 
-    register("Faraday", "faraday", Faraday::Probe.new)
+    register(:faraday, "Faraday", "faraday", Faraday::Probe.new)
   end
 end

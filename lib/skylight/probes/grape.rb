@@ -83,6 +83,6 @@ module Skylight
       end
     end
 
-    register("Grape::Endpoint", "grape/endpoint", Grape::Probe.new)
+    register(:grape, "Grape::Endpoint", "grape/endpoint", Grape::Probe.new)
   end
 end

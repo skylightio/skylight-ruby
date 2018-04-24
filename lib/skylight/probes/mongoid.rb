@@ -8,14 +8,14 @@ module Skylight
           version = Gem::Version.new(::Mongoid::VERSION)
 
           if version < Gem::Version.new("5.0")
-            require 'skylight/probes/moped'
+            Skylight.probe(:moped)
           else
-            require 'skylight/probes/mongo'
+            Skylight.probe(:mongo)
           end
         end
       end
     end
 
-    register("Mongoid", "mongoid", Mongoid::Probe.new)
+    register(:mongoid, "Mongoid", "mongoid", Mongoid::Probe.new)
   end
 end

@@ -1,10 +1,13 @@
+require 'pathname'
+
 module Skylight
   # @api private
   module Probes
     class ProbeRegistration
-      attr_reader :klass_name, :require_paths, :probe
+      attr_reader :name, :klass_name, :require_paths, :probe
 
-      def initialize(klass_name, require_paths, probe)
+      def initialize(name, klass_name, require_paths, probe)
+        @name = name
         @klass_name = klass_name
         @require_paths = Array(require_paths)
         @probe = probe
@@ -12,6 +15,34 @@ module Skylight
 
       def install
         probe.install
+      end
+    end
+
+    def self.available
+      unless @available
+        root = Pathname.new(File.expand_path("../probes", __FILE__))
+        @available = {}
+        Dir["#{root}/**/*.rb"].each do |f|
+          name = Pathname.new(f).relative_path_from(root).sub_ext('').to_s
+          @available[name] = "skylight/probes/#{name}"
+        end
+      end
+      @available
+    end
+
+    def self.probe(*probes)
+      unknown = probes.map(&:to_s) - available.keys
+      unless unknown.empty?
+        raise ArgumentError, "unknown probes: #{unknown.join(', ')}"
+      end
+
+      probes.each do |p|
+        begin
+          @via_api = true
+          require available[p.to_s]
+        ensure
+          @via_api = false
+        end
       end
     end
 
@@ -27,8 +58,13 @@ module Skylight
       !!Skylight::Util::Inflector.safe_constantize(klass_name)
     end
 
-    def self.register(*args)
-      registration = ProbeRegistration.new(*args)
+    def self.register(name, *args)
+      unless @via_api
+        DEPRECATOR.deprecation_warning("Enabling probes via `require` alone",
+                                        "use `Skylight.probe(:#{name})` instead")
+      end
+
+      registration = ProbeRegistration.new(name, *args)
 
       if is_available?(registration.klass_name)
         installed[registration.klass_name] = registration
