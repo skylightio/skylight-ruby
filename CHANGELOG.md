@@ -1,3 +1,12 @@
+## 1.7.0 (April 24, 2018)
+
+* [FEATURE] New API for loading Probes. Example: `Skylight.probe(:excon')`
+* [FEATURE] New API for enabling non-default Normalizers. Example: `Skylight.enable_normalizer('active_job')`
+* [DEPRECATION] Support for Rails versions prior to 4.2
+* [DEPRECATION] Support for Tilt versions prior to 1.4.1
+* [DEPRECATION] Support for Sinatra versions prior to 1.4
+* [DEPRECATION] Support for Grape versions prior to 0.13.0
+
 ## 1.6.1 (April 12, 2018)
 
 * [IMPROVEMENT] Include endpoint name in error logging
