@@ -1,3 +1,5 @@
+ENV['SKIP_RACK_TEST'] = 'true'
+
 # Nokogiri 1.7 fails to install on 2.0
 if RUBY_VERSION == '2.0.0'
   ENV['NOKOGIRI_VERSION'] = '~> 1.6.8'

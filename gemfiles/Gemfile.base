@@ -40,7 +40,14 @@ end
 gem 'beefcake'
 gem 'rspec', '~> 3.4.0'
 gem 'rspec-collection_matchers'
-gem 'rack-test'
+
+unless ENV['SKIP_RACK_TEST']
+  if ruby_version < Gem::Version.new('2.2.2')
+    gem 'rack-test', '~> 0.7.0'
+  else
+    gem 'rack-test'
+  end
+end
 
 if ENV['NOKOGIRI_VERSION']
   gem 'nokogiri', ENV['NOKOGIRI_VERSION']
