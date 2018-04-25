@@ -59,6 +59,6 @@ module Skylight::Core
       end
     end
 
-    register("Net::HTTP", "net/http", NetHTTP::Probe.new)
+    register(:net_http, "Net::HTTP", "net/http", NetHTTP::Probe.new)
   end
 end

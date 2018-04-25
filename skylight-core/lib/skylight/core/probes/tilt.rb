@@ -22,6 +22,6 @@ module Skylight::Core
       end
     end
 
-    register("Tilt::Template", "tilt/template", Tilt::Probe.new)
+    register(:tilt, "Tilt::Template", "tilt/template", Tilt::Probe.new)
   end
 end

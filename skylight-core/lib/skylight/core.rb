@@ -1,4 +1,5 @@
 require 'skylight/core/version'
+require 'skylight/core/deprecation'
 
 module Skylight
   module Core

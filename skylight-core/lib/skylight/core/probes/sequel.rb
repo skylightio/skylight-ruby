@@ -28,6 +28,6 @@ module Skylight::Core
       end
     end
 
-    register("Sequel", "sequel", Sequel::Probe.new)
+    register(:sequel, "Sequel", "sequel", Sequel::Probe.new)
   end
 end

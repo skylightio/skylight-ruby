@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-module Skylight
+module Skylight::Core
   module Probes
     describe "Excon", :excon_probe do
       describe "Probe", :probes do
 
         it "is registered" do
-          reg = Skylight::Core::Probes.installed["Excon"].first
+          reg = Skylight::Core::Probes.installed["Excon"]
           expect(reg.klass_name).to eq("Excon")
           expect(reg.require_paths).to eq(["excon"])
           expect(reg.probe).to be_a(Skylight::Core::Probes::Excon::Probe)

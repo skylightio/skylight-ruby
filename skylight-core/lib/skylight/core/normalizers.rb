@@ -7,33 +7,51 @@ module Skylight::Core
 
     DEFAULT = Default.new
 
-    def self.register(name, klass)
-      (@registry ||= {})[name] = klass
-      klass
+    def self.registry
+      @registry ||= {}
+    end
+
+    def self.register(name, klass, opts={})
+      enabled = opts[:enabled] != false
+      registry[name] = [klass, enabled]
     end
 
     def self.unregister(name)
       @registry.delete(name)
     end
 
+    def self.enable(*names, enabled: true)
+      names.each do |name|
+        matches = registry.select{|n,_| n =~ /(^|\.)#{name}$/ }
+        raise ArgumentError, "no normalizers match #{name}" if matches.empty?
+        matches.values.each{|v| v[1] = enabled }
+      end
+    end
+
+    def self.disable(*names)
+      enable(*names, enabled: false)
+    end
+
     def self.build(config)
       normalizers = {}
 
-      (@registry || {}).each do |k, klass|
+      registry.each do |key, (klass, enabled)|
+        next if !enabled
+
         unless klass.method_defined?(:normalize)
           # TODO: Warn
           next
         end
 
-        normalizers[k] = klass.new(config)
+        normalizers[key] = klass.new(config)
       end
 
       Container.new(normalizers)
     end
 
     class Normalizer
-      def self.register(name)
-        Normalizers.register(name, self)
+      def self.register(name, opts={})
+        Normalizers.register(name, self, opts)
       end
 
       attr_reader :config
@@ -48,80 +66,6 @@ module Skylight::Core
       end
 
       def normalize_after(trace, span, name, payload)
-      end
-    end
-
-    # Base Normalizer for Rails rendering
-    class RenderNormalizer < Normalizer
-      include Util::AllocationFree
-
-      def setup
-        @paths = config['normalizers.render.view_paths'] || []
-      end
-
-      # Generic normalizer for renders
-      # @param category [String]
-      # @param payload [Hash]
-      # @option payload [String] :identifier
-      # @return [Array]
-      def normalize_render(category, payload)
-        if path = payload[:identifier]
-          title = relative_path(path)
-          path = nil if path == title
-        end
-
-        [ category, title, nil ]
-      end
-
-      def relative_path(path)
-        return path if relative_path?(path)
-
-        root = array_find(@paths) { |p| path.start_with?(p) }
-        type = :project
-
-        unless root
-          root = array_find(Gem.path) { |p| path.start_with?(p) }
-          type = :gem
-        end
-
-        if root
-          start = root.size
-          start += 1 if path.getbyte(start) == SEPARATOR_BYTE
-          if type == :gem
-            "$GEM_PATH/#{path[start, path.size]}"
-          else
-            path[start, path.size]
-          end
-        else
-          "Absolute Path"
-        end
-      end
-
-    private
-      def relative_path?(path)
-        !absolute_path?(path)
-      end
-
-      SEPARATOR_BYTE = File::SEPARATOR.ord
-
-      if File.const_defined?(:NULL) ? File::NULL == "NUL" : RbConfig::CONFIG['host_os'] =~ /mingw|mswin32/
-        # This is a DOSish environment
-        ALT_SEPARATOR_BYTE = File::ALT_SEPARATOR && File::ALT_SEPARATOR.ord
-        COLON_BYTE = ":".ord
-        def absolute_path?(path)
-          if alpha?(path.getbyte(0)) && path.getbyte(1) == COLON_BYTE
-            byte2 = path.getbyte(2)
-            byte2 == SEPARATOR_BYTE || byte2 == ALT_SEPARATOR_BYTE
-          end
-        end
-
-        def alpha?(byte)
-          byte >= 65 and byte <= 90 || byte >= 97 and byte <= 122
-        end
-      else
-        def absolute_path?(path)
-          path.getbyte(0) == SEPARATOR_BYTE
-        end
       end
     end
 
@@ -155,6 +99,7 @@ module Skylight::Core
         action_view/render_collection
         action_view/render_partial
         action_view/render_template
+        active_job/enqueue_at
         active_model_serializers/render
         active_record/instantiation
         active_record/sql
@@ -169,8 +114,5 @@ module Skylight::Core
         sequel/sql).each do |file|
       require "skylight/core/normalizers/#{file}"
     end
-
-    # The following are not required by default as they are of dubious usefulness:
-    # - active_job/enqueue_at
   end
 end

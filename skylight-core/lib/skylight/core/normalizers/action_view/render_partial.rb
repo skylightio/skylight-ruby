@@ -1,3 +1,5 @@
+require 'skylight/core/normalizers/render'
+
 module Skylight::Core
   module Normalizers
     module ActionView

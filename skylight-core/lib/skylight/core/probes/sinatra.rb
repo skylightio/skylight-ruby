@@ -64,6 +64,6 @@ module Skylight::Core
       end
     end
 
-    register("Sinatra::Base", "sinatra/base", Sinatra::Probe.new)
+    register(:sinatra, "Sinatra::Base", "sinatra/base", Sinatra::Probe.new)
   end
 end

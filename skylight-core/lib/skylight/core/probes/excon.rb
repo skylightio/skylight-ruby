@@ -21,6 +21,6 @@ module Skylight::Core
       end
     end
 
-    register("Excon", "excon", Excon::Probe.new)
+    register(:excon, "Excon", "excon", Excon::Probe.new)
   end
 end

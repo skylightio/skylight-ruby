@@ -33,6 +33,10 @@ module Skylight
           Skylight::Core::Probes.probe(*args)
         end
 
+        def self.enable_normalizer(*names)
+          Skylight::Core::Normalizers.enable(*names)
+        end
+
         # Start instrumenting
         def start!(config=nil)
           return @instrumenter if @instrumenter

@@ -32,6 +32,6 @@ module Skylight::Core
       end
     end
 
-    register("Elasticsearch", "elasticsearch", Elasticsearch::Probe.new)
+    register(:elasticsearch, "Elasticsearch", "elasticsearch", Elasticsearch::Probe.new)
   end
 end
