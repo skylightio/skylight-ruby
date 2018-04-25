@@ -33,7 +33,7 @@ module Skylight
           Skylight::Core::Probes.probe(*args)
         end
 
-        def self.enable_normalizer(*names)
+        def enable_normalizer(*names)
           Skylight::Core::Normalizers.enable(*names)
         end
 
