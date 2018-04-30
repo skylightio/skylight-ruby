@@ -68,7 +68,7 @@ module Skylight::Core
     end
 
     def register(*args)
-      Skylight::DEPRECATOR.silence do
+      Skylight::Core::DEPRECATOR.silence do
         # This will raise a deprecation warning about require since we're not using `Skylight.probe`
         subject.register(*args)
       end
