@@ -1,3 +1,8 @@
+7a9420a Correctly deprecate the Grape probe
+## 2.0.1 (May 1, 2018)
+
+* [BUGFIX] Correctly deprecate the now unncessary Grape probe.
+
 ## 2.0.0 (April 25, 2018)
 
 * [FEATURE] New SQL lexer to support a wider variety of SQL queries.
