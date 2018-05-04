@@ -84,6 +84,8 @@ if enable
         expect(names).to include('app.zomg')
         expect(names).to include('app.inside')
         expect(names[0]).to eq('app.rack.request')
+
+        expect(names.last).to eq('view.grape.format_response') if ENV['GRAPE_VERSION'] == 'edge'
       end
 
     end

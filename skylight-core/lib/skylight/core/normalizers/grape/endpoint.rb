@@ -8,6 +8,8 @@ module Skylight::Core
           require "skylight/core/normalizers/grape/endpoint_#{type}"
         end
 
+        require 'skylight/core/normalizers/grape/format_response'
+
         private
 
           def get_method(endpoint)
