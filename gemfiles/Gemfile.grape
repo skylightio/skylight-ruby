@@ -4,7 +4,7 @@ eval_gemfile File.expand_path('../Gemfile.base', __FILE__)
 
 version = ENV['GRAPE_VERSION']
 if version == 'edge'
-  version = { git: 'https://github.com/zvkemp/grape', ref: 'instrument-serialization' }
+  version = { git: 'https://github.com/grape/grape' }
 end
 
 gem 'grape', version
