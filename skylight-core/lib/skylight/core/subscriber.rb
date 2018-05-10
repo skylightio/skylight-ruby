@@ -7,32 +7,22 @@ module Skylight::Core
 
     def initialize(config, instrumenter)
       @config       = config
-      @subscriber   = nil
       @normalizers  = Normalizers.build(config)
       @instrumenter = instrumenter
+      @subscribers  = []
     end
 
     def register!
-      unregister! if @subscriber
-      pattern = ArrayPattern.new(@normalizers.keys)
-      @subscriber = ActiveSupport::Notifications.subscribe pattern, self
+      unregister!
+      @normalizers.keys.each do |key|
+        @subscribers << ActiveSupport::Notifications.subscribe(key, self)
+      end
     end
 
     def unregister!
-      ActiveSupport::Notifications.unsubscribe @subscriber
-      @subscriber = nil
-    end
-
-    class ArrayPattern
-
-      def initialize(keys)
-        @keys = Set.new keys
+      until @subscribers.empty?
+        ActiveSupport::Notifications.unsubscribe @subscribers.shift
       end
-
-      def ===(item)
-        @keys.include?(item)
-      end
-
     end
 
     #
@@ -57,10 +47,8 @@ module Skylight::Core
 
       unless result == :skip
         case result.size
-        when 4
+        when 3, 4
           cat, title, desc, meta = result
-        when 3
-          cat, title, desc = result
         else
           raise "Invalid normalizer result: #{result.inspect}"
         end
