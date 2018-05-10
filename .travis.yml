@@ -45,7 +45,7 @@ rvm:
 
 gemfile:
   - gemfiles/Gemfile.rails-4.2.x
-  - gemfiles/Gemfile.rails-5.1.x
+  - gemfiles/Gemfile.rails-5.2.x
   - gemfiles/Gemfile.sinatra-1.4.x
   - gemfiles/Gemfile.sinatra-2.0.x
   - gemfiles/Gemfile.grape
@@ -67,15 +67,20 @@ matrix:
       # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
       env:
         -
+    - rvm: 2.5
+      gemfile: gemfiles/Gemfile.rails-5.1.x
+      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
+      env:
+        -
     # Newer Rails
     - rvm: ruby-head
-      gemfile: gemfiles/Gemfile.rails-5.1.x
+      gemfile: gemfiles/Gemfile.rails-5.2.x
       # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
       env:
         -
     # Separate Code Climate coverage run, sort of duplicate of normal Rails 5 job
     - rvm: 2.5
-      gemfile: gemfiles/Gemfile.rails-5.1.x
+      gemfile: gemfiles/Gemfile.rails-5.2.x
       env:
         # CODECLIMATE_REPO_TOKEN
         - secure: "dGdkneTJSwPJ8QXfUhhG6fSxGpZPgX5pidYm3cA6o4VsErAF3m5r5cyTO54Swzb9m0Ib2mLfqJtcd0n+0IJFTRxGQe98H0QDpBE8UAf0H8AjXwHmjYpVzSxm/iPZDIuDTkDsfFLxaQ1NbOiSm2joUoU70icNyIAArvN3bh/fMpM="
