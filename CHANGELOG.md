@@ -1,3 +1,4 @@
+c624d39 add normalizer for 'format_response.grape' notifications
 7a9420a Correctly deprecate the Grape probe
 ## 2.0.1 (May 1, 2018)
 
