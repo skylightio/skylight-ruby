@@ -10,7 +10,7 @@ module Skylight::Core
             def render(*args, &block)
               opts = {
                 category: "view.render.template",
-                title: options[:sky_virtual_path] || "Unknown template name"
+                title: options[:sky_virtual_path] || basename || "Unknown template name"
               }
 
               Skylight::Core::Fanout.instrument(opts) do
