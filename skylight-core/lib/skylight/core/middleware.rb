@@ -124,7 +124,7 @@ module Skylight::Core
 
       def make_request_id(request_id)
         if request_id && !request_id.empty?
-          request_id.gsub(/[^\w\-]/, "".freeze).first(255)
+          request_id.gsub(/[^\w\-]/, "".freeze)[0...255]
         else
           internal_request_id
         end
