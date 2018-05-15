@@ -29,7 +29,7 @@ module Skylight::Core
     end
 
     def disable_dev_warning?
-      disable_dev_warning
+      disable_dev_warning || ENV['SKYLIGHT_DISABLE_DEV_WARNING'] =~ /^true$/i
     end
 
     def disable_env_warning?

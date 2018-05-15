@@ -40,7 +40,9 @@ describe 'skylight setup', :http, :agent do
         with(/config\/skylight\.yml/)
     end
 
-    cli.setup(token)
+    capture(:stdout) do
+      cli.setup(token)
+    end
 
     expect(tmp('config/skylight.yml')).to exist
 

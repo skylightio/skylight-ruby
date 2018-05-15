@@ -445,6 +445,8 @@ module Skylight::Core
             when /^info$/i  then Logger::INFO
             when /^warn$/i  then Logger::WARN
             when /^error$/i then Logger::ERROR
+            when /^fatal$/i then Logger::FATAL
+            else Logger::ERROR
             end
         end
       end
