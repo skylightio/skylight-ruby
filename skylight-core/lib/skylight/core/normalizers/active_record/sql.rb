@@ -21,7 +21,7 @@ module Skylight::Core
             meta[:adapter] = config[:adapter]
             meta[:database] = config[:database]
           rescue => e
-            warn "Unable to get ActiveRecord config; e=#{e}"
+            trace.instrumenter.warn "Unable to get ActiveRecord config; e=#{e}"
           end
 
           [name, title, description, meta]
