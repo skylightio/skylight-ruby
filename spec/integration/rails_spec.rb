@@ -36,19 +36,7 @@ if enable
 
     before :each do
       @original_env = ENV.to_hash
-      ENV['SKYLIGHT_AUTHENTICATION']       = "lulz"
-      ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
-      ENV['SKYLIGHT_REPORT_URL']           = "http://127.0.0.1:#{port}/report"
-      ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = "false"
-      ENV['SKYLIGHT_AUTH_URL']             = "http://127.0.0.1:#{port}/agent"
-      ENV['SKYLIGHT_VALIDATION_URL']       = "http://127.0.0.1:#{port}/agent/config"
-      ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
-      ENV['SKYLIGHT_ENABLE_SEGMENTS']      = "true"
-
-      if ENV['DEBUG']
-        ENV['SKYLIGHT_ENABLE_TRACE_LOGS']    = "true"
-        ENV['SKYLIGHT_LOG_FILE']             = "-"
-      end
+      set_agent_env
 
       class CustomMiddleware
 
@@ -118,7 +106,7 @@ if enable
         config.active_support.deprecation = :stderr
 
         config.logger = Logger.new(STDOUT)
-        config.logger.level = Logger::DEBUG
+        config.log_level = ENV['DEBUG'] ? :debug : :unknown
         config.logger.progname = "Rails"
 
         config.eager_load = false

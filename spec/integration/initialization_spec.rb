@@ -81,7 +81,11 @@ describe "Initialization integration" do
 
         it "doesn't warn in development mode if disable_dev_warning has been set" do
           # `bundle exec skylight disable_dev_warning`
-          Skylight::CLI::Base.new.disable_dev_warning
+          out = capture(:stdout) do
+            Skylight::CLI::Base.new.disable_dev_warning
+          end
+
+          expect(out.strip).to eq("Development mode warning disabled")
 
           expect(boot).to_not include "development mode"
         end

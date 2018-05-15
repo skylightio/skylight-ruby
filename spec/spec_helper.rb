@@ -56,4 +56,9 @@ RSpec.configure do |config|
   config.example_status_persistence_file_path = File.expand_path("../../tmp/rspec-examples.txt", __FILE__)
 
   config.include SpecHelper
+
+  config.after do
+    # Kill any daemon that may have been started
+    system("killall -9 skylightd &> /dev/null")
+  end
 end

@@ -14,14 +14,8 @@ if enable
   describe 'Sinatra integration' do
 
     before :each do
-      ENV['SKYLIGHT_ENABLE_TRACE_LOGS']    = "1"
-      ENV['SKYLIGHT_AUTHENTICATION']       = "lulz"
-      ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
-      ENV['SKYLIGHT_REPORT_URL']           = "http://127.0.0.1:#{port}/report"
-      ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = "false"
-      ENV['SKYLIGHT_AUTH_URL']             = "http://127.0.0.1:#{port}/agent"
-      ENV['SKYLIGHT_VALIDATION_URL']       = "http://127.0.0.1:#{port}/agent/config"
-      ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
+      @original_env = ENV.to_hash
+      set_agent_env
 
       Skylight.start!
 
@@ -38,13 +32,7 @@ if enable
     end
 
     after :each do
-      ENV['SKYLIGHT_AUTHENTICATION']       = nil
-      ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = nil
-      ENV['SKYLIGHT_REPORT_URL']           = nil
-      ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = nil
-      ENV['SKYLIGHT_AUTH_URL']             = nil
-      ENV['SKYLIGHT_VALIDATION_URL']       = nil
-      ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = nil
+      ENV.replace(@original_env)
 
       Skylight.stop!
 

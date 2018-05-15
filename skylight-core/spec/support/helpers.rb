@@ -44,7 +44,7 @@ module SpecHelper
     @test_config_values ||= {
       authentication: "lulz",
       log: log_path,
-      log_level: :debug,
+      log_level: ENV['DEBUG'] ? :debug : :fatal,
       user_config_path: tmp("user_config.yml"),
       report_url: "http://127.0.0.1:#{port}/report",
       report_http_deflate: false,

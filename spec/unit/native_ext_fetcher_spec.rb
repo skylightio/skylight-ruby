@@ -87,6 +87,9 @@ module Skylight
     end
 
     def fetch(opts)
+      opts[:logger] ||= Logger.new(STDOUT).tap do |l|
+        l.level = ENV['DEBUG'] ? Logger::DEBUG : Logger::FATAL
+      end
       NativeExtFetcher.fetch(opts)
     end
 

@@ -22,7 +22,7 @@ module Skylight
       include Core::Util::Logging
 
       attr_accessor :authentication
-      attr_reader :host, :port
+      attr_reader :host, :port, :config
 
       READ_EXCEPTIONS = [Timeout::Error, EOFError]
       # This doesn't exist on Ruby 1.9.3
