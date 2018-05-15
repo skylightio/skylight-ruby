@@ -3,6 +3,7 @@ require 'logger'
 require 'net/http'
 require 'fileutils'
 require 'digest/sha2'
+require 'open3'
 require 'skylight/util/ssl'
 require 'skylight/core/util/proxy'
 
@@ -78,7 +79,10 @@ module Skylight
       end
 
       Dir.chdir File.dirname(tar_gz) do
-        system "tar xzvf #{tar_gz}"
+        cmd = "tar xzvf #{tar_gz}"
+        out, _status = Open3.capture2e(cmd)
+        log cmd
+        log out
       end
 
       true
