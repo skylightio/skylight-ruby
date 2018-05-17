@@ -107,6 +107,8 @@ module Skylight::Core
       config.gc.enable
       @subscriber.register!
 
+      ActiveSupport::Notifications.instrument("started_instrumenter.skylight", instrumenter: self)
+
       self
 
     rescue Exception => e

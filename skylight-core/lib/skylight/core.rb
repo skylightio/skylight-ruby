@@ -67,6 +67,7 @@ module Skylight
   require 'skylight/core/vm/gc'
   require 'skylight/core/util'
   require 'skylight/core/middleware'
+  require 'skylight/core/sidekiq'
   require 'skylight/core/subscriber'
   require 'skylight/core/instrumentable'
 

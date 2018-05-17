@@ -42,7 +42,7 @@ module Skylight::Core
       end
 
       it "uses Etc.getpwuid if no HOME" do
-        Etc.stub(getpwuid: double(dir: '/users/other-tester'))
+        allow(Etc).to receive(:getpwuid).and_return(double(dir: '/users/other-tester'))
         with_env('HOME' => nil) do
           expect(config.file_path).to eq('/users/other-tester/.skylight')
         end
@@ -52,7 +52,7 @@ module Skylight::Core
         pending "hard to set up correct environment"
 
         # Not 100% sure this stub is correct
-        Etc.stub(getpwuid: double(dir: nil))
+        allow(Etc).to receive(:getpwuid).and_return(double(dir: nil))
         with_env('HOME' => nil, 'USER' => 'another-tester') do
           expect(config.file_path).to eq('/users/another-tester/.skylight')
         end
@@ -60,7 +60,7 @@ module Skylight::Core
 
       it "raises if no USER, Etc.getpwuid, or HOME" do
         # Not 100% sure this stub is correct
-        Etc.stub(getpwuid: double(dir: nil))
+        allow(Etc).to receive(:getpwuid).and_return(double(dir: nil))
         with_env('HOME' => nil, 'USER' => nil) do
           expect {
             config.file_path
