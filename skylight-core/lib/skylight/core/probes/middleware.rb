@@ -40,12 +40,12 @@ module Skylight::Core
                 proxied_response = Skylight::Core::Middleware.with_after_close(resp) do
                   Skylight::Core::Fanout.done(spans)
                 end
-              rescue Exception => e
+              rescue Exception => err
                 # FIXME: Log this?
-                Skylight::Core::Fanout.done(spans, exception_object: e)
+                Skylight::Core::Fanout.done(spans, exception_object: err)
                 raise
               ensure
-                unless proxied_response
+                unless err || proxied_response
                   Skylight::Core::Fanout.done(spans, defer: true)
                 end
               end

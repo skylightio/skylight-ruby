@@ -214,15 +214,21 @@ module Skylight::Core
       t { "stopping span: #{span}" }
 
       while deferred_spans[expected = @spans.pop]
-        _stop(expected, deferred_spans.delete(expected))
+        normalized_stop(expected, deferred_spans.delete(expected))
       end
 
-      handle_unexpected_stop(expected, span, time) unless span == expected
-      _stop(span, time)
+      handle_unexpected_stop(expected, span) unless span == expected
+
+      normalized_stop(span, time)
       nil
     end
 
-    def handle_unexpected_stop(expected, span, time)
+    def normalized_stop(span, time)
+      time = self.class.normalize_time(time)
+      native_stop_span(span, time)
+    end
+
+    def handle_unexpected_stop(expected, span)
       message = "[E0001] Spans were closed out of order. Expected to see '#{native_span_get_title(expected)}', " \
                   "but got '#{native_span_get_title(span)}' instead."
 
@@ -244,11 +250,6 @@ module Skylight::Core
       t { "expected=#{expected}, actual=#{span}" }
 
       broken!
-    end
-
-    def _stop(span, time)
-      time = self.class.normalize_time(time)
-      native_stop_span(span, time)
     end
 
     def gc_time
