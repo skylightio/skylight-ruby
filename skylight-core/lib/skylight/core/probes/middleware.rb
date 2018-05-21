@@ -34,15 +34,20 @@ module Skylight::Core
                 traces.each{|t| t.endpoint = name }
 
                 spans = Skylight::Core::Fanout.instrument(title: name, category: "#{category}")
+
                 resp = call_without_sk(*args, &block)
 
-                Skylight::Core::Middleware.with_after_close(resp) do
+                proxied_response = Skylight::Core::Middleware.with_after_close(resp) do
                   Skylight::Core::Fanout.done(spans)
                 end
               rescue Exception => e
                 # FIXME: Log this?
                 Skylight::Core::Fanout.done(spans, exception_object: e)
                 raise
+              ensure
+                unless proxied_response
+                  Skylight::Core::Fanout.done(spans, defer: true)
+                end
               end
             end
           RUBY

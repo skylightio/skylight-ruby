@@ -122,6 +122,11 @@ module Skylight::Core
 
       return if broken?
 
+      if meta && meta[:defer]
+        deferred_spans[span] ||= (Util::Clock.nanos - gc_time)
+        return
+      end
+
       if meta && (meta[:exception_object] || meta[:exception])
         native_span_set_exception(span, meta[:exception_object], meta[:exception])
       end
@@ -201,37 +206,49 @@ module Skylight::Core
       sp
     end
 
+    def deferred_spans
+      @deferred_spans ||= {}
+    end
+
     def stop(span, time)
       t { "stopping span: #{span}" }
 
-      expected = @spans.pop
-      unless span == expected
-        message = "[E0001] Spans were closed out of order. Expected to see '#{native_span_get_title(expected)}', " \
-                    "but got '#{native_span_get_title(span)}' instead."
-
-        if native_span_get_category(span) == "rack.middleware" &&
-            Probes.installed.keys.include?("ActionDispatch::MiddlewareStack::Middleware")
-          if Probes::Middleware::Probe.disabled?
-            message << "\nWe disabled the Middleware probe but unfortunately, this didn't solve the issue."
-          else
-            Probes::Middleware::Probe.disable!
-            message << "\n#{native_span_get_title(span)} may be a Middleware that doesn't fully conform " \
-                        "to the Rack SPEC. We've disabled the Middleware probe to see if that resolves the issue."
-          end
-        end
-
-        message << "\nThis request will not be tracked. Please contact support@skylight.io for more information."
-
-        error message
-
-        t { "expected=#{expected}, actual=#{span}" }
-
-        broken!
+      while deferred_spans[expected = @spans.pop]
+        _stop(expected, deferred_spans.delete(expected))
       end
 
+      handle_unexpected_stop(expected, span, time) unless span == expected
+      _stop(span, time)
+      nil
+    end
+
+    def handle_unexpected_stop(expected, span, time)
+      message = "[E0001] Spans were closed out of order. Expected to see '#{native_span_get_title(expected)}', " \
+                  "but got '#{native_span_get_title(span)}' instead."
+
+      if native_span_get_category(span) == "rack.middleware" &&
+          Probes.installed.keys.include?("ActionDispatch::MiddlewareStack::Middleware")
+        if Probes::Middleware::Probe.disabled?
+          message << "\nWe disabled the Middleware probe but unfortunately, this didn't solve the issue."
+        else
+          Probes::Middleware::Probe.disable!
+          message << "\n#{native_span_get_title(span)} may be a Middleware that doesn't fully conform " \
+                      "to the Rack SPEC. We've disabled the Middleware probe to see if that resolves the issue."
+        end
+      end
+
+      message << "\nThis request will not be tracked. Please contact support@skylight.io for more information."
+
+      error message
+
+      t { "expected=#{expected}, actual=#{span}" }
+
+      broken!
+    end
+
+    def _stop(span, time)
       time = self.class.normalize_time(time)
       native_stop_span(span, time)
-      nil
     end
 
     def gc_time

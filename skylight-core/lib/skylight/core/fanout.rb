@@ -42,7 +42,6 @@ module Skylight
       def self.broken!
         registered.each(&:broken!)
       end
-
     end
   end
 end
