@@ -206,6 +206,9 @@ module Skylight::Core
       sp
     end
 
+    # Middleware spans that were interrupted by a throw/catch should be cached here.
+    # keys: span ids
+    # values: nsec timestamp at which the span was cached here.
     def deferred_spans
       @deferred_spans ||= {}
     end
@@ -213,6 +216,9 @@ module Skylight::Core
     def stop(span, time)
       t { "stopping span: #{span}" }
 
+      # If `stop` is called for a span that is not the last item in the stack,
+      # check to see if the last item has been marked as deferred. If so, close
+      # that span first, then try to close the original.
       while deferred_spans[expected = @spans.pop]
         normalized_stop(expected, deferred_spans.delete(expected))
       end
@@ -228,6 +234,9 @@ module Skylight::Core
       native_stop_span(span, time)
     end
 
+    # Originally extracted from `stop`.
+    # If we attempt to close spans out of order, and it appears to be a middleware issue,
+    # disable the middleware probe and mark trace as broken.
     def handle_unexpected_stop(expected, span)
       message = "[E0001] Spans were closed out of order. Expected to see '#{native_span_get_title(expected)}', " \
                   "but got '#{native_span_get_title(span)}' instead."

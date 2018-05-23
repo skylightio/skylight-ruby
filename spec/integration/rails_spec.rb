@@ -509,7 +509,6 @@ if enable
           batch = server.reports[0]
           expect(batch).to be_present
           endpoint = batch.endpoints[0]
-          # FIXME: is this assumption correct?
           expect(endpoint.name).to eq('ThrowingMiddleware')
           trace = endpoint.traces[0]
 
@@ -535,7 +534,6 @@ if enable
           batch = server.reports[0]
           expect(batch).to be_present
           endpoint = batch.endpoints[0]
-          # FIXME: is this assumption correct?
           expect(endpoint.name).to eq('ThrowingMiddleware')
           trace = endpoint.traces[0]
 
