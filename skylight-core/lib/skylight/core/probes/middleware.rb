@@ -36,13 +36,21 @@ module Skylight::Core
                 spans = Skylight::Core::Fanout.instrument(title: name, category: "#{category}")
                 resp = call_without_sk(*args, &block)
 
-                Skylight::Core::Middleware.with_after_close(resp) do
+                proxied_response = Skylight::Core::Middleware.with_after_close(resp) do
                   Skylight::Core::Fanout.done(spans)
                 end
-              rescue Exception => e
+              rescue Exception => err
                 # FIXME: Log this?
-                Skylight::Core::Fanout.done(spans, exception_object: e)
+                Skylight::Core::Fanout.done(spans, exception_object: err)
                 raise
+              ensure
+                unless err || proxied_response
+                  # If we've gotten to this point, the most likely scenario is that
+                  # a throw/catch has bypassed a portion of the callstack. Since these spans would not otherwise
+                  # be closed, mark them deferred to indicate that they should be implicitly closed.
+                  # See Core::Trace#deferred_spans or Core::Trace#stop for more information.
+                  Skylight::Core::Fanout.done(spans, defer: true)
+                end
               end
             end
           RUBY
