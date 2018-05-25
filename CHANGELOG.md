@@ -1,4 +1,4 @@
-## 2.0.2.beta (May 25, 2018)
+## 2.0.2.beta.1 (May 25, 2018)
 
 * [IMPROVEMENT] Improve handling of broken middleware traces
 * [IMPROVEMENT] Don't rely on ActiveSupport's String#first (Thanks @foxtacles!)
