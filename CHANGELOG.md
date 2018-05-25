@@ -1,6 +1,10 @@
-* a369d27 [BUGFIX] Susbcribe to AS::Notifications events individually
-* c624d39 add normalizer for 'format_response.grape' notifications
-* 7a9420a Correctly deprecate the Grape probe
+## 2.0.2.beta (May 25, 2018)
+
+* [IMPROVEMENT] Improve handling of broken middleware traces
+* [IMPROVEMENT] Don't rely on ActiveSupport's String#first (Thanks @foxtacles!)
+* [BUGFIX] Susbcribe to AS::Notifications events individually
+* [IMPROVEMENT] add normalizer for 'format_response.grape' notifications
+* [BUGFIX] Correctly deprecate the Grape probe
 
 ## 2.0.1 (May 1, 2018)
 
