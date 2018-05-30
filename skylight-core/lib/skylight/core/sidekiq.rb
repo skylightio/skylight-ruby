@@ -23,6 +23,7 @@ module Skylight
           t { "Sidekiq middleware beginning trace" }
           job_class = job['wrapped'] || job['class']
           title = "#{job_class}#perform"
+          # FIXME: should default be ignored? If so, change the behavior of ActiveJob::Perform#normalize_after to match.
           segment = queue != 'default' ? "<sk-segment>#{queue}</sk-segment>" : ""
           @instrumentable.trace("#{title}#{segment}", 'app.sidekiq.worker', title) do
             yield
