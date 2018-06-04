@@ -28,10 +28,10 @@ module Skylight::Core
           # Show 'error' if there's an unhandled exception or if the status is 4xx or 5xx
           if payload[:exception] || payload[:exception_object] || payload[:status].to_s =~ /^[45]/
             segment = "error"
-          # We won't have a rendered_format if it's a `head` outside of a `respond_to` block.
-          elsif payload[:rendered_format]
+          # We won't have a sk_rendered_format if it's a `head` outside of a `respond_to` block.
+          elsif payload[:sk_rendered_format]
             # We only show the variant if we actually have a format
-            segment = [payload[:rendered_format], payload[:variant]].compact.flatten.join("+")
+            segment = [payload[:sk_rendered_format], payload[:sk_variant]].compact.flatten.join("+")
           end
 
           if segment
