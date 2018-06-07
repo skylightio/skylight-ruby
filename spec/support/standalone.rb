@@ -20,6 +20,7 @@ module SpecHelper
       # Skylight config
       ENV['SKYLIGHT_AUTH_URL'] = "http://127.0.0.1:#{port}/agent"
       ENV['SKYLIGHT_APP_CREATE_URL'] = "http://127.0.0.1:#{port}/apps"
+      ENV['SKYLIGHT_MERGES_URL'] = "http://127.0.0.1:#{port}/merges"
       ENV['SKYLIGHT_VALIDATION_URL'] = "http://127.0.0.1:#{port}/agent/config"
       ENV['SKYLIGHT_AUTH_HTTP_DEFLATE'] = "false"
     end
