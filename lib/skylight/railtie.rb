@@ -35,5 +35,11 @@ module Skylight
         super + "\n(To disable this message for all local apps, run `skylight disable_dev_warning`.)"
       end
 
+      def load_skylight_config(app)
+        super.tap do |config|
+          config[:'component.environment'] ||= Rails.env.to_s
+        end
+      end
+
   end
 end

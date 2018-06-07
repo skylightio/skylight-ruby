@@ -2,26 +2,31 @@ module Skylight
   module Util
     class Component
 
-      TYPES = %w(web worker).map(&:freeze).freeze
+      attr_accessor :environment, :name
 
-      attr_accessor :environment, :type
+      NAME_FORMAT = /\A[a-z0-9-]+\z/
+      DEFAULT_NAME = 'web'.freeze
+      DEFAULT_ENVIRONMENT = 'production'.freeze
 
-      def initialize(environment, type)
-        @environment = environment
-        raise ArgumentError, "environment can't be blank" if environment.nil? || environment.empty?
-        unless environment =~ /^[\w\d-]+$/
-          raise ArgumentError, "environment can only contain letters, numbers, and dashes"
-        end
-        @type = type
-        unless TYPES.include?(type)
-          raise ArgumentError, "type is invalid; expected one of [#{TYPES.inspect}] but got #{type}"
-        end
+      def initialize(environment, name)
+        @environment = environment || DEFAULT_ENVIRONMENT
+        @name        = name || DEFAULT_NAME
+
+        raise ArgumentError, "environment can't be blank" if @environment.empty?
+        validate_string!(@environment, 'environment')
+        validate_string!(@name, 'name')
       end
 
       def to_s
-        "#{environment}:#{type}"
+        "#{name}:#{environment}"
       end
 
+      private
+
+      def validate_string!(string, kind)
+        return true if string =~ NAME_FORMAT
+        raise ArgumentError, "#{kind} can only contain lowercase letters, numbers, and dashes"
+      end
     end
   end
 end

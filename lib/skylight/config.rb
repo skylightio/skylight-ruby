@@ -19,8 +19,8 @@ module Skylight
         'SESSION_TOKEN' => :session_token,
 
         # == Component settings ==
-        'COMPONENT_ENVIRONMENT' => :'component.environment',
-        'COMPONENT_TYPE' => :'component.type',
+        'ENV' => :'component.environment',
+        'COMPONENT' => :'component.name',
 
         # == Deploy settings ==
         'DEPLOY_ID'          => :'deploy.id',
@@ -86,8 +86,6 @@ module Skylight
           :auth_url             => 'https://auth.skylight.io/agent',
           :app_create_url       => 'https://www.skylight.io/apps',
           :validation_url       => 'https://auth.skylight.io/agent/config',
-          :'component.environment' => 'production',
-          :'component.type'     => 'web',
           :'daemon.lazy_start'  => true,
           :hostname             => Util::Hostname.default_hostname,
           :use_old_sql_lexer    => false,
@@ -296,7 +294,7 @@ authentication: #{self[:authentication]}
 
     def component
       @component ||= Util::Component.new(get(:'component.environment'),
-                                         get(:'component.type'))
+                                         get(:'component.name'))
     rescue ArgumentError => e
       raise Core::ConfigError, e.message
     end
