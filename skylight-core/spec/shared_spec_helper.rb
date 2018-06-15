@@ -50,6 +50,12 @@ begin
 rescue LoadError
 end
 
+begin
+  require 'active_job'
+  Skylight::Core::Probes.probe(:active_job_enqueue)
+rescue LoadError
+end
+
 require 'net/http'
 Skylight::Core::Probes.probe(:net_http)
 
