@@ -99,7 +99,6 @@ module Skylight::Core
         action_view/render_collection
         action_view/render_partial
         action_view/render_template
-        active_job/enqueue_at
         active_model_serializers/render
         active_record/instantiation
         active_record/sql
