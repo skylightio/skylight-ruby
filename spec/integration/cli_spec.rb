@@ -63,19 +63,6 @@ describe "CLI integration", :http do
     end
   end
 
-  describe 'merge' do
-    specify do
-      with_standalone do
-        run_command("merge") do |stdin, stdout, stderr|
-          out = read(stdout)
-          puts out
-          expect(out).to start_with('foo')
-          expect(out).to include('hello')
-        end
-      end
-    end
-  end
-
   def get_prompt(io, limit=100)
     prompt = io.readpartial(limit)
     print prompt if ENV['DEBUG']

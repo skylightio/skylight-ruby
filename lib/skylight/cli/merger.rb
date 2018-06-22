@@ -1,6 +1,7 @@
-require 'pry-byebug'
 require 'ostruct'
 require 'skylight/util/http'
+require 'thor'
+require 'highline'
 
 module Skylight
   module CLI
@@ -153,7 +154,7 @@ module Skylight
 
         if success
           say(message, :green) if message
-          say "If you have further questions, please contact support@skylight.io.", :green
+          say "If you have any further questions, please contact support@skylight.io.", :green
           exit 0
         else
           say message || "Skylight wasn't able to merge your apps.", :red
@@ -203,7 +204,7 @@ module Skylight
         errors = []
 
         unless valid_component?(child_app.name, child_env)
-          errors << "Environment can only contain letters, numbers, and dashes."
+          errors << "Environment can only contain letters, numbers, and hyphens."
         end
 
         if @parent_app && parent_component_fingerprints.include?([child_app.name, child_env])
