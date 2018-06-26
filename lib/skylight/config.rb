@@ -21,6 +21,7 @@ module Skylight
         # == Component settings ==
         'ENV' => :'component.environment',
         'COMPONENT' => :'component.name',
+        'REPORT_RAILS_ENV' => :report_rails_env,
 
         # == Deploy settings ==
         'DEPLOY_ID'          => :'deploy.id',
@@ -279,6 +280,7 @@ authentication: #{self[:authentication]}
         meta = { }
         meta.merge!(deploy.to_query_hash) if deploy
         meta[:component] = component.to_s if component
+        meta[:reporting_env] = true if reporting_env?
 
         # A pipe should be a safe delimiter since it's not in the standard token
         # and is encoded by URI
@@ -306,5 +308,10 @@ authentication: #{self[:authentication]}
       `stat -f -L -c %T #{path} 2>&1`.strip == 'nfs'
     end
 
+    def reporting_env?
+      # true if component.environment was explicitly set,
+      # or if we are auto-detecting via the opt-in SKYLIGHT_REPORT_RAILS_ENV=true
+      !!(get(:report_rails_env) || get(:'component.environment'))
+    end
   end
 end

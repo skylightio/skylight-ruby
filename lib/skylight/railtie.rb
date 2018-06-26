@@ -37,7 +37,9 @@ module Skylight
 
       def load_skylight_config(app)
         super.tap do |config|
-          config[:'component.environment'] ||= Rails.env.to_s
+          if config[:report_rails_env]
+            config[:'component.environment'] ||= Rails.env.to_s
+          end
         end
       end
 
