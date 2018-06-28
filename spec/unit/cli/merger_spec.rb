@@ -106,8 +106,10 @@ def stdout
   end
 
   MATCHERS = {
-    intro: /Fetching your apps from skylight\.io/,
-    further_questions: /If you have any further questions, please contact/,
+    intro: /Hello! Welcome to the `skylight merge` CLI!/,
+    explanation: /This CLI is for/,
+    fetch: /Fetching your apps/,
+    further_questions: /If you have any questions, please contact/,
     app_not_found: /Sorry, `skylight merge` is only able to merge apps that you own/,
     unlisted_app: /\d\. My app isn\'t listed here/
   }
@@ -128,6 +130,8 @@ def stdout
       run_shell(success: false) do
         [
           MATCHERS[:intro],
+          MATCHERS[:explanation],
+          MATCHERS[:fetch],
           /It does not appear that you are the owner of enough apps/,
           MATCHERS[:further_questions]
         ]
@@ -151,19 +155,25 @@ def stdout
     let(:preamble_sequence) do
       [
         MATCHERS[:intro],
-        /Please specify your \*parent\* app/,
+        MATCHERS[:explanation],
+        MATCHERS[:fetch],
+        /Please specify the \"parent\" app/,
         *app_list,
       ]
     end
     let(:success_sequence) do
       [
+        /Merging.../,
         /Success!/,
         /=========================/,
-        /If you're running in Rails, and your rails environment exactly matches `#{child_env}`/,
-        /IMPORTANT/,
         /If you use a config\/skylight.yml/,
-        /IMPORTANT/,
-        /If you use a SKYLIGHT_AUTHENTICATION environment variable/,
+        /Remove any environment-specific `authentication` configs/,
+        /If you're running in Rails and your Rails environment exactly matches `#{child_env}`/,
+        /=========================/,
+        /If you configure Skylight using environment variables/,
+        /Deploy the latest agent before updating your environment variables/,
+        /Set `SKYLIGHT_AUTHENTICATION`/,
+        /If you're running in Rails and your Rails environment exactly matches `#{child_env}`/,
         /=========================/,
       ]
     end
@@ -182,7 +192,7 @@ def stdout
 
     let(:choose_app1_child_sequence) do
       [
-        /Ok, parent app is `app1`/,
+        /Ok! The parent app is: app1/,
         /Please specify the child app to be merged/,
         /1. app2/,
         /2. app3/,
@@ -200,8 +210,8 @@ def stdout
     end
     let(:confirm_environment_sequence) do
       [
-        /child env: #{child_env}/,
-        /Ok, now we're going to merge `app2` into `app1` as `#{child_env}`/,
+        /Ok! The child environment will be: #{child_env}/,
+        /Ok! Now we're going to merge `app2` into `app1` as `#{child_env}`/,
       ]
     end
 
@@ -240,7 +250,7 @@ def stdout
             [/Which number\?/, 1],
             *choose_app1_child_sequence,
             [/Which number\?/, 1],
-            /child app is app2/,
+            /Ok! The child app is: app2/,
             *choose_child_environment_sequence,
             [/Which number\?/, 2],
             *confirm_environment_sequence,
@@ -261,7 +271,7 @@ def stdout
             [/Which number\?/, 1],
             *choose_app1_child_sequence,
             [/Which number\?/, 1],
-            /child app is app2/,
+            /Ok! The child app is: app2/,
             *choose_child_environment_sequence,
             [/Which number\?/, 3],
             [/Please enter your environment name/, child_env],
@@ -283,7 +293,7 @@ def stdout
             [/Which number\?/, 1],
             *choose_app1_child_sequence,
             [/Which number\?/, 1],
-            /child app is app2/,
+            /Ok! The child app is: app2/,
             *choose_child_environment_sequence,
             [/Which number\?/, 'squirrel'],
             /Eh\? Please enter 1, 2, or 3/,
@@ -311,7 +321,7 @@ def stdout
             [/Which number\?/, 1],
             *choose_app1_child_sequence,
             [/Which number\?/, 1],
-            /child app is app2/,
+            /Ok! The child app is: app2/,
             *choose_child_environment_sequence,
             [/Which number\?/, 2],
             *confirm_environment_sequence,
@@ -340,11 +350,12 @@ def stdout
             [/Which number\?/, 1],
             *choose_app1_child_sequence,
             [/Which number\?/, 1],
-            /child app is app2/,
+            /Ok! The child app is: app2/,
             *choose_child_environment_sequence,
             [/Which number\?/, 2],
             *confirm_environment_sequence,
             [/Proceed\? \[Y\/n\]/, 'Y'],
+            /Merging.../,
             /Something went wrong/,
             /#{error_message}/,
             MATCHERS[:further_questions]
@@ -364,6 +375,8 @@ def stdout
         run_shell(success: false) do
           [
             MATCHERS[:intro],
+            MATCHERS[:explanation],
+            MATCHERS[:fetch],
             /Provided merge token is invalid/,
             MATCHERS[:further_questions]
           ]

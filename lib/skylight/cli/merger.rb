@@ -19,8 +19,16 @@ module Skylight
 
       argument :merge_token, type: :string, desc: STRINGS[:get_token]
 
+      def welcome
+        say "\nHello! Welcome to the `skylight merge` CLI!\n", :green
+
+        say "This CLI is for Skylight users who already have Skylight Environments set up\n" \
+          "using the legacy method of creating a separate Skylight app per environment.\n" \
+          "Use this CLI to merge legacy environment apps into their parent apps as Environments."
+      end
+
       def fetch_apps
-        say "Fetching your apps from skylight.io..."
+        say "\nFetching your apps from skylight.io..."
         @apps = api.fetch_mergeable_apps(@merge_token).body
 
         if @apps.count < 2
@@ -46,23 +54,24 @@ module Skylight
           end
         end
 
-        say "\nHello! Please specify your *parent* app.\n" \
+        say "\nLet's begin!\n\n" \
+          "Please specify the \"parent\" app.\n" \
           "In most cases, this will be the production app handling web requests.", :green
 
         @parent_app = ask_for_app(@parents)
       end
 
       def confirm_parent
-        say "Ok, parent app is `#{set_color(@parent_app.name, :green)}`"
+        say "\nOk! The parent app is: #{@parent_app.name}", :green
       end
 
       def ask_for_child_app
-        say "\nPlease specify the child app to be merged into the parent app.", :green
+        say "Please specify the child app to be merged into the parent app as an Environment.", :green
         @child_app = ask_for_app(children, &method(:format_component))
       end
 
       def confirm_child
-        say "Ok, child app is #{format_component(@child_app)}", :yellow
+        say "\nOk! The child app is: #{set_color(format_component(@child_app), :yellow)}", :green
       end
 
       def ask_for_child_env
@@ -76,7 +85,7 @@ module Skylight
         say "2. staging"
         say "3. [choose a different environment not listed here]"
 
-        i = ask("Which number?").chomp.to_i
+        i = ask("\nWhich number?").chomp.to_i
 
         @child_env = case i
                      when 1 then 'development'
@@ -84,27 +93,27 @@ module Skylight
                      when 3
                        specify_child_env
                      else
-                       say("Eh? Please enter 1, 2, or 3.", :red)
+                       say("\nEh? Please enter 1, 2, or 3.", :red)
                        ask_for_child_env
                      end
       end
 
       def confirm_child_env
-        say "child env: #{set_color(@child_env, :yellow)}"
+        say "\nOk! The child environment will be: #{set_color(@child_env, :yellow)}"
       end
 
       def confirm_everything
-        say "\nOk, now we're going to merge `#{set_color(format_component(@child_app), :yellow)}` " \
-          "into `#{set_color(@parent_app.name, :green)}` as `#{set_color(@child_env, :yellow)}`"
+        say "\nOk! Now we're going to merge `#{set_color(format_component(@child_app), :yellow)}` " \
+          "into `#{set_color(@parent_app.name, :green)}` as `#{set_color(@child_env, :yellow)}`."
       end
 
       def do_confirm
-        proceed = ask("Proceed? [Y/n]").chomp
+        proceed = ask("Proceed? [Y/n]", :yellow).chomp
 
-        case proceed
-        when 'Y'
+        case proceed.upcase
+        when "Y", ""
           do_merge
-        when 'n'
+        when "N"
           done!(
             success: true,
             message: "Ok, come back any time."
@@ -116,28 +125,59 @@ module Skylight
       end
 
       def print_new_config_instructions
-        say "Success!", :green
+        say "\nSuccess!\n", :green
+
+        say "=======================================================\n", :yellow
+
+        say "IMPORTANT!\n" \
+          "If you use a config/skylight.yml file to configure Skylight:\n", :yellow
+
+        say "The #@child_env environment for the #{@parent_app.name} app\n" \
+          "will now connect using the default authentication token for the app.\n" \
+          "Remove any environment-specific `authentication` configs from the\n" \
+          "#{@parent_app.name} #@child_env environment.\n", :yellow
+
+        say "If you're running in Rails and your Rails environment exactly matches `#@child_env`,\n" \
+          "set `report_rails_env: true` to allow the agent to detect and report that\n" \
+          "environment when it connects.\n" \
+          "Otherwise, you should set `env: '#@child_env'` as environment-specific configuration for\n" \
+          "#@child_env's Rails environment. For example:\n" \
+          "```yml\n" \
+          "staging:\n" \
+          "  env: staging-42\n" \
+          "```\n", :yellow
+          # TODO: report_rails_env above is for beta only. Update for final release
+          # "we will automatically detect and report that environment when your agent connects.\n"
+
+        say "=======================================================\n", :yellow
+
+        say "IMPORTANT!\n" \
+            "If you configure Skylight using environment variables:\n", :yellow
+
+        say "Deploy the latest agent before updating your environment variables.\n", :yellow
+
+        say "The #@child_env environment for the #{@parent_app.name} app\n" \
+          "will now connect using the default authentication token for the app.\n" \
+          "Set `SKYLIGHT_AUTHENTICATION` in the #@child_env environment to the\n" \
+          "#{@parent_app.name} app's authentication token.\n", :yellow
+
+        say "If you're running in Rails and your Rails environment exactly matches `#@child_env`,\n" \
+          "set `SKYLIGHT_REPORT_RAILS_ENV=true` to allow the agent to detect and report\n" \
+          "that environment when it connects.\n" \
+          "Otherwise, you should set `SKYLIGHT_ENV=#@child_env` when running in this environment.\n", :yellow
+          # TODO: SKYLIGHT_REPORT_RAILS_ENV above is for beta only. Update for final release
+          # "we will automatically detect and report that environment when your agent connects.\n"
+
         say "=======================================================", :yellow
-        say "If you're running in Rails, and your rails environment exactly matches `#@child_env`, we will " \
-          "automatically detect and report that environment when your agent connects. Otherwise, you " \
-          "should set `SKYLIGHT_ENV='#@child_env'` when running in this environment.\n", :yellow
 
-        say "IMPORTANT!", :yellow
-        say "If you use a config/skylight.yml file with different environment settings, " \
-          "you should remove the additional `:authentication` configs from non-production environments. " \
-          "All of your environments for this app will connect using your main authentication token.\n", :yellow
-
-        say "IMPORTANT!", :yellow
-        say "If you use a SKYLIGHT_AUTHENTICATION environment variable, you can now use your production token " \
-          "for all environments belonging to this app.", :yellow
-
-        say "=======================================================", :yellow
         done!
       end
 
       private
 
       def do_merge
+        say "Merging..."
+
         api.merge_apps!(@merge_token,
                         app_guid: @parent_app.guid,
                         component_guid: @child_app.guid,
@@ -154,11 +194,11 @@ module Skylight
 
         if success
           say(message, :green) if message
-          say "If you have any further questions, please contact support@skylight.io.", :green
+          say "If you have any questions, please contact support@skylight.io.", :green
           exit 0
         else
           say message || "Skylight wasn't able to merge your apps.", :red
-          say "If you have any further questions, please contact support@skylight.io.", :yellow
+          say "If you have any questions, please contact support@skylight.io.", :yellow
           exit 1
         end
       end
@@ -169,10 +209,10 @@ module Skylight
           say("\t#{index}. #{formatter.(app)}")
         end
 
-        n = ask("Which number?").chomp.to_i
+        n = ask("\nWhich number?").chomp.to_i
 
         if !app_list.key?(n)
-          say "Hmm?"
+          say "\nHmm?"
           ask_for_app(app_list, &formatter)
         elsif app_list[n].unlisted
           done!(
