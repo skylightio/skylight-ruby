@@ -13,7 +13,7 @@ module Skylight
       end
 
       STRINGS = {
-        get_token: 'get your merge token from `https://www.skylight.io/app/merge`',
+        get_token: 'get your merge token from `https://www.skylight.io/merging`',
         unlisted: "My app isn't listed here :("
       }
 
