@@ -1,4 +1,5 @@
 require 'openssl'
+require 'skylight/util/component'
 require 'skylight/util/deploy'
 require 'skylight/core/util/platform'
 require 'skylight/util/hostname'
@@ -16,6 +17,11 @@ module Skylight
         'ROOT'          => :root,
         'HOSTNAME'      => :hostname,
         'SESSION_TOKEN' => :session_token,
+
+        # == Component settings ==
+        'ENV' => :'component.environment',
+        'COMPONENT' => :'component.name',
+        'REPORT_RAILS_ENV' => :report_rails_env,
 
         # == Deploy settings ==
         'DEPLOY_ID'          => :'deploy.id',
@@ -243,7 +249,7 @@ module Skylight
     def to_native_env
       ret = super
 
-      ret << "SKYLIGHT_AUTHENTICATION" << authentication_with_deploy
+      ret << "SKYLIGHT_AUTHENTICATION" << authentication_with_meta
       ret << "SKYLIGHT_VALIDATE_AUTHENTICATION" << "false"
 
       ret
@@ -267,14 +273,18 @@ authentication: #{self[:authentication]}
     #
     #
 
-    def authentication_with_deploy
+    def authentication_with_meta
       token = get(:authentication)
 
-      if token && deploy
-        deploy_str = deploy.to_query_string
+      if token
+        meta = { }
+        meta.merge!(deploy.to_query_hash) if deploy
+        meta[:component] = component.to_s if component
+        meta[:reporting_env] = true if reporting_env?
+
         # A pipe should be a safe delimiter since it's not in the standard token
         # and is encoded by URI
-        token += "|#{deploy_str}"
+        token += "|#{URI.encode_www_form(meta)}"
       end
 
       token
@@ -284,6 +294,13 @@ authentication: #{self[:authentication]}
       @deploy ||= Util::Deploy.build(self)
     end
 
+    def component
+      @component ||= Util::Component.new(get(:'component.environment'),
+                                         get(:'component.name'))
+    rescue ArgumentError => e
+      raise Core::ConfigError, e.message
+    end
+
   private
 
     def check_nfs(path)
@@ -291,5 +308,10 @@ authentication: #{self[:authentication]}
       `stat -f -L -c %T #{path} 2>&1`.strip == 'nfs'
     end
 
+    def reporting_env?
+      # true if component.environment was explicitly set,
+      # or if we are auto-detecting via the opt-in SKYLIGHT_REPORT_RAILS_ENV=true
+      !!(get(:report_rails_env) || get(:'component.environment'))
+    end
   end
 end

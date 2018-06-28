@@ -60,13 +60,14 @@ module Skylight
                           "culpa qui officia deserunt mollit anim id est laborum."
           }
 
-          expect(config.deploy.to_query_string).to eq(
-              "timestamp=1452620644" \
-                "&deploy_id=1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrs" \
-                "&git_sha=19a8cfc47c10d8069916ae8adba0c9cb4c6c572dw" \
-                "&description=Lorem+ipsum+dolor+sit+amet%2C+consectetur+adipiscing+elit%2C+sed+do+eiusmod+tempor+incididunt+ut+labore+et+dolore+" \
-                  "magna+aliqua.+Ut+enim+ad+minim+veniam%2C+quis+nostrud+exercitation+ullamco+laboris+nisi+ut+aliquip+ex+ea+commodo+consequat.+" \
-                  "Duis+aute+irure+dolor+in")
+          expect(config.deploy.to_query_hash).to eq({
+            timestamp: 1452620644,
+            deploy_id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrs",
+            git_sha:   "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dw",
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore " \
+                          "et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut " \
+                          "aliquip ex ea commodo consequat. Duis aute irure dolor in"
+          })
         end
       end
 
@@ -76,9 +77,10 @@ module Skylight
             id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz"
           }
 
-          expect(config.deploy.to_query_string).to eq(
-              "timestamp=1452620644" \
-                "&deploy_id=1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrs")
+          expect(config.deploy.to_query_hash).to eq({
+            timestamp: 1452620644,
+            deploy_id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrs"
+          })
         end
       end
 
@@ -221,7 +223,8 @@ module Skylight
 
       it "converts to env" do
         expect(get_env).to eq({
-          "SKYLIGHT_AUTHENTICATION" => "abc123",
+          # (Includes default component info)
+          "SKYLIGHT_AUTHENTICATION" => "abc123|component=web%3Aproduction",
           "SKYLIGHT_VERSION"    => Skylight::VERSION,
           "SKYLIGHT_ROOT"       => "/tmp",
           "SKYLIGHT_HOSTNAME"   => "test.local",
@@ -229,6 +232,16 @@ module Skylight
           "SKYLIGHT_LAZY_START" => "false",
           "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false",
         })
+      end
+
+      it "includes deploy info if available" do
+        config[:'deploy.id'] = 'd456'
+
+        # (Includes default component info)
+        Timecop.freeze do
+          expect(get_env['SKYLIGHT_AUTHENTICATION']).to \
+            eq("abc123|timestamp=#{Time.now.to_i}&deploy_id=d456&component=web%3Aproduction")
+        end
       end
 
       it "includes keys only if value is set" do
