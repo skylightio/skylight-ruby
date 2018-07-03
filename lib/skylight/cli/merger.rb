@@ -146,7 +146,8 @@ module Skylight
           "staging:\n" \
           "  env: staging-42\n" \
           "```\n", :yellow
-          # TODO: report_rails_env above is for beta only. Update for final release
+          # TODO: https://github.com/tildeio/direwolf-agent/issues/380
+          # report_rails_env above is for beta only. Update for final release
           # "we will automatically detect and report that environment when your agent connects.\n"
 
         say "=======================================================\n", :yellow
@@ -165,7 +166,8 @@ module Skylight
           "set `SKYLIGHT_REPORT_RAILS_ENV=true` to allow the agent to detect and report\n" \
           "that environment when it connects.\n" \
           "Otherwise, you should set `SKYLIGHT_ENV=#@child_env` when running in this environment.\n", :yellow
-          # TODO: SKYLIGHT_REPORT_RAILS_ENV above is for beta only. Update for final release
+          # TODO: https://github.com/tildeio/direwolf-agent/issues/380
+          # SKYLIGHT_REPORT_RAILS_ENV above is for beta only. Update for final release
           # "we will automatically detect and report that environment when your agent connects.\n"
 
         say "=======================================================", :yellow
