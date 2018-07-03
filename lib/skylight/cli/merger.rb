@@ -79,8 +79,6 @@ module Skylight
           "In many cases, this will be equivalent to the Rails " \
           "environment, i.e., `development`.", :green
 
-        available_envs = %w(development staging) - @parent_app.components.map { |c| c['environment'] }
-
         say "1. development"
         say "2. staging"
         say "3. [choose a different environment not listed here]"
