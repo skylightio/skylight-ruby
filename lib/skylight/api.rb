@@ -8,7 +8,10 @@ module Skylight
 
     attr_reader :config
 
-    class CreateFailed < StandardError
+    class Error < StandardError; end
+    class Unauthorized < Error; end
+    class Conflict < Error; end
+    class CreateFailed < Error
       attr_reader :res
 
       def initialize(res)
@@ -102,6 +105,21 @@ module Skylight
       res
     end
 
+    def fetch_mergeable_apps(token)
+      headers = { 'x-skylight-merge-token' => token }
+      http_request(:merges, :get, headers).tap do |res|
+        raise error_for_status(res.status).new("HTTP #{res.status}: #{res.body}") unless res.success?
+      end
+    end
+
+    def merge_apps!(token, app_guid:, component_guid:, environment:)
+      headers = { 'x-skylight-merge-token' => token }
+      body = { environment: environment, app_guid: app_guid, component_guid: component_guid }
+      http_request(:merges, :post, body, headers).tap do |res|
+        raise error_for_status(res.status).new("HTTP #{res.status}: #{res.body}") unless res.success?
+      end
+    end
+
     def validate_config
       res = http_request(:validation, :post, config)
       ConfigValidationResults.new(config, res)
@@ -114,6 +132,17 @@ module Skylight
       http = Util::HTTP.new(config, service)
       uri = URI.parse(config.get("#{service}_url"))
       http.send(method, uri.path, *args)
+    end
+
+    def error_for_status(code)
+      case code
+      when 401
+        Unauthorized
+      when 409
+        Conflict
+      else
+        Error
+      end
     end
 
   end

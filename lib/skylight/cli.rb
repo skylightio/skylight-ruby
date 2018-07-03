@@ -8,6 +8,7 @@ require 'active_support/inflector'
 
 require 'skylight/cli/helpers'
 require 'skylight/cli/doctor'
+require 'skylight/cli/merger'
 
 module Skylight
   module CLI
@@ -16,6 +17,7 @@ module Skylight
       include Helpers
 
       register(Doctor, "doctor", "doctor", "Run some basic tests to look out for common problems")
+      register(Merger, "merge", "merge", "Merge one app into another (e.g., as a child environment)")
 
       desc "setup TOKEN", "Sets up a new app using the provided token"
       def setup(token)

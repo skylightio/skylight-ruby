@@ -41,6 +41,7 @@ module Skylight
         # == Skylight Remote ==
         "AUTH_URL"                     => :auth_url,
         "APP_CREATE_URL"               => :app_create_url,
+        "MERGES_URL"                   => :merges_url,
         "VALIDATION_URL"               => :validation_url,
         "AUTH_HTTP_DEFLATE"            => :auth_http_deflate,
         "AUTH_HTTP_CONNECT_TIMEOUT"    => :auth_http_connect_timeout,
@@ -86,6 +87,7 @@ module Skylight
         ret = super.merge(
           :auth_url             => 'https://auth.skylight.io/agent',
           :app_create_url       => 'https://www.skylight.io/apps',
+          :merges_url           => 'https://www.skylight.io/merges',
           :validation_url       => 'https://auth.skylight.io/agent/config',
           :'daemon.lazy_start'  => true,
           :hostname             => Util::Hostname.default_hostname,

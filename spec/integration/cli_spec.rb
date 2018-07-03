@@ -2,9 +2,12 @@ require 'spec_helper'
 require 'open3'
 
 describe "CLI integration", :http do
-
   def run_command(cmd, &block)
     Open3.popen3("bundle exec skylight #{cmd}", &block)
+  rescue RSpec::Expectations::ExpectationNotMetError
+    # Provide some potential debugging information
+    puts stderr.read if ENV['DEBUG']
+    raise
   end
 
   it "works with setup token" do
@@ -20,15 +23,9 @@ describe "CLI integration", :http do
       puts output if ENV['DEBUG']
 
       run_command("setup setuptoken") do |stdin, stdout, stderr|
-        begin
-          expect(read(stdout)).to include("Congratulations. Your application is on Skylight!")
+        expect(read(stdout)).to include("Congratulations. Your application is on Skylight!")
 
-          expect(YAML.load_file("config/skylight.yml")).to eq({"authentication"=>"apptoken"})
-        rescue RSpec::Expectations::ExpectationNotMetError
-          # Provide some potential debugging information
-          puts stderr.read if ENV['DEBUG']
-          raise
-        end
+        expect(YAML.load_file("config/skylight.yml")).to eq({"authentication"=>"apptoken"})
       end
     end
   end
@@ -44,17 +41,11 @@ describe "CLI integration", :http do
       puts output if ENV['DEBUG']
 
       run_command("setup invalidtoken") do |stdin, stdout, stderr|
-        begin
-          output = read(stdout)
-          expect(output).to include("Could not create the application")
-          expect(output).to include('{"request"=>"invalid app create token"}')
+        output = read(stdout)
+        expect(output).to include("Could not create the application")
+        expect(output).to include('{"request"=>"invalid app create token"}')
 
-          expect(File.exist?("config/skylight.yml")).to be_falsey
-        rescue RSpec::Expectations::ExpectationNotMetError
-          # Provide some potential debugging information
-          puts stderr.read if ENV['DEBUG']
-          raise
-        end
+        expect(File.exist?("config/skylight.yml")).to be_falsey
       end
     end
   end
@@ -67,13 +58,7 @@ describe "CLI integration", :http do
       system("touch config/skylight.yml")
 
       run_command("setup token") do |stdin, stdout, stderr|
-        begin
-          expect(read(stdout)).to match(%r{A config/skylight.yml already exists for your application.})
-        rescue RSpec::Expectations::ExpectationNotMetError
-          # Provide some potential debugging information
-          puts stderr.read if ENV['DEBUG']
-          raise
-        end
+        expect(read(stdout)).to match(%r{A config/skylight.yml already exists for your application.})
       end
     end
   end
