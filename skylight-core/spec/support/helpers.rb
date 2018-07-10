@@ -48,6 +48,7 @@ module SpecHelper
       user_config_path: tmp("user_config.yml"),
       report_url: "http://127.0.0.1:#{port}/report",
       report_http_deflate: false,
+      report_http_disabled: false,
       report_http_connect_timeout: "1sec",
       report_http_read_timeout: "1sec",
       auth_url: "http://127.0.0.1:#{port}/agent",

@@ -50,6 +50,7 @@ module Skylight
         "REPORT_HTTP_DEFLATE"          => :report_http_deflate,
         "REPORT_HTTP_CONNECT_TIMEOUT"  => :report_http_connect_timeout,
         "REPORT_HTTP_READ_TIMEOUT"     => :report_http_read_timeout,
+        "REPORT_HTTP_DISABLED"         => :report_http_disabled,
 
         # == Native agent settings ==
         #
@@ -134,6 +135,7 @@ module Skylight
         :report_http_deflate,
         :report_http_connect_timeout,
         :report_http_read_timeout,
+        :report_http_disabled,
         :'daemon.lazy_start',
         :'daemon.exec_path',
         :'daemon.lib_path',
