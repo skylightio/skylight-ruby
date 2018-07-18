@@ -1,13 +1,11 @@
 require 'rack'
-require 'webrick'
-require 'socket'
 require 'thread'
-require 'timeout'
 require 'active_support'
 require 'json'
 require 'skylight/core/util/logging'
 require 'puma/events'
 require 'puma/server'
+require 'delegate'
 
 module SpecHelper
   class Server
@@ -28,10 +26,6 @@ module SpecHelper
     end
 
     def self.wait(opts = {})
-      if Numeric === opts
-        opts = { timeout: opts }
-      end
-
       timeout = opts[:timeout] || EMBEDDED_HTTP_SERVER_TIMEOUT
       timeout_at = monotonic_time + timeout
       count = opts[:count] || 1
@@ -39,19 +33,20 @@ module SpecHelper
 
       LOCK.synchronize do
         loop do
-          return true if @requests.select(&filter).length >= count
+          return true if filter_requests(opts).select(&filter).length >= count
 
           ttl = timeout_at - monotonic_time
 
           if ttl <= 0
             puts "***TIMEOUT***"
             puts "timeout: #{timeout}"
+            puts "seeking auth: #{opts[:authentication]}"
             puts "requests:"
-            requests.each do |request|
-              puts "#{Rack::Request.new(request).url}: #{!!filter.call(request)}"
+            @requests.each do |request|
+              puts "[auth: #{request['HTTP_AUTHORIZATION']}] #{Rack::Request.new(request).url}: #{!!filter.call(request)}"
             end
             puts "*************"
-            raise "Server.wait timeout: got #{requests.select(&filter).length} not #{opts[:count]}"
+            raise "Server.wait timeout: got #{filter_requests(opts).select(&filter).length} not #{opts[:count]}"
           end
 
           COND.wait(LOCK, ttl)
@@ -60,12 +55,6 @@ module SpecHelper
     end
 
     def self.reset
-      # FIXME
-      # Crazy hack to make sure that the server has finished processing any inbound requests
-      # This is necessary since sometimes we have situations where a request made in a previous
-      # spec doesn't land until the next spec.
-      sleep 0.1
-
       LOCK.synchronize do
         @requests = []
         @mocks = []
@@ -78,14 +67,14 @@ module SpecHelper
       end
     end
 
-    def self.requests(resource = nil)
-      reqs = LOCK.synchronize { @requests.dup } # FIXME: why?
-      reqs.select! { |env| env['PATH_INFO'] == resource } if resource
-      reqs
+    def self.requests(opts = {})
+      LOCK.synchronize do
+        filter_requests(opts)
+      end
     end
 
-    def self.reports
-      requests.
+    def self.reports(opts = {})
+      requests(opts).
         select { |env| env['PATH_INFO'] == '/report' }.
         map { |env| SpecHelper::Messages::Batch.decode(env['rack.input'].dup) }
     end
@@ -166,19 +155,58 @@ module SpecHelper
       end
     end
 
+    private
+
     def self.monotonic_time
       Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    end
+
+    def self.filter_requests(opts = {})
+      @requests.select do |x|
+        opts[:authentication] ? x['HTTP_AUTHORIZATION'].start_with?(opts[:authentication]) : true
+      end
+    end
+  end
+
+  class ServerDelegate < SimpleDelegator
+    # identifies requests made on THIS test specifically by passing the
+    # authentication token to the server. Handles the cases in which a slow report
+    # from a previous test could be made after a reset was requested.
+
+    def wait(opts = {})
+      if Numeric === opts
+        opts = { timeout: opts }
+      end
+
+      __getobj__.wait(default_opts.merge(opts))
+    end
+
+    def requests(opts = {})
+      __getobj__.requests(default_opts.merge(opts))
+    end
+
+    def reports(opts = {})
+      __getobj__.reports(default_opts.merge(opts))
+    end
+
+    def set_authentication(auth)
+      tap { @authentication = auth }
+    end
+
+    private
+
+    def default_opts
+      { authentication: @authentication }
     end
   end
 
   def server
-    Server
+    ServerDelegate.new(Server).set_authentication(token)
   end
 
   def start_server(opts = {})
     opts[:Port]        ||= port
     opts[:environment] ||= 'test'
-    # opts[:Logger]      ||= WEBrick::Log.new("/dev/null", 7)
     opts[:AccessLog]   ||= []
     opts[:debug]       ||= ENV['DEBUG']
 
@@ -195,7 +223,7 @@ module SpecHelper
   end
 
   def token
-    "hey-guyz-i-am-a-token"
+    test_config_values[:authentication]
   end
 
   def stub_config_validation(status=200, response={})
@@ -211,5 +239,4 @@ module SpecHelper
       { auth: { session: { token: token, expiry_ttl: 10800 } } }
     end
   end
-
 end
