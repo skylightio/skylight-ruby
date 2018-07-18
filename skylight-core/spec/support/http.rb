@@ -6,98 +6,61 @@ require 'timeout'
 require 'active_support'
 require 'json'
 require 'skylight/core/util/logging'
+require 'puma/events'
+require 'puma/server'
 
 module SpecHelper
   class Server
     LOCK = Mutex.new
-
-    def self.singleton
-      @inst
-    end
+    COND = ConditionVariable.new
 
     def self.start(opts)
-      return if @started
-      port = opts[:Port]
-
-      @started = true
-      @thread = Thread.new do
-        begin
-          @inst = Server.new
-          @rack = Rack::Server.new(opts.merge(app: @inst))
-          @rack.start
-
-          # If we get here then we got a Ctrl-C which we really wanted RSpec to catch
-          LOCK.synchronize do
-            # Yes, this is a private API, but we want to let RSpec shut down cleanly
-            RSpec.world.wants_to_quit = true
-          end
-        rescue Exception => e
-          # Prevent errors from being silently swallowed
-          puts e.inspect
-          puts e.backtrace
-        end
+      @started or LOCK.synchronize do
+        @started = true
+        @server = Puma::Server.new(self, Puma::Events.new(STDOUT, STDERR))
+        @server.add_tcp_listener("127.0.0.1", opts.fetch(:Port))
+        @server_thread = @server.run
       end
-
-      Timeout.timeout(30) do
-        begin
-          sock = TCPSocket.new '127.0.0.1', port
-          sock.close
-        rescue Errno::ECONNREFUSED
-          sleep 1
-          retry
-        end
-      end
-    rescue => e
-      @started = false
-      raise e
     end
 
     def self.status
-      @thread && @thread.status
+      @server_thread && @server_thread.status
     end
 
-    def initialize
-      reset
-    end
-
-    def wait(opts = {})
+    def self.wait(opts = {})
       if Numeric === opts
         opts = { timeout: opts }
       end
 
-      opts[:count]   ||= 1
-      opts[:timeout] ||= EMBEDDED_HTTP_SERVER_TIMEOUT
+      timeout = opts[:timeout] || EMBEDDED_HTTP_SERVER_TIMEOUT
+      timeout_at = monotonic_time + timeout
+      count = opts[:count] || 1
+      filter = lambda { |r| opts[:resource] ? r['PATH_INFO'] == opts[:resource] : true }
 
-      filter = lambda { |r| true }
-      filter = lambda { |r| r['PATH_INFO'] == opts[:resource] } if opts[:resource]
+      LOCK.synchronize do
+        loop do
+          return true if @requests.select(&filter).length >= count
 
-      now = Time.now
+          ttl = timeout_at - monotonic_time
 
-      until requests.select(&filter).length >= opts[:count]
-        # Server isn't running so this won't succeed anyway
-        unless Server.status
-          raise "Server stopped"
-        end
-
-        diff = Time.now - now
-        if opts[:timeout] <= diff
-          puts "***TIMEOUT***"
-          puts "timeout: #{opts[:timeout]}"
-          puts "diff: #{diff}"
-          puts "requests:"
-          requests.each do |request|
-            puts "#{Rack::Request.new(request).url}: #{!!filter.call(request)}"
+          if ttl <= 0
+            puts "***TIMEOUT***"
+            puts "timeout: #{timeout}"
+            puts "requests:"
+            requests.each do |request|
+              puts "#{Rack::Request.new(request).url}: #{!!filter.call(request)}"
+            end
+            puts "*************"
+            raise "Server.wait timeout: got #{requests.select(&filter).length} not #{opts[:count]}"
           end
-          puts "*************"
-          raise "Server.wait timeout: got #{requests.select(&filter).length} not #{opts[:count]}"
-        end
-        sleep 0.1
-      end
 
-      true
+          COND.wait(LOCK, ttl)
+        end
+      end
     end
 
-    def reset
+    def self.reset
+      # FIXME
       # Crazy hack to make sure that the server has finished processing any inbound requests
       # This is necessary since sometimes we have situations where a request made in a previous
       # spec doesn't land until the next spec.
@@ -109,25 +72,25 @@ module SpecHelper
       end
     end
 
-    def mock(path = nil, method = nil, &blk)
+    def self.mock(path = nil, method = nil, &blk)
       LOCK.synchronize do
         @mocks << { path: path, method: method, blk: blk }
       end
     end
 
-    def requests(resource = nil)
-      reqs = LOCK.synchronize { @requests.dup }
+    def self.requests(resource = nil)
+      reqs = LOCK.synchronize { @requests.dup } # FIXME: why?
       reqs.select! { |env| env['PATH_INFO'] == resource } if resource
       reqs
     end
 
-    def reports
+    def self.reports
       requests.
         select { |env| env['PATH_INFO'] == '/report' }.
         map { |env| SpecHelper::Messages::Batch.decode(env['rack.input'].dup) }
     end
 
-    def call(env)
+    def self.call(env)
       trace "%s http://%s:%s%s",
         env['REQUEST_METHOD'],
         env['SERVER_NAME'],
@@ -142,7 +105,7 @@ module SpecHelper
       ret
     end
 
-    def handle(env)
+    def self.handle(env)
       if input = env.delete('rack.input')
         str = input.read.dup
         str.freeze
@@ -160,6 +123,7 @@ module SpecHelper
 
       LOCK.synchronize do
         @requests << env
+        COND.broadcast
 
         mock = @mocks.find do |m|
           (!m[:path] || m[:path] == env['PATH_INFO']) &&
@@ -196,25 +160,29 @@ module SpecHelper
       [200, {'content-type' => 'text/plain', 'content-length' => '7'}, ['Thanks!']]
     end
 
-    def trace(line, *args)
+    def self.trace(line, *args)
       if ENV['SKYLIGHT_ENABLE_TRACE_LOGS']
         printf("[HTTP Server] #{line}\n", *args)
       end
     end
+
+    def self.monotonic_time
+      Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    end
   end
 
   def server
-    Server.singleton
+    Server
   end
 
   def start_server(opts = {})
     opts[:Port]        ||= port
     opts[:environment] ||= 'test'
-    opts[:Logger]      ||= WEBrick::Log.new("/dev/null", 7)
+    # opts[:Logger]      ||= WEBrick::Log.new("/dev/null", 7)
     opts[:AccessLog]   ||= []
     opts[:debug]       ||= ENV['DEBUG']
 
-    Server.start(opts)
+    server.start(opts)
     server.reset
   end
 
