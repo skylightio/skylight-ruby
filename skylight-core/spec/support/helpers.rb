@@ -42,7 +42,7 @@ module SpecHelper
 
   def test_config_values
     @test_config_values ||= {
-      authentication: "lulz",
+      authentication: SecureRandom.uuid,
       log: log_path,
       log_level: ENV['DEBUG'] ? :debug : :fatal,
       user_config_path: tmp("user_config.yml"),
