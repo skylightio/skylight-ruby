@@ -12,158 +12,161 @@ module SpecHelper
     LOCK = Mutex.new
     COND = ConditionVariable.new
 
-    def self.start(opts)
-      @started or LOCK.synchronize do
-        @started = true
-        @server = Puma::Server.new(self, Puma::Events.new(STDOUT, STDERR))
-        @server.add_tcp_listener("127.0.0.1", opts.fetch(:Port))
-        @server_thread = @server.run
-      end
-    end
+    class << self
 
-    def self.status
-      @server_thread && @server_thread.status
-    end
-
-    def self.wait(opts = {})
-      timeout = opts[:timeout] || EMBEDDED_HTTP_SERVER_TIMEOUT
-      timeout_at = monotonic_time + timeout
-      count = opts[:count] || 1
-      filter = lambda { |r| opts[:resource] ? r['PATH_INFO'] == opts[:resource] : true }
-
-      LOCK.synchronize do
-        loop do
-          return true if filter_requests(opts).select(&filter).length >= count
-
-          ttl = timeout_at - monotonic_time
-
-          if ttl <= 0
-            puts "***TIMEOUT***"
-            puts "timeout: #{timeout}"
-            puts "seeking auth: #{opts[:authentication]}"
-            puts "requests:"
-            @requests.each do |request|
-              puts "[auth: #{request['HTTP_AUTHORIZATION']}] #{Rack::Request.new(request).url}: #{!!filter.call(request)}"
-            end
-            puts "*************"
-            raise "Server.wait timeout: got #{filter_requests(opts).select(&filter).length} not #{opts[:count]}"
-          end
-
-          COND.wait(LOCK, ttl)
+      def start(opts)
+        @started or LOCK.synchronize do
+          @started = true
+          @server = Puma::Server.new(self, Puma::Events.new(STDOUT, STDERR))
+          @server.add_tcp_listener("127.0.0.1", opts.fetch(:Port))
+          @server_thread = @server.run
         end
       end
-    end
 
-    def self.reset
-      LOCK.synchronize do
-        @requests = []
-        @mocks = []
-      end
-    end
-
-    def self.mock(path = nil, method = nil, &blk)
-      LOCK.synchronize do
-        @mocks << { path: path, method: method, blk: blk }
-      end
-    end
-
-    def self.requests(opts = {})
-      LOCK.synchronize do
-        filter_requests(opts)
-      end
-    end
-
-    def self.reports(opts = {})
-      requests(opts).
-        select { |env| env['PATH_INFO'] == '/report' }.
-        map { |env| SpecHelper::Messages::Batch.decode(env['rack.input'].dup) }
-    end
-
-    def self.call(env)
-      trace "%s http://%s:%s%s",
-        env['REQUEST_METHOD'],
-        env['SERVER_NAME'],
-        env['SERVER_PORT'],
-        env['PATH_INFO']
-
-      ret = handle(env)
-
-      trace "  -> %s", ret[0]
-      trace "  -> %s", ret[2].join("\n")
-
-      ret
-    end
-
-    def self.handle(env)
-      if input = env.delete('rack.input')
-        str = input.read.dup
-        str.freeze
-
-        if env['CONTENT_TYPE'] == 'application/json'
-          str = JSON.parse(str)
-        end
-
-        env['rack.input'] = str
+      def status
+        @server_thread && @server_thread.status
       end
 
+      def wait(opts = {})
+        timeout = opts[:timeout] || EMBEDDED_HTTP_SERVER_TIMEOUT
+        timeout_at = monotonic_time + timeout
+        count = opts[:count] || 1
+        filter = lambda { |r| opts[:resource] ? r['PATH_INFO'] == opts[:resource] : true }
 
+        LOCK.synchronize do
+          loop do
+            return true if filter_requests(opts).select(&filter).length >= count
 
-      json = ['application/json', 'application/json; charset=UTF-8'].sample
+            ttl = timeout_at - monotonic_time
 
-      LOCK.synchronize do
-        @requests << env
-        COND.broadcast
-
-        mock = @mocks.find do |m|
-          (!m[:path] || m[:path] == env['PATH_INFO']) &&
-            (!m[:method] || m[:method].to_s.upcase == env['REQUEST_METHOD'])
-        end
-
-        if mock
-          @mocks.delete(mock)
-
-          ret =
-            begin
-              mock[:blk].call(env)
-            rescue => e
-              trace "#{e.inspect}\n#{e.backtrace.map{|l| "  #{l}" }.join("\n")}"
-              [ 500, { 'content-type' => 'text/plain', 'content-length' => '4' }, [ 'Fail' ] ]
+            if ttl <= 0
+              puts "***TIMEOUT***"
+              puts "timeout: #{timeout}"
+              puts "seeking auth: #{opts[:authentication]}"
+              puts "requests:"
+              @requests.each do |request|
+                puts "[auth: #{request['HTTP_AUTHORIZATION']}] #{Rack::Request.new(request).url}: #{!!filter.call(request)}"
+              end
+              puts "*************"
+              raise "Server.wait timeout: got #{filter_requests(opts).select(&filter).length} not #{opts[:count]}"
             end
 
-          if Array === ret
-            return ret if ret.length == 3
-
-            body = ret.last
-            body = body.to_json if Hash === body
-
-            return [ ret[0], { 'content-type' => json, 'content-length' => body.bytesize.to_s }, [body] ]
-          elsif respond_to?(:to_str)
-            return [ 200, { 'content-type' => 'text/plain', 'content-length' => ret.bytesize.to_s }, [ret] ]
-          else
-            ret = ret.to_json
-            return [ 200, { 'content-type' => json, 'content-length' => ret.bytesize.to_s }, [ret] ]
+            COND.wait(LOCK, ttl)
           end
         end
       end
 
-      [200, {'content-type' => 'text/plain', 'content-length' => '7'}, ['Thanks!']]
-    end
-
-    def self.trace(line, *args)
-      if ENV['SKYLIGHT_ENABLE_TRACE_LOGS']
-        printf("[HTTP Server] #{line}\n", *args)
+      def reset
+        LOCK.synchronize do
+          @requests = []
+          @mocks = []
+        end
       end
-    end
 
-    private
+      def mock(path = nil, method = nil, &blk)
+        LOCK.synchronize do
+          @mocks << { path: path, method: method, blk: blk }
+        end
+      end
 
-    def self.monotonic_time
-      Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    end
+      def requests(opts = {})
+        LOCK.synchronize do
+          filter_requests(opts)
+        end
+      end
 
-    def self.filter_requests(opts = {})
-      @requests.select do |x|
-        opts[:authentication] ? x['HTTP_AUTHORIZATION'].start_with?(opts[:authentication]) : true
+      def reports(opts = {})
+        requests(opts).
+          select { |env| env['PATH_INFO'] == '/report' }.
+          map { |env| SpecHelper::Messages::Batch.decode(env['rack.input'].dup) }
+      end
+
+      def call(env)
+        trace "%s http://%s:%s%s",
+          env['REQUEST_METHOD'],
+          env['SERVER_NAME'],
+          env['SERVER_PORT'],
+          env['PATH_INFO']
+
+        ret = handle(env)
+
+        trace "  -> %s", ret[0]
+        trace "  -> %s", ret[2].join("\n")
+
+        ret
+      end
+
+      private
+
+      def handle(env)
+        if input = env.delete('rack.input')
+          str = input.read.dup
+          str.freeze
+
+          if env['CONTENT_TYPE'] == 'application/json'
+            str = JSON.parse(str)
+          end
+
+          env['rack.input'] = str
+        end
+
+
+
+        json = ['application/json', 'application/json; charset=UTF-8'].sample
+
+        LOCK.synchronize do
+          @requests << env
+          COND.broadcast
+
+          mock = @mocks.find do |m|
+            (!m[:path] || m[:path] == env['PATH_INFO']) &&
+              (!m[:method] || m[:method].to_s.upcase == env['REQUEST_METHOD'])
+          end
+
+          if mock
+            @mocks.delete(mock)
+
+            ret =
+              begin
+                mock[:blk].call(env)
+              rescue => e
+                trace "#{e.inspect}\n#{e.backtrace.map{|l| "  #{l}" }.join("\n")}"
+                [ 500, { 'content-type' => 'text/plain', 'content-length' => '4' }, [ 'Fail' ] ]
+              end
+
+            if Array === ret
+              return ret if ret.length == 3
+
+              body = ret.last
+              body = body.to_json if Hash === body
+
+              return [ ret[0], { 'content-type' => json, 'content-length' => body.bytesize.to_s }, [body] ]
+            elsif respond_to?(:to_str)
+              return [ 200, { 'content-type' => 'text/plain', 'content-length' => ret.bytesize.to_s }, [ret] ]
+            else
+              ret = ret.to_json
+              return [ 200, { 'content-type' => json, 'content-length' => ret.bytesize.to_s }, [ret] ]
+            end
+          end
+        end
+
+        [200, {'content-type' => 'text/plain', 'content-length' => '7'}, ['Thanks!']]
+      end
+
+      def trace(line, *args)
+        if ENV['SKYLIGHT_ENABLE_TRACE_LOGS']
+          printf("[HTTP Server] #{line}\n", *args)
+        end
+      end
+
+      def monotonic_time
+        Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      end
+
+      def filter_requests(opts = {})
+        @requests.select do |x|
+          opts[:authentication] ? x['HTTP_AUTHORIZATION'].start_with?(opts[:authentication]) : true
+        end
       end
     end
   end
