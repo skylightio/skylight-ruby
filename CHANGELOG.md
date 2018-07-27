@@ -1,3 +1,8 @@
+## 3.0.0-beta (August 2, 2018)
+
+* [BETA FEATURE] First class support for [multiple application environments](https://www.skylight.io/support/environments)
+* [IMPROVEMENT] Better instrumentation of ActiveJob enqueues
+
 ## 2.0.2 (June 4, 2018)
 
 * [IMPROVEMENT] Improve handling of broken middleware traces

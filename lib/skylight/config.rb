@@ -93,7 +93,8 @@ module Skylight
           :'daemon.lazy_start'  => true,
           :hostname             => Util::Hostname.default_hostname,
           :use_old_sql_lexer    => false,
-          :report_max_spans_exceeded => false
+          :report_max_spans_exceeded => false,
+          :report_rails_env     => true,
         )
 
         if Core::Util::Platform::OS != 'darwin'
