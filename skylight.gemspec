@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.email       = ["engineering@tilde.io"]
 
   spec.summary     = "Skylight is a smart profiler for Rails, Sinatra, and other Ruby apps."
-  spec.homepage    = "http://www.skylight.io"
+  spec.homepage    = "https://www.skylight.io"
   spec.license     = "Nonstandard"
 
   spec.required_ruby_version = ">= 2.2.7"
