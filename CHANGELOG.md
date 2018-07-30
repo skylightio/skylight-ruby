@@ -229,7 +229,7 @@
 
 ## 0.8.0 (August 13, 2015)
 
-* [FEATURE] Add Grape instumentation. See http://docs.skylight.io/grape
+* [FEATURE] Add Grape instumentation. See https://docs.skylight.io/grape
 * [FEATURE] Process ERB in config/skylight.yml
 * [FEATURE] Add Rust based SQL lexing. Currently beta. Enable with `config.sql_mode = 'rust'`.
 * [BUGFIX] Fixed a case where, With some logger configurations, duplicate messages could be written to STDOUT.
@@ -254,7 +254,7 @@
 
 * [IMPROVEMENT] Eliminates runtime dependency on the Rails
   constant across the entire codebase
-* [FEATURE] Support for Sinatra applications. See http://docs.skylight.io/sinatra/
+* [FEATURE] Support for Sinatra applications. See https://docs.skylight.io/sinatra/
 * [FEATURE] Support for the Sequel ORM (off by default for Rails apps)
 * [FEATURE] Support for Tilt templates (off by default for Rails apps)
 
@@ -309,7 +309,7 @@
 
 ## 0.3.18 (July 17, 2014)
 
-* [FEATURE] Redis probe (Not enabled by default. See http://docs.skylight.io/agent/#railtie)
+* [FEATURE] Redis probe (Not enabled by default. See https://docs.skylight.io/agent/#railtie)
 * [FEATURE] Support app creation with token instead of email/password
 * [BUGFIX] App creation now works even when Webmock is enabled
 * [BUGFIX] Fix instrumentation for methods ending in special chars

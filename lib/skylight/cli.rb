@@ -37,7 +37,7 @@ to set it up as a new app in Skylight.
         config[:authentication] = res.get('app.token')
         config.write(config_path)
 
-        say "Congratulations. Your application is on Skylight! http://www.skylight.io", :green
+        say "Congratulations. Your application is on Skylight! https://www.skylight.io", :green
         say <<-OUT
 
 The application was registered for you and we generated a config file
@@ -49,7 +49,7 @@ The next step is for you to deploy your application to production. The
 easiest way is to just commit the config file to your source control
 repository and deploy from there. You can learn more about the process at:
 
-  http://docs.skylight.io/getting-set-up/#deployment
+  https://docs.skylight.io/getting-set-up/#deployment
 
 If you want to specify the authentication token as an environment variable,
 you should set the `SKYLIGHT_AUTHENTICATION` variable to:
