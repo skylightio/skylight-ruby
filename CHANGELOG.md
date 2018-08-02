@@ -2,6 +2,7 @@
 
 * [BETA FEATURE] First class support for [multiple application environments](https://www.skylight.io/support/environments)
 * [IMPROVEMENT] Better instrumentation of ActiveJob enqueues
+* [BREAKING] The ActiveJob enqueue_at normalizer is now a probe that is enabled by default. The normalizer no longer needs to be required.
 
 ## 2.0.2 (June 4, 2018)
 
