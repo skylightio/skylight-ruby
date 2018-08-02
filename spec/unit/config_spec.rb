@@ -224,7 +224,7 @@ module Skylight
       it "converts to env" do
         expect(get_env).to eq({
           # (Includes default component info)
-          "SKYLIGHT_AUTHENTICATION" => "abc123|component=web%3Aproduction",
+          "SKYLIGHT_AUTHENTICATION" => "abc123|component=web%3Aproduction&reporting_env=true",
           "SKYLIGHT_VERSION"    => Skylight::VERSION,
           "SKYLIGHT_ROOT"       => "/tmp",
           "SKYLIGHT_HOSTNAME"   => "test.local",
@@ -240,7 +240,7 @@ module Skylight
         # (Includes default component info)
         Timecop.freeze do
           expect(get_env['SKYLIGHT_AUTHENTICATION']).to \
-            eq("abc123|timestamp=#{Time.now.to_i}&deploy_id=d456&component=web%3Aproduction")
+            eq("abc123|timestamp=#{Time.now.to_i}&deploy_id=d456&component=web%3Aproduction&reporting_env=true")
         end
       end
 
