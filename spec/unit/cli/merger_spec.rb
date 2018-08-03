@@ -42,12 +42,12 @@ describe Skylight::CLI::Merger do
     end
 
     def test_line(line)
-      puts "[OUT]: #{line.inspect}"
+      puts "[OUT]: #{line.inspect}" if ENV['DEBUG']
       return if line.strip.empty?
       out, reply = Array(expectations.next)
       @expector.call(line.strip, out)
       # raise 'no match' unless out === line
-      if reply
+      if reply && ENV['DEBUG']
         puts "[IN]: #{reply}"
       end
       reply
