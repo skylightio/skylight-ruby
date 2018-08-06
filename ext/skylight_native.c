@@ -335,6 +335,19 @@ trace_set_endpoint(VALUE self, VALUE endpoint) {
 }
 
 static VALUE
+trace_use_pruning(VALUE self) {
+  sky_trace_t* trace;
+
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+
+  CHECK_FFI(
+      sky_trace_use_pruning(trace),
+      "Trace#native_use_pruning");
+
+  return Qtrue;
+}
+
+static VALUE
 trace_set_exception(VALUE self, VALUE exception) {
   UNUSED(self);
   UNUSED(exception);
@@ -556,6 +569,7 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_get_started_at", trace_get_started_at, 0);
   rb_define_method(rb_cTrace, "native_get_endpoint", trace_get_endpoint, 0);
   rb_define_method(rb_cTrace, "native_set_endpoint", trace_set_endpoint, 1);
+  rb_define_method(rb_cTrace, "native_use_pruning", trace_use_pruning, 0);
   rb_define_method(rb_cTrace, "native_set_exception", trace_set_exception, 1);
   rb_define_method(rb_cTrace, "native_get_uuid", trace_get_uuid, 0);
   rb_define_method(rb_cTrace, "native_start_span", trace_start_span, 2);

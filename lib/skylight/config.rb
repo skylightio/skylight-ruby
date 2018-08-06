@@ -30,6 +30,7 @@ module Skylight
 
         # == Max Span Handling ==
         'REPORT_MAX_SPANS_EXCEEDED' => :report_max_spans_exceeded,
+        'PRUNE_LARGE_TRACES' => :prune_large_traces,
 
         # == Instrumenter ==
         "IGNORED_ENDPOINT" => :ignored_endpoint,
@@ -90,6 +91,7 @@ module Skylight
           :'daemon.lazy_start'  => true,
           :hostname             => Util::Hostname.default_hostname,
           :report_max_spans_exceeded => false,
+          :prune_large_traces   => false,
           :report_rails_env     => true,
         )
 
