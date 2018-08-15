@@ -13,8 +13,8 @@ module Skylight::Core
             end
           end
 
-          if defined?(::ActiveModel::Serializer::VERSION)
-            version = Gem::Version.new(::ActiveModel::Serializer::VERSION)
+          if Gem.loaded_specs['active_model_serializers']
+            version = Gem.loaded_specs['active_model_serializers'].version
           end
 
           if !version || version < Gem::Version.new("0.5.0")
