@@ -388,6 +388,26 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(server.reports[0].endpoints.map(&:name)).to eq(["foo#bar"])
       end
 
+      it "ignores endpoints not on a whitelist" do
+        config[:whitelisted_endpoints] = ["baz#bar"]
+
+        Skylight.trace 'baz#bar', 'app.rack' do |t|
+          clock.skip 1
+        end
+
+        %w( foo bar baz ).each do |name|
+          Skylight.trace "#{name}#heartbeat", 'app.rack' do |t|
+            clock.skip 1
+          end
+        end
+
+        clock.unfreeze
+        server.wait resource: '/report'
+
+        expect(server.reports[0]).to have(1).endpoints
+        expect(server.reports[0].endpoints.map(&:name)).to eq(["baz#bar"])
+      end
+
       it "ignores multiple endpoints with commas" do
         config[:ignored_endpoints] = "foo#heartbeat, bar#heartbeat,baz#heartbeat"
 
