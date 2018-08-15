@@ -368,6 +368,22 @@ module Skylight::Core
         end
     end
 
+    # @api private
+    def whitelisted_endpoints
+      @whitelisted_endpoints ||=
+        begin
+          whitelisted_endpoints = get(:whitelisted_endpoints)
+
+          # If, for some odd reason you have a comma in your endpoint name, use the
+          # YML config instead.
+          if whitelisted_endpoints.is_a?(String)
+            whitelisted_endpoints = whitelisted_endpoints.split(/\s*,\s*/)
+          end
+
+          Array(whitelisted_endpoints)
+        end
+    end
+
     def root
       self[:root] || Dir.pwd
     end

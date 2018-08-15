@@ -37,6 +37,7 @@ module Skylight
         # == Instrumenter ==
         "IGNORED_ENDPOINT" => :ignored_endpoint,
         "IGNORED_ENDPOINTS" => :ignored_endpoints,
+        "WHITELISTED_ENDPOINTS" => :whitelisted_endpoints,
 
         # == Skylight Remote ==
         "AUTH_URL"                     => :auth_url,

@@ -253,6 +253,11 @@ module Skylight::Core
     end
 
     def ignore?(trace)
+      # If using a whitelist, only show results from the whitelisted endpoint.
+      # Note that only one or the other can be used.
+      if config.whitelisted_endpoints && config.whitelisted_endpoints.length > 0
+        return !config.whitelisted_endpoints.include?(trace.endpoint.sub(%r{<sk-segment>.+</sk-segment>}, ''))
+      end
       config.ignored_endpoints.include?(trace.endpoint.sub(%r{<sk-segment>.+</sk-segment>}, ''))
     end
 
