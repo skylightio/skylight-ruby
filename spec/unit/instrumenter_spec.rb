@@ -403,7 +403,6 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         clock.unfreeze
         server.wait resource: '/report'
-
         expect(server.reports[0]).to have(1).endpoints
         expect(server.reports[0].endpoints.map(&:name)).to eq(["baz#bar"])
       end
