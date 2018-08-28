@@ -136,17 +136,13 @@ module Skylight
           "#{@parent_app.name} #@child_env environment.\n", :yellow
 
         say "If you're running in Rails and your Rails environment exactly matches `#@child_env`,\n" \
-          "set `report_rails_env: true` to allow the agent to detect and report that\n" \
-          "environment when it connects.\n" \
+          "we will automatically detect and report that environment when your agent connects.\n" \
           "Otherwise, you should set `env: '#@child_env'` as environment-specific configuration for\n" \
           "#@child_env's Rails environment. For example:\n" \
           "```yml\n" \
           "staging:\n" \
           "  env: staging-42\n" \
           "```\n", :yellow
-          # TODO: https://github.com/tildeio/direwolf-agent/issues/380
-          # report_rails_env above is for beta only. Update for final release
-          # "we will automatically detect and report that environment when your agent connects.\n"
 
         say "=======================================================\n", :yellow
 
@@ -161,12 +157,8 @@ module Skylight
           "#{@parent_app.name} app's authentication token.\n", :yellow
 
         say "If you're running in Rails and your Rails environment exactly matches `#@child_env`,\n" \
-          "set `SKYLIGHT_REPORT_RAILS_ENV=true` to allow the agent to detect and report\n" \
-          "that environment when it connects.\n" \
+          "we will automatically detect and report that environment when your agent connects.\n" \
           "Otherwise, you should set `SKYLIGHT_ENV=#@child_env` when running in this environment.\n", :yellow
-          # TODO: https://github.com/tildeio/direwolf-agent/issues/380
-          # SKYLIGHT_REPORT_RAILS_ENV above is for beta only. Update for final release
-          # "we will automatically detect and report that environment when your agent connects.\n"
 
         say "=======================================================", :yellow
 
