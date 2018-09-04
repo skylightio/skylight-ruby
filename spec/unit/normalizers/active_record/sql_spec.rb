@@ -20,7 +20,7 @@ module Skylight
       end
 
       allow(TestNamespace.instrumenter).to receive(:process_sql) do |sql|
-        Skylight.lex_sql(sql, config[:use_old_sql_lexer])
+        Skylight.lex_sql(sql)
       end
 
       # Start a trace to have it available in the trace method

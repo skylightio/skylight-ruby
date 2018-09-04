@@ -28,9 +28,6 @@ module Skylight
         'DEPLOY_GIT_SHA'     => :'deploy.git_sha',
         'DEPLOY_DESCRIPTION' => :'deploy.description',
 
-        # == Sql Lexer ==
-        'USE_OLD_SQL_LEXER' => :use_old_sql_lexer,
-
         # == Max Span Handling ==
         'REPORT_MAX_SPANS_EXCEEDED' => :report_max_spans_exceeded,
 
@@ -92,7 +89,6 @@ module Skylight
           :validation_url       => 'https://auth.skylight.io/agent/config',
           :'daemon.lazy_start'  => true,
           :hostname             => Util::Hostname.default_hostname,
-          :use_old_sql_lexer    => false,
           :report_max_spans_exceeded => false,
           :report_rails_env     => true,
         )

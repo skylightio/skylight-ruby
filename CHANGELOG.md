@@ -1,3 +1,5 @@
+* [BREAKING] Remove SKYLIGHT_USE_OLD_SQL_LEXER config option
+
 ## 3.0.0-beta (August 2, 2018)
 
 * [BETA FEATURE] First class support for [multiple application environments](https://www.skylight.io/support/environments)
