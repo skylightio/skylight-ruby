@@ -1,7 +1,6 @@
 module Skylight
   module Core
     module Fanout
-
       def self.registered
         @registered ||= []
       end
@@ -21,10 +20,11 @@ module Skylight
       def self.instrument(*args)
         if block_given?
           spans = instrument(*args)
+          meta = {}
           begin
             yield spans
           ensure
-            done(spans)
+            done(spans, meta)
           end
         else
           registered.map do |r|
@@ -41,6 +41,18 @@ module Skylight
 
       def self.broken!
         registered.each(&:broken!)
+      end
+
+      def self.endpoint=(endpoint)
+        each_trace { |t| t.endpoint = endpoint }
+      end
+
+      def self.each_trace
+        return to_enum(__method__) unless block_given?
+        registered.each do |r|
+          next unless r.instrumenter && (trace = r.instrumenter.current_trace)
+          yield trace
+        end
       end
     end
   end

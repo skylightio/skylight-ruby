@@ -138,6 +138,10 @@ module Skylight::Core
       nil
     end
 
+    def inspect
+      to_s
+    end
+
     def release
       t { "release; is_current=#{@instrumenter.current_trace == self}" }
       return unless @instrumenter.current_trace == self

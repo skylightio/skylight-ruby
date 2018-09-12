@@ -57,6 +57,10 @@ RSpec.configure do |config|
 
   config.include SpecHelper
 
+  config.before do
+    Skylight::Core::Probes::Middleware::Probe.instance_exec { @disabled = nil }
+  end
+
   config.after do
     # Kill any daemon that may have been started
     system("killall -9 skylightd > /dev/null 2>&1")

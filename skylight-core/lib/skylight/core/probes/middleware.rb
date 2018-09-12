@@ -22,10 +22,7 @@ module Skylight::Core
             def call(*args, &block)
               return call_without_sk(*args, &block) if Skylight::Core::Probes::Middleware::Probe.disabled?
 
-              traces = Skylight::Core::Fanout.registered.map do |r|
-                r.instrumenter ? r.instrumenter.current_trace : nil
-              end.compact
-
+              traces = Skylight::Core::Fanout.each_trace.to_a
               return call_without_sk(*args, &block) if traces.empty?
 
               begin
@@ -57,26 +54,6 @@ module Skylight::Core
         end
 
         def install
-          ::ActionDispatch::MiddlewareStack.class_eval do
-            alias build_without_sk build
-
-            if ::ActionPack.gem_version >= Gem::Version.new('5.x')
-              # Rails 5
-              def build(app = Proc.new)
-                Skylight::Core::Probes::Middleware::Probe.add_instrumentation(app, default_name: "Rack App", category: "rack.app")
-                build_without_sk(app)
-              end
-            else
-              # Rails 3 and 4
-              def build(app, &block)
-                app ||= block
-                raise "MiddlewareStack#build requires an app" unless app
-                Skylight::Core::Probes::Middleware::Probe.add_instrumentation(app, default_name: "Rack App", category: "rack.app")
-                build_without_sk(app)
-              end
-            end
-          end
-
           ::ActionDispatch::MiddlewareStack::Middleware.class_eval do
             alias build_without_sk build
             def build(*args)
