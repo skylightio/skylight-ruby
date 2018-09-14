@@ -1,3 +1,9 @@
+## 3.1.0-beta
+* [BUGFIX] SQL queries with schema-qualified table names are parsed correctly
+* [BUGFIX] `SELECT ... FOR UPDATE` queries are parsed correctly
+* [BUGFIX] Revision to SQL string escaping rules
+* [BUGFIX] Fix issue where Rails routing errors could result in a broken trace.
+
 ## 3.0.0 (September 5, 2018)
 
 * [FEATURE] First class support for [multiple application environments](https://www.skylight.io/support/environments)
