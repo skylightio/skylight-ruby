@@ -1,6 +1,5 @@
 module Skylight
   class Trace < Core::Trace
-
     def initialize(*)
       super
       @too_many_spans = false

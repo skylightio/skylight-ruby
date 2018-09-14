@@ -17,6 +17,14 @@ if enable
     def boot
       MyApp.initialize!
 
+      EngineNamespace::MyEngine.routes.draw do
+        root to: -> (env) { [204, {}, []] }
+        get '/empty', to: -> (env) { [204, {}, []] }, as: :empty
+        get '/error_from_router', to: -> (env) { raise RuntimeError, 'cannot even' }
+        get '/error_from_controller', to: 'application#error'
+        get '/show', to: 'application#show'
+      end
+
       MyApp.routes.draw do
         resources :users do
           collection do
@@ -30,6 +38,7 @@ if enable
           end
         end
         get '/metal' => 'metal#show'
+        mount EngineNamespace::MyEngine => '/engine'
       end
     end
 
@@ -137,6 +146,22 @@ if enable
 
         def query_parameters(env)
           ActionDispatch::Request.new(env).query_parameters
+        end
+      end
+
+      module EngineNamespace
+        class MyEngine < ::Rails::Engine
+          isolate_namespace EngineNamespace
+        end
+
+        class ApplicationController < ActionController::Base
+          def error
+            raise ActiveRecord::RecordNotFound
+          end
+
+          def show
+            render json: {}
+          end
         end
       end
 
@@ -318,11 +343,14 @@ if enable
       # Clean slate
       # It's really too bad we can't run RSpec tests in a fork
       Object.send(:remove_const, :MyApp)
+      Object.send(:remove_const, :EngineNamespace)
       Object.send(:remove_const, :UsersController)
       Object.send(:remove_const, :MetalController)
       Rails::Railtie::Configuration.class_variable_set(:@@app_middleware, nil)
       Rails.application = nil
     end
+
+    let(:router_name) { 'ActionDispatch::Routing::RouteSet' }
 
     shared_examples "with agent" do
 
@@ -366,7 +394,7 @@ if enable
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
-        app_spans = trace.spans.map{|s| [s.event.category, s.event.title] }.select{|s| s[0] =~ /^app./ }
+        app_spans = trace.filtered_spans.map{|s| [s.event.category, s.event.title] }.select{|s| s[0] =~ /^app./ }
         expect(app_spans).to eq([
           ["app.rack.request", nil],
           ["app.controller.request", "UsersController#index"],
@@ -383,7 +411,7 @@ if enable
 
         trace = server.reports[0].endpoints[0].traces[0]
 
-        app_and_rack_spans = trace.spans.map{|s| [s.event.category, s.event.title] }.select{|s| s[0] =~ /^(app|rack)./ }
+        app_and_rack_spans = trace.filtered_spans.map{|s| [s.event.category, s.event.title] }.select{|s| s[0] =~ /^(app|rack)./ }
 
         # We know the first one
         expect(app_and_rack_spans[0]).to eq(["app.rack.request", nil])
@@ -403,7 +431,7 @@ if enable
 
         # Check the rest
         expect(app_and_rack_spans[(count+1)..-1]).to eq([
-          ["rack.app", "ActionDispatch::Routing::RouteSet"],
+          ["rack.app", router_name],
           ["app.controller.request", "UsersController#index"],
           ["app.method", "Check authorization"],
           ["app.method", "UsersController#index"],
@@ -452,7 +480,7 @@ if enable
 
           trace = server.reports[0].endpoints[0].traces[0]
 
-          titles = trace.spans.map{ |s| s.event.title }
+          titles = trace.filtered_spans.map{ |s| s.event.title }
 
           # If Skylight runs after CustomMiddleware, we shouldn't see it
           expect(titles).to_not include("CustomMiddleware")
@@ -490,7 +518,7 @@ if enable
 
           trace = server.reports[0].endpoints[0].traces[0]
 
-          titles = trace.spans.map{ |s| s.event.title }
+          titles = trace.filtered_spans.map{ |s| s.event.title }
 
           expect(titles).to include("NonArrayMiddleware")
         end
@@ -512,7 +540,7 @@ if enable
           expect(endpoint.name).to eq('ThrowingMiddleware')
           trace = endpoint.traces[0]
 
-          reverse_spans = trace.spans.reverse_each.map { |span| span.event.title }
+          reverse_spans = trace.filtered_spans.reverse_each.map { |span| span.event.title }
           last, middle, catcher = reverse_spans
 
           expect(last).to eq('ThrowingMiddleware')
@@ -537,7 +565,7 @@ if enable
           expect(endpoint.name).to eq('ThrowingMiddleware')
           trace = endpoint.traces[0]
 
-          reverse_spans = trace.spans.reverse_each.map { |span| span.event.title }
+          reverse_spans = trace.filtered_spans.reverse_each.map { |span| span.event.title }
           last, middle, catcher, rescuer = reverse_spans
 
           expect(last).to eq('ThrowingMiddleware')
@@ -560,17 +588,15 @@ if enable
           expect(endpoint.name).to eq('UsersController#throw_something')
           trace = endpoint.traces[0]
 
-          reverse_spans = trace.spans.reverse_each.map do |span|
+          reverse_spans = trace.filtered_spans.reverse_each.map do |span|
             [span.event.category, span.event.title]
-          end.reject do |cat, _|
-            cat == 'noise.gc'
           end
 
           # it closes all spans between the throw and the catch
           expect(reverse_spans.take(6)).to eq([
             ["app.method", "Check authorization"],
             ["app.controller.request", "UsersController#throw_something"],
-            ["rack.app", "ActionDispatch::Routing::RouteSet"],
+            ["rack.app", router_name],
             ["rack.middleware", "ThrowingMiddleware"],
             ["rack.middleware", "MonkeyInTheMiddleware"],
             ["rack.middleware", "CatchingMiddleware"]
@@ -605,7 +631,7 @@ if enable
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
-            spans = trace.spans.map{|s| [s.event.category, s.event.title] }
+            spans = trace.filtered_spans.map{|s| [s.event.category, s.event.title] }
 
             expect(spans).to eq([["app.rack.request", nil],
                                   ["error.code.3", nil]])
@@ -638,6 +664,59 @@ if enable
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
         expect(endpoint.name).to eq("UsersController#show<sk-segment>json</sk-segment>")
+      end
+
+      it 'sets correct segment for router-handled requests' do
+        res = call MyApp, env('/engine/empty')
+        expect(res).to eq([])
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq(router_name)
+      end
+
+      it 'sets correct segment for an engine' do
+        res = call MyApp, env('/engine/error_from_router')
+        expect(res).to eq([])
+        server.wait(resource: '/report')
+        endpoint = server.reports[0].endpoints[0]
+        expect(endpoint.name).to eq(router_name)
+        trace = endpoint.traces.first
+        spans = trace.filtered_spans
+
+        # Should include the routers from both the main app and the engine
+        expect(spans.last(2).map { |s| s.event.title }).to eq([router_name, router_name])
+      end
+
+      it 'forwards exceptions in the engine to the main app' do
+        res = call MyApp, env('/engine/error_from_controller')
+
+        server.wait(resource: '/report')
+        endpoint = server.reports[0].endpoints[0]
+        endpoint_name = 'EngineNamespace::ApplicationController#error'
+        expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>error</sk-segment>")
+        trace = endpoint.traces.first
+        spans = trace.filtered_spans.last(3)
+        # Should include the routers from both the main app and the engine
+        expect(spans.map { |s| s.event.title }).to eq([router_name, router_name, endpoint_name])
+      end
+
+      it 'handles routing errors' do
+        expect {
+          res = call MyApp, env('/engine/foo/bar/bin')
+        }.not_to raise_error
+
+        server.wait(resource: '/report')
+        endpoint = server.reports[0].endpoints[0]
+        expect(endpoint.name).to eq(router_name)
+        trace = endpoint.traces.first
+        spans = trace.filtered_spans.last(2)
+        # Should include the routers from both the main app and the engine
+        expect(spans.map { |s| s.event.title }).to eq([router_name, router_name])
       end
 
       it 'sets rendered segment, not requested' do
@@ -712,7 +791,7 @@ if enable
 
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
-        names = trace.spans.map { |s| s.event.category }
+        names = trace.filtered_spans.map { |s| s.event.category }
 
         expect(names.length).to be >= 3
         expect(names).to include('app.zomg')
@@ -807,7 +886,7 @@ if enable
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
-        names = trace.spans.map { |s| s.event.category }
+        names = trace.filtered_spans.map { |s| s.event.category }
 
         expect(names.length).to be >= 1
         expect(names[0]).to eq('app.rack.request')
