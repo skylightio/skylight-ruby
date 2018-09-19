@@ -172,8 +172,9 @@ RSpec.configure do |config|
     mock_clock!
   end
 
-  config.before :each, http: true do
+  config.around :each, http: true do |ex|
     start_server
+    ex.call
   end
 
   config.after :each do

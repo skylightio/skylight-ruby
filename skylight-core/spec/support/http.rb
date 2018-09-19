@@ -35,7 +35,7 @@ module SpecHelper
 
         LOCK.synchronize do
           loop do
-            return true if filter_requests(opts).select(&filter).length >= count
+            return true if filter_requests(opts).count(&filter) >= count
 
             ttl = timeout_at - monotonic_time
 
@@ -48,7 +48,7 @@ module SpecHelper
                 puts "[auth: #{request['HTTP_AUTHORIZATION']}] #{Rack::Request.new(request).url}: #{!!filter.call(request)}"
               end
               puts "*************"
-              raise "Server.wait timeout: got #{filter_requests(opts).select(&filter).length} not #{opts[:count]}"
+              raise "Server.wait timeout: got #{filter_requests(opts).count(&filter)} not #{opts[:count]}"
             end
 
             COND.wait(LOCK, ttl)
@@ -109,8 +109,6 @@ module SpecHelper
 
           env['rack.input'] = str
         end
-
-
 
         json = ['application/json', 'application/json; charset=UTF-8'].sample
 
