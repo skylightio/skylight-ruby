@@ -33,7 +33,7 @@ if enable
     # ActiveJob::Base.queue_adapter = :test
 
     specify do
-      42.times do |n|
+      4.times do |n|
         SkTestJob.perform_later(n)
       end
 
@@ -42,7 +42,7 @@ if enable
       endpoint = server.reports[0].endpoints[0]
       traces = endpoint.traces
       uniq_spans = traces.map { |trace| trace.filtered_spans.map { |span| span.event.category } }.uniq
-      expect(traces.count).to eq(42)
+      expect(traces.count).to eq(4)
       expect(uniq_spans).to eq([%w[app.job.execute app.job.perform]])
       expect(endpoint.name).to eq('SkTestJob<sk-segment>default</sk-segment>')
     end

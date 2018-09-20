@@ -8,9 +8,7 @@ module Skylight::Core
 
         def normalize(trace, _name, payload)
           title = "#{payload[:job].class}"
-
-          adapter_class_name = payload[:adapter].class.name
-          adapter_name = adapter_class_name.match(/^ActiveJob::QueueAdapters::(\w+)Adapter$/)[1].underscore
+          adapter_name = normalize_adapter_name(payload[:adapter])
           desc = "{ adapter: '#{adapter_name}', queue: '#{payload[:job].queue_name}' }"
 
           trace.endpoint = title
@@ -21,6 +19,15 @@ module Skylight::Core
         def normalize_after(trace, _span, _name, payload)
           return unless config.enable_segments?
           trace.endpoint += "<sk-segment>#{payload[:job].queue_name}</sk-segment>"
+        end
+
+        private
+
+        def normalize_adapter_name(adapter)
+          adapter_string = adapter.is_a?(Class) ? adapter.to_s : adapter.class.to_s
+          adapter_string[/ActiveJob::QueueAdapters::(\w+)Adapter/, 1].underscore
+        rescue
+          'active_job'
         end
       end
     end
