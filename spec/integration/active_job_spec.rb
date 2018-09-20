@@ -3,10 +3,11 @@ require 'spec_helper'
 enable = false
 begin
   require 'skylight/core/probes/active_job'
-  require 'active_job'
+  require 'active_job/base'
   require 'active_job/test_helper'
   require 'skylight/railtie'
-  enable = true rescue LoadError
+  enable = true
+rescue LoadError
   puts '[INFO] Skipping active_job integration specs'
 end
 
