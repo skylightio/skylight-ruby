@@ -135,5 +135,54 @@ if ENV['TEST_MONGO_INTEGRATION']
 
     end
 
+    it 'instruments aggregate' do
+      client[:artists].aggregate([
+        { '$match' => { x: 2 }},
+        { '$group' => { _id: "$artist_id", "accumulator" => { '$max' => '$x' }}},
+      ]).to_a
+
+      expected = {
+        cat: 'db.mongo.command',
+        title: 'echo_test.aggregate artists',
+        desc: %({"pipeline":[{"$match":{"x":"?"}},{"$group":{"_id":"?","accumulator":{"$max":"?"}}}]})
+      }
+      expect(current_trace.mock_spans[1]).to include(expected)
+    end
+
+    it 'instruments more complex aggregates' do
+      client[:artists].aggregate([
+        { '$match' => { likes: { '$gte' => 1000, '$lt' => 5000 }}},
+        { '$unwind' => { path: "$homeCities", includeArrayIndex: "arrayIndex" }},
+        { '$group' => {
+          _id: nil,
+          total: { '$sum' => "$likes" },
+          average_likes: { '$avg' => "$likes" },
+          min_likes: { '$min' => "$likes" },
+          max_likes: { '$max' => "$amount" },
+        } }
+      ]).to_a
+
+      expected = {
+        cat: 'db.mongo.command',
+        title: 'echo_test.aggregate artists',
+      }
+
+      expected_desc = {
+        "pipeline" => [
+          { "$match" => { "likes" => { "$gte" => "?", "$lt" => "?" } } },
+          { "$unwind" => { "path" => "?", "includeArrayIndex" => "?" } },
+          { "$group" => {
+            "_id" => "?",
+            "total" => { "$sum" => "?" },
+            "average_likes" => { "$avg" => "?" },
+            "min_likes" => { "$min" => "?" },
+            "max_likes" => { "$max" => "?" }
+          } }
+        ]
+      }
+
+      expect(current_trace.mock_spans[1]).to include(expected)
+      expect(JSON.parse(current_trace.mock_spans[1][:desc])).to eq(expected_desc)
+    end
   end
 end
