@@ -12,7 +12,7 @@ module Skylight::Core
       class Subscriber
         include Util::Logging
 
-        COMMANDS = [:insert, :find, :count, :distinct, :update, :findandmodify, :delete].freeze
+        COMMANDS = [:insert, :find, :count, :distinct, :update, :findandmodify, :delete, :aggregate].freeze
 
         COMMAND_NAMES = {
           findandmodify: 'findAndModify'.freeze
@@ -108,6 +108,9 @@ module Skylight::Core
               end
             end
 
+            if (pipeline = command['pipeline'.freeze])
+              payload['pipeline'.freeze] = pipeline.map { |segment| extract_binds(segment) }
+            end
 
             # We're ignoring documents from insert because they could have completely inconsistent
             # format which would make it hard to merge.
