@@ -252,6 +252,12 @@ module Skylight
         expect(get_env['SKYLIGHT_SESSION_TOKEN']).to eq("zomg")
       end
 
+      it 'includes custom component settings' do
+        config[:env] = 'staging'
+        config[:component] = 'worker'
+        expect(get_env['SKYLIGHT_AUTHENTICATION']).to \
+          eq("abc123|component=worker%3Astaging&reporting_env=true")
+      end
     end
 
     context "legacy settings" do

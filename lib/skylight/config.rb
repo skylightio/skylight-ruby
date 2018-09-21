@@ -19,8 +19,8 @@ module Skylight
         'SESSION_TOKEN' => :session_token,
 
         # == Component settings ==
-        'ENV' => :'component.environment',
-        'COMPONENT' => :'component.name',
+        'ENV' => :env,
+        'COMPONENT' => :component,
         'REPORT_RAILS_ENV' => :report_rails_env,
 
         # == Deploy settings ==
@@ -296,8 +296,7 @@ authentication: #{self[:authentication]}
     end
 
     def component
-      @component ||= Util::Component.new(get(:'component.environment'),
-                                         get(:'component.name'))
+      @component ||= Util::Component.new(get(:env), get(:component))
     rescue ArgumentError => e
       raise Core::ConfigError, e.message
     end
@@ -310,9 +309,9 @@ authentication: #{self[:authentication]}
     end
 
     def reporting_env?
-      # true if component.environment was explicitly set,
+      # true if env was explicitly set,
       # or if we are auto-detecting via the opt-in SKYLIGHT_REPORT_RAILS_ENV=true
-      !!(get(:report_rails_env) || get(:'component.environment'))
+      !!(get(:report_rails_env) || get(:env))
     end
   end
 end
