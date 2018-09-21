@@ -665,7 +665,7 @@ if enable
             server.wait resource: '/report'
 
             batch = server.reports[0]
-            spans = batch&.endpoints[0]&.traces[0]&.spans
+            spans = batch.endpoints[0].traces[0].spans
 
             categories = spans.each_with_object(Hash.new(0)) do |span, counts|
               counts[span.event.category] += 1
