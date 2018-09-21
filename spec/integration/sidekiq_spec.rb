@@ -69,11 +69,11 @@ if enable
         expect(batch).to_not be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("MyWorker#perform")
+        expect(endpoint.name).to eq("MyWorker#perform<sk-segment>default</sk-segment>")
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
-        names = trace.spans.map { |s| s.event.category }
+        names = trace.filtered_spans.map { |s| s.event.category }
 
         expect(names).to eq(['app.sidekiq.worker', 'app.inside', 'app.zomg'])
       end

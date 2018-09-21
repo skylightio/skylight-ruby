@@ -16,6 +16,8 @@ module SpecHelper
   end
 
   def set_agent_env
+    @_original_env = ENV.to_hash
+
     ENV['SKYLIGHT_AUTHENTICATION']       = "lulz"
     ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
     ENV['SKYLIGHT_REPORT_URL']           = "http://127.0.0.1:#{port}/report"
@@ -32,6 +34,20 @@ module SpecHelper
     else
       ENV['SKYLIGHT_DISABLE_DEV_WARNING'] = "true"
     end
+
+    if block_given?
+      begin
+        yield
+      ensure
+        restore_env!
+      end
+    end
+  end
+
+  def restore_env!
+    return unless @_original_env
+    ENV.replace(@_original_env)
+    @_original_env = nil
   end
 
   def capture(stream)

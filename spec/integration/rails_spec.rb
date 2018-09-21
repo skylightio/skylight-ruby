@@ -45,10 +45,9 @@ if enable
     class ControllerError < StandardError; end
     class MiddlewareError < StandardError; end
 
-    before :each do
-      @original_env = ENV.to_hash
-      set_agent_env
+    around { |ex| set_agent_env(&ex) }
 
+    before :each do
       CustomMiddleware ||= Struct.new(:app) do
         def call(env)
           if env["PATH_INFO"] == "/middleware"
@@ -335,8 +334,6 @@ if enable
 
     after :each do
       MyApp.config.skylight.middleware_position = 0
-
-      ENV.replace(@original_env)
 
       Skylight.stop!
 
