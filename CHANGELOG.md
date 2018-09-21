@@ -1,3 +1,7 @@
+## 3.1.0-beta2
+* [IMPROVEMENT] Trace Mongo aggregate queries
+* [BUGFIX] Correct configuration keys in skylight.yml
+
 ## 3.1.0-beta
 * [BUGFIX] SQL queries with schema-qualified table names are parsed correctly
 * [BUGFIX] `SELECT ... FOR UPDATE` queries are parsed correctly

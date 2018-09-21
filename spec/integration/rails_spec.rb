@@ -202,6 +202,8 @@ if enable
         config.middleware.use CatchingMiddleware
         config.middleware.use MonkeyInTheMiddleware
         config.middleware.use ThrowingMiddleware
+        config.many = 10
+        config.very_many = 300
       end
 
       # We include instrument_method in multiple places to ensure
@@ -282,11 +284,16 @@ if enable
 
         def too_many_spans
           # Max is 2048
-          2050.times do
-            Skylight.instrument category: 'app.zomg' do
-              # nothing
+          Rails.application.config.many.times do
+            Skylight.instrument category: 'app.zomg.level-1' do
+              Rails.application.config.very_many.times do
+                Skylight.instrument category: 'app.zomg.level-2' do
+                  # nothing
+                end
+              end
             end
           end
+
           if Rails.version =~ /^4\./
             render text: "There's too many of them!"
           else
@@ -382,7 +389,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
 
@@ -444,7 +451,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
 
@@ -458,7 +465,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
 
@@ -480,7 +487,7 @@ if enable
           titles = trace.filtered_spans.map{ |s| s.event.title }
 
           # If Skylight runs after CustomMiddleware, we shouldn't see it
-          expect(titles).to_not include("CustomMiddleware")
+          expect(titles).not_to include("CustomMiddleware")
         end
 
       end
@@ -494,7 +501,7 @@ if enable
         it "doesn't report middleware that don't close body", :middleware_probe do
           ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
 
-          expect_any_instance_of(Skylight::Core::Instrumenter).to_not receive(:process)
+          expect_any_instance_of(Skylight::Core::Instrumenter).not_to receive(:process)
 
           call MyApp, env('/non-closing')
         end
@@ -620,7 +627,7 @@ if enable
             server.wait resource: '/report'
 
             batch = server.reports[0]
-            expect(batch).to_not be nil
+            expect(batch).not_to be nil
             expect(batch.endpoints.count).to eq(1)
             endpoint = batch.endpoints[0]
 
@@ -641,11 +648,32 @@ if enable
           it 'handles too many spans' do
             ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
 
-            expect_any_instance_of(Skylight::Instrumenter).to_not receive(:process)
+            expect_any_instance_of(Skylight::Instrumenter).not_to receive(:process)
 
             call MyApp, env('/users/too_many_spans')
           end
 
+        end
+
+        context 'with pruning' do
+          def pre_boot
+            ENV['SKYLIGHT_PRUNE_LARGE_TRACES'] = 'true'
+          end
+
+          it 'handles too many spans' do
+            res = call MyApp, env('/users/too_many_spans')
+            server.wait resource: '/report'
+
+            batch = server.reports[0]
+            spans = batch.endpoints[0].traces[0].spans
+
+            categories = spans.each_with_object(Hash.new(0)) do |span, counts|
+              counts[span.event.category] += 1
+            end
+
+            expect(categories['app.zomg.level-1']).to eq(MyApp.config.many)
+            expect(categories['app.zomg.level-2']).to eq(0)
+          end
         end
 
       end
@@ -657,7 +685,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
         expect(endpoint.name).to eq("UsersController#show<sk-segment>json</sk-segment>")
@@ -723,7 +751,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
         expect(endpoint.name).to eq("UsersController#show<sk-segment>json</sk-segment>")
@@ -751,7 +779,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
         expect(endpoint.name).to eq("UsersController#failure<sk-segment>error</sk-segment>")
@@ -765,7 +793,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
 
@@ -780,7 +808,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
 
@@ -803,7 +831,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
         expect(endpoint.name).to eq("UsersController#status<sk-segment>error</sk-segment>")
@@ -817,7 +845,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
         expect(endpoint.name).to eq("UsersController#status<sk-segment>error</sk-segment>")
@@ -837,7 +865,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
         expect(endpoint.name).to eq("UsersController#no_template<sk-segment>error</sk-segment>")
@@ -850,7 +878,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
         expect(endpoint.name).to eq("UsersController#show<sk-segment>json+tablet</sk-segment>")
@@ -864,7 +892,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
         expect(endpoint.name).to eq("UsersController#header")
@@ -876,7 +904,7 @@ if enable
         server.wait resource: '/report'
 
         batch = server.reports[0]
-        expect(batch).to_not be nil
+        expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
         expect(endpoint.name).to eq("MetalController#show<sk-segment>html</sk-segment>")

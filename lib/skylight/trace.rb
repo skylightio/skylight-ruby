@@ -3,6 +3,7 @@ module Skylight
     def initialize(*)
       super
       @too_many_spans = false
+      native_use_pruning if use_pruning?
     end
 
     def uuid
@@ -45,6 +46,10 @@ module Skylight
         # This attempts to log another span which will fail if we have too many
         return if too_many_spans?
         super
+      end
+
+      def use_pruning?
+        config.get(:prune_large_traces)
       end
 
   end
