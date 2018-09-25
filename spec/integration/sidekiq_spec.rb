@@ -69,7 +69,7 @@ if enable
         expect(batch).to_not be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("MyWorker#perform<sk-segment>default</sk-segment>")
+        expect(endpoint.name).to eq("MyWorker<sk-segment>default</sk-segment>")
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
