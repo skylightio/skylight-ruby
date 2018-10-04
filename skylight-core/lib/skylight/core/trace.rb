@@ -12,8 +12,8 @@ module Skylight::Core
     def self.new(instrumenter, endpoint, start, cat, title=nil, desc=nil, meta=nil)
       uuid = SecureRandom.uuid
       inst = native_new(normalize_time(start), uuid, endpoint, meta)
-      inst.send(:initialize, instrumenter, cat, title, desc, meta)
       inst.uuid = uuid
+      inst.send(:initialize, instrumenter, cat, title, desc, meta)
       inst.endpoint = endpoint
       inst
     end
