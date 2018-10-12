@@ -95,14 +95,27 @@ module Skylight
       nil
     end
 
-    def done(span)
+    def done(span, meta=nil)
       return unless span
       return if broken?
+
+      if meta && meta[:defer]
+        deferred_spans[span] ||= (Util::Clock.nanos - gc_time)
+        return
+      end
+
       stop(span, Util::Clock.nanos - gc_time)
     rescue => e
       error "failed to close span; msg=%s; endpoint=%s", e.message, endpoint
       broken!
       nil
+    end
+
+    # Middleware spans that were interrupted by a throw/catch should be cached here.
+    # keys: span ids
+    # values: nsec timestamp at which the span was cached here.
+    def deferred_spans
+      @deferred_spans ||= {}
     end
 
     def release
@@ -171,29 +184,43 @@ module Skylight
     def stop(span, time)
       t { "stopping span: #{span}" }
 
-      expected = @spans.pop
-      unless span == expected
-        message = "[E0001] Spans were closed out of order.\n"
-
-        if Skylight::Util::Logging.trace?
-          message << "Expected #{expected}, but received #{span}. See prior logs to match id to a name.\n" \
-                        "If the received span was a Middleware it may be one that doesn't fully conform to " \
-                        "the Rack SPEC."
-        else
-          message << "To debug this issue set `SKYLIGHT_ENABLE_TRACE_LOGS=true` " \
-                        "in your environment. (Beware, it is quite noisy!)\n"
-        end
-
-        message << "This request will not be tracked. Please contact support@skylight.io for more information."
-
-        error message
-
-        broken!
+      # If `stop` is called for a span that is not the last item in the stack,
+      # check to see if the last item has been marked as deferred. If so, close
+      # that span first, then try to close the original.
+      while deferred_spans[expected = @spans.pop]
+        normalized_stop(expected, deferred_spans.delete(expected))
       end
 
+      handle_unexpected_stop(expected, span) unless span == expected
+
+      normalized_stop(span, time)
+      nil
+    end
+
+    def normalized_stop(span, time)
       time = self.class.normalize_time(time)
       native_stop_span(span, time)
-      nil
+    end
+
+    def handle_unexpected_stop(expected, span)
+      message = "[E0001] Spans were closed out of order.\n"
+
+      if Skylight::Util::Logging.trace?
+        message << "Expected #{expected}, but received #{span}. See prior logs to match id to a name.\n" \
+                   "If the received span was a Middleware it may be one that doesn't fully conform to " \
+                   "the Rack SPEC."
+      else
+        message << "To debug this issue set `SKYLIGHT_ENABLE_TRACE_LOGS=true` " \
+                   "in your environment. (Beware, it is quite noisy!)\n"
+      end
+
+      message << "\nThis request will not be tracked. Please contact support@skylight.io for more information."
+
+      error message
+
+      t { "expected=#{expected}, actual=#{span}" }
+
+      broken!
     end
 
     def gc_time
