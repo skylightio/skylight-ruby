@@ -286,9 +286,11 @@ if enable
           # Max is 2048
           Rails.application.config.many.times do
             Skylight.instrument category: 'app.zomg.level-1' do
-              Rails.application.config.very_many.times do
-                Skylight.instrument category: 'app.zomg.level-2' do
-                  # nothing
+              Skylight.instrument category: 'app.zomg.should-prune-below-here' do
+                Rails.application.config.very_many.times do
+                  Skylight.instrument category: 'app.zomg.level-2' do
+                    # nothing
+                  end
                 end
               end
             end
@@ -672,6 +674,12 @@ if enable
             end
 
             expect(categories['app.zomg.level-1']).to eq(MyApp.config.many)
+
+            # The spans whose children were pruned should all have been replaced with an error code
+            expect(categories['app.zomg.should-prune-below-here']).to eq(0)
+            expect(categories['error.code.3']).to eq(MyApp.config.many)
+
+            # These have been discarded entirely
             expect(categories['app.zomg.level-2']).to eq(0)
           end
         end
