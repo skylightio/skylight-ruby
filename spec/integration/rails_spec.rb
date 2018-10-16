@@ -32,6 +32,7 @@ if enable
             get :header
             get :status
             get :no_template
+            get :throw_something
           end
         end
         get '/metal' => 'metal#show'
@@ -54,29 +55,22 @@ if enable
         ENV['SKYLIGHT_LOG_FILE']             = "-"
       end
 
-      class CustomMiddleware
+      class MiddlewareError < StandardError
+      end
 
-        def initialize(app)
-          @app = app
-        end
-
+      CustomMiddleware ||= Struct.new(:app) do
         def call(env)
           if env["PATH_INFO"] == "/middleware"
             return [200, { }, ["CustomMiddleware"]]
           end
 
-          @app.call(env)
+          app.call(env)
         end
-
       end
 
-      class NonClosingMiddleware
-        def initialize(app)
-          @app = app
-        end
-
+      NonClosingMiddleware ||= Struct.new(:app) do
         def call(env)
-          res = @app.call(env)
+          res = app.call(env)
 
           # NOTE: We are intentionally throwing away the response without calling close
           # This is to emulate a non-conforming Middleware
@@ -88,32 +82,78 @@ if enable
         end
       end
 
-      class NonArrayMiddleware
-        def initialize(app)
-          @app = app
-        end
-
+      NonArrayMiddleware ||= Struct.new(:app) do
         def call(env)
           if env["PATH_INFO"] == "/non-array"
             # NOTE: This requires Rack 1.3+ for `to_ary`
             return Rack::Response.new(["NonArray"])
           end
 
-          @app.call(env)
+          app.call(env)
         end
       end
 
-      class InvalidMiddleware
-        def initialize(app)
-          @app = app
-        end
-
+      InvalidMiddleware ||= Struct.new(:app) do
         def call(env)
           if env["PATH_INFO"] == "/invalid"
             return "Hello"
           end
 
-          @app.call(env)
+          app.call(env)
+        end
+      end
+
+      AssertDeferrals ||= Struct.new(:app) do
+        def call(env)
+          app.call(env)
+        ensure
+          assertion_hook
+        end
+
+        def assertion_hook
+          # override in rspec
+        end
+      end
+
+      RescuingMiddleware ||= Struct.new(:app) do
+        def call(env)
+          app.call(env)
+        rescue MiddlewareError => e
+          [500, {}, ["error=#{e.class.inspect} msg=#{e.to_s.inspect}"]]
+        end
+      end
+
+      CatchingMiddleware ||= Struct.new(:app) do
+        def call(env)
+          catch(:coconut) { app.call(env) }
+        end
+      end
+
+      MonkeyInTheMiddleware ||= Struct.new(:app) do
+        # Doesn't do anything on its own; it's here just to play
+        # with ThrowingMiddleware and CatchingMiddleware
+        delegate :call, to: :app
+      end
+
+      ThrowingMiddleware ||= Struct.new(:app) do
+        def call(env)
+          throw(:coconut, [401, {}, ['I can\'t do that, Dave']]) if should_throw?(env)
+          raise MiddlewareError.new('I can\'t do that, Dave') if should_raise?(env)
+          app.call(env)
+        end
+
+        private
+
+        def should_throw?(env)
+          query_parameters(env)[:middleware_throws] == 'true'
+        end
+
+        def should_raise?(env)
+          query_parameters(env)[:middleware_raises] == 'true'
+        end
+
+        def query_parameters(env)
+          ActionDispatch::Request.new(env).query_parameters
         end
       end
 
@@ -157,7 +197,11 @@ if enable
         config.middleware.use NonArrayMiddleware
         config.middleware.use InvalidMiddleware
         config.middleware.use CustomMiddleware
-
+        config.middleware.use AssertDeferrals
+        config.middleware.use RescuingMiddleware
+        config.middleware.use CatchingMiddleware
+        config.middleware.use MonkeyInTheMiddleware
+        config.middleware.use ThrowingMiddleware
       end
 
       # We include instrument_method in multiple places to ensure
@@ -240,6 +284,10 @@ if enable
 
         def no_template
           # This action has no template to auto-render
+        end
+
+        def throw_something
+          throw(:coconut, [401, {}, ['I can\'t do that, Dave']])
         end
 
         private
@@ -344,7 +392,7 @@ if enable
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
-        app_spans = trace.spans.map{|s| [s.event.category, s.event.title] }.select{|s| s[0] =~ /^app./ }
+        app_spans = trace.filtered_spans.map{|s| [s.event.category, s.event.title] }.select{|s| s[0] =~ /^app./ }
         expect(app_spans).to eq([
           ["app.rack.request", nil],
           ["app.controller.request", "UsersController#index"],
@@ -361,7 +409,7 @@ if enable
 
         trace = server.reports[0].endpoints[0].traces[0]
 
-        app_and_rack_spans = trace.spans.map{|s| [s.event.category, s.event.title] }.select{|s| s[0] =~ /^(app|rack)./ }
+        app_and_rack_spans = trace.filtered_spans.map{|s| [s.event.category, s.event.title] }.select{|s| s[0] =~ /^(app|rack)./ }
 
         # We know the first one
         expect(app_and_rack_spans[0]).to eq(["app.rack.request", nil])
@@ -430,7 +478,7 @@ if enable
 
           trace = server.reports[0].endpoints[0].traces[0]
 
-          titles = trace.spans.map{ |s| s.event.title }
+          titles = trace.filtered_spans.map{ |s| s.event.title }
 
           # If Skylight runs after CustomMiddleware, we shouldn't see it
           expect(titles).to_not include("CustomMiddleware")
@@ -438,7 +486,7 @@ if enable
 
       end
 
-      context "middleware that don't conform to Rack SPEC" do
+      context "middleware that don't conform to Rack SPEC", middleware: true do
 
         it "doesn't report middleware that don't close body", :middleware_probe do
           ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
@@ -458,12 +506,80 @@ if enable
 
             trace = server.reports[0].endpoints[0].traces[0]
 
-            titles = trace.spans.map{ |s| s.event.title }
+            titles = trace.filtered_spans.map{ |s| s.event.title }
 
             expect(titles).to include("NonArrayMiddleware")
           end
         end
 
+      end
+
+      context 'middleware that jumps the stack' do
+        it 'closes jumped spans', :middleware_probe do
+          allow_any_instance_of(AssertDeferrals).to receive(:assertion_hook) do
+            expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
+          end
+          res = call(MyApp, env('/foo?middleware_throws=true'))
+          server.wait(resource: '/report')
+          batch = server.reports[0]
+          expect(batch).to be_present
+          endpoint = batch.endpoints[0]
+          expect(endpoint.name).to eq('ThrowingMiddleware')
+          trace = endpoint.traces[0]
+          reverse_spans = trace.filtered_spans.reverse_each.map { |span| span.event.title }
+          last, middle, catcher = reverse_spans
+          expect(last).to eq('ThrowingMiddleware')
+          expect(middle).to eq('MonkeyInTheMiddleware')
+          expect(catcher).to eq('CatchingMiddleware')
+        end
+
+        it 'closes spans over rescue blocks', :middleware_probe do
+          # By the time the call stack has finished with this middleware, deferrals
+          # should be empty. The rescue block in Probes::Middleware#call
+          # should mark those spans done without needing to defer them.
+          allow_any_instance_of(AssertDeferrals).to receive(:assertion_hook) do
+            expect(Skylight.trace.send(:deferred_spans)).to eq({})
+          end
+          res = call(MyApp, env('/foo?middleware_raises=true'))
+          server.wait(resource: '/report')
+          batch = server.reports[0]
+          expect(batch).to be_present
+          endpoint = batch.endpoints[0]
+          expect(endpoint.name).to eq('ThrowingMiddleware')
+          trace = endpoint.traces[0]
+          reverse_spans = trace.filtered_spans.reverse_each.map { |span| span.event.title }
+          last, middle, catcher, rescuer = reverse_spans
+          expect(last).to eq('ThrowingMiddleware')
+          expect(middle).to eq('MonkeyInTheMiddleware')
+          expect(catcher).to eq('CatchingMiddleware')
+          expect(rescuer).to eq('RescuingMiddleware')
+        end
+
+        it 'closes spans jumped in the controller', :middleware_probe do
+          allow_any_instance_of(AssertDeferrals).to receive(:assertion_hook) do
+            expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
+          end
+          res = call(MyApp, env('/users/throw_something'))
+          server.wait(resource: '/report')
+          batch = server.reports[0]
+          expect(batch).to be_present
+          endpoint = batch.endpoints[0]
+          expect(endpoint.name).to eq('UsersController#throw_something')
+          trace = endpoint.traces[0]
+          reverse_spans = trace.filtered_spans.reverse_each.map do |span|
+            [span.event.category, span.event.title]
+          end
+
+          # it closes all spans between the throw and the catch
+          expect(reverse_spans.take(6)).to eq([
+            ["app.method", "Check authorization"],
+            ["app.controller.request", "UsersController#throw_something"],
+            ["rack.app", "ActionDispatch::Routing::RouteSet"],
+            ["rack.middleware", "ThrowingMiddleware"],
+            ["rack.middleware", "MonkeyInTheMiddleware"],
+            ["rack.middleware", "CatchingMiddleware"]
+          ])
+        end
       end
 
       it 'sets correct segment' do
@@ -547,7 +663,7 @@ if enable
 
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
-        names = trace.spans.map { |s| s.event.category }
+        names = trace.filtered_spans.map { |s| s.event.category }
 
         expect(names.length).to be >= 3
         expect(names).to include('app.zomg')
@@ -644,7 +760,7 @@ if enable
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
-        names = trace.spans.map { |s| s.event.category }
+        names = trace.filtered_spans.map { |s| s.event.category }
 
         expect(names.length).to be >= 1
         expect(names[0]).to eq('app.rack.request')
