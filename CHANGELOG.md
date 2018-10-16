@@ -1,3 +1,6 @@
+## 1.7.1 (October 16 2018)
+* [BUGFIX] (Backported from 2.x series) Fix issue wherein certain error-handling patterns could break the middleware probe.
+
 ## 1.7.0 (April 24, 2018)
 
 * [FEATURE] New API for loading Probes. Example: `Skylight.probe(:excon')`
