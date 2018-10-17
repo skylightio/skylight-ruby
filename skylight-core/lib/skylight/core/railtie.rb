@@ -52,7 +52,7 @@ module Skylight::Core
         end
       elsif !Rails.env.test?
         unless config.user_config.disable_env_warning?
-          log_warning config, "#{log_prefix} You are running in the #{Rails.env} environment but haven't added it to config.#{self.class.root_key}.environments, so no data will be sent to skylight.io."
+          log_warning config, "#{log_prefix} You are running in the #{Rails.env} environment but haven't added it to config.#{self.class.root_key}.environments, so no data will be sent to #{config.class.service_name} servers."
         end
       end
     end

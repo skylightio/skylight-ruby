@@ -132,7 +132,7 @@ describe "Initialization integration" do
         let(:rails_env) { "other" }
 
         it "warns that it is disabled" do
-          expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
+          expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to Skylight servers."
         end
 
       end
@@ -186,7 +186,7 @@ describe "Initialization integration" do
       let(:rails_env) { "other" }
 
       it "warns that it is disabled" do
-        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to skylight.io."
+        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to Skylight servers."
       end
 
     end
