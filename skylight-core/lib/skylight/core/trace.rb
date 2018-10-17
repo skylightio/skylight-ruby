@@ -134,6 +134,7 @@ module Skylight::Core
       stop(span, Util::Clock.nanos - gc_time)
     rescue => e
       error "failed to close span; msg=%s; endpoint=%s", e.message, endpoint
+      log_trace "Original Backtrace:\n#{e.backtrace.join("\n")}"
       broken!
       nil
     end
