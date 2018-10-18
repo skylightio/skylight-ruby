@@ -1,3 +1,6 @@
+## 3.1.0-beta3
+* [BUGFIX] Fix in 32-bit linux build
+
 ## 3.1.0-beta2
 * [IMPROVEMENT] Trace Mongo aggregate queries
 * [BUGFIX] Correct configuration keys in skylight.yml
