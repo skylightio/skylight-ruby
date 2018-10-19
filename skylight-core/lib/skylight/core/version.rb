@@ -1,6 +1,6 @@
 module Skylight
   module Core
-    VERSION = '3.1.0-beta3'
+    VERSION = '3.1.0'
   end
 end
 
