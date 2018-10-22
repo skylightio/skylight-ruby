@@ -15,6 +15,8 @@ module Skylight::Core
     MUTEX = Mutex.new
 
     def self.log_name; "Skylight" end
+    def self.service_name; log_name end
+    def self.support_email; "support@skylight.io" end
     def self.env_matcher; /^(?:SK|SKYLIGHT)_(.+)$/ end
     def self.env_prefix; "SKYLIGHT_" end
 
