@@ -1,3 +1,6 @@
+## 3.1.1 (October 25, 2018)
+* [IMPROVEMENT] Get AMS version from `Gem.loaded_specs` (thanks @mattias-lundell!)
+
 ## 3.1.0 (October 22, 2018)
 
 * [IMPROVEMENT] Trace Mongo aggregate queries
