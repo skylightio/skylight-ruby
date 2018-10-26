@@ -303,6 +303,14 @@ authentication: #{self[:authentication]}
       raise Core::ConfigError, e.message
     end
 
+    def worker_context?
+      component.worker?
+    end
+
+    def web_context?
+      component.web?
+    end
+
   private
 
     def check_nfs(path)

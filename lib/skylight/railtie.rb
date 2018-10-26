@@ -31,14 +31,37 @@ module Skylight
 
     private
 
+      def activate?(sk_config)
+        return false unless super && sk_config
+        activate_for_worker?(sk_config) || activate_for_web?(sk_config)
+      end
+
+      # We must have an opt-in signal
+      def activate_for_worker?(sk_config)
+        return unless sk_config.worker_context?
+
+        reasons = []
+        reasons << "the 'active_job' probe is enabled" if sk_rails_config.probes.include?('active_job')
+        reasons << 'SKYLIGHT_ENABLE_SIDEKIQ is set' if sk_config.enable_sidekiq?
+
+        return if reasons.empty?
+
+        sk_config.logger.warn("Activating Skylight for Background Jobs (alpha) because #{reasons.to_sentence}")
+        true
+      end
+
+      def activate_for_web?(sk_config)
+        sk_config.web_context?
+      end
+
       def development_warning
         super + "\n(To disable this message for all local apps, run `skylight disable_dev_warning`.)"
       end
 
       def load_skylight_config(app)
-        super.tap do |config|
-          if config[:report_rails_env]
-            config[:env] ||= Rails.env.to_s
+        super.tap do |sk_config|
+          if sk_config && sk_config[:report_rails_env]
+            sk_config[:env] ||= Rails.env.to_s
           end
         end
       end

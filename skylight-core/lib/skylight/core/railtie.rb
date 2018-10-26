@@ -32,7 +32,7 @@ module Skylight::Core
 
       config = load_skylight_config(app)
 
-      if activate?
+      if activate?(config)
         if config
           begin
             if self.class.namespace.start!(config)
@@ -89,18 +89,18 @@ module Skylight::Core
     end
 
     def configure_logging(config, app)
-      if logger = skylight_config(app).logger
+      if logger = sk_rails_config(app).logger
         config.logger = logger
       else
         # Configure the log file destination
-        if log_file = skylight_config(app).log_file
+        if log_file = sk_rails_config(app).log_file
           config['log_file'] = log_file
         elsif !config.key?('log_file') && !config.on_heroku?
           config['log_file'] = File.join(Rails.root, "log/#{self.class.log_file_name}.log")
         end
 
         # Configure the log level
-        if level = skylight_config(app).log_level
+        if level = sk_rails_config(app).log_level
           config['log_level'] = level
         elsif !config.key?('log_level')
           if level = app.config.log_level
@@ -111,14 +111,14 @@ module Skylight::Core
     end
 
     def config_path(app)
-      File.expand_path(skylight_config.config_path, app.root)
+      File.expand_path(sk_rails_config.config_path, app.root)
     end
 
     def environments
-      Array(skylight_config.environments).map { |e| e && e.to_s }.compact
+      Array(sk_rails_config.environments).map { |e| e && e.to_s }.compact
     end
 
-    def activate?
+    def activate?(_sk_config)
       key = "#{self.class.config_class.env_prefix}ENABLED"
       if ENV.key?(key)
         ENV[key] !~ /^false$/i
@@ -128,12 +128,12 @@ module Skylight::Core
     end
 
     def load_probes
-      probes = skylight_config.probes || []
+      probes = sk_rails_config.probes || []
       Probes.probe(*probes)
     end
 
     def middleware_position
-      skylight_config.middleware_position.is_a?(Hash) ? skylight_config.middleware_position.symbolize_keys : skylight_config.middleware_position
+      sk_rails_config.middleware_position.is_a?(Hash) ? sk_rails_config.middleware_position.symbolize_keys : sk_rails_config.middleware_position
     end
 
     def insert_middleware(app, config)
@@ -158,7 +158,7 @@ module Skylight::Core
       end
     end
 
-    def skylight_config(target=self)
+    def sk_rails_config(target=self)
       target.config.send(self.class.root_key)
     end
 
