@@ -106,6 +106,7 @@ module Skylight::Core
         active_support/cache
         coach/handler_finish
         coach/middleware_finish
+        couch_potato/query
         data_mapper/sql
         elasticsearch/request
         faraday/request
