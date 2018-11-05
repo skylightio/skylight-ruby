@@ -48,6 +48,14 @@ module Skylight
         !web?
       end
 
+      # keys here should match those from the main config
+      def as_json(*)
+        {
+          component: name,
+          env: environment
+        }
+      end
+
       private
 
       def program_name

@@ -306,6 +306,15 @@ authentication: #{self[:authentication]}
       component.web?
     end
 
+    def as_json(*)
+      {
+        config: {
+          priority: @priority.merge(component.as_json),
+          values: @values
+        }
+      }
+    end
+
   private
 
     def check_nfs(path)
