@@ -87,16 +87,16 @@ module Skylight
         end
 
         # Start a trace
-        def trace(endpoint=nil, cat=nil, title=nil, meta=nil)
+        def trace(endpoint=nil, cat=nil, title=nil, meta=nil, segment: nil)
           unless instrumenter
             return yield if block_given?
             return
           end
 
           if block_given?
-            instrumenter.trace(endpoint, cat || DEFAULT_CATEGORY, title, nil, meta) { yield }
+            instrumenter.trace(endpoint, cat || DEFAULT_CATEGORY, title, nil, meta, segment: segment) { yield }
           else
-            instrumenter.trace(endpoint, cat || DEFAULT_CATEGORY, title, nil, meta)
+            instrumenter.trace(endpoint, cat || DEFAULT_CATEGORY, title, nil, meta, segment: segment)
           end
         end
 

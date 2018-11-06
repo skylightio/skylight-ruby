@@ -18,7 +18,7 @@ module Skylight::Core
 
         def normalize_after(trace, _span, _name, payload)
           return unless config.enable_segments?
-          trace.endpoint += "<sk-segment>#{payload[:job].queue_name}</sk-segment>"
+          trace.segment = payload[:job].queue_name
         end
 
         private

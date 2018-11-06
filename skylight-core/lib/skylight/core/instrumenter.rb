@@ -122,7 +122,7 @@ module Skylight::Core
       native_stop
     end
 
-    def trace(endpoint, cat, title=nil, desc=nil, meta=nil)
+    def trace(endpoint, cat, title=nil, desc=nil, meta=nil, segment: nil)
       # If a trace is already in progress, continue with that one
       if trace = @trace_info.current
         return yield(trace) if block_given?
@@ -130,7 +130,7 @@ module Skylight::Core
       end
 
       begin
-        trace = self.class.trace_class.new(self, endpoint, Util::Clock.nanos, cat, title, desc, meta)
+        trace = self.class.trace_class.new(self, endpoint, Util::Clock.nanos, cat, title, desc, meta, segment: segment)
       rescue Exception => e
         log_error e.message
         t { e.backtrace.join("\n") }
@@ -243,6 +243,7 @@ module Skylight::Core
       end
 
       begin
+        finalize_endpoint_segment(trace)
         native_submit_trace(trace)
         true
       rescue => e
@@ -253,7 +254,7 @@ module Skylight::Core
     end
 
     def ignore?(trace)
-      config.ignored_endpoints.include?(trace.endpoint.sub(%r{<sk-segment>.+</sk-segment>}, ''))
+      config.ignored_endpoints.include?(trace.endpoint)
     end
 
     # Return [title, sql]
@@ -261,5 +262,9 @@ module Skylight::Core
       [nil, sql]
     end
 
+    def finalize_endpoint_segment(trace)
+      return unless trace.segment
+      trace.endpoint += "<sk-segment>#{trace.segment}</sk-segment>"
+    end
   end
 end

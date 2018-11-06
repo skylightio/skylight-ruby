@@ -27,7 +27,7 @@ module Skylight::Core
           segments << "error" if response_status.start_with?('4', '5')
 
           if segments.any?
-            trace.endpoint += "<sk-segment>#{segments.join("+")}</sk-segment>"
+            trace.segment = segments.join('+')
           end
         end
       end

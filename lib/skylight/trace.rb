@@ -33,8 +33,8 @@ module Skylight
 
     def traced
       if too_many_spans?
-          error("[E%04d] The request exceeded the maximum number of spans allowed. It will still " \
-                  "be tracked but with reduced information. endpoint=%s", Skylight::MaximumTraceSpansError.code, endpoint)
+        error("[E%04d] The request exceeded the maximum number of spans allowed. It will still " \
+              "be tracked but with reduced information. endpoint=%s", Skylight::MaximumTraceSpansError.code, endpoint)
       end
 
       super

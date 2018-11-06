@@ -1,7 +1,7 @@
 module SpecHelper
 
   class MockTrace
-    attr_accessor :endpoint
+    attr_accessor :endpoint, :segment
     attr_writer :instrumenter
 
     def initialize

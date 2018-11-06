@@ -622,7 +622,7 @@ if enable
             segment = Rails.version =~ /^4\./ ? 'html' : 'text'
 
             expect_any_instance_of(Skylight::Trace).to receive(:error).
-                with(/\[E%04d\].+endpoint=%s/, 3, "UsersController#too_many_spans<sk-segment>#{segment}</sk-segment>")
+                with(/\[E%04d\].+endpoint=%s/, 3, "UsersController#too_many_spans")
 
             res = call MyApp, env('/users/too_many_spans')
 

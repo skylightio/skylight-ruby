@@ -7,14 +7,15 @@ module Skylight::Core
     include Util::Logging
 
     attr_reader :instrumenter, :endpoint, :notifications, :meta
-    attr_accessor :uuid
+    attr_accessor :uuid, :segment
 
-    def self.new(instrumenter, endpoint, start, cat, title=nil, desc=nil, meta=nil)
+    def self.new(instrumenter, endpoint, start, cat, title=nil, desc=nil, meta=nil, segment: nil)
       uuid = SecureRandom.uuid
       inst = native_new(normalize_time(start), uuid, endpoint, meta)
       inst.uuid = uuid
       inst.send(:initialize, instrumenter, cat, title, desc, meta)
       inst.endpoint = endpoint
+      inst.segment = segment
       inst
     end
 

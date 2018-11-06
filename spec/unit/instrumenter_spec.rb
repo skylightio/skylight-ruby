@@ -347,11 +347,11 @@ describe "Skylight::Instrumenter", :http, :agent do
         config[:ignored_endpoint] = "foo#heartbeat"
         instrumenter = Skylight::Instrumenter.new(config)
 
-        Skylight.trace 'foo#bar<sk-segment>json</sk-segment>', 'app.rack' do |t|
+        Skylight.trace 'foo#bar', 'app.rack', segment: 'json' do |t|
           clock.skip 1
         end
 
-        Skylight.trace 'foo#heartbeat<sk-segment>json</sk-segment>', 'app.rack' do |t|
+        Skylight.trace 'foo#heartbeat', 'app.rack', segment: 'json' do |t|
           clock.skip 1
         end
 
