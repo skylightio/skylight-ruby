@@ -1,3 +1,5 @@
+* [IMPROVEMENT] Handle 403 config validation response
+
 ## 3.1.1 (October 25, 2018)
 * [IMPROVEMENT] Get AMS version from `Gem.loaded_specs` (thanks @mattias-lundell!)
 

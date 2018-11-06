@@ -310,13 +310,17 @@ module Skylight::Core
       end
     end
 
-    def to_json
-      JSON.generate(
+    def to_json(*)
+      JSON.generate(as_json)
+    end
+
+    def as_json(*)
+      {
         config: {
           priority: @priority,
           values:   @values
         }
-      )
+      }
     end
 
     def to_native_env

@@ -70,8 +70,11 @@ module Skylight
         return true if is_error_response?
         # A 2xx response means everything is good!
         return true if raw_response.success?
-        # A 422 means an invalid config, but the token must be valid if we got this far
-        return true if status === 422
+        return false if status === 401
+
+        # A 403/422 means an invalid config,
+        # but the token must be valid if we got this far
+        true
       end
 
       def config_valid?
@@ -79,14 +82,18 @@ module Skylight
         raw_response.success?
       end
 
+      def forbidden?
+        status === 403
+      end
+
       def validation_errors
-        return if config_valid?
-        body ? body['errors'] : nil
+        return {} if config_valid? || !body
+        body['errors']
       end
 
       def corrected_config
-        return if config_valid?
-        body ? body['corrected'] : nil
+        return {} if config_valid? || !body
+        body['corrected']
       end
 
     end

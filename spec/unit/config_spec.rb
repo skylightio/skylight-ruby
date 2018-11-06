@@ -271,5 +271,28 @@ module Skylight
         expect(env['SKYLIGHT_SOCKDIR_PATH']).to eq('/foo/bar')
       end
     end
+
+    context 'serialization' do
+      it 'includes custom component metadata' do
+        config = Config.new(component: 'worker', env: 'development').as_json
+
+        %i(priority values).each do |subkey|
+          expect(config[:config][subkey][:component]).to eq('worker')
+          expect(config[:config][subkey][:env]).to eq('development')
+        end
+      end
+
+      it 'includes inferred component metadata in the priority group' do
+        config = Config.new.as_json
+
+        expect(config[:config][:priority][:component]).to(
+          eq(Skylight::Util::Component::DEFAULT_NAME)
+        )
+
+        expect(config[:config][:priority][:env]).to(
+          eq(Skylight::Util::Component::DEFAULT_ENVIRONMENT)
+        )
+      end
+    end
   end
 end

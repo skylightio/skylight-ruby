@@ -206,18 +206,13 @@ module Skylight
 
       unless res.config_valid?
         warn("Invalid configuration") unless res.is_error_response?
-        if errors = res.validation_errors
-          errors.each do |k,v|
-            warn("  #{k} #{v}")
-          end
+        res.validation_errors.each do |k,v|
+          warn("  #{k}: #{v}")
         end
+
+        return false if res.forbidden?
 
         corrected_config = res.corrected_config
-        unless corrected_config
-          # Use defaults if no corrected config is available. This will happen if the request failed.
-          corrected_config = Hash[self.class.server_validated_keys.map{|k| [k, [k]] }]
-        end
-
         config_to_update = corrected_config.select{|k,v| get(k) != v }
         unless config_to_update.empty?
           info("Updating config values:")
@@ -309,6 +304,15 @@ authentication: #{self[:authentication]}
 
     def web_context?
       component.web?
+    end
+
+    def as_json(*)
+      {
+        config: {
+          priority: @priority.merge(component.as_json),
+          values: @values
+        }
+      }
     end
 
   private

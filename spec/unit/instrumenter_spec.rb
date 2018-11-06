@@ -41,10 +41,14 @@ describe "Skylight::Instrumenter", :http, :agent do
       stub_config_validation(401)
 
       expect(Skylight.start!(config)).to be_falsey
+      expect(logger_out.string).to include("Invalid authentication token")
+    end
 
-      logger_out.rewind
-      out = logger_out.read
-      expect(out).to include("Invalid authentication token")
+    it 'fails with invalid component' do
+      msg = 'worker has not been whitelisted'
+      stub_config_validation(403, { errors: { component: msg }})
+      expect(Skylight.start!(config)).to be_falsey
+      expect(logger_out.string).to include(msg)
     end
 
     # We don't currently have any server validated config values,
@@ -70,6 +74,11 @@ describe "Skylight::Instrumenter", :http, :agent do
 
       before(:each) do
         stub_config_validation(500)
+      end
+
+      it 'starts anyway' do
+        expect(Skylight.start!(config)).to be_truthy
+        expect(logger_out.string).to include('Unable to reach server for config validation')
       end
 
       # We don't currently have any server validated config values,
@@ -108,24 +117,10 @@ describe "Skylight::Instrumenter", :http, :agent do
           allow_any_instance_of(Skylight::Util::HTTP).to receive(:do_request).and_raise("request failed")
         end
 
-        # We don't currently have any server validated config values,
-        # but we should bring this test back if we add some again.
-        #
-        #   it "resets validated values to default" do
-        #     config.set('test.enable_segments', true)
-        #
-        #     #expect(Skylight.start!(config)).to be_truthy
-        #     Skylight.start!(config)
-        #
-        #     logger_out.rewind
-        #     out = logger_out.read
-        #     puts out
-        #     expect(out).to include('Unable to reach server for config validation')
-        #     expect(out).to include("Updating config values:")
-        #     expect(out).to include('setting enable_segments to false')
-        #
-        #     expect(config.enable_segments?).to be_falsey
-        #   end
+        it 'starts anyway' do
+          expect(Skylight.start!(config)).to be_truthy
+          expect(logger_out.string).to include('Unable to reach server for config validation')
+        end
 
       end
 
@@ -137,8 +132,8 @@ describe "Skylight::Instrumenter", :http, :agent do
         with("Unable to start Instrumenter due to a configuration error: Test Failure")
 
       expect do
-        Skylight.start!(config)
-      end.to_not raise_error
+        expect(Skylight.start!(config)).to be_falsey
+      end.not_to raise_error
     end
 
     it "doesn't crash on failed start" do
@@ -147,8 +142,8 @@ describe "Skylight::Instrumenter", :http, :agent do
         with("Unable to start Instrumenter; msg=Test Failure; class=RuntimeError")
 
       expect do
-        Skylight.start!(config)
-      end.to_not raise_error
+        expect(Skylight.start!(config)).to be_falsey
+      end.not_to raise_error
     end
 
   end
