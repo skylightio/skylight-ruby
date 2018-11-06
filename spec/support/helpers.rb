@@ -63,4 +63,9 @@ module SpecHelper
     result
   end
 
+  def with_sqlite
+    ActiveRecord::Base.establish_connection({ adapter: 'sqlite3', database: ':memory:' })
+    yield
+    ActiveRecord::Base.remove_connection
+  end
 end
