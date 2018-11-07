@@ -22,8 +22,13 @@ module Skylight
         def call(_worker, job, queue)
           t { "Sidekiq middleware beginning trace" }
           title = job['wrapped'] || job['class']
-          @instrumentable.trace(title, 'app.sidekiq.worker', title, segment: queue) do
-            yield
+          @instrumentable.trace(title, 'app.sidekiq.worker', title, segment: queue) do |trace|
+            begin
+              yield
+            rescue Exception # includes Sidekiq::Shutdown
+              trace.segment = 'error' if trace
+              raise
+            end
           end
         end
       end

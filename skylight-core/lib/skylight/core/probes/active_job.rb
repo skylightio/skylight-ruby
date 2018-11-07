@@ -7,8 +7,14 @@ module Skylight::Core
             alias execute_without_sk execute
 
             def execute(*args)
-              Skylight.trace('ActiveJob.execute', 'app.job.execute') do
-                execute_without_sk(*args)
+              Skylight.trace('ActiveJob.execute', 'app.job.execute') do |trace|
+                # See normalizers/active_job/perform for endpoint/segment assignment
+                begin
+                  execute_without_sk(*args)
+                rescue Exception
+                  trace.segment = 'error' if trace
+                  raise
+                end
               end
             end
           end
