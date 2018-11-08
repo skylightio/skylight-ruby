@@ -93,10 +93,12 @@ module Skylight
             return
           end
 
+          cat ||= DEFAULT_CATEGORY
+
           if block_given?
-            instrumenter.trace(endpoint, cat || DEFAULT_CATEGORY, title, nil, meta, segment: segment) { yield }
+            instrumenter.trace(endpoint, cat, title, nil, meta, segment: segment) { |tr| yield tr }
           else
-            instrumenter.trace(endpoint, cat || DEFAULT_CATEGORY, title, nil, meta, segment: segment)
+            instrumenter.trace(endpoint, cat, title, nil, meta, segment: segment)
           end
         end
 

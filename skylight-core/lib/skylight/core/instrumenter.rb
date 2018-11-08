@@ -142,7 +142,6 @@ module Skylight::Core
 
       begin
         yield trace
-
       ensure
         @trace_info.current = nil
         t { "instrumenter submitting trace; trace=#{trace.uuid}" }

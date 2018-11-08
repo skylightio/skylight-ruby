@@ -33,15 +33,31 @@ if enable
       class ::MyWorker
         include Sidekiq::Worker
 
-        def perform
+        def perform(error_key = nil)
           Skylight.instrument category: 'app.inside' do
             Skylight.instrument category: 'app.zomg' do
               # nothing
               sleep 0.1
+
+              maybe_raise(error_key)
             end
-            sleep 0.1
+
+            Skylight.instrument(category: 'app.after_zomg') { sleep 0.1 }
           end
         end
+
+        private
+
+        def maybe_raise(key)
+          return unless key
+          err = {
+            'runtime_error' => RuntimeError,
+            'shutdown' => Sidekiq::Shutdown
+          }.fetch(key)
+
+          raise err
+        end
+
       end
     end
 
@@ -75,9 +91,51 @@ if enable
 
         names = trace.filtered_spans.map { |s| s.event.category }
 
+        expect(names).to eq(['app.sidekiq.worker', 'app.inside', 'app.zomg', 'app.after_zomg'])
+      end
+
+      it 'records failed jobs in the error queue' do
+        begin
+          MyWorker.perform_async('runtime_error')
+        rescue RuntimeError
+        end
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("MyWorker<sk-segment>error</sk-segment>")
+        expect(endpoint.traces.count).to eq(1)
+        trace = endpoint.traces[0]
+
+        names = trace.filtered_spans.map { |s| s.event.category }
+
         expect(names).to eq(['app.sidekiq.worker', 'app.inside', 'app.zomg'])
       end
 
+      it 'records killed jobs in the error queue' do
+        begin
+          MyWorker.perform_async('shutdown')
+        rescue Sidekiq::Shutdown
+        end
+
+        server.wait resource: '/report'
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("MyWorker<sk-segment>error</sk-segment>")
+        expect(endpoint.traces.count).to eq(1)
+        trace = endpoint.traces[0]
+
+        names = trace.filtered_spans.map { |s| s.event.category }
+
+        expect(names).to eq(['app.sidekiq.worker', 'app.inside', 'app.zomg'])
+
+      end
     end
   end
 end
