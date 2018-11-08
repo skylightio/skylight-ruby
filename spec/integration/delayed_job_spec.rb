@@ -25,6 +25,8 @@ if enable
       Skylight.start!
     end
 
+    after { Skylight.stop! }
+
     class DelayedObject
       def bad_method
         good_method { fail }
