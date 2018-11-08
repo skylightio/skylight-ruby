@@ -35,7 +35,7 @@ module Skylight::Core
           end
 
           if segment
-            trace.endpoint += "<sk-segment>#{segment}</sk-segment>"
+            trace.segment = segment
           end
         end
 

@@ -22,8 +22,7 @@ module Skylight
         def call(_worker, job, queue)
           t { "Sidekiq middleware beginning trace" }
           title = job['wrapped'] || job['class']
-          segment = "<sk-segment>#{queue}</sk-segment>"
-          @instrumentable.trace("#{title}#{segment}", 'app.sidekiq.worker', title) do
+          @instrumentable.trace(title, 'app.sidekiq.worker', title, segment: queue) do
             yield
           end
         end

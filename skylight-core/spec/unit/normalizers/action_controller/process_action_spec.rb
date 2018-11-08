@@ -22,7 +22,8 @@ module Skylight
       normalize(controller: "foo", action: "bar", format: "json")
       expect(trace.endpoint).to eq("foo#bar")
       normalize_after(controller: "foo", action: "bar", format: "*/*", rendered_format: 'json', variant: [:tablet], status: 200)
-      expect(trace.endpoint).to eq("foo#bar<sk-segment>json+tablet</sk-segment>")
+      expect(trace.endpoint).to eq("foo#bar")
+      expect(trace.segment).to eq("json+tablet")
     end
 
   end
