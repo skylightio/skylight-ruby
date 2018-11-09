@@ -258,6 +258,12 @@ module Skylight
         expect(get_env['SKYLIGHT_AUTHENTICATION']).to \
           eq("abc123|component=worker%3Astaging&reporting_env=true")
       end
+
+      it 'includes custom worker_component settings' do
+        config[:worker_component] = 'sidekiq'
+        expect(get_env['SKYLIGHT_AUTHENTICATION']).to \
+          eq("abc123|component=sidekiq%3Aproduction&reporting_env=true")
+      end
     end
 
     context "legacy settings" do

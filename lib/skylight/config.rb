@@ -293,7 +293,10 @@ authentication: #{self[:authentication]}
     end
 
     def component
-      @component ||= Util::Component.new(get(:env), get(:component))
+      @component ||= Util::Component.new(
+        get(:env),
+        get(:component) || get(:worker_component)
+      )
     rescue ArgumentError => e
       raise Core::ConfigError, e.message
     end
