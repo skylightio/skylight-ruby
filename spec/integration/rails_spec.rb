@@ -616,6 +616,7 @@ if enable
 
           def pre_boot
             ENV['SKYLIGHT_REPORT_MAX_SPANS_EXCEEDED'] = 'true'
+            ENV['SKYLIGHT_PRUNE_LARGE_TRACES'] = 'false'
           end
 
           it 'handles too many spans' do
@@ -646,6 +647,9 @@ if enable
         end
 
         context 'without reporting' do
+          def pre_boot
+            ENV['SKYLIGHT_PRUNE_LARGE_TRACES'] = 'false'
+          end
 
           it 'handles too many spans' do
             ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
