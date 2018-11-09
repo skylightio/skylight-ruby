@@ -91,7 +91,7 @@ module Skylight
           :'daemon.lazy_start'  => true,
           :hostname             => Util::Hostname.default_hostname,
           :report_max_spans_exceeded => false,
-          :prune_large_traces   => false,
+          :prune_large_traces   => true,
           :report_rails_env     => true,
         )
 
