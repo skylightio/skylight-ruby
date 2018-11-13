@@ -1,3 +1,3 @@
 module Skylight
-  VERSION = "3.1.1".freeze
+  VERSION = "4.0.0-alpha".freeze
 end
