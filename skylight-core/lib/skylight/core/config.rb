@@ -123,8 +123,6 @@ module Skylight::Core
 
     def self.load(opts = {}, env = ENV)
       attrs   = {}
-      version = nil
-
       path = opts.delete(:file)
       environment = opts.delete(:environment)
 
@@ -139,8 +137,6 @@ module Skylight::Core
         end
 
         raise ConfigError, "could not load config file; msg=#{error}" if error
-
-        version = File.mtime(path).to_i
       end
 
       if env
