@@ -50,10 +50,10 @@ module Skylight
         server.wait resource: '/report'
 
         expect(trace.spans.count).to eq(2)
-        expect(span(0).duration).to eq(10_000)
+        expect(trace.spans[0].duration).to eq(10_000)
 
-        expect(span(1).event.category).to eq('noise.gc')
-        expect(span(1).duration).to eq(1_000)
+        expect(trace.spans[1].event.category).to eq('noise.gc')
+        expect(trace.spans[1].duration).to eq(1_000)
       end
 
     end
@@ -78,14 +78,14 @@ module Skylight
 
         expect(trace.spans.count).to eq(3)
 
-        expect(span(0).event.category).to eq('app.rack')
-        expect(span(0).duration).to eq(10_000)
+        expect(trace.spans[0].event.category).to eq('app.rack')
+        expect(trace.spans[0].duration).to eq(10_000)
 
-        expect(span(1).event.category).to eq('app.block')
-        expect(span(1).duration).to eq(9_000)
+        expect(trace.spans[1].event.category).to eq('app.block')
+        expect(trace.spans[1].duration).to eq(9_000)
 
-        expect(span(2).event.category).to eq('noise.gc')
-        expect(span(2).duration).to eq(1_000)
+        expect(trace.spans[2].event.category).to eq('noise.gc')
+        expect(trace.spans[2].duration).to eq(1_000)
       end
     end
 
