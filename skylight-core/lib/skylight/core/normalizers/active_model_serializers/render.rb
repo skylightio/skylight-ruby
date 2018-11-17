@@ -9,12 +9,12 @@ module Skylight::Core
         def normalize(trace, name, payload)
           serializer_class = payload[:serializer]
 
-          title = serializer_class.name.sub(/^ActiveModel::(Serializer::)?/, '')
+          title = serializer_class.name.sub(/^ActiveModel::(Serializer::)?/, "")
 
           if adapter_instance = payload[:adapter]
             adapter_name = adapter_instance.class.name
-                              .sub(/^ActiveModel::Serializer::Adapter::/, '')
-                              .sub(/^ActiveModelSerializers::Adapter::/, '')
+                              .sub(/^ActiveModel::Serializer::Adapter::/, "")
+                              .sub(/^ActiveModelSerializers::Adapter::/, "")
             desc = "Adapter: #{adapter_name}"
           end
 

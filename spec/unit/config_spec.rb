@@ -1,10 +1,10 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Skylight
   describe Config do
 
     def with_file(opts={})
-      f = Tempfile.new('foo')
+      f = Tempfile.new("foo")
       FileUtils.chmod 0400, f if opts[:writable] == false
       yield f
     ensure
@@ -20,35 +20,35 @@ module Skylight
       end
     end
 
-    context 'hostname' do
+    context "hostname" do
 
-      it 'defaults to the current hostname' do
+      it "defaults to the current hostname" do
         config = Config.new
         expect(config[:hostname]).to eq(Socket.gethostname)
       end
 
-      it 'can be overridden' do
-        config = Config.new hostname: 'lulz'
-        expect(config[:hostname]).to eq('lulz')
+      it "can be overridden" do
+        config = Config.new hostname: "lulz"
+        expect(config[:hostname]).to eq("lulz")
       end
 
     end
 
-    context 'deploy' do
+    context "deploy" do
 
-      it 'uses provided deploy' do
+      it "uses provided deploy" do
         config = Config.new deploy: { id: "12345", git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572d", description: "Fix stuff" }
         expect(config.deploy.id).to eq("12345")
         expect(config.deploy.git_sha).to eq("19a8cfc47c10d8069916ae8adba0c9cb4c6c572d")
         expect(config.deploy.description).to eq("Fix stuff")
       end
 
-      it 'uses sha if no id provided' do
+      it "uses sha if no id provided" do
         config = Config.new deploy: { git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572d" }
         expect(config.deploy.id).to eq("19a8cfc47c10d8069916ae8adba0c9cb4c6c572d")
       end
 
-      it 'converts to query string' do
+      it "converts to query string" do
         Timecop.freeze Time.at(1452620644) do
           config = Config.new deploy: {
             id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz",
@@ -71,7 +71,7 @@ module Skylight
         end
       end
 
-      it 'only requires the id' do
+      it "only requires the id" do
         Timecop.freeze Time.at(1452620644) do
           config = Config.new deploy: {
             id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz"
@@ -84,14 +84,14 @@ module Skylight
         end
       end
 
-      it 'detects Heroku' do
+      it "detects Heroku" do
         config = Config.new :'heroku.dyno_info_path' => File.expand_path("../../../skylight-core/spec/support/heroku_dyno_info_sample", __FILE__)
         expect(config.deploy.id).to eq(123)
         expect(config.deploy.git_sha).to eq("19a8cfc47c10d8069916ae8adba0c9cb4c6c572d")
         expect(config.deploy.description).to eq("Deploy 19a8cfc")
       end
 
-      context 'with a git repo' do
+      context "with a git repo" do
 
         around :each do |example|
           Dir.mktmpdir do |dir|
@@ -107,7 +107,7 @@ module Skylight
           end
         end
 
-        it 'detects git' do
+        it "detects git" do
           config = Config.new(root: @dir)
 
           # This will be the agent repo's current SHA
@@ -117,12 +117,12 @@ module Skylight
           # Id should match SHA
           expect(config.deploy.id).to eq(@sha)
 
-          expect(config.deploy.description).to eq('Initial Commit')
+          expect(config.deploy.description).to eq("Initial Commit")
         end
 
       end
 
-      context 'without a detectable deploy' do
+      context "without a detectable deploy" do
 
         around :each do |example|
           Dir.mktmpdir do |dir|
@@ -132,7 +132,7 @@ module Skylight
           end
         end
 
-        it 'returns nil' do
+        it "returns nil" do
           config = Config.new
           expect(config.deploy).to be_nil
         end
@@ -149,15 +149,15 @@ module Skylight
 
       it "does not allow agent.interval to be a non-zero integer" do
         expect {
-          config['agent.interval'] = "abc"
+          config["agent.interval"] = "abc"
         }.to raise_error(Core::ConfigError, "invalid value for agent.interval (abc), must be an integer greater than 0")
 
         expect {
-          config['agent.interval'] = -1
+          config["agent.interval"] = -1
         }.to raise_error(Core::ConfigError, "invalid value for agent.interval (-1), must be an integer greater than 0")
 
         expect {
-          config['agent.interval'] = 5
+          config["agent.interval"] = 5
         }.to_not raise_error
       end
 
@@ -235,33 +235,33 @@ module Skylight
       end
 
       it "includes deploy info if available" do
-        config[:'deploy.id'] = 'd456'
+        config[:'deploy.id'] = "d456"
 
         # (Includes default component info)
         Timecop.freeze do
-          expect(get_env['SKYLIGHT_AUTHENTICATION']).to \
+          expect(get_env["SKYLIGHT_AUTHENTICATION"]).to \
             eq("abc123|timestamp=#{Time.now.to_i}&deploy_id=d456&component=web%3Aproduction&reporting_env=true")
         end
       end
 
       it "includes keys only if value is set" do
-        expect(get_env['SKYLIGHT_SESSION_TOKEN']).to be_nil
+        expect(get_env["SKYLIGHT_SESSION_TOKEN"]).to be_nil
 
         config[:session_token] = "zomg"
 
-        expect(get_env['SKYLIGHT_SESSION_TOKEN']).to eq("zomg")
+        expect(get_env["SKYLIGHT_SESSION_TOKEN"]).to eq("zomg")
       end
 
-      it 'includes custom component settings' do
-        config[:env] = 'staging'
-        config[:component] = 'worker'
-        expect(get_env['SKYLIGHT_AUTHENTICATION']).to \
+      it "includes custom component settings" do
+        config[:env] = "staging"
+        config[:component] = "worker"
+        expect(get_env["SKYLIGHT_AUTHENTICATION"]).to \
           eq("abc123|component=worker%3Astaging&reporting_env=true")
       end
 
-      it 'includes custom worker_component settings' do
-        config[:worker_component] = 'sidekiq'
-        expect(get_env['SKYLIGHT_AUTHENTICATION']).to \
+      it "includes custom worker_component settings" do
+        config[:worker_component] = "sidekiq"
+        expect(get_env["SKYLIGHT_AUTHENTICATION"]).to \
           eq("abc123|component=sidekiq%3Aproduction&reporting_env=true")
       end
     end
@@ -269,26 +269,26 @@ module Skylight
     context "legacy settings" do
       it "remaps agent.sockfile_path" do
         c = Config.new(agent: { sockfile_path: "/foo/bar" })
-        expect(c[:'agent.sockfile_path']).to eq('/foo/bar')
-        expect(c[:'daemon.sockdir_path']).to eq('/foo/bar')
+        expect(c[:'agent.sockfile_path']).to eq("/foo/bar")
+        expect(c[:'daemon.sockdir_path']).to eq("/foo/bar")
 
         env = Hash[*c.to_native_env]
-        expect(env['SKYLIGHT_AGENT_SOCKFILE_PATH']).to be_nil
-        expect(env['SKYLIGHT_SOCKDIR_PATH']).to eq('/foo/bar')
+        expect(env["SKYLIGHT_AGENT_SOCKFILE_PATH"]).to be_nil
+        expect(env["SKYLIGHT_SOCKDIR_PATH"]).to eq("/foo/bar")
       end
     end
 
-    context 'serialization' do
-      it 'includes custom component metadata' do
-        config = Config.new(component: 'worker', env: 'development').as_json
+    context "serialization" do
+      it "includes custom component metadata" do
+        config = Config.new(component: "worker", env: "development").as_json
 
         %i(priority values).each do |subkey|
-          expect(config[:config][subkey][:component]).to eq('worker')
-          expect(config[:config][subkey][:env]).to eq('development')
+          expect(config[:config][subkey][:component]).to eq("worker")
+          expect(config[:config][subkey][:env]).to eq("development")
         end
       end
 
-      it 'includes inferred component metadata in the priority group' do
+      it "includes inferred component metadata in the priority group" do
         config = Config.new.as_json
 
         expect(config[:config][:priority][:component]).to(

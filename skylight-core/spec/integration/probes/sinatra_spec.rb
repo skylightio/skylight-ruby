@@ -1,8 +1,8 @@
-require 'spec_helper'
-require 'skylight/core/instrumenter'
+require "spec_helper"
+require "skylight/core/instrumenter"
 
 if defined?(Sinatra)
-  describe 'Sinatra integration', :sinatra_probe, :agent do
+  describe "Sinatra integration", :sinatra_probe, :agent do
     include Rack::Test::Methods
 
     before do

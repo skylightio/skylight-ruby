@@ -1,4 +1,4 @@
-require 'tmpdir'
+require "tmpdir"
 
 module SpecHelper
   module Standalone
@@ -14,21 +14,21 @@ module SpecHelper
 
     def self.set_env(rails_version, port)
       # Gemfile
-      ENV['RAILS_VERSION'] = rails_version
-      ENV['SKYLIGHT_GEM_PATH'] = APP_ROOT
+      ENV["RAILS_VERSION"] = rails_version
+      ENV["SKYLIGHT_GEM_PATH"] = APP_ROOT
 
       # Skylight config
-      ENV['SKYLIGHT_AUTH_URL'] = "http://127.0.0.1:#{port}/agent"
-      ENV['SKYLIGHT_APP_CREATE_URL'] = "http://127.0.0.1:#{port}/apps"
-      ENV['SKYLIGHT_MERGES_URL'] = "http://127.0.0.1:#{port}/merges"
-      ENV['SKYLIGHT_VALIDATION_URL'] = "http://127.0.0.1:#{port}/agent/config"
-      ENV['SKYLIGHT_AUTH_HTTP_DEFLATE'] = "false"
-      ENV['SKYLIGHT_REPORT_HTTP_DISABLED'] = 'true'
+      ENV["SKYLIGHT_AUTH_URL"] = "http://127.0.0.1:#{port}/agent"
+      ENV["SKYLIGHT_APP_CREATE_URL"] = "http://127.0.0.1:#{port}/apps"
+      ENV["SKYLIGHT_MERGES_URL"] = "http://127.0.0.1:#{port}/merges"
+      ENV["SKYLIGHT_VALIDATION_URL"] = "http://127.0.0.1:#{port}/agent/config"
+      ENV["SKYLIGHT_AUTH_HTTP_DEFLATE"] = "false"
+      ENV["SKYLIGHT_REPORT_HTTP_DISABLED"] = "true"
     end
   end
 
   def rails_version
-    require 'rails'
+    require "rails"
     Rails.version
   end
 

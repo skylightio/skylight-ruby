@@ -1,4 +1,4 @@
-require 'skylight/core/formatters/http'
+require "skylight/core/formatters/http"
 
 module Skylight::Core
   module Probes
@@ -30,7 +30,7 @@ module Skylight::Core
               method = req.method
 
               # req['host'] also includes special handling for default ports
-              host, port = req['host'] ? req['host'].split(':') : nil
+              host, port = req["host"] ? req["host"].split(":") : nil
 
               # If we're connected with a persistent socket
               host ||= self.address

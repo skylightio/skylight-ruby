@@ -6,7 +6,7 @@ module Skylight::Core
         def install
           if defined?(::Excon::Middleware)
             # Don't require until installation since it depends on Excon being loaded
-            require 'skylight/core/probes/excon/middleware'
+            require "skylight/core/probes/excon/middleware"
 
             idx = ::Excon.defaults[:middlewares].index(::Excon::Middleware::Instrumentor)
 

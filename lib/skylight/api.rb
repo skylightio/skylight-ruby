@@ -1,5 +1,5 @@
-require 'uri'
-require 'skylight/util/http'
+require "uri"
+require "skylight/util/http"
 
 module Skylight
   # @api private
@@ -21,7 +21,7 @@ module Skylight
 
       def errors
         return unless res.respond_to?(:body) && res.body.is_a?(Hash)
-        res.body['errors']
+        res.body["errors"]
       end
 
       def to_s
@@ -88,12 +88,12 @@ module Skylight
 
       def validation_errors
         return {} if config_valid? || !body
-        body['errors']
+        body["errors"]
       end
 
       def corrected_config
         return {} if config_valid? || !body
-        body['corrected']
+        body["corrected"]
       end
 
     end
@@ -113,14 +113,14 @@ module Skylight
     end
 
     def fetch_mergeable_apps(token)
-      headers = { 'x-skylight-merge-token' => token }
+      headers = { "x-skylight-merge-token" => token }
       http_request(:merges, :get, headers).tap do |res|
         raise error_for_status(res.status).new("HTTP #{res.status}: #{res.body}") unless res.success?
       end
     end
 
     def merge_apps!(token, app_guid:, component_guid:, environment:)
-      headers = { 'x-skylight-merge-token' => token }
+      headers = { "x-skylight-merge-token" => token }
       body = { environment: environment, app_guid: app_guid, component_guid: component_guid }
       http_request(:merges, :post, body, headers).tap do |res|
         raise error_for_status(res.status).new("HTTP #{res.status}: #{res.body}") unless res.success?

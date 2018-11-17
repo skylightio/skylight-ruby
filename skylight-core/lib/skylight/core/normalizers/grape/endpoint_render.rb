@@ -12,7 +12,7 @@ module Skylight::Core
             namespace = get_namespace(endpoint)
             method = get_method(endpoint)
 
-            title = [method, namespace, path].join(' ').gsub(/\s+/, ' ')
+            title = [method, namespace, path].join(" ").gsub(/\s+/, " ")
 
             [CAT, title, nil]
           else

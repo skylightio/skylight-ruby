@@ -1,6 +1,6 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe 'Sequel integration', :sequel_probe, :agent do
+describe "Sequel integration", :sequel_probe, :agent do
   class RegexMatcher
     def initialize(regex)
       @regex = regex
@@ -38,12 +38,12 @@ describe 'Sequel integration', :sequel_probe, :agent do
     db[:items].count
 
     expect(trace).to receive(:instrument).with(
-      'db.sql.query',
+      "db.sql.query",
       # With native lexer:
       #  'SELECT FROM items',
       #  RegexMatcher.new(/^SELECT count\(\*\) AS \? FROM `items` LIMIT \?$/i)
       # Without native lexer:
-      'SQL',
+      "SQL",
       "SELECT count(*) AS 'count' FROM `items` LIMIT 1",
       nil
     ).and_call_original

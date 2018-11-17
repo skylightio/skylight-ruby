@@ -1,4 +1,4 @@
-require 'skylight/util/http'
+require "skylight/util/http"
 
 module Skylight
   module CLI
@@ -113,7 +113,7 @@ module Skylight
           logger.level = Logger::DEBUG
           # Remove excess formatting
           logger.formatter = proc { |severity, datetime, progname, msg|
-            msg = msg.sub("[SKYLIGHT] [#{Skylight::VERSION}] ", '')
+            msg = msg.sub("[SKYLIGHT] [#{Skylight::VERSION}] ", "")
             say "#{severity} - #{msg}" # Definitely non-standard
           }
           config.logger = logger
@@ -173,7 +173,7 @@ module Skylight
           # MEGAHAX
           if is_rails?
             # Normally auto-loaded, but we haven't loaded Rails by the time Skylight is loaded
-            require 'skylight/railtie'
+            require "skylight/railtie"
             require rails_rb
 
             railtie = Skylight::Railtie.send(:new)
@@ -184,7 +184,7 @@ module Skylight
         end
 
         def is_mac?
-          Core::Util::Platform::OS == 'darwin'
+          Core::Util::Platform::OS == "darwin"
         end
 
         # NOTE: This check won't work correctly on Windows

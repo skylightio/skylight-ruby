@@ -15,16 +15,16 @@ Gem::Specification.new do |spec|
 
   files = `git ls-files`.split("\n") rescue []
   files &= (
-    Dir['lib/**/*.{rb,pem}'] +
-    Dir['ext/**/*.{h,c,rb,yml}'] +
-    Dir['*.md'])
-  files -= Dir['skylight-core']
+    Dir["lib/**/*.{rb,pem}"] +
+    Dir["ext/**/*.{h,c,rb,yml}"] +
+    Dir["*.md"])
+  files -= Dir["skylight-core"]
 
   spec.files         = files
   spec.require_paths = ["lib"]
 
   # Dependencies
-  spec.add_dependency 'skylight-core',   version
+  spec.add_dependency "skylight-core",   version
 
   spec.add_development_dependency "bundler", "~> 1.15"
   spec.add_development_dependency "rake", "~> 10.0"

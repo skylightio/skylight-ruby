@@ -1,14 +1,14 @@
-$:.unshift File.expand_path('../vendor/cli', __FILE__)
+$:.unshift File.expand_path("../vendor/cli", __FILE__)
 
-require 'skylight'
-require 'thor'
-require 'yaml'
-require 'highline'
-require 'active_support/inflector'
+require "skylight"
+require "thor"
+require "yaml"
+require "highline"
+require "active_support/inflector"
 
-require 'skylight/cli/helpers'
-require 'skylight/cli/doctor'
-require 'skylight/cli/merger'
+require "skylight/cli/helpers"
+require "skylight/cli/doctor"
+require "skylight/cli/merger"
 
 module Skylight
   module CLI
@@ -33,8 +33,8 @@ to set it up as a new app in Skylight.
 
         res = api.create_app(app_name, token)
 
-        config[:application]    = res.get('app.id')
-        config[:authentication] = res.get('app.token')
+        config[:application]    = res.get("app.id")
+        config[:authentication] = res.get("app.token")
         config.write(config_path)
 
         say "Congratulations. Your application is on Skylight! https://www.skylight.io", :green
@@ -91,13 +91,13 @@ you should set the `SKYLIGHT_AUTHENTICATION` variable to:
               # This is especially important since users may have things like WebMock that
               # will prevent us from communicating with the Skylight API
               begin
-                namefile = Tempfile.new('skylight-app-name')
+                namefile = Tempfile.new("skylight-app-name")
                 # Windows appears to need double quotes for `rails runner`
                 `rails runner "File.open('#{namefile.path}', 'w') {|f| f.write(Rails.application.class.name) rescue '' }"`
                 name = namefile.read.split("::").first.underscore.titleize
                 name = nil if name.empty?
               rescue => e
-                if ENV['DEBUG']
+                if ENV["DEBUG"]
                   puts e.class.name
                   puts e.to_s
                   puts e.backtrace.join("\n")
@@ -113,7 +113,7 @@ you should set the `SKYLIGHT_AUTHENTICATION` variable to:
             end
 
             unless name
-              name = File.basename(File.expand_path('.')).titleize
+              name = File.basename(File.expand_path(".")).titleize
             end
 
             name
@@ -122,7 +122,7 @@ you should set the `SKYLIGHT_AUTHENTICATION` variable to:
 
       # Is this duplicated?
       def relative_config_path
-        'config/skylight.yml'
+        "config/skylight.yml"
       end
 
       def config_path

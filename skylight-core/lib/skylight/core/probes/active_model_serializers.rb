@@ -13,8 +13,8 @@ module Skylight::Core
             end
           end
 
-          if Gem.loaded_specs['active_model_serializers']
-            version = Gem.loaded_specs['active_model_serializers'].version
+          if Gem.loaded_specs["active_model_serializers"]
+            version = Gem.loaded_specs["active_model_serializers"].version
           end
 
           if !version || version < Gem::Version.new("0.5.0")
@@ -39,7 +39,7 @@ module Skylight::Core
               alias as_json_without_sk as_json
               def as_json(*args)
                 payload = { serializer: self.class }
-                ActiveSupport::Notifications.instrument('render.active_model_serializers', payload) do
+                ActiveSupport::Notifications.instrument("render.active_model_serializers", payload) do
                   as_json_without_sk(*args)
                 end
               end

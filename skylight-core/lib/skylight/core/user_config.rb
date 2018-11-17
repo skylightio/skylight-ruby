@@ -1,5 +1,5 @@
-require 'yaml'
-require 'skylight/core/errors'
+require "yaml"
+require "skylight/core/errors"
 
 module Skylight::Core
   class UserConfig
@@ -17,7 +17,7 @@ module Skylight::Core
 
       config_path = @config[:user_config_path] || begin
         require "etc"
-        home_dir = ENV['HOME'] || Etc.getpwuid.dir || (ENV["USER"] && File.expand_path("~#{ENV['USER']}"))
+        home_dir = ENV["HOME"] || Etc.getpwuid.dir || (ENV["USER"] && File.expand_path("~#{ENV['USER']}"))
         if home_dir
           File.join(home_dir, ".skylight")
         else
@@ -29,7 +29,7 @@ module Skylight::Core
     end
 
     def disable_dev_warning?
-      disable_dev_warning || ENV['SKYLIGHT_DISABLE_DEV_WARNING'] =~ /^true$/i
+      disable_dev_warning || ENV["SKYLIGHT_DISABLE_DEV_WARNING"] =~ /^true$/i
     end
 
     def disable_env_warning?
@@ -40,21 +40,21 @@ module Skylight::Core
       config = File.exist?(file_path) ? YAML.load_file(file_path) : false
       return unless config
 
-      self.disable_dev_warning = !!config['disable_dev_warning']
-      self.disable_env_warning = !!config['disable_env_warning']
+      self.disable_dev_warning = !!config["disable_dev_warning"]
+      self.disable_env_warning = !!config["disable_env_warning"]
     end
 
     def save
       FileUtils.mkdir_p(File.dirname(file_path))
-      File.open(file_path, 'w') do |f|
+      File.open(file_path, "w") do |f|
         f.puts YAML.dump(to_hash)
       end
     end
 
     def to_hash
       {
-        'disable_dev_warning' => disable_dev_warning,
-        'disable_env_warning' => disable_env_warning
+        "disable_dev_warning" => disable_dev_warning,
+        "disable_env_warning" => disable_env_warning
       }
     end
 

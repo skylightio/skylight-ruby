@@ -1,4 +1,4 @@
-require 'logger'
+require "logger"
 
 module Skylight::Core
   module Util
@@ -135,7 +135,7 @@ module Skylight::Core
 
         # Fallback
         if module_name = self.is_a?(Module) ? name : self.class.name
-          root_name = module_name.split('::').first.upcase
+          root_name = module_name.split("::").first.upcase
           msg.prepend("[#{root_name}] ")
         end
         puts sprintf(msg, *args)

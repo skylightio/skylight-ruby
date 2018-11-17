@@ -1,23 +1,23 @@
-require 'uri'
-require 'json'
-require 'openssl'
-require 'net/http'
-require 'net/https'
-require 'skylight/core/util/gzip'
-require 'skylight/util/ssl'
+require "uri"
+require "json"
+require "openssl"
+require "net/http"
+require "net/https"
+require "skylight/core/util/gzip"
+require "skylight/util/ssl"
 
 module Skylight
   module Util
     class HTTP
-      CONTENT_ENCODING = 'content-encoding'.freeze
-      CONTENT_LENGTH   = 'content-length'.freeze
-      CONTENT_TYPE     = 'content-type'.freeze
-      ACCEPT           = 'Accept'.freeze
-      X_VERSION_HDR    = 'x-skylight-agent-version'.freeze
-      APPLICATION_JSON = 'application/json'.freeze
-      AUTHORIZATION    = 'authorization'.freeze
-      DEFLATE          = 'deflate'.freeze
-      GZIP             = 'gzip'.freeze
+      CONTENT_ENCODING = "content-encoding".freeze
+      CONTENT_LENGTH   = "content-length".freeze
+      CONTENT_TYPE     = "content-type".freeze
+      ACCEPT           = "Accept".freeze
+      X_VERSION_HDR    = "x-skylight-agent-version".freeze
+      APPLICATION_JSON = "application/json".freeze
+      AUTHORIZATION    = "authorization".freeze
+      DEFLATE          = "deflate".freeze
+      GZIP             = "gzip".freeze
 
       include Core::Util::Logging
 
@@ -50,14 +50,14 @@ module Skylight
 
         url = URI.parse(url)
 
-        @ssl  = url.scheme == 'https'
+        @ssl  = url.scheme == "https"
         @host = url.host
         @port = url.port
 
         if proxy_url = config[:proxy_url]
           proxy_url = URI.parse(proxy_url)
           @proxy_addr, @proxy_port = proxy_url.host, proxy_url.port
-          @proxy_user, @proxy_pass = (proxy_url.userinfo || '').split(/:/)
+          @proxy_user, @proxy_pass = (proxy_url.userinfo || "").split(/:/)
         end
 
         @open_timeout = get_timeout(:connect, config, service, opts)
@@ -193,7 +193,7 @@ module Skylight
           return nil unless Hash === body
 
           res = body
-          key.split('.').each do |part|
+          key.split(".").each do |part|
             return unless res = res[part]
           end
           res

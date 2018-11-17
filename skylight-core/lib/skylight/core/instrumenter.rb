@@ -1,6 +1,6 @@
-require 'thread'
-require 'strscan'
-require 'securerandom'
+require "thread"
+require "strscan"
+require "securerandom"
 
 module Skylight::Core
   # @api private
@@ -50,7 +50,7 @@ module Skylight::Core
       @config = config
       @subscriber = Subscriber.new(config, self)
 
-      key = "#{KEY}_#{self.class.trace_class.name}".gsub(/\W/, '_')
+      key = "#{KEY}_#{self.class.trace_class.name}".gsub(/\W/, "_")
       @trace_info = @config[:trace_info] || TraceInfo.new(key)
     end
 
@@ -161,7 +161,7 @@ module Skylight::Core
     end
 
     def self.match?(string, regex)
-      @scanner ||= StringScanner.new('')
+      @scanner ||= StringScanner.new("")
       @scanner.string = string
       @scanner.match?(regex)
     end
@@ -171,7 +171,7 @@ module Skylight::Core
     end
 
     def instrument(cat, title=nil, desc=nil, meta=nil)
-      raise ArgumentError, 'cat is required' unless cat
+      raise ArgumentError, "cat is required" unless cat
 
       unless trace = @trace_info.current
         return yield if block_given?

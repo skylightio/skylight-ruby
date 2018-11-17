@@ -1,9 +1,9 @@
-require 'openssl'
-require 'skylight/util/component'
-require 'skylight/util/deploy'
-require 'skylight/core/util/platform'
-require 'skylight/util/hostname'
-require 'skylight/util/ssl'
+require "openssl"
+require "skylight/util/component"
+require "skylight/util/deploy"
+require "skylight/core/util/platform"
+require "skylight/util/hostname"
+require "skylight/util/ssl"
 
 module Skylight
   class Config < Core::Config
@@ -11,26 +11,26 @@ module Skylight
     def self.env_to_key
       @env_to_key ||= super.merge(
         # == Authentication ==
-        'AUTHENTICATION' => :authentication,
+        "AUTHENTICATION" => :authentication,
 
         # == App settings ==
-        'ROOT'          => :root,
-        'HOSTNAME'      => :hostname,
-        'SESSION_TOKEN' => :session_token,
+        "ROOT"          => :root,
+        "HOSTNAME"      => :hostname,
+        "SESSION_TOKEN" => :session_token,
 
         # == Component settings ==
-        'ENV' => :env,
-        'COMPONENT' => :component,
-        'REPORT_RAILS_ENV' => :report_rails_env,
+        "ENV" => :env,
+        "COMPONENT" => :component,
+        "REPORT_RAILS_ENV" => :report_rails_env,
 
         # == Deploy settings ==
-        'DEPLOY_ID'          => :'deploy.id',
-        'DEPLOY_GIT_SHA'     => :'deploy.git_sha',
-        'DEPLOY_DESCRIPTION' => :'deploy.description',
+        "DEPLOY_ID"          => :'deploy.id',
+        "DEPLOY_GIT_SHA"     => :'deploy.git_sha',
+        "DEPLOY_DESCRIPTION" => :'deploy.description',
 
         # == Max Span Handling ==
-        'REPORT_MAX_SPANS_EXCEEDED' => :report_max_spans_exceeded,
-        'PRUNE_LARGE_TRACES' => :prune_large_traces,
+        "REPORT_MAX_SPANS_EXCEEDED" => :report_max_spans_exceeded,
+        "PRUNE_LARGE_TRACES" => :prune_large_traces,
 
         # == Instrumenter ==
         "IGNORED_ENDPOINT" => :ignored_endpoint,
@@ -75,8 +75,8 @@ module Skylight
 
         # == Legacy env vars ==
         #
-        'AGENT_LOCKFILE'      => :'agent.lockfile',
-        'AGENT_SOCKFILE_PATH' => :'agent.sockfile_path'
+        "AGENT_LOCKFILE"      => :'agent.lockfile',
+        "AGENT_SOCKFILE_PATH" => :'agent.sockfile_path'
       )
     end
 
@@ -84,10 +84,10 @@ module Skylight
     def self.default_values
       @default_values ||= begin
         ret = super.merge(
-          :auth_url             => 'https://auth.skylight.io/agent',
-          :app_create_url       => 'https://www.skylight.io/apps',
-          :merges_url           => 'https://www.skylight.io/merges',
-          :validation_url       => 'https://auth.skylight.io/agent/config',
+          :auth_url             => "https://auth.skylight.io/agent",
+          :app_create_url       => "https://www.skylight.io/apps",
+          :merges_url           => "https://www.skylight.io/merges",
+          :validation_url       => "https://auth.skylight.io/agent/config",
           :'daemon.lazy_start'  => true,
           :hostname             => Util::Hostname.default_hostname,
           :report_max_spans_exceeded => false,
@@ -95,7 +95,7 @@ module Skylight
           :report_rails_env     => true,
         )
 
-        if Core::Util::Platform::OS != 'darwin'
+        if Core::Util::Platform::OS != "darwin"
           ret[:'daemon.ssl_cert_path'] = Util::SSL.ca_cert_file_or_default
           ret[:'daemon.ssl_cert_dir'] = Util::SSL.ca_cert_dir
         end
@@ -104,7 +104,7 @@ module Skylight
           native_path = Skylight.libskylight_path
 
           ret[:'daemon.lib_path'] = native_path
-          ret[:'daemon.exec_path'] = File.join(native_path, 'skylightd')
+          ret[:'daemon.exec_path'] = File.join(native_path, "skylightd")
         end
 
         ret
@@ -183,8 +183,8 @@ module Skylight
       # TODO: Move this out of the validate! method: https://github.com/tildeio/direwolf-agent/issues/273
       # FIXME: Why not set the sockdir_path and pidfile_path explicitly?
       # That way we don't have to keep this in sync with the Rust repo.
-      sockdir_path = File.expand_path(self[:'daemon.sockdir_path'] || '.', root)
-      pidfile_path = File.expand_path(self[:'daemon.pidfile_path'] || 'skylight.pid', sockdir_path)
+      sockdir_path = File.expand_path(self[:'daemon.sockdir_path'] || ".", root)
+      pidfile_path = File.expand_path(self[:'daemon.pidfile_path'] || "skylight.pid", sockdir_path)
 
       check_file_permissions(pidfile_path, "daemon.pidfile_path or daemon.sockdir_path")
       check_sockdir_permissions(sockdir_path)
@@ -256,7 +256,7 @@ module Skylight
     def write(path)
       FileUtils.mkdir_p(File.dirname(path))
 
-      File.open(path, 'w') do |f|
+      File.open(path, "w") do |f|
         f.puts <<-YAML
 ---
 # The authentication token for the application.
@@ -322,7 +322,7 @@ authentication: #{self[:authentication]}
 
     def check_nfs(path)
       # Should work on most *nix, though not on OS X
-      `stat -f -L -c %T #{path} 2>&1`.strip == 'nfs'
+      `stat -f -L -c %T #{path} 2>&1`.strip == "nfs"
     end
 
     def reporting_env?

@@ -3,7 +3,7 @@ module Skylight::Core
     module Sinatra
       class Probe
         def install
-          if ::Sinatra::VERSION < '1.4.0'
+          if ::Sinatra::VERSION < "1.4.0"
             # Using $stderr here isn't great, but we don't have a logger accessible
             $stderr.puts "[SKYLIGHT::CORE] [#{Skylight::VERSION}] Sinatra must be version 1.4.0 or greater."
             return
@@ -36,7 +36,7 @@ module Skylight::Core
               dispatch_without_sk!(*args, &block).tap do
                 Skylight::Core::Fanout.each_trace do |trace|
                   # Set the endpoint name to the route name
-                  route = env['sinatra.route']
+                  route = env["sinatra.route"]
                   trace.endpoint = route if route
                 end
               end

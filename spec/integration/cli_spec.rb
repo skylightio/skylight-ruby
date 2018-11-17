@@ -1,26 +1,26 @@
-require 'spec_helper'
-require 'open3'
+require "spec_helper"
+require "open3"
 
 describe "CLI integration", :http do
   def run_command(cmd, &block)
     Open3.popen3("bundle exec skylight #{cmd}", &block)
   rescue RSpec::Expectations::ExpectationNotMetError
     # Provide some potential debugging information
-    puts stderr.read if ENV['DEBUG']
+    puts stderr.read if ENV["DEBUG"]
     raise
   end
 
   it "works with setup token" do
     server.mock "/apps", :post do |env|
-      expect(env['rack.input']).to eq({ 'app' => { 'name' => 'Dummy' }, 'token' => 'setuptoken' })
+      expect(env["rack.input"]).to eq({ "app" => { "name" => "Dummy" }, "token" => "setuptoken" })
 
       # This would have more information really, but the CLI doesn't care
-      { app: { id: 'appid', token: 'apptoken' }}
+      { app: { id: "appid", token: "apptoken" }}
     end
 
     with_standalone do
       output = `bundle install`
-      puts output if ENV['DEBUG']
+      puts output if ENV["DEBUG"]
 
       run_command("setup setuptoken") do |stdin, stdout, stderr|
         expect(read(stdout)).to include("Congratulations. Your application is on Skylight!")
@@ -32,13 +32,13 @@ describe "CLI integration", :http do
 
   it "shows error messages for invalid token" do
     server.mock "/apps", :post do |env|
-      expect(env['rack.input']).to eq({ 'app' => { 'name' => 'Dummy' }, 'token' => 'invalidtoken' })
+      expect(env["rack.input"]).to eq({ "app" => { "name" => "Dummy" }, "token" => "invalidtoken" })
       [403, { errors: { request: "invalid app create token" }}]
     end
 
     with_standalone do
       output = `bundle install`
-      puts output if ENV['DEBUG']
+      puts output if ENV["DEBUG"]
 
       run_command("setup invalidtoken") do |stdin, stdout, stderr|
         output = read(stdout)
@@ -53,7 +53,7 @@ describe "CLI integration", :http do
   it "shows notice if config/skylight.yml already exists" do
     with_standalone do
       output = `bundle install`
-      puts output if ENV['DEBUG']
+      puts output if ENV["DEBUG"]
 
       system("touch config/skylight.yml")
 
@@ -65,18 +65,18 @@ describe "CLI integration", :http do
 
   def get_prompt(io, limit=100)
     prompt = io.readpartial(limit)
-    print prompt if ENV['DEBUG']
+    print prompt if ENV["DEBUG"]
     prompt
   end
 
-  def fill_prompt(io, str, echo=ENV['DEBUG'])
+  def fill_prompt(io, str, echo=ENV["DEBUG"])
     io.puts str
     puts str if echo
   end
 
   def read(io)
     result = io.read
-    puts result if ENV['DEBUG']
+    puts result if ENV["DEBUG"]
     result
   end
 

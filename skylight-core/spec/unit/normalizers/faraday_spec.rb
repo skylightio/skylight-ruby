@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Skylight
   describe "Normalizers", "request.faraday", :faraday, :agent do

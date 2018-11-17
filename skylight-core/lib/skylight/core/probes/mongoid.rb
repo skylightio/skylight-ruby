@@ -4,7 +4,7 @@ module Skylight::Core
       class Probe
 
         def install
-          require 'mongoid/version'
+          require "mongoid/version"
           version = Gem::Version.new(::Mongoid::VERSION)
 
           if version < Gem::Version.new("5.0")

@@ -1,6 +1,6 @@
-require 'spec_helper'
-require 'tmpdir'
-require 'fileutils'
+require "spec_helper"
+require "tmpdir"
+require "fileutils"
 
 describe "Initialization integration" do
 
@@ -10,7 +10,7 @@ describe "Initialization integration" do
     @tmpdir = Dir.mktmpdir
     with_standalone(dir: @tmpdir) do
       output = `bundle install`
-      puts output if ENV['DEBUG']
+      puts output if ENV["DEBUG"]
     end
   end
 
@@ -22,9 +22,9 @@ describe "Initialization integration" do
     # Any ENV vars set inside of with_clean_env will be reset
     with_standalone(dir: @tmpdir) do
       user_config_path = "#{@tmpdir}/skylight_user_config.yml"
-      ENV['SKYLIGHT_AUTHENTICATION'] = 'lulz'
-      ENV['SKYLIGHT_AGENT_STRATEGY'] = 'embedded'
-      ENV['SKYLIGHT_USER_CONFIG_PATH'] = user_config_path
+      ENV["SKYLIGHT_AUTHENTICATION"] = "lulz"
+      ENV["SKYLIGHT_AGENT_STRATEGY"] = "embedded"
+      ENV["SKYLIGHT_USER_CONFIG_PATH"] = user_config_path
       example.run
       FileUtils.rm_f user_config_path
     end
@@ -35,18 +35,18 @@ describe "Initialization integration" do
     pipe_cmd_in, pipe_cmd_out = IO.pipe
 
     # Reset logs
-    FileUtils.rm_rf 'log'
-    FileUtils.mkdir 'log'
+    FileUtils.rm_rf "log"
+    FileUtils.mkdir "log"
 
-    original_trace = ENV['SKYLIGHT_ENABLE_TRACE_LOGS']
-    ENV.delete('SKYLIGHT_ENABLE_TRACE_LOGS')
+    original_trace = ENV["SKYLIGHT_ENABLE_TRACE_LOGS"]
+    ENV.delete("SKYLIGHT_ENABLE_TRACE_LOGS")
 
-    env = { 'RAILS_ENV' => rails_env }
-    env.merge!('SKYLIGHT_ENABLE_TRACE_LOGS' => '1', 'DEBUG' => '1') if debug
+    env = { "RAILS_ENV" => rails_env }
+    env.merge!("SKYLIGHT_ENABLE_TRACE_LOGS" => "1", "DEBUG" => "1") if debug
     cmd = "ruby bin/rails runner '#noop'"
     cmd_pid = Process.spawn(env, cmd, :out => pipe_cmd_out, :err => pipe_cmd_out)
 
-    ENV['SKYLIGHT_ENABLE_TRACE_LOGS'] = original_trace
+    ENV["SKYLIGHT_ENABLE_TRACE_LOGS"] = original_trace
 
     Timeout.timeout(10) do
       Process.wait(cmd_pid)
@@ -55,7 +55,7 @@ describe "Initialization integration" do
     pipe_cmd_out.close
     pipe_cmd_in.read.strip
   rescue Timeout::Error
-    Process.kill('TERM', cmd_pid)
+    Process.kill("TERM", cmd_pid)
     raise
   end
 
@@ -71,7 +71,7 @@ describe "Initialization integration" do
 
         # FIXME: This is a very fragile test, due to the "to_not"
         it "doesn't warn about validation errors" do
-          ENV['SKYLIGHT_AUTHENTICATION'] = nil
+          ENV["SKYLIGHT_AUTHENTICATION"] = nil
 
           boot
 
@@ -110,7 +110,7 @@ describe "Initialization integration" do
         end
 
         it "warns about validation errors" do
-          ENV['SKYLIGHT_AUTHENTICATION'] = nil
+          ENV["SKYLIGHT_AUTHENTICATION"] = nil
 
           boot
           expect(File.read("log/production.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] Unable to start, see the Skylight logs for more details"
@@ -144,7 +144,7 @@ describe "Initialization integration" do
   context "without native" do
 
     before :each do
-      ENV['SKYLIGHT_DISABLE_AGENT'] = 'true'
+      ENV["SKYLIGHT_DISABLE_AGENT"] = "true"
     end
 
     context "development" do

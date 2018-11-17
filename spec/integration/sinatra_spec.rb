@@ -1,17 +1,17 @@
-require 'spec_helper'
-require 'skylight/core/instrumenter'
+require "spec_helper"
+require "skylight/core/instrumenter"
 
 enable = false
 begin
-  require 'sinatra'
-  require 'skylight/sinatra'
+  require "sinatra"
+  require "skylight/sinatra"
   enable = true
 rescue LoadError
   puts "[INFO] Skipping Sinatra integration specs"
 end
 
 if enable
-  describe 'Sinatra integration' do
+  describe "Sinatra integration" do
 
     before :each do
       @original_env = ENV.to_hash
@@ -21,8 +21,8 @@ if enable
 
       class ::MyApp < ::Sinatra::Base
         get "/test" do
-          Skylight.instrument category: 'app.inside' do
-            Skylight.instrument category: 'app.zomg' do
+          Skylight.instrument category: "app.inside" do
+            Skylight.instrument category: "app.zomg" do
               # nothing
             end
             erb "Hello"
@@ -50,11 +50,11 @@ if enable
         stub_session_request
       end
 
-      it 'successfully calls into sinatra' do
-        res = call env('/test')
+      it "successfully calls into sinatra" do
+        res = call env("/test")
         expect(res).to eq(["Hello"])
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).to_not be nil
@@ -67,9 +67,9 @@ if enable
         names = trace.spans.map { |s| s.event.category }
 
         expect(names.length).to be >= 3
-        expect(names).to include('app.zomg')
-        expect(names).to include('app.inside')
-        expect(names[0]).to eq('app.rack.request')
+        expect(names).to include("app.zomg")
+        expect(names).to include("app.inside")
+        expect(names[0]).to eq("app.rack.request")
       end
 
     end
@@ -79,7 +79,7 @@ if enable
       consume(resp)
     end
 
-    def env(path = '/', opts = {})
+    def env(path = "/", opts = {})
       Rack::MockRequest.env_for(path, {})
     end
 

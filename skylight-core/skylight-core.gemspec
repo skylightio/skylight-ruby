@@ -15,8 +15,8 @@ Gem::Specification.new do |spec|
 
   files = `git ls-files`.split("\n") rescue []
   files &= (
-    Dir['lib/**/*.rb'] +
-    Dir['*.md'])
+    Dir["lib/**/*.rb"] +
+    Dir["*.md"])
 
   spec.files         = files
   spec.require_paths = ["lib"]

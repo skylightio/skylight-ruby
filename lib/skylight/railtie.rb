@@ -1,4 +1,4 @@
-require 'skylight/core/railtie'
+require "skylight/core/railtie"
 
 module Skylight
   class Railtie < Rails::Railtie
@@ -10,7 +10,7 @@ module Skylight
     config.skylight = ActiveSupport::OrderedOptions.new
 
     # The environments in which skylight should be enabled
-    config.skylight.environments = ['production']
+    config.skylight.environments = ["production"]
 
     # The path to the configuration file
     config.skylight.config_path = "config/skylight.yml"
@@ -19,13 +19,13 @@ module Skylight
     #   net_http, action_controller, action_dispatch, action_view, and middleware are on by default
     #   See https://www.skylight.io/support/getting-more-from-skylight#available-instrumentation-options
     #   for a full list.
-    config.skylight.probes = ['net_http', 'action_controller', 'action_dispatch', 'action_view', 'middleware', 'active_job_enqueue']
+    config.skylight.probes = ["net_http", "action_controller", "action_dispatch", "action_view", "middleware", "active_job_enqueue"]
 
     # The position in the middleware stack to place Skylight
     # Default is first, but can be `{ after: Middleware::Name }` or `{ before: Middleware::Name }`
     config.skylight.middleware_position = 0
 
-    initializer 'skylight.configure' do |app|
+    initializer "skylight.configure" do |app|
       run_initializer(app)
     end
 
@@ -41,8 +41,8 @@ module Skylight
         return unless sk_config.worker_context?
 
         reasons = []
-        reasons << "the 'active_job' probe is enabled" if sk_rails_config.probes.include?('active_job')
-        reasons << 'SKYLIGHT_ENABLE_SIDEKIQ is set' if sk_config.enable_sidekiq?
+        reasons << "the 'active_job' probe is enabled" if sk_rails_config.probes.include?("active_job")
+        reasons << "SKYLIGHT_ENABLE_SIDEKIQ is set" if sk_config.enable_sidekiq?
 
         return if reasons.empty?
 

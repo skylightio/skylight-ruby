@@ -1,9 +1,9 @@
-require 'spec_helper'
-require 'skylight/core/instrumenter'
+require "spec_helper"
+require "skylight/core/instrumenter"
 
 module Skylight
   # Doesn't require a running agent, but mocking is turned off when the agent is disabled
-  describe 'Instrumentation integration', :agent do
+  describe "Instrumentation integration", :agent do
     include Rack::Test::Methods
 
     before do
@@ -26,7 +26,7 @@ module Skylight
         run lambda { |env|
           # This will cause the normalizer to return a :skip
           ActiveSupport::Notifications.instrument("unmatched.test") do
-            [200, {}, ['OK']]
+            [200, {}, ["OK"]]
           end
         }
       end

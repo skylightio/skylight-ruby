@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Skylight
   describe GC, :http, :agent do
@@ -11,21 +11,21 @@ module Skylight
       Skylight.stop!
     end
 
-    context 'when there is no GC and no spans' do
+    context "when there is no GC and no spans" do
 
-      it 'leaves the GC node out' do
+      it "leaves the GC node out" do
         start!
 
         expect(gc).to be_enabled
         expect(gc).to receive(:total_time).
           exactly(2).times.and_return(0.0, 0.0)
 
-        Skylight.trace 'Rack', 'app.rack' do |t|
+        Skylight.trace "Rack", "app.rack" do |t|
           clock.skip 1
         end
 
         clock.unfreeze
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         expect(trace.spans.count).to eq(1)
         expect(trace.spans[0].duration).to eq(10_000)
@@ -33,58 +33,58 @@ module Skylight
 
     end
 
-    context 'when there is GC and no spans' do
+    context "when there is GC and no spans" do
 
-      it 'adds a GC node' do
+      it "adds a GC node" do
         start!
 
         expect(gc).to be_enabled
         expect(gc).to receive(:total_time).
           exactly(2).times.and_return(0.0, 100_000_000)
 
-        Skylight.trace 'Rack', 'app.rack' do |t|
+        Skylight.trace "Rack", "app.rack" do |t|
           clock.skip 1
         end
 
         clock.unfreeze
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         expect(trace.spans.count).to eq(2)
         expect(trace.spans[0].duration).to eq(10_000)
 
-        expect(trace.spans[1].event.category).to eq('noise.gc')
+        expect(trace.spans[1].event.category).to eq("noise.gc")
         expect(trace.spans[1].duration).to eq(1_000)
       end
 
     end
 
-    context 'when there is GC and a span' do
+    context "when there is GC and a span" do
 
-      it 'subtracts GC from the span and adds it at the end' do
+      it "subtracts GC from the span and adds it at the end" do
         start!
 
         expect(gc).to be_enabled
         expect(gc).to receive(:total_time).
           exactly(4).times.and_return(0, 0, 100_000_000, 0)
 
-        Skylight.trace 'Rack', 'app.rack' do |t|
+        Skylight.trace "Rack", "app.rack" do |t|
           Skylight.instrument do
             clock.skip 1
           end
         end
 
         clock.unfreeze
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         expect(trace.spans.count).to eq(3)
 
-        expect(trace.spans[0].event.category).to eq('app.rack')
+        expect(trace.spans[0].event.category).to eq("app.rack")
         expect(trace.spans[0].duration).to eq(10_000)
 
-        expect(trace.spans[1].event.category).to eq('app.block')
+        expect(trace.spans[1].event.category).to eq("app.block")
         expect(trace.spans[1].duration).to eq(9_000)
 
-        expect(trace.spans[2].event.category).to eq('noise.gc')
+        expect(trace.spans[2].event.category).to eq("noise.gc")
         expect(trace.spans[2].duration).to eq(1_000)
       end
     end

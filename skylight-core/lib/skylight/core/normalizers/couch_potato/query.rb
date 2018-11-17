@@ -11,7 +11,7 @@ module Skylight::Core
 
         def normalize(trace, name, payload)
           description = payload[:name] if payload
-          _name = name.sub('couch_potato.', '')
+          _name = name.sub("couch_potato.", "")
           [CAT, _name, description]
         end
       end

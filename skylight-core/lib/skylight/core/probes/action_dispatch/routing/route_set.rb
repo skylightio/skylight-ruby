@@ -10,7 +10,7 @@ module Skylight::Core
 
                 def call(env)
                   Skylight::Core::Fanout.endpoint = self.class.name
-                  Skylight::Core::Fanout.instrument(title: self.class.name, category: 'rack.app') do
+                  Skylight::Core::Fanout.instrument(title: self.class.name, category: "rack.app") do
                     call_without_sk(env)
                   end
                 end

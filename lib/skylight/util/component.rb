@@ -5,9 +5,9 @@ module Skylight
       attr_accessor :environment, :name
 
       NAME_FORMAT = /\A[a-z0-9-]+\z/
-      DEFAULT_NAME = 'web'.freeze
-      WORKER_NAME = 'worker'.freeze
-      DEFAULT_ENVIRONMENT = 'production'.freeze
+      DEFAULT_NAME = "web".freeze
+      WORKER_NAME = "worker".freeze
+      DEFAULT_ENVIRONMENT = "production".freeze
 
       WORKER_PROGRAM_MATCHER = Regexp.union([
         /sidekiq$/i,
@@ -32,8 +32,8 @@ module Skylight
         @name        = resolve_name(name)
 
         raise ArgumentError, "environment can't be blank" if @environment.empty?
-        validate_string!(@environment, 'environment')
-        validate_string!(@name, 'name')
+        validate_string!(@environment, "environment")
+        validate_string!(@name, "name")
       end
 
       def to_s

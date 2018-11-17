@@ -1,4 +1,4 @@
-require 'zlib'
+require "zlib"
 
 module Skylight::Core
   module Util

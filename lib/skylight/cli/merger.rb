@@ -1,7 +1,7 @@
-require 'ostruct'
-require 'skylight/util/http'
-require 'thor'
-require 'highline'
+require "ostruct"
+require "skylight/util/http"
+require "thor"
+require "highline"
 
 module Skylight
   module CLI
@@ -13,7 +13,7 @@ module Skylight
       end
 
       STRINGS = {
-        get_token: 'get your merge token from `https://www.skylight.io/merging`',
+        get_token: "get your merge token from `https://www.skylight.io/merging`",
         unlisted: "My app isn't listed here :("
       }
 
@@ -86,8 +86,8 @@ module Skylight
         i = ask("\nWhich number?").chomp.to_i
 
         @child_env = case i
-                     when 1 then 'development'
-                     when 2 then 'staging'
+                     when 1 then "development"
+                     when 2 then "staging"
                      when 3
                        specify_child_env
                      else
@@ -222,11 +222,11 @@ module Skylight
 
       def format_component(component)
         parts = [].tap do |ary|
-          ary << component.name unless component.name == 'web'
-          ary << component.environment unless component.environment == 'production'
+          ary << component.name unless component.name == "web"
+          ary << component.environment unless component.environment == "production"
         end
 
-        str = ''
+        str = ""
         str << component.app_name
         str << Thor::Shell::Color.new.set_color(" (#{parts.join(':')})", :yellow) if parts.any?
         str
@@ -259,7 +259,7 @@ module Skylight
       end
 
       def parent_component_fingerprints
-        @parent_app.components.map { |x| x.values_at('name', 'environment') }
+        @parent_app.components.map { |x| x.values_at("name", "environment") }
       end
 
       def children

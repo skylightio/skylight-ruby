@@ -1,4 +1,4 @@
-require 'thread'
+require "thread"
 
 module Skylight::Core
   # @api private

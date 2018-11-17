@@ -1,4 +1,4 @@
-require 'skylight/core/normalizers/sql'
+require "skylight/core/normalizers/sql"
 
 module Skylight::Core
   module Normalizers

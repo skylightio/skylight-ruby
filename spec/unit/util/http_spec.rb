@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Skylight
   describe Util::HTTP do
@@ -37,7 +37,7 @@ module Skylight
 
       it "gets details from HTTP_PROXY" do
         http = Util::HTTP.new(Config.load({ auth_url: "https://auth.skylight.io/agent" },
-          'HTTP_PROXY' => "http://testing:otherpass@proxy.example.com:4321"))
+          "HTTP_PROXY" => "http://testing:otherpass@proxy.example.com:4321"))
 
         expect(Net::HTTP).to receive(:new).
           with("auth.skylight.io", 443, "proxy.example.com", 4321, "testing", "otherpass").

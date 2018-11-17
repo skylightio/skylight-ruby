@@ -1,9 +1,9 @@
-require 'spec_helper'
+require "spec_helper"
 
 if defined?(ActionPack)
   CUR_VER = Gem::Version.new("#{ActionPack::VERSION::MAJOR}.#{ActionPack::VERSION::MINOR}")
 
-  describe 'ActionView integration', :action_view_probe, :agent do
+  describe "ActionView integration", :action_view_probe, :agent do
     class Context
       include ::ActionView::Context
 

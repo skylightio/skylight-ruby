@@ -87,7 +87,7 @@ module Skylight::Core
             if v.is_a?(Hash)
               ret[k] = extract_binds(v)
             else
-              ret[k] = '?'.freeze
+              ret[k] = "?".freeze
             end
           end
 

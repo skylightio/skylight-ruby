@@ -1,10 +1,10 @@
-require 'spec_helper'
+require "spec_helper"
 
 if defined?(ActiveModel::Serializer)
-  describe 'ActiveModel::Serializer', :active_model_serializers_probe, :agent, :instrumenter do
+  describe "ActiveModel::Serializer", :active_model_serializers_probe, :agent, :instrumenter do
 
-    require 'action_controller'
-    require 'action_controller/serialization'
+    require "action_controller"
+    require "action_controller/serialization"
 
     # File changed name between versions
     %w(serializer serializers).each do |dir|
@@ -72,7 +72,7 @@ if defined?(ActiveModel::Serializer)
     end
 
     let :request do
-      ActionDispatch::TestRequest.new('REQUEST_METHOD' => 'GET', 'rack.input' => '')
+      ActionDispatch::TestRequest.new("REQUEST_METHOD" => "GET", "rack.input" => "")
     end
 
     let :controller do
@@ -94,7 +94,7 @@ if defined?(ActiveModel::Serializer)
       expect(response.body).to eq(json)
 
       opts = {
-        cat: 'view.render.active_model_serializers',
+        cat: "view.render.active_model_serializers",
         title: "ItemSerializer"
       }
 
@@ -113,7 +113,7 @@ if defined?(ActiveModel::Serializer)
       expect(response.body).to eq(json)
 
       opts = {
-        cat: 'view.render.active_model_serializers'
+        cat: "view.render.active_model_serializers"
       }
 
       if version >= Gem::Version.new("0.10.0.rc1")

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Skylight
   describe "Normalizers", "query.moped", :moped do
@@ -9,12 +9,12 @@ module Skylight
     end
 
     it "normalizes QUERY" do
-      op = Moped::Protocol::Query.new("testdb", "testcollection", { foo: { :"$not" => 'bar' }, baz: 'qux'})
+      op = Moped::Protocol::Query.new("testdb", "testcollection", { foo: { :"$not" => "bar" }, baz: "qux"})
       category, title, description = normalize(ops: [op])
 
       expect(category).to    eq("db.mongo.query")
       expect(title).to       eq("QUERY testcollection")
-      expect(description).to eq({ foo: { :"$not" => '?' }, baz: '?'}.to_json)
+      expect(description).to eq({ foo: { :"$not" => "?" }, baz: "?"}.to_json)
     end
 
     it "normalizes GET_MORE" do
@@ -41,7 +41,7 @@ module Skylight
 
       expect(category).to    eq("db.mongo.query")
       expect(title).to       eq("UPDATE testcollection")
-      expect(description).to eq({ selector: { foo: '?' }, update: { foo: '?' } }.to_json)
+      expect(description).to eq({ selector: { foo: "?" }, update: { foo: "?" } }.to_json)
     end
 
     it "normalizes DELETE" do
@@ -50,7 +50,7 @@ module Skylight
 
       expect(category).to    eq("db.mongo.query")
       expect(title).to       eq("DELETE testcollection")
-      expect(description).to eq({ foo: '?' }.to_json)
+      expect(description).to eq({ foo: "?" }.to_json)
     end
 
   end

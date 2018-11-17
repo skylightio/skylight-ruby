@@ -5,7 +5,7 @@ module Skylight::Core
       include Util::AllocationFree
 
       def setup
-        @paths = config['normalizers.render.view_paths'] || []
+        @paths = config["normalizers.render.view_paths"] || []
       end
 
       # Generic normalizer for renders
@@ -53,7 +53,7 @@ module Skylight::Core
 
       SEPARATOR_BYTE = File::SEPARATOR.ord
 
-      if File.const_defined?(:NULL) ? File::NULL == "NUL" : RbConfig::CONFIG['host_os'] =~ /mingw|mswin32/
+      if File.const_defined?(:NULL) ? File::NULL == "NUL" : RbConfig::CONFIG["host_os"] =~ /mingw|mswin32/
         # This is a DOSish environment
         ALT_SEPARATOR_BYTE = File::ALT_SEPARATOR && File::ALT_SEPARATOR.ord
         COLON_BYTE = ":".ord

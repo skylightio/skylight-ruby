@@ -27,7 +27,7 @@ module Skylight::Core
           adapter_string = adapter.is_a?(Class) ? adapter.to_s : adapter.class.to_s
           adapter_string[/ActiveJob::QueueAdapters::(\w+)Adapter/, 1].underscore
         rescue
-          'active_job'
+          "active_job"
         end
       end
     end

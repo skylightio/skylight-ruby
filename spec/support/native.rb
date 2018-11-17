@@ -1,18 +1,18 @@
 # This file should handle being loaded more than once. While this isn't really
 # all that ideal, sometimes people like to glob the contents of spec/support.
 
-require 'skylight/core'
-require 'skylight/core/util/platform'
+require "skylight/core"
+require "skylight/core/util/platform"
 
-require 'skylight/instrumenter'
-require 'skylight/trace'
-require 'skylight/errors'
+require "skylight/instrumenter"
+require "skylight/trace"
+require "skylight/errors"
 
-unless ENV['SKYLIGHT_DISABLE_AGENT']
-  ENV['SKYLIGHT_REQUIRED'] = 'true'
+unless ENV["SKYLIGHT_DISABLE_AGENT"]
+  ENV["SKYLIGHT_REQUIRED"] = "true"
 
   begin
-    require 'skylight/native'
+    require "skylight/native"
   rescue LoadError => e
     abort "Skylight Ruby extension is not present on the load path.\n\n" \
       "Please run `rake compile` first or run with `SKYLIGHT_DISABLE_AGENT=true`.\n\n" \
@@ -21,4 +21,4 @@ unless ENV['SKYLIGHT_DISABLE_AGENT']
 end
 
 # Load everything else
-require 'skylight'
+require "skylight"

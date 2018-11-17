@@ -5,7 +5,7 @@
 VAGRANTFILE_API_VERSION = "2"
 
 unless Vagrant.has_plugin?("vagrant-vbguest")
-  raise 'The vbguest plugin is required. Install with `vagrant plugin install vagrant-vbguest`.'
+  raise "The vbguest plugin is required. Install with `vagrant plugin install vagrant-vbguest`."
 end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|

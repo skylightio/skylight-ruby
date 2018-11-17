@@ -18,21 +18,21 @@ module SpecHelper
   def set_agent_env
     @_original_env = ENV.to_hash
 
-    ENV['SKYLIGHT_AUTHENTICATION']       = "lulz"
-    ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
-    ENV['SKYLIGHT_REPORT_URL']           = "http://127.0.0.1:#{port}/report"
-    ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = "false"
-    ENV['SKYLIGHT_AUTH_URL']             = "http://127.0.0.1:#{port}/agent"
-    ENV['SKYLIGHT_VALIDATION_URL']       = "http://127.0.0.1:#{port}/agent/config"
-    ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
-    ENV['SKYLIGHT_ENABLE_SEGMENTS']      = "true"
+    ENV["SKYLIGHT_AUTHENTICATION"]       = "lulz"
+    ENV["SKYLIGHT_BATCH_FLUSH_INTERVAL"] = "1"
+    ENV["SKYLIGHT_REPORT_URL"]           = "http://127.0.0.1:#{port}/report"
+    ENV["SKYLIGHT_REPORT_HTTP_DEFLATE"]  = "false"
+    ENV["SKYLIGHT_AUTH_URL"]             = "http://127.0.0.1:#{port}/agent"
+    ENV["SKYLIGHT_VALIDATION_URL"]       = "http://127.0.0.1:#{port}/agent/config"
+    ENV["SKYLIGHT_AUTH_HTTP_DEFLATE"]    = "false"
+    ENV["SKYLIGHT_ENABLE_SEGMENTS"]      = "true"
 
-    if ENV['DEBUG']
-      ENV['SKYLIGHT_ENABLE_TRACE_LOGS']    = "true"
-      ENV['SKYLIGHT_LOG_FILE']             = "-"
-      ENV['RUST_LOG'] = "skylight=debug"
+    if ENV["DEBUG"]
+      ENV["SKYLIGHT_ENABLE_TRACE_LOGS"]    = "true"
+      ENV["SKYLIGHT_LOG_FILE"]             = "-"
+      ENV["RUST_LOG"] = "skylight=debug"
     else
-      ENV['SKYLIGHT_DISABLE_DEV_WARNING'] = "true"
+      ENV["SKYLIGHT_DISABLE_DEV_WARNING"] = "true"
     end
 
     if block_given?

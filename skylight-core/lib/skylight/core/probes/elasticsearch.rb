@@ -7,7 +7,7 @@ module Skylight::Core
             alias perform_request_without_sk perform_request
             def perform_request(method, path, *args, &block)
               ActiveSupport::Notifications.instrument "request.elasticsearch",
-                                                      name:   'Request',
+                                                      name:   "Request",
                                                       method: method,
                                                       path:   path do
 

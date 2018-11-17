@@ -1,24 +1,24 @@
 # Require dependencies
-require 'yaml'
-require 'beefcake'
-require 'rspec'
-require 'rspec/collection_matchers'
-require 'rack/test'
-require 'webmock'
+require "yaml"
+require "beefcake"
+require "rspec"
+require "rspec/collection_matchers"
+require "rack/test"
+require "webmock"
 
 module SpecHelper
 end
 
 # Require support files
-Dir[File.expand_path('../support/*.rb', __FILE__)].each do |f|
+Dir[File.expand_path("../support/*.rb", __FILE__)].each do |f|
   require f
 end
 
 
 # Begin Probed libraries
 
-if ENV['AMS_VERSION'] == 'edge'
-  require 'active_support/inflector'
+if ENV["AMS_VERSION"] == "edge"
+  require "active_support/inflector"
 end
 
 %w(excon tilt sinatra sequel faraday mongo moped mongoid active_model_serializers httpclient elasticsearch).each do |library|
@@ -31,32 +31,32 @@ end
 end
 
 begin
-  require 'redis'
-  require 'fakeredis/rspec'
+  require "redis"
+  require "fakeredis/rspec"
   Skylight::Core::Probes.probe(:redis)
 rescue LoadError
 end
 
 begin
-  require 'action_dispatch'
-  require 'action_view'
+  require "action_dispatch"
+  require "action_view"
   Skylight::Core::Probes.probe(:action_view)
 rescue LoadError
 end
 
 begin
-  require 'action_dispatch/middleware/request_id'
+  require "action_dispatch/middleware/request_id"
   Skylight::Core::Probes.probe(:'action_dispatch/request_id')
 rescue LoadError
 end
 
 begin
-  require 'active_job'
+  require "active_job"
   Skylight::Core::Probes.probe(:active_job_enqueue)
 rescue LoadError
 end
 
-require 'net/http'
+require "net/http"
 Skylight::Core::Probes.probe(:net_http)
 
 Skylight::Core::Probes.probe(:middleware)
@@ -76,13 +76,13 @@ puts "Testing probes: #{installed_probes.join(", ")}" unless installed_probes.em
 puts "Skipping probes: #{skipped_probes.join(", ")}"  unless skipped_probes.empty?
 
 
-ENV['SKYLIGHT_RAISE_ON_ERROR'] = "true"
+ENV["SKYLIGHT_RAISE_ON_ERROR"] = "true"
 
 module TestNamespace
   include Skylight::Core::Instrumentable
 
-  unless ENV['SKYLIGHT_DISABLE_AGENT']
-    require 'skylight/core/test'
+  unless ENV["SKYLIGHT_DISABLE_AGENT"]
+    require "skylight/core/test"
     extend Skylight::Core::Test::Mocking
   end
 
@@ -110,7 +110,7 @@ RSpec.configure do |config|
     config.filter_run_excluding moped: true
   end
 
-  if ENV['SKYLIGHT_DISABLE_AGENT']
+  if ENV["SKYLIGHT_DISABLE_AGENT"]
     config.filter_run_excluding agent: true
   end
 
@@ -125,7 +125,7 @@ RSpec.configure do |config|
   end
 
   original_wd   = Dir.pwd
-  original_home = ENV['HOME']
+  original_home = ENV["HOME"]
 
   config.around :each do |example|
     if File.exist?(tmp)
@@ -137,12 +137,12 @@ RSpec.configure do |config|
       # Sockfile goes into the "tmp" dir
       FileUtils.mkdir_p(tmp("tmp"))
       Dir.chdir(tmp)
-      ENV['HOME'] = tmp.to_s
+      ENV["HOME"] = tmp.to_s
 
       example.run
     ensure
       Dir.chdir original_wd
-      ENV['HOME'] = original_home
+      ENV["HOME"] = original_home
     end
   end
 
@@ -161,7 +161,7 @@ RSpec.configure do |config|
     args = {}
 
     skipped_probes.each do |p|
-      probe_name = rspec_probe_tags[p] || p.downcase.gsub('::', '_')
+      probe_name = rspec_probe_tags[p] || p.downcase.gsub("::", "_")
       args["#{probe_name}_probe".to_sym] = true
     end
 

@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'skylight/native_ext_fetcher'
+require "spec_helper"
+require "skylight/native_ext_fetcher"
 
 module Skylight
   describe NativeExtFetcher do
@@ -21,9 +21,9 @@ module Skylight
       Digest::SHA2.hexdigest(archive)
     end
 
-    context 'fetching successfully' do
+    context "fetching successfully" do
 
-      it 'fetches the native extension' do
+      it "fetches the native extension" do
         stub_ext_request
 
         ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
@@ -31,10 +31,10 @@ module Skylight
         expect_valid_output
       end
 
-      it 'works with a proxy' do
+      it "works with a proxy" do
         begin
-          original_proxy = ENV['HTTP_PROXY']
-          ENV['HTTP_PROXY'] = "foo:bar@127.0.0.1:123"
+          original_proxy = ENV["HTTP_PROXY"]
+          ENV["HTTP_PROXY"] = "foo:bar@127.0.0.1:123"
 
           expect(Net::HTTP).to receive(:start).
             with("s3.amazonaws.com", 443, "127.0.0.1", 123, "foo", "bar", use_ssl: true).
@@ -43,13 +43,13 @@ module Skylight
           ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
           expect(ret).to eq(true)
         ensure
-          ENV['HTTP_PROXY'] = original_proxy
+          ENV["HTTP_PROXY"] = original_proxy
         end
       end
 
-      it 'follows redirects' do
+      it "follows redirects" do
         stub_request(:get, "https://s3.amazonaws.com/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz").
-          to_return(:status => 301, headers: { 'Location' => "https://example.org/zomg/bar.gz" })
+          to_return(:status => 301, headers: { "Location" => "https://example.org/zomg/bar.gz" })
 
         stub_ext_request("https://example.org/zomg/bar.gz")
 
@@ -58,7 +58,7 @@ module Skylight
         expect_valid_output
       end
 
-      it 'retries on failure' do
+      it "retries on failure" do
         expect_any_instance_of(NativeExtFetcher).to receive(:http_get) { raise "nope" }.
           with("s3.amazonaws.com", 443, true, "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File))
 
@@ -72,9 +72,9 @@ module Skylight
 
     end
 
-    context 'fetching unsuccessfully' do
+    context "fetching unsuccessfully" do
 
-      it 'verifies the checksum' do
+      it "verifies the checksum" do
         expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
           with("s3.amazonaws.com", 443, true, "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File)).
           and_return([ :success, checksum ])
@@ -88,7 +88,7 @@ module Skylight
 
     def fetch(opts)
       opts[:logger] ||= Logger.new(STDOUT).tap do |l|
-        l.level = ENV['DEBUG'] ? Logger::DEBUG : Logger::FATAL
+        l.level = ENV["DEBUG"] ? Logger::DEBUG : Logger::FATAL
       end
       NativeExtFetcher.fetch(opts)
     end
@@ -100,7 +100,7 @@ module Skylight
     end
 
     def expect_valid_output
-      expect(Dir.entries(@target).sort).to eq(['.', '..', 'win'])
+      expect(Dir.entries(@target).sort).to eq([".", "..", "win"])
       expect(File.read("#{@target}/win")).to eq("win\n")
     end
 

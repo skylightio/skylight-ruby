@@ -1,11 +1,11 @@
-require 'uri'
-require 'logger'
-require 'net/http'
-require 'fileutils'
-require 'digest/sha2'
-require 'open3'
-require 'skylight/util/ssl'
-require 'skylight/core/util/proxy'
+require "uri"
+require "logger"
+require "net/http"
+require "fileutils"
+require "digest/sha2"
+require "open3"
+require "skylight/util/ssl"
+require "skylight/core/util/proxy"
 
 # Used from extconf.rb
 module Skylight
@@ -103,7 +103,7 @@ module Skylight
         begin
           host, port, use_ssl, path = deconstruct_uri(uri)
 
-          File.open out, 'w' do |f|
+          File.open out, "w" do |f|
             res, extra = http_get(host, port, use_ssl, path, f)
 
             case res
@@ -172,7 +172,7 @@ module Skylight
 
             return [ :success, digest.hexdigest ]
           when Net::HTTPRedirection
-            unless location = resp['location']
+            unless location = resp["location"]
               raise "received redirect but no location"
             end
 
@@ -217,7 +217,7 @@ module Skylight
     # @return [Array<String>] the host, port, scheme, and request_uri
     def deconstruct_uri(uri)
       uri = URI(uri)
-      [ uri.host, uri.port, uri.scheme == 'https', uri.request_uri ]
+      [ uri.host, uri.port, uri.scheme == "https", uri.request_uri ]
     end
 
     # Log an error and raise if `required` is `true`

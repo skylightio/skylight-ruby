@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Skylight::Core
   describe "Normalizers", :agent do

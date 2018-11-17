@@ -1,10 +1,10 @@
-require 'spec_helper'
+require "spec_helper"
 
 enable = false
 begin
-  require 'rails'
-  require 'action_controller/railtie'
-  require 'skylight/railtie'
+  require "rails"
+  require "action_controller/railtie"
+  require "skylight/railtie"
   enable = true
 rescue LoadError
   puts "[INFO] Skipping rails integration specs"
@@ -12,17 +12,17 @@ end
 
 if enable
 
-  describe 'Rails integration' do
+  describe "Rails integration" do
 
     def boot
       MyApp.initialize!
 
       EngineNamespace::MyEngine.routes.draw do
         root to: -> (env) { [204, {}, []] }
-        get '/empty', to: -> (env) { [204, {}, []] }, as: :empty
-        get '/error_from_router', to: -> (env) { raise RuntimeError, 'cannot even' }
-        get '/error_from_controller', to: 'application#error'
-        get '/show', to: 'application#show'
+        get "/empty", to: -> (env) { [204, {}, []] }, as: :empty
+        get "/error_from_router", to: -> (env) { raise RuntimeError, "cannot even" }
+        get "/error_from_controller", to: "application#error"
+        get "/show", to: "application#show"
       end
 
       MyApp.routes.draw do
@@ -37,8 +37,8 @@ if enable
             get :throw_something
           end
         end
-        get '/metal' => 'metal#show'
-        mount EngineNamespace::MyEngine => '/engine'
+        get "/metal" => "metal#show"
+        mount EngineNamespace::MyEngine => "/engine"
       end
     end
 
@@ -128,19 +128,19 @@ if enable
 
       ThrowingMiddleware ||= Struct.new(:app) do
         def call(env)
-          throw(:coconut, [401, {}, ['I can\'t do that, Dave']]) if should_throw?(env)
-          raise MiddlewareError.new('I can\'t do that, Dave') if should_raise?(env)
+          throw(:coconut, [401, {}, ["I can't do that, Dave"]]) if should_throw?(env)
+          raise MiddlewareError.new("I can't do that, Dave") if should_raise?(env)
           app.call(env)
         end
 
         private
 
         def should_throw?(env)
-          query_parameters(env)[:middleware_throws] == 'true'
+          query_parameters(env)[:middleware_throws] == "true"
         end
 
         def should_raise?(env)
-          query_parameters(env)[:middleware_raises] == 'true'
+          query_parameters(env)[:middleware_raises] == "true"
         end
 
         def query_parameters(env)
@@ -165,12 +165,12 @@ if enable
       end
 
       class ::MyApp < Rails::Application
-        config.secret_key_base = '095f674153982a9ce59914b561f4522a'
+        config.secret_key_base = "095f674153982a9ce59914b561f4522a"
 
         config.active_support.deprecation = :stderr
 
         config.logger = Logger.new(STDOUT)
-        config.log_level = ENV['DEBUG'] ? :debug : :unknown
+        config.log_level = ENV["DEBUG"] ? :debug : :unknown
         config.logger.progname = "Rails"
 
         config.eager_load = false
@@ -220,18 +220,18 @@ if enable
           before_filter :set_variant
         end
 
-        rescue_from 'ControllerError' do |exception|
+        rescue_from "ControllerError" do |exception|
           render json: { error: exception.message }, status: 500
         end
 
         def index
-          Skylight.instrument category: 'app.inside' do
+          Skylight.instrument category: "app.inside" do
             if Rails.version =~ /^4\./
               render text: "Hello"
             else
               render plain: "Hello"
             end
-            Skylight.instrument category: 'app.zomg' do
+            Skylight.instrument category: "app.zomg" do
               # nothing
             end
           end
@@ -264,7 +264,7 @@ if enable
         end
 
         def header
-          Skylight.instrument category: 'app.zomg' do
+          Skylight.instrument category: "app.zomg" do
             head 200
           end
         end
@@ -285,10 +285,10 @@ if enable
         def too_many_spans
           # Max is 2048
           Rails.application.config.many.times do
-            Skylight.instrument category: 'app.zomg.level-1' do
-              Skylight.instrument category: 'app.zomg.should-prune-below-here' do
+            Skylight.instrument category: "app.zomg.level-1" do
+              Skylight.instrument category: "app.zomg.should-prune-below-here" do
                 Rails.application.config.very_many.times do
-                  Skylight.instrument category: 'app.zomg.level-2' do
+                  Skylight.instrument category: "app.zomg.level-2" do
                     # nothing
                   end
                 end
@@ -304,7 +304,7 @@ if enable
         end
 
         def throw_something
-          throw(:coconut, [401, {}, ['I can\'t do that, Dave']])
+          throw(:coconut, [401, {}, ["I can't do that, Dave"]])
         end
 
         private
@@ -334,8 +334,8 @@ if enable
 
         def render(options={})
           self.status = options[:status] || 200
-          self.content_type = options[:content_type] || 'text/html; charset=utf-8'
-          self.headers['Content-Length'] = options[:text].bytesize.to_s
+          self.content_type = options[:content_type] || "text/html; charset=utf-8"
+          self.headers["Content-Length"] = options[:text].bytesize.to_s
           self.response_body = options[:text]
         end
       end
@@ -356,20 +356,20 @@ if enable
       Rails.application = nil
     end
 
-    let(:router_name) { 'ActionDispatch::Routing::RouteSet' }
+    let(:router_name) { "ActionDispatch::Routing::RouteSet" }
 
     shared_examples "with agent" do
 
       context "configuration" do
 
         it "sets log file" do
-          expect(Skylight.instrumenter.config['log_file']).to eq(MyApp.root.join('log/skylight.log').to_s)
+          expect(Skylight.instrumenter.config["log_file"]).to eq(MyApp.root.join("log/skylight.log").to_s)
         end
 
         context "on heroku" do
 
           def pre_boot
-            ENV['SKYLIGHT_HEROKU_DYNO_INFO_PATH'] = File.expand_path('../../../skylight-core/spec/support/heroku_dyno_info_sample', __FILE__)
+            ENV["SKYLIGHT_HEROKU_DYNO_INFO_PATH"] = File.expand_path("../../../skylight-core/spec/support/heroku_dyno_info_sample", __FILE__)
           end
 
           it "recognizes heroku" do
@@ -377,25 +377,25 @@ if enable
           end
 
           it "leaves log file as STDOUT" do
-            expect(Skylight.instrumenter.config['log_file']).to eq('-')
+            expect(Skylight.instrumenter.config["log_file"]).to eq("-")
           end
 
         end
 
       end
 
-      it 'successfully calls into rails' do
-        res = call MyApp, env('/users')
+      it "successfully calls into rails" do
+        res = call MyApp, env("/users")
         expect(res).to eq(["Hello"])
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
 
-        segment = Rails.version =~ /^4\./ ? 'html' : 'text'
+        segment = Rails.version =~ /^4\./ ? "html" : "text"
         expect(endpoint.name).to eq("UsersController#index<sk-segment>#{segment}</sk-segment>")
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
@@ -411,9 +411,9 @@ if enable
         ])
       end
 
-      it 'successfully instruments middleware', :middleware_probe do
-        call MyApp, env('/users')
-        server.wait resource: '/report'
+      it "successfully instruments middleware", :middleware_probe do
+        call MyApp, env("/users")
+        server.wait resource: "/report"
 
         trace = server.reports[0].endpoints[0].traces[0]
 
@@ -446,11 +446,11 @@ if enable
         ])
       end
 
-      it 'successfully names requests handled by middleware', :middleware_probe do
-        res = call MyApp, env('/middleware')
+      it "successfully names requests handled by middleware", :middleware_probe do
+        res = call MyApp, env("/middleware")
         expect(res).to eq(["CustomMiddleware"])
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
@@ -460,11 +460,11 @@ if enable
         expect(endpoint.name).to eq("CustomMiddleware")
       end
 
-      it 'successfully names requests handled by anonymous middleware', :middleware_probe do
-        res = call MyApp, env('/anonymous')
+      it "successfully names requests handled by anonymous middleware", :middleware_probe do
+        res = call MyApp, env("/anonymous")
         expect(res).to eq(["Anonymous"])
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
@@ -480,9 +480,9 @@ if enable
           MyApp.config.skylight.middleware_position = { after: CustomMiddleware }
         end
 
-        it 'does not instrument middleware if Skylight position is after', :middleware_probe do
-          call MyApp, env('/users')
-          server.wait resource: '/report'
+        it "does not instrument middleware if Skylight position is after", :middleware_probe do
+          call MyApp, env("/users")
+          server.wait resource: "/report"
 
           trace = server.reports[0].endpoints[0].traces[0]
 
@@ -501,26 +501,26 @@ if enable
         end
 
         it "doesn't report middleware that don't close body", :middleware_probe do
-          ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+          ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
 
           expect_any_instance_of(Skylight::Core::Instrumenter).not_to receive(:process)
 
-          call MyApp, env('/non-closing')
+          call MyApp, env("/non-closing")
         end
 
         it "disables probe when middleware don't close body", :middleware_probe do
-          ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+          ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
 
-          call MyApp, env('/non-closing')
+          call MyApp, env("/non-closing")
 
           expect(Skylight::Core::Probes::Middleware::Probe).to be_disabled
         end
 
         it "handles middleware that returns a non-array that is coercable", :middleware_probe do
-          ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+          ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
 
-          call MyApp, env('/non-array')
-          server.wait resource: '/report'
+          call MyApp, env("/non-array")
+          server.wait resource: "/report"
 
           trace = server.reports[0].endpoints[0].traces[0]
 
@@ -531,30 +531,30 @@ if enable
 
       end
 
-      context 'middleware that jumps the stack', focus: true do
-        it 'closes jumped spans' do
+      context "middleware that jumps the stack", focus: true do
+        it "closes jumped spans" do
           allow_any_instance_of(AssertDeferrals).to receive(:assertion_hook) do
             expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
           end
 
-          res = call(MyApp, env('/foo?middleware_throws=true'))
-          server.wait(resource: '/report')
+          res = call(MyApp, env("/foo?middleware_throws=true"))
+          server.wait(resource: "/report")
 
           batch = server.reports[0]
           expect(batch).to be_present
           endpoint = batch.endpoints[0]
-          expect(endpoint.name).to eq('ThrowingMiddleware')
+          expect(endpoint.name).to eq("ThrowingMiddleware")
           trace = endpoint.traces[0]
 
           reverse_spans = trace.filtered_spans.reverse_each.map { |span| span.event.title }
           last, middle, catcher = reverse_spans
 
-          expect(last).to eq('ThrowingMiddleware')
-          expect(middle).to eq('MonkeyInTheMiddleware')
-          expect(catcher).to eq('CatchingMiddleware')
+          expect(last).to eq("ThrowingMiddleware")
+          expect(middle).to eq("MonkeyInTheMiddleware")
+          expect(catcher).to eq("CatchingMiddleware")
         end
 
-        it 'closes spans over rescue blocks' do
+        it "closes spans over rescue blocks" do
           # By the time the call stack has finished with this middleware, deferrals
           # should be empty. The rescue block in Probes::Middleware#call
           # should mark those spans done without needing to defer them.
@@ -562,36 +562,36 @@ if enable
             expect(Skylight.trace.send(:deferred_spans)).to eq({})
           end
 
-          res = call(MyApp, env('/foo?middleware_raises=true'))
-          server.wait(resource: '/report')
+          res = call(MyApp, env("/foo?middleware_raises=true"))
+          server.wait(resource: "/report")
 
           batch = server.reports[0]
           expect(batch).to be_present
           endpoint = batch.endpoints[0]
-          expect(endpoint.name).to eq('ThrowingMiddleware')
+          expect(endpoint.name).to eq("ThrowingMiddleware")
           trace = endpoint.traces[0]
 
           reverse_spans = trace.filtered_spans.reverse_each.map { |span| span.event.title }
           last, middle, catcher, rescuer = reverse_spans
 
-          expect(last).to eq('ThrowingMiddleware')
-          expect(middle).to eq('MonkeyInTheMiddleware')
-          expect(catcher).to eq('CatchingMiddleware')
-          expect(rescuer).to eq('RescuingMiddleware')
+          expect(last).to eq("ThrowingMiddleware")
+          expect(middle).to eq("MonkeyInTheMiddleware")
+          expect(catcher).to eq("CatchingMiddleware")
+          expect(rescuer).to eq("RescuingMiddleware")
         end
 
-        it 'closes spans jumped in the controller' do
+        it "closes spans jumped in the controller" do
           allow_any_instance_of(AssertDeferrals).to receive(:assertion_hook) do
             expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
           end
 
-          res = call(MyApp, env('/users/throw_something'))
-          server.wait(resource: '/report')
+          res = call(MyApp, env("/users/throw_something"))
+          server.wait(resource: "/report")
 
           batch = server.reports[0]
           expect(batch).to be_present
           endpoint = batch.endpoints[0]
-          expect(endpoint.name).to eq('UsersController#throw_something')
+          expect(endpoint.name).to eq("UsersController#throw_something")
           trace = endpoint.traces[0]
 
           reverse_spans = trace.filtered_spans.reverse_each.map do |span|
@@ -610,24 +610,24 @@ if enable
         end
       end
 
-      context 'with too many spans' do
+      context "with too many spans" do
 
-        context 'with reporting turned on' do
+        context "with reporting turned on" do
 
           def pre_boot
-            ENV['SKYLIGHT_REPORT_MAX_SPANS_EXCEEDED'] = 'true'
-            ENV['SKYLIGHT_PRUNE_LARGE_TRACES'] = 'false'
+            ENV["SKYLIGHT_REPORT_MAX_SPANS_EXCEEDED"] = "true"
+            ENV["SKYLIGHT_PRUNE_LARGE_TRACES"] = "false"
           end
 
-          it 'handles too many spans' do
-            segment = Rails.version =~ /^4\./ ? 'html' : 'text'
+          it "handles too many spans" do
+            segment = Rails.version =~ /^4\./ ? "html" : "text"
 
             expect_any_instance_of(Skylight::Trace).to receive(:error).
                 with(/\[E%04d\].+endpoint=%s/, 3, "UsersController#too_many_spans")
 
-            res = call MyApp, env('/users/too_many_spans')
+            res = call MyApp, env("/users/too_many_spans")
 
-            server.wait resource: '/report'
+            server.wait resource: "/report"
 
             batch = server.reports[0]
             expect(batch).not_to be nil
@@ -646,29 +646,29 @@ if enable
 
         end
 
-        context 'without reporting' do
+        context "without reporting" do
           def pre_boot
-            ENV['SKYLIGHT_PRUNE_LARGE_TRACES'] = 'false'
+            ENV["SKYLIGHT_PRUNE_LARGE_TRACES"] = "false"
           end
 
-          it 'handles too many spans' do
-            ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+          it "handles too many spans" do
+            ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
 
             expect_any_instance_of(Skylight::Instrumenter).not_to receive(:process)
 
-            call MyApp, env('/users/too_many_spans')
+            call MyApp, env("/users/too_many_spans")
           end
 
         end
 
-        context 'with pruning' do
+        context "with pruning" do
           def pre_boot
-            ENV['SKYLIGHT_PRUNE_LARGE_TRACES'] = 'true'
+            ENV["SKYLIGHT_PRUNE_LARGE_TRACES"] = "true"
           end
 
-          it 'handles too many spans' do
-            res = call MyApp, env('/users/too_many_spans')
-            server.wait resource: '/report'
+          it "handles too many spans" do
+            res = call MyApp, env("/users/too_many_spans")
+            server.wait resource: "/report"
 
             batch = server.reports[0]
             spans = batch.endpoints[0].traces[0].spans
@@ -677,24 +677,24 @@ if enable
               counts[span.event.category] += 1
             end
 
-            expect(categories['app.zomg.level-1']).to eq(MyApp.config.many)
+            expect(categories["app.zomg.level-1"]).to eq(MyApp.config.many)
 
             # The spans whose children were pruned should all have been replaced with an error code
-            expect(categories['app.zomg.should-prune-below-here']).to eq(0)
-            expect(categories['error.code.3']).to eq(MyApp.config.many)
+            expect(categories["app.zomg.should-prune-below-here"]).to eq(0)
+            expect(categories["error.code.3"]).to eq(MyApp.config.many)
 
             # These have been discarded entirely
-            expect(categories['app.zomg.level-2']).to eq(0)
+            expect(categories["app.zomg.level-2"]).to eq(0)
           end
         end
 
       end
 
-      it 'sets correct segment' do
-        res = call MyApp, env('/users/1.json')
-        expect(res).to eq([{ hola: '1' }.to_json])
+      it "sets correct segment" do
+        res = call MyApp, env("/users/1.json")
+        expect(res).to eq([{ hola: "1" }.to_json])
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
@@ -703,11 +703,11 @@ if enable
         expect(endpoint.name).to eq("UsersController#show<sk-segment>json</sk-segment>")
       end
 
-      it 'sets correct segment for router-handled requests' do
-        res = call MyApp, env('/engine/empty')
+      it "sets correct segment for router-handled requests" do
+        res = call MyApp, env("/engine/empty")
         expect(res).to eq([])
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).to_not be nil
@@ -716,10 +716,10 @@ if enable
         expect(endpoint.name).to eq(router_name)
       end
 
-      it 'sets correct segment for an engine' do
-        res = call MyApp, env('/engine/error_from_router')
+      it "sets correct segment for an engine" do
+        res = call MyApp, env("/engine/error_from_router")
         expect(res).to eq([])
-        server.wait(resource: '/report')
+        server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
         expect(endpoint.name).to eq(router_name)
         trace = endpoint.traces.first
@@ -729,12 +729,12 @@ if enable
         expect(spans.last(2).map { |s| s.event.title }).to eq([router_name, router_name])
       end
 
-      it 'forwards exceptions in the engine to the main app' do
-        res = call MyApp, env('/engine/error_from_controller')
+      it "forwards exceptions in the engine to the main app" do
+        res = call MyApp, env("/engine/error_from_controller")
 
-        server.wait(resource: '/report')
+        server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
-        endpoint_name = 'EngineNamespace::ApplicationController#error'
+        endpoint_name = "EngineNamespace::ApplicationController#error"
         expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>error</sk-segment>")
         trace = endpoint.traces.first
         spans = trace.filtered_spans.last(3)
@@ -742,12 +742,12 @@ if enable
         expect(spans.map { |s| s.event.title }).to eq([router_name, router_name, endpoint_name])
       end
 
-      it 'handles routing errors' do
+      it "handles routing errors" do
         expect {
-          res = call MyApp, env('/engine/foo/bar/bin')
+          res = call MyApp, env("/engine/foo/bar/bin")
         }.not_to raise_error
 
-        server.wait(resource: '/report')
+        server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
         expect(endpoint.name).to eq(router_name)
         trace = endpoint.traces.first
@@ -756,11 +756,11 @@ if enable
         expect(spans.map { |s| s.event.title }).to eq([router_name, router_name])
       end
 
-      it 'sets rendered segment, not requested' do
-        res = call MyApp, env('/users/1', 'HTTP_ACCEPT' => '*/*')
-        expect(res).to eq([{ hola: '1' }.to_json])
+      it "sets rendered segment, not requested" do
+        res = call MyApp, env("/users/1", "HTTP_ACCEPT" => "*/*")
+        expect(res).to eq([{ hola: "1" }.to_json])
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
@@ -769,9 +769,9 @@ if enable
         expect(endpoint.name).to eq("UsersController#show<sk-segment>json</sk-segment>")
       end
 
-      it 'sets correct segment for exceptions' do
+      it "sets correct segment for exceptions" do
         # Turn off for this test, since it will log a ton, due to the mock
-        ENV['SKYLIGHT_RAISE_ON_ERROR'] = nil
+        ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
 
         # TODO: This native_span_set_exception stuff should probably get its own test
         # NOTE: This tests handling by the Subscriber. The Middleware probe may catch the exception again.
@@ -785,10 +785,10 @@ if enable
         expect_any_instance_of(Skylight::Trace).to \
           receive(:native_span_set_exception).with(*args).once.and_call_original
 
-        res = call MyApp, env('/users/failure')
+        res = call MyApp, env("/users/failure")
         expect(res).to be_empty
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
@@ -797,12 +797,12 @@ if enable
         expect(endpoint.name).to eq("UsersController#failure<sk-segment>error</sk-segment>")
       end
 
-      it 'sets correct segment for handled exceptions' do
-        status, headers, body = call_full MyApp, env('/users/handled_failure')
+      it "sets correct segment for handled exceptions" do
+        status, headers, body = call_full MyApp, env("/users/handled_failure")
         expect(status).to eq(500)
         expect(body).to eq([{ error: "Handled!" }.to_json])
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
@@ -812,12 +812,12 @@ if enable
         expect(endpoint.name).to eq("UsersController#handled_failure<sk-segment>error</sk-segment>")
       end
 
-      it 'sets correct segment for `head`' do
-        status, headers, body = call_full MyApp, env('/users/header')
+      it "sets correct segment for `head`" do
+        status, headers, body = call_full MyApp, env("/users/header")
         expect(status).to eq(200)
-        expect(body[0].strip).to eq('') # Some Rails versions have a space, some don't
+        expect(body[0].strip).to eq("") # Some Rails versions have a space, some don't
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
@@ -831,16 +831,16 @@ if enable
         names = trace.filtered_spans.map { |s| s.event.category }
 
         expect(names.length).to be >= 3
-        expect(names).to include('app.zomg')
-        expect(names[0]).to eq('app.rack.request')
+        expect(names).to include("app.zomg")
+        expect(names[0]).to eq("app.rack.request")
       end
 
-      it 'sets correct segment for 4xx responses' do
-        status, headers, body = call_full MyApp, env('/users/status?status=404')
+      it "sets correct segment for 4xx responses" do
+        status, headers, body = call_full MyApp, env("/users/status?status=404")
         expect(status).to eq(404)
-        expect(body).to eq(['404'])
+        expect(body).to eq(["404"])
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
@@ -849,12 +849,12 @@ if enable
         expect(endpoint.name).to eq("UsersController#status<sk-segment>error</sk-segment>")
       end
 
-      it 'sets correct segment for 5xx responses' do
-        status, headers, body = call_full MyApp, env('/users/status?status=500')
+      it "sets correct segment for 5xx responses" do
+        status, headers, body = call_full MyApp, env("/users/status?status=500")
         expect(status).to eq(500)
-        expect(body).to eq(['500'])
+        expect(body).to eq(["500"])
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
@@ -863,8 +863,8 @@ if enable
         expect(endpoint.name).to eq("UsersController#status<sk-segment>error</sk-segment>")
       end
 
-      it 'sets correct segment when no template is found' do
-        status, headers, body = call_full MyApp, env('/users/no_template')
+      it "sets correct segment when no template is found" do
+        status, headers, body = call_full MyApp, env("/users/no_template")
 
         if Rails.version =~ /^4\./
           expect(status).to eq(500)
@@ -874,7 +874,7 @@ if enable
 
         expect(body[0]).to be_blank
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
@@ -883,11 +883,11 @@ if enable
         expect(endpoint.name).to eq("UsersController#no_template<sk-segment>error</sk-segment>")
       end
 
-      it 'sets correct segment with variant' do
-        res = call MyApp, env('/users/1.json?tablet=1')
-        expect(res).to eq([{ hola_tablet: '1' }.to_json])
+      it "sets correct segment with variant" do
+        res = call MyApp, env("/users/1.json?tablet=1")
+        expect(res).to eq([{ hola_tablet: "1" }.to_json])
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
@@ -896,12 +896,12 @@ if enable
         expect(endpoint.name).to eq("UsersController#show<sk-segment>json+tablet</sk-segment>")
       end
 
-      it 'sets correct segment for `head` with variant' do
-        status, headers, body = call_full MyApp, env('/users/header?tablet=1', 'HTTP_ACCEPT' => 'application/json')
+      it "sets correct segment for `head` with variant" do
+        status, headers, body = call_full MyApp, env("/users/header?tablet=1", "HTTP_ACCEPT" => "application/json")
         expect(status).to eq(200)
-        expect(body[0].strip).to eq('') # Some Rails versions have a space, some don't
+        expect(body[0].strip).to eq("") # Some Rails versions have a space, some don't
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
@@ -910,10 +910,10 @@ if enable
         expect(endpoint.name).to eq("UsersController#header")
       end
 
-      it 'can instrument metal controllers' do
-        call MyApp, env('/metal')
+      it "can instrument metal controllers" do
+        call MyApp, env("/metal")
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).not_to be nil
@@ -926,7 +926,7 @@ if enable
         names = trace.filtered_spans.map { |s| s.event.category }
 
         expect(names.length).to be >= 1
-        expect(names[0]).to eq('app.rack.request')
+        expect(names[0]).to eq("app.rack.request")
       end
 
     end
@@ -938,7 +938,7 @@ if enable
 
       before :each do
         @original_environments = MyApp.config.skylight.environments.clone
-        MyApp.config.skylight.environments << 'development'
+        MyApp.config.skylight.environments << "development"
 
         stub_config_validation
         stub_session_request
@@ -951,7 +951,7 @@ if enable
         MyApp.config.skylight.environments = @original_environments
       end
 
-      it_behaves_like 'with agent'
+      it_behaves_like "with agent"
     end
 
     context "activated from ENV", :http, :agent do
@@ -960,7 +960,7 @@ if enable
       end
 
       before :each do
-        ENV['SKYLIGHT_ENABLED'] = "true"
+        ENV["SKYLIGHT_ENABLED"] = "true"
 
         stub_config_validation
         stub_session_request
@@ -969,7 +969,7 @@ if enable
         boot
       end
 
-      it_behaves_like 'with agent'
+      it_behaves_like "with agent"
     end
 
     shared_examples "without agent" do
@@ -980,11 +980,11 @@ if enable
       end
 
       it "allows calls to Skylight.instrument" do
-        expect(call(MyApp, env('/users'))).to eq(["Hello"])
+        expect(call(MyApp, env("/users"))).to eq(["Hello"])
       end
 
       it "supports Skylight::Helpers" do
-        expect(call(MyApp, env('/users/1'))).to eq(["Hola: 1"])
+        expect(call(MyApp, env("/users/1"))).to eq(["Hola: 1"])
       end
 
     end
@@ -994,7 +994,7 @@ if enable
         boot
       end
 
-      it_behaves_like 'without agent'
+      it_behaves_like "without agent"
     end
 
     context "deactivated from ENV" do
@@ -1002,10 +1002,10 @@ if enable
       end
 
       before :each do
-        ENV['SKYLIGHT_ENABLED'] = "false"
+        ENV["SKYLIGHT_ENABLED"] = "false"
 
         @original_environments = MyApp.config.skylight.environments.clone
-        MyApp.config.skylight.environments << 'development'
+        MyApp.config.skylight.environments << "development"
 
         pre_boot
         boot
@@ -1015,7 +1015,7 @@ if enable
         MyApp.config.skylight.environments = @original_environments
       end
 
-      it_behaves_like 'without agent'
+      it_behaves_like "without agent"
     end
 
 
@@ -1029,7 +1029,7 @@ if enable
       call_full(app, env)[2]
     end
 
-    def env(path = '/', opts = {})
+    def env(path = "/", opts = {})
       Rack::MockRequest.env_for(path, opts)
     end
 

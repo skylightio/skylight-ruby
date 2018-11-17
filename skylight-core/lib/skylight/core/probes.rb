@@ -1,4 +1,4 @@
-require 'pathname'
+require "pathname"
 
 module Skylight::Core
   # @api private
@@ -27,7 +27,7 @@ module Skylight::Core
       def add_path(path)
         root = Pathname.new(path)
         Pathname.glob(root.join("./**/*.rb")).each do |f|
-          name = f.relative_path_from(root).sub_ext('').to_s
+          name = f.relative_path_from(root).sub_ext("").to_s
           if available.key?(name)
             raise "duplicate probe name: #{name}; original=#{available[name]}; new=#{f}"
           end

@@ -24,7 +24,7 @@ Dummy::Application.configure do
 
   if config.respond_to?(:public_file_server)
     # Rails 5
-    config.public_file_server.headers = { 'Cache-Control' => "public, max-age=3600" }
+    config.public_file_server.headers = { "Cache-Control" => "public, max-age=3600" }
   else
     config.static_cache_control = "public, max-age=3600"
   end

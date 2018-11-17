@@ -1,8 +1,8 @@
-require 'spec_helper'
+require "spec_helper"
 
 # Requires elasticsearch instance to be running
-if ENV['TEST_ELASTICSEARCH_INTEGRATION']
-  describe 'Elasticsearch integration', :elasticsearch_probe, :instrumenter do
+if ENV["TEST_ELASTICSEARCH_INTEGRATION"]
+  describe "Elasticsearch integration", :elasticsearch_probe, :instrumenter do
 
     let(:client) do
       Elasticsearch::Client.new
@@ -11,16 +11,16 @@ if ENV['TEST_ELASTICSEARCH_INTEGRATION']
     before do
       # Delete index if it exists
       TestNamespace.disable do
-        client.indices.delete(index: 'skylight-test') rescue nil
+        client.indices.delete(index: "skylight-test") rescue nil
       end
     end
 
     it "instruments without affecting default instrumenter" do
       expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", nil, nil).and_call_original.once
-      client.indices.create(index: 'skylight-test')
+      client.indices.create(index: "skylight-test")
 
-      expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", {type: 'person', id: '?'}.to_json, nil).and_call_original.once
-      client.index(index: 'skylight-test', type: 'person', id: '1', body: {name: 'Joe'})
+      expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", {type: "person", id: "?"}.to_json, nil).and_call_original.once
+      client.index(index: "skylight-test", type: "person", id: "1", body: {name: "Joe"})
     end
 
     it "handles uninitialized probe dependencies" do
@@ -34,10 +34,10 @@ if ENV['TEST_ELASTICSEARCH_INTEGRATION']
         allow_any_instance_of(::HTTPClient).to receive(:do_request){|obj, *args| obj.send(:do_request_without_sk, *args)}
 
         expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", nil, nil).and_call_original.once
-        client.indices.create(index: 'skylight-test')
+        client.indices.create(index: "skylight-test")
 
-        expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", {type: 'person', id: '?'}.to_json, nil).and_call_original.once
-        client.index(index: 'skylight-test', type: 'person', id: '1', body: {name: 'Joe'})
+        expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", {type: "person", id: "?"}.to_json, nil).and_call_original.once
+        client.index(index: "skylight-test", type: "person", id: "1", body: {name: "Joe"})
 
       ensure
         # Restore NetHTTP and HTTPClient probe constants

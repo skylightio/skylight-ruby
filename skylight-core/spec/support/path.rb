@@ -1,4 +1,4 @@
-require 'pathname'
+require "pathname"
 
 module SpecHelper
   module Path
@@ -40,6 +40,6 @@ class Pathname
 
   def write(content)
     dirname.mkdir_p
-    File.open(self, 'w') { |f| f.write(content) }
+    File.open(self, "w") { |f| f.write(content) }
   end
 end

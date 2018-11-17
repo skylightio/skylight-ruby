@@ -1,11 +1,11 @@
-require 'yaml'
-require 'fileutils'
-require 'thread'
-require 'erb'
-require 'json'
-require 'skylight/core/util/logging'
-require 'skylight/core/util/proxy'
-require 'skylight/core/errors'
+require "yaml"
+require "fileutils"
+require "thread"
+require "erb"
+require "json"
+require "skylight/core/util/logging"
+require "skylight/core/util/proxy"
+require "skylight/core/errors"
 
 module Skylight::Core
   class Config
@@ -24,13 +24,13 @@ module Skylight::Core
     def self.env_to_key
       {
         # == Logging ==
-        'LOG_FILE'       => :log_file,
-        'LOG_LEVEL'      => :log_level,
-        'ALERT_LOG_FILE' => :alert_log_file,
-        'LOG_SQL_PARSE_ERRORS' => :log_sql_parse_errors,
+        "LOG_FILE"       => :log_file,
+        "LOG_LEVEL"      => :log_level,
+        "ALERT_LOG_FILE" => :alert_log_file,
+        "LOG_SQL_PARSE_ERRORS" => :log_sql_parse_errors,
 
         # == Proxy ==
-        'PROXY_URL' => :proxy_url,
+        "PROXY_URL" => :proxy_url,
 
         # == Instrumenter ==
         "ENABLE_SEGMENTS" => :enable_segments,
@@ -47,13 +47,13 @@ module Skylight::Core
     # Default values for Skylight configuration keys
     def self.default_values
       {
-        :log_file             => '-'.freeze,
-        :log_level            => 'INFO'.freeze,
-        :alert_log_file       => '-'.freeze,
+        :log_file             => "-".freeze,
+        :log_level            => "INFO".freeze,
+        :alert_log_file       => "-".freeze,
         :log_sql_parse_errors => true,
         :enable_segments      => true,
         :enable_sidekiq       => false,
-        :'heroku.dyno_info_path' => '/etc/heroku/dyno'
+        :'heroku.dyno_info_path' => "/etc/heroku/dyno"
       }
     end
 
@@ -224,7 +224,7 @@ module Skylight::Core
     end
 
     def check_logfile_permissions(log_file, key)
-      return if log_file == '-' # STDOUT
+      return if log_file == "-" # STDOUT
       log_file = File.expand_path(log_file, root)
       check_file_permissions(log_file, key)
     end
@@ -254,7 +254,7 @@ module Skylight::Core
 
     def set(key, val, scope = nil)
       if scope
-        key = [scope, key].join('.')
+        key = [scope, key].join(".")
       end
 
       if Hash === val
@@ -349,7 +349,7 @@ module Skylight::Core
 
     # @api private
     def gc
-      @gc ||= GC.new(self, get('gc.profiler', VM::GC.new))
+      @gc ||= GC.new(self, get("gc.profiler", VM::GC.new))
     end
 
     # @api private
@@ -389,7 +389,7 @@ module Skylight::Core
       @alert_logger ||= MUTEX.synchronize do
         unless l = @alert_logger
           out = get(:alert_log_file)
-          out = Util::AlertLogger.new(load_logger) if out == '-'
+          out = Util::AlertLogger.new(load_logger) if out == "-"
 
           l = create_logger(out)
           l.level = Logger::DEBUG
@@ -440,7 +440,7 @@ module Skylight::Core
     def load_logger
       unless l = @logger
         out = get(:log_file)
-        out = STDOUT if out == '-'
+        out = STDOUT if out == "-"
 
         l = create_logger(out)
         if trace?
@@ -463,9 +463,9 @@ module Skylight::Core
 
     def cast_for_env(v)
       case v
-      when true  then 'true'
-      when false then 'false'
-      when nil   then 'nil'
+      when true  then "true"
+      when false then "false"
+      when nil   then "nil"
       else v.to_s
       end
     end

@@ -23,11 +23,11 @@ module Skylight::Core
 
           segments = []
 
-          response_status = payload.fetch(:response, {}).fetch(:status, '').to_s
-          segments << "error" if response_status.start_with?('4', '5')
+          response_status = payload.fetch(:response, {}).fetch(:status, "").to_s
+          segments << "error" if response_status.start_with?("4", "5")
 
           if segments.any?
-            trace.segment = segments.join('+')
+            trace.segment = segments.join("+")
           end
         end
       end

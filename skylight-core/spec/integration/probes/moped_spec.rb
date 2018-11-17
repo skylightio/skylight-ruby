@@ -1,8 +1,8 @@
-require 'spec_helper'
+require "spec_helper"
 
 # Requires mongodb instance to be running
-if ENV['TEST_MONGO_INTEGRATION']
-  describe 'Mongo integration with Moped', :moped_probe, :instrumenter do
+if ENV["TEST_MONGO_INTEGRATION"]
+  describe "Mongo integration with Moped", :moped_probe, :instrumenter do
 
     def build_session(opts={})
       @session = Moped::Session.new([ "127.0.0.1:27017" ], opts)

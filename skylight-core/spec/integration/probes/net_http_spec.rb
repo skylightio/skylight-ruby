@@ -1,6 +1,6 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
+describe "Net::HTTP integration", :net_http_probe, :http, :agent do
 
   class CustomType < Net::HTTPRequest
     METHOD = "CUSTOM"
@@ -10,8 +10,8 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
 
   before(:each) do
     server.mock "/test.html" do
-      ret = 'Testing'
-      [ 200, { 'content-type' => 'text/plain', 'content-length' => ret.bytesize.to_s }, [ret] ]
+      ret = "Testing"
+      [ 200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret] ]
     end
   end
 
@@ -152,8 +152,8 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   it "instruments timedout requests" do
     server.mock "/slow.html" do
       sleep 2
-      ret = 'Slow'
-      [ 200, { 'content-type' => 'text/plain', 'content-length' => ret.bytesize.to_s }, [ret] ]
+      ret = "Slow"
+      [ 200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret] ]
     end
 
     uri = URI.parse("#{server_uri}/slow.html")

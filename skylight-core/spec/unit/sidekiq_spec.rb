@@ -1,8 +1,8 @@
-require 'spec_helper'
+require "spec_helper"
 
 enable = false
 begin
-  require 'sidekiq/testing'
+  require "sidekiq/testing"
   enable = true
 rescue LoadError
   puts "[INFO] Skipping Sidekiq unit specs"
@@ -49,8 +49,8 @@ if enable
             include ::Sidekiq::Worker
 
             def perform
-              TestNamespace.instrument category: 'app.inside' do
-                TestNamespace.instrument category: 'app.zomg' do
+              TestNamespace.instrument category: "app.inside" do
+                TestNamespace.instrument category: "app.zomg" do
                   # nothing
                   sleep 0.1
                 end

@@ -1,11 +1,11 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe 'HTTPClient integration', :httpclient_probe, :http, :agent do
+describe "HTTPClient integration", :httpclient_probe, :http, :agent do
 
   before(:each) do
     server.mock "/test.html" do
-      ret = 'Testing'
-      [ 200, { 'content-type' => 'text/plain', 'content-length' => ret.bytesize.to_s }, [ret] ]
+      ret = "Testing"
+      [ 200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret] ]
     end
   end
 
@@ -61,12 +61,12 @@ describe 'HTTPClient integration', :httpclient_probe, :http, :agent do
     client = HTTPClient.new
 
     response = client.post(uri, header: {"Content-Type" => "multipart/form-data"}, body: [{
-        'Content-Type' => 'text/plain; charset=UTF-8',
-        'Content-Disposition' => 'form-data; name="name"',
+        "Content-Type" => "text/plain; charset=UTF-8",
+        "Content-Disposition" => 'form-data; name="name"',
         :content => "Barry"
       }, {
-        'Content-Type' => 'text/plain; charset=UTF-8',
-        'Content-Disposition' => 'form-data; name="department"',
+        "Content-Type" => "text/plain; charset=UTF-8",
+        "Content-Disposition" => 'form-data; name="department"',
         :content => "Accounting"
       }])
     expect(response).to be_a(HTTP::Message)

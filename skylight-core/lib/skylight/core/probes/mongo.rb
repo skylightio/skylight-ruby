@@ -15,7 +15,7 @@ module Skylight::Core
         COMMANDS = [:insert, :find, :count, :distinct, :update, :findandmodify, :delete, :aggregate].freeze
 
         COMMAND_NAMES = {
-          findandmodify: 'findAndModify'.freeze
+          findandmodify: "findAndModify".freeze
         }.freeze
 
         def initialize
@@ -66,50 +66,50 @@ module Skylight::Core
 
             # Ruby Hashes are ordered based on insertion so do the most important ones first
 
-            add_value('key'.freeze, command, payload)
-            add_bound('query'.freeze, command, payload)
-            add_bound('filter'.freeze, command, payload)
-            add_value('sort'.freeze, command, payload)
+            add_value("key".freeze, command, payload)
+            add_bound("query".freeze, command, payload)
+            add_bound("filter".freeze, command, payload)
+            add_value("sort".freeze, command, payload)
 
             if event.command_name == :findandmodify
-              add_bound('update'.freeze, command, payload)
+              add_bound("update".freeze, command, payload)
             end
 
-            add_value('remove'.freeze, command, payload)
-            add_value('new'.freeze, command, payload)
+            add_value("remove".freeze, command, payload)
+            add_value("new".freeze, command, payload)
 
-            if updates = command['updates'.freeze]
+            if updates = command["updates".freeze]
               # AFAICT the gem generally just sends one item in the updates array
               update = updates[0]
               update_payload = {}
-              add_bound('q'.freeze, update, update_payload)
-              add_bound('u'.freeze, update, update_payload)
-              add_value('multi'.freeze, update, update_payload)
-              add_value('upsert'.freeze, update, update_payload)
+              add_bound("q".freeze, update, update_payload)
+              add_bound("u".freeze, update, update_payload)
+              add_value("multi".freeze, update, update_payload)
+              add_value("upsert".freeze, update, update_payload)
 
-              payload['updates'.freeze] = [update_payload]
+              payload["updates".freeze] = [update_payload]
 
               if updates.length > 1
-                payload['updates'.freeze] << '...'
+                payload["updates".freeze] << "..."
               end
             end
 
-            if deletes = command['deletes'.freeze]
+            if deletes = command["deletes".freeze]
               # AFAICT the gem generally just sends one item in the updates array
               delete = deletes[0]
               delete_payload = {}
-              add_bound('q'.freeze, delete, delete_payload)
-              add_value('limit'.freeze, delete, delete_payload)
+              add_bound("q".freeze, delete, delete_payload)
+              add_value("limit".freeze, delete, delete_payload)
 
-              payload['deletes'.freeze] = [delete_payload]
+              payload["deletes".freeze] = [delete_payload]
 
               if deletes.length > 1
-                payload['deletes'.freeze] << '...'
+                payload["deletes".freeze] << "..."
               end
             end
 
-            if (pipeline = command['pipeline'.freeze])
-              payload['pipeline'.freeze] = pipeline.map { |segment| extract_binds(segment) }
+            if (pipeline = command["pipeline".freeze])
+              payload["pipeline".freeze] = pipeline.map { |segment| extract_binds(segment) }
             end
 
             # We're ignoring documents from insert because they could have completely inconsistent
@@ -159,7 +159,7 @@ module Skylight::Core
               if v.is_a?(Hash)
                 ret[k] = extract_binds(v)
               else
-                ret[k] = '?'.freeze
+                ret[k] = "?".freeze
               end
             end
 

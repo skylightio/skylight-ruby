@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
-require 'spec_helper'
-require 'date'
+require "spec_helper"
+require "date"
 
 module Skylight
   describe "Normalizers", "sql.active_record", :agent do
@@ -12,7 +12,7 @@ module Skylight
       stub_request(:post, "https://auth.skylight.io/agent/config").
         to_return(status: 200, body: "", headers: {})
 
-      ENV['SKYLIGHT_AUTHENTICATION'] = 'zomg'
+      ENV["SKYLIGHT_AUTHENTICATION"] = "zomg"
 
       @trace = nil
       TestNamespace.mock! do |trace|
@@ -30,7 +30,7 @@ module Skylight
     end
 
     after :each do
-      ENV['SKYLIGHT_AUTHENTICATION'] = nil
+      ENV["SKYLIGHT_AUTHENTICATION"] = nil
       TestNamespace.stop!
       WebMock.disable!
     end

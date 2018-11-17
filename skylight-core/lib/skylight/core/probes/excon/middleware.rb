@@ -1,4 +1,4 @@
-require 'skylight/core/formatters/http'
+require "skylight/core/formatters/http"
 
 module Skylight::Core
   module Probes

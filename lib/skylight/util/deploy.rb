@@ -1,5 +1,5 @@
-require 'json'
-require 'skylight/core/util/logging'
+require "json"
+require "skylight/core/util/logging"
 
 module Skylight
   module Util
@@ -80,15 +80,15 @@ module Skylight
         end
 
         def id
-          @info ? @info['id'] : nil
+          @info ? @info["id"] : nil
         end
 
         def git_sha
-          @info ? @info['commit'] : nil
+          @info ? @info["commit"] : nil
         end
 
         def description
-          @info ? @info['description'] : nil
+          @info ? @info["description"] : nil
         end
 
         private
@@ -98,7 +98,7 @@ module Skylight
 
             if File.exist?(info_path)
               if info = JSON.parse(File.read(info_path))
-                info['release']
+                info["release"]
               end
             end
           end

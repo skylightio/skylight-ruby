@@ -1,5 +1,5 @@
-require 'socket'
-require 'securerandom'
+require "socket"
+require "securerandom"
 
 module Skylight
   module Util
@@ -7,7 +7,7 @@ module Skylight
       def self.default_hostname
         if hostname = Socket.gethostname
           hostname.strip!
-          hostname = nil if hostname == ''
+          hostname = nil if hostname == ""
         end
 
         hostname || "gen-#{SecureRandom.uuid}"

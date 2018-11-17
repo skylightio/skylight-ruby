@@ -1,14 +1,14 @@
-require 'spec_helper'
-require 'skylight/core/instrumenter'
+require "spec_helper"
+require "skylight/core/instrumenter"
 
 begin
-  require 'grape'
+  require "grape"
 rescue LoadError
   warn "Skipping Grape tests since it isn't installed."
 end
 
 if defined?(Grape)
-  describe 'Grape integration', :agent do
+  describe "Grape integration", :agent do
     include Rack::Test::Methods
 
     before do
@@ -28,9 +28,9 @@ if defined?(Grape)
           { test: true }
         end
 
-        desc 'Update item' do
-          detail 'We take the id to update the item'
-          named 'Update route'
+        desc "Update item" do
+          detail "We take the id to update the item"
+          named "Update route"
         end
         post "update/:id" do
           { update: true }
@@ -59,18 +59,18 @@ if defined?(Grape)
 
       format :json
 
-      mount App => '/app'
+      mount App => "/app"
 
-      desc 'This is a test'
+      desc "This is a test"
       get "test" do
         { test: true }
       end
 
       get "raise" do
-        fail 'Unexpected error'
+        fail "Unexpected error"
       end
 
-      route ['GET', 'POST'], "data" do
+      route ["GET", "POST"], "data" do
         "data"
       end
     end

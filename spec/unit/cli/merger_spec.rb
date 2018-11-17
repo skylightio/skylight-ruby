@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'securerandom'
+require "spec_helper"
+require "securerandom"
 
 describe Skylight::CLI::Merger do
   class TestStdout
@@ -14,12 +14,12 @@ describe Skylight::CLI::Merger do
 
     def flush
       @shell.test_line(@current_line).tap do
-        @current_line = ''
+        @current_line = ""
       end
     end
 
     def current_line
-      @current_line ||= ''
+      @current_line ||= ""
     end
 
     def puts(value)
@@ -42,12 +42,12 @@ describe Skylight::CLI::Merger do
     end
 
     def test_line(line)
-      puts "[OUT]: #{line.inspect}" if ENV['DEBUG']
+      puts "[OUT]: #{line.inspect}" if ENV["DEBUG"]
       return if line.strip.empty?
       out, reply = Array(expectations.next)
       @expector.call(line.strip, out)
       # raise 'no match' unless out === line
-      if reply && ENV['DEBUG']
+      if reply && ENV["DEBUG"]
         puts "[IN]: #{reply}"
       end
       reply
@@ -81,7 +81,7 @@ def stdout
     end
   end
 
-  def run_shell(token: 'token', success: true)
+  def run_shell(token: "token", success: true)
     status = begin
       shell = TestShell.new(yield) do |line, expected|
         expect(line).to match(expected)
@@ -99,9 +99,9 @@ def stdout
 
   def generate_component(attrs = {})
     {
-      'name' => 'web',
-      'environment' => 'production',
-      'guid' => SecureRandom.hex(4)
+      "name" => "web",
+      "environment" => "production",
+      "guid" => SecureRandom.hex(4)
     }.merge(attrs)
   end
 
@@ -121,9 +121,9 @@ def stdout
 
   end
 
-  let(:app1) { { guid: 'abcdef123', name: 'app1', components: [generate_component] } }
+  let(:app1) { { guid: "abcdef123", name: "app1", components: [generate_component] } }
 
-  context 'not enough apps' do
+  context "not enough apps" do
     let(:mergeable_apps) { [app1] }
 
     specify do
@@ -139,13 +139,13 @@ def stdout
     end
   end
 
-  context 'has apps' do
-    let(:app2) { { guid: 'abcedf124', name: 'app2', components: [generate_component] } }
+  context "has apps" do
+    let(:app2) { { guid: "abcedf124", name: "app2", components: [generate_component] } }
     let(:app3) do
       {
-        guid: 'abcedf124',
-        name: 'app3',
-        components: [generate_component, generate_component(environment: 'staging')]
+        guid: "abcedf124",
+        name: "app3",
+        components: [generate_component, generate_component(environment: "staging")]
       }
     end
     let(:mergeable_apps) { [app1, app2, app3] }
@@ -180,15 +180,15 @@ def stdout
 
     before do
       allow_any_instance_of(Skylight::Api).to receive(:merge_apps!).with(
-        'token',
+        "token",
         app_guid: app1[:guid],
-        component_guid: app2[:components][0]['guid'],
+        component_guid: app2[:components][0]["guid"],
         environment: child_env,
       ) { merge_response }
     end
 
     let(:merge_response) { OpenStruct.new(status: 204) }
-    let(:child_env) { 'staging' }
+    let(:child_env) { "staging" }
 
     let(:choose_app1_child_sequence) do
       [
@@ -215,7 +215,7 @@ def stdout
       ]
     end
 
-    specify 'expected app not listed' do
+    specify "expected app not listed" do
       run_shell(success: false) do
         [
           *preamble_sequence,
@@ -226,11 +226,11 @@ def stdout
       end
     end
 
-    specify 'bad app input' do
+    specify "bad app input" do
       run_shell(success: false) do
         [
           *preamble_sequence,
-          [/Which number\?/, 'banana'],
+          [/Which number\?/, "banana"],
           /Hmm/,
 
           # asks for app again
@@ -242,7 +242,7 @@ def stdout
       end
     end
 
-    context 'straightforward merge' do
+    context "straightforward merge" do
       specify do
         run_shell(success: true) do
           [
@@ -254,7 +254,7 @@ def stdout
             *choose_child_environment_sequence,
             [/Which number\?/, 2],
             *confirm_environment_sequence,
-            [/Proceed\? \[Y\/n\]/, 'Y'],
+            [/Proceed\? \[Y\/n\]/, "Y"],
             *success_sequence,
             MATCHERS[:further_questions]
           ]
@@ -262,8 +262,8 @@ def stdout
       end
     end
 
-    context 'custom env specified' do
-      let(:child_env) { 'staging-32' }
+    context "custom env specified" do
+      let(:child_env) { "staging-32" }
       specify do
         run_shell(success: true) do
           [
@@ -276,7 +276,7 @@ def stdout
             [/Which number\?/, 3],
             [/Please enter your environment name/, child_env],
             *confirm_environment_sequence,
-            [/Proceed\? \[Y\/n\]/, 'Y'],
+            [/Proceed\? \[Y\/n\]/, "Y"],
             *success_sequence,
             MATCHERS[:further_questions]
           ]
@@ -284,8 +284,8 @@ def stdout
       end
     end
 
-    context 'bad env specified' do
-      let(:child_env) { 'staging-32' }
+    context "bad env specified" do
+      let(:child_env) { "staging-32" }
       specify do
         run_shell(success: true) do
           [
@@ -295,17 +295,17 @@ def stdout
             [/Which number\?/, 1],
             /Ok! The child app is: app2/,
             *choose_child_environment_sequence,
-            [/Which number\?/, 'squirrel'],
+            [/Which number\?/, "squirrel"],
             /Eh\? Please enter 1, 2, or 3/,
             *choose_child_environment_sequence,
             [/Which number\?/, 3],
-            [/Please enter your environment name/, 'staging! 42'],
+            [/Please enter your environment name/, "staging! 42"],
             /Environment can only contain letters, numbers, and hyphens/,
-            [/Please enter your environment name/, 'production'],
+            [/Please enter your environment name/, "production"],
             /Sorry, `app1` already has a `production` component that conflicts with this merge request/,
             [/Please enter your environment name/, child_env],
             *confirm_environment_sequence,
-            [/Proceed\? \[Y\/n\]/, 'Y'],
+            [/Proceed\? \[Y\/n\]/, "Y"],
             *success_sequence,
             MATCHERS[:further_questions]
           ]
@@ -313,7 +313,7 @@ def stdout
       end
     end
 
-    context 'confirmation strictness' do
+    context "confirmation strictness" do
       specify do
         run_shell(success: true) do
           [
@@ -325,9 +325,9 @@ def stdout
             *choose_child_environment_sequence,
             [/Which number\?/, 2],
             *confirm_environment_sequence,
-            [/Proceed\? \[Y\/n\]/, 'b'],
+            [/Proceed\? \[Y\/n\]/, "b"],
             /Please respond 'Y' to merge or 'n' to cancel/,
-            [/Proceed\? \[Y\/n\]/, 'n'],
+            [/Proceed\? \[Y\/n\]/, "n"],
             /Ok, come back any time/,
             MATCHERS[:further_questions]
           ]
@@ -335,8 +335,8 @@ def stdout
       end
     end
 
-    context 'conflict during merge' do
-      let(:error_message) { 'HTTP 409: merge would violate uniqueness constraint' }
+    context "conflict during merge" do
+      let(:error_message) { "HTTP 409: merge would violate uniqueness constraint" }
       before do
         allow_any_instance_of(Skylight::Api).to receive(:merge_apps!) do
           raise Skylight::Api::Conflict.new(error_message)
@@ -354,7 +354,7 @@ def stdout
             *choose_child_environment_sequence,
             [/Which number\?/, 2],
             *confirm_environment_sequence,
-            [/Proceed\? \[Y\/n\]/, 'Y'],
+            [/Proceed\? \[Y\/n\]/, "Y"],
             /Merging.../,
             /Something went wrong/,
             /#{error_message}/,
@@ -364,10 +364,10 @@ def stdout
       end
     end
 
-    context 'invalid token' do
+    context "invalid token" do
       before do
         allow_any_instance_of(Skylight::Api).to receive(:fetch_mergeable_apps) do
-          raise Skylight::Api::Unauthorized.new('HTTP 401: bad token')
+          raise Skylight::Api::Unauthorized.new("HTTP 401: bad token")
         end
       end
 

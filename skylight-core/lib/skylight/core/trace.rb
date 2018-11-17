@@ -1,8 +1,8 @@
-require 'securerandom'
+require "securerandom"
 
 module Skylight::Core
   class Trace
-    GC_CAT = 'noise.gc'.freeze
+    GC_CAT = "noise.gc".freeze
 
     include Util::Logging
 
@@ -27,7 +27,7 @@ module Skylight::Core
     end
 
     def initialize(instrumenter, cat, title, desc, meta)
-      raise ArgumentError, 'instrumenter is required' unless instrumenter
+      raise ArgumentError, "instrumenter is required" unless instrumenter
 
       @instrumenter = instrumenter
       @submitted = false

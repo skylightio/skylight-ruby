@@ -1,4 +1,4 @@
-require 'rbconfig'
+require "rbconfig"
 
 # Used from extconf and to load libskylight
 module Skylight
@@ -6,13 +6,13 @@ module Skylight
     module Util
       module Platform
         # Normalize the platform OS
-        OS = case os = RbConfig::CONFIG['host_os'].downcase
+        OS = case os = RbConfig::CONFIG["host_os"].downcase
         when /linux/
           # The official ruby-alpine Docker containers pre-build Ruby. As a result,
           #   Ruby doesn't know that it's on a musl-based platform. `ldd` is the
           #   only reliable way to detect musl that we've found.
           # See https://github.com/skylightio/skylight-ruby/issues/92
-          if ENV['SKYLIGHT_MUSL'] || `ldd --version 2>&1` =~ /musl/
+          if ENV["SKYLIGHT_MUSL"] || `ldd --version 2>&1` =~ /musl/
             "linux-musl"
           else
             "linux"
@@ -34,7 +34,7 @@ module Skylight
         end
 
         # Normalize the platform CPU
-        ARCH = case cpu = RbConfig::CONFIG['host_cpu'].downcase
+        ARCH = case cpu = RbConfig::CONFIG["host_cpu"].downcase
         when /amd64|x86_64/
           "x86_64"
         when /i?86|x86|i86pc/
@@ -49,13 +49,13 @@ module Skylight
 
         LIBEXT = case OS
         when /darwin/
-          'dylib'
+          "dylib"
         when /linux|bsd|solaris/
-          'so'
+          "so"
         when /windows|cygwin/
-          'dll'
+          "dll"
         else
-          'so'
+          "so"
         end
 
         TUPLE = "#{ARCH}-#{OS}"
@@ -69,7 +69,7 @@ module Skylight
         end
 
         def self.dlext
-          RbConfig::CONFIG['DLEXT']
+          RbConfig::CONFIG["DLEXT"]
         end
       end
     end

@@ -20,7 +20,7 @@ module Skylight::Core
             namespace = get_namespace(endpoint)
 
             if namespace && !namespace.empty?
-              path = "/#{path}" if path[0] != '/'
+              path = "/#{path}" if path[0] != "/"
               path = "#{namespace}#{path}"
             end
 

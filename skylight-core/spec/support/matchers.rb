@@ -43,13 +43,13 @@ module SpecHelper
       if env
         ret = true
 
-        ret &= match_header(env, 'PATH_INFO', path) if path
+        ret &= match_header(env, "PATH_INFO", path) if path
 
         hdrs.each do |k, v|
-          k = 'rack.input' if k == :input
+          k = "rack.input" if k == :input
 
           unless SPECIAL_HEADERS.include?(k)
-            k = k.to_s.upcase.tr('-', '_')
+            k = k.to_s.upcase.tr("-", "_")
             k = "HTTP_#{k}" unless SPECIAL_HEADERS.include?(k)
           end
 
@@ -96,8 +96,8 @@ module SpecHelper
   def get_json(*args)
     hdrs = {}
     hdrs = args.pop if Hash === args[-1]
-    hdrs['accept'] = 'application/json'
-    hdrs['request-method'] = 'GET'
+    hdrs["accept"] = "application/json"
+    hdrs["request-method"] = "GET"
 
     be_request(*args, hdrs)
   end
@@ -105,9 +105,9 @@ module SpecHelper
   def post_json(*args)
     hdrs = {}
     hdrs = args.pop if Hash === args[-1]
-    hdrs['accept'] = 'application/json'
-    hdrs['content-type'] = 'application/json'
-    hdrs['request-method'] = 'POST'
+    hdrs["accept"] = "application/json"
+    hdrs["content-type"] = "application/json"
+    hdrs["request-method"] = "POST"
 
     be_request(*args, hdrs)
   end

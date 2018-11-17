@@ -1,4 +1,4 @@
-require 'skylight/core/normalizers/default'
+require "skylight/core/normalizers/default"
 
 module Skylight::Core
   # @api private

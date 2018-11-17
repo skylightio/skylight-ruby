@@ -1,11 +1,11 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe 'Faraday integration', :faraday_probe, :http, :faraday, :agent do
+describe "Faraday integration", :faraday_probe, :http, :faraday, :agent do
 
   before(:each) do
     server.mock "/test.html" do
-      ret = 'Testing'
-      [ 200, { 'content-type' => 'text/plain', 'content-length' => ret.bytesize.to_s }, [ret] ]
+      ret = "Testing"
+      [ 200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret] ]
     end
   end
 
@@ -28,7 +28,7 @@ describe 'Faraday integration', :faraday_probe, :http, :faraday, :agent do
 
     client = Faraday.new(url: server_uri)
 
-    response = client.get('/test.html')
+    response = client.get("/test.html")
     expect(response).to be_a(Faraday::Response)
     expect(response.status).to eq(200)
   end
@@ -61,12 +61,12 @@ describe 'Faraday integration', :faraday_probe, :http, :faraday, :agent do
     client = Faraday.new(url: server_uri)
 
     response = client.post(uri, header: {"Content-Type" => "multipart/form-data"}, body: [{
-        'Content-Type' => 'text/plain; charset=UTF-8',
-        'Content-Disposition' => 'form-data; name="name"',
+        "Content-Type" => "text/plain; charset=UTF-8",
+        "Content-Disposition" => 'form-data; name="name"',
         :content => "Barry"
       }, {
-        'Content-Type' => 'text/plain; charset=UTF-8',
-        'Content-Disposition' => 'form-data; name="department"',
+        "Content-Type" => "text/plain; charset=UTF-8",
+        "Content-Disposition" => 'form-data; name="department"',
         :content => "Accounting"
       }])
     expect(response).to be_a(Faraday::Response)

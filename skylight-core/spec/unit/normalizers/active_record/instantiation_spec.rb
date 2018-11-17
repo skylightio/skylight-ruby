@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'date'
+require "spec_helper"
+require "date"
 
 module Skylight
   describe "Normalizers", "instantiation.active_record", :agent do

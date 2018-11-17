@@ -1,4 +1,4 @@
-require 'active_support/deprecation'
+require "active_support/deprecation"
 
 module Skylight::Core
   SKYLIGHT_GEM_ROOT = File.expand_path("../../..", __FILE__) + "/"
@@ -11,5 +11,5 @@ module Skylight::Core
       end
   end
 
-  DEPRECATOR = Deprecation.new('4.0', 'skylight-core')
+  DEPRECATOR = Deprecation.new("4.0", "skylight-core")
 end

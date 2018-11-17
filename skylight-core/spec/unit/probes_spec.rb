@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 # Tested here because we need native
 module Skylight::Core
@@ -42,12 +42,12 @@ module Skylight::Core
       # HAX: We trick it into thinking that the require 'skylight/core' loaded ProbeTestClass
       # NOTE: ProbeTestClass is a special class that is automatically removed after specs
       SpecHelper.module_eval "class ProbeTestClass; end"
-      require 'skylight/core'
+      require "skylight/core"
 
       expect(probe.install_count).to eq(1)
 
       # Make sure a second require doesn't install again
-      require 'skylight/core'
+      require "skylight/core"
 
       expect(probe.install_count).to eq(1)
     end

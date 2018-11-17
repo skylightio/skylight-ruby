@@ -31,7 +31,7 @@ module Skylight::Core
           # We won't have a rendered_format if it's a `head` outside of a `respond_to` block.
           elsif payload[:rendered_format]
             # We only show the variant if we actually have a format
-            segment = [payload[:rendered_format], payload[:variant]].compact.flatten.join('+')
+            segment = [payload[:rendered_format], payload[:variant]].compact.flatten.join("+")
           end
 
           if segment

@@ -1,8 +1,8 @@
-require 'spec_helper'
+require "spec_helper"
 
 # Requires mongodb instance to be running
-if ENV['TEST_MONGO_INTEGRATION']
-  describe 'Mongo integration with Mongoid', :mongoid_probe, :instrumenter do
+if ENV["TEST_MONGO_INTEGRATION"]
+  describe "Mongo integration with Mongoid", :mongoid_probe, :instrumenter do
 
     class Artist
       include Mongoid::Document
@@ -23,7 +23,7 @@ if ENV['TEST_MONGO_INTEGRATION']
       artists.first
     end
 
-    require 'mongoid/version'
+    require "mongoid/version"
     version = Gem::Version.new(Mongoid::VERSION)
 
     if version < Gem::Version.new("5.0")

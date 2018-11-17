@@ -1,4 +1,4 @@
-require 'securerandom'
+require "securerandom"
 
 module Skylight::Core
   # @api private
@@ -77,7 +77,7 @@ module Skylight::Core
       else
         begin
           t { "middleware beginning trace" }
-          trace = instrumentable.trace(endpoint_name(env), 'app.rack.request', nil, endpoint_meta(env))
+          trace = instrumentable.trace(endpoint_name(env), "app.rack.request", nil, endpoint_meta(env))
           t { "middleware began trace=#{trace.uuid}" }
 
           resp = @app.call(env)
@@ -118,7 +118,7 @@ module Skylight::Core
 
       # Request ID code based on ActionDispatch::RequestId
       def set_request_id(env)
-        existing_request_id = env["action_dispatch.request_id"] || env['HTTP_X_REQUEST_ID'];
+        existing_request_id = env["action_dispatch.request_id"] || env["HTTP_X_REQUEST_ID"];
         @current_request_id = env["skylight.request_id"] = make_request_id(existing_request_id)
       end
 
