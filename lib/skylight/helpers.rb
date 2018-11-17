@@ -128,42 +128,42 @@ module Skylight
         __sk_instrument_method_on(__sk_singleton_class, name, title, opts || {})
       end
 
-    private
+      private
 
-      def __sk_instrument_method_on(klass, name, title, opts)
-        category = (opts[:category] || "app.method").to_s
-        title    = (opts[:title] || title).to_s
-        desc     = opts[:description].to_s if opts[:description]
+        def __sk_instrument_method_on(klass, name, title, opts)
+          category = (opts[:category] || "app.method").to_s
+          title    = (opts[:title] || title).to_s
+          desc     = opts[:description].to_s if opts[:description]
 
-        klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
-          alias_method :"before_instrument_#{name}", :"#{name}"
+          klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
+            alias_method :"before_instrument_#{name}", :"#{name}"
 
-          def #{name}(*args, &blk)
-            span = Skylight.instrument(
-              category:  :"#{category}",
-              title:       #{title.inspect},
-              description: #{desc.inspect})
+            def #{name}(*args, &blk)
+              span = Skylight.instrument(
+                category:  :"#{category}",
+                title:       #{title.inspect},
+                description: #{desc.inspect})
 
-            meta = {}
-            begin
-              send(:before_instrument_#{name}, *args, &blk)
-            rescue Exception => e
-              meta[:exception_object] = e
-              raise e
-            ensure
-              Skylight.done(span, meta) if span
+              meta = {}
+              begin
+                send(:before_instrument_#{name}, *args, &blk)
+              rescue Exception => e
+                meta[:exception_object] = e
+                raise e
+              ensure
+                Skylight.done(span, meta) if span
+              end
             end
-          end
-        RUBY
-      end
-
-      if respond_to?(:singleton_class)
-        alias :__sk_singleton_class :singleton_class
-      else
-        def __sk_singleton_class
-          class << self; self; end
+          RUBY
         end
-      end
+
+        if respond_to?(:singleton_class)
+          alias :__sk_singleton_class :singleton_class
+        else
+          def __sk_singleton_class
+            class << self; self; end
+          end
+        end
     end
 
     # @api private

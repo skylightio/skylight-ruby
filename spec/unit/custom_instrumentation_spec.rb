@@ -42,15 +42,21 @@ describe Skylight::Core::Instrumenter, :http, :agent do
 
       t = ep.traces[0]
       expect(t.spans.count).to eq(2)
-      expect(t.spans[0]).to eq(span(
-        event:      event("app.rack.request"),
-        started_at: 0,
-        duration:   2_000))
-      expect(t.spans[1]).to eq(span(
-        parent:     0,
-        event:      event("app.foo"),
-        started_at: 1_000,
-        duration:   1_000))
+      expect(t.spans[0]).to eq(
+        span(
+          event:      event("app.rack.request"),
+          started_at: 0,
+          duration:   2_000
+        )
+      )
+      expect(t.spans[1]).to eq(
+        span(
+          parent:     0,
+          event:      event("app.foo"),
+          started_at: 1_000,
+          duration:   1_000
+        )
+      )
     end
 
     it "recategorizes unknown events as other" do
@@ -67,11 +73,14 @@ describe Skylight::Core::Instrumenter, :http, :agent do
       ep = server.reports[0].endpoints[0]
       t  = ep.traces[0]
 
-      expect(t.spans[1]).to eq(span(
-        parent:     0,
-        event:      event("other.foo"),
-        started_at: 1_000,
-        duration:   1_000))
+      expect(t.spans[1]).to eq(
+        span(
+          parent:     0,
+          event:      event("other.foo"),
+          started_at: 1_000,
+          duration:   1_000
+        )
+      )
     end
 
     it "sets a default category" do
@@ -88,11 +97,14 @@ describe Skylight::Core::Instrumenter, :http, :agent do
       ep = server.reports[0].endpoints[0]
       t  = ep.traces[0]
 
-      expect(t.spans[1]).to eq(span(
-        parent:     0,
-        event:      event("app.block", "foo"),
-        started_at: 1_000,
-        duration:   1_000))
+      expect(t.spans[1]).to eq(
+        span(
+          parent:     0,
+          event:      event("app.block", "foo"),
+          started_at: 1_000,
+          duration:   1_000
+        )
+      )
     end
 
     class MyClass
@@ -186,52 +198,76 @@ describe Skylight::Core::Instrumenter, :http, :agent do
       expect(t.spans.count).to eq(8)
 
       # Root span
-      expect(t.spans[0]).to eq(span(
-        event:      event("app.rack.request"),
-        started_at: 0,
-        duration:   15_000))
+      expect(t.spans[0]).to eq(
+        span(
+          event:      event("app.rack.request"),
+          started_at: 0,
+          duration:   15_000
+        )
+      )
 
-      expect(t.spans[1]).to eq(span(
-        parent:     0,
-        event:      event("app.method", "MyClass#one"),
-        started_at: 1_000,
-        duration:   1_000))
+      expect(t.spans[1]).to eq(
+        span(
+          parent:     0,
+          event:      event("app.method", "MyClass#one"),
+          started_at: 1_000,
+          duration:   1_000
+        )
+      )
 
-      expect(t.spans[2]).to eq(span(
-        parent:     0,
-        event:      event("app.method", "MyClass#three"),
-        started_at: 5_000,
-        duration:   1_000))
+      expect(t.spans[2]).to eq(
+        span(
+          parent:     0,
+          event:      event("app.method", "MyClass#three"),
+          started_at: 5_000,
+          duration:   1_000
+        )
+      )
 
-      expect(t.spans[3]).to eq(span(
-        parent:     0,
-        event:      event("app.winning", "Win"),
-        started_at: 7_000,
-        duration:   1_000))
+      expect(t.spans[3]).to eq(
+        span(
+          parent:     0,
+          event:      event("app.winning", "Win"),
+          started_at: 7_000,
+          duration:   1_000
+        )
+      )
 
-      expect(t.spans[4]).to eq(span(
-        parent:     0,
-        event:      event("app.method", "MyClass.singleton_method"),
-        started_at: 9_000,
-        duration:   1_000))
+      expect(t.spans[4]).to eq(
+        span(
+          parent:     0,
+          event:      event("app.method", "MyClass.singleton_method"),
+          started_at: 9_000,
+          duration:   1_000
+        )
+      )
 
-      expect(t.spans[5]).to eq(span(
-        parent:     0,
-        event:      event("app.method", "MyClass.singleton_method_without_options"),
-        started_at: 11_000,
-        duration:   1_000))
+      expect(t.spans[5]).to eq(
+        span(
+          parent:     0,
+          event:      event("app.method", "MyClass.singleton_method_without_options"),
+          started_at: 11_000,
+          duration:   1_000
+        )
+      )
 
-      expect(t.spans[6]).to eq(span(
-        parent:     0,
-        event:      event("app.singleton", "Singleton Method"),
-        started_at: 13_000,
-        duration:   1_000))
+      expect(t.spans[6]).to eq(
+        span(
+          parent:     0,
+          event:      event("app.singleton", "Singleton Method"),
+          started_at: 13_000,
+          duration:   1_000
+        )
+      )
 
-      expect(t.spans[7]).to eq(span(
-        parent:     0,
-        event:      event("app.method", "MyClass#myvar="),
-        started_at: 15_000,
-        duration:   0))
+      expect(t.spans[7]).to eq(
+        span(
+          parent:     0,
+          event:      event("app.method", "MyClass#myvar="),
+          started_at: 15_000,
+          duration:   0
+        )
+      )
     end
   end
 end

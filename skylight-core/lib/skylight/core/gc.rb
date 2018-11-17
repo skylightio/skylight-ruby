@@ -73,39 +73,39 @@ module Skylight::Core
       nil
     end
 
-  private
+    private
 
-    def __update
-      time  = @profiler.total_time
-      diff  = time - @time
-      @time = time
+      def __update
+        time  = @profiler.total_time
+        diff  = time - @time
+        @time = time
 
-      if diff > 0
-        @listeners.each do |l|
-          l.add(diff)
+        if diff > 0
+          @listeners.each do |l|
+            l.add(diff)
+          end
         end
       end
-    end
 
-    class Window
-      attr_reader :time
+      class Window
+        attr_reader :time
 
-      def initialize(global)
-        @global = global
-        @time   = 0
+        def initialize(global)
+          @global = global
+          @time   = 0
+        end
+
+        def update
+          @global.update if @global
+        end
+
+        def add(time)
+          @time += time
+        end
+
+        def release
+          @global.release(self) if @global
+        end
       end
-
-      def update
-        @global.update if @global
-      end
-
-      def add(time)
-        @time += time
-      end
-
-      def release
-        @global.release(self) if @global
-      end
-    end
   end
 end

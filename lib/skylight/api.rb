@@ -132,22 +132,22 @@ module Skylight
 
     private
 
-    # TODO: Improve handling here: https://github.com/tildeio/direwolf-agent/issues/274
-    def http_request(service, method, *args)
-      http = Util::HTTP.new(config, service)
-      uri = URI.parse(config.get("#{service}_url"))
-      http.send(method, uri.path, *args)
-    end
-
-    def error_for_status(code)
-      case code
-      when 401
-        Unauthorized
-      when 409
-        Conflict
-      else
-        Error
+      # TODO: Improve handling here: https://github.com/tildeio/direwolf-agent/issues/274
+      def http_request(service, method, *args)
+        http = Util::HTTP.new(config, service)
+        uri = URI.parse(config.get("#{service}_url"))
+        http.send(method, uri.path, *args)
       end
-    end
+
+      def error_for_status(code)
+        case code
+        when 401
+          Unauthorized
+        when 409
+          Conflict
+        else
+          Error
+        end
+      end
   end
 end

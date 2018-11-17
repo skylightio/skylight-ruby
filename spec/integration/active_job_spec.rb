@@ -31,15 +31,15 @@ if enable
 
     private
 
-    def maybe_raise(key)
-      return unless key
-      err = {
-        "runtime_error" => RuntimeError,
-        "exception" => Exception
-      }[key]
+      def maybe_raise(key)
+        return unless key
+        err = {
+          "runtime_error" => RuntimeError,
+          "exception" => Exception
+        }[key]
 
-      raise err if err
-    end
+        raise err if err
+      end
   end
 
   describe "ActiveJob integration", :http, :agent do

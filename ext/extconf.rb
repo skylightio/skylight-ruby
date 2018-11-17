@@ -23,7 +23,7 @@ require "skylight/core/util/platform"
 # Util allowing proxying writes to multiple location
 class MultiIO
   def initialize(*targets)
-      @targets = targets
+    @targets = targets
   end
 
   def write(*args)
@@ -159,7 +159,8 @@ if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(
       arch:     Platform.tuple,
       required: SKYLIGHT_REQUIRED,
       platform: Platform.tuple,
-      logger:   LOG)
+      logger:   LOG
+    )
 
     unless res
       fail "could not fetch archive -- aborting skylight native extension build"

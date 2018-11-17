@@ -1,3 +1,5 @@
+# rubocop:disable all
+
 module Skylight::Core
   module Util
     # String Inflector methods

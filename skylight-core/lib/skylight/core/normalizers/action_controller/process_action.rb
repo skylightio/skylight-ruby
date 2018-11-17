@@ -39,11 +39,11 @@ module Skylight::Core
           end
         end
 
-      private
+        private
 
-        def controller_action(payload)
-          "#{payload[:controller]}##{payload[:action]}"
-        end
+          def controller_action(payload)
+            "#{payload[:controller]}##{payload[:action]}"
+          end
       end
     end
   end

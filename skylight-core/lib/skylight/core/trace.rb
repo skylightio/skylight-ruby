@@ -188,89 +188,89 @@ module Skylight::Core
       t { e.backtrace.join("\n") }
     end
 
-  private
+    private
 
-    def track_gc(time, now)
-      if time > 0
-        t { fmt "tracking GC time; duration=%d", time }
-        stop(start(now - time, GC_CAT, nil, nil, nil), now)
-      end
-    end
-
-    def start(time, cat, title, desc, meta, opts = {})
-      time = self.class.normalize_time(time) unless opts[:normalize] == false
-
-      sp = native_start_span(time, cat.to_s)
-      native_span_set_title(sp, title.to_s) if title
-      native_span_set_description(sp, desc.to_s) if desc
-      native_span_set_meta(sp, meta) if meta
-      native_span_started(sp)
-
-      @spans << sp
-      t { "started span: #{sp} - #{cat}, #{title}" }
-
-      sp
-    end
-
-    # Middleware spans that were interrupted by a throw/catch should be cached here.
-    # keys: span ids
-    # values: nsec timestamp at which the span was cached here.
-    def deferred_spans
-      @deferred_spans ||= {}
-    end
-
-    def stop(span, time)
-      t { "stopping span: #{span}" }
-
-      # If `stop` is called for a span that is not the last item in the stack,
-      # check to see if the last item has been marked as deferred. If so, close
-      # that span first, then try to close the original.
-      while deferred_spans[expected = @spans.pop]
-        normalized_stop(expected, deferred_spans.delete(expected))
-      end
-
-      handle_unexpected_stop(expected, span) unless span == expected
-
-      normalized_stop(span, time)
-      nil
-    end
-
-    def normalized_stop(span, time)
-      time = self.class.normalize_time(time)
-      native_stop_span(span, time)
-    end
-
-    # Originally extracted from `stop`.
-    # If we attempt to close spans out of order, and it appears to be a middleware issue,
-    # disable the middleware probe and mark trace as broken.
-    def handle_unexpected_stop(expected, span)
-      message = "[E0001] Spans were closed out of order. Expected to see '#{native_span_get_title(expected)}', " \
-                  "but got '#{native_span_get_title(span)}' instead."
-
-      if native_span_get_category(span) == "rack.middleware" &&
-          Probes.installed.keys.include?("ActionDispatch::MiddlewareStack::Middleware")
-        if Probes::Middleware::Probe.disabled?
-          message << "\nWe disabled the Middleware probe but unfortunately, this didn't solve the issue."
-        else
-          Probes::Middleware::Probe.disable!
-          message << "\n#{native_span_get_title(span)} may be a Middleware that doesn't fully conform " \
-                      "to the Rack SPEC. We've disabled the Middleware probe to see if that resolves the issue."
+      def track_gc(time, now)
+        if time > 0
+          t { fmt "tracking GC time; duration=%d", time }
+          stop(start(now - time, GC_CAT, nil, nil, nil), now)
         end
       end
 
-      message << "\nThis request will not be tracked. Please contact #{config.class.support_email} for more information."
+      def start(time, cat, title, desc, meta, opts = {})
+        time = self.class.normalize_time(time) unless opts[:normalize] == false
 
-      error message
+        sp = native_start_span(time, cat.to_s)
+        native_span_set_title(sp, title.to_s) if title
+        native_span_set_description(sp, desc.to_s) if desc
+        native_span_set_meta(sp, meta) if meta
+        native_span_started(sp)
 
-      t { "expected=#{expected}, actual=#{span}" }
+        @spans << sp
+        t { "started span: #{sp} - #{cat}, #{title}" }
 
-      broken!
-    end
+        sp
+      end
 
-    def gc_time
-      return 0 unless @gc
-      @gc.update
-      @gc.time
-    end
+      # Middleware spans that were interrupted by a throw/catch should be cached here.
+      # keys: span ids
+      # values: nsec timestamp at which the span was cached here.
+      def deferred_spans
+        @deferred_spans ||= {}
+      end
+
+      def stop(span, time)
+        t { "stopping span: #{span}" }
+
+        # If `stop` is called for a span that is not the last item in the stack,
+        # check to see if the last item has been marked as deferred. If so, close
+        # that span first, then try to close the original.
+        while deferred_spans[expected = @spans.pop]
+          normalized_stop(expected, deferred_spans.delete(expected))
+        end
+
+        handle_unexpected_stop(expected, span) unless span == expected
+
+        normalized_stop(span, time)
+        nil
+      end
+
+      def normalized_stop(span, time)
+        time = self.class.normalize_time(time)
+        native_stop_span(span, time)
+      end
+
+      # Originally extracted from `stop`.
+      # If we attempt to close spans out of order, and it appears to be a middleware issue,
+      # disable the middleware probe and mark trace as broken.
+      def handle_unexpected_stop(expected, span)
+        message = "[E0001] Spans were closed out of order. Expected to see '#{native_span_get_title(expected)}', " \
+                    "but got '#{native_span_get_title(span)}' instead."
+
+        if native_span_get_category(span) == "rack.middleware" &&
+            Probes.installed.keys.include?("ActionDispatch::MiddlewareStack::Middleware")
+          if Probes::Middleware::Probe.disabled?
+            message << "\nWe disabled the Middleware probe but unfortunately, this didn't solve the issue."
+          else
+            Probes::Middleware::Probe.disable!
+            message << "\n#{native_span_get_title(span)} may be a Middleware that doesn't fully conform " \
+                        "to the Rack SPEC. We've disabled the Middleware probe to see if that resolves the issue."
+          end
+        end
+
+        message << "\nThis request will not be tracked. Please contact #{config.class.support_email} for more information."
+
+        error message
+
+        t { "expected=#{expected}, actual=#{span}" }
+
+        broken!
+      end
+
+      def gc_time
+        return 0 unless @gc
+        @gc.update
+        @gc.time
+      end
   end
 end

@@ -36,7 +36,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "instruments verbose requests" do
-     expected = {
+    expected = {
       category: "api.http.get",
       title: "GET 127.0.0.1",
       meta: { host: "127.0.0.1" }
@@ -80,7 +80,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "instruments post requests" do
-     expected = {
+    expected = {
       category: "api.http.post",
       title: "POST 127.0.0.1",
       meta: { host: "127.0.0.1" }
@@ -115,7 +115,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "instruments PUT requests" do
-     expected = {
+    expected = {
       category: "api.http.put",
       title: "PUT 127.0.0.1",
       meta: { host: "127.0.0.1" }

@@ -47,15 +47,15 @@ if enable
 
         private
 
-        def maybe_raise(key)
-          return unless key
-          err = {
-            "runtime_error" => RuntimeError,
-            "shutdown" => Sidekiq::Shutdown
-          }.fetch(key)
+          def maybe_raise(key)
+            return unless key
+            err = {
+              "runtime_error" => RuntimeError,
+              "shutdown" => Sidekiq::Shutdown
+            }.fetch(key)
 
-          raise err
-        end
+            raise err
+          end
       end
     end
 

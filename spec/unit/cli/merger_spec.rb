@@ -54,7 +54,8 @@ describe Skylight::CLI::Merger do
     rescue StopIteration
       raise "expectation list ended before output did; out=#{line.inspect}"
     end
-def stdout
+
+    def stdout
       @stdout ||= TestStdout.new(self)
     end
 
@@ -76,9 +77,9 @@ def stdout
 
     private
 
-    def readline(message, options)
-      test_line(message) or raise "no reply from readline; prompt=#{message.inspect}"
-    end
+      def readline(message, options)
+        test_line(message) or raise "no reply from readline; prompt=#{message.inspect}"
+      end
   end
 
   def run_shell(token: "token", success: true)

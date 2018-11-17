@@ -117,9 +117,9 @@ describe "Initialization integration" do
         let(:rails_env) { "staging" }
 
         it "notifies of boot" do
-         boot
-         expect(File.read("log/staging.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
-       end
+          boot
+          expect(File.read("log/staging.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
+        end
       end
 
       context "custom disabled environment (other)" do

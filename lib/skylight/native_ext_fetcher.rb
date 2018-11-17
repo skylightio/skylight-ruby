@@ -30,7 +30,8 @@ module Skylight
         opts[:arch],
         opts[:required],
         opts[:platform],
-        opts[:logger] || Logger.new(STDOUT))
+        opts[:logger] || Logger.new(STDOUT)
+      )
 
       fetcher.fetch
     end

@@ -25,6 +25,7 @@ module SpecHelper
     Messages::Event.new(
       category:    cat,
       title:       title,
-      description: desc)
+      description: desc
+    )
   end
 end

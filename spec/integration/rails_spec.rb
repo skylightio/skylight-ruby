@@ -100,9 +100,9 @@ if enable
 
         private
 
-        def assertion_hook
-          # override in rspec
-        end
+          def assertion_hook
+            # override in rspec
+          end
       end
 
       RescuingMiddleware ||= Struct.new(:app) do
@@ -134,17 +134,17 @@ if enable
 
         private
 
-        def should_throw?(env)
-          query_parameters(env)[:middleware_throws] == "true"
-        end
+          def should_throw?(env)
+            query_parameters(env)[:middleware_throws] == "true"
+          end
 
-        def should_raise?(env)
-          query_parameters(env)[:middleware_raises] == "true"
-        end
+          def should_raise?(env)
+            query_parameters(env)[:middleware_raises] == "true"
+          end
 
-        def query_parameters(env)
-          ActionDispatch::Request.new(env).query_parameters
-        end
+          def query_parameters(env)
+            ActionDispatch::Request.new(env).query_parameters
+          end
       end
 
       module EngineNamespace

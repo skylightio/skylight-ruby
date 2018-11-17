@@ -419,55 +419,55 @@ module Skylight::Core
       File.exist?(get(:'heroku.dyno_info_path'))
     end
 
-  private
+    private
 
-    def create_logger(out)
-      l = begin
-        if out.is_a?(String)
-          out = File.expand_path(out, root)
-          # May be redundant since we also do this in the permissions check
-          FileUtils.mkdir_p(File.dirname(out))
+      def create_logger(out)
+        l = begin
+          if out.is_a?(String)
+            out = File.expand_path(out, root)
+            # May be redundant since we also do this in the permissions check
+            FileUtils.mkdir_p(File.dirname(out))
+          end
+
+          Logger.new(out)
+        rescue
+          Logger.new(STDOUT)
+        end
+        l.progname = self.class.log_name
+        l
+      end
+
+      def load_logger
+        unless l = @logger
+          out = get(:log_file)
+          out = STDOUT if out == "-"
+
+          l = create_logger(out)
+          if trace?
+            l.level = Logger::DEBUG
+          else
+            l.level =
+              case get(:log_level)
+              when /^debug$/i then Logger::DEBUG
+              when /^info$/i  then Logger::INFO
+              when /^warn$/i  then Logger::WARN
+              when /^error$/i then Logger::ERROR
+              when /^fatal$/i then Logger::FATAL
+              else Logger::ERROR
+              end
+          end
         end
 
-        Logger.new(out)
-      rescue
-        Logger.new(STDOUT)
+        l
       end
-      l.progname = self.class.log_name
-      l
-    end
 
-    def load_logger
-      unless l = @logger
-        out = get(:log_file)
-        out = STDOUT if out == "-"
-
-        l = create_logger(out)
-        if trace?
-          l.level = Logger::DEBUG
-        else
-          l.level =
-            case get(:log_level)
-            when /^debug$/i then Logger::DEBUG
-            when /^info$/i  then Logger::INFO
-            when /^warn$/i  then Logger::WARN
-            when /^error$/i then Logger::ERROR
-            when /^fatal$/i then Logger::FATAL
-            else Logger::ERROR
-            end
+      def cast_for_env(v)
+        case v
+        when true  then "true"
+        when false then "false"
+        when nil   then "nil"
+        else v.to_s
         end
       end
-
-      l
-    end
-
-    def cast_for_env(v)
-      case v
-      when true  then "true"
-      when false then "false"
-      when nil   then "nil"
-      else v.to_s
-      end
-    end
   end
 end

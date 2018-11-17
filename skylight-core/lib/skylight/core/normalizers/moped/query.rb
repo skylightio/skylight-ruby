@@ -33,66 +33,66 @@ module Skylight::Core
           end
         end
 
-      private
+        private
 
-        def normalize_query(operation)
-          title = normalize_title("QUERY".freeze, operation)
+          def normalize_query(operation)
+            title = normalize_title("QUERY".freeze, operation)
 
-          hash = extract_binds(operation.selector)
-          description = hash.to_json
+            hash = extract_binds(operation.selector)
+            description = hash.to_json
 
-          [CAT, title, description, { database: operation.database }]
-        end
-
-        def normalize_get_more(operation)
-          title = normalize_title("GET_MORE".freeze, operation)
-
-          [CAT, title, nil, { database: operation.database }]
-        end
-
-        def normalize_insert(operation)
-          title = normalize_title("INSERT".freeze, operation)
-
-          [CAT, title, nil, { database: operation.database }]
-        end
-
-        def normalize_update(operation)
-          title = normalize_title("UPDATE".freeze, operation)
-
-          selector_hash = extract_binds(operation.selector)
-          update_hash = extract_binds(operation.update)
-
-          description = { selector: selector_hash, update: update_hash }.to_json
-
-          [CAT, title, description, { database: operation.database }]
-        end
-
-        def normalize_delete(operation)
-          title = normalize_title("DELETE".freeze, operation)
-
-          hash = extract_binds(operation.selector)
-          description = hash.to_json
-
-          [CAT, title, description, { database: operation.database }]
-        end
-
-        def normalize_title(type, operation)
-          "#{type} #{operation.collection}"
-        end
-
-        def extract_binds(hash)
-          ret = {}
-
-          hash.each do |k, v|
-            if v.is_a?(Hash)
-              ret[k] = extract_binds(v)
-            else
-              ret[k] = "?".freeze
-            end
+            [CAT, title, description, { database: operation.database }]
           end
 
-          ret
-        end
+          def normalize_get_more(operation)
+            title = normalize_title("GET_MORE".freeze, operation)
+
+            [CAT, title, nil, { database: operation.database }]
+          end
+
+          def normalize_insert(operation)
+            title = normalize_title("INSERT".freeze, operation)
+
+            [CAT, title, nil, { database: operation.database }]
+          end
+
+          def normalize_update(operation)
+            title = normalize_title("UPDATE".freeze, operation)
+
+            selector_hash = extract_binds(operation.selector)
+            update_hash = extract_binds(operation.update)
+
+            description = { selector: selector_hash, update: update_hash }.to_json
+
+            [CAT, title, description, { database: operation.database }]
+          end
+
+          def normalize_delete(operation)
+            title = normalize_title("DELETE".freeze, operation)
+
+            hash = extract_binds(operation.selector)
+            description = hash.to_json
+
+            [CAT, title, description, { database: operation.database }]
+          end
+
+          def normalize_title(type, operation)
+            "#{type} #{operation.collection}"
+          end
+
+          def extract_binds(hash)
+            ret = {}
+
+            hash.each do |k, v|
+              if v.is_a?(Hash)
+                ret[k] = extract_binds(v)
+              else
+                ret[k] = "?".freeze
+              end
+            end
+
+            ret
+          end
       end
     end
   end

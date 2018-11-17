@@ -97,14 +97,14 @@ module Skylight::Core
       # Ignored for now because nothing in rails uses it
     end
 
-  private
+    private
 
-    def normalize(*args)
-      @normalizers.normalize(*args)
-    end
+      def normalize(*args)
+        @normalizers.normalize(*args)
+      end
 
-    def normalize_after(*args)
-      @normalizers.normalize_after(*args)
-    end
+      def normalize_after(*args)
+        @normalizers.normalize_after(*args)
+      end
   end
 end

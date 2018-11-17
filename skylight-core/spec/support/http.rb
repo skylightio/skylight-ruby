@@ -195,9 +195,9 @@ module SpecHelper
 
     private
 
-    def default_opts
-      { authentication: @authentication }
-    end
+      def default_opts
+        { authentication: @authentication }
+      end
   end
 
   def server

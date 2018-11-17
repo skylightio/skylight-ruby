@@ -47,9 +47,9 @@ module Skylight::Core
 
       private
 
-      def extract_binds(instrumenter, payload, _precalculated)
-        instrumenter.process_sql(payload[:sql])
-      end
+        def extract_binds(instrumenter, payload, _precalculated)
+          instrumenter.process_sql(payload[:sql])
+        end
     end
   end
 end

@@ -112,17 +112,17 @@ end
 module ::Kernel
   private
 
-  alias require_without_sk require
+    alias require_without_sk require
 
-  def require(name)
-    ret = require_without_sk(name)
+    def require(name)
+      ret = require_without_sk(name)
 
-    begin
-      Skylight::Core::Probes.require_hook(name)
-    rescue Exception
-      # FIXME: Log these errors
+      begin
+        Skylight::Core::Probes.require_hook(name)
+      rescue Exception
+        # FIXME: Log these errors
+      end
+
+      ret
     end
-
-    ret
-  end
 end

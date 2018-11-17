@@ -317,17 +317,17 @@ authentication: #{self[:authentication]}
       }
     end
 
-  private
+    private
 
-    def check_nfs(path)
-      # Should work on most *nix, though not on OS X
-      `stat -f -L -c %T #{path} 2>&1`.strip == "nfs"
-    end
+      def check_nfs(path)
+        # Should work on most *nix, though not on OS X
+        `stat -f -L -c %T #{path} 2>&1`.strip == "nfs"
+      end
 
-    def reporting_env?
-      # true if env was explicitly set,
-      # or if we are auto-detecting via the opt-in SKYLIGHT_REPORT_RAILS_ENV=true
-      !!(get(:report_rails_env) || get(:env))
-    end
+      def reporting_env?
+        # true if env was explicitly set,
+        # or if we are auto-detecting via the opt-in SKYLIGHT_REPORT_RAILS_ENV=true
+        !!(get(:report_rails_env) || get(:env))
+      end
   end
 end

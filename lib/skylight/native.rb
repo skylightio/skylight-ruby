@@ -56,9 +56,9 @@ module Skylight
 
     if File.exist?(install_log) && File.read(install_log) =~ /ERROR/
       config.alert_logger.error \
-          "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension failed to install. " \
-          "Please check #{install_log} and notify support@skylight.io. " \
-          "The missing extension will not affect the functioning of your application."
+        "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension failed to install. " \
+        "Please check #{install_log} and notify support@skylight.io. " \
+        "The missing extension will not affect the functioning of your application."
     end
   end
 
