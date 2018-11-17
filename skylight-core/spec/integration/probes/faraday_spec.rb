@@ -60,14 +60,14 @@ describe "Faraday integration", :faraday_probe, :http, :faraday, :agent do
     client = Faraday.new(url: server_uri)
 
     response = client.post(uri, header: { "Content-Type" => "multipart/form-data" }, body: [{
-        "Content-Type" => "text/plain; charset=UTF-8",
-        "Content-Disposition" => 'form-data; name="name"',
-        :content => "Barry"
-      }, {
-        "Content-Type" => "text/plain; charset=UTF-8",
-        "Content-Disposition" => 'form-data; name="department"',
-        :content => "Accounting"
-      }])
+      "Content-Type" => "text/plain; charset=UTF-8",
+      "Content-Disposition" => 'form-data; name="name"',
+      :content => "Barry"
+    }, {
+      "Content-Type" => "text/plain; charset=UTF-8",
+      "Content-Disposition" => 'form-data; name="department"',
+      :content => "Accounting"
+    }])
     expect(response).to be_a(Faraday::Response)
     expect(response.status).to eq(200)
   end

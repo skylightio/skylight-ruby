@@ -57,16 +57,18 @@ module SpecHelper
     end
 
     def match_header(env, key, val)
-      ret = case val
-      when Regexp then env[key] =~ val
-      else env[key] == val
-      end
+      ret =
+        case val
+        when Regexp then env[key] =~ val
+        else env[key] == val
+        end
 
       unless ret
         @fails << {
           key:      key,
           actual:   env[key],
-          expected: val }
+          expected: val
+        }
       end
 
       ret

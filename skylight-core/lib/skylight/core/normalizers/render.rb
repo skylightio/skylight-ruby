@@ -73,6 +73,6 @@ module Skylight::Core
             path.getbyte(0) == SEPARATOR_BYTE
           end
         end
-      end
+    end
   end
 end

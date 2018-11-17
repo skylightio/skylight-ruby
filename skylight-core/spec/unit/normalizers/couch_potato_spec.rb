@@ -8,7 +8,7 @@ module CouchPotato
       expect(desc).to eq("activity/by_source_id_and_created_at")
     end
   end
-  
+
   describe "Normalizers", "couch_potato.load" do
     it "normalizes the load query" do
       name, title, desc = normalize

@@ -82,10 +82,10 @@ module SpecHelper
 
       def call(env)
         trace "%s http://%s:%s%s",
-          env["REQUEST_METHOD"],
-          env["SERVER_NAME"],
-          env["SERVER_PORT"],
-          env["PATH_INFO"]
+              env["REQUEST_METHOD"],
+              env["SERVER_NAME"],
+              env["SERVER_PORT"],
+              env["PATH_INFO"]
 
         ret = handle(env)
 

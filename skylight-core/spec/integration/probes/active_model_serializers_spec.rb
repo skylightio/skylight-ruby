@@ -107,7 +107,7 @@ if defined?(ActiveModel::Serializer)
       status, header, response = dispatch(:list)
 
       json = { items: [{ name: "Test", doubled_value: 4 },
-                        { name: "Other", doubled_value: 10 }] }.to_json
+                       { name: "Other", doubled_value: 10 }] }.to_json
       expect(response.body).to eq(json)
 
       opts = {

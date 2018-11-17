@@ -628,7 +628,7 @@ if enable
             spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
 
             expect(spans).to eq([["app.rack.request", nil],
-                                  ["error.code.3", nil]])
+                                 ["error.code.3", nil]])
           end
         end
 

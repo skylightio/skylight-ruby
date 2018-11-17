@@ -145,8 +145,8 @@ describe Skylight::Core::Instrumenter, :http, :agent do
         yield if block_given?
       end
       instrument_class_method :singleton_method_with_options,
-        category: "app.singleton",
-        title: "Singleton Method"
+                              category: "app.singleton",
+                              title: "Singleton Method"
 
       attr_accessor :myvar
       instrument_method :myvar=

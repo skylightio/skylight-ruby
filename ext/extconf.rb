@@ -84,7 +84,7 @@ if Platform::OS == "darwin"
 You have not agreed to the Xcode license and so we are unable to build the native agent.
 To resolve this, you can agree to the license by opening Xcode.app or running:
     sudo xcodebuild -license
-EOS
+    EOS
   end
 end
 

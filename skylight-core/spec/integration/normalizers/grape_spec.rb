@@ -86,8 +86,8 @@ if defined?(Grape)
       allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
 
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", title, nil, nil)
-          .once
+        .with("app.grape.endpoint", title, nil, nil)
+        .once
     end
 
     it "creates a Trace for a Grape app" do
@@ -135,8 +135,8 @@ if defined?(Grape)
       allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
 
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", "#{wildcard} *path", nil, nil)
-          .once
+        .with("app.grape.endpoint", "#{wildcard} *path", nil, nil)
+        .once
 
       delete "/app/missing"
 
@@ -147,8 +147,8 @@ if defined?(Grape)
       allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
 
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", "GET... data", nil, nil)
-          .once
+        .with("app.grape.endpoint", "GET... data", nil, nil)
+        .once
 
       get "/data"
 
@@ -159,8 +159,8 @@ if defined?(Grape)
       allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
 
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", "GET raise", nil, nil)
-          .once
+        .with("app.grape.endpoint", "GET raise", nil, nil)
+        .once
 
       expect {
         get "/raise"
@@ -174,16 +174,16 @@ if defined?(Grape)
 
       # TODO: Attempt to verify order
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.filters", "Before Filters", nil, nil)
-          .once
+        .with("app.grape.filters", "Before Filters", nil, nil)
+        .once
 
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.block", "verifying admin", nil, nil)
-          .once
+        .with("app.block", "verifying admin", nil, nil)
+        .once
 
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", "GET admin secret", nil, nil)
-          .once
+        .with("app.grape.endpoint", "GET admin secret", nil, nil)
+        .once
 
       get "/app/admin/secret"
 

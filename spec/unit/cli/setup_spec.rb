@@ -55,7 +55,8 @@ describe "skylight setup", :http, :agent do
 
       expect(server.requests[0]).to post_json("/apps", {
         authorization: nil,
-        input: { "app" => { "name" => "Tmp" }, "token" => "foobar" } })
+        input: { "app" => { "name" => "Tmp" }, "token" => "foobar" }
+      })
     end
 
     it "handles server errors" do

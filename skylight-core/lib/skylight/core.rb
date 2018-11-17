@@ -81,7 +81,8 @@ module Skylight
     view
     db
     noise
-    other)
+    other
+  )
 
   # @api private
   TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/u

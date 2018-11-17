@@ -7,6 +7,7 @@ module Skylight::Core
     extend ActiveSupport::Concern
 
     included do
+      # rubocop:disable Layout/EmptyLineBetweenDefs
       def self.root_key; :skylight end
       def self.config_class; Config end
       def self.middleware_class; Middleware end
@@ -14,6 +15,7 @@ module Skylight::Core
       def self.log_file_name; "skylight" end
       def self.namespace; Skylight end
       def self.version; Skylight::Core::VERSION end
+      # rubocop:enable Layout/EmptyLineBetweenDefs
     end
 
     private

@@ -37,8 +37,7 @@ module Skylight::Core
 
     context "1 level nested lookup" do
       let :config do
-        Config.new :one => {
-          :foo => "hello", "bar" => "omg" }
+        Config.new :one => { :foo => "hello", "bar" => "omg" }
       end
 
       it "looks keys up with strings" do
@@ -56,7 +55,9 @@ module Skylight::Core
       let :config do
         Config.new :one => {
           :two => {
-            :foo => "hello", "bar" => "omg" } }
+            :foo => "hello", "bar" => "omg"
+          }
+        }
       end
 
       it "looks keys up with strings" do
@@ -98,7 +99,8 @@ module Skylight::Core
 
     context "environment scopes" do
       let :config do
-        Config.new("production",
+        Config.new(
+          "production",
           foo:    "bar",
           one:    1,
           zomg:   "YAY",
@@ -111,7 +113,9 @@ module Skylight::Core
           },
           staging: {
             foo:  "no",
-            three: 3 })
+            three: 3
+          }
+        )
       end
 
       it "prioritizes the environment config over the default" do
@@ -148,12 +152,14 @@ module Skylight::Core
           foo: "bar",
           nested: { foo: "bar", "baz" => "zomg" },
           production: {
-            foo: "baz" },
+            foo: "baz"
+          },
           priority: {
             foo: "win",
             one: "1",
-            "nested.foo" => "p" }
-                            )
+            "nested.foo" => "p"
+          }
+        )
       end
 
       it "is available as a top level key" do
@@ -219,7 +225,8 @@ module Skylight::Core
         Config.load({ file: file, environment: "production" }, {
           "foo"                     => "fail",
           "SKYLIGHT_LOG_FILE"       => "production.log",
-          "SKYLIGHT_ALERT_LOG_FILE" => "alert.log" })
+          "SKYLIGHT_ALERT_LOG_FILE" => "alert.log"
+        })
       end
 
       context "valid" do
@@ -301,7 +308,8 @@ module Skylight::Core
       let :config do
         Config.load({ file: file, environment: "production" }, {
           "foo"         => "fail",
-          "SK_LOG_FILE" => "test.log" })
+          "SK_LOG_FILE" => "test.log"
+        })
       end
 
       it "loads the authentication key" do
@@ -429,8 +437,8 @@ module Skylight::Core
 
       it "prioritizes skylight's proxy env var" do
         c = Config.load({ environment: :production },
-          "SKYLIGHT_PROXY_URL" => "http://foo.com",
-          "HTTP_PROXY" => "http://bar.com")
+                        "SKYLIGHT_PROXY_URL" => "http://foo.com",
+                        "HTTP_PROXY" => "http://bar.com")
 
         expect(c[:proxy_url]).to eq("http://foo.com")
       end

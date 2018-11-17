@@ -10,7 +10,7 @@ module Skylight
         method: :get,
         name: "request.faraday"
       })
-      
+
       expect(category).to    eq("api.http.get")
       expect(title).to       eq("Faraday")
       expect(description).to eq("GET maps.googleapis.com")

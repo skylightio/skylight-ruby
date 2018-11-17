@@ -1,4 +1,5 @@
 # coding: utf-8
+
 version = File.read(File.expand_path("../SKYLIGHT_VERSION", __FILE__)).strip.gsub("-", ".")
 
 Gem::Specification.new do |spec|
