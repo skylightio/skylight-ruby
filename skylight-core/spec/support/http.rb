@@ -75,9 +75,9 @@ module SpecHelper
       end
 
       def reports(opts = {})
-        requests(opts).
-          select { |env| env["PATH_INFO"] == "/report" }.
-          map { |env| SpecHelper::Messages::Batch.decode(env["rack.input"].dup) }
+        requests(opts)
+          .select { |env| env["PATH_INFO"] == "/report" }
+          .map { |env| SpecHelper::Messages::Batch.decode(env["rack.input"].dup) }
       end
 
       def call(env)

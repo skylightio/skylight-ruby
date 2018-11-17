@@ -122,8 +122,8 @@ describe "Skylight::Instrumenter", :http, :agent do
 
     it "doesn't crash on failed config" do
       allow(config).to receive(:validate!).and_raise(Skylight::Core::ConfigError.new("Test Failure"))
-      expect(config).to receive(:log_warn).
-        with("Unable to start Instrumenter due to a configuration error: Test Failure")
+      expect(config).to receive(:log_warn)
+        .with("Unable to start Instrumenter due to a configuration error: Test Failure")
 
       expect do
         expect(Skylight.start!(config)).to be_falsey
@@ -132,8 +132,8 @@ describe "Skylight::Instrumenter", :http, :agent do
 
     it "doesn't crash on failed start" do
       allow(Skylight::Instrumenter).to receive(:new).and_raise("Test Failure")
-      expect(config).to receive(:log_error).
-        with("Unable to start Instrumenter; msg=Test Failure; class=RuntimeError")
+      expect(config).to receive(:log_error)
+        .with("Unable to start Instrumenter; msg=Test Failure; class=RuntimeError")
 
       expect do
         expect(Skylight.start!(config)).to be_falsey

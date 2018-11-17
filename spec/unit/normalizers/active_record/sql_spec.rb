@@ -8,8 +8,8 @@ module Skylight
     before :each do
       WebMock.enable!
 
-      stub_request(:post, "https://auth.skylight.io/agent/config").
-        to_return(status: 200, body: "", headers: {})
+      stub_request(:post, "https://auth.skylight.io/agent/config")
+        .to_return(status: 200, body: "", headers: {})
 
       ENV["SKYLIGHT_AUTHENTICATION"] = "zomg"
 

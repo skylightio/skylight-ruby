@@ -19,8 +19,8 @@ module Skylight
 
     describe "proxy" do
       before :each do
-        stub_request(:get, "https://auth.skylight.io/foobar").
-          to_return(:status => 200, :body => "", :headers => {})
+        stub_request(:get, "https://auth.skylight.io/foobar")
+          .to_return(:status => 200, :body => "", :headers => {})
       end
 
       it "gets details from config" do
@@ -37,9 +37,9 @@ module Skylight
         http = Util::HTTP.new(Config.load({ auth_url: "https://auth.skylight.io/agent" },
           "HTTP_PROXY" => "http://testing:otherpass@proxy.example.com:4321"))
 
-        expect(Net::HTTP).to receive(:new).
-          with("auth.skylight.io", 443, "proxy.example.com", 4321, "testing", "otherpass").
-          and_call_original
+        expect(Net::HTTP).to receive(:new)
+          .with("auth.skylight.io", 443, "proxy.example.com", 4321, "testing", "otherpass")
+          .and_call_original
 
         http.get("/foobar")
       end
