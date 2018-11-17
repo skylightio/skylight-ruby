@@ -36,7 +36,6 @@ module Skylight
     end
 
     class ConfigValidationResults
-
       include Core::Util::Logging
 
       attr_reader :raw_response
@@ -95,7 +94,6 @@ module Skylight
         return {} if config_valid? || !body
         body["corrected"]
       end
-
     end
 
     def initialize(config)
@@ -151,7 +149,5 @@ module Skylight
         Error
       end
     end
-
   end
-
 end

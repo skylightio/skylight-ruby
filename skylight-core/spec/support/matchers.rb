@@ -1,7 +1,5 @@
 module SpecHelper
-
   RSpec::Matchers.define :happen do |timeout = 1, interval = 0.1|
-
     match do |blk|
       res = false
       start = Time.now
@@ -25,13 +23,11 @@ module SpecHelper
     failure_message_when_negated do
       "expected block not to happen but it did"
     end
-
   end
 
   SPECIAL_HEADERS = %w(CONTENT_TYPE REQUEST_METHOD rack.input)
 
   RSpec::Matchers.define :be_request do |*args|
-
     hdrs  = {}
     hdrs  = args.pop if Hash === args[-1]
     path  = args.shift
@@ -90,7 +86,6 @@ module SpecHelper
         "request is nil"
       end
     end
-
   end
 
   def get_json(*args)

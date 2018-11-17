@@ -13,7 +13,6 @@ end
 if enable
 
   describe "Rails integration" do
-
     def boot
       MyApp.initialize!
 
@@ -319,7 +318,6 @@ if enable
           def set_variant
             request.variant = :tablet if params[:tablet]
           end
-
       end
 
       class ::MetalController < ActionController::Metal
@@ -359,15 +357,12 @@ if enable
     let(:router_name) { "ActionDispatch::Routing::RouteSet" }
 
     shared_examples "with agent" do
-
       context "configuration" do
-
         it "sets log file" do
           expect(Skylight.instrumenter.config["log_file"]).to eq(MyApp.root.join("log/skylight.log").to_s)
         end
 
         context "on heroku" do
-
           def pre_boot
             ENV["SKYLIGHT_HEROKU_DYNO_INFO_PATH"] = File.expand_path("../../../skylight-core/spec/support/heroku_dyno_info_sample", __FILE__)
           end
@@ -379,9 +374,7 @@ if enable
           it "leaves log file as STDOUT" do
             expect(Skylight.instrumenter.config["log_file"]).to eq("-")
           end
-
         end
-
       end
 
       it "successfully calls into rails" do
@@ -475,7 +468,6 @@ if enable
       end
 
       context "with middleware_position" do
-
         def pre_boot
           MyApp.config.skylight.middleware_position = { after: CustomMiddleware }
         end
@@ -491,11 +483,9 @@ if enable
           # If Skylight runs after CustomMiddleware, we shouldn't see it
           expect(titles).not_to include("CustomMiddleware")
         end
-
       end
 
       context "middleware that don't conform to Rack SPEC" do
-
         after :each do
           Skylight::Core::Probes::Middleware::Probe.enable!
         end
@@ -528,7 +518,6 @@ if enable
 
           expect(titles).to include("NonArrayMiddleware")
         end
-
       end
 
       context "middleware that jumps the stack", focus: true do
@@ -611,9 +600,7 @@ if enable
       end
 
       context "with too many spans" do
-
         context "with reporting turned on" do
-
           def pre_boot
             ENV["SKYLIGHT_REPORT_MAX_SPANS_EXCEEDED"] = "true"
             ENV["SKYLIGHT_PRUNE_LARGE_TRACES"] = "false"
@@ -643,7 +630,6 @@ if enable
             expect(spans).to eq([["app.rack.request", nil],
                                   ["error.code.3", nil]])
           end
-
         end
 
         context "without reporting" do
@@ -658,7 +644,6 @@ if enable
 
             call MyApp, env("/users/too_many_spans")
           end
-
         end
 
         context "with pruning" do
@@ -687,7 +672,6 @@ if enable
             expect(categories["app.zomg.level-2"]).to eq(0)
           end
         end
-
       end
 
       it "sets correct segment" do
@@ -928,11 +912,9 @@ if enable
         expect(names.length).to be >= 1
         expect(names[0]).to eq("app.rack.request")
       end
-
     end
 
     context "activated from application.rb", :http, :agent do
-
       def pre_boot
       end
 
@@ -955,7 +937,6 @@ if enable
     end
 
     context "activated from ENV", :http, :agent do
-
       def pre_boot
       end
 
@@ -973,7 +954,6 @@ if enable
     end
 
     shared_examples "without agent" do
-
       before :each do
         # Sanity check that we are indeed running without an active agent
         expect(Skylight.instrumenter).to be_nil
@@ -986,7 +966,6 @@ if enable
       it "supports Skylight::Helpers" do
         expect(call(MyApp, env("/users/1"))).to eq(["Hola: 1"])
       end
-
     end
 
     context "without configuration" do
@@ -1018,7 +997,6 @@ if enable
       it_behaves_like "without agent"
     end
 
-
     def call_full(app, env)
       resp = app.call(env)
       consume(resp)
@@ -1040,6 +1018,5 @@ if enable
       resp[2] = data
       resp
     end
-
   end
 end

@@ -1,5 +1,4 @@
 module SpecHelper
-
   class TestClock < Skylight::Core::Util::Clock
     alias __tick tick
 

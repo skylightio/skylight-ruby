@@ -24,7 +24,6 @@ module Skylight::Core
     end
 
     module Logging
-
       def log_context
         {}
       end
@@ -145,7 +144,6 @@ module Skylight::Core
           puts e.backtrace
         end
       end
-
     end
   end
 end

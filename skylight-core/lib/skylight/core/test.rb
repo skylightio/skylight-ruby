@@ -2,7 +2,6 @@ module Skylight
   module Core
     module Test
       module Mocking
-
         def mock!(config_opts={}, &callback)
           config_opts[:mock_submission] ||= callback || proc {}
           config = config_class.load(config_opts)
@@ -59,7 +58,6 @@ module Skylight
 
                         def native_span_set_title(sp, title)
                           mock_spans[sp][:title] = title
-
                         end
 
                         def native_span_set_description(sp, desc)

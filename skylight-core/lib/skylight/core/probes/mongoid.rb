@@ -2,7 +2,6 @@ module Skylight::Core
   module Probes
     module Mongoid
       class Probe
-
         def install
           require "mongoid/version"
           version = Gem::Version.new(::Mongoid::VERSION)

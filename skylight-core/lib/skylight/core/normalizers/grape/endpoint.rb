@@ -25,7 +25,6 @@ module Skylight::Core
           def get_namespace(endpoint)
             ::Grape::Namespace.joined_space(endpoint.namespace_stackable(:namespace))
           end
-
       end
     end
   end

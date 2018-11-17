@@ -2,9 +2,7 @@ require "spec_helper"
 
 module Skylight
   describe "Normalizers", "default", :agent do
-
     context "valid events" do
-
       it "keeps the notification name" do
         name, title, desc = normalize("app.request.rack", {})
 
@@ -36,11 +34,9 @@ module Skylight
         expect(title).to eq("Junk")
         expect(desc).to be_nil
       end
-
     end
 
     context "invalid events" do
-
       it "rejects unknown events" do
         expect(normalize("foo.bar")).to eq(:skip)
       end
@@ -48,7 +44,6 @@ module Skylight
       it "rejects unknown events prefixed with app" do
         expect(normalize("application.lul")).to eq(:skip)
       end
-
     end
   end
 end

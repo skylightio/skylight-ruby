@@ -1,6 +1,5 @@
 module Skylight::Core
   module Util
-
     # String Inflector methods
     #
     # From https://github.com/rails/rails/blob/f8e5022c73679f41db9bb6743179bab4571fb28e/activesupport/lib/active_support/inflector/methods.rb

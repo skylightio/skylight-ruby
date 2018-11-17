@@ -11,7 +11,6 @@ module Skylight::Core
                                                       method: method,
                                                       path:   path do
 
-
                 # Prevent HTTP-related probes from firing
                 Skylight::Core::Normalizers::Faraday::Request.disable do
                   disable_skylight_probe(:NetHTTP) do

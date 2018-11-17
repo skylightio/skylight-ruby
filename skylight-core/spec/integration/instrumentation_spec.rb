@@ -33,7 +33,6 @@ module Skylight
     end
 
     it "it handles a :skip" do
-
       expect_any_instance_of(Core::Subscriber).not_to receive(:error)
 
       get "/"

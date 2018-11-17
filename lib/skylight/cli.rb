@@ -136,7 +136,6 @@ you should set the `SKYLIGHT_AUTHENTICATION` variable to:
       def user_config
         config.user_config
       end
-
     end
   end
 end

@@ -2,7 +2,6 @@ module Skylight::Core
   module Probes
     module Moped
       class Probe
-
         def install
           unless defined?(::Moped::Instrumentable)
             # Using $stderr here isn't great, but we don't have a logger accessible
@@ -30,7 +29,6 @@ module Skylight::Core
             end
           end
         end
-
       end
     end
 

@@ -165,7 +165,6 @@ module Skylight::Core
 
             ret
           end
-
       end
     end
 

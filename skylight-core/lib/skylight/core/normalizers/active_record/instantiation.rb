@@ -10,7 +10,6 @@ module Skylight::Core
           # Payload also includes `:record_count` but this will be variable
           [ CAT, "#{payload[:class_name]} Instantiation", nil]
         end
-
       end
     end
   end

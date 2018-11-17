@@ -36,7 +36,6 @@ module Skylight
           @original = e
           super e.inspect
         end
-
       end
 
       class ReadResponseError < StandardError; end
@@ -221,7 +220,6 @@ module Skylight
           false
         end
       end
-
     end
   end
 end

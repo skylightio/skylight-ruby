@@ -26,7 +26,6 @@ module Skylight::Core
 
           [name, title, description, meta]
         end
-
       end
     end
   end

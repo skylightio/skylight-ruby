@@ -3,7 +3,6 @@ require "skylight/core/errors"
 
 module Skylight::Core
   class UserConfig
-
     attr_accessor :disable_dev_warning, :disable_env_warning
 
     def initialize(config)
@@ -57,6 +56,5 @@ module Skylight::Core
         "disable_env_warning" => disable_env_warning
       }
     end
-
   end
 end

@@ -2,7 +2,6 @@ require "spec_helper"
 
 module Skylight
   describe "Normalizers", "request.elasticsearch", :elasticsearch do
-
     it "normalizes PUT index" do
       category, title, description = normalize(method: "PUT", path: "foo")
       expect(category).to    eq("db.elasticsearch.request")

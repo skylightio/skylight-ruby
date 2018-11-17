@@ -2,7 +2,6 @@ require "spec_helper"
 
 module Skylight
   describe Config do
-
     def with_file(opts={})
       f = Tempfile.new("foo")
       FileUtils.chmod 0400, f if opts[:writable] == false
@@ -21,7 +20,6 @@ module Skylight
     end
 
     context "hostname" do
-
       it "defaults to the current hostname" do
         config = Config.new
         expect(config[:hostname]).to eq(Socket.gethostname)
@@ -31,11 +29,9 @@ module Skylight
         config = Config.new hostname: "lulz"
         expect(config[:hostname]).to eq("lulz")
       end
-
     end
 
     context "deploy" do
-
       it "uses provided deploy" do
         config = Config.new deploy: { id: "12345", git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572d", description: "Fix stuff" }
         expect(config.deploy.id).to eq("12345")
@@ -92,7 +88,6 @@ module Skylight
       end
 
       context "with a git repo" do
-
         around :each do |example|
           Dir.mktmpdir do |dir|
             @dir = dir
@@ -119,11 +114,9 @@ module Skylight
 
           expect(config.deploy.description).to eq("Initial Commit")
         end
-
       end
 
       context "without a detectable deploy" do
-
         around :each do |example|
           Dir.mktmpdir do |dir|
             Dir.chdir(dir) do
@@ -136,13 +129,10 @@ module Skylight
           config = Config.new
           expect(config.deploy).to be_nil
         end
-
       end
-
     end
 
     context "validations" do
-
       let :config do
         Config.new(authentication: "testtoken")
       end
@@ -162,7 +152,6 @@ module Skylight
       end
 
       context "permissions" do
-
         it "requires the pidfile_path file to be writeable if it exists" do
           with_file(writable: false) do |f|
             config.set(:'daemon.pidfile_path', f.path)
@@ -193,13 +182,10 @@ module Skylight
             }.to raise_error(Core::ConfigError, "Directory `#{d}` is not writable. Please set daemon.sockdir_path in your config to a writable path")
           end
         end
-
       end
-
     end
 
     context "#to_native_env" do
-
       let :config do
         Config.new(
           authentication: "abc123",

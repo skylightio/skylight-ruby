@@ -2,7 +2,6 @@ require "spec_helper"
 
 module Skylight::Core
   describe "Normalizers", :agent do
-
     let(:config) do
       # the second path represents rails root
       Config.new normalizers: { render: { view_paths: %w(/path/to/views /path/to) }}

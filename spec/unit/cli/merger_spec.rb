@@ -118,7 +118,6 @@ def stdout
     allow_any_instance_of(Skylight::Api).to receive(:fetch_mergeable_apps) do
       OpenStruct.new({ body: mergeable_apps })
     end
-
   end
 
   let(:app1) { { guid: "abcdef123", name: "app1", components: [generate_component] } }

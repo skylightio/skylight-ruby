@@ -84,7 +84,6 @@ module Skylight::Core
           return
         end
       end
-
     rescue Exception => e
       error "Subscriber#finish error; msg=%s", e.message
       debug "trace=%s", trace.inspect
@@ -107,6 +106,5 @@ module Skylight::Core
     def normalize_after(*args)
       @normalizers.normalize_after(*args)
     end
-
   end
 end

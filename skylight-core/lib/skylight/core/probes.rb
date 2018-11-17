@@ -19,7 +19,6 @@ module Skylight::Core
     end
 
     class << self
-
       def paths
         @paths ||= []
       end

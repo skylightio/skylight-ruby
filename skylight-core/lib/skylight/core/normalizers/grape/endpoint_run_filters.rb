@@ -16,7 +16,6 @@ module Skylight::Core
 
           [CAT, "#{type.to_s.capitalize} Filters", nil]
         end
-
       end
     end
   end

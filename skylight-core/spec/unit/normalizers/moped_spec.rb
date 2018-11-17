@@ -2,7 +2,6 @@ require "spec_helper"
 
 module Skylight
   describe "Normalizers", "query.moped", :moped do
-
     it "skips COMMAND" do
       op = Moped::Protocol::Command.new("testdb", { foo: "bar" })
       expect(normalize(ops: [op])).to eq(:skip)
@@ -52,6 +51,5 @@ module Skylight
       expect(title).to       eq("DELETE testcollection")
       expect(description).to eq({ foo: "?" }.to_json)
     end
-
   end
 end

@@ -3,7 +3,6 @@ require "spec_helper"
 # Requires mongodb instance to be running
 if ENV["TEST_MONGO_INTEGRATION"]
   describe "Mongo integration with Moped", :moped_probe, :instrumenter do
-
     def build_session(opts={})
       @session = Moped::Session.new([ "127.0.0.1:27017" ], opts)
       @session.use "echo_test"
@@ -19,7 +18,6 @@ if ENV["TEST_MONGO_INTEGRATION"]
     end
 
     context "when instrument is already AS::N" do
-
       it "instruments only once" do
         # One command to initialize one for actual insert
         expect(ActiveSupport::Notifications).to receive(:instrument).and_call_original.twice
@@ -27,8 +25,6 @@ if ENV["TEST_MONGO_INTEGRATION"]
         session = build_session(instrumenter: ActiveSupport::Notifications)
         session[:artists].insert(name: "Peter")
       end
-
     end
-
   end
 end

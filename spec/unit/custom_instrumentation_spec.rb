@@ -3,13 +3,11 @@ require "spec_helper"
 # Tested here since it requires native
 # FIXME: Switch to use mocking
 describe Skylight::Core::Instrumenter, :http, :agent do
-
   let :hello do
     double("hello")
   end
 
   context "when the instrumenter is running" do
-
     before :each do
       start!
       clock.freeze
@@ -235,7 +233,5 @@ describe Skylight::Core::Instrumenter, :http, :agent do
         started_at: 15_000,
         duration:   0))
     end
-
   end
-
 end

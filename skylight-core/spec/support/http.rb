@@ -13,7 +13,6 @@ module SpecHelper
     COND = ConditionVariable.new
 
     class << self
-
       def start(opts)
         @started or LOCK.synchronize do
           @started = true

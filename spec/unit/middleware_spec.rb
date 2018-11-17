@@ -4,7 +4,6 @@ require "spec_helper"
 # FIXME: Move at least some specs to core with mocking
 module Skylight::Core
   describe Middleware, :http, :agent do
-
     before :each do
       start!
       clock.freeze
@@ -55,7 +54,6 @@ module Skylight::Core
       t = ep.traces[0]
       expect(t.spans.count).to eq(2)
 
-
       expect(t.spans[0]).to eq(span(
         event: event("app.rack.request"),
         started_at: 0,
@@ -81,6 +79,5 @@ module Skylight::Core
         .with_after_close([200, {}, []].freeze) { true } }
         .to_not raise_error
     end
-
   end
 end

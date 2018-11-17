@@ -2,7 +2,6 @@ module Skylight::Core
   module Util
     # Helpers to reduce memory allocation
     module AllocationFree
-
       # Find an item in an array without allocation.
       #
       # @param array [Array] the array to search

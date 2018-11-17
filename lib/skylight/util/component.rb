@@ -1,7 +1,6 @@
 module Skylight
   module Util
     class Component
-
       attr_accessor :environment, :name
 
       NAME_FORMAT = /\A[a-z0-9-]+\z/

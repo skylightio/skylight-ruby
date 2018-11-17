@@ -22,7 +22,6 @@ require "skylight/core/util/platform"
 
 # Util allowing proxying writes to multiple location
 class MultiIO
-
   def initialize(*targets)
       @targets = targets
   end

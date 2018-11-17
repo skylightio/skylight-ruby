@@ -1,5 +1,4 @@
 module SpecHelper
-
   def create_probe
     Probe.new
   end

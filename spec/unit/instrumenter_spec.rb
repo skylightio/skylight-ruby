@@ -5,9 +5,7 @@ require "stringio"
 
 # FIXME: Move some of these tests to core with mocking
 describe "Skylight::Instrumenter", :http, :agent do
-
   context "boot" do
-
     let :logger_out do
       StringIO.new
     end
@@ -71,7 +69,6 @@ describe "Skylight::Instrumenter", :http, :agent do
     #   end
 
     context "when server not reachable" do
-
       before(:each) do
         stub_config_validation(500)
       end
@@ -112,7 +109,6 @@ describe "Skylight::Instrumenter", :http, :agent do
       #   end
 
       context "with an exception" do
-
         before :each do
           allow_any_instance_of(Skylight::Util::HTTP).to receive(:do_request).and_raise("request failed")
         end
@@ -121,9 +117,7 @@ describe "Skylight::Instrumenter", :http, :agent do
           expect(Skylight.start!(config)).to be_truthy
           expect(logger_out.string).to include("Unable to reach server for config validation")
         end
-
       end
-
     end
 
     it "doesn't crash on failed config" do
@@ -145,11 +139,9 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(Skylight.start!(config)).to be_falsey
       end.not_to raise_error
     end
-
   end
 
   shared_examples "an instrumenter" do
-
     context "when Skylight is running" do
       before :each do
         start!
@@ -425,16 +417,12 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(instrumenter.limited_description(description)).to eq(Skylight::Instrumenter::TOO_MANY_UNIQUES)
       end
     end
-
   end
 
   context "standalone" do
-
     let(:log_path) { tmp("skylight.log") }
     let(:agent_strategy) { "standalone" }
 
     it_behaves_like "an instrumenter"
-
   end
-
 end

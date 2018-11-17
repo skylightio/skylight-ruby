@@ -2,7 +2,6 @@ require "spec_helper"
 
 module Skylight::Core
   describe UserConfig do
-
     let :config do
       UserConfig.new(Config.load)
     end
@@ -103,6 +102,5 @@ module Skylight::Core
         FileUtils.rm(config.file_path)
       end
     end
-
   end
 end

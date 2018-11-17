@@ -4,7 +4,6 @@ module Skylight::Core
   # @api private
   # Convert AS::N events to Skylight events
   module Normalizers
-
     DEFAULT = Default.new
 
     def self.registry

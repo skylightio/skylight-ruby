@@ -7,7 +7,6 @@ require "skylight/util/ssl"
 
 module Skylight
   class Config < Core::Config
-
     def self.env_to_key
       @env_to_key ||= super.merge(
         # == Authentication ==

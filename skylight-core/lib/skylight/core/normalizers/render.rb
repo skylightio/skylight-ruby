@@ -47,6 +47,7 @@ module Skylight::Core
       end
 
     private
+
       def relative_path?(path)
         !absolute_path?(path)
       end

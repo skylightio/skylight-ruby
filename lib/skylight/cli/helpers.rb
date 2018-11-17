@@ -1,7 +1,6 @@
 module Skylight
   module CLI
     module Helpers
-
       private
 
       # Duplicated below
@@ -26,7 +25,6 @@ module Skylight
         yield
         shell.padding = orig_padding
       end
-
     end
   end
 end

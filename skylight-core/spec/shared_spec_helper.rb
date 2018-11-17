@@ -14,7 +14,6 @@ Dir[File.expand_path("../support/*.rb", __FILE__)].each do |f|
   require f
 end
 
-
 # Begin Probed libraries
 
 if ENV["AMS_VERSION"] == "edge"
@@ -63,7 +62,6 @@ Skylight::Core::Probes.probe(:middleware)
 
 # End Probed Libraries
 
-
 all_probes = %w(Excon Faraday Net::HTTP HTTPClient Redis Tilt::Template Sinatra::Base Sequel ActionView::TemplateRenderer ActionDispatch::MiddlewareStack::Middleware)
 installed_probes = Skylight::Core::Probes.installed.keys
 skipped_probes = all_probes - installed_probes
@@ -74,7 +72,6 @@ rspec_probe_tags = {
 
 puts "Testing probes: #{installed_probes.join(", ")}" unless installed_probes.empty?
 puts "Skipping probes: #{skipped_probes.join(", ")}"  unless skipped_probes.empty?
-
 
 ENV["SKYLIGHT_RAISE_ON_ERROR"] = "true"
 
@@ -91,14 +88,11 @@ module TestNamespace
   end
 
   class Middleware < Skylight::Core::Middleware
-
     def instrumentable
       TestNamespace
     end
-
   end
 end
-
 
 RSpec.configure do |config|
   config.color = true

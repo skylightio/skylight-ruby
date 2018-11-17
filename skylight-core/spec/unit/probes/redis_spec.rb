@@ -3,7 +3,6 @@ require "spec_helper"
 module Skylight
   module Probes
     describe "Redis:Probe", :redis_probe, :probes do
-
       it "is registered" do
         reg = Skylight::Core::Probes.installed["Redis"]
         expect(reg.klass_name).to eq("Redis")
@@ -15,7 +14,6 @@ module Skylight
         # This test is somewhat lame
         expect(::Redis::Client.instance_methods).to include(:call_without_sk)
       end
-
     end
   end
 end

@@ -2,7 +2,6 @@ require "spec_helper"
 
 module Skylight::Core
   describe Config do
-
     def with_file(opts={})
       f = Tempfile.new("foo")
       FileUtils.chmod 0400, f if opts[:writable] == false
@@ -21,7 +20,6 @@ module Skylight::Core
     end
 
     context "basic lookup" do
-
       let :config do
         Config.new :foo => "hello", "bar" => "omg"
       end
@@ -35,11 +33,9 @@ module Skylight::Core
         expect(config[:foo]).to eq("hello")
         expect(config[:bar]).to eq("omg")
       end
-
     end
 
     context "1 level nested lookup" do
-
       let :config do
         Config.new :one => {
           :foo => "hello", "bar" => "omg" }
@@ -54,11 +50,9 @@ module Skylight::Core
         expect(config[:'one.foo']).to eq("hello")
         expect(config[:'one.bar']).to eq("omg")
       end
-
     end
 
     context "2 level nested lookup" do
-
       let :config do
         Config.new :one => {
           :two => {
@@ -74,17 +68,14 @@ module Skylight::Core
         expect(config[:'one.two.foo']).to eq("hello")
         expect(config[:'one.two.bar']).to eq("omg")
       end
-
     end
 
     context "lookup with defaults" do
-
       let :config do
         Config.new foo: "bar"
       end
 
       context "with a value" do
-
         it "returns the value if key is present" do
           expect(config["foo", "missing"]).to eq("bar")
         end
@@ -92,11 +83,9 @@ module Skylight::Core
         it "returns the default if key is missing" do
           expect(config["bar", "missing"]).to eq("missing")
         end
-
       end
 
       context "with a block" do
-
         it "returns the value if key is present" do
           expect(config.get("foo") { "missing" }).to eq("bar")
         end
@@ -104,13 +93,10 @@ module Skylight::Core
         it "calls the block if key is missing" do
           expect(config.get("bar") { "missing" }).to eq("missing")
         end
-
       end
-
     end
 
     context "environment scopes" do
-
       let :config do
         Config.new("production",
           foo:    "bar",
@@ -153,11 +139,9 @@ module Skylight::Core
       it "can still access other environment configs explicitly" do
         expect(config["staging.foo"]).to eq("no")
       end
-
     end
 
     context "priority keys" do
-
       let :config do
         Config.new(
           "production",
@@ -185,11 +169,9 @@ module Skylight::Core
         expect(config["nested.foo"]).to eq("p")
         expect(config["nested.baz"]).to eq("zomg")
       end
-
     end
 
     context "defaults" do
-
       it "uses defaults" do
         config = Config.new
         expect(config["heroku.dyno_info_path"]).to eq("/etc/heroku/dyno")
@@ -204,11 +186,9 @@ module Skylight::Core
         config = Config.new heroku: { dyno_info_path: nil }
         expect(config["heroku.dyno_info_path"]).to be_nil
       end
-
     end
 
     context "duration" do
-
       it "assumes durations are seconds" do
         c = Config.new foo: "123"
         expect(c.duration_ms(:foo)).to eq(123_000)
@@ -228,11 +208,9 @@ module Skylight::Core
         c = Config.new
         expect(c.duration_ms(:foo)).to be_nil
       end
-
     end
 
     context "loading from YAML" do
-
       let :file do
         tmp("skylight.yml")
       end
@@ -245,7 +223,6 @@ module Skylight::Core
       end
 
       context "valid" do
-
         before :each do
           file.write <<-YML
   authentication: invalid.log
@@ -290,11 +267,9 @@ module Skylight::Core
         it "sets proxy_url" do
           expect(config["proxy_url"]).to eq("127.0.0.1")
         end
-
       end
 
       context "invalid" do
-
         it "has useable error for empty files" do
           file.write ""
           expect { config }.to raise_error(ConfigError, "could not load config file; msg=empty file")
@@ -309,13 +284,10 @@ module Skylight::Core
           file.write "- foo\n- bar"
           expect { config }.to raise_error(ConfigError, "could not load config file; msg=invalid format")
         end
-
       end
-
     end
 
     context "legacy ENV key prefix" do
-
       let :file do
         tmp("skylight.yml")
       end
@@ -335,11 +307,9 @@ module Skylight::Core
       it "loads the authentication key" do
         expect(config[:log_file]).to eq("test.log")
       end
-
     end
 
     context "loggers" do
-
       def log_out(logger)
         # If this stops working, consider switching to checking the actual output of STDOUT or the IO instead.
         logger.instance_variable_get(:@logdev).dev
@@ -366,11 +336,9 @@ module Skylight::Core
           expect(log_out(c.alert_logger).path).to eq(f.path)
         end
       end
-
     end
 
     context "validations" do
-
       let :config do
         Config.new(authentication: "testtoken")
       end
@@ -387,7 +355,6 @@ module Skylight::Core
       end
 
       context "permissions" do
-
         it "requires the log_file file to be writeable if it exists" do
           with_file(writable: false) do |f|
             config.set(:log_file, f.path)
@@ -427,9 +394,7 @@ module Skylight::Core
             }.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set alert_log_file in your config to a writable path")
           end
         end
-
       end
-
     end
 
     context "loading" do
@@ -472,7 +437,6 @@ module Skylight::Core
     end
 
     context "#to_native_env" do
-
       let :config do
         Config.new(root: "/tmp")
       end
@@ -495,8 +459,6 @@ module Skylight::Core
 
         expect(get_env["SKYLIGHT_PROXY_URL"]).to eq("127.0.0.1")
       end
-
     end
-
   end
 end

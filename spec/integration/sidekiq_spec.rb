@@ -11,7 +11,6 @@ end
 
 if enable
   describe "Sidekiq integration" do
-
     before :each do
       @original_env = ENV.to_hash
       set_agent_env
@@ -57,7 +56,6 @@ if enable
 
           raise err
         end
-
       end
     end
 
@@ -134,7 +132,6 @@ if enable
         names = trace.filtered_spans.map { |s| s.event.category }
 
         expect(names).to eq(["app.sidekiq.worker", "app.inside", "app.zomg"])
-
       end
     end
   end

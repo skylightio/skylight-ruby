@@ -1,7 +1,6 @@
 module Skylight::Core
   module Normalizers
     module ActionController
-
       # Temporary hacks
       begin
         require "action_dispatch/http/mime_type"
@@ -41,10 +40,8 @@ module Skylight::Core
             end
           end
         end
-
       rescue LoadError
       end
-
     end
   end
 end

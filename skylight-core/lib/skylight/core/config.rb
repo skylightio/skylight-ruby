@@ -469,6 +469,5 @@ module Skylight::Core
       else v.to_s
       end
     end
-
   end
 end

@@ -2,7 +2,6 @@ require "spec_helper"
 
 module Skylight::Core
   describe Normalizers do
-
     before :each do
       @original_registry = Normalizers.instance_variable_get(:@registry)
 
@@ -46,6 +45,5 @@ module Skylight::Core
 
       expect(subject.registry["disabled.test"][1]).to eq(false)
     end
-
   end
 end

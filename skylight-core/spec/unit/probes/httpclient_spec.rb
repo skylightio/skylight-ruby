@@ -3,7 +3,6 @@ require "spec_helper"
 module Skylight
   module Probes
     describe "HTTPClient:Probe", :httpclient_probe, :probes do
-
       it "is registered" do
         reg = Skylight::Core::Probes.installed["HTTPClient"]
         expect(reg.klass_name).to eq("HTTPClient")
@@ -15,7 +14,6 @@ module Skylight
         # This test is somewhat lame
         expect(::HTTPClient.private_instance_methods).to include(:do_request_without_sk)
       end
-
     end
   end
 end

@@ -5,7 +5,6 @@ require "date"
 
 module Skylight
   describe "Normalizers", "sql.active_record", :agent do
-
     before :each do
       WebMock.enable!
 
@@ -175,6 +174,5 @@ module Skylight
       expect(title).to eq("SELECT FROM zomg")
       expect(desc).to eq("SELECT items[1] FROM zomg WHERE items[1] = ?")
     end
-
   end
 end

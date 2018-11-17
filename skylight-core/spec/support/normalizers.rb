@@ -1,5 +1,4 @@
 module SpecHelper
-
   def normalizers
     @normalizers ||= Skylight::Core::Normalizers.build(config)
   end
@@ -36,5 +35,4 @@ module SpecHelper
         normalizers.normalize(trace, name, payload)
       end
     end
-
 end

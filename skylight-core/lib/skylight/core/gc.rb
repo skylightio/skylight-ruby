@@ -107,6 +107,5 @@ module Skylight::Core
         @global.release(self) if @global
       end
     end
-
   end
 end

@@ -51,6 +51,5 @@ module Skylight
       def use_pruning?
         config.get(:prune_large_traces)
       end
-
   end
 end

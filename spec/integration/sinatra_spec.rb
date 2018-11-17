@@ -12,7 +12,6 @@ end
 
 if enable
   describe "Sinatra integration" do
-
     before :each do
       @original_env = ENV.to_hash
       set_agent_env
@@ -71,7 +70,6 @@ if enable
         expect(names).to include("app.inside")
         expect(names[0]).to eq("app.rack.request")
       end
-
     end
 
     def call(env)

@@ -2,9 +2,7 @@ require "spec_helper"
 
 # Tested here because we need native
 module Skylight::Core
-
   describe "Probes", :probes, :agent do
-
     before :all do
       @require_hooks    = Probes.require_hooks.dup
       @installed_probes = Probes.installed.dup

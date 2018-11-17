@@ -1,7 +1,6 @@
 require "spec_helper"
 
 describe "HTTPClient integration", :httpclient_probe, :http, :agent do
-
   before(:each) do
     server.mock "/test.html" do
       ret = "Testing"

@@ -6,7 +6,6 @@ module Skylight
   # into the class that you will be instrumenting. Then, annotate each method that
   # you wish to instrument with {Skylight::Helpers::ClassMethods#instrument_method instrument_method}.
   module Helpers
-
     # @see Skylight::Helpers
     module ClassMethods
       # @api private
@@ -174,6 +173,5 @@ module Skylight
         extend ClassMethods
       end
     end
-
   end
 end

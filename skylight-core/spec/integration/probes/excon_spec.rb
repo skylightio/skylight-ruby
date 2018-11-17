@@ -1,7 +1,6 @@
 require "spec_helper"
 
 describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
-
   def travel(amount)
     clock.tick += 100_000 * amount # tick value should be nanoseconds (1 billionth of a second)
   end
@@ -57,11 +56,9 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
       }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
-
   end
 
   context "descriptions" do
-
     %w(connect delete get head options patch post put trace).each do |verb|
       it "describes #{verb}" do
         stub_request(method: verb)
@@ -93,5 +90,4 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
       expect(current_trace.mock_spans[1]).to include(cat: "api.http.get", title: "GET 127.0.0.1")
     end
   end
-
 end

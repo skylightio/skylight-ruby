@@ -1,7 +1,5 @@
 module SpecHelper
-
   class MockGC
-
     def initialize
       @enabled = false
     end
@@ -17,7 +15,6 @@ module SpecHelper
     def total_time
       0
     end
-
   end
 
   def instrument(cat, *args, &blk)

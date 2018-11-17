@@ -65,6 +65,5 @@ module Skylight
           end
         end
       end
-
   end
 end

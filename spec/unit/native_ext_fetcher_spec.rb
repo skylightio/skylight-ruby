@@ -3,7 +3,6 @@ require "skylight/native_ext_fetcher"
 
 module Skylight
   describe NativeExtFetcher do
-
     around :each do |example|
       WebMock.enable!
       Dir.mktmpdir do |dir|
@@ -22,7 +21,6 @@ module Skylight
     end
 
     context "fetching successfully" do
-
       it "fetches the native extension" do
         stub_ext_request
 
@@ -69,11 +67,9 @@ module Skylight
         ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
         expect(ret).to eq(true)
       end
-
     end
 
     context "fetching unsuccessfully" do
-
       it "verifies the checksum" do
         expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
           with("s3.amazonaws.com", 443, true, "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File)).
@@ -83,7 +79,6 @@ module Skylight
 
         expect(ret).to be_nil
       end
-
     end
 
     def fetch(opts)
@@ -103,6 +98,5 @@ module Skylight
       expect(Dir.entries(@target).sort).to eq([".", "..", "win"])
       expect(File.read("#{@target}/win")).to eq("win\n")
     end
-
   end
 end

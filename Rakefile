@@ -4,7 +4,6 @@ require "rbconfig"
 require "rake/extensiontask"
 
 class ExtensionTask < Rake::ExtensionTask
-
   attr_accessor :native_lib_path
 
   def source_files
@@ -21,7 +20,6 @@ class ExtensionTask < Rake::ExtensionTask
   ensure
     ENV.replace(original_env)
   end
-
 end
 
 ExtensionTask.new do |ext|
@@ -102,7 +100,6 @@ def travis_builds
   end
 
   builds += config["jobs"]["include"]
-
 
   builds.each do |b|
     config["jobs"]["allow_failures"].each do |build|

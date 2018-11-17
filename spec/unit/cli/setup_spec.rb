@@ -1,7 +1,6 @@
 require "spec_helper"
 
 describe "skylight setup", :http, :agent do
-
   let(:hl) { double("highline") }
 
   def cli
@@ -51,7 +50,6 @@ describe "skylight setup", :http, :agent do
   end
 
   context "with token" do
-
     it "does not ask for login info" do
       should_successfully_create_app("foobar")
 
@@ -81,7 +79,5 @@ describe "skylight setup", :http, :agent do
 
       cli.setup("foobar")
     end
-
   end
-
 end

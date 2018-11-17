@@ -1,7 +1,6 @@
 require "spec_helper"
 
 describe "Net::HTTP integration", :net_http_probe, :http, :agent do
-
   class CustomType < Net::HTTPRequest
     METHOD = "CUSTOM"
     REQUEST_HAS_BODY = false
@@ -231,7 +230,6 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
 
     expect(TestNamespace).to receive(:instrument).with(expected).twice.and_call_original
 
-
     http = Net::HTTP.new(uri.host, uri.port)
     response1 = http.request(Net::HTTP::Get.new(uri.request_uri))
     response2 = http.request(Net::HTTP::Get.new(uri.request_uri))
@@ -248,5 +246,4 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
       expect(response).to be_a(Net::HTTPOK)
     end
   end
-
 end

@@ -45,7 +45,6 @@ module Skylight::Core
               end
             end
           end
-
         end
       end
     end

@@ -1,4 +1,3 @@
-
 module Skylight::Core
   # @api private
   module VM

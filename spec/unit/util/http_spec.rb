@@ -2,7 +2,6 @@ require "spec_helper"
 
 module Skylight
   describe Util::HTTP do
-
     let :config do
       Config.new(auth_url: "https://auth.skylight.io/agent")
     end
@@ -19,7 +18,6 @@ module Skylight
     end
 
     describe "proxy" do
-
       before :each do
         stub_request(:get, "https://auth.skylight.io/foobar").
           to_return(:status => 200, :body => "", :headers => {})

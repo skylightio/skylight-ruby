@@ -3,10 +3,8 @@ require "skylight/core/formatters/http"
 module Skylight::Core
   module Probes
     module Excon
-
       # Middleware for Excon that instruments requests
       class Middleware < ::Excon::Middleware::Base
-
         # This probably won't work since config isn't defined
         include Util::Logging
 
@@ -65,7 +63,6 @@ module Skylight::Core
           rescue Exception => e
             error "failed to end instrumentation for Excon; msg=%s", e.message
           end
-
       end
     end
   end

@@ -2,7 +2,6 @@ module Skylight::Core
   module Util
     # A more precise clock
     class Clock
-
       def self.use_native!
         class_eval do
           def tick
@@ -50,7 +49,6 @@ module Skylight::Core
       def self.default=(clock)
         @clock = clock
       end
-
     end
   end
 end

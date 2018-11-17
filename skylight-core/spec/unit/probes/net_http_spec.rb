@@ -3,7 +3,6 @@ require "spec_helper"
 module Skylight
   module Probes
     describe "NetHTTP:Probe", :net_http_probe, :probes do
-
       it "is registered" do
         reg = Skylight::Core::Probes.installed["Net::HTTP"]
         expect(reg.klass_name).to eq("Net::HTTP")
@@ -15,7 +14,6 @@ module Skylight
         # This test is somewhat lame
         expect(Net::HTTP.instance_methods).to include(:request_without_sk)
       end
-
     end
   end
 end

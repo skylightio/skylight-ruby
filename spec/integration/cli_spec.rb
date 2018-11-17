@@ -79,5 +79,4 @@ describe "CLI integration", :http do
     puts result if ENV["DEBUG"]
     result
   end
-
 end

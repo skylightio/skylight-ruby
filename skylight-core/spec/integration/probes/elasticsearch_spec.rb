@@ -3,7 +3,6 @@ require "spec_helper"
 # Requires elasticsearch instance to be running
 if ENV["TEST_ELASTICSEARCH_INTEGRATION"]
   describe "Elasticsearch integration", :elasticsearch_probe, :instrumenter do
-
     let(:client) do
       Elasticsearch::Client.new
     end
@@ -38,7 +37,6 @@ if ENV["TEST_ELASTICSEARCH_INTEGRATION"]
 
         expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", {type: "person", id: "?"}.to_json, nil).and_call_original.once
         client.index(index: "skylight-test", type: "person", id: "1", body: {name: "Joe"})
-
       ensure
         # Restore NetHTTP and HTTPClient probe constants
         Skylight::Core::Probes::NetHTTP::Probe    = TempNetHTTPProbe

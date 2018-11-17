@@ -19,7 +19,6 @@ module Skylight::Core
                 def internal_request_id
                   @skylight_request_id || internal_request_id_without_sk
                 end
-
             end
           end
         end

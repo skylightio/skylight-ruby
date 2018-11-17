@@ -54,7 +54,6 @@ module Skylight::Core
             end
           end
 
-
           alias multi_without_sk multi
 
           def multi(&block)

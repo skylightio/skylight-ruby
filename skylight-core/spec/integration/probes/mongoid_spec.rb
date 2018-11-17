@@ -3,7 +3,6 @@ require "spec_helper"
 # Requires mongodb instance to be running
 if ENV["TEST_MONGO_INTEGRATION"]
   describe "Mongo integration with Mongoid", :mongoid_probe, :instrumenter do
-
     class Artist
       include Mongoid::Document
       field :name, type: String
@@ -69,6 +68,5 @@ if ENV["TEST_MONGO_INTEGRATION"]
       end
 
     end
-
   end
 end

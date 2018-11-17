@@ -110,7 +110,6 @@ module Skylight::Core
       ActiveSupport::Notifications.instrument("started_instrumenter.skylight", instrumenter: self)
 
       self
-
     rescue Exception => e
       log_error "failed to start instrumenter; msg=%s; config=%s", e.message, config.inspect
       t { e.backtrace.join("\n") }

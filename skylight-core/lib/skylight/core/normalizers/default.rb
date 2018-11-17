@@ -1,9 +1,7 @@
 module Skylight::Core
   module Normalizers
-
     # The default normalizer, used if no other is found.
     class Default
-
       # @param trace [Skylight::Messages::Trace::Builder] ignored, only present to match API
       # @param name [String]
       # @param payload [Hash]
@@ -21,7 +19,6 @@ module Skylight::Core
           :skip
         end
       end
-
     end
   end
 end

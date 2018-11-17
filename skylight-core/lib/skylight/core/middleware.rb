@@ -3,7 +3,6 @@ require "securerandom"
 module Skylight::Core
   # @api private
   class Middleware
-
     class BodyProxy
       def initialize(body, &block)
         @body, @block, @closed = body, block, false

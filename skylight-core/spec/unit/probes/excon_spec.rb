@@ -4,7 +4,6 @@ module Skylight::Core
   module Probes
     describe "Excon", :excon_probe do
       describe "Probe", :probes do
-
         it "is registered" do
           reg = Skylight::Core::Probes.installed["Excon"]
           expect(reg.klass_name).to eq("Excon")
@@ -24,7 +23,6 @@ module Skylight::Core
       end
 
       describe "Middleware" do
-
         # This may be a bit overkill, but I'm trying to mock Excon somewhat accurately
         class TestConnection
           def initialize(middlewares=[])
@@ -94,7 +92,6 @@ module Skylight::Core
           conn.request(datum)
           conn.error(datum)
         end
-
       end
     end
   end

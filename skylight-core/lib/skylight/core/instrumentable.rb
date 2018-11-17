@@ -1,7 +1,6 @@
 module Skylight
   module Core
     module Instrumentable
-
       def self.included(base)
         base.extend(Util::Logging)
         base.extend(ClassMethods)
@@ -16,7 +15,6 @@ module Skylight
       end
 
       module ClassMethods
-
         def instrumenter_class
           Skylight::Core::Instrumenter
         end
@@ -157,9 +155,7 @@ module Skylight
           return unless instrumenter
           instrumenter.config
         end
-
       end
-
     end
   end
 end

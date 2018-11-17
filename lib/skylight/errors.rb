@@ -1,6 +1,5 @@
 module Skylight
   class NativeError < StandardError
-
     @@classes = { }
 
     def self.register(code, name, message)
@@ -53,5 +52,4 @@ module Skylight
     # E0004
     register(4, "SqlLex", "Failed to lex SQL query.")
   end
-
 end

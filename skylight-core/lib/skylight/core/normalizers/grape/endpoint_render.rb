@@ -19,7 +19,6 @@ module Skylight::Core
             :skip
           end
         end
-
       end
     end
   end

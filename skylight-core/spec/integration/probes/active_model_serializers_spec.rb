@@ -2,7 +2,6 @@ require "spec_helper"
 
 if defined?(ActiveModel::Serializer)
   describe "ActiveModel::Serializer", :active_model_serializers_probe, :agent, :instrumenter do
-
     require "action_controller"
     require "action_controller/serialization"
 
@@ -40,7 +39,6 @@ if defined?(ActiveModel::Serializer)
         end
       end
     end
-
 
     class ItemSerializer < ActiveModel::Serializer
       attributes :name, :doubled_value
@@ -125,6 +123,5 @@ if defined?(ActiveModel::Serializer)
 
       expect(current_trace.mock_spans[2]).to include(opts)
     end
-
   end
 end

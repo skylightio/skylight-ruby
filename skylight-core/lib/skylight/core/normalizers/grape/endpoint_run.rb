@@ -26,7 +26,6 @@ module Skylight::Core
 
             "#{endpoint.options[:for]} [#{method}] #{path}"
           end
-
       end
     end
   end

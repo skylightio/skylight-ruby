@@ -94,5 +94,4 @@ module Skylight
 
   # @api private
   DEFAULT_OPTIONS = { category: DEFAULT_CATEGORY }
-
 end

@@ -2,7 +2,6 @@ require "tmpdir"
 
 module SpecHelper
   module Standalone
-
     def self.with_dummy(dir=nil, &blk)
       dir = tmpdir = Dir.mktmpdir unless dir
 

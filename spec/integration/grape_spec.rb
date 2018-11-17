@@ -12,7 +12,6 @@ end
 if enable
 
   describe "Grape integration" do
-
     before :each do
       ENV["SKYLIGHT_AUTHENTICATION"]       = "lulz"
       ENV["SKYLIGHT_BATCH_FLUSH_INTERVAL"] = "1"
@@ -58,7 +57,6 @@ if enable
     end
 
     context "with agent", :http, :agent do
-
       before :each do
         stub_config_validation
         stub_session_request
@@ -87,7 +85,6 @@ if enable
 
         expect(names.last).to eq("view.grape.format_response") if ENV["GRAPE_VERSION"] == "edge"
       end
-
     end
 
     def call(env)
@@ -105,6 +102,5 @@ if enable
       resp[2].close
       data
     end
-
   end
 end

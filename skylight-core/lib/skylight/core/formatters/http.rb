@@ -2,7 +2,6 @@ module Skylight
   module Core
     module Formatters
       module HTTP
-
         # Build instrumentation options for HTTP queries
         #
         # @param [String] method HTTP method, e.g. get, post

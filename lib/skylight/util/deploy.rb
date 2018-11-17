@@ -3,9 +3,7 @@ require "skylight/core/util/logging"
 
 module Skylight
   module Util
-
     module Deploy
-
       def self.build(config)
         DEPLOY_TYPES.each do |type|
           deploy = type.new(config)
@@ -15,7 +13,6 @@ module Skylight
       end
 
       class EmptyDeploy
-
         attr_reader :config
         attr_reader :timestamp
 
@@ -45,7 +42,6 @@ module Skylight
           hash[:description] = description[0..255] if description # Avoid massive descriptions
           hash
         end
-
       end
 
       class DefaultDeploy < EmptyDeploy
@@ -69,11 +65,9 @@ module Skylight
         def description
           config.get(:'deploy.description')
         end
-
       end
 
       class HerokuDeploy < EmptyDeploy
-
         def initialize(*)
           super
           @info = get_info
@@ -102,11 +96,9 @@ module Skylight
               end
             end
           end
-
       end
 
       class GitDeploy < EmptyDeploy
-
         attr_reader :git_sha, :description
 
         def initialize(*)
@@ -122,12 +114,9 @@ module Skylight
               info.split(" ", 2).map(&:strip) if $?.success?
             end
           end
-
       end
 
       DEPLOY_TYPES = [DefaultDeploy, HerokuDeploy, GitDeploy]
-
     end
-
   end
 end

@@ -3,7 +3,6 @@ require "spec_helper"
 if defined?(ActionDispatch)
 
   describe "ActionDispatch::RequestId integration", :'action_dispatch/request_id_probe', :agent do
-
     before do
       TestNamespace.mock!
     end
@@ -50,6 +49,5 @@ if defined?(ActionDispatch)
 
       expect(final_env["action_dispatch.request_id"]).to_not be_nil
     end
-
   end
 end

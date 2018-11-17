@@ -1,7 +1,6 @@
 require "spec_helper"
 
 describe "Faraday integration", :faraday_probe, :http, :faraday, :agent do
-
   before(:each) do
     server.mock "/test.html" do
       ret = "Testing"

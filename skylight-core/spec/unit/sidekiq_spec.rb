@@ -10,9 +10,7 @@ end
 
 if enable
   module Skylight::Core
-
     describe "Sidekiq" do
-
       after :each do
         ::Sidekiq.server_middleware.clear
       end
@@ -33,7 +31,6 @@ if enable
       end
 
       context "instrumenting worker", :agent do
-
         before :each do
           ::Sidekiq::Testing.inline!
 
@@ -82,7 +79,6 @@ if enable
           expect(@trace.mock_spans.map{|s| s[:cat]}).to eq(["app.sidekiq.worker", "app.inside", "app.zomg"])
           expect(@trace.mock_spans[0][:title]).to eq("MyWorker")
         end
-
       end
     end
   end

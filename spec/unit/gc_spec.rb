@@ -2,7 +2,6 @@ require "spec_helper"
 
 module Skylight
   describe GC, :http, :agent do
-
     before :each do
       clock.freeze
     end
@@ -12,7 +11,6 @@ module Skylight
     end
 
     context "when there is no GC and no spans" do
-
       it "leaves the GC node out" do
         start!
 
@@ -30,11 +28,9 @@ module Skylight
         expect(trace.spans.count).to eq(1)
         expect(trace.spans[0].duration).to eq(10_000)
       end
-
     end
 
     context "when there is GC and no spans" do
-
       it "adds a GC node" do
         start!
 
@@ -55,11 +51,9 @@ module Skylight
         expect(trace.spans[1].event.category).to eq("noise.gc")
         expect(trace.spans[1].duration).to eq(1_000)
       end
-
     end
 
     context "when there is GC and a span" do
-
       it "subtracts GC from the span and adds it at the end" do
         start!
 
@@ -92,6 +86,5 @@ module Skylight
     def trace
       server.reports[0].endpoints[0].traces[0]
     end
-
   end
 end
