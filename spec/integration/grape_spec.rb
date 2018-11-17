@@ -98,7 +98,7 @@ if enable
 
     def consume(resp)
       data = []
-      resp[2].each{|p| data << p }
+      resp[2].each { |p| data << p }
       resp[2].close
       data
     end

@@ -18,14 +18,14 @@ module Skylight::Core
 
           # Verify correct positioning
           idx = middlewares.index(Skylight::Core::Probes::Excon::Middleware)
-          expect(middlewares[idx+1]).to eq(::Excon::Middleware::Instrumentor)
+          expect(middlewares[idx + 1]).to eq(::Excon::Middleware::Instrumentor)
         end
       end
 
       describe "Middleware" do
         # This may be a bit overkill, but I'm trying to mock Excon somewhat accurately
         class TestConnection
-          def initialize(middlewares=[])
+          def initialize(middlewares = [])
             @error_calls = []
             @request_calls = []
             @response_calls = []
@@ -33,7 +33,7 @@ module Skylight::Core
             # This is how Excon does it
             # https://github.com/geemus/excon/blob/b367b788b0cd71eb22107492496e1857497dd292/lib/excon/connection.rb#L260-L265
             @stack = middlewares.map do |middleware|
-              lambda {|stack| middleware.new(stack)}
+              lambda { |stack| middleware.new(stack) }
             end.reverse.inject(self) do |middlewares, middleware|
               middleware.call(middlewares)
             end

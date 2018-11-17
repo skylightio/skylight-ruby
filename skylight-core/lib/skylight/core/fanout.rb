@@ -14,7 +14,7 @@ module Skylight
       end
 
       def self.trace(*args)
-        registered.map{|r| r.trace(*args) }
+        registered.map { |r| r.trace(*args) }
       end
 
       def self.instrument(*args)
@@ -33,7 +33,7 @@ module Skylight
         end
       end
 
-      def self.done(spans, meta=nil)
+      def self.done(spans, meta = nil)
         spans.reverse.each do |(target, span)|
           target.done(span, meta)
         end

@@ -92,7 +92,7 @@ def travis_builds
 
   config["jobs"]["exclude"].each do |build|
     builds.reject! do |b|
-      build.to_a.all? do |(k,v)|
+      build.to_a.all? do |(k, v)|
         v = Array(v) if k == "env"
         b[k] == v
       end
@@ -103,7 +103,7 @@ def travis_builds
 
   builds.each do |b|
     config["jobs"]["allow_failures"].each do |build|
-      b["allow_failure"] ||= build.to_a.all? do |(k,v)|
+      b["allow_failure"] ||= build.to_a.all? do |(k, v)|
         v = Array(v) if k == "env"
         b[k] == v
       end
@@ -115,7 +115,7 @@ def travis_builds
   builds = stages.map { |stage| stage_groups[stage] }.flatten
 
   # Move allowed_failures to the end
-  allowed_failures = builds.select{|b| b["allow_failure"]}
+  allowed_failures = builds.select { |b| b["allow_failure"] }
   builds = (builds - allowed_failures) + allowed_failures
 
   builds.each.with_index do |build, index|
@@ -135,7 +135,7 @@ task :run_travis_builds => :vagrant_up do |t|
   builds = travis_builds
 
   if number = ENV["JOB"]
-    if build = builds.find{|b| b["number"] == number.to_i }
+    if build = builds.find { |b| b["number"] == number.to_i }
       builds = [build]
     else
       abort "No build for number: #{number}"
@@ -160,9 +160,9 @@ task :run_travis_builds => :vagrant_up do |t|
         "export BUNDLE_GEMFILE=\\$PWD/#{build['gemfile']}", # Escape PWD so it runs on Vagrant, not local box
       ]
 
-      commands += travis_config["env"]["global"].map{|env| "export #{env}" }
+      commands += travis_config["env"]["global"].map { |env| "export #{env}" }
 
-      commands += Array(build["env"]).map{|env| "export #{env}" }
+      commands += Array(build["env"]).map { |env| "export #{env}" }
 
       commands << "export DEBUG=1" if debug
 
@@ -193,8 +193,8 @@ task :run_travis_builds => :vagrant_up do |t|
     end
   end
 
-  successful = builds.select{|b| b["success"] }
-  failed = builds.reject{|b| b["success"] }
+  successful = builds.select { |b| b["success"] }
+  failed = builds.reject { |b| b["success"] }
 
   puts "Completed: #{builds.count}, Successful: #{successful.count}, Failed: #{failed.count}"
 

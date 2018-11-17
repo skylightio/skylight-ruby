@@ -88,7 +88,7 @@ module Skylight
           opts[:timeout] || 15
       end
 
-      def build_request(type, endpoint, hdrs, length=nil)
+      def build_request(type, endpoint, hdrs, length = nil)
         headers = {}
 
         headers[CONTENT_LENGTH]   = length.to_s if length
@@ -123,7 +123,7 @@ module Skylight
         client.finish if client
       end
 
-      def execute(req, body=nil)
+      def execute(req, body = nil)
         t { fmt "executing HTTP request; host=%s; port=%s; path=%s, body=%s",
               @host, @port, req.path, body && body.bytesize }
 
@@ -198,7 +198,7 @@ module Skylight
           res
         end
 
-        def respond_to_missing?(name, include_all=false)
+        def respond_to_missing?(name, include_all = false)
           super || body.respond_to?(name, include_all)
         end
 

@@ -100,7 +100,7 @@ module Skylight
       @config = config
     end
 
-    def create_app(name, token=nil)
+    def create_app(name, token = nil)
       params = { app: { name: name } }
       params[:token] = token if token
 

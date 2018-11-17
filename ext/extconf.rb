@@ -27,7 +27,7 @@ class MultiIO
   end
 
   def write(*args)
-    @targets.each {|t| t.write(*args)}
+    @targets.each { |t| t.write(*args) }
   end
 
   def close
@@ -58,7 +58,7 @@ LOG = Logger.new(MultiIO.new(STDOUT, File.open(SKYLIGHT_INSTALL_LOG, "a")))
 # want to break our customer's deploy, but extconf.rb requires a Makefile to be
 # present upon a successful exit. To satisfy this requirement, we create a
 # dummy Makefile.
-def fail(msg, type=:error)
+def fail(msg, type = :error)
   LOG.send type, msg
 
   if SKYLIGHT_REQUIRED
@@ -198,7 +198,7 @@ def find_file(file, root = nil)
   end
 end
 
-$VPATH  << libpath
+$VPATH << libpath
 
 # Where the ruby binding src is
 SRC_PATH = File.expand_path("..", __FILE__)

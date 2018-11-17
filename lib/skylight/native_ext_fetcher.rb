@@ -170,13 +170,13 @@ module Skylight
               out.write chunk
             end
 
-            return [ :success, digest.hexdigest ]
+            return [:success, digest.hexdigest]
           when Net::HTTPRedirection
             unless location = resp["location"]
               raise "received redirect but no location"
             end
 
-            return [ :redirect, location ]
+            return [:redirect, location]
           else
             raise "received HTTP status code #{resp.code}"
           end
@@ -217,7 +217,7 @@ module Skylight
     # @return [Array<String>] the host, port, scheme, and request_uri
     def deconstruct_uri(uri)
       uri = URI(uri)
-      [ uri.host, uri.port, uri.scheme == "https", uri.request_uri ]
+      [uri.host, uri.port, uri.scheme == "https", uri.request_uri]
     end
 
     # Log an error and raise if `required` is `true`
@@ -246,7 +246,7 @@ module Skylight
     # @param msg [String]
     # @param e [Exception] the exception associated with the error
     # @return [void]
-    def error(msg, e=nil)
+    def error(msg, e = nil)
       msg = "[SKYLIGHT] #{msg}"
       msg << "\n#{e.backtrace.join("\n")}" if e
       @log.error msg

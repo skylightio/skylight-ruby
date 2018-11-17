@@ -15,8 +15,8 @@ if defined?(ActionDispatch)
     let(:route_set) do
       ActionDispatch::Routing::RouteSet.new.tap do |routes|
         routes.draw do
-          get("/foo", to: -> (*) { [204, {}, []] })
-          get("/error", to: -> (*) { raise CustomError })
+          get("/foo", to: ->(*) { [204, {}, []] })
+          get("/error", to: ->(*) { raise CustomError })
         end
       end
     end

@@ -5,7 +5,7 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
     clock.tick += 100_000 * amount # tick value should be nanoseconds (1 billionth of a second)
   end
 
-  def stub_request(opts={}, &block)
+  def stub_request(opts = {}, &block)
     path = "/#{opts[:path]}"
     method = opts[:method] || :get
     delay  = opts[:delay] || 1 # agent talks units of 100 microseconds (10,000ths of a second)
@@ -41,7 +41,7 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
     end
 
     it "logs errored requests" do
-      Excon.stub({}, lambda{|request_params|
+      Excon.stub({}, lambda { |request_params|
         travel(2)
         raise "bad response"
         { :body => "body", :status => 200 }

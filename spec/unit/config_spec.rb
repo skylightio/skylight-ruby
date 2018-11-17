@@ -2,7 +2,7 @@ require "spec_helper"
 
 module Skylight
   describe Config do
-    def with_file(opts={})
+    def with_file(opts = {})
       f = Tempfile.new("foo")
       FileUtils.chmod 0400, f if opts[:writable] == false
       yield f
@@ -11,7 +11,7 @@ module Skylight
       f.unlink
     end
 
-    def with_dir(opts={})
+    def with_dir(opts = {})
       Dir.mktmpdir do |d|
         FileUtils.mkdir("#{d}/nested")
         FileUtils.chmod 0400, "#{d}/nested" if opts[:writable] == false

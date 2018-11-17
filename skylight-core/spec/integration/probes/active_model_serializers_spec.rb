@@ -32,7 +32,7 @@ if defined?(ActiveModel::Serializer)
 
         attr_accessor :name, :value
 
-        def initialize(attributes={})
+        def initialize(attributes = {})
           attributes.each do |key, val|
             self.send("#{key}=", val)
           end
@@ -88,7 +88,7 @@ if defined?(ActiveModel::Serializer)
     it "instruments serialization" do
       status, header, response = dispatch(:show)
 
-      json = { item: { name: "Test", doubled_value: 4 }}.to_json
+      json = { item: { name: "Test", doubled_value: 4 } }.to_json
       expect(response.body).to eq(json)
 
       opts = {
@@ -107,7 +107,7 @@ if defined?(ActiveModel::Serializer)
       status, header, response = dispatch(:list)
 
       json = { items: [{ name: "Test", doubled_value: 4 },
-                        { name: "Other", doubled_value: 10 }]}.to_json
+                        { name: "Other", doubled_value: 10 }] }.to_json
       expect(response.body).to eq(json)
 
       opts = {

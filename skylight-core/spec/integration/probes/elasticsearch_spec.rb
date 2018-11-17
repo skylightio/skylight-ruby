@@ -18,8 +18,8 @@ if ENV["TEST_ELASTICSEARCH_INTEGRATION"]
       expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", nil, nil).and_call_original.once
       client.indices.create(index: "skylight-test")
 
-      expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", {type: "person", id: "?"}.to_json, nil).and_call_original.once
-      client.index(index: "skylight-test", type: "person", id: "1", body: {name: "Joe"})
+      expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", { type: "person", id: "?" }.to_json, nil).and_call_original.once
+      client.index(index: "skylight-test", type: "person", id: "1", body: { name: "Joe" })
     end
 
     it "handles uninitialized probe dependencies" do
@@ -29,14 +29,14 @@ if ENV["TEST_ELASTICSEARCH_INTEGRATION"]
         TempHTTPClientProbe = Skylight::Core::Probes::HTTPClient::Probe
         Skylight::Core::Probes::NetHTTP.send(:remove_const, :Probe)
         Skylight::Core::Probes::HTTPClient.send(:remove_const, :Probe)
-        allow_any_instance_of(::Net::HTTP).to receive(:request){|obj, *args| obj.send(:request_without_sk, *args)}
-        allow_any_instance_of(::HTTPClient).to receive(:do_request){|obj, *args| obj.send(:do_request_without_sk, *args)}
+        allow_any_instance_of(::Net::HTTP).to receive(:request) { |obj, *args| obj.send(:request_without_sk, *args) }
+        allow_any_instance_of(::HTTPClient).to receive(:do_request) { |obj, *args| obj.send(:do_request_without_sk, *args) }
 
         expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", nil, nil).and_call_original.once
         client.indices.create(index: "skylight-test")
 
-        expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", {type: "person", id: "?"}.to_json, nil).and_call_original.once
-        client.index(index: "skylight-test", type: "person", id: "1", body: {name: "Joe"})
+        expect(current_trace).to receive(:instrument).with("db.elasticsearch.request", "PUT skylight-test", { type: "person", id: "?" }.to_json, nil).and_call_original.once
+        client.index(index: "skylight-test", type: "person", id: "1", body: { name: "Joe" })
       ensure
         # Restore NetHTTP and HTTPClient probe constants
         Skylight::Core::Probes::NetHTTP::Probe    = TempNetHTTPProbe

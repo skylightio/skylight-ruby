@@ -83,7 +83,7 @@ if enable
 
     def consume(resp)
       data = []
-      resp[2].each{|p| data << p }
+      resp[2].each { |p| data << p }
       resp[2].close if resp[2].respond_to?(:close)
       data
     end

@@ -36,7 +36,7 @@ module Skylight
 
           expect(Net::HTTP).to receive(:start).
             with("s3.amazonaws.com", 443, "127.0.0.1", 123, "foo", "bar", use_ssl: true).
-            and_return([ :success, checksum ])
+            and_return([:success, checksum])
 
           ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
           expect(ret).to eq(true)
@@ -62,7 +62,7 @@ module Skylight
 
         expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
           with("s3.amazonaws.com", 443, true, "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File)).
-          and_return([ :success, checksum ])
+          and_return([:success, checksum])
 
         ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
         expect(ret).to eq(true)
@@ -73,7 +73,7 @@ module Skylight
       it "verifies the checksum" do
         expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
           with("s3.amazonaws.com", 443, true, "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File)).
-          and_return([ :success, checksum ])
+          and_return([:success, checksum])
 
         ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: "abcdefghijklmnop"
 
@@ -88,7 +88,7 @@ module Skylight
       NativeExtFetcher.fetch(opts)
     end
 
-    def stub_ext_request(url=nil)
+    def stub_ext_request(url = nil)
       url ||= "https://s3.amazonaws.com/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz"
       stub_request(:get, url).
         to_return(:status => 200, :body => archive, :headers => {})

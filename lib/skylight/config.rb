@@ -205,17 +205,17 @@ module Skylight
 
       unless res.config_valid?
         warn("Invalid configuration") unless res.is_error_response?
-        res.validation_errors.each do |k,v|
+        res.validation_errors.each do |k, v|
           warn("  #{k}: #{v}")
         end
 
         return false if res.forbidden?
 
         corrected_config = res.corrected_config
-        config_to_update = corrected_config.select{|k,v| get(k) != v }
+        config_to_update = corrected_config.select { |k, v| get(k) != v }
         unless config_to_update.empty?
           info("Updating config values:")
-          config_to_update.each do |k,v|
+          config_to_update.each do |k, v|
             info("  setting #{k} to #{v}")
 
             # This is a weird way to handle priorities
@@ -274,7 +274,7 @@ authentication: #{self[:authentication]}
       token = get(:authentication)
 
       if token
-        meta = { }
+        meta = {}
         meta.merge!(deploy.to_query_hash) if deploy
         meta[:component] = component.to_s if component
         meta[:reporting_env] = true if reporting_env?

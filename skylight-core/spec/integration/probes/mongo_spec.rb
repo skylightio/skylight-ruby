@@ -4,7 +4,7 @@ require "spec_helper"
 if ENV["TEST_MONGO_INTEGRATION"]
   describe "Mongo integration with offial driver", :mongo_probe, :instrumenter do
     let :client do
-      Mongo::Client.new([ "127.0.0.1:27017" ], :database => "echo_test")
+      Mongo::Client.new(["127.0.0.1:27017"], :database => "echo_test")
     end
 
     it "instruments insert_one" do
@@ -19,7 +19,7 @@ if ENV["TEST_MONGO_INTEGRATION"]
     end
 
     it "instruments insert_many" do
-      client[:artists].insert_many([ { name: "Peter" }, { name: "Daniel" } ])
+      client[:artists].insert_many([{ name: "Peter" }, { name: "Daniel" }])
 
       # No details on the insert because the documents aren't guaranteed to follow any pattern
       expected = { cat: "db.mongo.command", title: "echo_test.insert artists" }
@@ -54,15 +54,15 @@ if ENV["TEST_MONGO_INTEGRATION"]
     it "instruments update_one" do
       client[:artists].find(:name => "Goldie").update_one("$inc" => { :plays => 1 })
 
-      description = { updates: [{ "q" => { :name => "?" }, "u" => { "$inc" => { :plays => "?" }}, "multi" => false, "upsert" => false }] }.to_json
+      description = { updates: [{ "q" => { :name => "?" }, "u" => { "$inc" => { :plays => "?" } }, "multi" => false, "upsert" => false }] }.to_json
       expected = { cat: "db.mongo.command", title: "echo_test.update artists", desc: description }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
 
     it "instruments update_many" do
-      client[:artists].update_many({ :label => "Hospital" }, { "$inc" => { :plays => 1 }})
+      client[:artists].update_many({ :label => "Hospital" }, { "$inc" => { :plays => 1 } })
 
-      description = { updates: [{ "q" => { :label => "?" }, "u" => { "$inc" => { :plays => "?" }}, "multi" => true, "upsert" => false }] }.to_json
+      description = { updates: [{ "q" => { :label => "?" }, "u" => { "$inc" => { :plays => "?" } }, "multi" => true, "upsert" => false }] }.to_json
       expected = { cat: "db.mongo.command", title: "echo_test.update artists", desc: description }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
@@ -94,7 +94,7 @@ if ENV["TEST_MONGO_INTEGRATION"]
     it "instruments find_one_and_update" do
       client[:artists].find(:name => "Jose James").find_one_and_update("$set" => { :name => "Jose" })
 
-      description = { query: { :name => "?" }, update: { "$set" => { name: "?" }}, new: false }.to_json
+      description = { query: { :name => "?" }, update: { "$set" => { name: "?" } }, new: false }.to_json
       expected = { cat: "db.mongo.command", title: "echo_test.findAndModify artists", desc: description }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
@@ -102,7 +102,7 @@ if ENV["TEST_MONGO_INTEGRATION"]
     it "instruments delete_one" do
       client[:artists].find(:name => "Bjork").delete_one
 
-      description = { deletes: [ q: { name: "?" }, limit: 1 ] }.to_json
+      description = { deletes: [q: { name: "?" }, limit: 1] }.to_json
       expected = { cat: "db.mongo.command", title: "echo_test.delete artists", desc: description }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
@@ -110,7 +110,7 @@ if ENV["TEST_MONGO_INTEGRATION"]
     it "instruments delete_many" do
       client[:artists].find(:name => "Bjork").delete_many
 
-      description = { deletes: [ q: { name: "?" }, limit: 0 ] }.to_json
+      description = { deletes: [q: { name: "?" }, limit: 0] }.to_json
       expected = { cat: "db.mongo.command", title: "echo_test.delete artists", desc: description }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
@@ -119,8 +119,8 @@ if ENV["TEST_MONGO_INTEGRATION"]
       client[:artists].bulk_write([
         { :insert_one => { :x => 1 } },
         { :update_one => { :filter => { :x => 1 },
-                           :update => {"$set" => { :x => 2 }}}},
-        { :delete_one => { :filter => { :x => 1 }}}
+                           :update => { "$set" => { :x => 2 } } } },
+        { :delete_one => { :filter => { :x => 1 } } }
       ], :ordered => true)
 
       expected = { cat: "db.mongo.command", title: "echo_test.insert artists" }
@@ -135,8 +135,8 @@ if ENV["TEST_MONGO_INTEGRATION"]
 
     it "instruments aggregate" do
       client[:artists].aggregate([
-        { "$match" => { x: 2 }},
-        { "$group" => { _id: "$artist_id", "accumulator" => { "$max" => "$x" }}},
+        { "$match" => { x: 2 } },
+        { "$group" => { _id: "$artist_id", "accumulator" => { "$max" => "$x" } } },
       ]).to_a
 
       expected = {
@@ -149,8 +149,8 @@ if ENV["TEST_MONGO_INTEGRATION"]
 
     it "instruments more complex aggregates" do
       client[:artists].aggregate([
-        { "$match" => { likes: { "$gte" => 1000, "$lt" => 5000 }}},
-        { "$unwind" => { path: "$homeCities", includeArrayIndex: "arrayIndex" }},
+        { "$match" => { likes: { "$gte" => 1000, "$lt" => 5000 } } },
+        { "$unwind" => { path: "$homeCities", includeArrayIndex: "arrayIndex" } },
         { "$group" => {
           _id: nil,
           total: { "$sum" => "$likes" },

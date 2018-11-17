@@ -83,7 +83,7 @@ module Skylight::Core
         def extract_binds(hash)
           ret = {}
 
-          hash.each do |k,v|
+          hash.each do |k, v|
             if v.is_a?(Hash)
               ret[k] = extract_binds(v)
             else

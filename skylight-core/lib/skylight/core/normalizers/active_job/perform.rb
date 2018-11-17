@@ -13,7 +13,7 @@ module Skylight::Core
 
           trace.endpoint = title
 
-          [ CAT, title, desc ]
+          [CAT, title, desc]
         end
 
         def normalize_after(trace, _span, _name, payload)

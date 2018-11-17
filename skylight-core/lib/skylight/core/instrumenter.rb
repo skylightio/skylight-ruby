@@ -5,14 +5,14 @@ require "securerandom"
 module Skylight::Core
   # @api private
   class Instrumenter
-    KEY  = :__skylight_current_trace
+    KEY = :__skylight_current_trace
 
     TOO_MANY_UNIQUES = "<too many unique descriptions>"
 
     include Util::Logging
 
     class TraceInfo
-      def initialize(key=KEY)
+      def initialize(key = KEY)
         @key = key
       end
 
@@ -121,7 +121,7 @@ module Skylight::Core
       native_stop
     end
 
-    def trace(endpoint, cat, title=nil, desc=nil, meta=nil, segment: nil)
+    def trace(endpoint, cat, title = nil, desc = nil, meta = nil, segment: nil)
       # If a trace is already in progress, continue with that one
       if trace = @trace_info.current
         return yield(trace) if block_given?
@@ -169,7 +169,7 @@ module Skylight::Core
       self.class.match?(string, regex)
     end
 
-    def instrument(cat, title=nil, desc=nil, meta=nil)
+    def instrument(cat, title = nil, desc = nil, meta = nil)
       raise ArgumentError, "cat is required" unless cat
 
       unless trace = @trace_info.current
@@ -215,7 +215,7 @@ module Skylight::Core
       trace.broken!
     end
 
-    def done(span, meta=nil)
+    def done(span, meta = nil)
       return unless trace = @trace_info.current
       trace.done(span, meta)
     end

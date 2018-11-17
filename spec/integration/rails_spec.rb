@@ -17,9 +17,9 @@ if enable
       MyApp.initialize!
 
       EngineNamespace::MyEngine.routes.draw do
-        root to: -> (env) { [204, {}, []] }
-        get "/empty", to: -> (env) { [204, {}, []] }, as: :empty
-        get "/error_from_router", to: -> (env) { raise RuntimeError, "cannot even" }
+        root to: ->(env) { [204, {}, []] }
+        get "/empty", to: ->(env) { [204, {}, []] }, as: :empty
+        get "/error_from_router", to: ->(env) { raise RuntimeError, "cannot even" }
         get "/error_from_controller", to: "application#error"
         get "/show", to: "application#show"
       end
@@ -50,7 +50,7 @@ if enable
       CustomMiddleware ||= Struct.new(:app) do
         def call(env)
           if env["PATH_INFO"] == "/middleware"
-            return [200, { }, ["CustomMiddleware"]]
+            return [200, {}, ["CustomMiddleware"]]
           end
 
           app.call(env)
@@ -64,7 +64,7 @@ if enable
           # NOTE: We are intentionally throwing away the response without calling close
           # This is to emulate a non-conforming Middleware
           if env["PATH_INFO"] == "/non-closing"
-            return [200, { }, ["NonClosing"]]
+            return [200, {}, ["NonClosing"]]
           end
 
           res
@@ -175,7 +175,7 @@ if enable
         config.eager_load = false
 
         # Log request ids
-        config.log_tags = Rails.version =~ /^4\./ ? [ :uuid ] : [ :request_id ]
+        config.log_tags = Rails.version =~ /^4\./ ? [:uuid] : [:request_id]
 
         # This class has no name
         config.middleware.use(Class.new do
@@ -185,7 +185,7 @@ if enable
 
           def call(env)
             if env["PATH_INFO"] == "/anonymous"
-              return [200, { }, ["Anonymous"]]
+              return [200, {}, ["Anonymous"]]
             end
 
             @app.call(env)
@@ -330,7 +330,7 @@ if enable
           })
         end
 
-        def render(options={})
+        def render(options = {})
           self.status = options[:status] || 200
           self.content_type = options[:content_type] || "text/html; charset=utf-8"
           self.headers["Content-Length"] = options[:text].bytesize.to_s
@@ -393,7 +393,7 @@ if enable
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
-        app_spans = trace.filtered_spans.map{|s| [s.event.category, s.event.title] }.select{|s| s[0] =~ /^app./ }
+        app_spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
         expect(app_spans).to eq([
           ["app.rack.request", nil],
           ["app.controller.request", "UsersController#index"],
@@ -410,7 +410,7 @@ if enable
 
         trace = server.reports[0].endpoints[0].traces[0]
 
-        app_and_rack_spans = trace.filtered_spans.map{|s| [s.event.category, s.event.title] }.select{|s| s[0] =~ /^(app|rack)./ }
+        app_and_rack_spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^(app|rack)./ }
 
         # We know the first one
         expect(app_and_rack_spans[0]).to eq(["app.rack.request", nil])
@@ -418,7 +418,7 @@ if enable
         # But the middlewares will be variable, depending on the Rails version
         count = 0
         while true do
-          break if app_and_rack_spans[count+1][0] != "rack.middleware"
+          break if app_and_rack_spans[count + 1][0] != "rack.middleware"
           count += 1
         end
 
@@ -429,7 +429,7 @@ if enable
         expect(app_and_rack_spans).to include(["rack.middleware", "Anonymous Middleware"], ["rack.middleware", "CustomMiddleware"])
 
         # Check the rest
-        expect(app_and_rack_spans[(count+1)..-1]).to eq([
+        expect(app_and_rack_spans[(count + 1)..-1]).to eq([
           ["rack.app", router_name],
           ["app.controller.request", "UsersController#index"],
           ["app.method", "Check authorization"],
@@ -478,7 +478,7 @@ if enable
 
           trace = server.reports[0].endpoints[0].traces[0]
 
-          titles = trace.filtered_spans.map{ |s| s.event.title }
+          titles = trace.filtered_spans.map { |s| s.event.title }
 
           # If Skylight runs after CustomMiddleware, we shouldn't see it
           expect(titles).not_to include("CustomMiddleware")
@@ -514,7 +514,7 @@ if enable
 
           trace = server.reports[0].endpoints[0].traces[0]
 
-          titles = trace.filtered_spans.map{ |s| s.event.title }
+          titles = trace.filtered_spans.map { |s| s.event.title }
 
           expect(titles).to include("NonArrayMiddleware")
         end
@@ -625,7 +625,7 @@ if enable
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
-            spans = trace.filtered_spans.map{|s| [s.event.category, s.event.title] }
+            spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
 
             expect(spans).to eq([["app.rack.request", nil],
                                   ["error.code.3", nil]])
@@ -1013,7 +1013,7 @@ if enable
 
     def consume(resp)
       data = []
-      resp[2].each{|p| data << p }
+      resp[2].each { |p| data << p }
       resp[2].close if resp[2].respond_to?(:close)
       resp[2] = data
       resp

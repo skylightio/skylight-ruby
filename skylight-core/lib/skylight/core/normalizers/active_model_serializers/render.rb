@@ -18,7 +18,7 @@ module Skylight::Core
             desc = "Adapter: #{adapter_name}"
           end
 
-          [ CAT, title, desc ]
+          [CAT, title, desc]
         end
       end
     end

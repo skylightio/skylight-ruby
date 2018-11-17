@@ -158,7 +158,7 @@ module Skylight::Core
       end
     end
 
-    def sk_rails_config(target=self)
+    def sk_rails_config(target = self)
       target.config.send(self.class.root_key)
     end
   end

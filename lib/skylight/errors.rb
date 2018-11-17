@@ -1,6 +1,6 @@
 module Skylight
   class NativeError < StandardError
-    @@classes = { }
+    @@classes = {}
 
     def self.register(code, name, message)
       if @@classes.has_key?(code)

@@ -15,7 +15,7 @@ module Skylight::Core
         # We can expect the payload to have the :middleware key.
         def normalize(trace, name, payload)
           trace.endpoint = payload[:middleware]
-          [ CAT, payload[:middleware], nil ]
+          [CAT, payload[:middleware], nil]
         end
 
         def normalize_after(trace, span, name, payload)

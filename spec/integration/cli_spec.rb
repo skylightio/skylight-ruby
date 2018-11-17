@@ -15,7 +15,7 @@ describe "CLI integration", :http do
       expect(env["rack.input"]).to eq({ "app" => { "name" => "Dummy" }, "token" => "setuptoken" })
 
       # This would have more information really, but the CLI doesn't care
-      { app: { id: "appid", token: "apptoken" }}
+      { app: { id: "appid", token: "apptoken" } }
     end
 
     with_standalone do
@@ -25,7 +25,7 @@ describe "CLI integration", :http do
       run_command("setup setuptoken") do |stdin, stdout, stderr|
         expect(read(stdout)).to include("Congratulations. Your application is on Skylight!")
 
-        expect(YAML.load_file("config/skylight.yml")).to eq({"authentication"=>"apptoken"})
+        expect(YAML.load_file("config/skylight.yml")).to eq({ "authentication" => "apptoken" })
       end
     end
   end
@@ -33,7 +33,7 @@ describe "CLI integration", :http do
   it "shows error messages for invalid token" do
     server.mock "/apps", :post do |env|
       expect(env["rack.input"]).to eq({ "app" => { "name" => "Dummy" }, "token" => "invalidtoken" })
-      [403, { errors: { request: "invalid app create token" }}]
+      [403, { errors: { request: "invalid app create token" } }]
     end
 
     with_standalone do
@@ -63,13 +63,13 @@ describe "CLI integration", :http do
     end
   end
 
-  def get_prompt(io, limit=100)
+  def get_prompt(io, limit = 100)
     prompt = io.readpartial(limit)
     print prompt if ENV["DEBUG"]
     prompt
   end
 
-  def fill_prompt(io, str, echo=ENV["DEBUG"])
+  def fill_prompt(io, str, echo = ENV["DEBUG"])
     io.puts str
     puts str if echo
   end

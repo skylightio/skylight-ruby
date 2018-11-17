@@ -4,7 +4,7 @@ require "skylight/core/deprecation"
 module Skylight
   module Core
     # Is this autoload even useful?
-    autoload :Normalizers,  "skylight/core/normalizers"
+    autoload :Normalizers, "skylight/core/normalizers"
   end
 
   # Some methods exepected to be defined by the native code (OUTDATED)

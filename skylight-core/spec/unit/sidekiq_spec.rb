@@ -76,7 +76,7 @@ if enable
           MyWorker.perform_async
 
           expect(@trace.endpoint).to eq("MyWorker<sk-segment>default</sk-segment>")
-          expect(@trace.mock_spans.map{|s| s[:cat]}).to eq(["app.sidekiq.worker", "app.inside", "app.zomg"])
+          expect(@trace.mock_spans.map { |s| s[:cat] }).to eq(["app.sidekiq.worker", "app.inside", "app.zomg"])
           expect(@trace.mock_spans[0][:title]).to eq("MyWorker")
         end
       end

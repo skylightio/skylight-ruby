@@ -76,7 +76,7 @@ module Skylight::Core
           begin
             normalize_after(trace, curr.span, name, payload)
           ensure
-            meta = { }
+            meta = {}
             meta[:exception] = payload[:exception] if payload[:exception]
             meta[:exception_object] = payload[:exception_object] if payload[:exception_object]
             trace.done(curr.span, meta) if curr.span

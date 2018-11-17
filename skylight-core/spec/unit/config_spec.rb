@@ -2,7 +2,7 @@ require "spec_helper"
 
 module Skylight::Core
   describe Config do
-    def with_file(opts={})
+    def with_file(opts = {})
       f = Tempfile.new("foo")
       FileUtils.chmod 0400, f if opts[:writable] == false
       yield f
@@ -11,7 +11,7 @@ module Skylight::Core
       f.unlink
     end
 
-    def with_dir(opts={})
+    def with_dir(opts = {})
       Dir.mktmpdir do |d|
         FileUtils.mkdir("#{d}/nested")
         FileUtils.chmod 0400, "#{d}/nested" if opts[:writable] == false
@@ -56,7 +56,7 @@ module Skylight::Core
       let :config do
         Config.new :one => {
           :two => {
-            :foo => "hello", "bar" => "omg" }}
+            :foo => "hello", "bar" => "omg" } }
       end
 
       it "looks keys up with strings" do
@@ -216,10 +216,10 @@ module Skylight::Core
       end
 
       let :config do
-        Config.load({file: file, environment: "production"}, {
+        Config.load({ file: file, environment: "production" }, {
           "foo"                     => "fail",
           "SKYLIGHT_LOG_FILE"       => "production.log",
-          "SKYLIGHT_ALERT_LOG_FILE" => "alert.log"})
+          "SKYLIGHT_ALERT_LOG_FILE" => "alert.log" })
       end
 
       context "valid" do
@@ -299,9 +299,9 @@ module Skylight::Core
       end
 
       let :config do
-        Config.load({file: file, environment: "production"}, {
+        Config.load({ file: file, environment: "production" }, {
           "foo"         => "fail",
-          "SK_LOG_FILE" => "test.log"})
+          "SK_LOG_FILE" => "test.log" })
       end
 
       it "loads the authentication key" do
@@ -399,36 +399,36 @@ module Skylight::Core
 
     context "loading" do
       it "uses convential proxy env vars" do
-        c = Config.load({environment: :production}, "HTTP_PROXY" => "http://foo.com:9872")
+        c = Config.load({ environment: :production }, "HTTP_PROXY" => "http://foo.com:9872")
         expect(c[:proxy_url]).to eq("http://foo.com:9872")
 
-        c = Config.load({environment: :production}, "http_proxy" => "http://bar.com:9872")
+        c = Config.load({ environment: :production }, "http_proxy" => "http://bar.com:9872")
         expect(c[:proxy_url]).to eq("http://bar.com:9872")
       end
 
       it "uses unconvential proxy env vars" do
-        c = Config.load({environment: :production}, "HTTP_PROXY" => "xyz://foo.com:9872")
+        c = Config.load({ environment: :production }, "HTTP_PROXY" => "xyz://foo.com:9872")
         expect(c[:proxy_url]).to eq("xyz://foo.com:9872")
       end
 
       it "normalizes convential proxy env vars" do
         # Curl doesn't require http:// prefix
-        c = Config.load({environment: :production}, "HTTP_PROXY" => "foo.com:9872")
+        c = Config.load({ environment: :production }, "HTTP_PROXY" => "foo.com:9872")
         expect(c[:proxy_url]).to eq("http://foo.com:9872")
       end
 
       it "skips empty proxy env vars" do
-        c = Config.load({environment: :production}, "HTTP_PROXY" => "")
+        c = Config.load({ environment: :production }, "HTTP_PROXY" => "")
         expect(c[:proxy_url]).to be_nil
       end
 
       it "skips nil proxy env vars" do
-        c = Config.load({environment: :production})
+        c = Config.load({ environment: :production })
         expect(c[:proxy_url]).to be_nil
       end
 
       it "prioritizes skylight's proxy env var" do
-        c = Config.load({environment: :production},
+        c = Config.load({ environment: :production },
           "SKYLIGHT_PROXY_URL" => "http://foo.com",
           "HTTP_PROXY" => "http://bar.com")
 

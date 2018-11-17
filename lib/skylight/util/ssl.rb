@@ -3,7 +3,7 @@ require "openssl"
 module Skylight
   module Util
     class SSL
-      DEFAULT_CA_FILE  = File.expand_path("../../data/cacert.pem", __FILE__)
+      DEFAULT_CA_FILE = File.expand_path("../../data/cacert.pem", __FILE__)
 
       def self.detect_ca_cert_file!
         return nil if ENV["SKYLIGHT_FORCE_OWN_CERTS"]

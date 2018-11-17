@@ -21,11 +21,11 @@ describe "skylight setup", :http, :agent do
     end
   end
 
-  def should_successfully_create_app(token=nil)
+  def should_successfully_create_app(token = nil)
     server.mock "/apps", :post do
       { app:
         { id: "my-app-id",
-          token: "my-app-token" }}
+          token: "my-app-token" } }
     end
 
     unless token
@@ -60,7 +60,7 @@ describe "skylight setup", :http, :agent do
 
     it "handles server errors" do
       server.mock "/apps", :post do
-        [403, { errors: { request: "token is invalid" }}]
+        [403, { errors: { request: "token is invalid" } }]
       end
 
       expect(cli).to receive(:say).with("Could not create the application. Please run `bundle exec skylight doctor` for diagnostics.", :red).ordered

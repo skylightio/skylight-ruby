@@ -45,12 +45,12 @@ describe Skylight::Core::Instrumenter, :http, :agent do
       expect(t.spans[0]).to eq(span(
         event:      event("app.rack.request"),
         started_at: 0,
-        duration:   2_000 ))
+        duration:   2_000))
       expect(t.spans[1]).to eq(span(
         parent:     0,
         event:      event("app.foo"),
         started_at: 1_000,
-        duration:   1_000 ))
+        duration:   1_000))
     end
 
     it "recategorizes unknown events as other" do
@@ -189,7 +189,7 @@ describe Skylight::Core::Instrumenter, :http, :agent do
       expect(t.spans[0]).to eq(span(
         event:      event("app.rack.request"),
         started_at: 0,
-        duration:   15_000 ))
+        duration:   15_000))
 
       expect(t.spans[1]).to eq(span(
         parent:     0,

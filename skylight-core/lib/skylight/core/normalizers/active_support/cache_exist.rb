@@ -8,7 +8,7 @@ module Skylight::Core
         TITLE = "cache exist?"
 
         def normalize(trace, name, payload)
-          [ CAT, TITLE, nil ]
+          [CAT, TITLE, nil]
         end
       end
     end

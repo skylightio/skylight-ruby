@@ -7,11 +7,11 @@ module SpecHelper
   BEHAVE_LIKE = "it should behave like".freeze
   PAYLOAD = {}.freeze
 
-  def normalize(name=nil, payload=nil)
+  def normalize(name = nil, payload = nil)
     process_normalize(:normalize, name, payload)
   end
 
-  def normalize_after(name=nil, payload=nil)
+  def normalize_after(name = nil, payload = nil)
     process_normalize(:normalize_after, name, payload)
   end
 

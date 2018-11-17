@@ -4,7 +4,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   before(:each) do
     server.mock "/test.html" do
       ret = "Testing"
-      [ 200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret] ]
+      [200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret]]
     end
   end
 
@@ -59,7 +59,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
 
     client = HTTPClient.new
 
-    response = client.post(uri, header: {"Content-Type" => "multipart/form-data"}, body: [{
+    response = client.post(uri, header: { "Content-Type" => "multipart/form-data" }, body: [{
         "Content-Type" => "text/plain; charset=UTF-8",
         "Content-Disposition" => 'form-data; name="name"',
         :content => "Barry"

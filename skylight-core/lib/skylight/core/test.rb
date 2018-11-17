@@ -2,7 +2,7 @@ module Skylight
   module Core
     module Test
       module Mocking
-        def mock!(config_opts={}, &callback)
+        def mock!(config_opts = {}, &callback)
           config_opts[:mock_submission] ||= callback || proc {}
           config = config_class.load(config_opts)
 

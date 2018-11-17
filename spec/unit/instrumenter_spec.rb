@@ -44,7 +44,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
     it "fails with invalid component" do
       msg = "worker has not been whitelisted"
-      stub_config_validation(403, { errors: { component: msg }})
+      stub_config_validation(403, { errors: { component: msg } })
       expect(Skylight.start!(config)).to be_falsey
       expect(logger_out.string).to include(msg)
     end
@@ -174,7 +174,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(t.spans[0]).to eq(span(
           event:      event("app.rack"),
           started_at: 0,
-          duration:   10_000 ))
+          duration:   10_000))
       end
 
       it "ignores disabled parts of the trace" do
@@ -203,7 +203,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(t.spans[0]).to eq(span(
           event:      event("app.rack"),
           started_at: 0,
-          duration:   10_000 ))
+          duration:   10_000))
       end
 
       it "handles un-lexable SQL" do
@@ -233,13 +233,13 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(t.spans[0]).to eq(span(
           event:      event("app.rack"),
           started_at: 0,
-          duration:   10_000 ))
+          duration:   10_000))
 
         expect(t.spans[1]).to eq(span(
           parent:     0,
           event:      event("db.sql.query", "Load User"),
           started_at: 0,
-          duration:   10_000 ))
+          duration:   10_000))
       end
 
       it "handles SQL with binary data" do
@@ -270,13 +270,13 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(t.spans[0]).to eq(span(
           event:      event("app.rack"),
           started_at: 0,
-          duration:   10_000 ))
+          duration:   10_000))
 
         expect(t.spans[1]).to eq(span(
           parent:     0,
           event:      event("db.sql.query", "Load User"),
           started_at: 0,
-          duration:   10_000 ))
+          duration:   10_000))
       end
 
       it "handles invalid string encodings" do
@@ -307,13 +307,13 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(t.spans[0]).to eq(span(
           event:      event("app.rack"),
           started_at: 0,
-          duration:   10_000 ))
+          duration:   10_000))
 
         expect(t.spans[1]).to eq(span(
           parent:     0,
           event:      event("db.sql.query", "Load User"),
           started_at: 0,
-          duration:   10_000 ))
+          duration:   10_000))
       end
 
       it "ignores endpoints" do
@@ -362,7 +362,7 @@ describe "Skylight::Instrumenter", :http, :agent do
           clock.skip 1
         end
 
-        %w( foo bar baz ).each do |name|
+        %w(foo bar baz).each do |name|
           Skylight.trace "#{name}#heartbeat", "app.rack" do |t|
             clock.skip 1
           end
@@ -382,7 +382,7 @@ describe "Skylight::Instrumenter", :http, :agent do
           clock.skip 1
         end
 
-        %w( foo bar baz ).each do |name|
+        %w(foo bar baz).each do |name|
           Skylight.trace "#{name}#heartbeat", "app.rack" do |t|
             clock.skip 1
           end

@@ -23,7 +23,7 @@ module Skylight::Core
             # deduping strategy first.
             desc = nil
 
-            [ CAT, title, desc ]
+            [CAT, title, desc]
           end
 
         private

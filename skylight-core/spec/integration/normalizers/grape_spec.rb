@@ -162,7 +162,7 @@ if defined?(Grape)
           .with("app.grape.endpoint", "GET raise", nil, nil)
           .once
 
-      expect{
+      expect {
         get "/raise"
       }.to raise_error("Unexpected error")
 

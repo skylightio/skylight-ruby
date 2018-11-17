@@ -127,8 +127,8 @@ module SpecHelper
               begin
                 mock[:blk].call(env)
               rescue => e
-                trace "#{e.inspect}\n#{e.backtrace.map{|l| "  #{l}" }.join("\n")}"
-                [ 500, { "content-type" => "text/plain", "content-length" => "4" }, [ "Fail" ] ]
+                trace "#{e.inspect}\n#{e.backtrace.map { |l| "  #{l}" }.join("\n")}"
+                [500, { "content-type" => "text/plain", "content-length" => "4" }, ["Fail"]]
               end
 
             if Array === ret
@@ -137,17 +137,17 @@ module SpecHelper
               body = ret.last
               body = body.to_json if Hash === body
 
-              return [ ret[0], { "content-type" => json, "content-length" => body.bytesize.to_s }, [body] ]
+              return [ret[0], { "content-type" => json, "content-length" => body.bytesize.to_s }, [body]]
             elsif respond_to?(:to_str)
-              return [ 200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret] ]
+              return [200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret]]
             else
               ret = ret.to_json
-              return [ 200, { "content-type" => json, "content-length" => ret.bytesize.to_s }, [ret] ]
+              return [200, { "content-type" => json, "content-length" => ret.bytesize.to_s }, [ret]]
             end
           end
         end
 
-        [200, {"content-type" => "text/plain", "content-length" => "7"}, ["Thanks!"]]
+        [200, { "content-type" => "text/plain", "content-length" => "7" }, ["Thanks!"]]
       end
 
       def trace(line, *args)
@@ -226,7 +226,7 @@ module SpecHelper
     test_config_values[:authentication]
   end
 
-  def stub_config_validation(status=200, response={})
+  def stub_config_validation(status = 200, response = {})
     server.mock "/agent/config", :post do |env|
       expect(env["rack.input"].keys).to eq(["config"])
       [status, response]

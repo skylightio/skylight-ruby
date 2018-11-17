@@ -2,7 +2,7 @@ require "tmpdir"
 
 module SpecHelper
   module Standalone
-    def self.with_dummy(dir=nil, &blk)
+    def self.with_dummy(dir = nil, &blk)
       dir = tmpdir = Dir.mktmpdir unless dir
 
       FileUtils.cp_r File.join(APP_ROOT, "spec/dummy"), dir
@@ -31,7 +31,7 @@ module SpecHelper
     Rails.version
   end
 
-  def with_standalone(opts={})
+  def with_standalone(opts = {})
     # Make sure this is executed before we mess with the env, just in case
 
     begin

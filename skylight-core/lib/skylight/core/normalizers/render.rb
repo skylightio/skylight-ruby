@@ -19,7 +19,7 @@ module Skylight::Core
           path = nil if path == title
         end
 
-        [ category, title, nil ]
+        [category, title, nil]
       end
 
       def relative_path(path)

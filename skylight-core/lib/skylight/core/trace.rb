@@ -9,7 +9,7 @@ module Skylight::Core
     attr_reader :instrumenter, :endpoint, :notifications, :meta
     attr_accessor :uuid, :segment
 
-    def self.new(instrumenter, endpoint, start, cat, title=nil, desc=nil, meta=nil, segment: nil)
+    def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil, meta = nil, segment: nil)
       uuid = SecureRandom.uuid
       inst = native_new(normalize_time(start), uuid, endpoint, meta)
       inst.uuid = uuid
@@ -69,7 +69,7 @@ module Skylight::Core
       broken!
     end
 
-    def record(cat, title=nil, desc=nil)
+    def record(cat, title = nil, desc = nil)
       return if broken?
 
       title.freeze if title.is_a?(String)
@@ -87,7 +87,7 @@ module Skylight::Core
       nil
     end
 
-    def instrument(cat, title=nil, desc=nil, meta=nil)
+    def instrument(cat, title = nil, desc = nil, meta = nil)
       return if broken?
       t { "instrument: #{cat}, #{title}" }
 
@@ -116,7 +116,7 @@ module Skylight::Core
       native_span_get_correlation_header(span)
     end
 
-    def done(span, meta=nil)
+    def done(span, meta = nil)
       # `span` will be `nil` if we failed to start instrumenting, such as in
       # the case of too many spans in a request.
       return unless span
@@ -197,7 +197,7 @@ module Skylight::Core
       end
     end
 
-    def start(time, cat, title, desc, meta, opts={})
+    def start(time, cat, title, desc, meta, opts = {})
       time = self.class.normalize_time(time) unless opts[:normalize] == false
 
       sp = native_start_span(time, cat.to_s)

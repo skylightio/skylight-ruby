@@ -36,7 +36,7 @@ module Skylight
         end
 
         # Start instrumenting
-        def start!(config=nil)
+        def start!(config = nil)
           return @instrumenter if @instrumenter
 
           const_get(:LOCK).synchronize do
@@ -80,12 +80,12 @@ module Skylight
 
         # Check tracing
         def tracing?
-          t { "checking tracing?; thread=#{Thread.current.object_id}"}
+          t { "checking tracing?; thread=#{Thread.current.object_id}" }
           instrumenter && instrumenter.current_trace
         end
 
         # Start a trace
-        def trace(endpoint=nil, cat=nil, title=nil, meta=nil, segment: nil)
+        def trace(endpoint = nil, cat = nil, title = nil, meta = nil, segment: nil)
           unless instrumenter
             return yield if block_given?
             return
@@ -131,7 +131,7 @@ module Skylight
         end
 
         # End a span
-        def done(span, meta=nil)
+        def done(span, meta = nil)
           return unless instrumenter
           instrumenter.done(span, meta)
         end

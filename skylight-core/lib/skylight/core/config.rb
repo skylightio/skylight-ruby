@@ -122,7 +122,7 @@ module Skylight::Core
     end
 
     def self.load(opts = {}, env = ENV)
-      attrs   = {}
+      attrs = {}
       path = opts.delete(:file)
       environment = opts.delete(:environment)
 

@@ -10,7 +10,7 @@ module Skylight::Core
       @registry ||= {}
     end
 
-    def self.register(name, klass, opts={})
+    def self.register(name, klass, opts = {})
       enabled = opts[:enabled] != false
       registry[name] = [klass, enabled]
     end
@@ -21,9 +21,9 @@ module Skylight::Core
 
     def self.enable(*names, enabled: true)
       names.each do |name|
-        matches = registry.select{|n,_| n =~ /(^|\.)#{name}$/ }
+        matches = registry.select { |n, _| n =~ /(^|\.)#{name}$/ }
         raise ArgumentError, "no normalizers match #{name}" if matches.empty?
-        matches.values.each{|v| v[1] = enabled }
+        matches.values.each { |v| v[1] = enabled }
       end
     end
 
@@ -49,7 +49,7 @@ module Skylight::Core
     end
 
     class Normalizer
-      def self.register(name, opts={})
+      def self.register(name, opts = {})
         Normalizers.register(name, self, opts)
       end
 

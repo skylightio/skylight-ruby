@@ -58,7 +58,7 @@ module Skylight::Core
     # For Util::Logging
     attr_reader :config
 
-    def initialize(app, opts={})
+    def initialize(app, opts = {})
       @app = app
       @config = opts[:config]
     end
@@ -87,7 +87,7 @@ module Skylight::Core
             resp
           end
         rescue Exception
-          t { "middleware exception: #{trace}"}
+          t { "middleware exception: #{trace}" }
           trace.submit if trace
           raise
         end

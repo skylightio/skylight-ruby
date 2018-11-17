@@ -117,7 +117,7 @@ module Skylight::Core
         c = config_for_logging
         logger = c ? c.logger : nil
 
-        msg = log_context.map{|(k,v)| "#{k}=#{v}; " }.join << msg
+        msg = log_context.map { |(k, v)| "#{k}=#{v}; " }.join << msg
 
         if logger
           if logger.respond_to?(level)
