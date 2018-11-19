@@ -235,7 +235,7 @@ module Skylight::Core
       @priority.key?(key) || @values.key?(key)
     end
 
-    def get(key, default = nil, &blk)
+    def get(key, default = nil)
       key = self.class.remap_key(key)
 
       return @priority[key] if @priority.key?(key)
@@ -244,8 +244,8 @@ module Skylight::Core
 
       if default
         return default
-      elsif blk
-        return blk.call(key)
+      elsif block_given?
+        return yield key
       end
 
       nil

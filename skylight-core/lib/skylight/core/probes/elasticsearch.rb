@@ -24,7 +24,7 @@ module Skylight::Core
 
             def disable_skylight_probe(class_name, &block)
               klass = Probes.const_get(class_name).const_get(:Probe) rescue nil
-              klass ? klass.disable(&block) : block.call
+              klass ? klass.disable(&block) : yield
             end
           end
         end

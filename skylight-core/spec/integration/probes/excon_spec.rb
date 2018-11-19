@@ -5,14 +5,14 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
     clock.tick += 100_000 * amount # tick value should be nanoseconds (1 billionth of a second)
   end
 
-  def stub_request(opts = {}, &block)
+  def stub_request(opts = {})
     path = "/#{opts[:path]}"
     method = opts[:method] || :get
     delay  = opts[:delay] || 1 # agent talks units of 100 microseconds (10,000ths of a second)
 
     server.mock path, method do
       travel(delay)
-      block.call if block
+      yield if block_given?
       [200, ""]
     end
   end
