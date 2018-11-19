@@ -7,12 +7,12 @@ module Skylight
         raise "Duplicate error class code: #{code}; name=#{name}"
       end
 
-      Skylight.module_eval <<-ruby, __FILE__, __LINE__ + 1
+      Skylight.module_eval <<-RUBY, __FILE__, __LINE__ + 1
         class #{name}Error < NativeError
           def self.code; #{code}; end
           def self.message; #{message.to_json}; end
         end
-      ruby
+      RUBY
 
       klass = Skylight.const_get("#{name}Error")
 
