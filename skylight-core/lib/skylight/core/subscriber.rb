@@ -20,9 +20,7 @@ module Skylight::Core
     end
 
     def unregister!
-      until @subscribers.empty?
-        ActiveSupport::Notifications.unsubscribe @subscribers.shift
-      end
+      ActiveSupport::Notifications.unsubscribe @subscribers.shift until @subscribers.empty?
     end
 
     #

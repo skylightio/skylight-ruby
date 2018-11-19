@@ -44,9 +44,7 @@ module Skylight::Core
           @listeners << win
 
           # Cleanup any listeners that might have leaked
-          until @listeners[0].time < MAX_TIME
-            @listeners.shift
-          end
+          @listeners.shift until @listeners[0].time < MAX_TIME
 
           if @listeners.length > MAX_COUNT
             @listeners.shift
