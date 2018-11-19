@@ -57,10 +57,11 @@ module Skylight::Core
           # This is a DOSish environment
           ALT_SEPARATOR_BYTE = File::ALT_SEPARATOR && File::ALT_SEPARATOR.ord
           COLON_BYTE = ":".ord
+          SEPARATOR_BYTES = [SEPARATOR_BYTE, ALT_SEPARATOR_BYTE].freeze
+
           def absolute_path?(path)
             if alpha?(path.getbyte(0)) && path.getbyte(1) == COLON_BYTE
-              byte2 = path.getbyte(2)
-              byte2 == SEPARATOR_BYTE || byte2 == ALT_SEPARATOR_BYTE
+              SEPARATOR_BYTES.include?(path.getbyte(2))
             end
           end
 
