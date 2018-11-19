@@ -8,7 +8,7 @@ module Skylight
           File.expand_path("config/application.rb")
         end
 
-        def is_rails?
+        def rails?
           File.exist?(rails_rb)
         end
 

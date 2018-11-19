@@ -20,7 +20,7 @@ module Skylight
               say "Failed to verify SSL certificate.", :red
               if Util::SSL.ca_cert_file?
                 say "Certificates located at #{Util::SSL.ca_cert_file_or_default} may be out of date.", :yellow
-                if is_mac? && has_rvm?
+                if mac? && rvm_present?
                   say "Please update your certificates with RVM by running `rvm osx-ssl-certs update all`.", :yellow
                   say "Alternatively, try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your environment.", :yellow
                 else
@@ -39,7 +39,7 @@ module Skylight
         say "Checking for Rails"
 
         indent do
-          if is_rails?
+          if rails?
             say "Rails application detected", :green
           else
             say "No Rails application detected", :yellow
@@ -171,7 +171,7 @@ module Skylight
           return @config if @config
 
           # MEGAHAX
-          if is_rails?
+          if rails?
             # Normally auto-loaded, but we haven't loaded Rails by the time Skylight is loaded
             require "skylight/railtie"
             require rails_rb
@@ -183,12 +183,12 @@ module Skylight
           end
         end
 
-        def is_mac?
+        def mac?
           Core::Util::Platform::OS == "darwin"
         end
 
         # NOTE: This check won't work correctly on Windows
-        def has_rvm?
+        def rvm_present?
           if @has_rvm.nil?
             @has_rvm = system("which rvm > /dev/null")
           end

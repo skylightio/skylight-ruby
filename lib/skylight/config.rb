@@ -199,12 +199,12 @@ module Skylight
         return false
       end
 
-      if res.is_error_response?
+      if res.error_response?
         warn("Unable to reach server for config validation")
       end
 
       unless res.config_valid?
-        warn("Invalid configuration") unless res.is_error_response?
+        warn("Invalid configuration") unless res.error_response?
         res.validation_errors.each do |k, v|
           warn("  #{k}: #{v}")
         end

@@ -57,14 +57,14 @@ module Skylight::Core
         @installed ||= {}
       end
 
-      def is_available?(klass_name)
+      def available?(klass_name)
         !!Skylight::Core::Util::Inflector.safe_constantize(klass_name)
       end
 
       def register(name, *args)
         registration = ProbeRegistration.new(name, *args)
 
-        if is_available?(registration.klass_name)
+        if available?(registration.klass_name)
           installed[registration.klass_name] = registration
           registration.install
         else
@@ -77,7 +77,7 @@ module Skylight::Core
         return unless registration
 
         # Double check constant is available
-        if is_available?(registration.klass_name)
+        if available?(registration.klass_name)
           installed[registration.klass_name] = registration
           registration.install
 

@@ -18,12 +18,12 @@ module Skylight::Core
     subject { Probes }
 
     it "can determine const availability" do
-      expect(subject.is_available?("Skylight::Core")).to be_truthy
-      expect(subject.is_available?("Skylight::Core::Probes")).to be_truthy
-      expect(subject.is_available?("Nonexistent")).to be_falsey
+      expect(subject.available?("Skylight::Core")).to be_truthy
+      expect(subject.available?("Skylight::Core::Probes")).to be_truthy
+      expect(subject.available?("Nonexistent")).to be_falsey
 
-      expect(subject.is_available?("Skylight::Nonexistent")).to be_falsey
-      expect(subject.is_available?("Skylight::Fail")).to be_falsey
+      expect(subject.available?("Skylight::Nonexistent")).to be_falsey
+      expect(subject.available?("Skylight::Fail")).to be_falsey
     end
 
     it "installs probe if constant is available" do

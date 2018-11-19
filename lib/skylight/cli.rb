@@ -86,7 +86,7 @@ you should set the `SKYLIGHT_AUTHENTICATION` variable to:
             begin
               name = nil
 
-              if is_rails?
+              if rails?
                 # Get the name in a process so that we don't pollute our environment here
                 # This is especially important since users may have things like WebMock that
                 # will prevent us from communicating with the Skylight API

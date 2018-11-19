@@ -45,7 +45,7 @@ module Skylight
         @raw_response = raw_response
       end
 
-      def is_error_response?
+      def error_response?
         raw_response.is_a?(Util::HTTP::ErrorResponse) || status > 499
       end
 
@@ -54,7 +54,7 @@ module Skylight
       end
 
       def body
-        return nil if is_error_response?
+        return nil if error_response?
 
         unless raw_response.body.is_a?(Hash)
           warn("Unable to parse server response: status=%s, body=%s", raw_response.status, raw_response.body)
@@ -66,7 +66,7 @@ module Skylight
 
       def token_valid?
         # Don't prevent boot if it's an error response, so assume token is valid
-        return true if is_error_response?
+        return true if error_response?
         # A 2xx response means everything is good!
         return true if raw_response.success?
         return false if status === 401
