@@ -7,7 +7,7 @@ module Skylight::Core
         CAT = "app.job.perform".freeze
 
         def normalize(trace, _name, payload)
-          title = "#{payload[:job].class}"
+          title = (payload[:job].class).to_s
           adapter_name = normalize_adapter_name(payload[:adapter])
           desc = "{ adapter: '#{adapter_name}', queue: '#{payload[:job].queue_name}' }"
 
