@@ -83,7 +83,7 @@ module Skylight
 
         def known_worker_context?
           return true if program_name =~ WORKER_PROGRAM_MATCHER
-          (program_name[/rake$/]) && argv.any? { |arg| arg =~ WORKER_RAKE_MATCHER }
+          program_name[/rake$/] && argv.any? { |arg| arg =~ WORKER_RAKE_MATCHER }
         end
 
         def rails_server?
