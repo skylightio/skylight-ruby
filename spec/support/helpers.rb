@@ -52,11 +52,11 @@ module SpecHelper
   def capture(stream)
     begin
       stream = stream.to_s
-      eval "$#{stream} = StringIO.new"
+      eval "$#{stream} = StringIO.new", __FILE__, __LINE__
       yield
-      result = eval("$#{stream}").string
+      result = eval("$#{stream}", __FILE__, __LINE__).string
     ensure
-      eval("$#{stream} = #{stream.upcase}")
+      eval("$#{stream} = #{stream.upcase}", __FILE__, __LINE__)
     end
 
     result

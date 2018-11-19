@@ -39,7 +39,7 @@ module Skylight::Core
 
       # HAX: We trick it into thinking that the require 'skylight/core' loaded ProbeTestClass
       # NOTE: ProbeTestClass is a special class that is automatically removed after specs
-      SpecHelper.module_eval "class ProbeTestClass; end"
+      SpecHelper.module_eval "class ProbeTestClass; end", __FILE__, __LINE__
       require "skylight/core"
 
       expect(probe.install_count).to eq(1)
