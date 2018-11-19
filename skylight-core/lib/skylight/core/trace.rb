@@ -248,7 +248,7 @@ module Skylight::Core
                     "but got '#{native_span_get_title(span)}' instead."
 
         if native_span_get_category(span) == "rack.middleware" &&
-           Probes.installed.keys.include?("ActionDispatch::MiddlewareStack::Middleware")
+           Probes.installed.key?("ActionDispatch::MiddlewareStack::Middleware")
           if Probes::Middleware::Probe.disabled?
             message << "\nWe disabled the Middleware probe but unfortunately, this didn't solve the issue."
           else
