@@ -124,29 +124,27 @@ if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(
     unless (checksum = SKYLIGHT_CHECKSUM)
       fail "no checksum provided when using custom version"
     end
+  elsif (platform_info = libskylight_info[Platform.tuple])
+    unless (version = platform_info["version"])
+      fail "libskylight version missing from `#{libskylight_yml}`; platform=#{Platform.tuple}"
+    end
+
+    unless (checksum = platform_info["checksum"])
+      fail "checksum missing from `#{libskylight_yml}`; platform=#{Platform.tuple}"
+    end
   else
-    if (platform_info = libskylight_info[Platform.tuple])
-      unless (version = platform_info["version"])
-        fail "libskylight version missing from `#{libskylight_yml}`; platform=#{Platform.tuple}"
-      end
+    unless (version = libskylight_info["version"])
+      fail "libskylight version missing from `#{libskylight_yml}`"
+    end
 
-      unless (checksum = platform_info["checksum"])
-        fail "checksum missing from `#{libskylight_yml}`; platform=#{Platform.tuple}"
-      end
-    else
-      unless (version = libskylight_info["version"])
-        fail "libskylight version missing from `#{libskylight_yml}`"
-      end
+    unless (checksums = libskylight_info["checksums"])
+      fail "libskylight checksums missing from `#{libskylight_yml}`"
+    end
 
-      unless (checksums = libskylight_info["checksums"])
-        fail "libskylight checksums missing from `#{libskylight_yml}`"
-      end
-
-      unless (checksum = checksums[Platform.tuple])
-        fail "no checksum entry for requested architecture -- " \
-                "this probably means the requested architecture is not supported; " \
-                "platform=#{Platform.tuple}; available=#{checksums.keys}", :info
-      end
+    unless (checksum = checksums[Platform.tuple])
+      fail "no checksum entry for requested architecture -- " \
+              "this probably means the requested architecture is not supported; " \
+              "platform=#{Platform.tuple}; available=#{checksums.keys}", :info
     end
   end
 
