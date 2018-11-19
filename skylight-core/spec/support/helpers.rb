@@ -60,7 +60,7 @@ module SpecHelper
       daemon: {
         sockdir_path: sockdir_path,
         batch_flush_interval: "1sec"
-      }.freeze,
+      }.freeze
     }.freeze
   end
 

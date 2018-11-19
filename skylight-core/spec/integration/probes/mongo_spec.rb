@@ -136,7 +136,7 @@ if ENV["TEST_MONGO_INTEGRATION"]
     it "instruments aggregate" do
       client[:artists].aggregate([
         { "$match" => { x: 2 } },
-        { "$group" => { _id: "$artist_id", "accumulator" => { "$max" => "$x" } } },
+        { "$group" => { _id: "$artist_id", "accumulator" => { "$max" => "$x" } } }
       ]).to_a
 
       expected = {
@@ -156,13 +156,13 @@ if ENV["TEST_MONGO_INTEGRATION"]
           total: { "$sum" => "$likes" },
           average_likes: { "$avg" => "$likes" },
           min_likes: { "$min" => "$likes" },
-          max_likes: { "$max" => "$amount" },
+          max_likes: { "$max" => "$amount" }
         } }
       ]).to_a
 
       expected = {
         cat: "db.mongo.command",
-        title: "echo_test.aggregate artists",
+        title: "echo_test.aggregate artists"
       }
 
       expected_desc = {

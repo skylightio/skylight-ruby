@@ -158,7 +158,7 @@ describe Skylight::CLI::Merger do
         MATCHERS[:explanation],
         MATCHERS[:fetch],
         /Please specify the \"parent\" app/,
-        *app_list,
+        *app_list
       ]
     end
     let(:success_sequence) do
@@ -174,7 +174,7 @@ describe Skylight::CLI::Merger do
         /Deploy the latest agent before updating your environment variables/,
         /Set `SKYLIGHT_AUTHENTICATION`/,
         /If you're running in Rails and your Rails environment exactly matches `#{child_env}`/,
-        /=========================/,
+        /=========================/
       ]
     end
 
@@ -205,13 +205,13 @@ describe Skylight::CLI::Merger do
         /What environment is the child app\?/,
         /1\. development/,
         /2\. staging/,
-        /3\. \[choose a different environment not listed here\]/,
+        /3\. \[choose a different environment not listed here\]/
       ]
     end
     let(:confirm_environment_sequence) do
       [
         /Ok! The child environment will be: #{child_env}/,
-        /Ok! Now we're going to merge `app2` into `app1` as `#{child_env}`/,
+        /Ok! Now we're going to merge `app2` into `app1` as `#{child_env}`/
       ]
     end
 

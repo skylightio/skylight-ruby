@@ -70,7 +70,7 @@ if defined?(ActionPack)
       expect(render_plain(renderer, context, plain: "Hello World")).to eq("Hello World")
 
       expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
-        ["render_template.action_view", "text template"],
+        ["render_template.action_view", "text template"]
       ])
     end
 
@@ -87,7 +87,7 @@ if defined?(ActionPack)
       expect(renderer.render(context, inline: "Hello World")).to eq("Hello World")
 
       expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
-        ["render_template.action_view", "inline template"],
+        ["render_template.action_view", "inline template"]
       ])
     end
 
@@ -104,7 +104,7 @@ if defined?(ActionPack)
       expect(renderer.render(context, template: "our-template")).to eq("Hello World")
 
       expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
-        ["render_template.action_view", "test template"],
+        ["render_template.action_view", "test template"]
       ])
     end
   end
