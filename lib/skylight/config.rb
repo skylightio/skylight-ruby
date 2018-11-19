@@ -212,7 +212,7 @@ module Skylight
         return false if res.forbidden?
 
         corrected_config = res.corrected_config
-        config_to_update = corrected_config.select { |k, v| get(k) != v }
+        config_to_update = corrected_config.reject { |k, v| get(k) == v }
         unless config_to_update.empty?
           info("Updating config values:")
           config_to_update.each do |k, v|
