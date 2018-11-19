@@ -2,7 +2,7 @@ module Skylight::Core
   module Normalizers
     module ActiveSupport
       class Cache < Normalizer
-        %w(
+        %w[
           clear
           decrement
           delete
@@ -13,7 +13,7 @@ module Skylight::Core
           read
           read_multi
           write
-        ).each do |type|
+        ].each do |type|
           require "skylight/core/normalizers/active_support/cache_#{type}"
         end
       end

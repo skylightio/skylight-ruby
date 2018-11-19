@@ -59,7 +59,7 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
   end
 
   context "descriptions" do
-    %w(connect delete get head options patch post put trace).each do |verb|
+    %w[connect delete get head options patch post put trace].each do |verb|
       it "describes #{verb}" do
         stub_request(method: verb)
 

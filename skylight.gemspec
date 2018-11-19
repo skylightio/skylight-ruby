@@ -39,7 +39,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake-compiler", "~> 1.0.4"
 
   # Executables
-  spec.executables = %w(skylight)
+  spec.executables = %w[skylight]
 
   # Extensions
   spec.extensions << "ext/extconf.rb"

@@ -20,7 +20,7 @@ if ENV["AMS_VERSION"] == "edge"
   require "active_support/inflector"
 end
 
-%w(excon tilt sinatra sequel faraday mongo moped mongoid active_model_serializers httpclient elasticsearch).each do |library|
+%w[excon tilt sinatra sequel faraday mongo moped mongoid active_model_serializers httpclient elasticsearch].each do |library|
   begin
     require library
     Skylight::Core::Probes.probe(library)
@@ -62,7 +62,7 @@ Skylight::Core::Probes.probe(:middleware)
 
 # End Probed Libraries
 
-all_probes = %w(Excon Faraday Net::HTTP HTTPClient Redis Tilt::Template Sinatra::Base Sequel ActionView::TemplateRenderer ActionDispatch::MiddlewareStack::Middleware)
+all_probes = %w[Excon Faraday Net::HTTP HTTPClient Redis Tilt::Template Sinatra::Base Sequel ActionView::TemplateRenderer ActionDispatch::MiddlewareStack::Middleware]
 installed_probes = Skylight::Core::Probes.installed.keys
 skipped_probes = all_probes - installed_probes
 

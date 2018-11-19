@@ -384,7 +384,7 @@ describe "Skylight::Instrumenter", :http, :agent do
           clock.skip 1
         end
 
-        %w(foo bar baz).each do |name|
+        %w[foo bar baz].each do |name|
           Skylight.trace "#{name}#heartbeat", "app.rack" do
             clock.skip 1
           end
@@ -404,7 +404,7 @@ describe "Skylight::Instrumenter", :http, :agent do
           clock.skip 1
         end
 
-        %w(foo bar baz).each do |name|
+        %w[foo bar baz].each do |name|
           Skylight.trace "#{name}#heartbeat", "app.rack" do
             clock.skip 1
           end

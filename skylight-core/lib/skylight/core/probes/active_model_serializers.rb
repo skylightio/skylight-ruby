@@ -6,7 +6,7 @@ module Skylight::Core
           version = nil
 
           # File moved location between version
-          %w(serializer serializers).each do |dir|
+          %w[serializer serializers].each do |dir|
             begin
               require "active_model/#{dir}/version"
             rescue LoadError

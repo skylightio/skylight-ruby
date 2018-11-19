@@ -92,7 +92,7 @@ module Skylight::Core
       end
     end
 
-    %w( action_controller/process_action
+    %w[ action_controller/process_action
         action_controller/send_file
         action_view/render_collection
         action_view/render_partial
@@ -110,7 +110,7 @@ module Skylight::Core
         faraday/request
         grape/endpoint
         moped/query
-        sequel/sql).each do |file|
+        sequel/sql].each do |file|
       require "skylight/core/normalizers/#{file}"
     end
   end

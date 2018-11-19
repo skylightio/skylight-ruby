@@ -74,7 +74,7 @@ module Skylight
   require "skylight/core/probes"
 
   # @api private
-  TIERS = %w(
+  TIERS = %w[
     rack
     api
     app
@@ -82,7 +82,7 @@ module Skylight
     db
     noise
     other
-  ).freeze
+  ].freeze
 
   # @api private
   TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/u

@@ -6,7 +6,7 @@ if defined?(ActiveModel::Serializer)
     require "action_controller/serialization"
 
     # File changed name between versions
-    %w(serializer serializers).each do |dir|
+    %w[serializer serializers].each do |dir|
       begin
         require "active_model/#{dir}/version"
       rescue LoadError

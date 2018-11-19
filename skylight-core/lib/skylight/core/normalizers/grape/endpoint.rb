@@ -2,11 +2,11 @@ module Skylight::Core
   module Normalizers
     module Grape
       class Endpoint < Normalizer
-        %w(
+        %w[
           run
           render
           run_filters
-        ).each do |type|
+        ].each do |type|
           require "skylight/core/normalizers/grape/endpoint_#{type}"
         end
 

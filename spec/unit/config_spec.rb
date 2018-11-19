@@ -268,7 +268,7 @@ module Skylight
       it "includes custom component metadata" do
         config = Config.new(component: "worker", env: "development").as_json
 
-        %i(priority values).each do |subkey|
+        %i[priority values].each do |subkey|
           expect(config[:config][subkey][:component]).to eq("worker")
           expect(config[:config][subkey][:env]).to eq("development")
         end
