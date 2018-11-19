@@ -13,12 +13,12 @@ module Skylight::Core
         # handler name.
         #
         # We can expect the payload to have the :middleware key.
-        def normalize(trace, name, payload)
+        def normalize(trace, _name, payload)
           trace.endpoint = payload[:middleware]
           [CAT, payload[:middleware], nil]
         end
 
-        def normalize_after(trace, span, name, payload)
+        def normalize_after(trace, _span, _name, payload)
           return unless config.enable_segments?
 
           segments = []

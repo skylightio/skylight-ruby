@@ -7,7 +7,7 @@ module Skylight::Core
         CAT = "app.cache.exist".freeze
         TITLE = "cache exist?".freeze
 
-        def normalize(trace, name, payload)
+        def normalize(_trace, _name, _payload)
           [CAT, TITLE, nil]
         end
       end

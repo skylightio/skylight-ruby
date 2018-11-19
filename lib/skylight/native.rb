@@ -43,7 +43,7 @@ module Skylight
     Skylight::Core::Util::Clock.use_native!
   else
     class Instrumenter
-      def self.native_new(*args)
+      def self.native_new(*_args)
         allocate
       end
     end

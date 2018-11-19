@@ -60,7 +60,7 @@ module Skylight::Core
         setup if respond_to?(:setup)
       end
 
-      def normalize(trace, name, payload)
+      def normalize(_trace, _name, _payload)
         :skip
       end
 

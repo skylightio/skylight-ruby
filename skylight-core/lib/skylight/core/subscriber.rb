@@ -39,7 +39,7 @@ module Skylight::Core
       end
     end
 
-    def start(name, id, payload)
+    def start(name, _id, payload)
       return if @instrumenter.disabled?
       return unless (trace = @instrumenter.current_trace)
 
@@ -67,7 +67,7 @@ module Skylight::Core
       nil
     end
 
-    def finish(name, id, payload)
+    def finish(name, _id, payload)
       return if @instrumenter.disabled?
       return unless (trace = @instrumenter.current_trace)
 

@@ -11,7 +11,7 @@ if defined?(ActionPack)
         _prepare_context
       end
 
-      def find_all(name, *args)
+      def find_all(name, *_args)
         handler = ::ActionView::Template.handler_for_extension("erb")
         case name
         when "our-layout"

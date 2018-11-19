@@ -196,7 +196,7 @@ end
 if defined?(Axiom::Types::Infinity)
   # Old versions of axiom-types don't play well with newer RSpec
   class Axiom::Types::Infinity
-    def self.<(other)
+    def self.<(_other)
       false
     end
   end

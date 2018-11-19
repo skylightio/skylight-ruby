@@ -19,7 +19,7 @@ module Skylight
 
         # Sets the output padding while executing a block and resets it.
         #
-        def indent(count = 1, &block)
+        def indent(count = 1)
           orig_padding = shell.padding
           shell.padding += count
           yield

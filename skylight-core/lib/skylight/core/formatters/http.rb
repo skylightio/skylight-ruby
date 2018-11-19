@@ -11,7 +11,7 @@ module Skylight
         # @param [String] path Request path
         # @param [String] query Request query string
         # @return [Hash] a hash containing `:category`, `:title`, and `:annotations`
-        def self.build_opts(method, scheme, host, port, path, query)
+        def self.build_opts(method, _scheme, host, _port, _path, _query)
           { category: "api.http.#{method.downcase}",
             title:    "#{method.upcase} #{host}",
             meta:     { host: host } }

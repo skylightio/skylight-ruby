@@ -8,7 +8,7 @@ module Skylight::Core
       # @option payload [String] :title
       # @option payload [String] :description
       # @return [Array, :skip] the normalized array or `:skip` if `name` is not part of a known {Skylight::TIERS tier}
-      def normalize(trace, name, payload)
+      def normalize(_trace, name, payload)
         if name =~ Skylight::TIER_REGEX
           [
             name,

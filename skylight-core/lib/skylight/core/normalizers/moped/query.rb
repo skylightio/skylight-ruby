@@ -15,7 +15,7 @@ module Skylight::Core
         #   `Query`, `GetMore`, `Insert`, `Update`, and `Delete`.
         # @option payload [String] :prefix ignored, provided by Moped
         # @return [Array, :skip] the normalized array or `:skip` if not a known operation type
-        def normalize(trace, name, payload)
+        def normalize(_trace, _name, payload)
           # payload: { prefix: "  MOPED: #{address.resolved}", ops: operations }
 
           # We can sometimes have multiple operations. However, it seems like this only happens when doing things

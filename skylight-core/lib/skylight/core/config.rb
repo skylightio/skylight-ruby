@@ -335,7 +335,7 @@ module Skylight::Core
       ret
     end
 
-    def write(path)
+    def write(_path)
       raise "not implemented"
     end
 

@@ -59,7 +59,7 @@ describe Skylight::CLI::Merger do
       @stdout ||= TestStdout.new(self)
     end
 
-    def ask_simply(statement, color = nil, options = {})
+    def ask_simply(statement, _color = nil, options = {})
       default = options[:default]
       message = [statement, ("(#{default})" if default), nil].uniq.join(" ")
       result = readline(message, options)
@@ -77,7 +77,7 @@ describe Skylight::CLI::Merger do
 
     private
 
-      def readline(message, options)
+      def readline(message, _options)
         test_line(message) or raise "no reply from readline; prompt=#{message.inspect}"
       end
   end

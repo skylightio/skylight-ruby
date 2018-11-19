@@ -93,7 +93,7 @@ if enable
     end
 
     def env(path = "/", opts = {})
-      Rack::MockRequest.env_for(path, {})
+      Rack::MockRequest.env_for(path, opts)
     end
 
     def consume(resp)

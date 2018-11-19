@@ -17,7 +17,7 @@ module SpecHelper
     end
   end
 
-  def instrument(cat, *args, &blk)
+  def instrument(cat, *_args, &blk)
     ActiveSupport::Notifications.instrument(cat, {}, &blk)
   end
 

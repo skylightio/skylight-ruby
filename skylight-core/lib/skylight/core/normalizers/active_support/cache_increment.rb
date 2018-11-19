@@ -7,7 +7,7 @@ module Skylight::Core
         CAT = "app.cache.increment".freeze
         TITLE = "cache increment".freeze
 
-        def normalize(trace, name, payload)
+        def normalize(_trace, _name, _payload)
           [CAT, TITLE, nil]
         end
       end

@@ -15,7 +15,7 @@ module Skylight::Core
         # @option payload (see RenderNormalizer#normalize_render)
         # @option payload [Integer] :count
         # @return (see RenderNormalizer#normalize_render)
-        def normalize(trace, name, payload)
+        def normalize(_trace, _name, payload)
           normalize_render(CAT, payload)
         end
       end
