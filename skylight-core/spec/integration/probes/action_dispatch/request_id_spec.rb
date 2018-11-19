@@ -26,7 +26,10 @@ if defined?(ActionDispatch)
       app = Rack::Builder.new do
         use middleware
         use ActionDispatch::RequestId
-        run ->(env) { final_env = env; [200, {}, ["OK"]] }
+        run(lambda do |env|
+          final_env = env
+          [200, {}, ["OK"]]
+        end)
       end
 
       env = Rack::MockRequest.env_for("/")
@@ -41,7 +44,10 @@ if defined?(ActionDispatch)
 
       app = Rack::Builder.new do
         use ActionDispatch::RequestId
-        run ->(env) { final_env = env; [200, {}, ["OK"]] }
+        run(lambda do |env|
+          final_env = env
+          [200, {}, ["OK"]]
+        end)
       end
 
       env = Rack::MockRequest.env_for("/")

@@ -190,7 +190,7 @@ module Skylight
         # NOTE: This check won't work correctly on Windows
         def has_rvm?
           if @has_rvm.nil?
-            @has_rvm = system("which rvm > /dev/null");
+            @has_rvm = system("which rvm > /dev/null")
           end
           @has_rvm
         end

@@ -157,14 +157,20 @@ describe Skylight::Core::Instrumenter, :http, :agent do
         inst = MyClass.new
 
         clock.skip 0.1
-        ret = inst.one(:zomg) { clock.skip 0.1; :one }
+        ret = inst.one(:zomg) do
+          clock.skip 0.1
+          :one
+        end
         expect(ret).to eq(:zomg)
 
         clock.skip 0.1
         inst.two { clock.skip 0.1 }
 
         clock.skip 0.1
-        ret = inst.three { clock.skip 0.1; :tres }
+        ret = inst.three do
+          clock.skip 0.1
+          :tres
+        end
         expect(ret).to eq(:tres)
 
         clock.skip 0.1

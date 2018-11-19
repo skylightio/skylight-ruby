@@ -117,7 +117,7 @@ module Skylight::Core
 
       # Request ID code based on ActionDispatch::RequestId
       def set_request_id(env)
-        existing_request_id = env["action_dispatch.request_id"] || env["HTTP_X_REQUEST_ID"];
+        existing_request_id = env["action_dispatch.request_id"] || env["HTTP_X_REQUEST_ID"]
         @current_request_id = env["skylight.request_id"] = make_request_id(existing_request_id)
       end
 
