@@ -10,9 +10,9 @@ gem "sinatra", "2.0.0.rc1"
 gem "active_model_serializers"
 
 group :development do
-  gem "yard"
   gem "pry"
   gem "pry-byebug"
+  gem "yard"
 end
 
 if ENV["CODECLIMATE_REPO_TOKEN"]
