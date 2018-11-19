@@ -3,10 +3,10 @@ require "skylight/core/util/platform"
 module Skylight
   # @api private
   # Whether or not the native extension is present
-  @@has_native_ext = false
+  @has_native_ext = false
 
   def self.native?
-    @@has_native_ext
+    @has_native_ext
   end
 
   def self.libskylight_path
@@ -27,7 +27,7 @@ module Skylight
         load_libskylight(lib)
 
         # If nothing was thrown, then the native extension is present
-        @@has_native_ext = true
+        @has_native_ext = true
       elsif skylight_required
         raise LoadError, "Cannot find native extensions in #{libskylight_path}"
       end

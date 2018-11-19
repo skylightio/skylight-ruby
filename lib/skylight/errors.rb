@@ -1,9 +1,9 @@
 module Skylight
   class NativeError < StandardError
-    @@classes = {}
+    @classes = {}
 
     def self.register(code, name, message)
-      if @@classes.key?(code)
+      if @classes.key?(code)
         raise "Duplicate error class code: #{code}; name=#{name}"
       end
 
@@ -16,11 +16,11 @@ module Skylight
 
       klass = Skylight.const_get("#{name}Error")
 
-      @@classes[code] = klass
+      @classes[code] = klass
     end
 
     def self.for_code(code)
-      @@classes[code] || self
+      @classes[code] || self
     end
 
     attr_reader :method_name
