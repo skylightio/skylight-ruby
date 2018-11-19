@@ -4,10 +4,10 @@ module Skylight
   class Railtie < Rails::Railtie
     include Skylight::Core::Railtie
 
-    # rubocop:disable Layout/EmptyLineBetweenDefs
+    # rubocop:disable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
     def self.config_class; Skylight::Config end
     def self.middleware_class; Skylight::Middleware end
-    # rubocop:enable Layout/EmptyLineBetweenDefs
+    # rubocop:enable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
 
     config.skylight = ActiveSupport::OrderedOptions.new
 

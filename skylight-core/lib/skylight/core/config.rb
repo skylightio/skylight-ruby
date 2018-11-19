@@ -14,13 +14,13 @@ module Skylight::Core
     # @api private
     MUTEX = Mutex.new
 
-    # rubocop:disable Layout/EmptyLineBetweenDefs
+    # rubocop:disable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
     def self.log_name; "Skylight" end
     def self.service_name; log_name end
     def self.support_email; "support@skylight.io" end
     def self.env_matcher; /^(?:SK|SKYLIGHT)_(.+)$/ end
     def self.env_prefix; "SKYLIGHT_" end
-    # rubocop:enable Layout/EmptyLineBetweenDefs
+    # rubocop:enable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
 
     # Map environment variable keys with Skylight configuration keys
     def self.env_to_key

@@ -60,7 +60,9 @@ if defined?(ActiveModel::Serializer)
       end
 
       # Used by AM::S (older only?)
-      def url_options; {} end
+      def url_options
+        {}
+      end
 
       private
 
