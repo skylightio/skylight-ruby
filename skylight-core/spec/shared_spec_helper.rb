@@ -70,8 +70,8 @@ rspec_probe_tags = {
   "ActionDispatch::MiddlewareStack::Middleware" => "middleware"
 }
 
-puts "Testing probes: #{installed_probes.join(", ")}" unless installed_probes.empty?
-puts "Skipping probes: #{skipped_probes.join(", ")}"  unless skipped_probes.empty?
+puts "Testing probes: #{installed_probes.join(', ')}" unless installed_probes.empty?
+puts "Skipping probes: #{skipped_probes.join(', ')}"  unless skipped_probes.empty?
 
 ENV["SKYLIGHT_RAISE_ON_ERROR"] = "true"
 
