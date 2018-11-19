@@ -139,9 +139,9 @@ module Skylight::Core
       end
 
       def insert_middleware(app, config)
-        if middleware_position.has_key?(:after)
+        if middleware_position.key?(:after)
           app.middleware.insert_after(middleware_position[:after], self.class.middleware_class, config: config)
-        elsif middleware_position.has_key?(:before)
+        elsif middleware_position.key?(:before)
           app.middleware.insert_before(middleware_position[:before], self.class.middleware_class, config: config)
         else
           raise "The middleware position you have set is invalid. Please be sure `config.#{self.class.root_key}.middleware_position` is set up correctly."

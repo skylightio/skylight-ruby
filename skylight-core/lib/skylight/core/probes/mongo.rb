@@ -140,7 +140,7 @@ module Skylight::Core
           end
 
           def add_value(key, command, payload)
-            if command.has_key?(key)
+            if command.key?(key)
               value = command[key]
               payload[key] = value
             end

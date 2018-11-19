@@ -3,7 +3,7 @@ module Skylight
     @@classes = {}
 
     def self.register(code, name, message)
-      if @@classes.has_key?(code)
+      if @@classes.key?(code)
         raise "Duplicate error class code: #{code}; name=#{name}"
       end
 
