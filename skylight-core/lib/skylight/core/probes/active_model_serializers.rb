@@ -7,10 +7,12 @@ module Skylight::Core
 
           # File moved location between version
           %w[serializer serializers].each do |dir|
+            # rubocop:disable Lint/HandleExceptions
             begin
               require "active_model/#{dir}/version"
             rescue LoadError
             end
+            # rubocop:enable Lint/HandleExceptions
           end
 
           if Gem.loaded_specs["active_model_serializers"]

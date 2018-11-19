@@ -20,6 +20,8 @@ if ENV["AMS_VERSION"] == "edge"
   require "active_support/inflector"
 end
 
+# rubocop:disable Lint/HandleExceptions
+
 %w[excon tilt sinatra sequel faraday mongo moped mongoid active_model_serializers httpclient elasticsearch].each do |library|
   begin
     require library
@@ -54,6 +56,8 @@ begin
   Skylight::Core::Probes.probe(:active_job_enqueue)
 rescue LoadError
 end
+
+# rubocop:enable Lint/HandleExceptions
 
 require "net/http"
 Skylight::Core::Probes.probe(:net_http)

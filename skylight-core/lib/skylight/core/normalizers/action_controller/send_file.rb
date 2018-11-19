@@ -1,12 +1,18 @@
 module Skylight::Core
   module Normalizers
     module ActionController
+      enabled = true
+
       # Temporary hacks
       begin
         require "action_dispatch/http/mime_type"
         require "action_dispatch/http/mime_types"
         require "rack/utils"
+      rescue LoadError
+        enabled = false
+      end
 
+      if enabled
         class SendFile < Normalizer
           register "send_file.action_controller"
 
@@ -38,7 +44,6 @@ module Skylight::Core
               end
             end
         end
-      rescue LoadError
       end
     end
   end

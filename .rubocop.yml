@@ -20,6 +20,11 @@ Layout/IndentHash:
 Layout/IndentHeredoc:
   Enabled: false
 
+# We shouldn't worry about this in specs
+Lint/HandleExceptions:
+  Exclude:
+    - '**/*_spec.rb'
+
 # We do a lot of handling of all error classes. This seems probably ok for our case.
 Lint/RescueException:
   Enabled: false
