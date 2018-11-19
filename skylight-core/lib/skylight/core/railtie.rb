@@ -68,7 +68,7 @@ module Skylight::Core
       end
 
       def existent_paths(paths)
-        paths.respond_to?(:existent) ? paths.existent : paths.select { |f| File.exists?(f) }
+        paths.respond_to?(:existent) ? paths.existent : paths.select { |f| File.exist?(f) }
       end
 
       def load_skylight_config(app)

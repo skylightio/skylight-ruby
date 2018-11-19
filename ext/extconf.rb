@@ -9,7 +9,7 @@ $:.unshift File.expand_path("../lib", __dir__)
 require "skylight/version"
 
 # Don't use the gem for dev
-if File.exists?(File.expand_path("../Gemfile", __dir__))
+if File.exist?(File.expand_path("../Gemfile", __dir__))
   # This approach won't work in production since skylight-core isn't in the skylight gem
   $:.unshift File.expand_path("../skylight-core/lib", __dir__)
 else
@@ -101,9 +101,9 @@ skylight_dlopen_c = File.expand_path("skylight_dlopen.c", hdrpath)
 
 LOG.info "SKYLIGHT_HDR_PATH=#{hdrpath}; SKYLIGHT_LIB_PATH=#{libpath}"
 
-LOG.info "file exists; path=#{libskylight}" if File.exists?(libskylight)
-LOG.info "file exists; path=#{skylight_dlopen_c}" if File.exists?(skylight_dlopen_c)
-LOG.info "file exists; path=#{skylight_dlopen_h}" if File.exists?(skylight_dlopen_h)
+LOG.info "file exists; path=#{libskylight}" if File.exist?(libskylight)
+LOG.info "file exists; path=#{skylight_dlopen_c}" if File.exist?(skylight_dlopen_c)
+LOG.info "file exists; path=#{skylight_dlopen_h}" if File.exist?(skylight_dlopen_h)
 
 # If libskylight is not present, fetch it
 if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(skylight_dlopen_h)
