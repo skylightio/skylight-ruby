@@ -24,10 +24,7 @@ module Skylight
       attr_accessor :authentication
       attr_reader :host, :port, :config
 
-      READ_EXCEPTIONS = [Timeout::Error, EOFError]
-      # This doesn't exist on Ruby 1.9.3
-      READ_EXCEPTIONS << Net::ReadTimeout if defined?(Net::ReadTimeout)
-      READ_EXCEPTIONS.freeze
+      READ_EXCEPTIONS = [Timeout::Error, EOFError, Net::ReadTimeout].freeze
 
       class StartError < StandardError
         attr_reader :original
