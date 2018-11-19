@@ -58,7 +58,7 @@ module Skylight::Core
 
             # Not sure if this will always exist
             # Delete so the description will be less redundant
-            if target = command[event.command_name]
+            if (target = command[event.command_name])
               title << " #{target}"
             end
 
@@ -78,7 +78,7 @@ module Skylight::Core
             add_value("remove".freeze, command, payload)
             add_value("new".freeze, command, payload)
 
-            if updates = command["updates".freeze]
+            if (updates = command["updates".freeze])
               # AFAICT the gem generally just sends one item in the updates array
               update = updates[0]
               update_payload = {}
@@ -94,7 +94,7 @@ module Skylight::Core
               end
             end
 
-            if deletes = command["deletes".freeze]
+            if (deletes = command["deletes".freeze])
               # AFAICT the gem generally just sends one item in the updates array
               delete = deletes[0]
               delete_payload = {}
@@ -128,7 +128,7 @@ module Skylight::Core
           end
 
           def end_instrumentation(event)
-            if original_event = @events.delete(event.operation_id)
+            if (original_event = @events.delete(event.operation_id))
               meta = {}
               if event.is_a?(::Mongo::Monitoring::Event::CommandFailed)
                 meta[:exception] = ["CommandFailed", event.message]
@@ -147,7 +147,7 @@ module Skylight::Core
           end
 
           def add_bound(key, command, payload)
-            if value = command[key]
+            if (value = command[key])
               payload[key] = extract_binds(value)
             end
           end

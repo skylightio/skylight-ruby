@@ -116,33 +116,33 @@ if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(
     fail "`#{libskylight_yml}` does not exist"
   end
 
-  unless libskylight_info = YAML.load_file(libskylight_yml)
+  unless (libskylight_info = YAML.load_file(libskylight_yml))
     fail "`#{libskylight_yml}` does not contain data"
   end
 
-  if version = SKYLIGHT_VERSION
-    unless checksum = SKYLIGHT_CHECKSUM
+  if (version = SKYLIGHT_VERSION)
+    unless (checksum = SKYLIGHT_CHECKSUM)
       fail "no checksum provided when using custom version"
     end
   else
-    if platform_info = libskylight_info[Platform.tuple]
-      unless version = platform_info["version"]
+    if (platform_info = libskylight_info[Platform.tuple])
+      unless (version = platform_info["version"])
         fail "libskylight version missing from `#{libskylight_yml}`; platform=#{Platform.tuple}"
       end
 
-      unless checksum = platform_info["checksum"]
+      unless (checksum = platform_info["checksum"])
         fail "checksum missing from `#{libskylight_yml}`; platform=#{Platform.tuple}"
       end
     else
-      unless version = libskylight_info["version"]
+      unless (version = libskylight_info["version"])
         fail "libskylight version missing from `#{libskylight_yml}`"
       end
 
-      unless checksums = libskylight_info["checksums"]
+      unless (checksums = libskylight_info["checksums"])
         fail "libskylight checksums missing from `#{libskylight_yml}`"
       end
 
-      unless checksum = checksums[Platform.tuple]
+      unless (checksum = checksums[Platform.tuple])
         fail "no checksum entry for requested architecture -- " \
                 "this probably means the requested architecture is not supported; " \
                 "platform=#{Platform.tuple}; available=#{checksums.keys}", :info

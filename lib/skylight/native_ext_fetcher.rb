@@ -69,7 +69,7 @@ module Skylight
 
       tar_gz = "#{@target}/#{basename}"
 
-      unless sha2 = fetch_native_ext(source_uri, tar_gz, MAX_RETRIES, MAX_REDIRECTS)
+      unless (sha2 = fetch_native_ext(source_uri, tar_gz, MAX_RETRIES, MAX_REDIRECTS))
         maybe_raise "could not fetch native extension"
         return
       end
@@ -146,7 +146,7 @@ module Skylight
     #
     # If `ENV['HTTP_PROXY']` is set, it will be used as a proxy for this request.
     def http_get(host, port, use_ssl, path, out)
-      if http_proxy = Core::Util::Proxy.detect_url(ENV)
+      if (http_proxy = Core::Util::Proxy.detect_url(ENV))
         log "connecting with proxy: #{http_proxy}"
         uri = URI.parse(http_proxy)
         p_host, p_port = uri.host, uri.port
@@ -173,7 +173,7 @@ module Skylight
 
             return [:success, digest.hexdigest]
           when Net::HTTPRedirection
-            unless location = resp["location"]
+            unless (location = resp["location"])
               raise "received redirect but no location"
             end
 

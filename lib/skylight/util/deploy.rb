@@ -91,7 +91,7 @@ module Skylight
             info_path = config[:'heroku.dyno_info_path']
 
             if File.exist?(info_path)
-              if info = JSON.parse(File.read(info_path))
+              if (info = JSON.parse(File.read(info_path)))
                 info["release"]
               end
             end

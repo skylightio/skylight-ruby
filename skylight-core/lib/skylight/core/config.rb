@@ -108,7 +108,7 @@ module Skylight::Core
 
       p = attrs.delete(:priority)
 
-      if @environment = args[0]
+      if (@environment = args[0])
         @regexp = /^#{Regexp.escape(@environment)}\.(.+)$/
       end
 
@@ -166,14 +166,14 @@ module Skylight::Core
       return ret unless env
 
       # Only set if it exists, we don't want to set to a nil value
-      if proxy_url = Util::Proxy.detect_url(env)
+      if (proxy_url = Util::Proxy.detect_url(env))
         ret[:proxy_url] = proxy_url
       end
 
       env.each do |k, val|
         next unless k =~ env_matcher
 
-        if key = env_to_key[$1]
+        if (key = env_to_key[$1])
           ret[key] =
             case val
             when /^false$/i      then false
@@ -266,7 +266,7 @@ module Skylight::Core
       else
         k = self.class.remap_key(key)
 
-        if validator = self.class.validators[k]
+        if (validator = self.class.validators[k])
           blk, msg = validator
 
           unless blk.call(val, self)
@@ -389,7 +389,7 @@ module Skylight::Core
 
     def alert_logger
       @alert_logger ||= MUTEX.synchronize do
-        unless l = @alert_logger
+        unless (l = @alert_logger)
           out = get(:alert_log_file)
           out = Util::AlertLogger.new(load_logger) if out == "-"
 
@@ -440,7 +440,7 @@ module Skylight::Core
       end
 
       def load_logger
-        unless l = @logger
+        unless (l = @logger)
           out = get(:log_file)
           out = STDOUT if out == "-"
 

@@ -5,7 +5,7 @@ module Skylight
   module Util
     module Hostname
       def self.default_hostname
-        if hostname = Socket.gethostname
+        if (hostname = Socket.gethostname)
           hostname.strip!
           hostname = nil if hostname == ""
         end

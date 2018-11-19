@@ -32,7 +32,7 @@ end
 # receive requests. The HTTP server is used to mock out the Skylight hosted
 # service.
 def get_embedded_http_server_timeout
-  if timeout = ENV["EMBEDDED_HTTP_SERVER_TIMEOUT"]
+  if (timeout = ENV["EMBEDDED_HTTP_SERVER_TIMEOUT"])
     puts "EMBEDDED_HTTP_SERVER_TIMEOUT=#{timeout}"
     timeout.to_i
   else
@@ -42,7 +42,7 @@ end
 
 # Similar to above, but this is for waiting for the worker to spawn.
 def get_worker_spawn_timeout
-  if timeout = ENV["WORKER_SPAWN_TIMEOUT"]
+  if (timeout = ENV["WORKER_SPAWN_TIMEOUT"])
     puts "WORKER_SPAWN_TIMEOUT=#{timeout}"
     timeout.to_i
   else

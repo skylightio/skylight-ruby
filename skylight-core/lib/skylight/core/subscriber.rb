@@ -41,7 +41,7 @@ module Skylight::Core
 
     def start(name, id, payload)
       return if @instrumenter.disabled?
-      return unless trace = @instrumenter.current_trace
+      return unless (trace = @instrumenter.current_trace)
 
       result = normalize(trace, name, payload)
 
@@ -69,9 +69,9 @@ module Skylight::Core
 
     def finish(name, id, payload)
       return if @instrumenter.disabled?
-      return unless trace = @instrumenter.current_trace
+      return unless (trace = @instrumenter.current_trace)
 
-      while curr = trace.notifications.pop
+      while (curr = trace.notifications.pop)
         if curr.name == name
           begin
             normalize_after(trace, curr.span, name, payload)

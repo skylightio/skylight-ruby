@@ -40,7 +40,7 @@ module Skylight
       def initialize(config, service = :auth, opts = {})
         @config = config
 
-        unless url = config["#{service}_url"]
+        unless (url = config["#{service}_url"])
           raise ArgumentError, "no URL specified for #{service}"
         end
 
@@ -50,7 +50,7 @@ module Skylight
         @host = url.host
         @port = url.port
 
-        if proxy_url = config[:proxy_url]
+        if (proxy_url = config[:proxy_url])
           proxy_url = URI.parse(proxy_url)
           @proxy_addr, @proxy_port = proxy_url.host, proxy_url.port
           @proxy_user, @proxy_pass = (proxy_url.userinfo || "").split(/:/)
@@ -192,7 +192,7 @@ module Skylight
 
             res = body
             key.split(".").each do |part|
-              return unless res = res[part]
+              return unless (res = res[part])
             end
             res
           end

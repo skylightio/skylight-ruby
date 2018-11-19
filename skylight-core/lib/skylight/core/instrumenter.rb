@@ -123,7 +123,7 @@ module Skylight::Core
 
     def trace(endpoint, cat, title = nil, desc = nil, meta = nil, segment: nil)
       # If a trace is already in progress, continue with that one
-      if trace = @trace_info.current
+      if (trace = @trace_info.current)
         return yield(trace) if block_given?
         return trace
       end
@@ -172,7 +172,7 @@ module Skylight::Core
     def instrument(cat, title = nil, desc = nil, meta = nil)
       raise ArgumentError, "cat is required" unless cat
 
-      unless trace = @trace_info.current
+      unless (trace = @trace_info.current)
         return yield if block_given?
         return
       end
@@ -187,7 +187,7 @@ module Skylight::Core
 
       cat = "other.#{cat}" unless match?(cat, Skylight::TIER_REGEX)
 
-      unless sp = trace.instrument(cat, title, desc, meta)
+      unless (sp = trace.instrument(cat, title, desc, meta))
         return yield if block_given?
         return
       end
@@ -206,17 +206,17 @@ module Skylight::Core
     end
 
     def span_correlation_header(span)
-      return unless trace = @trace_info.current
+      return unless (trace = @trace_info.current)
       trace.span_correlation_header(span)
     end
 
     def broken!
-      return unless trace = @trace_info.current
+      return unless (trace = @trace_info.current)
       trace.broken!
     end
 
     def done(span, meta = nil)
-      return unless trace = @trace_info.current
+      return unless (trace = @trace_info.current)
       trace.done(span, meta)
     end
 

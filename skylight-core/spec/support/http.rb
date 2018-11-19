@@ -98,7 +98,7 @@ module SpecHelper
       private
 
       def handle(env)
-        if input = env.delete("rack.input")
+        if (input = env.delete("rack.input"))
           str = input.read.dup
           str.freeze
 

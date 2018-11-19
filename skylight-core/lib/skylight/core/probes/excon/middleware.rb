@@ -53,7 +53,7 @@ module Skylight::Core
           end
 
           def end_instrumentation(datum)
-            if request = @requests.delete(datum.object_id)
+            if (request = @requests.delete(datum.object_id))
               meta = {}
               if datum[:error].is_a?(Exception)
                 meta[:exception_object] = datum[:error]

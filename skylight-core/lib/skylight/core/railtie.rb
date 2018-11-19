@@ -75,7 +75,7 @@ module Skylight::Core
         path = config_path(app)
         path = nil unless File.exist?(path)
 
-        unless tmp = app.config.paths["tmp"].first
+        unless (tmp = app.config.paths["tmp"].first)
           Rails.logger.error "#{log_prefix} tmp directory missing from rails configuration"
           return nil
         end
@@ -91,21 +91,21 @@ module Skylight::Core
       end
 
       def configure_logging(config, app)
-        if logger = sk_rails_config(app).logger
+        if (logger = sk_rails_config(app).logger)
           config.logger = logger
         else
           # Configure the log file destination
-          if log_file = sk_rails_config(app).log_file
+          if (log_file = sk_rails_config(app).log_file)
             config["log_file"] = log_file
           elsif !config.key?("log_file") && !config.on_heroku?
             config["log_file"] = File.join(Rails.root, "log/#{self.class.log_file_name}.log")
           end
 
           # Configure the log level
-          if level = sk_rails_config(app).log_level
+          if (level = sk_rails_config(app).log_level)
             config["log_level"] = level
           elsif !config.key?("log_level")
-            if level = app.config.log_level
+            if (level = app.config.log_level)
               config["log_level"] = level
             end
           end

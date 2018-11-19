@@ -29,7 +29,7 @@ module Skylight::Core
       end
 
       def log_env_prefix
-        if c = config_for_logging
+        if (c = config_for_logging)
           c.class.env_prefix
         else
           "SKYLIGHT_"
@@ -133,7 +133,7 @@ module Skylight::Core
         end
 
         # Fallback
-        if module_name = self.is_a?(Module) ? name : self.class.name
+        if (module_name = self.is_a?(Module) ? name : self.class.name)
           root_name = module_name.split("::").first.upcase
           msg.prepend("[#{root_name}] ")
         end

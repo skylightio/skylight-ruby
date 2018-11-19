@@ -134,8 +134,8 @@ end
 task :run_travis_builds => :vagrant_up do
   builds = travis_builds
 
-  if number = ENV["JOB"]
-    if build = builds.find { |b| b["number"] == number.to_i }
+  if (number = ENV["JOB"])
+    if (build = builds.find { |b| b["number"] == number.to_i })
       builds = [build]
     else
       abort "No build for number: #{number}"

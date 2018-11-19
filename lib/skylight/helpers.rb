@@ -12,7 +12,7 @@ module Skylight
       def method_added(name)
         super
 
-        if opts = @__sk_instrument_next_method
+        if (opts = @__sk_instrument_next_method)
           @__sk_instrument_next_method = nil
           instrument_method(name, opts)
         end
@@ -22,7 +22,7 @@ module Skylight
       def singleton_method_added(name)
         super
 
-        if opts = @__sk_instrument_next_method
+        if (opts = @__sk_instrument_next_method)
           @__sk_instrument_next_method = nil
           instrument_class_method(name, opts)
         end
@@ -80,7 +80,7 @@ module Skylight
       def instrument_method(*args)
         opts = args.pop if Hash === args.last
 
-        if name = args.pop
+        if (name = args.pop)
           title = "#{to_s}##{name}"
           __sk_instrument_method_on(self, name, title, opts || {})
         else
