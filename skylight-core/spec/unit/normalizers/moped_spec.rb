@@ -8,12 +8,12 @@ module Skylight
     end
 
     it "normalizes QUERY" do
-      op = Moped::Protocol::Query.new("testdb", "testcollection", { foo: { :"$not" => "bar" }, baz: "qux" })
+      op = Moped::Protocol::Query.new("testdb", "testcollection", { foo: { "$not": "bar" }, baz: "qux" })
       category, title, description = normalize(ops: [op])
 
       expect(category).to    eq("db.mongo.query")
       expect(title).to       eq("QUERY testcollection")
-      expect(description).to eq({ foo: { :"$not" => "?" }, baz: "?" }.to_json)
+      expect(description).to eq({ foo: { "$not": "?" }, baz: "?" }.to_json)
     end
 
     it "normalizes GET_MORE" do

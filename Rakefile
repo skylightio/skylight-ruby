@@ -41,7 +41,7 @@ require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = "--order random"
 end
-task :spec => :compile
+task spec: :compile
 
 namespace :vendor do
   namespace :update do
@@ -131,7 +131,7 @@ task :vagrant_up do
   end
 end
 
-task :run_travis_builds => :vagrant_up do
+task run_travis_builds: :vagrant_up do
   builds = travis_builds
 
   if (number = ENV["JOB"])
@@ -214,4 +214,4 @@ task :list_travis_builds do
   end
 end
 
-task :default => :spec
+task default: :spec

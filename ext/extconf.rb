@@ -174,11 +174,11 @@ if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(
       # Move
       FileUtils.mv "#{hdrpath}/libskylight.#{Platform.libext}",
                    "#{libpath}/libskylight.#{Platform.libext}",
-                   :force => true
+                   force: true
 
       FileUtils.mv "#{hdrpath}/skylightd",
                    "#{libpath}/skylightd",
-                   :force => true
+                   force: true
     end
   rescue => e
     fail "unable to fetch native extension; msg=#{e.message}\n#{e.backtrace.join("\n")}"

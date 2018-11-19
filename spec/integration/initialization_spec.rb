@@ -43,7 +43,7 @@ describe "Initialization integration" do
     env = { "RAILS_ENV" => rails_env }
     env.merge!("SKYLIGHT_ENABLE_TRACE_LOGS" => "1", "DEBUG" => "1") if debug
     cmd = "ruby bin/rails runner '#noop'"
-    cmd_pid = Process.spawn(env, cmd, :out => pipe_cmd_out, :err => pipe_cmd_out)
+    cmd_pid = Process.spawn(env, cmd, out: pipe_cmd_out, err: pipe_cmd_out)
 
     ENV["SKYLIGHT_ENABLE_TRACE_LOGS"] = original_trace
 

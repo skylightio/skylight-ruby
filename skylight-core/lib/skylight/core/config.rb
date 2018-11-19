@@ -49,13 +49,13 @@ module Skylight::Core
     # Default values for Skylight configuration keys
     def self.default_values
       {
-        :log_file             => "-".freeze,
-        :log_level            => "INFO".freeze,
-        :alert_log_file       => "-".freeze,
-        :log_sql_parse_errors => true,
-        :enable_segments      => true,
-        :enable_sidekiq       => false,
-        :'heroku.dyno_info_path' => "/etc/heroku/dyno"
+        log_file:                 "-".freeze,
+        log_level:                "INFO".freeze,
+        alert_log_file:           "-".freeze,
+        log_sql_parse_errors:     true,
+        enable_segments:          true,
+        enable_sidekiq:           false,
+        'heroku.dyno_info_path':  "/etc/heroku/dyno"
       }
     end
 

@@ -81,7 +81,7 @@ module Skylight
       end
 
       it "detects Heroku" do
-        config = Config.new :'heroku.dyno_info_path' => File.expand_path("../../../skylight-core/spec/support/heroku_dyno_info_sample", __FILE__)
+        config = Config.new 'heroku.dyno_info_path': File.expand_path("../../../skylight-core/spec/support/heroku_dyno_info_sample", __FILE__)
         expect(config.deploy.id).to eq(123)
         expect(config.deploy.git_sha).to eq("19a8cfc47c10d8069916ae8adba0c9cb4c6c572d")
         expect(config.deploy.description).to eq("Deploy 19a8cfc")

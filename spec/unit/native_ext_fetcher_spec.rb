@@ -47,7 +47,7 @@ module Skylight
 
       it "follows redirects" do
         stub_request(:get, "https://s3.amazonaws.com/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz")
-          .to_return(:status => 301, headers: { "Location" => "https://example.org/zomg/bar.gz" })
+          .to_return(status: 301, headers: { "Location" => "https://example.org/zomg/bar.gz" })
 
         stub_ext_request("https://example.org/zomg/bar.gz")
 
@@ -91,7 +91,7 @@ module Skylight
     def stub_ext_request(url = nil)
       url ||= "https://s3.amazonaws.com/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz"
       stub_request(:get, url)
-        .to_return(:status => 200, :body => archive, :headers => {})
+        .to_return(status: 200, body: archive, headers: {})
     end
 
     def expect_valid_output

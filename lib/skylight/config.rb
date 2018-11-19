@@ -83,15 +83,15 @@ module Skylight
     def self.default_values
       @default_values ||= begin
         ret = super.merge(
-          :auth_url             => "https://auth.skylight.io/agent",
-          :app_create_url       => "https://www.skylight.io/apps",
-          :merges_url           => "https://www.skylight.io/merges",
-          :validation_url       => "https://auth.skylight.io/agent/config",
-          :'daemon.lazy_start'  => true,
-          :hostname             => Util::Hostname.default_hostname,
-          :report_max_spans_exceeded => false,
-          :prune_large_traces   => true,
-          :report_rails_env     => true,
+          auth_url:                   "https://auth.skylight.io/agent",
+          app_create_url:             "https://www.skylight.io/apps",
+          merges_url:                 "https://www.skylight.io/merges",
+          validation_url:             "https://auth.skylight.io/agent/config",
+          'daemon.lazy_start':        true,
+          hostname:                   Util::Hostname.default_hostname,
+          report_max_spans_exceeded:  false,
+          prune_large_traces:         true,
+          report_rails_env:           true,
         )
 
         if Core::Util::Platform::OS != "darwin"
@@ -159,14 +159,14 @@ module Skylight
 
     def self.legacy_keys
       @legacy_keys ||= super.merge(
-        :'agent.sockfile_path' => :'daemon.sockdir_path',
-        :'agent.lockfile'      => :'daemon.pidfile_path'
+        'agent.sockfile_path': :'daemon.sockdir_path',
+        'agent.lockfile':      :'daemon.pidfile_path'
       )
     end
 
     def self.validators
       @validators ||= super.merge(
-        :'agent.interval' => [->(v, _c) { Integer === v && v > 0 }, "must be an integer greater than 0"]
+        'agent.interval': [->(v, _c) { Integer === v && v > 0 }, "must be an integer greater than 0"]
       )
     end
 

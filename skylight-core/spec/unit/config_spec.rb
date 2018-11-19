@@ -37,7 +37,7 @@ module Skylight::Core
 
     context "1 level nested lookup" do
       let :config do
-        Config.new :one => { :foo => "hello", "bar" => "omg" }
+        Config.new one: { :foo => "hello", "bar" => "omg" }
       end
 
       it "looks keys up with strings" do
@@ -53,8 +53,8 @@ module Skylight::Core
 
     context "2 level nested lookup" do
       let :config do
-        Config.new :one => {
-          :two => {
+        Config.new one: {
+          two: {
             :foo => "hello", "bar" => "omg"
           }
         }

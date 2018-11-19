@@ -18,7 +18,7 @@ module Skylight::Core
               end
 
               if layout
-                instrument(:template, :identifier => layout.identifier) do
+                instrument(:template, identifier: layout.identifier) do
                   render_with_layout_without_sk(path, locals, *args, &block)
                 end
               else
