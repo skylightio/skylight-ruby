@@ -171,18 +171,17 @@ module Skylight::Core
 
       env.each do |k, val|
         next unless k =~ env_matcher
+        next unless (key = env_to_key[$1])
 
-        if (key = env_to_key[$1])
-          ret[key] =
-            case val
-            when /^false$/i      then false
-            when /^true$/i       then true
-            when /^(nil|null)$/i then nil
-            when /^\d+$/         then val.to_i
-            when /^\d+\.\d+$/    then val.to_f
-            else val
-            end
-        end
+        ret[key] =
+          case val
+          when /^false$/i      then false
+          when /^true$/i       then true
+          when /^(nil|null)$/i then nil
+          when /^\d+$/         then val.to_i
+          when /^\d+\.\d+$/    then val.to_f
+          else val
+          end
       end
 
       ret

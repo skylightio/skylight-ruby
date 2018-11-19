@@ -71,17 +71,16 @@ module Skylight::Core
       return unless (trace = @instrumenter.current_trace)
 
       while (curr = trace.notifications.pop)
-        if curr.name == name
-          begin
-            normalize_after(trace, curr.span, name, payload)
-          ensure
-            meta = {}
-            meta[:exception] = payload[:exception] if payload[:exception]
-            meta[:exception_object] = payload[:exception_object] if payload[:exception_object]
-            trace.done(curr.span, meta) if curr.span
-          end
-          return
+        next unless curr.name == name
+        begin
+          normalize_after(trace, curr.span, name, payload)
+        ensure
+          meta = {}
+          meta[:exception] = payload[:exception] if payload[:exception]
+          meta[:exception_object] = payload[:exception_object] if payload[:exception_object]
+          trace.done(curr.span, meta) if curr.span
         end
+        return
       end
     rescue Exception => e
       error "Subscriber#finish error; msg=%s", e.message
