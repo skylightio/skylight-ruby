@@ -1,5 +1,3 @@
-require "thread"
-
 module Skylight::Core
   # @api private
   class GC

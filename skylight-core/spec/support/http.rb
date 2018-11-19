@@ -1,5 +1,4 @@
 require "rack"
-require "thread"
 require "active_support"
 require "json"
 require "skylight/core/util/logging"

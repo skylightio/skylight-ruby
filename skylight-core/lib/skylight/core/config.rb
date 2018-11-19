@@ -1,6 +1,5 @@
 require "yaml"
 require "fileutils"
-require "thread"
 require "erb"
 require "json"
 require "skylight/core/util/logging"

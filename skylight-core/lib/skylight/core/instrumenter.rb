@@ -1,4 +1,3 @@
-require "thread"
 require "strscan"
 require "securerandom"
 
