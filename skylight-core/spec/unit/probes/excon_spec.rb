@@ -33,7 +33,7 @@ module Skylight::Core
             # This is how Excon does it
             # https://github.com/geemus/excon/blob/b367b788b0cd71eb22107492496e1857497dd292/lib/excon/connection.rb#L260-L265
             @stack = middlewares.map do |middleware|
-              lambda { |stack| middleware.new(stack) }
+              ->(stack) { middleware.new(stack) }
             end.reverse.inject(self) do |middlewares, middleware|
               middleware.call(middlewares)
             end

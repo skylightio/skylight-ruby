@@ -30,7 +30,7 @@ module SpecHelper
         timeout = opts[:timeout] || EMBEDDED_HTTP_SERVER_TIMEOUT
         timeout_at = monotonic_time + timeout
         count = opts[:count] || 1
-        filter = lambda { |r| opts[:resource] ? r["PATH_INFO"] == opts[:resource] : true }
+        filter = ->(r) { opts[:resource] ? r["PATH_INFO"] == opts[:resource] : true }
 
         LOCK.synchronize do
           loop do
