@@ -23,7 +23,7 @@ module Skylight
     def app
       @app ||= Rack::Builder.new do
         use TestNamespace::Middleware
-        run lambda { |env|
+        run lambda { |_env|
           # This will cause the normalizer to return a :skip
           ActiveSupport::Notifications.instrument("unmatched.test") do
             [200, {}, ["OK"]]

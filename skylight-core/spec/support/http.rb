@@ -234,7 +234,7 @@ module SpecHelper
   end
 
   def stub_session_request
-    server.mock "/agent" do |env|
+    server.mock "/agent" do |_env|
       # TTL: 3 hours
       { auth: { session: { token: token, expiry_ttl: 10800 } } }
     end

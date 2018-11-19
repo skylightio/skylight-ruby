@@ -41,7 +41,7 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
     end
 
     it "logs errored requests" do
-      Excon.stub({}, lambda { |request_params|
+      Excon.stub({}, lambda { |_request_params|
         travel(2)
         raise "bad response"
         { :body => "body", :status => 200 }

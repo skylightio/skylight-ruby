@@ -155,7 +155,7 @@ describe "Skylight::Instrumenter", :http, :agent do
       it "records the trace" do
         allow(SecureRandom).to receive(:uuid).once.and_return("test-uuid")
 
-        Skylight.trace "Testin", "app.rack" do |t|
+        Skylight.trace "Testin", "app.rack" do
           clock.skip 1
         end
 
@@ -183,7 +183,7 @@ describe "Skylight::Instrumenter", :http, :agent do
       it "ignores disabled parts of the trace" do
         allow(SecureRandom).to receive(:uuid).once.and_return("test-uuid")
 
-        Skylight.trace "Testin", "app.rack" do |t|
+        Skylight.trace "Testin", "app.rack" do
           Skylight.disable do
             ActiveSupport::Notifications.instrument("sql.active_record", name: "Load User", sql: "SELECT * FROM posts", binds: []) do
               clock.skip 1
@@ -217,7 +217,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         bad_sql = "!!!"
 
-        Skylight.trace "Testin", "app.rack" do |t|
+        Skylight.trace "Testin", "app.rack" do
           ActiveSupport::Notifications.instrument("sql.active_record", name: "Load User", sql: bad_sql, binds: []) do
             clock.skip 1
           end
@@ -260,7 +260,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         bad_sql = "SELECT ???LOL??? \xCE ;;;NOTSQL;;;".force_encoding("BINARY")
         encoded_sql = Base64.encode64(bad_sql)
 
-        Skylight.trace "Testin", "app.rack" do |t|
+        Skylight.trace "Testin", "app.rack" do
           ActiveSupport::Notifications.instrument("sql.active_record", name: "Load User", sql: bad_sql, binds: []) do
             clock.skip 1
           end
@@ -303,7 +303,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         bad_sql = "SELECT ???LOL??? \xCE ;;;NOTSQL;;;".force_encoding("UTF-8")
         encoded_sql = Base64.encode64(bad_sql)
 
-        Skylight.trace "Testin", "app.rack" do |t|
+        Skylight.trace "Testin", "app.rack" do
           ActiveSupport::Notifications.instrument("sql.active_record", name: "Load User", sql: bad_sql, binds: []) do
             clock.skip 1
           end
@@ -344,11 +344,11 @@ describe "Skylight::Instrumenter", :http, :agent do
         config[:ignored_endpoint] = "foo#heartbeat"
         instrumenter = Skylight::Instrumenter.new(config)
 
-        Skylight.trace "foo#bar", "app.rack" do |t|
+        Skylight.trace "foo#bar", "app.rack" do
           clock.skip 1
         end
 
-        Skylight.trace "foo#heartbeat", "app.rack" do |t|
+        Skylight.trace "foo#heartbeat", "app.rack" do
           clock.skip 1
         end
 
@@ -363,11 +363,11 @@ describe "Skylight::Instrumenter", :http, :agent do
         config[:ignored_endpoint] = "foo#heartbeat"
         instrumenter = Skylight::Instrumenter.new(config)
 
-        Skylight.trace "foo#bar", "app.rack", segment: "json" do |t|
+        Skylight.trace "foo#bar", "app.rack", segment: "json" do
           clock.skip 1
         end
 
-        Skylight.trace "foo#heartbeat", "app.rack", segment: "json" do |t|
+        Skylight.trace "foo#heartbeat", "app.rack", segment: "json" do
           clock.skip 1
         end
 
@@ -382,12 +382,12 @@ describe "Skylight::Instrumenter", :http, :agent do
         config[:ignored_endpoint] = "foo#heartbeat"
         config[:ignored_endpoints] = ["bar#heartbeat", "baz#heartbeat"]
 
-        Skylight.trace "foo#bar", "app.rack" do |t|
+        Skylight.trace "foo#bar", "app.rack" do
           clock.skip 1
         end
 
         %w(foo bar baz).each do |name|
-          Skylight.trace "#{name}#heartbeat", "app.rack" do |t|
+          Skylight.trace "#{name}#heartbeat", "app.rack" do
             clock.skip 1
           end
         end
@@ -402,12 +402,12 @@ describe "Skylight::Instrumenter", :http, :agent do
       it "ignores multiple endpoints with commas" do
         config[:ignored_endpoints] = "foo#heartbeat, bar#heartbeat,baz#heartbeat"
 
-        Skylight.trace "foo#bar", "app.rack" do |t|
+        Skylight.trace "foo#bar", "app.rack" do
           clock.skip 1
         end
 
         %w(foo bar baz).each do |name|
-          Skylight.trace "#{name}#heartbeat", "app.rack" do |t|
+          Skylight.trace "#{name}#heartbeat", "app.rack" do
             clock.skip 1
           end
         end

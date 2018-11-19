@@ -17,9 +17,9 @@ if enable
       MyApp.initialize!
 
       EngineNamespace::MyEngine.routes.draw do
-        root to: ->(env) { [204, {}, []] }
-        get "/empty", to: ->(env) { [204, {}, []] }, as: :empty
-        get "/error_from_router", to: ->(env) { raise RuntimeError, "cannot even" }
+        root to: ->(_env) { [204, {}, []] }
+        get "/empty", to: ->(_env) { [204, {}, []] }, as: :empty
+        get "/error_from_router", to: ->(_env) { raise RuntimeError, "cannot even" }
         get "/error_from_controller", to: "application#error"
         get "/show", to: "application#show"
       end

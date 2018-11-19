@@ -112,7 +112,7 @@ module Skylight
           # Log everything
           logger.level = Logger::DEBUG
           # Remove excess formatting
-          logger.formatter = proc { |severity, datetime, progname, msg|
+          logger.formatter = proc { |severity, _datetime, _progname, msg|
             msg = msg.sub("[SKYLIGHT] [#{Skylight::VERSION}] ", "")
             say "#{severity} - #{msg}" # Definitely non-standard
           }

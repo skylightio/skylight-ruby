@@ -20,7 +20,7 @@ describe Skylight::Core::Instrumenter, :http, :agent do
     it "tracks custom instrumentation metrics" do
       expect(hello).to receive(:hello)
 
-      Skylight.trace "Testin", "app.rack.request" do |t|
+      Skylight.trace "Testin", "app.rack.request" do
         clock.skip 0.1
         ret = Skylight.instrument category: "app.foo" do
           clock.skip 0.1
@@ -60,7 +60,7 @@ describe Skylight::Core::Instrumenter, :http, :agent do
     end
 
     it "recategorizes unknown events as other" do
-      Skylight.trace "Testin", "app.rack.request" do |t|
+      Skylight.trace "Testin", "app.rack.request" do
         clock.skip 0.1
         Skylight.instrument category: "foo" do
           clock.skip 0.1
@@ -84,7 +84,7 @@ describe Skylight::Core::Instrumenter, :http, :agent do
     end
 
     it "sets a default category" do
-      Skylight.trace "Testin", "app.rack.request" do |t|
+      Skylight.trace "Testin", "app.rack.request" do
         clock.skip 0.1
         Skylight.instrument title: "foo" do
           clock.skip 0.1
@@ -153,7 +153,7 @@ describe Skylight::Core::Instrumenter, :http, :agent do
     end
 
     it "tracks instrumented methods using the helper" do
-      Skylight.trace "Testin", "app.rack.request" do |t|
+      Skylight.trace "Testin", "app.rack.request" do
         inst = MyClass.new
 
         clock.skip 0.1

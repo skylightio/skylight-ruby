@@ -92,7 +92,7 @@ module Skylight
     end
 
     def fetch_native_ext(uri, out, attempts, redirects)
-      redirects.times do |i|
+      redirects.times do
         # Ensure the location is available
         mkdir_p File.dirname(out)
         rm_f out

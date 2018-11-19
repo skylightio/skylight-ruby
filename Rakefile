@@ -131,7 +131,7 @@ task :vagrant_up do
   end
 end
 
-task :run_travis_builds => :vagrant_up do |t|
+task :run_travis_builds => :vagrant_up do
   builds = travis_builds
 
   if number = ENV["JOB"]

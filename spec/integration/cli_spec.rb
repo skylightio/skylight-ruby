@@ -22,7 +22,7 @@ describe "CLI integration", :http do
       output = `bundle install`
       puts output if ENV["DEBUG"]
 
-      run_command("setup setuptoken") do |stdin, stdout, stderr|
+      run_command("setup setuptoken") do |_stdin, stdout, _stderr|
         expect(read(stdout)).to include("Congratulations. Your application is on Skylight!")
 
         expect(YAML.load_file("config/skylight.yml")).to eq({ "authentication" => "apptoken" })
@@ -40,7 +40,7 @@ describe "CLI integration", :http do
       output = `bundle install`
       puts output if ENV["DEBUG"]
 
-      run_command("setup invalidtoken") do |stdin, stdout, stderr|
+      run_command("setup invalidtoken") do |_stdin, stdout, _stderr|
         output = read(stdout)
         expect(output).to include("Could not create the application")
         expect(output).to include('{"request"=>"invalid app create token"}')
@@ -57,7 +57,7 @@ describe "CLI integration", :http do
 
       system("touch config/skylight.yml")
 
-      run_command("setup token") do |stdin, stdout, stderr|
+      run_command("setup token") do |_stdin, stdout, _stderr|
         expect(read(stdout)).to match(%r{A config/skylight.yml already exists for your application.})
       end
     end

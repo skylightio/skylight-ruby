@@ -18,7 +18,7 @@ module Skylight
         expect(gc).to receive(:total_time)
           .exactly(2).times.and_return(0.0, 0.0)
 
-        Skylight.trace "Rack", "app.rack" do |t|
+        Skylight.trace "Rack", "app.rack" do
           clock.skip 1
         end
 
@@ -38,7 +38,7 @@ module Skylight
         expect(gc).to receive(:total_time)
           .exactly(2).times.and_return(0.0, 100_000_000)
 
-        Skylight.trace "Rack", "app.rack" do |t|
+        Skylight.trace "Rack", "app.rack" do
           clock.skip 1
         end
 
@@ -61,7 +61,7 @@ module Skylight
         expect(gc).to receive(:total_time)
           .exactly(4).times.and_return(0, 0, 100_000_000, 0)
 
-        Skylight.trace "Rack", "app.rack" do |t|
+        Skylight.trace "Rack", "app.rack" do
           Skylight.instrument do
             clock.skip 1
           end
