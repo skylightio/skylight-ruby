@@ -22,7 +22,7 @@ if enable
         instrumentable = double(debug: nil)
         Skylight::Core::Sidekiq.add_middleware(instrumentable)
 
-        middleware = double()
+        middleware = double
         expect(Skylight::Core::Sidekiq::ServerMiddleware).to \
           receive(:new).and_return(middleware)
 

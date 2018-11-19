@@ -17,6 +17,6 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
       )
     )
 
-    TestJob.perform_later()
+    TestJob.perform_later
   end
 end

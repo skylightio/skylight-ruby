@@ -12,7 +12,7 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
 
     server.mock path, method do
       travel(delay)
-      block.call() if block
+      block.call if block
       [200, ""]
     end
   end

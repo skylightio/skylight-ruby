@@ -215,7 +215,7 @@ module Skylight
 
         expect(Skylight.instrumenter).to receive(:limited_description)
           .at_least(:once)
-          .with(any_args())
+          .with(any_args)
           .and_return(Instrumenter::TOO_MANY_UNIQUES)
 
         a = trace.instrument "foo", "FOO", "How a foo is formed?"
