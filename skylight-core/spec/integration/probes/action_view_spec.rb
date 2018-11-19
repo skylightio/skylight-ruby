@@ -49,12 +49,8 @@ if defined?(ActionPack)
     end
 
     def render_plain(renderer, context, opts)
-      if CUR_VER < Gem::Version.new("5.0")
-        opts[:text] = opts.delete(:plain)
-        renderer.render(context, opts)
-      else
-        renderer.render(context, opts)
-      end
+      opts[:text] = opts.delete(:plain) if CUR_VER < Gem::Version.new("5.0")
+      renderer.render(context, opts)
     end
 
     it "instruments layouts when :text is used with a layout" do
