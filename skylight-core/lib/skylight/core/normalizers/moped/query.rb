@@ -84,11 +84,7 @@ module Skylight::Core
             ret = {}
 
             hash.each do |k, v|
-              if v.is_a?(Hash)
-                ret[k] = extract_binds(v)
-              else
-                ret[k] = "?".freeze
-              end
+              ret[k] = v.is_a?(Hash) ? extract_binds(v) : "?".freeze
             end
 
             ret

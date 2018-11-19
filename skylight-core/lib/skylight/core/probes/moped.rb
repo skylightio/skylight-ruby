@@ -16,14 +16,15 @@ module Skylight::Core
 
             def instrument(*args, &block)
               # Mongoid sets the instrumenter to AS::N
-              if instrumenter == ActiveSupport::Notifications
-                asn_block = block
-              else
-                # If the instrumenter hasn't been changed to AS::N use both
-                asn_block = Proc.new do
-                  ActiveSupport::Notifications.instrument(*args, &block)
+              asn_block =
+                if instrumenter == ActiveSupport::Notifications
+                  block
+                else
+                  # If the instrumenter hasn't been changed to AS::N use both
+                  Proc.new do
+                    ActiveSupport::Notifications.instrument(*args, &block)
+                  end
                 end
-              end
 
               instrument_without_sk(*args, &asn_block)
             end

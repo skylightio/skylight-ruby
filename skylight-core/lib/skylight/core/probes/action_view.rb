@@ -10,11 +10,12 @@ module Skylight::Core
               layout = nil
 
               if path
-                if ::ActionView.gem_version >= Gem::Version.new("5.x")
-                  layout = find_layout(path, locals.keys, [formats.first])
-                else
-                  layout = find_layout(path, locals.keys)
-                end
+                layout =
+                  if ::ActionView.gem_version >= Gem::Version.new("5.x")
+                    find_layout(path, locals.keys, [formats.first])
+                  else
+                    find_layout(path, locals.keys)
+                  end
               end
 
               if layout

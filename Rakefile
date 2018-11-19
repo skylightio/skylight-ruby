@@ -169,11 +169,12 @@ task run_travis_builds: :vagrant_up do
       commands << "bundle update"
 
       commands << "pushd skylight-core"
-      if rspec_args
-        commands << "bundle exec rspec #{rspec_args}"
-      else
-        commands << "bundle exec rake"
-      end
+      commands <<
+        if rspec_args
+          "bundle exec rspec #{rspec_args}"
+        else
+          "bundle exec rake"
+        end
       commands << "popd"
 
       commands << "bundle exec rake clobber" unless no_clean

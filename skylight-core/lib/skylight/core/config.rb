@@ -440,10 +440,10 @@ module Skylight::Core
           out = STDOUT if out == "-"
 
           l = create_logger(out)
-          if trace?
-            l.level = Logger::DEBUG
-          else
-            l.level =
+          l.level =
+            if trace?
+              Logger::DEBUG
+            else
               case get(:log_level)
               when /^debug$/i then Logger::DEBUG
               when /^info$/i  then Logger::INFO
@@ -452,7 +452,7 @@ module Skylight::Core
               when /^fatal$/i then Logger::FATAL
               else Logger::ERROR
               end
-          end
+            end
         end
 
         l

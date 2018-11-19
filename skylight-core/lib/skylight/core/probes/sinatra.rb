@@ -45,12 +45,7 @@ module Skylight::Core
             def compile_template(engine, data, options, *args, &block)
               # Pass along a useful "virtual path" to Tilt. The Tilt probe will handle
               # instrumenting correctly.
-              case data
-              when Symbol
-                options[:sky_virtual_path] = data.to_s
-              else
-                options[:sky_virtual_path] = "Inline template (#{engine})"
-              end
+              options[:sky_virtual_path] = data.is_a?(Symbol) ? data.to_s : "Inline template (#{engine})"
 
               compile_template_without_sk(engine, data, options, *args, &block)
             end
