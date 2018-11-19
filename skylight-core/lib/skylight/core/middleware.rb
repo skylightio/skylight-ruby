@@ -10,9 +10,9 @@ module Skylight::Core
         @closed = false
       end
 
-      def respond_to?(*args)
-        return false if args.first.to_s =~ /^to_ary$/
-        super || @body.respond_to?(*args)
+      def respond_to_missing?(*args)
+        return false if args.first.to_s !~ /^to_ary$/
+        @body.respond_to?(*args)
       end
 
       def close
