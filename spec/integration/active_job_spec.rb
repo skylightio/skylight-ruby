@@ -13,8 +13,10 @@ end
 
 if enable
   class SkTestJob < ActiveJob::Base
+    # rubocop:disable Lint/InheritException
     class Exception < ::Exception
     end
+    # rubocop:enable Lint/InheritException
 
     def perform(error_key = nil)
       Skylight.instrument category: "app.inside" do
