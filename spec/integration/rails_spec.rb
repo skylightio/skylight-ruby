@@ -913,8 +913,7 @@ if enable
     end
 
     context "activated from application.rb", :http, :agent do
-      def pre_boot
-      end
+      def pre_boot; end
 
       before :each do
         @original_environments = MyApp.config.skylight.environments.clone
@@ -935,8 +934,7 @@ if enable
     end
 
     context "activated from ENV", :http, :agent do
-      def pre_boot
-      end
+      def pre_boot; end
 
       before :each do
         ENV["SKYLIGHT_ENABLED"] = "true"
@@ -975,8 +973,7 @@ if enable
     end
 
     context "deactivated from ENV" do
-      def pre_boot
-      end
+      def pre_boot; end
 
       before :each do
         ENV["SKYLIGHT_ENABLED"] = "false"

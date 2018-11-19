@@ -19,8 +19,7 @@ module Skylight::Core
         end
       end
 
-      def close
-      end
+      def close; end
     end
 
     module Logging

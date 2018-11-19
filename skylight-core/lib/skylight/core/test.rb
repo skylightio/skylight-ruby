@@ -68,8 +68,7 @@ module Skylight
                           mock_spans[span][:meta] = meta
                         end
 
-                        def native_span_started(span)
-                        end
+                        def native_span_started(span); end
 
                         def native_span_set_exception(span, exception_object, exception)
                           mock_spans[span][:exception_object] = exception_object
@@ -92,8 +91,7 @@ module Skylight
                       config[:mock_submission].call(trace)
                     end
 
-                    def native_stop
-                    end
+                    def native_stop; end
 
                     def limited_description(description)
                       description

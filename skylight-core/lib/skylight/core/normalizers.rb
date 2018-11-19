@@ -64,8 +64,7 @@ module Skylight::Core
         :skip
       end
 
-      def normalize_after(trace, span, name, payload)
-      end
+      def normalize_after(trace, span, name, payload); end
     end
 
     class Container

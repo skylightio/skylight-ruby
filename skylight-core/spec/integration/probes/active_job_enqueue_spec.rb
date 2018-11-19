@@ -4,8 +4,7 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
   class TestJob < ActiveJob::Base
     self.queue_adapter = :inline
 
-    def perform
-    end
+    def perform; end
   end
 
   it "reports job metadata" do
