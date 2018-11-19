@@ -13,7 +13,8 @@ module SpecHelper
 
     class << self
       def start(opts)
-        @started or LOCK.synchronize do
+        return if @started
+        LOCK.synchronize do
           @started = true
           @server = Puma::Server.new(self, Puma::Events.new(STDOUT, STDERR))
           @server.add_tcp_listener("127.0.0.1", opts.fetch(:Port))

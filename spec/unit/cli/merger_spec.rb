@@ -78,7 +78,7 @@ describe Skylight::CLI::Merger do
     private
 
       def readline(message, _options)
-        test_line(message) or raise "no reply from readline; prompt=#{message.inspect}"
+        test_line(message) || raise("no reply from readline; prompt=#{message.inspect}")
       end
   end
 

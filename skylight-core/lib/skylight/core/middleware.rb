@@ -12,7 +12,7 @@ module Skylight::Core
 
       def respond_to?(*args)
         return false if args.first.to_s =~ /^to_ary$/
-        super or @body.respond_to?(*args)
+        super || @body.respond_to?(*args)
       end
 
       def close

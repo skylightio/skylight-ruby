@@ -65,7 +65,7 @@ module Skylight::Core
           end
 
           def alpha?(byte)
-            byte >= 65 and byte <= 90 || byte >= 97 and byte <= 122
+            (byte >= 65 && byte <= 90) || (byte >= 97 && byte <= 122)
           end
         else
           def absolute_path?(path)
