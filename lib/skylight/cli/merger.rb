@@ -262,7 +262,7 @@ module Skylight
         end
 
         def children
-          Enumerator.new do |yielder|
+          ret = Enumerator.new do |yielder|
             @parents.each do |_, app|
               next if app == @parent_app
               app.components.each do |component|
@@ -271,9 +271,13 @@ module Skylight
             end
 
             yielder << OpenStruct.new(app_name: STRINGS[:unlisted], unlisted: true)
-          end.each_with_object({}).with_index do |(c, r), i|
+          end
+
+          ret = ret.each_with_object({}).with_index do |(c, r), i|
             r[i + 1] = c
-          end.tap do |result|
+          end
+
+          ret.tap do |result|
             if result.values.all?(&:unlisted)
               done!(
                 success: false,
