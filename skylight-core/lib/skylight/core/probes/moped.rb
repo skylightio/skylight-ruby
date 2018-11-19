@@ -21,7 +21,7 @@ module Skylight::Core
                   block
                 else
                   # If the instrumenter hasn't been changed to AS::N use both
-                  Proc.new do
+                  proc do
                     ActiveSupport::Notifications.instrument(*args, &block)
                   end
                 end
