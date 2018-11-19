@@ -25,16 +25,16 @@ Gem::Specification.new do |spec|
   # Dependencies
   spec.add_dependency "skylight-core", version
 
-  spec.add_development_dependency "bundler", "~> 1.15"
-  spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "rspec", "~> 3.7"
-  spec.add_development_dependency "rspec-collection_matchers", "~> 1.1"
   spec.add_development_dependency "beefcake", "< 1.0"
-  spec.add_development_dependency "webmock"
+  spec.add_development_dependency "bundler", "~> 1.15"
   spec.add_development_dependency "puma"
   spec.add_development_dependency "rack-test"
-  spec.add_development_dependency "timecop", "~> 0.9"
+  spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rake-compiler", "~> 1.0.4"
+  spec.add_development_dependency "rspec", "~> 3.7"
+  spec.add_development_dependency "rspec-collection_matchers", "~> 1.1"
+  spec.add_development_dependency "timecop", "~> 0.9"
+  spec.add_development_dependency "webmock"
 
   # Executables
   spec.executables = %w[skylight]
