@@ -149,7 +149,8 @@ module Skylight
       if (http_proxy = Core::Util::Proxy.detect_url(ENV))
         log "connecting with proxy: #{http_proxy}"
         uri = URI.parse(http_proxy)
-        p_host, p_port = uri.host, uri.port
+        p_host = uri.host
+        p_port = uri.port
         p_user, p_pass = uri.userinfo.split(/:/) if uri.userinfo
       end
 

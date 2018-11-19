@@ -35,7 +35,8 @@ module Skylight::Core
       attr_reader :name, :span
 
       def initialize(name, span)
-        @name, @span = name, span
+        @name = name
+        @span = span
       end
     end
 

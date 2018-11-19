@@ -52,7 +52,8 @@ module Skylight
 
         if (proxy_url = config[:proxy_url])
           proxy_url = URI.parse(proxy_url)
-          @proxy_addr, @proxy_port = proxy_url.host, proxy_url.port
+          @proxy_addr = proxy_url.host
+          @proxy_port = proxy_url.port
           @proxy_user, @proxy_pass = (proxy_url.userinfo || "").split(/:/)
         end
 
