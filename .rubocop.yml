@@ -77,6 +77,10 @@ Style/StringLiterals:
 Style/RescueModifier:
   Enabled: false
 
+# We don't want to use warn because we want to treat these like errors.
+Style/StderrPuts:
+  Enabled: false
+
 # In some cases `get_*` or `set_*` seems more appropriate than without.
 Naming/AccessorMethodName:
   Enabled: false
