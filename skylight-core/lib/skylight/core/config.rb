@@ -286,8 +286,8 @@ module Skylight::Core
 
     alias []= set
 
-    def send_or_get(v)
-      respond_to?(v) ? send(v) : get(v)
+    def send_or_get(val)
+      respond_to?(val) ? send(val) : get(val)
     end
 
     def duration_ms(key, default = nil)
@@ -463,12 +463,12 @@ module Skylight::Core
         l
       end
 
-      def cast_for_env(v)
-        case v
+      def cast_for_env(val)
+        case val
         when true  then "true"
         when false then "false"
         when nil   then "nil"
-        else v.to_s
+        else val.to_s
         end
       end
   end

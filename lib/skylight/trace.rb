@@ -23,8 +23,8 @@ module Skylight
       !!@too_many_spans
     end
 
-    def maybe_broken(e)
-      if e.is_a?(Skylight::MaximumTraceSpansError) && config.get(:report_max_spans_exceeded)
+    def maybe_broken(error)
+      if error.is_a?(Skylight::MaximumTraceSpansError) && config.get(:report_max_spans_exceeded)
         too_many_spans!
       else
         super

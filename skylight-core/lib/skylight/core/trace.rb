@@ -64,8 +64,8 @@ module Skylight::Core
       !!@broken
     end
 
-    def maybe_broken(e)
-      error "failed to instrument span; msg=%s; endpoint=%s", e.message, endpoint
+    def maybe_broken(err)
+      error "failed to instrument span; msg=%s; endpoint=%s", err.message, endpoint
       broken!
     end
 

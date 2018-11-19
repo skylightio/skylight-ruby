@@ -247,9 +247,9 @@ module Skylight
     # @param msg [String]
     # @param e [Exception] the exception associated with the error
     # @return [void]
-    def error(msg, e = nil)
+    def error(msg, err = nil)
       msg = "[SKYLIGHT] #{msg}"
-      msg << "\n#{e.backtrace.join("\n")}" if e
+      msg << "\n#{err.backtrace.join("\n")}" if err
       @log.error msg
     end
   end

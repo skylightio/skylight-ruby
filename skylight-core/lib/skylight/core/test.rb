@@ -56,24 +56,24 @@ module Skylight
                           mock_spans.index(span)
                         end
 
-                        def native_span_set_title(sp, title)
-                          mock_spans[sp][:title] = title
+                        def native_span_set_title(span, title)
+                          mock_spans[span][:title] = title
                         end
 
-                        def native_span_set_description(sp, desc)
-                          mock_spans[sp][:desc] = desc
+                        def native_span_set_description(span, desc)
+                          mock_spans[span][:desc] = desc
                         end
 
-                        def native_span_set_meta(sp, meta)
-                          mock_spans[sp][:meta] = meta
+                        def native_span_set_meta(span, meta)
+                          mock_spans[span][:meta] = meta
                         end
 
-                        def native_span_started(sp)
+                        def native_span_started(span)
                         end
 
-                        def native_span_set_exception(sp, exception_object, exception)
-                          mock_spans[sp][:exception_object] = exception_object
-                          mock_spans[sp][:exception] = exception
+                        def native_span_set_exception(span, exception_object, exception)
+                          mock_spans[span][:exception_object] = exception_object
+                          mock_spans[span][:exception] = exception
                         end
 
                         def native_stop_span(span, time)

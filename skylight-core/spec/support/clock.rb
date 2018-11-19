@@ -30,8 +30,8 @@ module SpecHelper
       @tick = nil
     end
 
-    def tick=(v)
-      @tick = v
+    def tick=(val)
+      @tick = val
     end
 
     private

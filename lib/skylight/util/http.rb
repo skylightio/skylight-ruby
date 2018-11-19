@@ -32,9 +32,9 @@ module Skylight
       class StartError < StandardError
         attr_reader :original
 
-        def initialize(e)
-          @original = e
-          super e.inspect
+        def initialize(error)
+          @original = error
+          super error.inspect
         end
       end
 
