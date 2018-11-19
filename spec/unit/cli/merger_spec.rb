@@ -183,7 +183,7 @@ describe Skylight::CLI::Merger do
         "token",
         app_guid: app1[:guid],
         component_guid: app2[:components][0]["guid"],
-        environment: child_env,
+        environment: child_env
       ) { merge_response }
     end
 

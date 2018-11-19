@@ -91,7 +91,7 @@ module Skylight
           hostname:                   Util::Hostname.default_hostname,
           report_max_spans_exceeded:  false,
           prune_large_traces:         true,
-          report_rails_env:           true,
+          report_rails_env:           true
         )
 
         if Core::Util::Platform::OS != "darwin"
