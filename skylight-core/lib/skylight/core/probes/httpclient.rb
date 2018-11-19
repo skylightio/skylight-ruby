@@ -38,8 +38,8 @@ module Skylight::Core
             end
           end
         end
-      end # class Probe
-    end # module Probes::HTTPClient
+      end
+    end
 
     register(:httpclient, "HTTPClient", "httpclient", HTTPClient::Probe.new)
   end
