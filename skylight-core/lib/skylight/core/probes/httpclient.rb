@@ -24,7 +24,7 @@ module Skylight::Core
             # on that, so this instance method override will cover both
             # `HTTPClient.get(...)` and `HTTPClient.new.get(...)`
 
-            alias do_request_without_sk do_request
+            alias_method :do_request_without_sk, :do_request
             def do_request(method, uri, query, body, header, &block)
               if Probes::HTTPClient::Probe.disabled?
                 return do_request_without_sk(method, uri, query, body, header, &block)

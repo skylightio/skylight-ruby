@@ -5,7 +5,7 @@ module Skylight::Core
       class Probe
         def install
           ::Tilt::Template.class_eval do
-            alias render_without_sk render
+            alias_method :render_without_sk, :render
 
             def render(*args, &block)
               opts = {

@@ -12,7 +12,7 @@ module Skylight::Core
           end
 
           ::Moped::Instrumentable.module_eval do
-            alias instrument_without_sk instrument
+            alias_method :instrument_without_sk, :instrument
 
             def instrument(*args, &block)
               # Mongoid sets the instrumenter to AS::N

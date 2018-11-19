@@ -20,7 +20,7 @@ module Skylight::Core
 
         def install
           Net::HTTP.class_eval do
-            alias request_without_sk request
+            alias_method :request_without_sk, :request
 
             def request(req, body = nil, &block)
               if !started? || Probes::NetHTTP::Probe.disabled?

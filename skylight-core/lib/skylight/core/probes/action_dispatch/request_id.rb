@@ -5,7 +5,7 @@ module Skylight::Core
         class Probe
           def install
             ::ActionDispatch::RequestId.class_eval do
-              alias call_without_sk call
+              alias_method :call_without_sk, :call
 
               def call(env)
                 @skylight_request_id = env["skylight.request_id"]
@@ -14,7 +14,7 @@ module Skylight::Core
 
               private
 
-                alias internal_request_id_without_sk internal_request_id
+                alias_method :internal_request_id_without_sk, :internal_request_id
 
                 def internal_request_id
                   @skylight_request_id || internal_request_id_without_sk

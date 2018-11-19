@@ -4,7 +4,7 @@ module Skylight::Core
       class Probe
         def install
           ::ActionView::TemplateRenderer.class_eval do
-            alias render_with_layout_without_sk render_with_layout
+            alias_method :render_with_layout_without_sk, :render_with_layout
 
             def render_with_layout(path, locals, *args, &block) #:nodoc:
               layout = nil

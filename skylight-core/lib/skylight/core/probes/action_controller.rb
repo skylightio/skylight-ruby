@@ -6,7 +6,7 @@ module Skylight::Core
           ::ActionController::Instrumentation.class_eval do
             private
 
-              alias append_info_to_payload_without_sk append_info_to_payload
+              alias_method :append_info_to_payload_without_sk, :append_info_to_payload
               def append_info_to_payload(payload)
                 append_info_to_payload_without_sk(payload)
                 rendered_mime = begin

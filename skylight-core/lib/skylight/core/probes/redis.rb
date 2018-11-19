@@ -13,7 +13,7 @@ module Skylight::Core
           end
 
           ::Redis::Client.class_eval do
-            alias call_without_sk call
+            alias_method :call_without_sk, :call
 
             def call(command, &block)
               command_name = command[0]
@@ -46,7 +46,7 @@ module Skylight::Core
         }.freeze
 
         ::Redis.class_eval do
-          alias pipelined_without_sk pipelined
+          alias_method :pipelined_without_sk, :pipelined
 
           def pipelined(&block)
             Skylight::Core::Fanout.instrument(PIPELINED_OPTS) do
@@ -54,7 +54,7 @@ module Skylight::Core
             end
           end
 
-          alias multi_without_sk multi
+          alias_method :multi_without_sk, :multi
 
           def multi(&block)
             Skylight::Core::Fanout.instrument(MULTI_OPTS) do

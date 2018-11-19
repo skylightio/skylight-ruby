@@ -9,7 +9,7 @@ module Skylight
           unless respond_to?(:__original_instrumenter_class)
             class_eval do
               class << self
-                alias __original_instrumenter_class instrumenter_class
+                alias_method :__original_instrumenter_class, :instrumenter_class
 
                 def instrumenter_class
                   @instrumenter_class ||= Class.new(__original_instrumenter_class) do

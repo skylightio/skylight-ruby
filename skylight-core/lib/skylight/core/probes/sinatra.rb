@@ -10,7 +10,7 @@ module Skylight::Core
           end
 
           class << ::Sinatra::Base
-            alias compile_without_sk! compile!
+            alias_method :compile_without_sk!, :compile!
 
             def compile!(verb, path, *args, &block)
               compile_without_sk!(verb, path, *args, &block).tap do |_, _, keys_or_wrapper, wrapper|
@@ -29,8 +29,8 @@ module Skylight::Core
           end
 
           ::Sinatra::Base.class_eval do
-            alias dispatch_without_sk! dispatch!
-            alias compile_template_without_sk compile_template
+            alias_method :dispatch_without_sk!, :dispatch!
+            alias_method :compile_template_without_sk, :compile_template
 
             def dispatch!(*args, &block)
               dispatch_without_sk!(*args, &block).tap do

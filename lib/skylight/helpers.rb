@@ -158,7 +158,7 @@ module Skylight
         end
 
         if respond_to?(:singleton_class)
-          alias :__sk_singleton_class :singleton_class
+          alias __sk_singleton_class singleton_class
         else
           def __sk_singleton_class
             class << self; self; end

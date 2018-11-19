@@ -4,7 +4,7 @@ module Skylight::Core
       class Probe
         def install
           ::Elasticsearch::Transport::Transport::Base.class_eval do
-            alias perform_request_without_sk perform_request
+            alias_method :perform_request_without_sk, :perform_request
             def perform_request(method, path, *args, &block)
               ActiveSupport::Notifications.instrument "request.elasticsearch",
                                                       name:   "Request",

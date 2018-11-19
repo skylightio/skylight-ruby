@@ -6,7 +6,7 @@ module Skylight::Core
           class Probe
             def install
               ::ActionDispatch::Routing::RouteSet.class_eval do
-                alias call_without_sk call
+                alias_method :call_without_sk, :call
 
                 def call(env)
                   Skylight::Core::Fanout.endpoint = self.class.name

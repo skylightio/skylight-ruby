@@ -36,7 +36,7 @@ module Skylight::Core
 
           [::ActiveModel::Serializer, ::ActiveModel::ArraySerializer].each do |klass|
             klass.class_eval do
-              alias as_json_without_sk as_json
+              alias_method :as_json_without_sk, :as_json
               def as_json(*args)
                 payload = { serializer: self.class }
                 ActiveSupport::Notifications.instrument("render.active_model_serializers", payload) do
