@@ -526,7 +526,7 @@ if enable
             expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
           end
 
-          res = call(MyApp, env("/foo?middleware_throws=true"))
+          call(MyApp, env("/foo?middleware_throws=true"))
           server.wait(resource: "/report")
 
           batch = server.reports[0]
@@ -551,7 +551,7 @@ if enable
             expect(Skylight.trace.send(:deferred_spans)).to eq({})
           end
 
-          res = call(MyApp, env("/foo?middleware_raises=true"))
+          call(MyApp, env("/foo?middleware_raises=true"))
           server.wait(resource: "/report")
 
           batch = server.reports[0]
@@ -574,7 +574,7 @@ if enable
             expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
           end
 
-          res = call(MyApp, env("/users/throw_something"))
+          call(MyApp, env("/users/throw_something"))
           server.wait(resource: "/report")
 
           batch = server.reports[0]
@@ -612,7 +612,7 @@ if enable
             expect_any_instance_of(Skylight::Trace).to receive(:error)
               .with(/\[E%04d\].+endpoint=%s/, 3, "UsersController#too_many_spans")
 
-            res = call MyApp, env("/users/too_many_spans")
+            call MyApp, env("/users/too_many_spans")
 
             server.wait resource: "/report"
 
@@ -652,7 +652,7 @@ if enable
           end
 
           it "handles too many spans" do
-            res = call MyApp, env("/users/too_many_spans")
+            call MyApp, env("/users/too_many_spans")
             server.wait resource: "/report"
 
             batch = server.reports[0]
@@ -714,7 +714,7 @@ if enable
       end
 
       it "forwards exceptions in the engine to the main app" do
-        res = call MyApp, env("/engine/error_from_controller")
+        call MyApp, env("/engine/error_from_controller")
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
@@ -727,9 +727,7 @@ if enable
       end
 
       it "handles routing errors" do
-        expect {
-          res = call MyApp, env("/engine/foo/bar/bin")
-        }.not_to raise_error
+        expect { call MyApp, env("/engine/foo/bar/bin") }.not_to raise_error
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
@@ -782,7 +780,7 @@ if enable
       end
 
       it "sets correct segment for handled exceptions" do
-        status, headers, body = call_full MyApp, env("/users/handled_failure")
+        status, _headers, body = call_full MyApp, env("/users/handled_failure")
         expect(status).to eq(500)
         expect(body).to eq([{ error: "Handled!" }.to_json])
 
@@ -797,7 +795,7 @@ if enable
       end
 
       it "sets correct segment for `head`" do
-        status, headers, body = call_full MyApp, env("/users/header")
+        status, _headers, body = call_full MyApp, env("/users/header")
         expect(status).to eq(200)
         expect(body[0].strip).to eq("") # Some Rails versions have a space, some don't
 
@@ -820,7 +818,7 @@ if enable
       end
 
       it "sets correct segment for 4xx responses" do
-        status, headers, body = call_full MyApp, env("/users/status?status=404")
+        status, _headers, body = call_full MyApp, env("/users/status?status=404")
         expect(status).to eq(404)
         expect(body).to eq(["404"])
 
@@ -834,7 +832,7 @@ if enable
       end
 
       it "sets correct segment for 5xx responses" do
-        status, headers, body = call_full MyApp, env("/users/status?status=500")
+        status, _headers, body = call_full MyApp, env("/users/status?status=500")
         expect(status).to eq(500)
         expect(body).to eq(["500"])
 
@@ -848,7 +846,7 @@ if enable
       end
 
       it "sets correct segment when no template is found" do
-        status, headers, body = call_full MyApp, env("/users/no_template")
+        status, _headers, body = call_full MyApp, env("/users/no_template")
 
         if Rails.version =~ /^4\./
           expect(status).to eq(500)
@@ -881,7 +879,7 @@ if enable
       end
 
       it "sets correct segment for `head` with variant" do
-        status, headers, body = call_full MyApp, env("/users/header?tablet=1", "HTTP_ACCEPT" => "application/json")
+        status, _headers, body = call_full MyApp, env("/users/header?tablet=1", "HTTP_ACCEPT" => "application/json")
         expect(status).to eq(200)
         expect(body[0].strip).to eq("") # Some Rails versions have a space, some don't
 

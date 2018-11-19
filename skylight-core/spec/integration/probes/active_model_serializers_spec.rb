@@ -88,7 +88,7 @@ if defined?(ActiveModel::Serializer)
     end
 
     it "instruments serialization" do
-      status, header, response = dispatch(:show)
+      _status, _header, response = dispatch(:show)
 
       json = { item: { name: "Test", doubled_value: 4 } }.to_json
       expect(response.body).to eq(json)
@@ -106,7 +106,7 @@ if defined?(ActiveModel::Serializer)
     end
 
     it "instruments array serialization" do
-      status, header, response = dispatch(:list)
+      _status, _header, response = dispatch(:list)
 
       json = { items: [{ name: "Test", doubled_value: 4 },
                        { name: "Other", doubled_value: 10 }] }.to_json

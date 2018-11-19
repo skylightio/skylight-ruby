@@ -13,9 +13,7 @@ module Skylight::Core
           CAT = "app.controller.send_file".freeze
           TITLE = "send file".freeze
 
-          def normalize(_trace, _name, payload)
-            path = payload[:path]
-
+          def normalize(_trace, _name, _payload)
             title = TITLE
 
             # depending on normalization, we probably want this to eventually

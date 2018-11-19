@@ -258,7 +258,6 @@ describe "Skylight::Instrumenter", :http, :agent do
         allow(SecureRandom).to receive(:uuid).once.and_return("test-uuid")
 
         bad_sql = "SELECT ???LOL??? \xCE ;;;NOTSQL;;;".force_encoding("BINARY")
-        encoded_sql = Base64.encode64(bad_sql)
 
         Skylight.trace "Testin", "app.rack" do
           ActiveSupport::Notifications.instrument("sql.active_record", name: "Load User", sql: bad_sql, binds: []) do
@@ -301,7 +300,6 @@ describe "Skylight::Instrumenter", :http, :agent do
         allow(SecureRandom).to receive(:uuid).once.and_return("test-uuid")
 
         bad_sql = "SELECT ???LOL??? \xCE ;;;NOTSQL;;;".force_encoding("UTF-8")
-        encoded_sql = Base64.encode64(bad_sql)
 
         Skylight.trace "Testin", "app.rack" do
           ActiveSupport::Notifications.instrument("sql.active_record", name: "Load User", sql: bad_sql, binds: []) do
@@ -342,7 +340,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
       it "ignores endpoints" do
         config[:ignored_endpoint] = "foo#heartbeat"
-        instrumenter = Skylight::Instrumenter.new(config)
+        Skylight::Instrumenter.new(config)
 
         Skylight.trace "foo#bar", "app.rack" do
           clock.skip 1
@@ -361,7 +359,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
       it "ignores endpoints with segments" do
         config[:ignored_endpoint] = "foo#heartbeat"
-        instrumenter = Skylight::Instrumenter.new(config)
+        Skylight::Instrumenter.new(config)
 
         Skylight.trace "foo#bar", "app.rack", segment: "json" do
           clock.skip 1

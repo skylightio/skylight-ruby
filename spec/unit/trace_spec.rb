@@ -112,7 +112,7 @@ module Skylight
         trace = Skylight.trace "Rack", "app.rack.request"
         a = trace.instrument "foo"
         clock.skip 0.1
-        b = trace.instrument "bar"
+        _b = trace.instrument "bar"
         clock.skip 0.1
         trace.done(a)
 
@@ -166,7 +166,7 @@ module Skylight
         trace = Skylight.trace "Rack", "app.rack.request"
         a = trace.instrument "foo"
         clock.skip 0.1
-        b = trace.instrument "bar"
+        _b = trace.instrument "bar"
         clock.skip 0.1
         # Force out of order
         trace.done(a)

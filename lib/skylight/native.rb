@@ -35,7 +35,7 @@ module Skylight
   rescue RuntimeError => e
     # Old versions of OS X can have dlerrors, just treat it like a missing native
     raise if skylight_required || e.message !~ /dlerror/
-  rescue LoadError => e
+  rescue LoadError
     raise if skylight_required
   end
 

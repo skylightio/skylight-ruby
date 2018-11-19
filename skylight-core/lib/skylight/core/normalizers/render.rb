@@ -16,7 +16,6 @@ module Skylight::Core
       def normalize_render(category, payload)
         if (path = payload[:identifier])
           title = relative_path(path)
-          path = nil if path == title
         end
 
         [category, title, nil]
