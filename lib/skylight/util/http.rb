@@ -189,7 +189,7 @@ module Skylight
           end
 
           def get(key)
-            return nil unless Hash === body
+            return nil unless body.is_a?(Hash)
 
             res = body
             key.split(".").each do |part|

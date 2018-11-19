@@ -131,11 +131,11 @@ module SpecHelper
                 [500, { "content-type" => "text/plain", "content-length" => "4" }, ["Fail"]]
               end
 
-            if Array === ret
+            if ret.is_a?(Array)
               return ret if ret.length == 3
 
               body = ret.last
-              body = body.to_json if Hash === body
+              body = body.to_json if body.is_a?(Hash)
 
               return [ret[0], { "content-type" => json, "content-length" => body.bytesize.to_s }, [body]]
             elsif respond_to?(:to_str)
@@ -174,7 +174,7 @@ module SpecHelper
     # from a previous test could be made after a reset was requested.
 
     def wait(opts = {})
-      if Numeric === opts
+      if opts.is_a?(Numeric)
         opts = { timeout: opts }
       end
 

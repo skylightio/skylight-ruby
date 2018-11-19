@@ -95,7 +95,7 @@ module Skylight::Core
     def initialize(*args)
       attrs = {}
 
-      if Hash === args.last
+      if args.last.is_a?(Hash)
         attrs = args.pop.dup
       end
 
@@ -257,7 +257,7 @@ module Skylight::Core
         key = [scope, key].join(".")
       end
 
-      if Hash === val
+      if val.is_a?(Hash)
         val.each do |k, v|
           set(k, v, key)
         end

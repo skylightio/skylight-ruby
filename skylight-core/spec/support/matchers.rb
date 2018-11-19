@@ -29,7 +29,7 @@ module SpecHelper
 
   RSpec::Matchers.define :be_request do |*args|
     hdrs  = {}
-    hdrs  = args.pop if Hash === args[-1]
+    hdrs  = args.pop if args[-1].is_a?(Hash)
     path  = args.shift
 
     @fails = []
@@ -92,7 +92,7 @@ module SpecHelper
 
   def get_json(*args)
     hdrs = {}
-    hdrs = args.pop if Hash === args[-1]
+    hdrs = args.pop if args[-1].is_a?(Hash)
     hdrs["accept"] = "application/json"
     hdrs["request-method"] = "GET"
 
@@ -101,7 +101,7 @@ module SpecHelper
 
   def post_json(*args)
     hdrs = {}
-    hdrs = args.pop if Hash === args[-1]
+    hdrs = args.pop if args[-1].is_a?(Hash)
     hdrs["accept"] = "application/json"
     hdrs["content-type"] = "application/json"
     hdrs["request-method"] = "POST"

@@ -166,7 +166,7 @@ module Skylight
 
     def self.validators
       @validators ||= super.merge(
-        'agent.interval': [->(v, _c) { Integer === v && v > 0 }, "must be an integer greater than 0"]
+        'agent.interval': [->(v, _c) { v.is_a?(Integer) && v > 0 }, "must be an integer greater than 0"]
       )
     end
 

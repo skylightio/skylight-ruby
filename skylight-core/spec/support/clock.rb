@@ -50,6 +50,6 @@ module SpecHelper
 
   def clock
     c = Skylight::Core::Util::Clock.default
-    c if TestClock === c
+    c.is_a?(TestClock) ? c : nil
   end
 end

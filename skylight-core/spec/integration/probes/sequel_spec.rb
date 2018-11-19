@@ -7,7 +7,9 @@ describe "Sequel integration", :sequel_probe, :agent do
     end
 
     def ==(other)
+      # rubocop:disable Style/CaseEquality
       @regex === other
+      # rubocop:enable Style/CaseEquality
     end
 
     def description

@@ -18,7 +18,7 @@ module SpecHelper
   private
 
     def process_normalize(meth, name, payload)
-      if Hash === name
+      if name.is_a?(Hash)
         payload = name
         name = nil
       end

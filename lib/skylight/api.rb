@@ -69,7 +69,7 @@ module Skylight
         return true if error_response?
         # A 2xx response means everything is good!
         return true if raw_response.success?
-        return false if status === 401
+        return false if status == 401
 
         # A 403/422 means an invalid config,
         # but the token must be valid if we got this far
@@ -82,7 +82,7 @@ module Skylight
       end
 
       def forbidden?
-        status === 403
+        status == 403
       end
 
       def validation_errors

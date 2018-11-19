@@ -108,7 +108,7 @@ module Skylight
             return
           end
 
-          if Hash === opts
+          if opts.is_a?(Hash)
             category    = opts[:category] || DEFAULT_CATEGORY
             title       = opts[:title]
             desc        = opts[:description]

@@ -78,7 +78,7 @@ module Skylight
       #       end
       #     end
       def instrument_method(*args)
-        opts = args.pop if Hash === args.last
+        opts = args.pop if args.last.is_a?(Hash)
 
         if (name = args.pop)
           title = "#{self}##{name}"
