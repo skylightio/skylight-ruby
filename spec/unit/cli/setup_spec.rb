@@ -36,7 +36,7 @@ describe "skylight setup", :http, :agent do
         .with(/congratulations/i, :green).ordered
 
       expect(cli).to receive(:say)
-        .with(/config\/skylight\.yml/)
+        .with(%r{config/skylight\.yml})
     end
 
     capture(:stdout) do

@@ -166,7 +166,7 @@ describe Skylight::CLI::Merger do
         /Merging.../,
         /Success!/,
         /=========================/,
-        /If you use a config\/skylight.yml/,
+        %r{If you use a config/skylight.yml},
         /Remove any environment-specific `authentication` configs/,
         /If you're running in Rails and your Rails environment exactly matches `#{child_env}`/,
         /=========================/,
@@ -254,7 +254,7 @@ describe Skylight::CLI::Merger do
             *choose_child_environment_sequence,
             [/Which number\?/, 2],
             *confirm_environment_sequence,
-            [/Proceed\? \[Y\/n\]/, "Y"],
+            [%r{Proceed\? \[Y/n\]}, "Y"],
             *success_sequence,
             MATCHERS[:further_questions]
           ]
@@ -276,7 +276,7 @@ describe Skylight::CLI::Merger do
             [/Which number\?/, 3],
             [/Please enter your environment name/, child_env],
             *confirm_environment_sequence,
-            [/Proceed\? \[Y\/n\]/, "Y"],
+            [%r{Proceed\? \[Y/n\]}, "Y"],
             *success_sequence,
             MATCHERS[:further_questions]
           ]
@@ -305,7 +305,7 @@ describe Skylight::CLI::Merger do
             /Sorry, `app1` already has a `production` component that conflicts with this merge request/,
             [/Please enter your environment name/, child_env],
             *confirm_environment_sequence,
-            [/Proceed\? \[Y\/n\]/, "Y"],
+            [%r{Proceed\? \[Y/n\]}, "Y"],
             *success_sequence,
             MATCHERS[:further_questions]
           ]
@@ -325,9 +325,9 @@ describe Skylight::CLI::Merger do
             *choose_child_environment_sequence,
             [/Which number\?/, 2],
             *confirm_environment_sequence,
-            [/Proceed\? \[Y\/n\]/, "b"],
+            [%r{Proceed\? \[Y/n\]}, "b"],
             /Please respond 'Y' to merge or 'n' to cancel/,
-            [/Proceed\? \[Y\/n\]/, "n"],
+            [%r{Proceed\? \[Y/n\]}, "n"],
             /Ok, come back any time/,
             MATCHERS[:further_questions]
           ]
@@ -354,7 +354,7 @@ describe Skylight::CLI::Merger do
             *choose_child_environment_sequence,
             [/Which number\?/, 2],
             *confirm_environment_sequence,
-            [/Proceed\? \[Y\/n\]/, "Y"],
+            [%r{Proceed\? \[Y/n\]}, "Y"],
             /Merging.../,
             /Something went wrong/,
             /#{error_message}/,
