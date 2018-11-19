@@ -32,7 +32,7 @@ module Skylight::Core
             def initialize(*)
               super
 
-              @mimes = Mime::SET.reduce({}) do |hash, mime|
+              @mimes = Mime::SET.each_with_object({}) do |mime, hash|
                 hash[mime.symbol] = mime.to_s.dup.freeze
                 hash
               end
