@@ -197,7 +197,7 @@ module Skylight
         def ask_for_app(app_list, &formatter)
           formatter ||= :name.to_proc
           app_list.each do |index, app|
-            say("\t#{index}. #{formatter.(app)}")
+            say("\t#{index}. #{formatter.call(app)}")
           end
 
           n = ask("\nWhich number?").chomp.to_i
