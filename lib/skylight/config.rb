@@ -120,40 +120,40 @@ module Skylight
     end
 
     def self.native_env_keys
-      @native_env_keys ||= super + [
-        :version,
-        :root,
-        :hostname,
-        :session_token,
-        :auth_url,
-        :auth_http_deflate,
-        :auth_http_connect_timeout,
-        :auth_http_read_timeout,
-        :report_url,
-        :report_http_deflate,
-        :report_http_connect_timeout,
-        :report_http_read_timeout,
-        :report_http_disabled,
-        :'daemon.lazy_start',
-        :'daemon.exec_path',
-        :'daemon.lib_path',
-        :'daemon.pidfile_path',
-        :'daemon.sockdir_path',
-        :'daemon.batch_queue_depth',
-        :'daemon.batch_sample_size',
-        :'daemon.batch_flush_interval',
-        :'daemon.tick_interval',
-        :'daemon.sanity_check_interval',
-        :'daemon.inactivity_timeout',
-        :'daemon.max_connect_tries',
-        :'daemon.connect_try_window',
-        :'daemon.max_prespawn_jitter',
-        :'daemon.wait_timeout',
-        :'daemon.client_check_interval',
-        :'daemon.client_queue_depth',
-        :'daemon.client_write_timeout',
-        :'daemon.ssl_cert_path',
-        :'daemon.ssl_cert_dir'
+      @native_env_keys ||= super + %i[
+        version
+        root
+        hostname
+        session_token
+        auth_url
+        auth_http_deflate
+        auth_http_connect_timeout
+        auth_http_read_timeout
+        report_url
+        report_http_deflate
+        report_http_connect_timeout
+        report_http_read_timeout
+        report_http_disabled
+        daemon.lazy_start
+        daemon.exec_path
+        daemon.lib_path
+        daemon.pidfile_path
+        daemon.sockdir_path
+        daemon.batch_queue_depth
+        daemon.batch_sample_size
+        daemon.batch_flush_interval
+        daemon.tick_interval
+        daemon.sanity_check_interval
+        daemon.inactivity_timeout
+        daemon.max_connect_tries
+        daemon.connect_try_window
+        daemon.max_prespawn_jitter
+        daemon.wait_timeout
+        daemon.client_check_interval
+        daemon.client_queue_depth
+        daemon.client_write_timeout
+        daemon.ssl_cert_path
+        daemon.ssl_cert_dir
       ]
     end
 

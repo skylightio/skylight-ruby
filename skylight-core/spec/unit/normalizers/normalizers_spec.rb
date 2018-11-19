@@ -37,7 +37,7 @@ module Skylight::Core
     end
 
     it "will not enable a bad match" do
-      ["tes", "est", "disabled"].each do |key|
+      %w[tes est disabled].each do |key|
         expect {
           Normalizers.enable(key)
         }.to raise_error(ArgumentError, "no normalizers match #{key}")

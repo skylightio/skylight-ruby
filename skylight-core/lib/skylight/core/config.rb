@@ -71,10 +71,10 @@ module Skylight::Core
     end
 
     def self.native_env_keys
-      [
-        :version,
-        :root,
-        :proxy_url
+      %i[
+        version
+        root
+        proxy_url
       ]
     end
 

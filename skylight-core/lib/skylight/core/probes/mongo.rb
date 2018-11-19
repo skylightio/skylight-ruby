@@ -12,7 +12,7 @@ module Skylight::Core
       class Subscriber
         include Util::Logging
 
-        COMMANDS = [:insert, :find, :count, :distinct, :update, :findandmodify, :delete, :aggregate].freeze
+        COMMANDS = %i[insert find count distinct update findandmodify delete aggregate].freeze
 
         COMMAND_NAMES = {
           findandmodify: "findAndModify".freeze
