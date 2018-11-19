@@ -54,8 +54,8 @@ describe "skylight setup", :http, :agent do
       should_successfully_create_app("foobar")
 
       expect(server.requests[0]).to post_json("/apps", 
-        authorization: nil,
-        input: { "app" => { "name" => "Tmp" }, "token" => "foobar" }
+                                              authorization: nil,
+                                              input: { "app" => { "name" => "Tmp" }, "token" => "foobar" }
       )
     end
 

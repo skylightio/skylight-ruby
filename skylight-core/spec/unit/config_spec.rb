@@ -223,9 +223,9 @@ module Skylight::Core
 
       let :config do
         Config.load({ file: file, environment: "production" }, 
-          "foo"                     => "fail",
-          "SKYLIGHT_LOG_FILE"       => "production.log",
-          "SKYLIGHT_ALERT_LOG_FILE" => "alert.log"
+                    "foo"                     => "fail",
+                    "SKYLIGHT_LOG_FILE"       => "production.log",
+                    "SKYLIGHT_ALERT_LOG_FILE" => "alert.log"
         )
       end
 
@@ -307,8 +307,8 @@ module Skylight::Core
 
       let :config do
         Config.load({ file: file, environment: "production" }, 
-          "foo"         => "fail",
-          "SK_LOG_FILE" => "test.log"
+                    "foo"         => "fail",
+                    "SK_LOG_FILE" => "test.log"
         )
       end
 
