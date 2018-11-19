@@ -120,7 +120,7 @@ module Skylight::Core
 
         if logger
           if logger.respond_to?(level)
-            if args.length > 0
+            if !args.empty?
               logger.send level, sprintf(msg, *args)
             else
               logger.send level, msg
