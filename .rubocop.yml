@@ -65,9 +65,17 @@ Style/PerlBackrefs:
 Style/RescueStandardError:
   EnforcedStyle: implicit
 
+# We use timestamps in some tests and this doesn't play nice
+Style/NumericLiterals:
+  Enabled: false
+
 # No performance penalty for double quotes and easier to be consistent
 Style/StringLiterals:
   EnforcedStyle: double_quotes
+
+# This may not be a great idea but we do it frequently. We should revisit.
+Style/RescueModifier:
+  Enabled: false
 
 # In some cases `get_*` or `set_*` seems more appropriate than without.
 Naming/AccessorMethodName:
