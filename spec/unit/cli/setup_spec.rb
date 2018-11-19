@@ -53,7 +53,7 @@ describe "skylight setup", :http, :agent do
     it "does not ask for login info" do
       should_successfully_create_app("foobar")
 
-      expect(server.requests[0]).to post_json("/apps", 
+      expect(server.requests[0]).to post_json("/apps",
                                               authorization: nil,
                                               input: { "app" => { "name" => "Tmp" }, "token" => "foobar" })
     end
