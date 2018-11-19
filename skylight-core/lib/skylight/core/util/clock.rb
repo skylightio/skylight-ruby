@@ -30,24 +30,24 @@ module Skylight::Core
         nanos / 1_000_000_000
       end
 
-      def self.absolute_secs
-        default.absolute_secs
-      end
+      class << self
+        def absolute_secs
+          default.absolute_secs
+        end
 
-      def self.nanos
-        default.nanos
-      end
+        def nanos
+          default.nanos
+        end
 
-      def self.secs
-        default.secs
-      end
+        def secs
+          default.secs
+        end
 
-      def self.default
-        @clock ||= Clock.new
-      end
+        def default
+          @default ||= Clock.new
+        end
 
-      def self.default=(clock)
-        @clock = clock
+        attr_writer :default
       end
     end
   end
