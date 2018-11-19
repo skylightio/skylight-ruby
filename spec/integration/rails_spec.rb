@@ -417,7 +417,7 @@ if enable
 
         # But the middlewares will be variable, depending on the Rails version
         count = 0
-        while true do
+        loop do
           break if app_and_rack_spans[count + 1][0] != "rack.middleware"
           count += 1
         end
