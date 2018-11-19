@@ -112,11 +112,7 @@ you should set the `SKYLIGHT_AUTHENTICATION` variable to:
                 end
               end
 
-              unless name
-                name = File.basename(File.expand_path(".")).titleize
-              end
-
-              name
+              name || File.basename(File.expand_path(".")).titleize
             end
         end
 

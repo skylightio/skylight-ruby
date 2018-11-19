@@ -3,7 +3,10 @@ require "tmpdir"
 module SpecHelper
   module Standalone
     def self.with_dummy(dir = nil, &blk)
-      dir = tmpdir = Dir.mktmpdir unless dir
+      unless dir
+        tmpdir = Dir.mktmpdir
+        dir = tmpdir
+      end
 
       FileUtils.cp_r File.join(APP_ROOT, "spec/dummy"), dir
       Dir.chdir(File.join(dir, "dummy"), &blk)
