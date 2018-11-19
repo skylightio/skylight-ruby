@@ -113,7 +113,7 @@ describe Skylight::CLI::Merger do
     further_questions: /If you have any questions, please contact/,
     app_not_found: /Sorry, `skylight merge` is only able to merge apps that you own/,
     unlisted_app: /\d\. My app isn\'t listed here/
-  }
+  }.freeze
 
   before do
     allow_any_instance_of(Skylight::Api).to receive(:fetch_mergeable_apps) do

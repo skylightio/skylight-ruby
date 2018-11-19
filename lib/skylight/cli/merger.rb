@@ -15,7 +15,7 @@ module Skylight
       STRINGS = {
         get_token: "get your merge token from `https://www.skylight.io/merging`",
         unlisted: "My app isn't listed here :("
-      }
+      }.freeze
 
       argument :merge_token, type: :string, desc: STRINGS[:get_token]
 

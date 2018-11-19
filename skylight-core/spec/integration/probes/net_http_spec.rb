@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   class CustomType < Net::HTTPRequest
-    METHOD = "CUSTOM"
+    METHOD = "CUSTOM".freeze
     REQUEST_HAS_BODY = false
     RESPONSE_HAS_BODY = false
   end

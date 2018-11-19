@@ -11,7 +11,7 @@ require "skylight/core/util/proxy"
 module Skylight
   # Utility class for fetching the native extension from a URL
   class NativeExtFetcher
-    BASE_URL = "https://s3.amazonaws.com/skylight-agent-packages/skylight-native"
+    BASE_URL = "https://s3.amazonaws.com/skylight-agent-packages/skylight-native".freeze
     MAX_REDIRECTS = 5
     MAX_RETRIES = 3
 

@@ -25,7 +25,7 @@ module SpecHelper
     end
   end
 
-  SPECIAL_HEADERS = %w(CONTENT_TYPE REQUEST_METHOD rack.input)
+  SPECIAL_HEADERS = %w(CONTENT_TYPE REQUEST_METHOD rack.input).freeze
 
   RSpec::Matchers.define :be_request do |*args|
     hdrs  = {}

@@ -61,7 +61,7 @@ module Skylight
             "so"
           end
 
-        TUPLE = "#{ARCH}-#{OS}"
+        TUPLE = "#{ARCH}-#{OS}".freeze
 
         def self.tuple
           TUPLE

@@ -7,7 +7,7 @@ module Skylight::Core
   class Instrumenter
     KEY = :__skylight_current_trace
 
-    TOO_MANY_UNIQUES = "<too many unique descriptions>"
+    TOO_MANY_UNIQUES = "<too many unique descriptions>".freeze
 
     include Util::Logging
 

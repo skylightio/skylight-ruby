@@ -82,7 +82,7 @@ module Skylight
     db
     noise
     other
-  )
+  ).freeze
 
   # @api private
   TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/u
@@ -94,5 +94,5 @@ module Skylight
   DEFAULT_CATEGORY = "app.block".freeze
 
   # @api private
-  DEFAULT_OPTIONS = { category: DEFAULT_CATEGORY }
+  DEFAULT_OPTIONS = { category: DEFAULT_CATEGORY }.freeze
 end

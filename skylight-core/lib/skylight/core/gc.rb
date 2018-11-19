@@ -3,7 +3,7 @@ require "thread"
 module Skylight::Core
   # @api private
   class GC
-    METHODS   = [:enable, :total_time]
+    METHODS   = [:enable, :total_time].freeze
     TH_KEY    = :SK_GC_CURR_WINDOW
     MAX_COUNT = 1000
     MAX_TIME  = 30_000_000

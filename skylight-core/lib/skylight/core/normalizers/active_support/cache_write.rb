@@ -5,7 +5,7 @@ module Skylight::Core
         register "cache_write.active_support"
 
         CAT = "app.cache.write".freeze
-        TITLE = "cache write"
+        TITLE = "cache write".freeze
 
         def normalize(trace, name, payload)
           [CAT, TITLE, nil]

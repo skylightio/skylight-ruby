@@ -116,7 +116,7 @@ module Skylight
           end
       end
 
-      DEPLOY_TYPES = [DefaultDeploy, HerokuDeploy, GitDeploy]
+      DEPLOY_TYPES = [DefaultDeploy, HerokuDeploy, GitDeploy].freeze
     end
   end
 end
