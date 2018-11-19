@@ -104,7 +104,7 @@ module Skylight::Core
       def config_for_logging
         if respond_to?(:config)
           config
-        elsif self.is_a?(Config)
+        elsif is_a?(Config)
           self
         end
       end
@@ -132,7 +132,7 @@ module Skylight::Core
         end
 
         # Fallback
-        if (module_name = self.is_a?(Module) ? name : self.class.name)
+        if (module_name = is_a?(Module) ? name : self.class.name)
           root_name = module_name.split("::").first.upcase
           msg.prepend("[#{root_name}] ")
         end

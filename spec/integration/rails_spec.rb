@@ -333,7 +333,7 @@ if enable
         def render(options = {})
           self.status = options[:status] || 200
           self.content_type = options[:content_type] || "text/html; charset=utf-8"
-          self.headers["Content-Length"] = options[:text].bytesize.to_s
+          headers["Content-Length"] = options[:text].bytesize.to_s
           self.response_body = options[:text]
         end
       end

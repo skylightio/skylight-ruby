@@ -34,7 +34,7 @@ if defined?(ActiveModel::Serializer)
 
         def initialize(attributes = {})
           attributes.each do |key, val|
-            self.send("#{key}=", val)
+            send("#{key}=", val)
           end
         end
       end

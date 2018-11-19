@@ -28,7 +28,7 @@ describe Skylight::CLI::Merger do
     end
 
     def printf(*args)
-      self.puts sprintf(*args)
+      puts sprintf(*args)
     end
   end
 

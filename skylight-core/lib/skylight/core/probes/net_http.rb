@@ -33,8 +33,8 @@ module Skylight::Core
               host, port = req["host"] ? req["host"].split(":") : nil
 
               # If we're connected with a persistent socket
-              host ||= self.address
-              port ||= self.port
+              host ||= address
+              port ||= port
 
               path   = req.path
               scheme = use_ssl? ? "https" : "http"
