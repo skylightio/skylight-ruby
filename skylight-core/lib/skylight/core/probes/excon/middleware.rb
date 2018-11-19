@@ -13,7 +13,7 @@ module Skylight::Core
           super
         end
 
-        # TODO:
+        # TODO: Review the following:
         # - Consider whether a LIFO queue would be sufficient
         # - Check that errors can't be called without a request
 
