@@ -225,8 +225,7 @@ module Skylight::Core
         Config.load({ file: file, environment: "production" }, 
                     "foo"                     => "fail",
                     "SKYLIGHT_LOG_FILE"       => "production.log",
-                    "SKYLIGHT_ALERT_LOG_FILE" => "alert.log"
-        )
+                    "SKYLIGHT_ALERT_LOG_FILE" => "alert.log")
       end
 
       context "valid" do
@@ -308,8 +307,7 @@ module Skylight::Core
       let :config do
         Config.load({ file: file, environment: "production" }, 
                     "foo"         => "fail",
-                    "SK_LOG_FILE" => "test.log"
-        )
+                    "SK_LOG_FILE" => "test.log")
       end
 
       it "loads the authentication key" do
