@@ -7,7 +7,8 @@ if !ENV['SKIP_EXTERNAL']
 
   gem 'active_model_serializers', version
 
-  unless ENV['DELAYED_JOB_VERSION'] == 'none'
+  # there is currently no Rails 6 branch for delayed_job
+  unless ENV['DELAYED_JOB_VERSION'] == 'none' || ENV['RAILS_EDGE'] == 'true'
     gem 'delayed_job', ENV['DELAYED_JOB_VERSION'] || '>= 4', require: false
     gem 'delayed_job_active_record', require: false
   end

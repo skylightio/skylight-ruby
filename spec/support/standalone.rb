@@ -44,9 +44,11 @@ module SpecHelper
     opts[:port] ||= 9292
 
     # This also resets other ENV vars that are set in the block
+    rails_edge = ENV['RAILS_EDGE']
     Bundler.with_clean_env do
       Standalone.with_dummy opts[:dir] do
         Standalone.set_env(opts[:rails_version], opts[:port])
+        ENV['RAILS_EDGE'] = rails_edge if rails_edge
         yield
       end
     end
