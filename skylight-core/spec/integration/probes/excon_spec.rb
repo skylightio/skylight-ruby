@@ -44,7 +44,6 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
       Excon.stub({}, lambda { |_request_params|
         travel(2)
         raise "bad response"
-        { body: "body", status: 200 }
       })
 
       Excon.get("http://example.com") rescue nil
