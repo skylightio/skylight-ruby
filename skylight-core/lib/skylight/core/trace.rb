@@ -53,7 +53,6 @@ module Skylight::Core
     def endpoint=(value)
       @endpoint = value
       native_set_endpoint(value)
-      value
     end
 
     def config
