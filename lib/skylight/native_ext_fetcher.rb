@@ -133,7 +133,7 @@ module Skylight
       end
 
       log "exceeded max redirects"
-      return
+      nil
     end
 
     # Get with `Net::HTTP`

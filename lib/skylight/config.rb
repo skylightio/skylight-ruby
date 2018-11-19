@@ -227,7 +227,7 @@ module Skylight
         end
       end
 
-      return true
+      true
     end
 
     def check_sockdir_permissions(sockdir_path)
