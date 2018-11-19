@@ -130,15 +130,15 @@ module Skylight
         say "IMPORTANT!\n" \
           "If you use a config/skylight.yml file to configure Skylight:\n", :yellow
 
-        say "The #@child_env environment for the #{@parent_app.name} app\n" \
+        say "The #{@child_env} environment for the #{@parent_app.name} app\n" \
           "will now connect using the default authentication token for the app.\n" \
           "Remove any environment-specific `authentication` configs from the\n" \
-          "#{@parent_app.name} #@child_env environment.\n", :yellow
+          "#{@parent_app.name} #{@child_env} environment.\n", :yellow
 
-        say "If you're running in Rails and your Rails environment exactly matches `#@child_env`,\n" \
+        say "If you're running in Rails and your Rails environment exactly matches `#{@child_env}`,\n" \
           "we will automatically detect and report that environment when your agent connects.\n" \
-          "Otherwise, you should set `env: '#@child_env'` as environment-specific configuration for\n" \
-          "#@child_env's Rails environment. For example:\n" \
+          "Otherwise, you should set `env: '#{@child_env}'` as environment-specific configuration for\n" \
+          "#{@child_env}'s Rails environment. For example:\n" \
           "```yml\n" \
           "staging:\n" \
           "  env: staging-42\n" \
@@ -151,14 +151,14 @@ module Skylight
 
         say "Deploy the latest agent before updating your environment variables.\n", :yellow
 
-        say "The #@child_env environment for the #{@parent_app.name} app\n" \
+        say "The #{@child_env} environment for the #{@parent_app.name} app\n" \
           "will now connect using the default authentication token for the app.\n" \
-          "Set `SKYLIGHT_AUTHENTICATION` in the #@child_env environment to the\n" \
+          "Set `SKYLIGHT_AUTHENTICATION` in the #{@child_env} environment to the\n" \
           "#{@parent_app.name} app's authentication token.\n", :yellow
 
-        say "If you're running in Rails and your Rails environment exactly matches `#@child_env`,\n" \
+        say "If you're running in Rails and your Rails environment exactly matches `#{@child_env}`,\n" \
           "we will automatically detect and report that environment when your agent connects.\n" \
-          "Otherwise, you should set `SKYLIGHT_ENV=#@child_env` when running in this environment.\n", :yellow
+          "Otherwise, you should set `SKYLIGHT_ENV=#{@child_env}` when running in this environment.\n", :yellow
 
         say "=======================================================", :yellow
 
