@@ -119,7 +119,7 @@ if ENV["TEST_MONGO_INTEGRATION"]
       client[:artists].bulk_write([
         { insert_one: { x: 1 } },
         { update_one: { filter: { x: 1 },
-                           update: { "$set" => { x: 2 } } } },
+                        update: { "$set" => { x: 2 } } } },
         { delete_one: { filter: { x: 1 } } }
       ], ordered: true)
 
