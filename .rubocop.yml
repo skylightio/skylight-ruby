@@ -33,6 +33,10 @@ Metrics/BlockLength:
 Metrics/LineLength:
   Max: 120
 
+# This is a bit too strict for us
+Style/ClassAndModuleChildren:
+  Enabled: false
+
 # It's nice to actually have boolean values
 Style/DoubleNegation:
   Enabled: false
