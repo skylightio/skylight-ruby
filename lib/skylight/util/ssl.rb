@@ -46,8 +46,8 @@ module Skylight
         @ca_cert_file || DEFAULT_CA_FILE
       end
 
-      def self.ca_cert_dir
-        @ca_cert_dir
+      class << self
+        attr_reader :ca_cert_dir
       end
     end
   end

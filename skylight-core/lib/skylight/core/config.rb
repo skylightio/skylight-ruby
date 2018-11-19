@@ -383,9 +383,7 @@ module Skylight::Core
         end
     end
 
-    def logger=(logger)
-      @logger = logger
-    end
+    attr_writer :logger
 
     def alert_logger
       @alert_logger ||= MUTEX.synchronize do
@@ -401,9 +399,7 @@ module Skylight::Core
       end
     end
 
-    def alert_logger=(logger)
-      @alert_logger = logger
-    end
+    attr_writer :alert_logger
 
     def enable_segments?
       !!get(:enable_segments)

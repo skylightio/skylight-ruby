@@ -30,9 +30,7 @@ module SpecHelper
       @tick = nil
     end
 
-    def tick=(val)
-      @tick = val
-    end
+    attr_writer :tick
 
     private
 
