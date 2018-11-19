@@ -55,7 +55,7 @@ module Skylight
       expect(name).to eq("db.sql.query")
       expect(title).to eq("SELECT FROM foo")
       expect(desc).to eq("select * from foo")
-      expect(meta).to eq({ adapter: "postgres", database: "testdb" })
+      expect(meta).to eq(adapter: "postgres", database: "testdb")
     end
 
     it "Pulls out binds" do

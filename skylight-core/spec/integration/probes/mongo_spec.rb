@@ -60,7 +60,7 @@ if ENV["TEST_MONGO_INTEGRATION"]
     end
 
     it "instruments update_many" do
-      client[:artists].update_many({ label: "Hospital" }, { "$inc" => { plays: 1 } })
+      client[:artists].update_many({ label: "Hospital" }, "$inc" => { plays: 1 })
 
       description = { updates: [{ "q" => { label: "?" }, "u" => { "$inc" => { plays: "?" } }, "multi" => true, "upsert" => false }] }.to_json
       expected = { cat: "db.mongo.command", title: "echo_test.update artists", desc: description }

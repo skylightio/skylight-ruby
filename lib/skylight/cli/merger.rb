@@ -270,7 +270,7 @@ module Skylight
               end
             end
 
-            yielder << OpenStruct.new({ app_name: STRINGS[:unlisted], unlisted: true })
+            yielder << OpenStruct.new(app_name: STRINGS[:unlisted], unlisted: true)
           end.each_with_object({}).with_index do |(c, r), i|
             r[i + 1] = c
           end.tap do |result|

@@ -12,7 +12,7 @@ describe "CLI integration", :http do
 
   it "works with setup token" do
     server.mock "/apps", :post do |env|
-      expect(env["rack.input"]).to eq({ "app" => { "name" => "Dummy" }, "token" => "setuptoken" })
+      expect(env["rack.input"]).to eq("app" => { "name" => "Dummy" }, "token" => "setuptoken")
 
       # This would have more information really, but the CLI doesn't care
       { app: { id: "appid", token: "apptoken" } }
@@ -25,14 +25,14 @@ describe "CLI integration", :http do
       run_command("setup setuptoken") do |_stdin, stdout, _stderr|
         expect(read(stdout)).to include("Congratulations. Your application is on Skylight!")
 
-        expect(YAML.load_file("config/skylight.yml")).to eq({ "authentication" => "apptoken" })
+        expect(YAML.load_file("config/skylight.yml")).to eq("authentication" => "apptoken")
       end
     end
   end
 
   it "shows error messages for invalid token" do
     server.mock "/apps", :post do |env|
-      expect(env["rack.input"]).to eq({ "app" => { "name" => "Dummy" }, "token" => "invalidtoken" })
+      expect(env["rack.input"]).to eq("app" => { "name" => "Dummy" }, "token" => "invalidtoken")
       [403, { errors: { request: "invalid app create token" } }]
     end
 

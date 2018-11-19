@@ -56,14 +56,14 @@ module Skylight
                           "culpa qui officia deserunt mollit anim id est laborum."
           }
 
-          expect(config.deploy.to_query_hash).to eq({
+          expect(config.deploy.to_query_hash).to eq(
             timestamp: 1452620644,
             deploy_id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrs",
             git_sha:   "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dw",
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore " \
                           "et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut " \
                           "aliquip ex ea commodo consequat. Duis aute irure dolor in"
-          })
+          )
         end
       end
 
@@ -73,10 +73,10 @@ module Skylight
             id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz"
           }
 
-          expect(config.deploy.to_query_hash).to eq({
+          expect(config.deploy.to_query_hash).to eq(
             timestamp: 1452620644,
             deploy_id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrs"
-          })
+          )
         end
       end
 
@@ -208,7 +208,7 @@ module Skylight
       end
 
       it "converts to env" do
-        expect(get_env).to eq({
+        expect(get_env).to eq(
           # (Includes default component info)
           "SKYLIGHT_AUTHENTICATION" => "abc123|component=web%3Aproduction&reporting_env=true",
           "SKYLIGHT_VERSION"    => Skylight::VERSION,
@@ -217,7 +217,7 @@ module Skylight
           "SKYLIGHT_AUTH_URL"   => "https://auth.skylight.io/agent",
           "SKYLIGHT_LAZY_START" => "false",
           "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false",
-        })
+        )
       end
 
       it "includes deploy info if available" do

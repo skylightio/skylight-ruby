@@ -3,12 +3,12 @@ require "spec_helper"
 module Skylight
   describe "Normalizers", "query.moped", :moped do
     it "skips COMMAND" do
-      op = Moped::Protocol::Command.new("testdb", { foo: "bar" })
+      op = Moped::Protocol::Command.new("testdb", foo: "bar")
       expect(normalize(ops: [op])).to eq(:skip)
     end
 
     it "normalizes QUERY" do
-      op = Moped::Protocol::Query.new("testdb", "testcollection", { foo: { "$not": "bar" }, baz: "qux" })
+      op = Moped::Protocol::Query.new("testdb", "testcollection", foo: { "$not": "bar" }, baz: "qux")
       category, title, description = normalize(ops: [op])
 
       expect(category).to    eq("db.mongo.query")
@@ -35,7 +35,7 @@ module Skylight
     end
 
     it "normalizes UPDATE" do
-      op = Moped::Protocol::Update.new("testdb", "testcollection", { foo: "bar" }, { foo: "baz" })
+      op = Moped::Protocol::Update.new("testdb", "testcollection", { foo: "bar" }, foo: "baz")
       category, title, description = normalize(ops: [op])
 
       expect(category).to    eq("db.mongo.query")
@@ -44,7 +44,7 @@ module Skylight
     end
 
     it "normalizes DELETE" do
-      op = Moped::Protocol::Delete.new("testdb", "testcollection", { foo: "bar" })
+      op = Moped::Protocol::Delete.new("testdb", "testcollection", foo: "bar")
       category, title, description = normalize(ops: [op])
 
       expect(category).to    eq("db.mongo.query")

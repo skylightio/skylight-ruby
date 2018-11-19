@@ -44,7 +44,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
     it "fails with invalid component" do
       msg = "worker has not been whitelisted"
-      stub_config_validation(403, { errors: { component: msg } })
+      stub_config_validation(403, errors: { component: msg })
       expect(Skylight.start!(config)).to be_falsey
       expect(logger_out.string).to include(msg)
     end

@@ -222,11 +222,11 @@ module Skylight::Core
       end
 
       let :config do
-        Config.load({ file: file, environment: "production" }, {
+        Config.load({ file: file, environment: "production" }, 
           "foo"                     => "fail",
           "SKYLIGHT_LOG_FILE"       => "production.log",
           "SKYLIGHT_ALERT_LOG_FILE" => "alert.log"
-        })
+        )
       end
 
       context "valid" do
@@ -306,10 +306,10 @@ module Skylight::Core
       end
 
       let :config do
-        Config.load({ file: file, environment: "production" }, {
+        Config.load({ file: file, environment: "production" }, 
           "foo"         => "fail",
           "SK_LOG_FILE" => "test.log"
-        })
+        )
       end
 
       it "loads the authentication key" do
@@ -431,7 +431,7 @@ module Skylight::Core
       end
 
       it "skips nil proxy env vars" do
-        c = Config.load({ environment: :production })
+        c = Config.load(environment: :production)
         expect(c[:proxy_url]).to be_nil
       end
 
@@ -454,10 +454,10 @@ module Skylight::Core
       end
 
       it "converts to env" do
-        expect(get_env).to eq({
+        expect(get_env).to eq(
           "SKYLIGHT_VERSION"    => Skylight::Core::VERSION,
           "SKYLIGHT_ROOT"       => "/tmp"
-        })
+        )
       end
 
       it "includes keys only if value is set" do

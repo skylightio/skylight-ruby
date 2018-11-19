@@ -69,10 +69,10 @@ describe Skylight::Util::Component do
     ].each do |args|
       context "rake: #{args}" do
         before do
-          allow_any_instance_of(described_class).to receive_messages({
+          allow_any_instance_of(described_class).to receive_messages(
             program_name: rake,
             argv: [args]
-          })
+          )
         end
 
         specify do

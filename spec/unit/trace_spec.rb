@@ -31,7 +31,7 @@ module Skylight
 
     it "builds the trace" do
       trace = Skylight.trace "Rack", "app.rack.request"
-      a = trace.instrument "cat1", { foo: "bar" }
+      a = trace.instrument "cat1", foo: "bar"
       clock.skip 0.001
       b = trace.instrument "cat2"
       c = trace.instrument "cat3"

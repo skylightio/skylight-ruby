@@ -88,7 +88,7 @@ describe Skylight::CLI::Merger do
         expect(line).to match(expected)
       end
 
-      described_class.new([token], {}, { shell: shell }).invoke_all
+      described_class.new([token], {}, shell: shell).invoke_all
 
       0
     rescue SystemExit => e
@@ -117,7 +117,7 @@ describe Skylight::CLI::Merger do
 
   before do
     allow_any_instance_of(Skylight::Api).to receive(:fetch_mergeable_apps) do
-      OpenStruct.new({ body: mergeable_apps })
+      OpenStruct.new(body: mergeable_apps)
     end
   end
 

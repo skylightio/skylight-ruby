@@ -324,10 +324,10 @@ if enable
         include ActionController::Instrumentation
 
         def show
-          render({
+          render(
             status: 200,
             text: "Zomg!"
-          })
+          )
         end
 
         def render(options = {})
