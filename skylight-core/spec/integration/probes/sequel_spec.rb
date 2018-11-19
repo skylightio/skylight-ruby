@@ -6,8 +6,8 @@ describe "Sequel integration", :sequel_probe, :agent do
       @regex = regex
     end
 
-    def ==(value)
-      @regex === value
+    def ==(other)
+      @regex === other
     end
 
     def description
