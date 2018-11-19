@@ -67,7 +67,7 @@ if defined?(Grape)
       end
 
       get "raise" do
-        fail "Unexpected error"
+        raise "Unexpected error"
       end
 
       route ["GET", "POST"], "data" do

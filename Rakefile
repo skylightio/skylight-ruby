@@ -206,7 +206,7 @@ task run_travis_builds: :vagrant_up do
     end
   end
 
-  fail if failed.count > 0
+  raise if failed.count > 0
 end
 
 task :list_travis_builds do
