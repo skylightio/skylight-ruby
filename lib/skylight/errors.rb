@@ -35,7 +35,7 @@ module Skylight
 
     def initialize(method_name)
       @method_name = method_name
-      super(sprintf("[E%04d] %s [%s]", code, message, method_name))
+      super(format("[E%04d] %s [%s]", code, message, method_name))
     end
 
     def code
@@ -43,7 +43,7 @@ module Skylight
     end
 
     def formatted_code
-      "%04d" % code
+      format("%04d", code)
     end
 
     # E0003

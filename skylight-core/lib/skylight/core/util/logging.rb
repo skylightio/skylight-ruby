@@ -86,7 +86,7 @@ module Skylight::Core
       # @param args (see #log)
       def error(msg, *args)
         log :error, msg, *args
-        raise sprintf(msg, *args) if raise_on_error?
+        raise format(msg, *args) if raise_on_error?
       end
 
       alias log_trace trace
@@ -121,7 +121,7 @@ module Skylight::Core
         if logger
           if logger.respond_to?(level)
             if !args.empty?
-              logger.send level, sprintf(msg, *args)
+              logger.send level, format(msg, *args)
             else
               logger.send level, msg
             end
@@ -136,7 +136,7 @@ module Skylight::Core
           root_name = module_name.split("::").first.upcase
           msg.prepend("[#{root_name}] ")
         end
-        puts sprintf(msg, *args)
+        puts format(msg, *args)
       rescue Exception => e
         if trace?
           puts "[ERROR] #{e.message}"
