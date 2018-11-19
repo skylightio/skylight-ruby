@@ -41,7 +41,10 @@ describe "Initialization integration" do
     ENV.delete("SKYLIGHT_ENABLE_TRACE_LOGS")
 
     env = { "RAILS_ENV" => rails_env }
-    env.merge!("SKYLIGHT_ENABLE_TRACE_LOGS" => "1", "DEBUG" => "1") if debug
+    if debug
+      env["SKYLIGHT_ENABLE_TRACE_LOGS"] = "1"
+      env["DEBUG"] = "1"
+    end
     cmd = "ruby bin/rails runner '#noop'"
     cmd_pid = Process.spawn(env, cmd, out: pipe_cmd_out, err: pipe_cmd_out)
 
