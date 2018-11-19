@@ -107,7 +107,7 @@ LOG.info "file exists; path=#{skylight_dlopen_h}" if File.exist?(skylight_dlopen
 
 # If libskylight is not present, fetch it
 if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(skylight_dlopen_h)
-  if !SKYLIGHT_FETCH_LIB
+  unless SKYLIGHT_FETCH_LIB
     fail "libskylight.#{LIBEXT} not found -- remote download disabled; aborting install"
   end
 

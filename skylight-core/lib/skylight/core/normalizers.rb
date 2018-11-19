@@ -35,7 +35,7 @@ module Skylight::Core
       normalizers = {}
 
       registry.each do |key, (klass, enabled)|
-        next if !enabled
+        next unless enabled
 
         unless klass.method_defined?(:normalize)
           # TODO: Warn
