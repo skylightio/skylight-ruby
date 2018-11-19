@@ -113,7 +113,7 @@ module Skylight
     def fetch_mergeable_apps(token)
       headers = { "x-skylight-merge-token" => token }
       http_request(:merges, :get, headers).tap do |res|
-        raise error_for_status(res.status).new("HTTP #{res.status}: #{res.body}") unless res.success?
+        raise error_for_status(res.status), "HTTP #{res.status}: #{res.body}" unless res.success?
       end
     end
 
@@ -121,7 +121,7 @@ module Skylight
       headers = { "x-skylight-merge-token" => token }
       body = { environment: environment, app_guid: app_guid, component_guid: component_guid }
       http_request(:merges, :post, body, headers).tap do |res|
-        raise error_for_status(res.status).new("HTTP #{res.status}: #{res.body}") unless res.success?
+        raise error_for_status(res.status), "HTTP #{res.status}: #{res.body}" unless res.success?
       end
     end
 

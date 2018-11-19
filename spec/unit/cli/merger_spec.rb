@@ -339,7 +339,7 @@ describe Skylight::CLI::Merger do
       let(:error_message) { "HTTP 409: merge would violate uniqueness constraint" }
       before do
         allow_any_instance_of(Skylight::Api).to receive(:merge_apps!) do
-          raise Skylight::Api::Conflict.new(error_message)
+          raise Skylight::Api::Conflict, error_message
         end
       end
 
@@ -367,7 +367,7 @@ describe Skylight::CLI::Merger do
     context "invalid token" do
       before do
         allow_any_instance_of(Skylight::Api).to receive(:fetch_mergeable_apps) do
-          raise Skylight::Api::Unauthorized.new("HTTP 401: bad token")
+          raise Skylight::Api::Unauthorized, "HTTP 401: bad token"
         end
       end
 

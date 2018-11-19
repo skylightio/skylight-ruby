@@ -128,7 +128,7 @@ if enable
       ThrowingMiddleware ||= Struct.new(:app) do
         def call(env)
           throw(:coconut, [401, {}, ["I can't do that, Dave"]]) if should_throw?(env)
-          raise MiddlewareError.new("I can't do that, Dave") if should_raise?(env)
+          raise MiddlewareError, "I can't do that, Dave" if should_raise?(env)
           app.call(env)
         end
 
