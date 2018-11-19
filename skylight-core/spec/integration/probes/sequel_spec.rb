@@ -24,9 +24,9 @@ describe "Sequel integration", :sequel_probe, :agent do
     TestNamespace.stop!
   end
 
-  let(:trace) {
+  let(:trace) do
     TestNamespace.instrumenter.current_trace
-  }
+  end
 
   it "instruments SQL queries" do
     db = Sequel.sqlite

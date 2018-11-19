@@ -169,9 +169,9 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
     http.open_timeout = 0.1 # in seconds
     http.read_timeout = 0.1 # in seconds
 
-    expect {
+    expect do
       http.request(Net::HTTP::Get.new(uri.request_uri))
-    }.to raise_error(defined?(Net::ReadTimeout) ? Net::ReadTimeout : Timeout::Error)
+    end.to raise_error(defined?(Net::ReadTimeout) ? Net::ReadTimeout : Timeout::Error)
   end
 
   it "instruments non-URI requests" do

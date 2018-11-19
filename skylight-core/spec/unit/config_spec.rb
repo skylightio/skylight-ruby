@@ -367,9 +367,9 @@ module Skylight::Core
           with_file(writable: false) do |f|
             config.set(:log_file, f.path)
 
-            expect {
+            expect do
               config.validate!
-            }.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set log_file in your config to a writable path")
+            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set log_file in your config to a writable path")
           end
         end
 
@@ -377,9 +377,9 @@ module Skylight::Core
           with_dir(writable: false) do |d|
             config.set(:log_file, "#{d}/bar")
 
-            expect {
+            expect do
               config.validate!
-            }.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set log_file in your config to a writable path")
+            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set log_file in your config to a writable path")
           end
         end
 
@@ -387,9 +387,9 @@ module Skylight::Core
           with_file(writable: false) do |f|
             config.set(:alert_log_file, f.path)
 
-            expect {
+            expect do
               config.validate!
-            }.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set alert_log_file in your config to a writable path")
+            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set alert_log_file in your config to a writable path")
           end
         end
 
@@ -397,9 +397,9 @@ module Skylight::Core
           with_dir(writable: false) do |d|
             config.set(:alert_log_file, "#{d}/bar")
 
-            expect {
+            expect do
               config.validate!
-            }.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set alert_log_file in your config to a writable path")
+            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set alert_log_file in your config to a writable path")
           end
         end
       end

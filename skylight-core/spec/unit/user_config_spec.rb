@@ -61,9 +61,9 @@ module Skylight::Core
         # Not 100% sure this stub is correct
         allow(Etc).to receive(:getpwuid).and_return(double(dir: nil))
         with_env("HOME" => nil, "USER" => nil) do
-          expect {
+          expect do
             config.file_path
-          }.to raise_error(ConfigError, "The Skylight `user_config_path` must be defined since the home directory cannot be inferred")
+          end.to raise_error(ConfigError, "The Skylight `user_config_path` must be defined since the home directory cannot be inferred")
         end
       end
     end

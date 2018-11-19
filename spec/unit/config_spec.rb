@@ -138,17 +138,17 @@ module Skylight
       end
 
       it "does not allow agent.interval to be a non-zero integer" do
-        expect {
+        expect do
           config["agent.interval"] = "abc"
-        }.to raise_error(Core::ConfigError, "invalid value for agent.interval (abc), must be an integer greater than 0")
+        end.to raise_error(Core::ConfigError, "invalid value for agent.interval (abc), must be an integer greater than 0")
 
-        expect {
+        expect do
           config["agent.interval"] = -1
-        }.to raise_error(Core::ConfigError, "invalid value for agent.interval (-1), must be an integer greater than 0")
+        end.to raise_error(Core::ConfigError, "invalid value for agent.interval (-1), must be an integer greater than 0")
 
-        expect {
+        expect do
           config["agent.interval"] = 5
-        }.to_not raise_error
+        end.to_not raise_error
       end
 
       context "permissions" do
@@ -156,9 +156,9 @@ module Skylight
           with_file(writable: false) do |f|
             config.set(:'daemon.pidfile_path', f.path)
 
-            expect {
+            expect do
               config.validate!
-            }.to raise_error(Core::ConfigError, "File `#{f.path}` is not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path")
+            end.to raise_error(Core::ConfigError, "File `#{f.path}` is not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path")
           end
         end
 
@@ -166,9 +166,9 @@ module Skylight
           with_dir(writable: false) do |d|
             config.set(:'daemon.pidfile_path', "#{d}/bar")
 
-            expect {
+            expect do
               config.validate!
-            }.to raise_error(Core::ConfigError, "Directory `#{d}` is not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path")
+            end.to raise_error(Core::ConfigError, "Directory `#{d}` is not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path")
           end
         end
 
@@ -177,9 +177,9 @@ module Skylight
             config.set(:'daemon.sockdir_path', d)
             config.set(:'daemon.pidfile_path', "~/skylight.pid") # Otherwise based on sockdir_path and will error first
 
-            expect {
+            expect do
               config.validate!
-            }.to raise_error(Core::ConfigError, "Directory `#{d}` is not writable. Please set daemon.sockdir_path in your config to a writable path")
+            end.to raise_error(Core::ConfigError, "Directory `#{d}` is not writable. Please set daemon.sockdir_path in your config to a writable path")
           end
         end
       end

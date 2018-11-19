@@ -31,9 +31,9 @@ module Skylight::Core
       # (ensure that we're not unsubscribing *all* skylight listeners)
       expect(original_count).to be > 1
 
-      expect {
+      expect do
         ActiveSupport::Notifications.unsubscribe(unsub_key)
-      }.to change {
+      end.to change {
         count_sk_subscribers(ActiveSupport::Notifications.notifier.listeners_for(unsub_key))
       }.from(1).to(0)
 
