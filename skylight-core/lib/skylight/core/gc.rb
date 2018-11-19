@@ -34,9 +34,7 @@ module Skylight::Core
     end
 
     def track
-      unless @profiler
-        win = Window.new(nil)
-      else
+      if @profiler
         win = Window.new(self)
 
         @lock.synchronize do
@@ -50,9 +48,11 @@ module Skylight::Core
             @listeners.shift
           end
         end
-      end
 
-      win
+        win
+      else
+        Window.new(nil)
+      end
     end
 
     def release(win)
