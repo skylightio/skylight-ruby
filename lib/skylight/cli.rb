@@ -1,4 +1,4 @@
-$:.unshift File.expand_path("../vendor/cli", __FILE__)
+$:.unshift File.expand_path("vendor/cli", __dir__)
 
 require "skylight"
 require "thor"

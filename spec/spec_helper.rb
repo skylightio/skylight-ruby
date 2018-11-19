@@ -1,4 +1,4 @@
-APP_ROOT = File.expand_path("../..", __FILE__)
+APP_ROOT = File.expand_path("..", __dir__)
 
 require "rubygems"
 require "bundler/setup"
@@ -24,7 +24,7 @@ require "support/native"
 
 require_relative "../skylight-core/spec/shared_spec_helper"
 
-Dir[File.expand_path("../support/*.rb", __FILE__)].each do |f|
+Dir[File.expand_path("support/*.rb", __dir__)].each do |f|
   require f
 end
 
@@ -56,7 +56,7 @@ WORKER_SPAWN_TIMEOUT = get_worker_spawn_timeout
 # End Normalize Libraries
 
 RSpec.configure do |config|
-  config.example_status_persistence_file_path = File.expand_path("../../tmp/rspec-examples.txt", __FILE__)
+  config.example_status_persistence_file_path = File.expand_path("../tmp/rspec-examples.txt", __dir__)
 
   config.include SpecHelper
 

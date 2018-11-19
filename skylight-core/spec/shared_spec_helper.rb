@@ -10,7 +10,7 @@ module SpecHelper
 end
 
 # Require support files
-Dir[File.expand_path("../support/*.rb", __FILE__)].each do |f|
+Dir[File.expand_path("support/*.rb", __dir__)].each do |f|
   require f
 end
 

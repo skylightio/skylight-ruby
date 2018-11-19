@@ -13,7 +13,7 @@ module Skylight
     end
 
     let :archive do
-      File.read(File.expand_path("../../support/win.tar.gz", __FILE__))
+      File.read(File.expand_path("../support/win.tar.gz", __dir__))
     end
 
     let :checksum do

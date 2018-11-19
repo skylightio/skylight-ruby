@@ -29,8 +29,8 @@ ExtensionTask.new do |ext|
   ext.native_lib_path = ENV["SKYLIGHT_LIB_PATH"]
 end
 
-CLEAN << File.expand_path("../ext/install.log", __FILE__)
-CLOBBER << File.expand_path("../lib/skylight/native", __FILE__)
+CLEAN << File.expand_path("ext/install.log", __dir__)
+CLOBBER << File.expand_path("lib/skylight/native", __dir__)
 
 begin
   require "yard"

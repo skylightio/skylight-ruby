@@ -52,7 +52,7 @@ module Skylight
   # @api private
   def self.check_install_errors(config)
     # Note: An unsupported arch doesn't count as an error.
-    install_log = File.expand_path("../../../ext/install.log", __FILE__)
+    install_log = File.expand_path("../../ext/install.log", __dir__)
 
     if File.exist?(install_log) && File.read(install_log) =~ /ERROR/
       config.alert_logger.error \

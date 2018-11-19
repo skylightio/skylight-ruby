@@ -3,7 +3,7 @@ require "pathname"
 module SpecHelper
   module Path
     def root
-      @root ||= Pathname.new(ENV.fetch("SKYLIGHT_TEST_DIR", File.expand_path("../../..", __FILE__)))
+      @root ||= Pathname.new(ENV.fetch("SKYLIGHT_TEST_DIR", File.expand_path("../..", __dir__)))
     end
 
     def tmp(*path)

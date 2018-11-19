@@ -4,14 +4,14 @@ require "yaml"
 require "logger"
 require "fileutils"
 
-$:.unshift File.expand_path("../../lib", __FILE__)
+$:.unshift File.expand_path("../lib", __dir__)
 
 require "skylight/version"
 
 # Don't use the gem for dev
-if File.exists?(File.expand_path("../../Gemfile", __FILE__))
+if File.exists?(File.expand_path("../Gemfile", __dir__))
   # This approach won't work in production since skylight-core isn't in the skylight gem
-  $:.unshift File.expand_path("../../skylight-core/lib", __FILE__)
+  $:.unshift File.expand_path("../skylight-core/lib", __dir__)
 else
   # Is there a better way to get this into lib?
   gem "skylight-core", Skylight::VERSION.tr("-", ".")
@@ -37,7 +37,7 @@ end
 
 include Skylight::Core::Util
 
-SKYLIGHT_INSTALL_LOG = File.expand_path("../install.log", __FILE__)
+SKYLIGHT_INSTALL_LOG = File.expand_path("install.log", __dir__)
 SKYLIGHT_REQUIRED   = ENV.key?("SKYLIGHT_REQUIRED") && ENV["SKYLIGHT_REQUIRED"] !~ /^false$/i
 SKYLIGHT_FETCH_LIB  = !ENV.key?("SKYLIGHT_FETCH_LIB") || ENV["SKYLIGHT_FETCH_LIB"] !~ /^false$/i
 
@@ -91,7 +91,7 @@ end
 #
 # === Setup paths
 #
-root              = File.expand_path("../", __FILE__)
+root              = File.expand_path(__dir__)
 hdrpath           = File.expand_path(SKYLIGHT_HDR_PATH)
 libpath           = File.expand_path(SKYLIGHT_LIB_PATH)
 libskylight       = File.expand_path("libskylight.#{Platform.libext}", libpath)
@@ -202,7 +202,7 @@ end
 $VPATH << libpath
 
 # Where the ruby binding src is
-SRC_PATH = File.expand_path("..", __FILE__)
+SRC_PATH = File.expand_path(__dir__)
 
 $srcs = Dir[File.expand_path("*.c", SRC_PATH)].map { |f| File.basename(f) }
 
@@ -250,4 +250,4 @@ if SKYLIGHT_EXT_STRICT
 end
 
 # TODO: Compute the relative path to the location
-create_makefile "skylight_native", File.expand_path("..", __FILE__) # or fail "could not create makefile"
+create_makefile "skylight_native", File.expand_path(__dir__) # or fail "could not create makefile"

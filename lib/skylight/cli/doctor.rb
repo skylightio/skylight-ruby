@@ -63,7 +63,7 @@ module Skylight
             say "Unable to load native extension", :yellow
 
             indent do
-              install_log = File.expand_path("../../../ext/install.log", __FILE__)
+              install_log = File.expand_path("../../ext/install.log", __dir__)
               if File.exist?(install_log)
                 File.readlines(install_log).each do |line|
                   say line, :red

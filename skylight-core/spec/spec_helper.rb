@@ -17,7 +17,7 @@ require "skylight/core"
 require_relative "shared_spec_helper"
 
 RSpec.configure do |config|
-  config.example_status_persistence_file_path = File.expand_path("../../tmp/rspec-examples.txt", __FILE__)
+  config.example_status_persistence_file_path = File.expand_path("../tmp/rspec-examples.txt", __dir__)
 
   config.include SpecHelper
 end
