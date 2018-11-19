@@ -19,7 +19,7 @@ if enable
       EngineNamespace::MyEngine.routes.draw do
         root to: ->(_env) { [204, {}, []] }
         get "/empty", to: ->(_env) { [204, {}, []] }, as: :empty
-        get "/error_from_router", to: ->(_env) { raise RuntimeError, "cannot even" }
+        get "/error_from_router", to: ->(_env) { raise "cannot even" }
         get "/error_from_controller", to: "application#error"
         get "/show", to: "application#show"
       end
