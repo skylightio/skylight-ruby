@@ -211,7 +211,7 @@ module Skylight
           end
         end
 
-        class ErrorResponse < Struct.new(:request, :exception)
+        ErrorResponse = Struct.new(:request, :exception) do
           def status
             nil
           end
