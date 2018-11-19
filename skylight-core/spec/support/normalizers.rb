@@ -27,7 +27,7 @@ module SpecHelper
       group = group[:parent_example_group] if group[:description].start_with?(BEHAVE_LIKE)
 
       description = group[:description_args]
-      name ||= description[1] ? description[1] : description[0]
+      name ||= description[1] || description[0]
 
       if meth == :normalize_after
         normalizers.normalize_after(trace, 0, name, payload)
