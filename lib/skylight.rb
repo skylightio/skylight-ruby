@@ -9,6 +9,9 @@ require "skylight/config"
 require "skylight/errors"
 require "skylight/native"
 
+# For prettier global names
+require "English"
+
 module Skylight
   # Used from the CLI
   autoload :CLI, "skylight/cli"

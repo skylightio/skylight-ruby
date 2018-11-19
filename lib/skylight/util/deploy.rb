@@ -111,7 +111,7 @@ module Skylight
           def get_info
             Dir.chdir(config.root) do
               info = `git log -1 --pretty="%H %s" 2>&1`
-              info.split(" ", 2).map(&:strip) if $?.success?
+              info.split(" ", 2).map(&:strip) if $CHILD_STATUS.success?
             end
           end
       end

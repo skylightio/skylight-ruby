@@ -139,7 +139,7 @@ module Skylight
           daemon_running = false
           while tries < 5
             `ps cax | grep skylightd`
-            if $?.success?
+            if $CHILD_STATUS.success?
               daemon_running = true
               break
             end

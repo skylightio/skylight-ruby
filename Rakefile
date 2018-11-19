@@ -2,6 +2,7 @@ require "bundler/setup"
 require "fileutils"
 require "rbconfig"
 require "rake/extensiontask"
+require "English"
 
 class ExtensionTask < Rake::ExtensionTask
   attr_accessor :native_lib_path
@@ -190,7 +191,7 @@ task run_travis_builds: :vagrant_up do
 
       # TODO: May need special handling for quotation marks
       system("vagrant ssh -c \"#{command}\"")
-      build["success"] = $?.success?
+      build["success"] = $CHILD_STATUS.success?
     end
   end
 

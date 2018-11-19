@@ -4,14 +4,14 @@ require "yaml"
 require "logger"
 require "fileutils"
 
-$:.unshift File.expand_path("../lib", __dir__)
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
 require "skylight/version"
 
 # Don't use the gem for dev
 if File.exist?(File.expand_path("../Gemfile", __dir__))
   # This approach won't work in production since skylight-core isn't in the skylight gem
-  $:.unshift File.expand_path("../skylight-core/lib", __dir__)
+  $LOAD_PATH.unshift File.expand_path("../skylight-core/lib", __dir__)
 else
   # Is there a better way to get this into lib?
   gem "skylight-core", Skylight::VERSION.tr("-", ".")
@@ -79,7 +79,7 @@ end
 if Platform::OS == "darwin"
   # If the user installs Xcode-only, they have to approve the
   # license or no "xc*" tool will work.
-  if `/usr/bin/xcrun clang 2>&1` =~ /license/ && !$?.success?
+  if `/usr/bin/xcrun clang 2>&1` =~ /license/ && !$CHILD_STATUS.success?
     fail <<-MESSAGE
 You have not agreed to the Xcode license and so we are unable to build the native agent.
 To resolve this, you can agree to the license by opening Xcode.app or running:
