@@ -41,8 +41,8 @@ if ENV["TEST_ELASTICSEARCH_INTEGRATION"]
         # Restore NetHTTP and HTTPClient probe constants
         Skylight::Core::Probes::NetHTTP::Probe    = TempNetHTTPProbe
         Skylight::Core::Probes::HTTPClient::Probe = TempHTTPClientProbe
-        Object.send(:remove_const, :'TempNetHTTPProbe')
-        Object.send(:remove_const, :'TempHTTPClientProbe')
+        Object.send(:remove_const, :TempNetHTTPProbe)
+        Object.send(:remove_const, :TempHTTPClientProbe)
       end
     end
   end

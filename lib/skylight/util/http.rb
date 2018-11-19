@@ -60,7 +60,7 @@ module Skylight
         @read_timeout = get_timeout(:read, config, service, opts)
 
         @deflate = config["#{service}_http_deflate"]
-        @authentication = config[:'authentication']
+        @authentication = config[:authentication]
       end
 
       def get(endpoint, hdrs = {})

@@ -39,7 +39,7 @@ module Skylight::Core
         "ENABLE_SIDEKIQ" => :enable_sidekiq,
 
         # == User config settings ==
-        "USER_CONFIG_PATH" => :'user_config_path',
+        "USER_CONFIG_PATH" => :user_config_path,
 
         # == Heroku settings ==
         "HEROKU_DYNO_INFO_PATH" => :'heroku.dyno_info_path'
