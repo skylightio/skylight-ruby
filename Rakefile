@@ -76,12 +76,14 @@ def travis_builds
   return @travis_builds if @travis_builds
 
   config = travis_config
+  stages = config["stages"]
   builds = []
 
   config["env"]["matrix"].each do |env|
     config["rvm"].each do |rvm|
       config["gemfile"].each do |gemfile|
         builds << {
+          "stage"   => "test",
           "env"     => Array(env).compact,
           "rvm"     => rvm,
           "gemfile" => gemfile
@@ -90,7 +92,7 @@ def travis_builds
     end
   end
 
-  config["matrix"]["exclude"].each do |build|
+  config["jobs"]["exclude"].each do |build|
     builds.reject! do |b|
       build.to_a.all? do |(k,v)|
         v = Array(v) if k == 'env'
@@ -99,17 +101,21 @@ def travis_builds
     end
   end
 
-  builds += config["matrix"]["include"]
+  builds += config["jobs"]["include"]
 
 
   builds.each do |b|
-    config["matrix"]["allow_failures"].each do |build|
+    config["jobs"]["allow_failures"].each do |build|
       b['allow_failure'] ||= build.to_a.all? do |(k,v)|
         v = Array(v) if k == 'env'
         b[k] == v
       end
     end
   end
+
+  # Group by stage
+  stage_groups = builds.group_by { |build| build['stage'] }
+  builds = stages.map { |stage| stage_groups[stage] }.flatten
 
   # Move allowed_failures to the end
   allowed_failures = builds.select{|b| b['allow_failure']}
