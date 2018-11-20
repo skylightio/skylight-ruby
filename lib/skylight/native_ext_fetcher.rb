@@ -21,19 +21,10 @@ module Skylight
 
     # Creates a new fetcher and fetches
     # @param opts [Hash]
-    def self.fetch(opts = {})
-      fetcher = new(
-        opts[:source] || BASE_URL,
-        opts[:target],
-        opts[:version],
-        opts[:checksum],
-        opts[:arch],
-        opts[:required],
-        opts[:platform],
-        opts[:logger] || Logger.new(STDOUT)
-      )
-
-      fetcher.fetch
+    def self.fetch(**args)
+      args[:source] ||= BASE_URL
+      args[:logger] ||= Logger.new(STDOUT)
+      new(**args).fetch
     end
 
     # @param source [String] the base url to download from
@@ -44,7 +35,7 @@ module Skylight
     # @param required [Boolean] whether the download is required to be successful
     # @param platform
     # @param log [Logger]
-    def initialize(source, target, version, checksum, arch, required, platform, log)
+    def initialize(source:, target:, version:, checksum:, arch:, required: false, platform: nil, logger:)
       raise "source required" unless source
       raise "target required" unless target
       raise "checksum required" unless checksum
@@ -57,7 +48,7 @@ module Skylight
       @required = required
       @platform = platform
       @arch = arch
-      @log = log
+      @logger = logger
     end
 
     # Fetch the native extension, verify, inflate, and save (if applicable)
@@ -240,7 +231,7 @@ module Skylight
     # @return [void]
     def log(msg)
       msg = "[SKYLIGHT] #{msg}"
-      @log.info msg
+      @logger.info msg
     end
 
     # Log an `error` to the `logger`
@@ -251,7 +242,7 @@ module Skylight
     def error(msg, err = nil)
       msg = "[SKYLIGHT] #{msg}"
       msg << "\n#{err.backtrace.join("\n")}" if err
-      @log.error msg
+      @logger.error msg
     end
   end
 end
