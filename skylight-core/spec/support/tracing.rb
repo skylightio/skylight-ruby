@@ -1,5 +1,4 @@
 module SpecHelper
-
   class MockTrace
     attr_accessor :endpoint, :segment
     attr_writer :instrumenter
@@ -12,7 +11,6 @@ module SpecHelper
       raise "missing instrumenter" unless @instrumenter
       @instrumenter
     end
-
   end
 
   def trace
@@ -27,6 +25,7 @@ module SpecHelper
     Messages::Event.new(
       category:    cat,
       title:       title,
-      description: desc)
+      description: desc
+    )
   end
 end

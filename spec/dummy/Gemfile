@@ -1,12 +1,12 @@
 source "http://rubygems.org"
 
 # Hacks for unreleased versions
-if ENV['RAILS_EDGE']
-  gem 'rack', git: 'https://github.com/rack/rack', branch: 'master'
-  gem 'arel', git: 'https://github.com/rails/arel', branch: 'master'
-  gem 'rails', git: 'https://github.com/rails/rails', branch: 'master'
+if ENV["RAILS_EDGE"]
+  gem "arel", git: "https://github.com/rails/arel", branch: "master"
+  gem "rack", git: "https://github.com/rack/rack", branch: "master"
+  gem "rails", git: "https://github.com/rails/rails", branch: "master"
 else
-  gem 'rails', ENV['RAILS_VERSION']
+  gem "rails", ENV["RAILS_VERSION"]
 end
 
-gem 'skylight', path: ENV['SKYLIGHT_GEM_PATH'] || "../../"
+gem "skylight", path: ENV["SKYLIGHT_GEM_PATH"] || "../../"

@@ -1,27 +1,26 @@
 module Skylight
   class NativeError < StandardError
-
-    @@classes = { }
+    @classes = {}
 
     def self.register(code, name, message)
-      if @@classes.has_key?(code)
+      if @classes.key?(code)
         raise "Duplicate error class code: #{code}; name=#{name}"
       end
 
-      Skylight.module_eval <<-ruby
+      Skylight.module_eval <<-RUBY, __FILE__, __LINE__ + 1
         class #{name}Error < NativeError
           def self.code; #{code}; end
           def self.message; #{message.to_json}; end
         end
-      ruby
+      RUBY
 
       klass = Skylight.const_get("#{name}Error")
 
-      @@classes[code] = klass
+      @classes[code] = klass
     end
 
     def self.for_code(code)
-      @@classes[code] || self
+      @classes[code] || self
     end
 
     attr_reader :method_name
@@ -36,7 +35,7 @@ module Skylight
 
     def initialize(method_name)
       @method_name = method_name
-      super(sprintf("[E%04d] %s [%s]", code, message, method_name))
+      super(format("[E%<code>04d] %<message>s [%<meth>s]", code: code, message: message, meth: method_name))
     end
 
     def code
@@ -44,7 +43,7 @@ module Skylight
     end
 
     def formatted_code
-      "%04d" % code
+      format("%04d", code)
     end
 
     # E0003
@@ -53,5 +52,4 @@ module Skylight
     # E0004
     register(4, "SqlLex", "Failed to lex SQL query.")
   end
-
 end

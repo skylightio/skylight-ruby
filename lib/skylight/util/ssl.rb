@@ -1,12 +1,12 @@
-require 'openssl'
+require "openssl"
 
 module Skylight
   module Util
     class SSL
-      DEFAULT_CA_FILE  = File.expand_path('../../data/cacert.pem', __FILE__)
+      DEFAULT_CA_FILE = File.expand_path("../data/cacert.pem", __dir__)
 
       def self.detect_ca_cert_file!
-        return nil if ENV['SKYLIGHT_FORCE_OWN_CERTS']
+        return nil if ENV["SKYLIGHT_FORCE_OWN_CERTS"]
 
         @ca_cert_file = false
         if defined?(OpenSSL::X509::DEFAULT_CERT_FILE)
@@ -19,7 +19,7 @@ module Skylight
       end
 
       def self.detect_ca_cert_dir!
-        return nil if ENV['SKYLIGHT_FORCE_OWN_CERTS']
+        return nil if ENV["SKYLIGHT_FORCE_OWN_CERTS"]
 
         @ca_cert_dir = false
         if defined?(OpenSSL::X509::DEFAULT_CERT_DIR)
@@ -46,8 +46,8 @@ module Skylight
         @ca_cert_file || DEFAULT_CA_FILE
       end
 
-      def self.ca_cert_dir
-        @ca_cert_dir
+      class << self
+        attr_reader :ca_cert_dir
       end
     end
   end

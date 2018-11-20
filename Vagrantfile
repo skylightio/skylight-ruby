@@ -2,10 +2,10 @@
 # vi: set ft=ruby :
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
-VAGRANTFILE_API_VERSION = "2"
+VAGRANTFILE_API_VERSION = "2".freeze
 
 unless Vagrant.has_plugin?("vagrant-vbguest")
-  raise 'The vbguest plugin is required. Install with `vagrant plugin install vagrant-vbguest`.'
+  raise "The vbguest plugin is required. Install with `vagrant plugin install vagrant-vbguest`."
 end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|

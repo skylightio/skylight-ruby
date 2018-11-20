@@ -5,7 +5,7 @@ module Skylight::Core
       include Util::AllocationFree
 
       def setup
-        @paths = config['normalizers.render.view_paths'] || []
+        @paths = config["normalizers.render.view_paths"] || []
       end
 
       # Generic normalizer for renders
@@ -14,12 +14,11 @@ module Skylight::Core
       # @option payload [String] :identifier
       # @return [Array]
       def normalize_render(category, payload)
-        if path = payload[:identifier]
+        if (path = payload[:identifier])
           title = relative_path(path)
-          path = nil if path == title
         end
 
-        [ category, title, nil ]
+        [category, title, nil]
       end
 
       def relative_path(path)
@@ -46,32 +45,34 @@ module Skylight::Core
         end
       end
 
-    private
-      def relative_path?(path)
-        !absolute_path?(path)
-      end
+      private
 
-      SEPARATOR_BYTE = File::SEPARATOR.ord
+        def relative_path?(path)
+          !absolute_path?(path)
+        end
 
-      if File.const_defined?(:NULL) ? File::NULL == "NUL" : RbConfig::CONFIG['host_os'] =~ /mingw|mswin32/
-        # This is a DOSish environment
-        ALT_SEPARATOR_BYTE = File::ALT_SEPARATOR && File::ALT_SEPARATOR.ord
-        COLON_BYTE = ":".ord
-        def absolute_path?(path)
-          if alpha?(path.getbyte(0)) && path.getbyte(1) == COLON_BYTE
-            byte2 = path.getbyte(2)
-            byte2 == SEPARATOR_BYTE || byte2 == ALT_SEPARATOR_BYTE
+        SEPARATOR_BYTE = File::SEPARATOR.ord
+
+        if File.const_defined?(:NULL) ? File::NULL == "NUL" : RbConfig::CONFIG["host_os"] =~ /mingw|mswin32/
+          # This is a DOSish environment
+          ALT_SEPARATOR_BYTE = File::ALT_SEPARATOR && File::ALT_SEPARATOR.ord
+          COLON_BYTE = ":".ord
+          SEPARATOR_BYTES = [SEPARATOR_BYTE, ALT_SEPARATOR_BYTE].freeze
+
+          def absolute_path?(path)
+            if alpha?(path.getbyte(0)) && path.getbyte(1) == COLON_BYTE
+              SEPARATOR_BYTES.include?(path.getbyte(2))
+            end
+          end
+
+          def alpha?(byte)
+            (byte >= 65 && byte <= 90) || (byte >= 97 && byte <= 122)
+          end
+        else
+          def absolute_path?(path)
+            path.getbyte(0) == SEPARATOR_BYTE
           end
         end
-
-        def alpha?(byte)
-          byte >= 65 and byte <= 90 || byte >= 97 and byte <= 122
-        end
-      else
-        def absolute_path?(path)
-          path.getbyte(0) == SEPARATOR_BYTE
-        end
-      end
     end
   end
 end

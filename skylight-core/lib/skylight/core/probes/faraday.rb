@@ -4,7 +4,7 @@ module Skylight::Core
       class Probe
         def install
           ::Faraday::Connection.class_eval do
-            alias initialize_without_sk initialize
+            alias_method :initialize_without_sk, :initialize
 
             def initialize(*args, &block)
               initialize_without_sk(*args, &block)
@@ -13,7 +13,6 @@ module Skylight::Core
             end
           end
         end
-
       end
     end
 

@@ -1,5 +1,4 @@
 module SpecHelper
-
   class TestClock < Skylight::Core::Util::Clock
     alias __tick tick
 
@@ -31,15 +30,13 @@ module SpecHelper
       @tick = nil
     end
 
-    def tick=(v)
-      @tick = v
-    end
+    attr_writer :tick
 
-  private
+    private
 
-    def __absolute_secs
-      Time.now.to_i
-    end
+      def __absolute_secs
+        Time.now.to_i
+      end
   end
 
   def mock_clock!
@@ -53,6 +50,6 @@ module SpecHelper
 
   def clock
     c = Skylight::Core::Util::Clock.default
-    c if TestClock === c
+    c.is_a?(TestClock) ? c : nil
   end
 end

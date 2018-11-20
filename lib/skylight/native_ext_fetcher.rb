@@ -1,17 +1,17 @@
-require 'uri'
-require 'logger'
-require 'net/http'
-require 'fileutils'
-require 'digest/sha2'
-require 'open3'
-require 'skylight/util/ssl'
-require 'skylight/core/util/proxy'
+require "uri"
+require "logger"
+require "net/http"
+require "fileutils"
+require "digest/sha2"
+require "open3"
+require "skylight/util/ssl"
+require "skylight/core/util/proxy"
 
 # Used from extconf.rb
 module Skylight
   # Utility class for fetching the native extension from a URL
   class NativeExtFetcher
-    BASE_URL = "https://s3.amazonaws.com/skylight-agent-packages/skylight-native"
+    BASE_URL = "https://s3.amazonaws.com/skylight-agent-packages/skylight-native".freeze
     MAX_REDIRECTS = 5
     MAX_RETRIES = 3
 
@@ -21,18 +21,10 @@ module Skylight
 
     # Creates a new fetcher and fetches
     # @param opts [Hash]
-    def self.fetch(opts = {})
-      fetcher = new(
-        opts[:source] || BASE_URL,
-        opts[:target],
-        opts[:version],
-        opts[:checksum],
-        opts[:arch],
-        opts[:required],
-        opts[:platform],
-        opts[:logger] || Logger.new(STDOUT))
-
-      fetcher.fetch
+    def self.fetch(**args)
+      args[:source] ||= BASE_URL
+      args[:logger] ||= Logger.new(STDOUT)
+      new(**args).fetch
     end
 
     # @param source [String] the base url to download from
@@ -43,7 +35,7 @@ module Skylight
     # @param required [Boolean] whether the download is required to be successful
     # @param platform
     # @param log [Logger]
-    def initialize(source, target, version, checksum, arch, required, platform, log)
+    def initialize(source:, target:, version:, checksum:, arch:, required: false, platform: nil, logger:)
       raise "source required" unless source
       raise "target required" unless target
       raise "checksum required" unless checksum
@@ -56,7 +48,7 @@ module Skylight
       @required = required
       @platform = platform
       @arch = arch
-      @log = log
+      @logger = logger
     end
 
     # Fetch the native extension, verify, inflate, and save (if applicable)
@@ -68,7 +60,7 @@ module Skylight
 
       tar_gz = "#{@target}/#{basename}"
 
-      unless sha2 = fetch_native_ext(source_uri, tar_gz, MAX_RETRIES, MAX_REDIRECTS)
+      unless (sha2 = fetch_native_ext(source_uri, tar_gz, MAX_RETRIES, MAX_REDIRECTS))
         maybe_raise "could not fetch native extension"
         return
       end
@@ -91,7 +83,7 @@ module Skylight
     end
 
     def fetch_native_ext(uri, out, attempts, redirects)
-      redirects.times do |i|
+      redirects.times do
         # Ensure the location is available
         mkdir_p File.dirname(out)
         rm_f out
@@ -103,7 +95,7 @@ module Skylight
         begin
           host, port, use_ssl, path = deconstruct_uri(uri)
 
-          File.open out, 'w' do |f|
+          File.open out, "w" do |f|
             res, extra = http_get(host, port, use_ssl, path, f)
 
             case res
@@ -132,7 +124,7 @@ module Skylight
       end
 
       log "exceeded max redirects"
-      return
+      nil
     end
 
     # Get with `Net::HTTP`
@@ -145,10 +137,11 @@ module Skylight
     #
     # If `ENV['HTTP_PROXY']` is set, it will be used as a proxy for this request.
     def http_get(host, port, use_ssl, path, out)
-      if http_proxy = Core::Util::Proxy.detect_url(ENV)
+      if (http_proxy = Core::Util::Proxy.detect_url(ENV))
         log "connecting with proxy: #{http_proxy}"
         uri = URI.parse(http_proxy)
-        p_host, p_port = uri.host, uri.port
+        p_host = uri.host
+        p_port = uri.port
         p_user, p_pass = uri.userinfo.split(/:/) if uri.userinfo
       end
 
@@ -170,13 +163,13 @@ module Skylight
               out.write chunk
             end
 
-            return [ :success, digest.hexdigest ]
+            return [:success, digest.hexdigest]
           when Net::HTTPRedirection
-            unless location = resp['location']
+            unless (location = resp["location"])
               raise "received redirect but no location"
             end
 
-            return [ :redirect, location ]
+            return [:redirect, location]
           else
             raise "received HTTP status code #{resp.code}"
           end
@@ -217,7 +210,7 @@ module Skylight
     # @return [Array<String>] the host, port, scheme, and request_uri
     def deconstruct_uri(uri)
       uri = URI(uri)
-      [ uri.host, uri.port, uri.scheme == 'https', uri.request_uri ]
+      [uri.host, uri.port, uri.scheme == "https", uri.request_uri]
     end
 
     # Log an error and raise if `required` is `true`
@@ -238,7 +231,7 @@ module Skylight
     # @return [void]
     def log(msg)
       msg = "[SKYLIGHT] #{msg}"
-      @log.info msg
+      @logger.info msg
     end
 
     # Log an `error` to the `logger`
@@ -246,10 +239,10 @@ module Skylight
     # @param msg [String]
     # @param e [Exception] the exception associated with the error
     # @return [void]
-    def error(msg, e=nil)
+    def error(msg, err = nil)
       msg = "[SKYLIGHT] #{msg}"
-      msg << "\n#{e.backtrace.join("\n")}" if e
-      @log.error msg
+      msg << "\n#{err.backtrace.join("\n")}" if err
+      @logger.error msg
     end
   end
 end

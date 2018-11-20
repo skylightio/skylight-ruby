@@ -9,10 +9,10 @@ module Skylight::Core
 
         CAT = "db.couch_db.query".freeze
 
-        def normalize(trace, name, payload)
+        def normalize(_trace, name, payload)
           description = payload[:name] if payload
-          _name = name.sub('couch_potato.', '')
-          [CAT, _name, description]
+          name = name.sub("couch_potato.", "")
+          [CAT, name, description]
         end
       end
     end

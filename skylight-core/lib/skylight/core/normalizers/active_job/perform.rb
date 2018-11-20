@@ -7,13 +7,13 @@ module Skylight::Core
         CAT = "app.job.perform".freeze
 
         def normalize(trace, _name, payload)
-          title = "#{payload[:job].class}"
+          title = payload[:job].class.to_s
           adapter_name = normalize_adapter_name(payload[:adapter])
           desc = "{ adapter: '#{adapter_name}', queue: '#{payload[:job].queue_name}' }"
 
           trace.endpoint = title
 
-          [ CAT, title, desc ]
+          [CAT, title, desc]
         end
 
         def normalize_after(trace, _span, _name, payload)
@@ -23,12 +23,12 @@ module Skylight::Core
 
         private
 
-        def normalize_adapter_name(adapter)
-          adapter_string = adapter.is_a?(Class) ? adapter.to_s : adapter.class.to_s
-          adapter_string[/ActiveJob::QueueAdapters::(\w+)Adapter/, 1].underscore
-        rescue
-          'active_job'
-        end
+          def normalize_adapter_name(adapter)
+            adapter_string = adapter.is_a?(Class) ? adapter.to_s : adapter.class.to_s
+            adapter_string[/ActiveJob::QueueAdapters::(\w+)Adapter/, 1].underscore
+          rescue
+            "active_job"
+          end
       end
     end
   end

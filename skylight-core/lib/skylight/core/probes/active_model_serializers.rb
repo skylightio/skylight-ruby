@@ -6,15 +6,17 @@ module Skylight::Core
           version = nil
 
           # File moved location between version
-          %w(serializer serializers).each do |dir|
+          %w[serializer serializers].each do |dir|
+            # rubocop:disable Lint/HandleExceptions
             begin
               require "active_model/#{dir}/version"
             rescue LoadError
             end
+            # rubocop:enable Lint/HandleExceptions
           end
 
-          if Gem.loaded_specs['active_model_serializers']
-            version = Gem.loaded_specs['active_model_serializers'].version
+          if Gem.loaded_specs["active_model_serializers"]
+            version = Gem.loaded_specs["active_model_serializers"].version
           end
 
           if !version || version < Gem::Version.new("0.5.0")
@@ -36,16 +38,15 @@ module Skylight::Core
 
           [::ActiveModel::Serializer, ::ActiveModel::ArraySerializer].each do |klass|
             klass.class_eval do
-              alias as_json_without_sk as_json
+              alias_method :as_json_without_sk, :as_json
               def as_json(*args)
                 payload = { serializer: self.class }
-                ActiveSupport::Notifications.instrument('render.active_model_serializers', payload) do
+                ActiveSupport::Notifications.instrument("render.active_model_serializers", payload) do
                   as_json_without_sk(*args)
                 end
               end
             end
           end
-
         end
       end
     end

@@ -3,14 +3,14 @@ module Skylight::Core
     module Sinatra
       class Probe
         def install
-          if ::Sinatra::VERSION < '1.4.0'
+          if ::Sinatra::VERSION < "1.4.0"
             # Using $stderr here isn't great, but we don't have a logger accessible
             $stderr.puts "[SKYLIGHT::CORE] [#{Skylight::VERSION}] Sinatra must be version 1.4.0 or greater."
             return
           end
 
           class << ::Sinatra::Base
-            alias compile_without_sk! compile!
+            alias_method :compile_without_sk!, :compile!
 
             def compile!(verb, path, *args, &block)
               compile_without_sk!(verb, path, *args, &block).tap do |_, _, keys_or_wrapper, wrapper|
@@ -29,14 +29,14 @@ module Skylight::Core
           end
 
           ::Sinatra::Base.class_eval do
-            alias dispatch_without_sk! dispatch!
-            alias compile_template_without_sk compile_template
+            alias_method :dispatch_without_sk!, :dispatch!
+            alias_method :compile_template_without_sk, :compile_template
 
             def dispatch!(*args, &block)
               dispatch_without_sk!(*args, &block).tap do
                 Skylight::Core::Fanout.each_trace do |trace|
                   # Set the endpoint name to the route name
-                  route = env['sinatra.route']
+                  route = env["sinatra.route"]
                   trace.endpoint = route if route
                 end
               end
@@ -45,12 +45,7 @@ module Skylight::Core
             def compile_template(engine, data, options, *args, &block)
               # Pass along a useful "virtual path" to Tilt. The Tilt probe will handle
               # instrumenting correctly.
-              case data
-              when Symbol
-                options[:sky_virtual_path] = data.to_s
-              else
-                options[:sky_virtual_path] = "Inline template (#{engine})"
-              end
+              options[:sky_virtual_path] = data.is_a?(Symbol) ? data.to_s : "Inline template (#{engine})"
 
               compile_template_without_sk(engine, data, options, *args, &block)
             end

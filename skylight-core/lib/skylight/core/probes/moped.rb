@@ -2,7 +2,6 @@ module Skylight::Core
   module Probes
     module Moped
       class Probe
-
         def install
           unless defined?(::Moped::Instrumentable)
             # Using $stderr here isn't great, but we don't have a logger accessible
@@ -13,24 +12,24 @@ module Skylight::Core
           end
 
           ::Moped::Instrumentable.module_eval do
-            alias instrument_without_sk instrument
+            alias_method :instrument_without_sk, :instrument
 
             def instrument(*args, &block)
               # Mongoid sets the instrumenter to AS::N
-              if instrumenter == ActiveSupport::Notifications
-                asn_block = block
-              else
-                # If the instrumenter hasn't been changed to AS::N use both
-                asn_block = Proc.new do
-                  ActiveSupport::Notifications.instrument(*args, &block)
+              asn_block =
+                if instrumenter == ActiveSupport::Notifications
+                  block
+                else
+                  # If the instrumenter hasn't been changed to AS::N use both
+                  proc do
+                    ActiveSupport::Notifications.instrument(*args, &block)
+                  end
                 end
-              end
 
               instrument_without_sk(*args, &asn_block)
             end
           end
         end
-
       end
     end
 

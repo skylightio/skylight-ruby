@@ -6,7 +6,7 @@ module Skylight::Core
 
         CAT = "app.grape.filters".freeze
 
-        def normalize(trace, name, payload)
+        def normalize(_trace, _name, payload)
           filters = payload[:filters]
           type = payload[:type]
 
@@ -16,7 +16,6 @@ module Skylight::Core
 
           [CAT, "#{type.to_s.capitalize} Filters", nil]
         end
-
       end
     end
   end

@@ -1,7 +1,7 @@
-require 'ostruct'
-require 'skylight/util/http'
-require 'thor'
-require 'highline'
+require "ostruct"
+require "skylight/util/http"
+require "thor"
+require "highline"
 
 module Skylight
   module CLI
@@ -13,9 +13,9 @@ module Skylight
       end
 
       STRINGS = {
-        get_token: 'get your merge token from `https://www.skylight.io/merging`',
+        get_token: "get your merge token from `https://www.skylight.io/merging`",
         unlisted: "My app isn't listed here :("
-      }
+      }.freeze
 
       argument :merge_token, type: :string, desc: STRINGS[:get_token]
 
@@ -86,8 +86,8 @@ module Skylight
         i = ask("\nWhich number?").chomp.to_i
 
         @child_env = case i
-                     when 1 then 'development'
-                     when 2 then 'staging'
+                     when 1 then "development"
+                     when 2 then "staging"
                      when 3
                        specify_child_env
                      else
@@ -130,15 +130,15 @@ module Skylight
         say "IMPORTANT!\n" \
           "If you use a config/skylight.yml file to configure Skylight:\n", :yellow
 
-        say "The #@child_env environment for the #{@parent_app.name} app\n" \
+        say "The #{@child_env} environment for the #{@parent_app.name} app\n" \
           "will now connect using the default authentication token for the app.\n" \
           "Remove any environment-specific `authentication` configs from the\n" \
-          "#{@parent_app.name} #@child_env environment.\n", :yellow
+          "#{@parent_app.name} #{@child_env} environment.\n", :yellow
 
-        say "If you're running in Rails and your Rails environment exactly matches `#@child_env`,\n" \
+        say "If you're running in Rails and your Rails environment exactly matches `#{@child_env}`,\n" \
           "we will automatically detect and report that environment when your agent connects.\n" \
-          "Otherwise, you should set `env: '#@child_env'` as environment-specific configuration for\n" \
-          "#@child_env's Rails environment. For example:\n" \
+          "Otherwise, you should set `env: '#{@child_env}'` as environment-specific configuration for\n" \
+          "#{@child_env}'s Rails environment. For example:\n" \
           "```yml\n" \
           "staging:\n" \
           "  env: staging-42\n" \
@@ -151,14 +151,14 @@ module Skylight
 
         say "Deploy the latest agent before updating your environment variables.\n", :yellow
 
-        say "The #@child_env environment for the #{@parent_app.name} app\n" \
+        say "The #{@child_env} environment for the #{@parent_app.name} app\n" \
           "will now connect using the default authentication token for the app.\n" \
-          "Set `SKYLIGHT_AUTHENTICATION` in the #@child_env environment to the\n" \
+          "Set `SKYLIGHT_AUTHENTICATION` in the #{@child_env} environment to the\n" \
           "#{@parent_app.name} app's authentication token.\n", :yellow
 
-        say "If you're running in Rails and your Rails environment exactly matches `#@child_env`,\n" \
+        say "If you're running in Rails and your Rails environment exactly matches `#{@child_env}`,\n" \
           "we will automatically detect and report that environment when your agent connects.\n" \
-          "Otherwise, you should set `SKYLIGHT_ENV=#@child_env` when running in this environment.\n", :yellow
+          "Otherwise, you should set `SKYLIGHT_ENV=#{@child_env}` when running in this environment.\n", :yellow
 
         say "=======================================================", :yellow
 
@@ -167,131 +167,134 @@ module Skylight
 
       private
 
-      def do_merge
-        say "Merging..."
+        def do_merge
+          say "Merging..."
 
-        api.merge_apps!(@merge_token,
-                        app_guid: @parent_app.guid,
-                        component_guid: @child_app.guid,
-                        environment: @child_env
-                       )
-      rescue => e
-        say("Something went wrong. Please contact support@skylight.io for more information.", :red)
-        done!(message: e.message, success: false)
-      end
-
-      def done!(message: nil, success: true)
-        shell.padding = 0
-        say "\n"
-
-        if success
-          say(message, :green) if message
-          say "If you have any questions, please contact support@skylight.io.", :green
-          exit 0
-        else
-          say message || "Skylight wasn't able to merge your apps.", :red
-          say "If you have any questions, please contact support@skylight.io.", :yellow
-          exit 1
-        end
-      end
-
-      def ask_for_app(app_list, &formatter)
-        formatter ||= :name.to_proc
-        app_list.each do |index, app|
-          say("\t#{index}. #{formatter.(app)}")
+          api.merge_apps!(@merge_token,
+                          app_guid: @parent_app.guid,
+                          component_guid: @child_app.guid,
+                          environment: @child_env)
+        rescue => e
+          say("Something went wrong. Please contact support@skylight.io for more information.", :red)
+          done!(message: e.message, success: false)
         end
 
-        n = ask("\nWhich number?").chomp.to_i
+        def done!(message: nil, success: true)
+          shell.padding = 0
+          say "\n"
 
-        if !app_list.key?(n)
-          say "\nHmm?"
-          ask_for_app(app_list, &formatter)
-        elsif app_list[n].unlisted
-          done!(
-            success: false,
-            message: "Sorry, `skylight merge` is only able to merge apps that you own."
-          )
-        else
-          app_list[n]
-        end
-      end
-
-      def api
-        @api ||= Skylight::Api.new(config)
-      end
-
-      def format_component(component)
-        parts = [].tap do |ary|
-          ary << component.name unless component.name == 'web'
-          ary << component.environment unless component.environment == 'production'
+          if success
+            say(message, :green) if message
+            say "If you have any questions, please contact support@skylight.io.", :green
+            exit 0
+          else
+            say message || "Skylight wasn't able to merge your apps.", :red
+            say "If you have any questions, please contact support@skylight.io.", :yellow
+            exit 1
+          end
         end
 
-        str = ''
-        str << component.app_name
-        str << Thor::Shell::Color.new.set_color(" (#{parts.join(':')})", :yellow) if parts.any?
-        str
-      end
-
-      def validate_mergeability(child_app, child_env)
-        errors = []
-
-        unless valid_component?(child_app.name, child_env)
-          errors << "Environment can only contain letters, numbers, and hyphens."
-        end
-
-        if @parent_app && parent_component_fingerprints.include?([child_app.name, child_env])
-          errors << "Sorry, `#{@parent_app.name}` already has a `#{child_env}` " \
-            "component that conflicts with this merge request. Please choose a new environment."
-        end
-
-        return child_env unless errors.any?
-
-        say errors.join("\n"), :red
-
-        yield
-      end
-
-      def valid_component?(component_name, env)
-        return false unless env
-        Skylight::Util::Component.new(env, component_name) && true
-      rescue ArgumentError
-        false
-      end
-
-      def parent_component_fingerprints
-        @parent_app.components.map { |x| x.values_at('name', 'environment') }
-      end
-
-      def children
-        Enumerator.new do |yielder|
-          @parents.each do |_, app|
-            next if app == @parent_app
-            app.components.each do |component|
-              yielder << OpenStruct.new({ app_name: app.name }.merge(component))
-            end
+        def ask_for_app(app_list, &formatter)
+          formatter ||= :name.to_proc
+          app_list.each do |index, app|
+            say("\t#{index}. #{formatter.call(app)}")
           end
 
-          yielder << OpenStruct.new({ app_name: STRINGS[:unlisted], unlisted: true })
-        end.each_with_object({}).with_index do |(c, r), i|
-          r[i + 1] = c
-        end.tap do |result|
-          if result.values.all?(&:unlisted)
+          n = ask("\nWhich number?").chomp.to_i
+
+          if !app_list.key?(n)
+            say "\nHmm?"
+            ask_for_app(app_list, &formatter)
+          elsif app_list[n].unlisted
             done!(
               success: false,
-              message: "Sorry, you do not have any apps that can be merged into `#{@parent_app.name}`"
+              message: "Sorry, `skylight merge` is only able to merge apps that you own."
             )
+          else
+            app_list[n]
           end
         end
-      end
 
-      def specify_child_env
-        validate_mergeability(
-          @child_app,
-          ask("Please enter your environment name (only lowercase letters, numbers, or hyphens): ", :green).chomp
-        ) do
-          specify_child_env
+        def api
+          @api ||= Skylight::Api.new(config)
         end
-      end
+
+        def format_component(component)
+          parts = [].tap do |ary|
+            ary << component.name unless component.name == "web"
+            ary << component.environment unless component.environment == "production"
+          end
+
+          str = ""
+          str << component.app_name
+          str << Thor::Shell::Color.new.set_color(" (#{parts.join(':')})", :yellow) if parts.any?
+          str
+        end
+
+        def validate_mergeability(child_app, child_env)
+          errors = []
+
+          unless valid_component?(child_app.name, child_env)
+            errors << "Environment can only contain letters, numbers, and hyphens."
+          end
+
+          if @parent_app && parent_component_fingerprints.include?([child_app.name, child_env])
+            errors << "Sorry, `#{@parent_app.name}` already has a `#{child_env}` " \
+              "component that conflicts with this merge request. Please choose a new environment."
+          end
+
+          return child_env unless errors.any?
+
+          say errors.join("\n"), :red
+
+          yield
+        end
+
+        def valid_component?(component_name, env)
+          return false unless env
+          Skylight::Util::Component.new(env, component_name) && true
+        rescue ArgumentError
+          false
+        end
+
+        def parent_component_fingerprints
+          @parent_app.components.map { |x| x.values_at("name", "environment") }
+        end
+
+        def children
+          ret = Enumerator.new do |yielder|
+            @parents.each do |_, app|
+              next if app == @parent_app
+              app.components.each do |component|
+                yielder << OpenStruct.new({ app_name: app.name }.merge(component))
+              end
+            end
+
+            yielder << OpenStruct.new(app_name: STRINGS[:unlisted], unlisted: true)
+          end
+
+          ret = ret.each_with_object({}).with_index do |(c, r), i|
+            r[i + 1] = c
+          end
+
+          ret.tap do |result|
+            if result.values.all?(&:unlisted)
+              done!(
+                success: false,
+                message: "Sorry, you do not have any apps that can be merged into `#{@parent_app.name}`"
+              )
+            end
+          end
+        end
+
+        def specify_child_env
+          validate_mergeability(
+            @child_app,
+            ask("Please enter your environment name (only lowercase letters, numbers, or hyphens): ", :green).chomp
+          ) do
+            specify_child_env
+          end
+        end
     end
   end
 end

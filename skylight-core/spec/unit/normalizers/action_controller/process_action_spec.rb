@@ -1,8 +1,7 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Skylight
   describe "Normalizers", "process_action.action_controller", :agent do
-
     before :each do
       @original_enable_segments = config.enable_segments?
       config.set(:enable_segments, true)
@@ -21,10 +20,9 @@ module Skylight
     it "updates with additional format information" do
       normalize(controller: "foo", action: "bar", format: "json")
       expect(trace.endpoint).to eq("foo#bar")
-      normalize_after(controller: "foo", action: "bar", format: "*/*", rendered_format: 'json', variant: [:tablet], status: 200)
+      normalize_after(controller: "foo", action: "bar", format: "*/*", rendered_format: "json", variant: [:tablet], status: 200)
       expect(trace.endpoint).to eq("foo#bar")
       expect(trace.segment).to eq("json+tablet")
     end
-
   end
 end

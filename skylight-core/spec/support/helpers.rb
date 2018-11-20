@@ -1,7 +1,5 @@
 module SpecHelper
-
   class MockGC
-
     def initialize
       @enabled = false
     end
@@ -17,10 +15,9 @@ module SpecHelper
     def total_time
       0
     end
-
   end
 
-  def instrument(cat, *args, &blk)
+  def instrument(cat, *_args, &blk)
     ActiveSupport::Notifications.instrument(cat, {}, &blk)
   end
 
@@ -29,7 +26,7 @@ module SpecHelper
   end
 
   def agent_strategy
-    'embedded'
+    "embedded"
   end
 
   def metrics_report_interval
@@ -37,14 +34,14 @@ module SpecHelper
   end
 
   def log_path
-    '-'
+    "-"
   end
 
   def test_config_values
     @test_config_values ||= {
       authentication: SecureRandom.uuid,
       log: log_path,
-      log_level: ENV['DEBUG'] ? :debug : :fatal,
+      log_level: ENV["DEBUG"] ? :debug : :fatal,
       user_config_path: tmp("user_config.yml"),
       report_url: "http://127.0.0.1:#{port}/report",
       report_http_deflate: false,
@@ -63,7 +60,7 @@ module SpecHelper
       daemon: {
         sockdir_path: sockdir_path,
         batch_flush_interval: "1sec"
-      }.freeze,
+      }.freeze
     }.freeze
   end
 

@@ -1,17 +1,16 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
-
+describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   class CustomType < Net::HTTPRequest
-    METHOD = "CUSTOM"
+    METHOD = "CUSTOM".freeze
     REQUEST_HAS_BODY = false
     RESPONSE_HAS_BODY = false
   end
 
   before(:each) do
     server.mock "/test.html" do
-      ret = 'Testing'
-      [ 200, { 'content-type' => 'text/plain', 'content-length' => ret.bytesize.to_s }, [ret] ]
+      ret = "Testing"
+      [200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret]]
     end
   end
 
@@ -37,7 +36,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments verbose requests" do
-     expected = {
+    expected = {
       category: "api.http.get",
       title: "GET 127.0.0.1",
       meta: { host: "127.0.0.1" }
@@ -75,13 +74,13 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
 
     expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
 
-    response = Net::HTTP.post_form(uri, {"q" => "My query", "per_page" => "50"})
+    response = Net::HTTP.post_form(uri, "q" => "My query", "per_page" => "50")
 
     expect(response).to be_a(Net::HTTPOK)
   end
 
   it "instruments post requests" do
-     expected = {
+    expected = {
       category: "api.http.post",
       title: "POST 127.0.0.1",
       meta: { host: "127.0.0.1" }
@@ -91,7 +90,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Post.new(uri.request_uri)
-    request.set_form_data({"q" => "My query", "per_page" => "50"})
+    request.set_form_data("q" => "My query", "per_page" => "50")
     response = http.request(request)
 
     expect(response).to be_a(Net::HTTPOK)
@@ -116,7 +115,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   end
 
   it "instruments PUT requests" do
-     expected = {
+    expected = {
       category: "api.http.put",
       title: "PUT 127.0.0.1",
       meta: { host: "127.0.0.1" }
@@ -126,7 +125,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Put.new(uri.request_uri)
-    request.set_form_data({"users[login]" => "changed"})
+    request.set_form_data("users[login]" => "changed")
     response = http.request(request)
 
     expect(response).to be_a(Net::HTTPOK)
@@ -143,7 +142,7 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Delete.new(uri.request_uri)
-    request.set_form_data({"users[login]" => "changed"})
+    request.set_form_data("users[login]" => "changed")
     response = http.request(request)
 
     expect(response).to be_a(Net::HTTPOK)
@@ -152,8 +151,8 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
   it "instruments timedout requests" do
     server.mock "/slow.html" do
       sleep 2
-      ret = 'Slow'
-      [ 200, { 'content-type' => 'text/plain', 'content-length' => ret.bytesize.to_s }, [ret] ]
+      ret = "Slow"
+      [200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret]]
     end
 
     uri = URI.parse("#{server_uri}/slow.html")
@@ -170,9 +169,9 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
     http.open_timeout = 0.1 # in seconds
     http.read_timeout = 0.1 # in seconds
 
-    expect {
+    expect do
       http.request(Net::HTTP::Get.new(uri.request_uri))
-    }.to raise_error(defined?(Net::ReadTimeout) ? Net::ReadTimeout : Timeout::Error)
+    end.to raise_error(defined?(Net::ReadTimeout) ? Net::ReadTimeout : Timeout::Error)
   end
 
   it "instruments non-URI requests" do
@@ -231,7 +230,6 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
 
     expect(TestNamespace).to receive(:instrument).with(expected).twice.and_call_original
 
-
     http = Net::HTTP.new(uri.host, uri.port)
     response1 = http.request(Net::HTTP::Get.new(uri.request_uri))
     response2 = http.request(Net::HTTP::Get.new(uri.request_uri))
@@ -248,5 +246,4 @@ describe 'Net::HTTP integration', :net_http_probe, :http, :agent do
       expect(response).to be_a(Net::HTTPOK)
     end
   end
-
 end

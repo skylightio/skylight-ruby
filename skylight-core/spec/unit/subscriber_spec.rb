@@ -1,8 +1,8 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Skylight::Core
   describe Subscriber do
-    let(:config) { Config.new(foo: 'hello') }
+    let(:config) { Config.new(foo: "hello") }
     let(:subscriber) { Subscriber.new(config, Object.new) }
 
     around do |ex|
@@ -21,9 +21,9 @@ module Skylight::Core
       ActiveSupport::Notifications.notifier.instance_variable_get(:@subscribers)
     end
 
-    let(:unsub_key) { 'render.active_model_serializers' }
+    let(:unsub_key) { "render.active_model_serializers" }
 
-    specify('unsubscribing from a string does not unsub from everything') do
+    specify("unsubscribing from a string does not unsub from everything") do
       original_count = count_sk_subscribers
 
       # Note: do not want to rely on a specific count here (as of this writing,
@@ -31,9 +31,9 @@ module Skylight::Core
       # (ensure that we're not unsubscribing *all* skylight listeners)
       expect(original_count).to be > 1
 
-      expect {
+      expect do
         ActiveSupport::Notifications.unsubscribe(unsub_key)
-      }.to change {
+      end.to change {
         count_sk_subscribers(ActiveSupport::Notifications.notifier.listeners_for(unsub_key))
       }.from(1).to(0)
 

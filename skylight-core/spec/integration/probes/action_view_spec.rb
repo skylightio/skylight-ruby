@@ -1,9 +1,9 @@
-require 'spec_helper'
+require "spec_helper"
 
 if defined?(ActionPack)
   CUR_VER = Gem::Version.new("#{ActionPack::VERSION::MAJOR}.#{ActionPack::VERSION::MINOR}")
 
-  describe 'ActionView integration', :action_view_probe, :agent do
+  describe "ActionView integration", :action_view_probe, :agent do
     class Context
       include ::ActionView::Context
 
@@ -11,7 +11,7 @@ if defined?(ActionPack)
         _prepare_context
       end
 
-      def find_all(name, *args)
+      def find_all(name, *_args)
         handler = ::ActionView::Template.handler_for_extension("erb")
         case name
         when "our-layout"
@@ -49,12 +49,8 @@ if defined?(ActionPack)
     end
 
     def render_plain(renderer, context, opts)
-      if CUR_VER < Gem::Version.new("5.0")
-        opts[:text] = opts.delete(:plain)
-        renderer.render(context, opts)
-      else
-        renderer.render(context, opts)
-      end
+      opts[:text] = opts.delete(:plain) if CUR_VER < Gem::Version.new("5.0")
+      renderer.render(context, opts)
     end
 
     it "instruments layouts when :text is used with a layout" do
@@ -70,7 +66,7 @@ if defined?(ActionPack)
       expect(render_plain(renderer, context, plain: "Hello World")).to eq("Hello World")
 
       expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
-        ["render_template.action_view", "text template"],
+        ["render_template.action_view", "text template"]
       ])
     end
 
@@ -87,7 +83,7 @@ if defined?(ActionPack)
       expect(renderer.render(context, inline: "Hello World")).to eq("Hello World")
 
       expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
-        ["render_template.action_view", "inline template"],
+        ["render_template.action_view", "inline template"]
       ])
     end
 
@@ -104,7 +100,7 @@ if defined?(ActionPack)
       expect(renderer.render(context, template: "our-template")).to eq("Hello World")
 
       expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
-        ["render_template.action_view", "test template"],
+        ["render_template.action_view", "test template"]
       ])
     end
   end

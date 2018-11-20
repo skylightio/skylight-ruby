@@ -7,8 +7,8 @@ module Skylight::Core
         CAT = "app.cache.clear".freeze
         TITLE = "cache clear".freeze
 
-        def normalize(trace, name, payload)
-          [ CAT, TITLE, nil ]
+        def normalize(_trace, _name, _payload)
+          [CAT, TITLE, nil]
         end
       end
     end

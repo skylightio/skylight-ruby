@@ -1,4 +1,4 @@
-require 'pathname'
+require "pathname"
 
 module Skylight::Core
   # @api private
@@ -19,7 +19,6 @@ module Skylight::Core
     end
 
     class << self
-
       def paths
         @paths ||= []
       end
@@ -27,7 +26,7 @@ module Skylight::Core
       def add_path(path)
         root = Pathname.new(path)
         Pathname.glob(root.join("./**/*.rb")).each do |f|
-          name = f.relative_path_from(root).sub_ext('').to_s
+          name = f.relative_path_from(root).sub_ext("").to_s
           if available.key?(name)
             raise "duplicate probe name: #{name}; original=#{available[name]}; new=#{f}"
           end
@@ -58,14 +57,14 @@ module Skylight::Core
         @installed ||= {}
       end
 
-      def is_available?(klass_name)
+      def available?(klass_name)
         !!Skylight::Core::Util::Inflector.safe_constantize(klass_name)
       end
 
       def register(name, *args)
         registration = ProbeRegistration.new(name, *args)
 
-        if is_available?(registration.klass_name)
+        if available?(registration.klass_name)
           installed[registration.klass_name] = registration
           registration.install
         else
@@ -78,7 +77,7 @@ module Skylight::Core
         return unless registration
 
         # Double check constant is available
-        if is_available?(registration.klass_name)
+        if available?(registration.klass_name)
           installed[registration.klass_name] = registration
           registration.install
 
@@ -113,17 +112,17 @@ end
 module ::Kernel
   private
 
-  alias require_without_sk require
+    alias require_without_sk require
 
-  def require(name)
-    ret = require_without_sk(name)
+    def require(name)
+      ret = require_without_sk(name)
 
-    begin
-      Skylight::Core::Probes.require_hook(name)
-    rescue Exception
-      # FIXME: Log these errors
+      begin
+        Skylight::Core::Probes.require_hook(name)
+      rescue Exception
+        # FIXME: Log these errors
+      end
+
+      ret
     end
-
-    ret
-  end
 end

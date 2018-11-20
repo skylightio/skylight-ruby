@@ -6,14 +6,13 @@ module Skylight
   # into the class that you will be instrumenting. Then, annotate each method that
   # you wish to instrument with {Skylight::Helpers::ClassMethods#instrument_method instrument_method}.
   module Helpers
-
     # @see Skylight::Helpers
     module ClassMethods
       # @api private
       def method_added(name)
         super
 
-        if opts = @__sk_instrument_next_method
+        if (opts = @__sk_instrument_next_method)
           @__sk_instrument_next_method = nil
           instrument_method(name, opts)
         end
@@ -23,7 +22,7 @@ module Skylight
       def singleton_method_added(name)
         super
 
-        if opts = @__sk_instrument_next_method
+        if (opts = @__sk_instrument_next_method)
           @__sk_instrument_next_method = nil
           instrument_class_method(name, opts)
         end
@@ -79,10 +78,10 @@ module Skylight
       #       end
       #     end
       def instrument_method(*args)
-        opts = args.pop if Hash === args.last
+        opts = args.pop if args.last.is_a?(Hash)
 
-        if name = args.pop
-          title = "#{to_s}##{name}"
+        if (name = args.pop)
+          title = "#{self}##{name}"
           __sk_instrument_method_on(self, name, title, opts || {})
         else
           @__sk_instrument_next_method = opts || {}
@@ -125,46 +124,46 @@ module Skylight
       #       instrument_class_method :my_method, title: 'Expensive work'
       #     end
       def instrument_class_method(name, opts = {})
-        title = "#{to_s}.#{name}"
+        title = "#{self}.#{name}"
         __sk_instrument_method_on(__sk_singleton_class, name, title, opts || {})
       end
 
-    private
+      private
 
-      def __sk_instrument_method_on(klass, name, title, opts)
-        category = (opts[:category] || "app.method").to_s
-        title    = (opts[:title] || title).to_s
-        desc     = opts[:description].to_s if opts[:description]
+        def __sk_instrument_method_on(klass, name, title, opts)
+          category = (opts[:category] || "app.method").to_s
+          title    = (opts[:title] || title).to_s
+          desc     = opts[:description].to_s if opts[:description]
 
-        klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
-          alias_method :"before_instrument_#{name}", :"#{name}"
+          klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
+            alias_method :"before_instrument_#{name}", :"#{name}"
 
-          def #{name}(*args, &blk)
-            span = Skylight.instrument(
-              category:  :"#{category}",
-              title:       #{title.inspect},
-              description: #{desc.inspect})
+            def #{name}(*args, &blk)
+              span = Skylight.instrument(
+                category:  :"#{category}",
+                title:       #{title.inspect},
+                description: #{desc.inspect})
 
-            meta = {}
-            begin
-              send(:before_instrument_#{name}, *args, &blk)
-            rescue Exception => e
-              meta[:exception_object] = e
-              raise e
-            ensure
-              Skylight.done(span, meta) if span
+              meta = {}
+              begin
+                send(:before_instrument_#{name}, *args, &blk)
+              rescue Exception => e
+                meta[:exception_object] = e
+                raise e
+              ensure
+                Skylight.done(span, meta) if span
+              end
             end
-          end
-        RUBY
-      end
-
-      if respond_to?(:singleton_class)
-        alias :__sk_singleton_class :singleton_class
-      else
-        def __sk_singleton_class
-          class << self; self; end
+          RUBY
         end
-      end
+
+        if respond_to?(:singleton_class)
+          alias __sk_singleton_class singleton_class
+        else
+          def __sk_singleton_class
+            class << self; self; end
+          end
+        end
     end
 
     # @api private
@@ -174,6 +173,5 @@ module Skylight
         extend ClassMethods
       end
     end
-
   end
 end

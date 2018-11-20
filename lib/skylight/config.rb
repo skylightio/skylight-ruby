@@ -1,36 +1,35 @@
-require 'openssl'
-require 'skylight/util/component'
-require 'skylight/util/deploy'
-require 'skylight/core/util/platform'
-require 'skylight/util/hostname'
-require 'skylight/util/ssl'
+require "openssl"
+require "skylight/util/component"
+require "skylight/util/deploy"
+require "skylight/core/util/platform"
+require "skylight/util/hostname"
+require "skylight/util/ssl"
 
 module Skylight
   class Config < Core::Config
-
     def self.env_to_key
       @env_to_key ||= super.merge(
         # == Authentication ==
-        'AUTHENTICATION' => :authentication,
+        "AUTHENTICATION" => :authentication,
 
         # == App settings ==
-        'ROOT'          => :root,
-        'HOSTNAME'      => :hostname,
-        'SESSION_TOKEN' => :session_token,
+        "ROOT"          => :root,
+        "HOSTNAME"      => :hostname,
+        "SESSION_TOKEN" => :session_token,
 
         # == Component settings ==
-        'ENV' => :env,
-        'COMPONENT' => :component,
-        'REPORT_RAILS_ENV' => :report_rails_env,
+        "ENV" => :env,
+        "COMPONENT" => :component,
+        "REPORT_RAILS_ENV" => :report_rails_env,
 
         # == Deploy settings ==
-        'DEPLOY_ID'          => :'deploy.id',
-        'DEPLOY_GIT_SHA'     => :'deploy.git_sha',
-        'DEPLOY_DESCRIPTION' => :'deploy.description',
+        "DEPLOY_ID"          => :'deploy.id',
+        "DEPLOY_GIT_SHA"     => :'deploy.git_sha',
+        "DEPLOY_DESCRIPTION" => :'deploy.description',
 
         # == Max Span Handling ==
-        'REPORT_MAX_SPANS_EXCEEDED' => :report_max_spans_exceeded,
-        'PRUNE_LARGE_TRACES' => :prune_large_traces,
+        "REPORT_MAX_SPANS_EXCEEDED" => :report_max_spans_exceeded,
+        "PRUNE_LARGE_TRACES" => :prune_large_traces,
 
         # == Instrumenter ==
         "IGNORED_ENDPOINT" => :ignored_endpoint,
@@ -75,8 +74,8 @@ module Skylight
 
         # == Legacy env vars ==
         #
-        'AGENT_LOCKFILE'      => :'agent.lockfile',
-        'AGENT_SOCKFILE_PATH' => :'agent.sockfile_path'
+        "AGENT_LOCKFILE"      => :'agent.lockfile',
+        "AGENT_SOCKFILE_PATH" => :'agent.sockfile_path'
       )
     end
 
@@ -84,18 +83,18 @@ module Skylight
     def self.default_values
       @default_values ||= begin
         ret = super.merge(
-          :auth_url             => 'https://auth.skylight.io/agent',
-          :app_create_url       => 'https://www.skylight.io/apps',
-          :merges_url           => 'https://www.skylight.io/merges',
-          :validation_url       => 'https://auth.skylight.io/agent/config',
-          :'daemon.lazy_start'  => true,
-          :hostname             => Util::Hostname.default_hostname,
-          :report_max_spans_exceeded => false,
-          :prune_large_traces   => true,
-          :report_rails_env     => true,
+          auth_url:                   "https://auth.skylight.io/agent",
+          app_create_url:             "https://www.skylight.io/apps",
+          merges_url:                 "https://www.skylight.io/merges",
+          validation_url:             "https://auth.skylight.io/agent/config",
+          'daemon.lazy_start':        true,
+          hostname:                   Util::Hostname.default_hostname,
+          report_max_spans_exceeded:  false,
+          prune_large_traces:         true,
+          report_rails_env:           true
         )
 
-        if Core::Util::Platform::OS != 'darwin'
+        if Core::Util::Platform::OS != "darwin"
           ret[:'daemon.ssl_cert_path'] = Util::SSL.ca_cert_file_or_default
           ret[:'daemon.ssl_cert_dir'] = Util::SSL.ca_cert_dir
         end
@@ -104,7 +103,7 @@ module Skylight
           native_path = Skylight.libskylight_path
 
           ret[:'daemon.lib_path'] = native_path
-          ret[:'daemon.exec_path'] = File.join(native_path, 'skylightd')
+          ret[:'daemon.exec_path'] = File.join(native_path, "skylightd")
         end
 
         ret
@@ -121,53 +120,53 @@ module Skylight
     end
 
     def self.native_env_keys
-      @native_env_keys ||= super + [
-        :version,
-        :root,
-        :hostname,
-        :session_token,
-        :auth_url,
-        :auth_http_deflate,
-        :auth_http_connect_timeout,
-        :auth_http_read_timeout,
-        :report_url,
-        :report_http_deflate,
-        :report_http_connect_timeout,
-        :report_http_read_timeout,
-        :report_http_disabled,
-        :'daemon.lazy_start',
-        :'daemon.exec_path',
-        :'daemon.lib_path',
-        :'daemon.pidfile_path',
-        :'daemon.sockdir_path',
-        :'daemon.batch_queue_depth',
-        :'daemon.batch_sample_size',
-        :'daemon.batch_flush_interval',
-        :'daemon.tick_interval',
-        :'daemon.sanity_check_interval',
-        :'daemon.inactivity_timeout',
-        :'daemon.max_connect_tries',
-        :'daemon.connect_try_window',
-        :'daemon.max_prespawn_jitter',
-        :'daemon.wait_timeout',
-        :'daemon.client_check_interval',
-        :'daemon.client_queue_depth',
-        :'daemon.client_write_timeout',
-        :'daemon.ssl_cert_path',
-        :'daemon.ssl_cert_dir'
+      @native_env_keys ||= super + %i[
+        version
+        root
+        hostname
+        session_token
+        auth_url
+        auth_http_deflate
+        auth_http_connect_timeout
+        auth_http_read_timeout
+        report_url
+        report_http_deflate
+        report_http_connect_timeout
+        report_http_read_timeout
+        report_http_disabled
+        daemon.lazy_start
+        daemon.exec_path
+        daemon.lib_path
+        daemon.pidfile_path
+        daemon.sockdir_path
+        daemon.batch_queue_depth
+        daemon.batch_sample_size
+        daemon.batch_flush_interval
+        daemon.tick_interval
+        daemon.sanity_check_interval
+        daemon.inactivity_timeout
+        daemon.max_connect_tries
+        daemon.connect_try_window
+        daemon.max_prespawn_jitter
+        daemon.wait_timeout
+        daemon.client_check_interval
+        daemon.client_queue_depth
+        daemon.client_write_timeout
+        daemon.ssl_cert_path
+        daemon.ssl_cert_dir
       ]
     end
 
     def self.legacy_keys
       @legacy_keys ||= super.merge(
-        :'agent.sockfile_path' => :'daemon.sockdir_path',
-        :'agent.lockfile'      => :'daemon.pidfile_path'
+        'agent.sockfile_path': :'daemon.sockdir_path',
+        'agent.lockfile':      :'daemon.pidfile_path'
       )
     end
 
     def self.validators
       @validators ||= super.merge(
-        :'agent.interval' => [lambda { |v, c| Integer === v && v > 0 }, "must be an integer greater than 0"]
+        'agent.interval': [->(v, _c) { v.is_a?(Integer) && v > 0 }, "must be an integer greater than 0"]
       )
     end
 
@@ -183,8 +182,8 @@ module Skylight
       # TODO: Move this out of the validate! method: https://github.com/tildeio/direwolf-agent/issues/273
       # FIXME: Why not set the sockdir_path and pidfile_path explicitly?
       # That way we don't have to keep this in sync with the Rust repo.
-      sockdir_path = File.expand_path(self[:'daemon.sockdir_path'] || '.', root)
-      pidfile_path = File.expand_path(self[:'daemon.pidfile_path'] || 'skylight.pid', sockdir_path)
+      sockdir_path = File.expand_path(self[:'daemon.sockdir_path'] || ".", root)
+      pidfile_path = File.expand_path(self[:'daemon.pidfile_path'] || "skylight.pid", sockdir_path)
 
       check_file_permissions(pidfile_path, "daemon.pidfile_path or daemon.sockdir_path")
       check_sockdir_permissions(sockdir_path)
@@ -200,23 +199,23 @@ module Skylight
         return false
       end
 
-      if res.is_error_response?
+      if res.error_response?
         warn("Unable to reach server for config validation")
       end
 
       unless res.config_valid?
-        warn("Invalid configuration") unless res.is_error_response?
-        res.validation_errors.each do |k,v|
+        warn("Invalid configuration") unless res.error_response?
+        res.validation_errors.each do |k, v|
           warn("  #{k}: #{v}")
         end
 
         return false if res.forbidden?
 
         corrected_config = res.corrected_config
-        config_to_update = corrected_config.select{|k,v| get(k) != v }
+        config_to_update = corrected_config.reject { |k, v| get(k) == v }
         unless config_to_update.empty?
           info("Updating config values:")
-          config_to_update.each do |k,v|
+          config_to_update.each do |k, v|
             info("  setting #{k} to #{v}")
 
             # This is a weird way to handle priorities
@@ -228,7 +227,7 @@ module Skylight
         end
       end
 
-      return true
+      true
     end
 
     def check_sockdir_permissions(sockdir_path)
@@ -256,7 +255,7 @@ module Skylight
     def write(path)
       FileUtils.mkdir_p(File.dirname(path))
 
-      File.open(path, 'w') do |f|
+      File.open(path, "w") do |f|
         f.puts <<-YAML
 ---
 # The authentication token for the application.
@@ -275,7 +274,7 @@ authentication: #{self[:authentication]}
       token = get(:authentication)
 
       if token
-        meta = { }
+        meta = {}
         meta.merge!(deploy.to_query_hash) if deploy
         meta[:component] = component.to_s if component
         meta[:reporting_env] = true if reporting_env?
@@ -318,17 +317,17 @@ authentication: #{self[:authentication]}
       }
     end
 
-  private
+    private
 
-    def check_nfs(path)
-      # Should work on most *nix, though not on OS X
-      `stat -f -L -c %T #{path} 2>&1`.strip == 'nfs'
-    end
+      def check_nfs(path)
+        # Should work on most *nix, though not on OS X
+        `stat -f -L -c %T #{path} 2>&1`.strip == "nfs"
+      end
 
-    def reporting_env?
-      # true if env was explicitly set,
-      # or if we are auto-detecting via the opt-in SKYLIGHT_REPORT_RAILS_ENV=true
-      !!(get(:report_rails_env) || get(:env))
-    end
+      def reporting_env?
+        # true if env was explicitly set,
+        # or if we are auto-detecting via the opt-in SKYLIGHT_REPORT_RAILS_ENV=true
+        !!(get(:report_rails_env) || get(:env))
+      end
   end
 end

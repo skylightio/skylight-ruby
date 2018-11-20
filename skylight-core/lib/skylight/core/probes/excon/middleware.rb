@@ -1,12 +1,10 @@
-require 'skylight/core/formatters/http'
+require "skylight/core/formatters/http"
 
 module Skylight::Core
   module Probes
     module Excon
-
       # Middleware for Excon that instruments requests
       class Middleware < ::Excon::Middleware::Base
-
         # This probably won't work since config isn't defined
         include Util::Logging
 
@@ -15,7 +13,7 @@ module Skylight::Core
           super
         end
 
-        # TODO:
+        # TODO: Review the following:
         # - Consider whether a LIFO queue would be sufficient
         # - Check that errors can't be called without a request
 
@@ -55,8 +53,8 @@ module Skylight::Core
           end
 
           def end_instrumentation(datum)
-            if request = @requests.delete(datum.object_id)
-              meta = { }
+            if (request = @requests.delete(datum.object_id))
+              meta = {}
               if datum[:error].is_a?(Exception)
                 meta[:exception_object] = datum[:error]
               end
@@ -65,7 +63,6 @@ module Skylight::Core
           rescue Exception => e
             error "failed to end instrumentation for Excon; msg=%s", e.message
           end
-
       end
     end
   end

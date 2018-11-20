@@ -1,10 +1,9 @@
-require 'zlib'
+require "zlib"
 
 module Skylight::Core
   module Util
     # Provides Gzip compressing support
     module Gzip
-
       # Compress a string with Gzip
       #
       # @param str [String] uncompressed string

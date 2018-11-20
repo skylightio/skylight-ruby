@@ -1,14 +1,14 @@
-require 'spec_helper'
-require 'skylight/core/instrumenter'
+require "spec_helper"
+require "skylight/core/instrumenter"
 
 begin
-  require 'grape'
+  require "grape"
 rescue LoadError
   warn "Skipping Grape tests since it isn't installed."
 end
 
 if defined?(Grape)
-  describe 'Grape integration', :agent do
+  describe "Grape integration", :agent do
     include Rack::Test::Methods
 
     before do
@@ -28,9 +28,9 @@ if defined?(Grape)
           { test: true }
         end
 
-        desc 'Update item' do
-          detail 'We take the id to update the item'
-          named 'Update route'
+        desc "Update item" do
+          detail "We take the id to update the item"
+          named "Update route"
         end
         post "update/:id" do
           { update: true }
@@ -59,18 +59,18 @@ if defined?(Grape)
 
       format :json
 
-      mount App => '/app'
+      mount App => "/app"
 
-      desc 'This is a test'
+      desc "This is a test"
       get "test" do
         { test: true }
       end
 
       get "raise" do
-        fail 'Unexpected error'
+        raise "Unexpected error"
       end
 
-      route ['GET', 'POST'], "data" do
+      route ["GET", "POST"], "data" do
         "data"
       end
     end
@@ -86,8 +86,8 @@ if defined?(Grape)
       allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
 
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", title, nil, nil)
-          .once
+        .with("app.grape.endpoint", title, nil, nil)
+        .once
     end
 
     it "creates a Trace for a Grape app" do
@@ -135,8 +135,8 @@ if defined?(Grape)
       allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
 
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", "#{wildcard} *path", nil, nil)
-          .once
+        .with("app.grape.endpoint", "#{wildcard} *path", nil, nil)
+        .once
 
       delete "/app/missing"
 
@@ -147,8 +147,8 @@ if defined?(Grape)
       allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
 
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", "GET... data", nil, nil)
-          .once
+        .with("app.grape.endpoint", "GET... data", nil, nil)
+        .once
 
       get "/data"
 
@@ -159,12 +159,12 @@ if defined?(Grape)
       allow_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
 
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", "GET raise", nil, nil)
-          .once
+        .with("app.grape.endpoint", "GET raise", nil, nil)
+        .once
 
-      expect{
+      expect do
         get "/raise"
-      }.to raise_error("Unexpected error")
+      end.to raise_error("Unexpected error")
 
       expect(@called_endpoint).to eq("GrapeTest [GET] raise")
     end
@@ -174,16 +174,16 @@ if defined?(Grape)
 
       # TODO: Attempt to verify order
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.filters", "Before Filters", nil, nil)
-          .once
+        .with("app.grape.filters", "Before Filters", nil, nil)
+        .once
 
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.block", "verifying admin", nil, nil)
-          .once
+        .with("app.block", "verifying admin", nil, nil)
+        .once
 
       expect_any_instance_of(TestNamespace.instrumenter_class.trace_class).to receive(:instrument)
-          .with("app.grape.endpoint", "GET admin secret", nil, nil)
-          .once
+        .with("app.grape.endpoint", "GET admin secret", nil, nil)
+        .once
 
       get "/app/admin/secret"
 

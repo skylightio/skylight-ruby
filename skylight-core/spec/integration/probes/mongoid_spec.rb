@@ -1,9 +1,8 @@
-require 'spec_helper'
+require "spec_helper"
 
 # Requires mongodb instance to be running
-if ENV['TEST_MONGO_INTEGRATION']
-  describe 'Mongo integration with Mongoid', :mongoid_probe, :instrumenter do
-
+if ENV["TEST_MONGO_INTEGRATION"]
+  describe "Mongo integration with Mongoid", :mongoid_probe, :instrumenter do
     class Artist
       include Mongoid::Document
       field :name, type: String
@@ -23,7 +22,7 @@ if ENV['TEST_MONGO_INTEGRATION']
       artists.first
     end
 
-    require 'mongoid/version'
+    require "mongoid/version"
     version = Gem::Version.new(Mongoid::VERSION)
 
     if version < Gem::Version.new("5.0")
@@ -39,7 +38,7 @@ if ENV['TEST_MONGO_INTEGRATION']
         expected = {
           cat: "db.mongo.query",
           title: "QUERY artists",
-          desc: { :"$query" => { signed_at: "?" }, :"$orderby" => { _id: "?" }}.to_json
+          desc: { "$query": { signed_at: "?" }, "$orderby": { _id: "?" } }.to_json
         }
         expect(current_trace.mock_spans[1]).to include(expected)
       end
@@ -51,7 +50,7 @@ if ENV['TEST_MONGO_INTEGRATION']
         {
           cat:   "db.mongo.command",
           title: "echo_test.find artists",
-          desc:  { filter: { signed_at: "?" }}.to_json
+          desc:  { filter: { signed_at: "?" } }.to_json
         }
       end
 
@@ -69,6 +68,5 @@ if ENV['TEST_MONGO_INTEGRATION']
       end
 
     end
-
   end
 end

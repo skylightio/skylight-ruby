@@ -2,13 +2,15 @@ module Skylight::Core
   module Normalizers
     module Grape
       class Endpoint < Normalizer
-        %w(run
-            render
-            run_filters).each do |type|
+        %w[
+          run
+          render
+          run_filters
+        ].each do |type|
           require "skylight/core/normalizers/grape/endpoint_#{type}"
         end
 
-        require 'skylight/core/normalizers/grape/format_response'
+        require "skylight/core/normalizers/grape/format_response"
 
         private
 
@@ -25,7 +27,6 @@ module Skylight::Core
           def get_namespace(endpoint)
             ::Grape::Namespace.joined_space(endpoint.namespace_stackable(:namespace))
           end
-
       end
     end
   end

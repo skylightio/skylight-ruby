@@ -17,12 +17,12 @@ module Skylight::Core
         # @option payload [String] :controller Controller name
         # @option payload [String] :action Action name
         # @return [Array]
-        def normalize(trace, name, payload)
+        def normalize(trace, _name, payload)
           trace.endpoint = controller_action(payload)
-          [ CAT, trace.endpoint, nil ]
+          [CAT, trace.endpoint, nil]
         end
 
-        def normalize_after(trace, span, name, payload)
+        def normalize_after(trace, _span, _name, payload)
           return unless config.enable_segments?
 
           # Show 'error' if there's an unhandled exception or if the status is 4xx or 5xx
@@ -31,7 +31,7 @@ module Skylight::Core
           # We won't have a rendered_format if it's a `head` outside of a `respond_to` block.
           elsif payload[:rendered_format]
             # We only show the variant if we actually have a format
-            segment = [payload[:rendered_format], payload[:variant]].compact.flatten.join('+')
+            segment = [payload[:rendered_format], payload[:variant]].compact.flatten.join("+")
           end
 
           if segment
@@ -39,11 +39,11 @@ module Skylight::Core
           end
         end
 
-      private
+        private
 
-        def controller_action(payload)
-          "#{payload[:controller]}##{payload[:action]}"
-        end
+          def controller_action(payload)
+            "#{payload[:controller]}##{payload[:action]}"
+          end
       end
     end
   end

@@ -1,21 +1,21 @@
-ENV['MOPED_VERSION'] = 'skip'
-ENV['MONGOID_VERSION'] = 'skip'
-ENV['TILT_VERSION'] = '~> 2.0'
+ENV["MOPED_VERSION"] = "skip"
+ENV["MONGOID_VERSION"] = "skip"
+ENV["TILT_VERSION"] = "~> 2.0"
 
-eval_gemfile File.expand_path('../../gemfiles/Gemfile.base', __FILE__)
+eval_gemfile File.expand_path("../gemfiles/Gemfile.base", __dir__)
 
-gem 'rails', ">= 5.0.2"
-gem 'sinatra', "2.0.0.rc1"
+gem "rails", ">= 5.0.2"
+gem "sinatra", "2.0.0.rc1"
 
-gem 'active_model_serializers'
+gem "active_model_serializers"
 
 group :development do
-  gem 'yard'
-  gem 'pry'
-  gem 'pry-byebug'
+  gem "pry"
+  gem "pry-byebug"
+  gem "yard"
 end
 
-if ENV['CODECLIMATE_REPO_TOKEN']
+if ENV["CODECLIMATE_REPO_TOKEN"]
   gem "simplecov"
 end
 

@@ -1,4 +1,4 @@
-require 'logger'
+require "logger"
 
 module Skylight::Core
   module Util
@@ -19,18 +19,16 @@ module Skylight::Core
         end
       end
 
-      def close
-      end
+      def close; end
     end
 
     module Logging
-
       def log_context
         {}
       end
 
       def log_env_prefix
-        if c = config_for_logging
+        if (c = config_for_logging)
           c.class.env_prefix
         else
           "SKYLIGHT_"
@@ -88,7 +86,7 @@ module Skylight::Core
       # @param args (see #log)
       def error(msg, *args)
         log :error, msg, *args
-        raise sprintf(msg, *args) if raise_on_error?
+        raise format(msg, *args) if raise_on_error?
       end
 
       alias log_trace trace
@@ -106,7 +104,7 @@ module Skylight::Core
       def config_for_logging
         if respond_to?(:config)
           config
-        elsif self.is_a?(Config)
+        elsif is_a?(Config)
           self
         end
       end
@@ -118,12 +116,12 @@ module Skylight::Core
         c = config_for_logging
         logger = c ? c.logger : nil
 
-        msg = log_context.map{|(k,v)| "#{k}=#{v}; " }.join << msg
+        msg = log_context.map { |(k, v)| "#{k}=#{v}; " }.join << msg
 
         if logger
           if logger.respond_to?(level)
-            if args.length > 0
-              logger.send level, sprintf(msg, *args)
+            if !args.empty?
+              logger.send level, format(msg, *args)
             else
               logger.send level, msg
             end
@@ -134,18 +132,17 @@ module Skylight::Core
         end
 
         # Fallback
-        if module_name = self.is_a?(Module) ? name : self.class.name
-          root_name = module_name.split('::').first.upcase
+        if (module_name = is_a?(Module) ? name : self.class.name)
+          root_name = module_name.split("::").first.upcase
           msg.prepend("[#{root_name}] ")
         end
-        puts sprintf(msg, *args)
+        puts format(msg, *args)
       rescue Exception => e
         if trace?
           puts "[ERROR] #{e.message}"
           puts e.backtrace
         end
       end
-
     end
   end
 end

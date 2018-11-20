@@ -1,8 +1,7 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Skylight::Core
   describe UserConfig do
-
     let :config do
       UserConfig.new(Config.load)
     end
@@ -26,25 +25,25 @@ module Skylight::Core
     describe "#file_path" do
       it "preferably uses SKYLIGHT_USER_CONFIG_PATH" do
         dir = File.expand_path(Dir.mktmpdir)
-        config_path = File.join(dir, 'skylight_user_config_path')
+        config_path = File.join(dir, "skylight_user_config_path")
         FileUtils.touch(config_path)
         Dir.chdir(dir) do
-          with_env('SKYLIGHT_USER_CONFIG_PATH' => config_path) do
+          with_env("SKYLIGHT_USER_CONFIG_PATH" => config_path) do
             expect(config.file_path).to eq(config_path)
           end
         end
       end
 
       it "uses HOME if available" do
-        with_env('HOME' => '/users/tester') do
-          expect(config.file_path).to eq('/users/tester/.skylight')
+        with_env("HOME" => "/users/tester") do
+          expect(config.file_path).to eq("/users/tester/.skylight")
         end
       end
 
       it "uses Etc.getpwuid if no HOME" do
-        allow(Etc).to receive(:getpwuid).and_return(double(dir: '/users/other-tester'))
-        with_env('HOME' => nil) do
-          expect(config.file_path).to eq('/users/other-tester/.skylight')
+        allow(Etc).to receive(:getpwuid).and_return(double(dir: "/users/other-tester"))
+        with_env("HOME" => nil) do
+          expect(config.file_path).to eq("/users/other-tester/.skylight")
         end
       end
 
@@ -53,18 +52,18 @@ module Skylight::Core
 
         # Not 100% sure this stub is correct
         allow(Etc).to receive(:getpwuid).and_return(double(dir: nil))
-        with_env('HOME' => nil, 'USER' => 'another-tester') do
-          expect(config.file_path).to eq('/users/another-tester/.skylight')
+        with_env("HOME" => nil, "USER" => "another-tester") do
+          expect(config.file_path).to eq("/users/another-tester/.skylight")
         end
       end
 
       it "raises if no USER, Etc.getpwuid, or HOME" do
         # Not 100% sure this stub is correct
         allow(Etc).to receive(:getpwuid).and_return(double(dir: nil))
-        with_env('HOME' => nil, 'USER' => nil) do
-          expect {
+        with_env("HOME" => nil, "USER" => nil) do
+          expect do
             config.file_path
-          }.to raise_error(ConfigError, "The Skylight `user_config_path` must be defined since the home directory cannot be inferred")
+          end.to raise_error(ConfigError, "The Skylight `user_config_path` must be defined since the home directory cannot be inferred")
         end
       end
     end
@@ -97,12 +96,11 @@ module Skylight::Core
         expect(config.disable_env_warning?).to eq(true)
 
         yaml = YAML.load_file(config.file_path)
-        expect(yaml).to include('disable_dev_warning' => true)
-        expect(yaml).to include('disable_env_warning' => true)
+        expect(yaml).to include("disable_dev_warning" => true)
+        expect(yaml).to include("disable_env_warning" => true)
       ensure
         FileUtils.rm(config.file_path)
       end
     end
-
   end
 end

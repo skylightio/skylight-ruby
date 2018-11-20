@@ -5,10 +5,10 @@ module Skylight::Core
         register "cache_exist?.active_support"
 
         CAT = "app.cache.exist".freeze
-        TITLE = "cache exist?"
+        TITLE = "cache exist?".freeze
 
-        def normalize(trace, name, payload)
-          [ CAT, TITLE, nil ]
+        def normalize(_trace, _name, _payload)
+          [CAT, TITLE, nil]
         end
       end
     end

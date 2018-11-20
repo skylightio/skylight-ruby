@@ -1,5 +1,4 @@
 module SpecHelper
-
   def normalizers
     @normalizers ||= Skylight::Core::Normalizers.build(config)
   end
@@ -8,18 +7,18 @@ module SpecHelper
   BEHAVE_LIKE = "it should behave like".freeze
   PAYLOAD = {}.freeze
 
-  def normalize(name=nil, payload=nil)
+  def normalize(name = nil, payload = nil)
     process_normalize(:normalize, name, payload)
   end
 
-  def normalize_after(name=nil, payload=nil)
+  def normalize_after(name = nil, payload = nil)
     process_normalize(:normalize_after, name, payload)
   end
 
   private
 
     def process_normalize(meth, name, payload)
-      if Hash === name
+      if name.is_a?(Hash)
         payload = name
         name = nil
       end
@@ -28,7 +27,7 @@ module SpecHelper
       group = group[:parent_example_group] if group[:description].start_with?(BEHAVE_LIKE)
 
       description = group[:description_args]
-      name ||= description[1] ? description[1] : description[0]
+      name ||= description[1] || description[0]
 
       if meth == :normalize_after
         normalizers.normalize_after(trace, 0, name, payload)
@@ -36,5 +35,4 @@ module SpecHelper
         normalizers.normalize(trace, name, payload)
       end
     end
-
 end

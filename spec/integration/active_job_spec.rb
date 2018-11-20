@@ -1,48 +1,50 @@
-require 'spec_helper'
+require "spec_helper"
 
 enable = false
 begin
-  require 'skylight/core/probes/active_job'
-  require 'active_job/base'
-  require 'active_job/test_helper'
-  require 'skylight/railtie'
+  require "skylight/core/probes/active_job"
+  require "active_job/base"
+  require "active_job/test_helper"
+  require "skylight/railtie"
   enable = true
 rescue LoadError
-  puts '[INFO] Skipping active_job integration specs'
+  puts "[INFO] Skipping active_job integration specs"
 end
 
 if enable
   class SkTestJob < ActiveJob::Base
+    # rubocop:disable Lint/InheritException
     class Exception < ::Exception
     end
+    # rubocop:enable Lint/InheritException
 
     def perform(error_key = nil)
-      Skylight.instrument category: 'app.inside' do
-        Skylight.instrument category: 'app.zomg' do
+      Skylight.instrument category: "app.inside" do
+        Skylight.instrument category: "app.zomg" do
           # nothing
           sleep 0.1
 
           maybe_raise(error_key)
         end
 
-        Skylight.instrument(category: 'app.after_zomg') { sleep 0.1 }
+        Skylight.instrument(category: "app.after_zomg") { sleep 0.1 }
       end
     end
 
     private
 
-    def maybe_raise(key)
-      return unless key
-      err = {
-        'runtime_error' => RuntimeError,
-        'exception' => Exception
-      }[key]
+      def maybe_raise(key)
+        return unless key
+        err = {
+          "runtime_error" => RuntimeError,
+          "exception" => Exception
+        }[key]
 
-      raise err if err
-    end
+        raise err if err
+      end
   end
 
-  describe 'ActiveJob integration', :http, :agent do
+  describe "ActiveJob integration", :http, :agent do
     around do |ex|
       stub_config_validation
       stub_session_request
@@ -70,13 +72,13 @@ if enable
       expect(uniq_spans).to eq(
         [["app.job.execute", "app.job.perform", "app.inside", "app.zomg", "app.after_zomg"]]
       )
-      expect(endpoint.name).to eq('SkTestJob<sk-segment>default</sk-segment>')
+      expect(endpoint.name).to eq("SkTestJob<sk-segment>default</sk-segment>")
     end
 
-    context 'error handling' do
-      it 'assigns failed jobs to the error queue' do
+    context "error handling" do
+      it "assigns failed jobs to the error queue" do
         begin
-          SkTestJob.perform_later('runtime_error')
+          SkTestJob.perform_later("runtime_error")
         rescue RuntimeError
         end
 
@@ -89,12 +91,12 @@ if enable
         expect(uniq_spans).to eq(
           [["app.job.execute", "app.job.perform", "app.inside", "app.zomg"]]
         )
-        expect(endpoint.name).to eq('SkTestJob<sk-segment>error</sk-segment>')
+        expect(endpoint.name).to eq("SkTestJob<sk-segment>error</sk-segment>")
       end
 
-      it 'assigns jobs that raise exceptions to the error queue' do
+      it "assigns jobs that raise exceptions to the error queue" do
         begin
-          SkTestJob.perform_later('exception')
+          SkTestJob.perform_later("exception")
         rescue SkTestJob::Exception
         end
 
@@ -107,7 +109,7 @@ if enable
         expect(uniq_spans).to eq(
           [["app.job.execute", "app.job.perform", "app.inside", "app.zomg"]]
         )
-        expect(endpoint.name).to eq('SkTestJob<sk-segment>error</sk-segment>')
+        expect(endpoint.name).to eq("SkTestJob<sk-segment>error</sk-segment>")
       end
     end
   end

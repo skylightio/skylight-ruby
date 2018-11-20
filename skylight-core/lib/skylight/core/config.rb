@@ -1,11 +1,10 @@
-require 'yaml'
-require 'fileutils'
-require 'thread'
-require 'erb'
-require 'json'
-require 'skylight/core/util/logging'
-require 'skylight/core/util/proxy'
-require 'skylight/core/errors'
+require "yaml"
+require "fileutils"
+require "erb"
+require "json"
+require "skylight/core/util/logging"
+require "skylight/core/util/proxy"
+require "skylight/core/errors"
 
 module Skylight::Core
   class Config
@@ -14,30 +13,32 @@ module Skylight::Core
     # @api private
     MUTEX = Mutex.new
 
+    # rubocop:disable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
     def self.log_name; "Skylight" end
     def self.service_name; log_name end
     def self.support_email; "support@skylight.io" end
     def self.env_matcher; /^(?:SK|SKYLIGHT)_(.+)$/ end
     def self.env_prefix; "SKYLIGHT_" end
+    # rubocop:enable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
 
     # Map environment variable keys with Skylight configuration keys
     def self.env_to_key
       {
         # == Logging ==
-        'LOG_FILE'       => :log_file,
-        'LOG_LEVEL'      => :log_level,
-        'ALERT_LOG_FILE' => :alert_log_file,
-        'LOG_SQL_PARSE_ERRORS' => :log_sql_parse_errors,
+        "LOG_FILE"       => :log_file,
+        "LOG_LEVEL"      => :log_level,
+        "ALERT_LOG_FILE" => :alert_log_file,
+        "LOG_SQL_PARSE_ERRORS" => :log_sql_parse_errors,
 
         # == Proxy ==
-        'PROXY_URL' => :proxy_url,
+        "PROXY_URL" => :proxy_url,
 
         # == Instrumenter ==
         "ENABLE_SEGMENTS" => :enable_segments,
         "ENABLE_SIDEKIQ" => :enable_sidekiq,
 
         # == User config settings ==
-        "USER_CONFIG_PATH" => :'user_config_path',
+        "USER_CONFIG_PATH" => :user_config_path,
 
         # == Heroku settings ==
         "HEROKU_DYNO_INFO_PATH" => :'heroku.dyno_info_path'
@@ -47,13 +48,13 @@ module Skylight::Core
     # Default values for Skylight configuration keys
     def self.default_values
       {
-        :log_file             => '-'.freeze,
-        :log_level            => 'INFO'.freeze,
-        :alert_log_file       => '-'.freeze,
-        :log_sql_parse_errors => true,
-        :enable_segments      => true,
-        :enable_sidekiq       => false,
-        :'heroku.dyno_info_path' => '/etc/heroku/dyno'
+        log_file:                 "-".freeze,
+        log_level:                "INFO".freeze,
+        alert_log_file:           "-".freeze,
+        log_sql_parse_errors:     true,
+        enable_segments:          true,
+        enable_sidekiq:           false,
+        'heroku.dyno_info_path':  "/etc/heroku/dyno"
       }
     end
 
@@ -69,10 +70,10 @@ module Skylight::Core
     end
 
     def self.native_env_keys
-      [
-        :version,
-        :root,
-        :proxy_url
+      %i[
+        version
+        root
+        proxy_url
       ]
     end
 
@@ -94,7 +95,7 @@ module Skylight::Core
     def initialize(*args)
       attrs = {}
 
-      if Hash === args.last
+      if args.last.is_a?(Hash)
         attrs = args.pop.dup
       end
 
@@ -106,7 +107,7 @@ module Skylight::Core
 
       p = attrs.delete(:priority)
 
-      if @environment = args[0]
+      if (@environment = args[0])
         @regexp = /^#{Regexp.escape(@environment)}\.(.+)$/
       end
 
@@ -122,16 +123,14 @@ module Skylight::Core
     end
 
     def self.load(opts = {}, env = ENV)
-      attrs   = {}
-      version = nil
-
+      attrs = {}
       path = opts.delete(:file)
       environment = opts.delete(:environment)
 
       if path
         error = nil
         begin
-          attrs = YAML.load(ERB.new(File.read(path)).result)
+          attrs = YAML.safe_load(ERB.new(File.read(path)).result)
           error = "empty file" unless attrs
           error = "invalid format" if attrs && !attrs.is_a?(Hash)
         rescue Exception => e
@@ -139,8 +138,6 @@ module Skylight::Core
         end
 
         raise ConfigError, "could not load config file; msg=#{error}" if error
-
-        version = File.mtime(path).to_i
       end
 
       if env
@@ -168,24 +165,23 @@ module Skylight::Core
       return ret unless env
 
       # Only set if it exists, we don't want to set to a nil value
-      if proxy_url = Util::Proxy.detect_url(env)
+      if (proxy_url = Util::Proxy.detect_url(env))
         ret[:proxy_url] = proxy_url
       end
 
       env.each do |k, val|
         next unless k =~ env_matcher
+        next unless (key = env_to_key[$1])
 
-        if key = env_to_key[$1]
-          ret[key] =
-            case val
-            when /^false$/i      then false
-            when /^true$/i       then true
-            when /^(nil|null)$/i then nil
-            when /^\d+$/         then val.to_i
-            when /^\d+\.\d+$/    then val.to_f
-            else val
-            end
-        end
+        ret[key] =
+          case val
+          when /^false$/i      then false
+          when /^true$/i       then true
+          when /^(nil|null)$/i then nil
+          when /^\d+$/         then val.to_i
+          when /^\d+\.\d+$/    then val.to_f
+          else val
+          end
       end
 
       ret
@@ -228,7 +224,7 @@ module Skylight::Core
     end
 
     def check_logfile_permissions(log_file, key)
-      return if log_file == '-' # STDOUT
+      return if log_file == "-" # STDOUT
       log_file = File.expand_path(log_file, root)
       check_file_permissions(log_file, key)
     end
@@ -238,7 +234,7 @@ module Skylight::Core
       @priority.key?(key) || @values.key?(key)
     end
 
-    def get(key, default = nil, &blk)
+    def get(key, default = nil)
       key = self.class.remap_key(key)
 
       return @priority[key] if @priority.key?(key)
@@ -247,8 +243,8 @@ module Skylight::Core
 
       if default
         return default
-      elsif blk
-        return blk.call(key)
+      elsif block_given?
+        return yield key
       end
 
       nil
@@ -258,17 +254,17 @@ module Skylight::Core
 
     def set(key, val, scope = nil)
       if scope
-        key = [scope, key].join('.')
+        key = [scope, key].join(".")
       end
 
-      if Hash === val
+      if val.is_a?(Hash)
         val.each do |k, v|
           set(k, v, key)
         end
       else
         k = self.class.remap_key(key)
 
-        if validator = self.class.validators[k]
+        if (validator = self.class.validators[k])
           blk, msg = validator
 
           unless blk.call(val, self)
@@ -288,8 +284,8 @@ module Skylight::Core
 
     alias []= set
 
-    def send_or_get(v)
-      respond_to?(v) ? send(v) : get(v)
+    def send_or_get(val)
+      respond_to?(val) ? send(val) : get(val)
     end
 
     def duration_ms(key, default = nil)
@@ -337,7 +333,7 @@ module Skylight::Core
       ret
     end
 
-    def write(path)
+    def write(_path)
       raise "not implemented"
     end
 
@@ -353,7 +349,7 @@ module Skylight::Core
 
     # @api private
     def gc
-      @gc ||= GC.new(self, get('gc.profiler', VM::GC.new))
+      @gc ||= GC.new(self, get("gc.profiler", VM::GC.new))
     end
 
     # @api private
@@ -385,15 +381,13 @@ module Skylight::Core
         end
     end
 
-    def logger=(logger)
-      @logger = logger
-    end
+    attr_writer :logger
 
     def alert_logger
       @alert_logger ||= MUTEX.synchronize do
-        unless l = @alert_logger
+        unless (l = @alert_logger)
           out = get(:alert_log_file)
-          out = Util::AlertLogger.new(load_logger) if out == '-'
+          out = Util::AlertLogger.new(load_logger) if out == "-"
 
           l = create_logger(out)
           l.level = Logger::DEBUG
@@ -403,9 +397,7 @@ module Skylight::Core
       end
     end
 
-    def alert_logger=(logger)
-      @alert_logger = logger
-    end
+    attr_writer :alert_logger
 
     def enable_segments?
       !!get(:enable_segments)
@@ -423,56 +415,55 @@ module Skylight::Core
       File.exist?(get(:'heroku.dyno_info_path'))
     end
 
-  private
+    private
 
-    def create_logger(out)
-      l = begin
-        if out.is_a?(String)
-          out = File.expand_path(out, root)
-          # May be redundant since we also do this in the permissions check
-          FileUtils.mkdir_p(File.dirname(out))
+      def create_logger(out)
+        l = begin
+          if out.is_a?(String)
+            out = File.expand_path(out, root)
+            # May be redundant since we also do this in the permissions check
+            FileUtils.mkdir_p(File.dirname(out))
+          end
+
+          Logger.new(out)
+        rescue
+          Logger.new(STDOUT)
         end
-
-        Logger.new(out)
-      rescue
-        Logger.new(STDOUT)
+        l.progname = self.class.log_name
+        l
       end
-      l.progname = self.class.log_name
-      l
-    end
 
-    def load_logger
-      unless l = @logger
-        out = get(:log_file)
-        out = STDOUT if out == '-'
+      def load_logger
+        unless (l = @logger)
+          out = get(:log_file)
+          out = STDOUT if out == "-"
 
-        l = create_logger(out)
-        if trace?
-          l.level = Logger::DEBUG
-        else
+          l = create_logger(out)
           l.level =
-            case get(:log_level)
-            when /^debug$/i then Logger::DEBUG
-            when /^info$/i  then Logger::INFO
-            when /^warn$/i  then Logger::WARN
-            when /^error$/i then Logger::ERROR
-            when /^fatal$/i then Logger::FATAL
-            else Logger::ERROR
+            if trace?
+              Logger::DEBUG
+            else
+              case get(:log_level)
+              when /^debug$/i then Logger::DEBUG
+              when /^info$/i  then Logger::INFO
+              when /^warn$/i  then Logger::WARN
+              when /^error$/i then Logger::ERROR
+              when /^fatal$/i then Logger::FATAL
+              else Logger::ERROR
+              end
             end
         end
+
+        l
       end
 
-      l
-    end
-
-    def cast_for_env(v)
-      case v
-      when true  then 'true'
-      when false then 'false'
-      when nil   then 'nil'
-      else v.to_s
+      def cast_for_env(val)
+        case val
+        when true  then "true"
+        when false then "false"
+        when nil   then "nil"
+        else val.to_s
+        end
       end
-    end
-
   end
 end

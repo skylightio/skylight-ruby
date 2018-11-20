@@ -20,9 +20,7 @@ module Skylight::Core
     end
 
     def unregister!
-      until @subscribers.empty?
-        ActiveSupport::Notifications.unsubscribe @subscribers.shift
-      end
+      ActiveSupport::Notifications.unsubscribe @subscribers.shift until @subscribers.empty?
     end
 
     #
@@ -35,13 +33,14 @@ module Skylight::Core
       attr_reader :name, :span
 
       def initialize(name, span)
-        @name, @span = name, span
+        @name = name
+        @span = span
       end
     end
 
-    def start(name, id, payload)
+    def start(name, _id, payload)
       return if @instrumenter.disabled?
-      return unless trace = @instrumenter.current_trace
+      return unless (trace = @instrumenter.current_trace)
 
       result = normalize(trace, name, payload)
 
@@ -67,24 +66,22 @@ module Skylight::Core
       nil
     end
 
-    def finish(name, id, payload)
+    def finish(name, _id, payload)
       return if @instrumenter.disabled?
-      return unless trace = @instrumenter.current_trace
+      return unless (trace = @instrumenter.current_trace)
 
-      while curr = trace.notifications.pop
-        if curr.name == name
-          begin
-            normalize_after(trace, curr.span, name, payload)
-          ensure
-            meta = { }
-            meta[:exception] = payload[:exception] if payload[:exception]
-            meta[:exception_object] = payload[:exception_object] if payload[:exception_object]
-            trace.done(curr.span, meta) if curr.span
-          end
-          return
+      while (curr = trace.notifications.pop)
+        next unless curr.name == name
+        begin
+          normalize_after(trace, curr.span, name, payload)
+        ensure
+          meta = {}
+          meta[:exception] = payload[:exception] if payload[:exception]
+          meta[:exception_object] = payload[:exception_object] if payload[:exception_object]
+          trace.done(curr.span, meta) if curr.span
         end
+        return
       end
-
     rescue Exception => e
       error "Subscriber#finish error; msg=%s", e.message
       debug "trace=%s", trace.inspect
@@ -98,15 +95,14 @@ module Skylight::Core
       # Ignored for now because nothing in rails uses it
     end
 
-  private
+    private
 
-    def normalize(*args)
-      @normalizers.normalize(*args)
-    end
+      def normalize(*args)
+        @normalizers.normalize(*args)
+      end
 
-    def normalize_after(*args)
-      @normalizers.normalize_after(*args)
-    end
-
+      def normalize_after(*args)
+        @normalizers.normalize_after(*args)
+      end
   end
 end

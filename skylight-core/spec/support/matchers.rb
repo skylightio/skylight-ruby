@@ -1,7 +1,5 @@
 module SpecHelper
-
   RSpec::Matchers.define :happen do |timeout = 1, interval = 0.1|
-
     match do |blk|
       res = false
       start = Time.now
@@ -25,15 +23,13 @@ module SpecHelper
     failure_message_when_negated do
       "expected block not to happen but it did"
     end
-
   end
 
-  SPECIAL_HEADERS = %w(CONTENT_TYPE REQUEST_METHOD rack.input)
+  SPECIAL_HEADERS = %w[CONTENT_TYPE REQUEST_METHOD rack.input].freeze
 
   RSpec::Matchers.define :be_request do |*args|
-
     hdrs  = {}
-    hdrs  = args.pop if Hash === args[-1]
+    hdrs  = args.pop if args[-1].is_a?(Hash)
     path  = args.shift
 
     @fails = []
@@ -43,13 +39,13 @@ module SpecHelper
       if env
         ret = true
 
-        ret &= match_header(env, 'PATH_INFO', path) if path
+        ret &= match_header(env, "PATH_INFO", path) if path
 
         hdrs.each do |k, v|
-          k = 'rack.input' if k == :input
+          k = "rack.input" if k == :input
 
           unless SPECIAL_HEADERS.include?(k)
-            k = k.to_s.upcase.tr('-', '_')
+            k = k.to_s.upcase.tr("-", "_")
             k = "HTTP_#{k}" unless SPECIAL_HEADERS.include?(k)
           end
 
@@ -61,16 +57,18 @@ module SpecHelper
     end
 
     def match_header(env, key, val)
-      ret = case val
-      when Regexp then env[key] =~ val
-      else env[key] == val
-      end
+      ret =
+        case val
+        when Regexp then env[key] =~ val
+        else env[key] == val
+        end
 
       unless ret
         @fails << {
           key:      key,
           actual:   env[key],
-          expected: val }
+          expected: val
+        }
       end
 
       ret
@@ -90,24 +88,23 @@ module SpecHelper
         "request is nil"
       end
     end
-
   end
 
   def get_json(*args)
     hdrs = {}
-    hdrs = args.pop if Hash === args[-1]
-    hdrs['accept'] = 'application/json'
-    hdrs['request-method'] = 'GET'
+    hdrs = args.pop if args[-1].is_a?(Hash)
+    hdrs["accept"] = "application/json"
+    hdrs["request-method"] = "GET"
 
     be_request(*args, hdrs)
   end
 
   def post_json(*args)
     hdrs = {}
-    hdrs = args.pop if Hash === args[-1]
-    hdrs['accept'] = 'application/json'
-    hdrs['content-type'] = 'application/json'
-    hdrs['request-method'] = 'POST'
+    hdrs = args.pop if args[-1].is_a?(Hash)
+    hdrs["accept"] = "application/json"
+    hdrs["content-type"] = "application/json"
+    hdrs["request-method"] = "POST"
 
     be_request(*args, hdrs)
   end

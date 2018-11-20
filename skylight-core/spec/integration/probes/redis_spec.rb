@@ -1,7 +1,6 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe 'Redis integration', :redis_probe, :agent do
-
+describe "Redis integration", :redis_probe, :agent do
   before(:each) do
     @redis = Redis.new
   end
@@ -48,5 +47,4 @@ describe 'Redis integration', :redis_probe, :agent do
       @redis.lrange("cache:all:the:things", 0, -1)
     end
   end
-
 end

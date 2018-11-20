@@ -1,4 +1,4 @@
-require 'skylight/core/formatters/http'
+require "skylight/core/formatters/http"
 
 module Skylight::Core
   module Probes
@@ -20,7 +20,7 @@ module Skylight::Core
 
         def install
           Net::HTTP.class_eval do
-            alias request_without_sk request
+            alias_method :request_without_sk, :request
 
             def request(req, body = nil, &block)
               if !started? || Probes::NetHTTP::Probe.disabled?
@@ -30,11 +30,11 @@ module Skylight::Core
               method = req.method
 
               # req['host'] also includes special handling for default ports
-              host, port = req['host'] ? req['host'].split(':') : nil
+              host, port = req["host"] ? req["host"].split(":") : nil
 
               # If we're connected with a persistent socket
-              host ||= self.address
-              port ||= self.port
+              host ||= address
+              port ||= port
 
               path   = req.path
               scheme = use_ssl? ? "https" : "http"

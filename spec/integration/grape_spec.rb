@@ -1,9 +1,9 @@
-require 'spec_helper'
+require "spec_helper"
 
 enable = false
 begin
-  require 'grape'
-  require 'skylight'
+  require "grape"
+  require "skylight"
   enable = true
 rescue LoadError
   puts "[INFO] Skipping grape integration specs"
@@ -11,16 +11,15 @@ end
 
 if enable
 
-  describe 'Grape integration' do
-
+  describe "Grape integration" do
     before :each do
-      ENV['SKYLIGHT_AUTHENTICATION']       = "lulz"
-      ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = "1"
-      ENV['SKYLIGHT_REPORT_URL']           = "http://127.0.0.1:#{port}/report"
-      ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = "false"
-      ENV['SKYLIGHT_AUTH_URL']             = "http://127.0.0.1:#{port}/agent"
-      ENV['SKYLIGHT_VALIDATION_URL']       = "http://127.0.0.1:#{port}/agent/config"
-      ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = "false"
+      ENV["SKYLIGHT_AUTHENTICATION"]       = "lulz"
+      ENV["SKYLIGHT_BATCH_FLUSH_INTERVAL"] = "1"
+      ENV["SKYLIGHT_REPORT_URL"]           = "http://127.0.0.1:#{port}/report"
+      ENV["SKYLIGHT_REPORT_HTTP_DEFLATE"]  = "false"
+      ENV["SKYLIGHT_AUTH_URL"]             = "http://127.0.0.1:#{port}/agent"
+      ENV["SKYLIGHT_VALIDATION_URL"]       = "http://127.0.0.1:#{port}/agent/config"
+      ENV["SKYLIGHT_AUTH_HTTP_DEFLATE"]    = "false"
 
       Skylight.start!
 
@@ -28,8 +27,8 @@ if enable
         use Skylight::Middleware
 
         get :test do
-          Skylight.instrument category: 'app.inside' do
-            Skylight.instrument category: 'app.zomg' do
+          Skylight.instrument category: "app.inside" do
+            Skylight.instrument category: "app.zomg" do
               # nothing
             end
             { hello: true }
@@ -39,13 +38,13 @@ if enable
     end
 
     after :each do
-      ENV['SKYLIGHT_AUTHENTICATION']       = nil
-      ENV['SKYLIGHT_BATCH_FLUSH_INTERVAL'] = nil
-      ENV['SKYLIGHT_REPORT_URL']           = nil
-      ENV['SKYLIGHT_REPORT_HTTP_DEFLATE']  = nil
-      ENV['SKYLIGHT_AUTH_URL']             = nil
-      ENV['SKYLIGHT_VALIDATION_URL']       = nil
-      ENV['SKYLIGHT_AUTH_HTTP_DEFLATE']    = nil
+      ENV["SKYLIGHT_AUTHENTICATION"]       = nil
+      ENV["SKYLIGHT_BATCH_FLUSH_INTERVAL"] = nil
+      ENV["SKYLIGHT_REPORT_URL"]           = nil
+      ENV["SKYLIGHT_REPORT_HTTP_DEFLATE"]  = nil
+      ENV["SKYLIGHT_AUTH_URL"]             = nil
+      ENV["SKYLIGHT_VALIDATION_URL"]       = nil
+      ENV["SKYLIGHT_AUTH_HTTP_DEFLATE"]    = nil
 
       Skylight.stop!
 
@@ -58,17 +57,16 @@ if enable
     end
 
     context "with agent", :http, :agent do
-
       before :each do
         stub_config_validation
         stub_session_request
       end
 
-      it 'successfully calls into grape' do
-        res = call env('/test')
+      it "successfully calls into grape" do
+        res = call env("/test")
         expect(res).to eq(["{:hello=>true}"])
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
 
         batch = server.reports[0]
         expect(batch).to_not be nil
@@ -81,13 +79,12 @@ if enable
         names = trace.spans.map { |s| s.event.category }
 
         expect(names.length).to be >= 3
-        expect(names).to include('app.zomg')
-        expect(names).to include('app.inside')
-        expect(names[0]).to eq('app.rack.request')
+        expect(names).to include("app.zomg")
+        expect(names).to include("app.inside")
+        expect(names[0]).to eq("app.rack.request")
 
-        expect(names.last).to eq('view.grape.format_response') if ENV['GRAPE_VERSION'] == 'edge'
+        expect(names.last).to eq("view.grape.format_response") if ENV["GRAPE_VERSION"] == "edge"
       end
-
     end
 
     def call(env)
@@ -95,16 +92,15 @@ if enable
       consume(resp)
     end
 
-    def env(path = '/', opts = {})
-      Rack::MockRequest.env_for(path, {})
+    def env(path = "/", opts = {})
+      Rack::MockRequest.env_for(path, opts)
     end
 
     def consume(resp)
       data = []
-      resp[2].each{|p| data << p }
+      resp[2].each { |p| data << p }
       resp[2].close
       data
     end
-
   end
 end

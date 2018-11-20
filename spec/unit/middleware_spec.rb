@@ -1,10 +1,9 @@
-require 'spec_helper'
+require "spec_helper"
 
 # This is here because we need the native agent to test
 # FIXME: Move at least some specs to core with mocking
 module Skylight::Core
   describe Middleware, :http, :agent do
-
     before :each do
       start!
       clock.freeze
@@ -24,18 +23,18 @@ module Skylight::Core
       Skylight::Middleware.new(lambda do |env|
         clock.skip 0.1
 
-        Skylight.instrument 'hello' do
+        Skylight.instrument "hello" do
           clock.skip 0.2
         end
 
         env.hello
 
-        [ 200, {}, [] ]
+        [200, {}, []]
       end)
     end
 
-    it 'tracks traces' do
-      expect(Skylight).to receive('trace').and_call_original
+    it "tracks traces" do
+      expect(Skylight).to receive("trace").and_call_original
       expect(env).to receive(:hello)
 
       _, _, body = app.call(env)
@@ -49,38 +48,43 @@ module Skylight::Core
       expect(report.endpoints.count).to eq(1)
 
       ep = server.reports[0].endpoints[0]
-      expect(ep.name).to eq('Rack')
+      expect(ep.name).to eq("Rack")
       expect(ep.traces.count).to eq(1)
 
       t = ep.traces[0]
       expect(t.spans.count).to eq(2)
 
+      expect(t.spans[0]).to eq(
+        span(
+          event: event("app.rack.request"),
+          started_at: 0,
+          duration: 3_000
+        )
+      )
 
-      expect(t.spans[0]).to eq(span(
-        event: event('app.rack.request'),
-        started_at: 0,
-        duration: 3_000 ))
-
-      expect(t.spans[1]).to eq(span(
-        parent: 0,
-        event: event('app.block', 'hello'),
-        started_at: 1_000,
-        duration:   2_000))
+      expect(t.spans[1]).to eq(
+        span(
+          parent: 0,
+          event: event("app.block", "hello"),
+          started_at: 1_000,
+          duration:   2_000
+        )
+      )
     end
 
-    it 'skips HEAD' do
-      expect(Skylight).to_not receive('trace')
+    it "skips HEAD" do
+      expect(Skylight).to_not receive("trace")
 
-      env['REQUEST_METHOD'] = 'HEAD'
+      env["REQUEST_METHOD"] = "HEAD"
 
       app.call(env)
     end
 
-    it 'can handle frozen arrays' do
-      expect{ Skylight::Core::Middleware
-        .with_after_close([200, {}, []].freeze) { true } }
-        .to_not raise_error
+    it "can handle frozen arrays" do
+      expect do
+        Skylight::Core::Middleware
+          .with_after_close([200, {}, []].freeze) { true }
+      end.to_not raise_error
     end
-
   end
 end

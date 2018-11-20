@@ -1,17 +1,18 @@
-require 'securerandom'
+require "securerandom"
 
 module Skylight::Core
   # @api private
   class Middleware
-
     class BodyProxy
       def initialize(body, &block)
-        @body, @block, @closed = body, block, false
+        @body = body
+        @block = block
+        @closed = false
       end
 
-      def respond_to?(*args)
-        return false if args.first.to_s =~ /^to_ary$/
-        super or @body.respond_to?(*args)
+      def respond_to_missing?(*args)
+        return false if args.first.to_s !~ /^to_ary$/
+        @body.respond_to?(*args)
       end
 
       def close
@@ -59,7 +60,7 @@ module Skylight::Core
     # For Util::Logging
     attr_reader :config
 
-    def initialize(app, opts={})
+    def initialize(app, opts = {})
       @app = app
       @config = opts[:config]
     end
@@ -77,7 +78,7 @@ module Skylight::Core
       else
         begin
           t { "middleware beginning trace" }
-          trace = instrumentable.trace(endpoint_name(env), 'app.rack.request', nil, endpoint_meta(env))
+          trace = instrumentable.trace(endpoint_name(env), "app.rack.request", nil, endpoint_meta(env))
           t { "middleware began trace=#{trace.uuid}" }
 
           resp = @app.call(env)
@@ -88,7 +89,7 @@ module Skylight::Core
             resp
           end
         rescue Exception
-          t { "middleware exception: #{trace}"}
+          t { "middleware exception: #{trace}" }
           trace.submit if trace
           raise
         end
@@ -118,7 +119,7 @@ module Skylight::Core
 
       # Request ID code based on ActionDispatch::RequestId
       def set_request_id(env)
-        existing_request_id = env["action_dispatch.request_id"] || env['HTTP_X_REQUEST_ID'];
+        existing_request_id = env["action_dispatch.request_id"] || env["HTTP_X_REQUEST_ID"]
         @current_request_id = env["skylight.request_id"] = make_request_id(existing_request_id)
       end
 

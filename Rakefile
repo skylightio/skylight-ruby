@@ -1,10 +1,10 @@
-require 'bundler/setup'
-require 'fileutils'
-require 'rbconfig'
-require 'rake/extensiontask'
+require "bundler/setup"
+require "fileutils"
+require "rbconfig"
+require "rake/extensiontask"
+require "English"
 
 class ExtensionTask < Rake::ExtensionTask
-
   attr_accessor :native_lib_path
 
   def source_files
@@ -15,35 +15,36 @@ class ExtensionTask < Rake::ExtensionTask
 
   def sh(*cmd)
     original_env = ENV.to_hash
-    ENV['SKYLIGHT_REQUIRED'] = 'true'
-    ENV['SKYLIGHT_EXT_STRICT'] = ENV['SKYLIGHT_EXT_STRICT'] !~ /^false$/i ? 'true' : nil
+    ENV["SKYLIGHT_REQUIRED"] = "true"
+    ENV["SKYLIGHT_EXT_STRICT"] = ENV["SKYLIGHT_EXT_STRICT"] !~ /^false$/i ? "true" : nil
     super
   ensure
     ENV.replace(original_env)
   end
-
 end
 
 ExtensionTask.new do |ext|
-  ext.name = 'skylight_native'
-  ext.ext_dir = 'ext'
+  ext.name = "skylight_native"
+  ext.ext_dir = "ext"
   ext.source_pattern = "*.{c,h}"
-  ext.native_lib_path = ENV['SKYLIGHT_LIB_PATH']
+  ext.native_lib_path = ENV["SKYLIGHT_LIB_PATH"]
 end
 
-CLEAN << File.expand_path("../ext/install.log", __FILE__)
-CLOBBER << File.expand_path("../lib/skylight/native", __FILE__)
+CLEAN << File.expand_path("ext/install.log", __dir__)
+CLOBBER << File.expand_path("lib/skylight/native", __dir__)
 
+# rubocop:disable Lint/HandleExceptions
 begin
-  require 'yard'
+  require "yard"
 rescue LoadError
 end
+# rubocop:enable Lint/HandleExceptions
 
-require 'rspec/core/rake_task'
+require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new(:spec) do |t|
-  t.rspec_opts = '--order random'
+  t.rspec_opts = "--order random"
 end
-task :spec => :compile
+task spec: :compile
 
 namespace :vendor do
   namespace :update do
@@ -68,7 +69,7 @@ if defined?(YARD)
 end
 
 def travis_config
-  require 'yaml'
+  require "yaml"
   @travis_config ||= YAML.load_file(".travis.yml")
 end
 
@@ -94,8 +95,8 @@ def travis_builds
 
   config["jobs"]["exclude"].each do |build|
     builds.reject! do |b|
-      build.to_a.all? do |(k,v)|
-        v = Array(v) if k == 'env'
+      build.to_a.all? do |(k, v)|
+        v = Array(v) if k == "env"
         b[k] == v
       end
     end
@@ -103,22 +104,21 @@ def travis_builds
 
   builds += config["jobs"]["include"]
 
-
   builds.each do |b|
     config["jobs"]["allow_failures"].each do |build|
-      b['allow_failure'] ||= build.to_a.all? do |(k,v)|
-        v = Array(v) if k == 'env'
+      b["allow_failure"] ||= build.to_a.all? do |(k, v)|
+        v = Array(v) if k == "env"
         b[k] == v
       end
     end
   end
 
   # Group by stage
-  stage_groups = builds.group_by { |build| build['stage'] }
+  stage_groups = builds.group_by { |build| build["stage"] }
   builds = stages.map { |stage| stage_groups[stage] }.flatten
 
   # Move allowed_failures to the end
-  allowed_failures = builds.select{|b| b['allow_failure']}
+  allowed_failures = builds.select { |b| b["allow_failure"] }
   builds = (builds - allowed_failures) + allowed_failures
 
   builds.each.with_index do |build, index|
@@ -129,26 +129,26 @@ def travis_builds
 end
 
 task :vagrant_up do
-  unless ENV['SKIP_PROVISION']
+  unless ENV["SKIP_PROVISION"]
     system("vagrant up --provision")
   end
 end
 
-task :run_travis_builds => :vagrant_up do |t|
+task run_travis_builds: :vagrant_up do
   builds = travis_builds
 
-  if number = ENV['JOB']
-    if build = builds.find{|b| b['number'] == number.to_i }
-      builds = [build]
+  if (number = ENV["JOB"])
+    if (target_build = builds.find { |b| b["number"] == number.to_i })
+      builds = [target_build]
     else
       abort "No build for number: #{number}"
     end
   end
 
   # Set variables here before we do with_clean_env
-  no_clean = ENV['NO_CLEAN']
-  rspec_args = ENV['RSPEC']
-  debug = ENV['DEBUG']
+  no_clean = ENV["NO_CLEAN"]
+  rspec_args = ENV["RSPEC"]
+  debug = ENV["DEBUG"]
 
   # Avoids issue with vagrant existing as a gem
   Bundler.with_clean_env do
@@ -163,20 +163,21 @@ task :run_travis_builds => :vagrant_up do |t|
         "export BUNDLE_GEMFILE=\\$PWD/#{build['gemfile']}", # Escape PWD so it runs on Vagrant, not local box
       ]
 
-      commands += travis_config['env']['global'].map{|env| "export #{env}" }
+      commands += travis_config["env"]["global"].map { |env| "export #{env}" }
 
-      commands += Array(build['env']).map{|env| "export #{env}" }
+      commands += Array(build["env"]).map { |env| "export #{env}" }
 
       commands << "export DEBUG=1" if debug
 
       commands << "bundle update"
 
       commands << "pushd skylight-core"
-      if rspec_args
-        commands << "bundle exec rspec #{rspec_args}"
-      else
-        commands << "bundle exec rake"
-      end
+      commands <<
+        if rspec_args
+          "bundle exec rspec #{rspec_args}"
+        else
+          "bundle exec rake"
+        end
       commands << "popd"
 
       commands << "bundle exec rake clobber" unless no_clean
@@ -192,12 +193,12 @@ task :run_travis_builds => :vagrant_up do |t|
 
       # TODO: May need special handling for quotation marks
       system("vagrant ssh -c \"#{command}\"")
-      build["success"] = $?.success?
+      build["success"] = $CHILD_STATUS.success?
     end
   end
 
-  successful = builds.select{|b| b["success"] }
-  failed = builds.reject{|b| b["success"] }
+  successful = builds.select { |b| b["success"] }
+  failed = builds.reject { |b| b["success"] }
 
   puts "Completed: #{builds.count}, Successful: #{successful.count}, Failed: #{failed.count}"
 
@@ -208,7 +209,7 @@ task :run_travis_builds => :vagrant_up do |t|
     end
   end
 
-  fail if failed.count > 0
+  raise if failed.count > 0
 end
 
 task :list_travis_builds do
@@ -217,4 +218,4 @@ task :list_travis_builds do
   end
 end
 
-task :default => :spec
+task default: :spec

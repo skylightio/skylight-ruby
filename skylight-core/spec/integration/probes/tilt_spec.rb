@@ -1,6 +1,6 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe 'Tilt integration', :tilt_probe, :agent do
+describe "Tilt integration", :tilt_probe, :agent do
   it "instruments Tilt templates that have a sky_virtual_path" do
     tilt = ::Tilt::ERBTemplate.new(nil, 1, sky_virtual_path: "template") { "hello" }
 

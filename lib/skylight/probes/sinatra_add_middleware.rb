@@ -4,10 +4,10 @@ module Skylight
       class Probe
         def install
           class << ::Sinatra::Base
-            alias build_without_sk build
+            alias_method :build_without_sk, :build
 
             def build(*args, &block)
-              self.use Skylight::Middleware
+              use Skylight::Middleware
               build_without_sk(*args, &block)
             end
           end

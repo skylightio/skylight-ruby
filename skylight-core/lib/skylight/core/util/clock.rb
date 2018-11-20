@@ -2,7 +2,6 @@ module Skylight::Core
   module Util
     # A more precise clock
     class Clock
-
       def self.use_native!
         class_eval do
           def tick
@@ -11,10 +10,12 @@ module Skylight::Core
         end
       end
 
+      # rubocop:disable Lint/DuplicateMethods
       def tick
         now = Time.now
         now.to_i * 1_000_000_000 + now.usec * 1_000
       end
+      # rubocop:enable Lint/DuplicateMethods
 
       # TODO: rename to secs
       def absolute_secs
@@ -31,26 +32,25 @@ module Skylight::Core
         nanos / 1_000_000_000
       end
 
-      def self.absolute_secs
-        default.absolute_secs
-      end
+      class << self
+        def absolute_secs
+          default.absolute_secs
+        end
 
-      def self.nanos
-        default.nanos
-      end
+        def nanos
+          default.nanos
+        end
 
-      def self.secs
-        default.secs
-      end
+        def secs
+          default.secs
+        end
 
-      def self.default
-        @clock ||= Clock.new
-      end
+        def default
+          @default ||= Clock.new
+        end
 
-      def self.default=(clock)
-        @clock = clock
+        attr_writer :default
       end
-
     end
   end
 end

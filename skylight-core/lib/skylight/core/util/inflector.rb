@@ -1,6 +1,7 @@
+# rubocop:disable all
+
 module Skylight::Core
   module Util
-
     # String Inflector methods
     #
     # From https://github.com/rails/rails/blob/f8e5022c73679f41db9bb6743179bab4571fb28e/activesupport/lib/active_support/inflector/methods.rb
@@ -26,7 +27,7 @@ module Skylight::Core
       # NameError is raised when the name is not in CamelCase or the constant is
       # unknown.
       def constantize(camel_cased_word)
-        names = camel_cased_word.split('::')
+        names = camel_cased_word.split("::")
 
         # Trigger a builtin NameError exception including the ill-formed constant in the message.
         Object.const_get(camel_cased_word) if names.empty?
@@ -105,7 +106,7 @@ module Skylight::Core
           part.empty? ? acc : "#{part}(::#{acc})?"
         end
 
-        "(" + ([regexp] + parts[1..-1]).join('|') + ")"
+        "(" + ([regexp] + parts[1..-1]).join("|") + ")"
       end
     end
   end

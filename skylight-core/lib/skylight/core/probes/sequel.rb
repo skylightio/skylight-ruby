@@ -4,11 +4,11 @@ module Skylight::Core
     module Sequel
       class Probe
         def install
-          require 'sequel/database/logging'
+          require "sequel/database/logging"
 
-          method_name = ::Sequel::Database.method_defined?(:log_connection_yield) ? 'log_connection_yield' : 'log_yield'
+          method_name = ::Sequel::Database.method_defined?(:log_connection_yield) ? "log_connection_yield" : "log_yield"
 
-          ::Sequel::Database.class_eval <<-end_eval
+          ::Sequel::Database.class_eval <<-RUBY, __FILE__, __LINE__ + 1
             alias #{method_name}_without_sk #{method_name}
 
             def #{method_name}(sql, *args, &block)
@@ -23,7 +23,7 @@ module Skylight::Core
                 end
               end
             end
-          end_eval
+          RUBY
         end
       end
     end

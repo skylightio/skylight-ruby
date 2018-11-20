@@ -4,13 +4,12 @@ module Skylight::Core
       class Probe
         def install
           ::Elasticsearch::Transport::Transport::Base.class_eval do
-            alias perform_request_without_sk perform_request
+            alias_method :perform_request_without_sk, :perform_request
             def perform_request(method, path, *args, &block)
               ActiveSupport::Notifications.instrument "request.elasticsearch",
-                                                      name:   'Request',
+                                                      name:   "Request",
                                                       method: method,
                                                       path:   path do
-
 
                 # Prevent HTTP-related probes from firing
                 Skylight::Core::Normalizers::Faraday::Request.disable do
@@ -25,7 +24,7 @@ module Skylight::Core
 
             def disable_skylight_probe(class_name, &block)
               klass = Probes.const_get(class_name).const_get(:Probe) rescue nil
-              klass ? klass.disable(&block) : block.call
+              klass ? klass.disable(&block) : yield
             end
           end
         end

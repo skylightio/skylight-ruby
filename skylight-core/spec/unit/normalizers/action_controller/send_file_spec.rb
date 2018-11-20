@@ -3,7 +3,6 @@ require "spec_helper"
 if defined?(Rails)
   module Skylight
     describe "Normalizers", "send_file.action_controller", :agent do
-
       it "normalizes the notification name with defaults" do
         skip("Not testing Rails") unless defined?(Rails)
 

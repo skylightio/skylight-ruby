@@ -1,8 +1,8 @@
-require 'spec_helper'
+require "spec_helper"
 
 enable = false
 begin
-  require 'sidekiq/testing'
+  require "sidekiq/testing"
   enable = true
 rescue LoadError
   puts "[INFO] Skipping Sidekiq unit specs"
@@ -10,9 +10,7 @@ end
 
 if enable
   module Skylight::Core
-
     describe "Sidekiq" do
-
       after :each do
         ::Sidekiq.server_middleware.clear
       end
@@ -24,7 +22,7 @@ if enable
         instrumentable = double(debug: nil)
         Skylight::Core::Sidekiq.add_middleware(instrumentable)
 
-        middleware = double()
+        middleware = double
         expect(Skylight::Core::Sidekiq::ServerMiddleware).to \
           receive(:new).and_return(middleware)
 
@@ -33,7 +31,6 @@ if enable
       end
 
       context "instrumenting worker", :agent do
-
         before :each do
           ::Sidekiq::Testing.inline!
 
@@ -49,8 +46,8 @@ if enable
             include ::Sidekiq::Worker
 
             def perform
-              TestNamespace.instrument category: 'app.inside' do
-                TestNamespace.instrument category: 'app.zomg' do
+              TestNamespace.instrument category: "app.inside" do
+                TestNamespace.instrument category: "app.zomg" do
                   # nothing
                   sleep 0.1
                 end
@@ -79,10 +76,9 @@ if enable
           MyWorker.perform_async
 
           expect(@trace.endpoint).to eq("MyWorker<sk-segment>default</sk-segment>")
-          expect(@trace.mock_spans.map{|s| s[:cat]}).to eq(["app.sidekiq.worker", "app.inside", "app.zomg"])
+          expect(@trace.mock_spans.map { |s| s[:cat] }).to eq(["app.sidekiq.worker", "app.inside", "app.zomg"])
           expect(@trace.mock_spans[0][:title]).to eq("MyWorker")
         end
-
       end
     end
   end

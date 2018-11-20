@@ -1,4 +1,4 @@
-require 'skylight/core/normalizers/render'
+require "skylight/core/normalizers/render"
 
 module Skylight::Core
   module Normalizers
@@ -14,7 +14,7 @@ module Skylight::Core
         # @param payload (see RenderNormalizer#normalize_render)
         # @option payload (see RenderNormalizer#normalize_render)
         # @return (see RenderNormalizer#normalize_render)
-        def normalize(trace, name, payload)
+        def normalize(_trace, _name, payload)
           normalize_render(CAT, payload)
         end
       end

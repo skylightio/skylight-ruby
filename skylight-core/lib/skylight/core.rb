@@ -1,10 +1,10 @@
-require 'skylight/core/version'
-require 'skylight/core/deprecation'
+require "skylight/core/version"
+require "skylight/core/deprecation"
 
 module Skylight
   module Core
     # Is this autoload even useful?
-    autoload :Normalizers,  'skylight/core/normalizers'
+    autoload :Normalizers, "skylight/core/normalizers"
   end
 
   # Some methods exepected to be defined by the native code (OUTDATED)
@@ -56,32 +56,33 @@ module Skylight
   #       - description is a string
   #       - returns truthy unless uniqueness cap exceeded
 
-  require 'active_support/notifications'
+  require "active_support/notifications"
 
-  require 'skylight/core/config'
-  require 'skylight/core/user_config'
-  require 'skylight/core/gc'
-  require 'skylight/core/instrumenter'
-  require 'skylight/core/fanout'
-  require 'skylight/core/trace'
-  require 'skylight/core/vm/gc'
-  require 'skylight/core/util'
-  require 'skylight/core/middleware'
-  require 'skylight/core/sidekiq'
-  require 'skylight/core/subscriber'
-  require 'skylight/core/instrumentable'
+  require "skylight/core/config"
+  require "skylight/core/user_config"
+  require "skylight/core/gc"
+  require "skylight/core/instrumenter"
+  require "skylight/core/fanout"
+  require "skylight/core/trace"
+  require "skylight/core/vm/gc"
+  require "skylight/core/util"
+  require "skylight/core/middleware"
+  require "skylight/core/sidekiq"
+  require "skylight/core/subscriber"
+  require "skylight/core/instrumentable"
 
-  require 'skylight/core/probes'
+  require "skylight/core/probes"
 
   # @api private
-  TIERS = %w(
+  TIERS = %w[
     rack
     api
     app
     view
     db
     noise
-    other)
+    other
+  ].freeze
 
   # @api private
   TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/u
@@ -93,6 +94,5 @@ module Skylight
   DEFAULT_CATEGORY = "app.block".freeze
 
   # @api private
-  DEFAULT_OPTIONS = { category: DEFAULT_CATEGORY }
-
+  DEFAULT_OPTIONS = { category: DEFAULT_CATEGORY }.freeze
 end

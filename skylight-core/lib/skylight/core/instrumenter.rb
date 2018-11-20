@@ -1,18 +1,17 @@
-require 'thread'
-require 'strscan'
-require 'securerandom'
+require "strscan"
+require "securerandom"
 
 module Skylight::Core
   # @api private
   class Instrumenter
-    KEY  = :__skylight_current_trace
+    KEY = :__skylight_current_trace
 
-    TOO_MANY_UNIQUES = "<too many unique descriptions>"
+    TOO_MANY_UNIQUES = "<too many unique descriptions>".freeze
 
     include Util::Logging
 
     class TraceInfo
-      def initialize(key=KEY)
+      def initialize(key = KEY)
         @key = key
       end
 
@@ -50,7 +49,7 @@ module Skylight::Core
       @config = config
       @subscriber = Subscriber.new(config, self)
 
-      key = "#{KEY}_#{self.class.trace_class.name}".gsub(/\W/, '_')
+      key = "#{KEY}_#{self.class.trace_class.name}".gsub(/\W/, "_")
       @trace_info = @config[:trace_info] || TraceInfo.new(key)
     end
 
@@ -79,7 +78,7 @@ module Skylight::Core
     end
 
     def current_trace=(trace)
-      t { "setting current_trace=#{trace ? trace.uuid : "nil"}; thread=#{Thread.current.object_id}" }
+      t { "setting current_trace=#{trace ? trace.uuid : 'nil'}; thread=#{Thread.current.object_id}" }
       @trace_info.current = trace
     end
 
@@ -110,7 +109,6 @@ module Skylight::Core
       ActiveSupport::Notifications.instrument("started_instrumenter.skylight", instrumenter: self)
 
       self
-
     rescue Exception => e
       log_error "failed to start instrumenter; msg=%s; config=%s", e.message, config.inspect
       t { e.backtrace.join("\n") }
@@ -122,9 +120,9 @@ module Skylight::Core
       native_stop
     end
 
-    def trace(endpoint, cat, title=nil, desc=nil, meta=nil, segment: nil)
+    def trace(endpoint, cat, title = nil, desc = nil, meta = nil, segment: nil)
       # If a trace is already in progress, continue with that one
-      if trace = @trace_info.current
+      if (trace = @trace_info.current)
         return yield(trace) if block_given?
         return trace
       end
@@ -161,7 +159,7 @@ module Skylight::Core
     end
 
     def self.match?(string, regex)
-      @scanner ||= StringScanner.new('')
+      @scanner ||= StringScanner.new("")
       @scanner.string = string
       @scanner.match?(regex)
     end
@@ -170,10 +168,10 @@ module Skylight::Core
       self.class.match?(string, regex)
     end
 
-    def instrument(cat, title=nil, desc=nil, meta=nil)
-      raise ArgumentError, 'cat is required' unless cat
+    def instrument(cat, title = nil, desc = nil, meta = nil)
+      raise ArgumentError, "cat is required" unless cat
 
-      unless trace = @trace_info.current
+      unless (trace = @trace_info.current)
         return yield if block_given?
         return
       end
@@ -188,7 +186,7 @@ module Skylight::Core
 
       cat = "other.#{cat}" unless match?(cat, Skylight::TIER_REGEX)
 
-      unless sp = trace.instrument(cat, title, desc, meta)
+      unless (sp = trace.instrument(cat, title, desc, meta))
         return yield if block_given?
         return
       end
@@ -207,17 +205,17 @@ module Skylight::Core
     end
 
     def span_correlation_header(span)
-      return unless trace = @trace_info.current
+      return unless (trace = @trace_info.current)
       trace.span_correlation_header(span)
     end
 
     def broken!
-      return unless trace = @trace_info.current
+      return unless (trace = @trace_info.current)
       trace.broken!
     end
 
-    def done(span, meta=nil)
-      return unless trace = @trace_info.current
+    def done(span, meta = nil)
+      return unless (trace = @trace_info.current)
       trace.done(span, meta)
     end
 

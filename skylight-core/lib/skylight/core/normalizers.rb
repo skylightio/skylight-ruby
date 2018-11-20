@@ -1,17 +1,16 @@
-require 'skylight/core/normalizers/default'
+require "skylight/core/normalizers/default"
 
 module Skylight::Core
   # @api private
   # Convert AS::N events to Skylight events
   module Normalizers
-
     DEFAULT = Default.new
 
     def self.registry
       @registry ||= {}
     end
 
-    def self.register(name, klass, opts={})
+    def self.register(name, klass, opts = {})
       enabled = opts[:enabled] != false
       registry[name] = [klass, enabled]
     end
@@ -22,9 +21,9 @@ module Skylight::Core
 
     def self.enable(*names, enabled: true)
       names.each do |name|
-        matches = registry.select{|n,_| n =~ /(^|\.)#{name}$/ }
+        matches = registry.select { |n, _| n =~ /(^|\.)#{name}$/ }
         raise ArgumentError, "no normalizers match #{name}" if matches.empty?
-        matches.values.each{|v| v[1] = enabled }
+        matches.values.each { |v| v[1] = enabled }
       end
     end
 
@@ -36,7 +35,7 @@ module Skylight::Core
       normalizers = {}
 
       registry.each do |key, (klass, enabled)|
-        next if !enabled
+        next unless enabled
 
         unless klass.method_defined?(:normalize)
           # TODO: Warn
@@ -50,7 +49,7 @@ module Skylight::Core
     end
 
     class Normalizer
-      def self.register(name, opts={})
+      def self.register(name, opts = {})
         Normalizers.register(name, self, opts)
       end
 
@@ -61,12 +60,11 @@ module Skylight::Core
         setup if respond_to?(:setup)
       end
 
-      def normalize(trace, name, payload)
+      def normalize(_trace, _name, _payload)
         :skip
       end
 
-      def normalize_after(trace, span, name, payload)
-      end
+      def normalize_after(trace, span, name, payload); end
     end
 
     class Container
@@ -94,7 +92,7 @@ module Skylight::Core
       end
     end
 
-    %w( action_controller/process_action
+    %w[ action_controller/process_action
         action_controller/send_file
         action_view/render_collection
         action_view/render_partial
@@ -112,7 +110,7 @@ module Skylight::Core
         faraday/request
         grape/endpoint
         moped/query
-        sequel/sql).each do |file|
+        sequel/sql].each do |file|
       require "skylight/core/normalizers/#{file}"
     end
   end

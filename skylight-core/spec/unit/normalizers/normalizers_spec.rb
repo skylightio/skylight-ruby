@@ -1,8 +1,7 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Skylight::Core
   describe Normalizers do
-
     before :each do
       @original_registry = Normalizers.instance_variable_get(:@registry)
 
@@ -38,14 +37,13 @@ module Skylight::Core
     end
 
     it "will not enable a bad match" do
-      ["tes", "est", "disabled"].each do |key|
-        expect {
+      %w[tes est disabled].each do |key|
+        expect do
           Normalizers.enable(key)
-        }.to raise_error(ArgumentError, "no normalizers match #{key}")
+        end.to raise_error(ArgumentError, "no normalizers match #{key}")
       end
 
       expect(subject.registry["disabled.test"][1]).to eq(false)
     end
-
   end
 end

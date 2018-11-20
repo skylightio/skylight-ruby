@@ -8,7 +8,7 @@ module SpecHelper
       repeated :spans,    Span,    3
 
       def filtered_spans
-        spans.reject { |span| span.event.category == 'noise.gc' }
+        spans.reject { |span| span.event.category == "noise.gc" }
       end
     end
   end

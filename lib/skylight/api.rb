@@ -1,5 +1,5 @@
-require 'uri'
-require 'skylight/util/http'
+require "uri"
+require "skylight/util/http"
 
 module Skylight
   # @api private
@@ -21,14 +21,14 @@ module Skylight
 
       def errors
         return unless res.respond_to?(:body) && res.body.is_a?(Hash)
-        res.body['errors']
+        res.body["errors"]
       end
 
       def to_s
         if errors
           errors.inspect
         elsif res
-          "#{res.class.to_s}: #{res.to_s}"
+          "#{res.class}: #{res}"
         else
           super
         end
@@ -36,7 +36,6 @@ module Skylight
     end
 
     class ConfigValidationResults
-
       include Core::Util::Logging
 
       attr_reader :raw_response
@@ -46,7 +45,7 @@ module Skylight
         @raw_response = raw_response
       end
 
-      def is_error_response?
+      def error_response?
         raw_response.is_a?(Util::HTTP::ErrorResponse) || status > 499
       end
 
@@ -55,7 +54,7 @@ module Skylight
       end
 
       def body
-        return nil if is_error_response?
+        return nil if error_response?
 
         unless raw_response.body.is_a?(Hash)
           warn("Unable to parse server response: status=%s, body=%s", raw_response.status, raw_response.body)
@@ -67,10 +66,10 @@ module Skylight
 
       def token_valid?
         # Don't prevent boot if it's an error response, so assume token is valid
-        return true if is_error_response?
+        return true if error_response?
         # A 2xx response means everything is good!
         return true if raw_response.success?
-        return false if status === 401
+        return false if status == 401
 
         # A 403/422 means an invalid config,
         # but the token must be valid if we got this far
@@ -83,26 +82,25 @@ module Skylight
       end
 
       def forbidden?
-        status === 403
+        status == 403
       end
 
       def validation_errors
         return {} if config_valid? || !body
-        body['errors']
+        body["errors"]
       end
 
       def corrected_config
         return {} if config_valid? || !body
-        body['corrected']
+        body["corrected"]
       end
-
     end
 
     def initialize(config)
       @config = config
     end
 
-    def create_app(name, token=nil)
+    def create_app(name, token = nil)
       params = { app: { name: name } }
       params[:token] = token if token
 
@@ -113,17 +111,17 @@ module Skylight
     end
 
     def fetch_mergeable_apps(token)
-      headers = { 'x-skylight-merge-token' => token }
+      headers = { "x-skylight-merge-token" => token }
       http_request(:merges, :get, headers).tap do |res|
-        raise error_for_status(res.status).new("HTTP #{res.status}: #{res.body}") unless res.success?
+        raise error_for_status(res.status), "HTTP #{res.status}: #{res.body}" unless res.success?
       end
     end
 
     def merge_apps!(token, app_guid:, component_guid:, environment:)
-      headers = { 'x-skylight-merge-token' => token }
+      headers = { "x-skylight-merge-token" => token }
       body = { environment: environment, app_guid: app_guid, component_guid: component_guid }
       http_request(:merges, :post, body, headers).tap do |res|
-        raise error_for_status(res.status).new("HTTP #{res.status}: #{res.body}") unless res.success?
+        raise error_for_status(res.status), "HTTP #{res.status}: #{res.body}" unless res.success?
       end
     end
 
@@ -134,24 +132,22 @@ module Skylight
 
     private
 
-    # TODO: Improve handling here: https://github.com/tildeio/direwolf-agent/issues/274
-    def http_request(service, method, *args)
-      http = Util::HTTP.new(config, service)
-      uri = URI.parse(config.get("#{service}_url"))
-      http.send(method, uri.path, *args)
-    end
-
-    def error_for_status(code)
-      case code
-      when 401
-        Unauthorized
-      when 409
-        Conflict
-      else
-        Error
+      # TODO: Improve handling here: https://github.com/tildeio/direwolf-agent/issues/274
+      def http_request(service, method, *args)
+        http = Util::HTTP.new(config, service)
+        uri = URI.parse(config.get("#{service}_url"))
+        http.send(method, uri.path, *args)
       end
-    end
 
+      def error_for_status(code)
+        case code
+        when 401
+          Unauthorized
+        when 409
+          Conflict
+        else
+          Error
+        end
+      end
   end
-
 end

@@ -1,22 +1,22 @@
-require 'skylight/core/util/platform'
+require "skylight/core/util/platform"
 
 module Skylight
   # @api private
   # Whether or not the native extension is present
-  @@has_native_ext = false
+  @has_native_ext = false
 
   def self.native?
-    @@has_native_ext
+    @has_native_ext
   end
 
   def self.libskylight_path
-    ENV['SKYLIGHT_LIB_PATH'] || File.expand_path("../native/#{Core::Util::Platform.tuple}", __FILE__)
+    ENV["SKYLIGHT_LIB_PATH"] || File.expand_path("../native/#{Core::Util::Platform.tuple}", __FILE__)
   end
 
-  skylight_required = ENV.key?("SKYLIGHT_REQUIRED") && ENV['SKYLIGHT_REQUIRED'] !~ /^false$/i
+  skylight_required = ENV.key?("SKYLIGHT_REQUIRED") && ENV["SKYLIGHT_REQUIRED"] !~ /^false$/i
 
   begin
-    unless ENV.key?("SKYLIGHT_DISABLE_AGENT") && ENV['SKYLIGHT_DISABLE_AGENT'] !~ /^false$/i
+    unless ENV.key?("SKYLIGHT_DISABLE_AGENT") && ENV["SKYLIGHT_DISABLE_AGENT"] !~ /^false$/i
       lib = "#{libskylight_path}/libskylight.#{Core::Util::Platform.libext}"
 
       if File.exist?(lib)
@@ -27,7 +27,7 @@ module Skylight
         load_libskylight(lib)
 
         # If nothing was thrown, then the native extension is present
-        @@has_native_ext = true
+        @has_native_ext = true
       elsif skylight_required
         raise LoadError, "Cannot find native extensions in #{libskylight_path}"
       end
@@ -35,7 +35,7 @@ module Skylight
   rescue RuntimeError => e
     # Old versions of OS X can have dlerrors, just treat it like a missing native
     raise if skylight_required || e.message !~ /dlerror/
-  rescue LoadError => e
+  rescue LoadError
     raise if skylight_required
   end
 
@@ -43,7 +43,7 @@ module Skylight
     Skylight::Core::Util::Clock.use_native!
   else
     class Instrumenter
-      def self.native_new(*args)
+      def self.native_new(*_args)
         allocate
       end
     end
@@ -52,13 +52,13 @@ module Skylight
   # @api private
   def self.check_install_errors(config)
     # Note: An unsupported arch doesn't count as an error.
-    install_log = File.expand_path("../../../ext/install.log", __FILE__)
+    install_log = File.expand_path("../../ext/install.log", __dir__)
 
     if File.exist?(install_log) && File.read(install_log) =~ /ERROR/
       config.alert_logger.error \
-          "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension failed to install. " \
-          "Please check #{install_log} and notify support@skylight.io. " \
-          "The missing extension will not affect the functioning of your application."
+        "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension failed to install. " \
+        "Please check #{install_log} and notify support@skylight.io. " \
+        "The missing extension will not affect the functioning of your application."
     end
   end
 

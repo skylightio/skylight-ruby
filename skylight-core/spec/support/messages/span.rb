@@ -11,7 +11,7 @@ module SpecHelper
 
       def ==(other)
         s = super
-        return s if s || other == nil || other == false
+        return s if s || other.nil? || other == false
         return s unless other[:annotations].nil? ^ self[:annotations].nil?
 
         # most specs don't specify annotations currently

@@ -55,7 +55,7 @@ module Skylight::Core
 
         def install
           ::ActionDispatch::MiddlewareStack::Middleware.class_eval do
-            alias build_without_sk build
+            alias_method :build_without_sk, :build
             def build(*args)
               sk_instrument_middleware(build_without_sk(*args))
             end

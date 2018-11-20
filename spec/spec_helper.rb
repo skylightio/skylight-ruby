@@ -1,11 +1,11 @@
-APP_ROOT = File.expand_path("../..", __FILE__)
+APP_ROOT = File.expand_path("..", __dir__)
 
-require 'rubygems'
-require 'bundler/setup'
+require "rubygems"
+require "bundler/setup"
 
 # Do this at the start
 begin
-  require 'simplecov'
+  require "simplecov"
   SimpleCov.start do
     add_filter %r{/spec/}
     add_filter %r{/vendor/}
@@ -14,7 +14,7 @@ rescue LoadError
   puts "Skipping CodeClimate coverage reporting"
 end
 
-require 'timecop'
+require "timecop"
 
 # Loads Skylight + the native extension such that missing the native extension
 # will report more helpful errors
@@ -22,9 +22,9 @@ require "support/native"
 
 # Support files
 
-require_relative '../skylight-core/spec/shared_spec_helper'
+require_relative "../skylight-core/spec/shared_spec_helper"
 
-Dir[File.expand_path('../support/*.rb', __FILE__)].each do |f|
+Dir[File.expand_path("support/*.rb", __dir__)].each do |f|
   require f
 end
 
@@ -32,7 +32,7 @@ end
 # receive requests. The HTTP server is used to mock out the Skylight hosted
 # service.
 def get_embedded_http_server_timeout
-  if timeout = ENV['EMBEDDED_HTTP_SERVER_TIMEOUT']
+  if (timeout = ENV["EMBEDDED_HTTP_SERVER_TIMEOUT"])
     puts "EMBEDDED_HTTP_SERVER_TIMEOUT=#{timeout}"
     timeout.to_i
   else
@@ -42,7 +42,7 @@ end
 
 # Similar to above, but this is for waiting for the worker to spawn.
 def get_worker_spawn_timeout
-  if timeout = ENV['WORKER_SPAWN_TIMEOUT']
+  if (timeout = ENV["WORKER_SPAWN_TIMEOUT"])
     puts "WORKER_SPAWN_TIMEOUT=#{timeout}"
     timeout.to_i
   else
@@ -56,7 +56,7 @@ WORKER_SPAWN_TIMEOUT = get_worker_spawn_timeout
 # End Normalize Libraries
 
 RSpec.configure do |config|
-  config.example_status_persistence_file_path = File.expand_path("../../tmp/rspec-examples.txt", __FILE__)
+  config.example_status_persistence_file_path = File.expand_path("../tmp/rspec-examples.txt", __dir__)
 
   config.include SpecHelper
 

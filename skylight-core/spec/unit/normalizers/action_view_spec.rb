@@ -1,11 +1,10 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Skylight::Core
   describe "Normalizers", :agent do
-
     let(:config) do
       # the second path represents rails root
-      Config.new normalizers: { render: { view_paths: %w(/path/to/views /path/to) }}
+      Config.new normalizers: { render: { view_paths: %w[/path/to/views /path/to] } }
     end
 
     shared_examples_for "template normalizer" do

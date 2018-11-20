@@ -4,21 +4,22 @@ module Skylight::Core
       class Probe
         def install
           ::ActionView::TemplateRenderer.class_eval do
-            alias render_with_layout_without_sk render_with_layout
+            alias_method :render_with_layout_without_sk, :render_with_layout
 
             def render_with_layout(path, locals, *args, &block) #:nodoc:
               layout = nil
 
               if path
-                if ::ActionView.gem_version >= Gem::Version.new('5.x')
-                  layout = find_layout(path, locals.keys, [formats.first])
-                else
-                  layout = find_layout(path, locals.keys)
-                end
+                layout =
+                  if ::ActionView.gem_version >= Gem::Version.new("5.x")
+                    find_layout(path, locals.keys, [formats.first])
+                  else
+                    find_layout(path, locals.keys)
+                  end
               end
 
               if layout
-                instrument(:template, :identifier => layout.identifier) do
+                instrument(:template, identifier: layout.identifier) do
                   render_with_layout_without_sk(path, locals, *args, &block)
                 end
               else

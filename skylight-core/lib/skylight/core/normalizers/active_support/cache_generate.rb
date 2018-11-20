@@ -5,10 +5,10 @@ module Skylight::Core
         register "cache_generate.active_support"
 
         CAT = "app.cache.generate".freeze
-        TITLE = "cache generate"
+        TITLE = "cache generate".freeze
 
-        def normalize(trace, name, payload)
-          [ CAT, TITLE, nil ]
+        def normalize(_trace, _name, _payload)
+          [CAT, TITLE, nil]
         end
       end
     end

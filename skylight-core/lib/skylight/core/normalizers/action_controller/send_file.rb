@@ -1,22 +1,25 @@
 module Skylight::Core
   module Normalizers
     module ActionController
+      enabled = true
 
       # Temporary hacks
       begin
         require "action_dispatch/http/mime_type"
         require "action_dispatch/http/mime_types"
         require "rack/utils"
+      rescue LoadError
+        enabled = false
+      end
 
+      if enabled
         class SendFile < Normalizer
           register "send_file.action_controller"
 
           CAT = "app.controller.send_file".freeze
           TITLE = "send file".freeze
 
-          def normalize(trace, name, payload)
-            path = payload[:path]
-
+          def normalize(_trace, _name, _payload)
             title = TITLE
 
             # depending on normalization, we probably want this to eventually
@@ -24,27 +27,24 @@ module Skylight::Core
             # deduping strategy first.
             desc = nil
 
-            [ CAT, title, desc ]
+            [CAT, title, desc]
           end
 
-        private
+          private
 
-          OCTET_STREAM = "application/octet-stream".freeze
-          ATTACHMENT = "attachment".freeze
+            OCTET_STREAM = "application/octet-stream".freeze
+            ATTACHMENT = "attachment".freeze
 
-          def initialize(*)
-            super
+            def initialize(*)
+              super
 
-            @mimes = Mime::SET.reduce({}) do |hash, mime|
-              hash[mime.symbol] = mime.to_s.dup.freeze
-              hash
+              @mimes = Mime::SET.each_with_object({}) do |mime, hash|
+                hash[mime.symbol] = mime.to_s.dup.freeze
+                hash
+              end
             end
-          end
         end
-
-      rescue LoadError
       end
-
     end
   end
 end

@@ -1,4 +1,4 @@
-require 'skylight/util/http'
+require "skylight/util/http"
 
 module Skylight
   module CLI
@@ -20,7 +20,7 @@ module Skylight
               say "Failed to verify SSL certificate.", :red
               if Util::SSL.ca_cert_file?
                 say "Certificates located at #{Util::SSL.ca_cert_file_or_default} may be out of date.", :yellow
-                if is_mac? && has_rvm?
+                if mac? && rvm_present?
                   say "Please update your certificates with RVM by running `rvm osx-ssl-certs update all`.", :yellow
                   say "Alternatively, try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your environment.", :yellow
                 else
@@ -39,7 +39,7 @@ module Skylight
         say "Checking for Rails"
 
         indent do
-          if is_rails?
+          if rails?
             say "Rails application detected", :green
           else
             say "No Rails application detected", :yellow
@@ -63,7 +63,7 @@ module Skylight
             say "Unable to load native extension", :yellow
 
             indent do
-              install_log = File.expand_path("../../../ext/install.log", __FILE__)
+              install_log = File.expand_path("../../ext/install.log", __dir__)
               if File.exist?(install_log)
                 File.readlines(install_log).each do |line|
                   say line, :red
@@ -112,8 +112,8 @@ module Skylight
           # Log everything
           logger.level = Logger::DEBUG
           # Remove excess formatting
-          logger.formatter = proc { |severity, datetime, progname, msg|
-            msg = msg.sub("[SKYLIGHT] [#{Skylight::VERSION}] ", '')
+          logger.formatter = proc { |severity, _datetime, _progname, msg|
+            msg = msg.sub("[SKYLIGHT] [#{Skylight::VERSION}] ", "")
             say "#{severity} - #{msg}" # Definitely non-standard
           }
           config.logger = logger
@@ -139,7 +139,7 @@ module Skylight
           daemon_running = false
           while tries < 5
             `ps cax | grep skylightd`
-            if $?.success?
+            if $CHILD_STATUS.success?
               daemon_running = true
               break
             end
@@ -171,9 +171,9 @@ module Skylight
           return @config if @config
 
           # MEGAHAX
-          if is_rails?
+          if rails?
             # Normally auto-loaded, but we haven't loaded Rails by the time Skylight is loaded
-            require 'skylight/railtie'
+            require "skylight/railtie"
             require rails_rb
 
             railtie = Skylight::Railtie.send(:new)
@@ -183,14 +183,14 @@ module Skylight
           end
         end
 
-        def is_mac?
-          Core::Util::Platform::OS == 'darwin'
+        def mac?
+          Core::Util::Platform::OS == "darwin"
         end
 
         # NOTE: This check won't work correctly on Windows
-        def has_rvm?
+        def rvm_present?
           if @has_rvm.nil?
-            @has_rvm = system("which rvm > /dev/null");
+            @has_rvm = system("which rvm > /dev/null")
           end
           @has_rvm
         end
@@ -217,7 +217,6 @@ module Skylight
             exit 0
           end
         end
-
     end
   end
 end

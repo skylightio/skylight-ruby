@@ -5,10 +5,10 @@ module Skylight::Core
         register "cache_decrement.active_support"
 
         CAT = "app.cache.decrement".freeze
-        TITLE = "cache decrement"
+        TITLE = "cache decrement".freeze
 
-        def normalize(trace, name, payload)
-          [ CAT, TITLE, nil ]
+        def normalize(_trace, _name, _payload)
+          [CAT, TITLE, nil]
         end
       end
     end

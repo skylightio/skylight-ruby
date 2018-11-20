@@ -4,7 +4,7 @@ module Skylight::Core
       class EndpointRun < Endpoint
         register "endpoint_run.grape"
 
-        def normalize(trace, name, payload)
+        def normalize(trace, _name, payload)
           trace.endpoint = get_endpoint_name(payload[:endpoint]) if payload[:endpoint]
 
           # We don't necessarily want this to be all instrumented since it's fairly internal.
@@ -20,13 +20,12 @@ module Skylight::Core
             namespace = get_namespace(endpoint)
 
             if namespace && !namespace.empty?
-              path = "/#{path}" if path[0] != '/'
+              path = "/#{path}" if path[0] != "/"
               path = "#{namespace}#{path}"
             end
 
             "#{endpoint.options[:for]} [#{method}] #{path}"
           end
-
       end
     end
   end

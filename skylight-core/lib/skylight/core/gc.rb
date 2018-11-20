@@ -1,9 +1,7 @@
-require 'thread'
-
 module Skylight::Core
   # @api private
   class GC
-    METHODS   = [ :enable, :total_time ]
+    METHODS   = %i[enable total_time].freeze
     TH_KEY    = :SK_GC_CURR_WINDOW
     MAX_COUNT = 1000
     MAX_TIME  = 30_000_000
@@ -36,9 +34,7 @@ module Skylight::Core
     end
 
     def track
-      unless @profiler
-        win = Window.new(nil)
-      else
+      if @profiler
         win = Window.new(self)
 
         @lock.synchronize do
@@ -46,17 +42,17 @@ module Skylight::Core
           @listeners << win
 
           # Cleanup any listeners that might have leaked
-          until @listeners[0].time < MAX_TIME
-            @listeners.shift
-          end
+          @listeners.shift until @listeners[0].time < MAX_TIME
 
           if @listeners.length > MAX_COUNT
             @listeners.shift
           end
         end
-      end
 
-      win
+        win
+      else
+        Window.new(nil)
+      end
     end
 
     def release(win)
@@ -73,40 +69,39 @@ module Skylight::Core
       nil
     end
 
-  private
+    private
 
-    def __update
-      time  = @profiler.total_time
-      diff  = time - @time
-      @time = time
+      def __update
+        time  = @profiler.total_time
+        diff  = time - @time
+        @time = time
 
-      if diff > 0
-        @listeners.each do |l|
-          l.add(diff)
+        if diff > 0
+          @listeners.each do |l|
+            l.add(diff)
+          end
         end
       end
-    end
 
-    class Window
-      attr_reader :time
+      class Window
+        attr_reader :time
 
-      def initialize(global)
-        @global = global
-        @time   = 0
+        def initialize(global)
+          @global = global
+          @time   = 0
+        end
+
+        def update
+          @global.update if @global
+        end
+
+        def add(time)
+          @time += time
+        end
+
+        def release
+          @global.release(self) if @global
+        end
       end
-
-      def update
-        @global.update if @global
-      end
-
-      def add(time)
-        @time += time
-      end
-
-      def release
-        @global.release(self) if @global
-      end
-    end
-
   end
 end

@@ -1,10 +1,9 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Skylight::Core
   module Probes
     describe "Excon", :excon_probe do
       describe "Probe", :probes do
-
         it "is registered" do
           reg = Skylight::Core::Probes.installed["Excon"]
           expect(reg.klass_name).to eq("Excon")
@@ -19,26 +18,27 @@ module Skylight::Core
 
           # Verify correct positioning
           idx = middlewares.index(Skylight::Core::Probes::Excon::Middleware)
-          expect(middlewares[idx+1]).to eq(::Excon::Middleware::Instrumentor)
+          expect(middlewares[idx + 1]).to eq(::Excon::Middleware::Instrumentor)
         end
       end
 
       describe "Middleware" do
-
         # This may be a bit overkill, but I'm trying to mock Excon somewhat accurately
         class TestConnection
-          def initialize(middlewares=[])
+          def initialize(middlewares = [])
             @error_calls = []
             @request_calls = []
             @response_calls = []
 
+            # rubocop:disable all
             # This is how Excon does it
             # https://github.com/geemus/excon/blob/b367b788b0cd71eb22107492496e1857497dd292/lib/excon/connection.rb#L260-L265
             @stack = middlewares.map do |middleware|
-              lambda {|stack| middleware.new(stack)}
+              ->(stack) { middleware.new(stack) }
             end.reverse.inject(self) do |middlewares, middleware|
               middleware.call(middlewares)
             end
+            # rubocop:enable all
           end
 
           def error_call(datum)
@@ -94,7 +94,6 @@ module Skylight::Core
           conn.request(datum)
           conn.error(datum)
         end
-
       end
     end
   end

@@ -1,13 +1,12 @@
-require 'spec_helper'
+require "spec_helper"
 
 if defined?(ActiveModel::Serializer)
-  describe 'ActiveModel::Serializer', :active_model_serializers_probe, :agent, :instrumenter do
-
-    require 'action_controller'
-    require 'action_controller/serialization'
+  describe "ActiveModel::Serializer", :active_model_serializers_probe, :agent, :instrumenter do
+    require "action_controller"
+    require "action_controller/serialization"
 
     # File changed name between versions
-    %w(serializer serializers).each do |dir|
+    %w[serializer serializers].each do |dir|
       begin
         require "active_model/#{dir}/version"
       rescue LoadError
@@ -33,14 +32,13 @@ if defined?(ActiveModel::Serializer)
 
         attr_accessor :name, :value
 
-        def initialize(attributes={})
+        def initialize(attributes = {})
           attributes.each do |key, val|
-            self.send("#{key}=", val)
+            send("#{key}=", val)
           end
         end
       end
     end
-
 
     class ItemSerializer < ActiveModel::Serializer
       attributes :name, :doubled_value
@@ -62,7 +60,9 @@ if defined?(ActiveModel::Serializer)
       end
 
       # Used by AM::S (older only?)
-      def url_options; {} end
+      def url_options
+        {}
+      end
 
       private
 
@@ -72,7 +72,7 @@ if defined?(ActiveModel::Serializer)
     end
 
     let :request do
-      ActionDispatch::TestRequest.new('REQUEST_METHOD' => 'GET', 'rack.input' => '')
+      ActionDispatch::TestRequest.new("REQUEST_METHOD" => "GET", "rack.input" => "")
     end
 
     let :controller do
@@ -88,13 +88,13 @@ if defined?(ActiveModel::Serializer)
     end
 
     it "instruments serialization" do
-      status, header, response = dispatch(:show)
+      _status, _header, response = dispatch(:show)
 
-      json = { item: { name: "Test", doubled_value: 4 }}.to_json
+      json = { item: { name: "Test", doubled_value: 4 } }.to_json
       expect(response.body).to eq(json)
 
       opts = {
-        cat: 'view.render.active_model_serializers',
+        cat: "view.render.active_model_serializers",
         title: "ItemSerializer"
       }
 
@@ -106,14 +106,14 @@ if defined?(ActiveModel::Serializer)
     end
 
     it "instruments array serialization" do
-      status, header, response = dispatch(:list)
+      _status, _header, response = dispatch(:list)
 
       json = { items: [{ name: "Test", doubled_value: 4 },
-                        { name: "Other", doubled_value: 10 }]}.to_json
+                       { name: "Other", doubled_value: 10 }] }.to_json
       expect(response.body).to eq(json)
 
       opts = {
-        cat: 'view.render.active_model_serializers'
+        cat: "view.render.active_model_serializers"
       }
 
       if version >= Gem::Version.new("0.10.0.rc1")
@@ -125,6 +125,5 @@ if defined?(ActiveModel::Serializer)
 
       expect(current_trace.mock_spans[2]).to include(opts)
     end
-
   end
 end

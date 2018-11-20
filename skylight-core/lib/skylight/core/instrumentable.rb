@@ -1,7 +1,6 @@
 module Skylight
   module Core
     module Instrumentable
-
       def self.included(base)
         base.extend(Util::Logging)
         base.extend(ClassMethods)
@@ -16,7 +15,6 @@ module Skylight
       end
 
       module ClassMethods
-
         def instrumenter_class
           Skylight::Core::Instrumenter
         end
@@ -38,7 +36,7 @@ module Skylight
         end
 
         # Start instrumenting
-        def start!(config=nil)
+        def start!(config = nil)
           return @instrumenter if @instrumenter
 
           const_get(:LOCK).synchronize do
@@ -50,11 +48,14 @@ module Skylight
             @instrumenter = instrumenter_class.new(config).start!
           end
         rescue => e
-          level, message = if e.is_a? ConfigError
-            [:warn, sprintf("Unable to start Instrumenter due to a configuration error: %s", e.message)]
-          else
-            [:error, sprintf("Unable to start Instrumenter; msg=%s; class=%s", e.message, e.class)]
-          end
+          level, message =
+            if e.is_a?(ConfigError)
+              [:warn, format("Unable to start Instrumenter due to a configuration error: %<message>s",
+                             message: e.message)]
+            else
+              [:error, format("Unable to start Instrumenter; msg=%<message>s; class=%<klass>s",
+                              message: e.message, klass: e.class)]
+            end
 
           if config && config.respond_to?("log_#{level}") && config.respond_to?(:log_trace)
             config.send("log_#{level}", message)
@@ -82,12 +83,12 @@ module Skylight
 
         # Check tracing
         def tracing?
-          t { "checking tracing?; thread=#{Thread.current.object_id}"}
+          t { "checking tracing?; thread=#{Thread.current.object_id}" }
           instrumenter && instrumenter.current_trace
         end
 
         # Start a trace
-        def trace(endpoint=nil, cat=nil, title=nil, meta=nil, segment: nil)
+        def trace(endpoint = nil, cat = nil, title = nil, meta = nil, segment: nil)
           unless instrumenter
             return yield if block_given?
             return
@@ -109,7 +110,7 @@ module Skylight
             return
           end
 
-          if Hash === opts
+          if opts.is_a?(Hash)
             category    = opts[:category] || DEFAULT_CATEGORY
             title       = opts[:title]
             desc        = opts[:description]
@@ -133,7 +134,7 @@ module Skylight
         end
 
         # End a span
-        def done(span, meta=nil)
+        def done(span, meta = nil)
           return unless instrumenter
           instrumenter.done(span, meta)
         end
@@ -157,9 +158,7 @@ module Skylight
           return unless instrumenter
           instrumenter.config
         end
-
       end
-
     end
   end
 end

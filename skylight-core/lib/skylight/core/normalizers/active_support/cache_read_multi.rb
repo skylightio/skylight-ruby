@@ -5,10 +5,10 @@ module Skylight::Core
         register "cache_read_multi.active_support"
 
         CAT = "app.cache.read_multi".freeze
-        TITLE = "cache read multi"
+        TITLE = "cache read multi".freeze
 
-        def normalize(trace, name, payload)
-          [ CAT, TITLE, nil ]
+        def normalize(_trace, _name, _payload)
+          [CAT, TITLE, nil]
         end
       end
     end

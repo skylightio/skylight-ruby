@@ -6,11 +6,11 @@ module Skylight::Core
           class Probe
             def install
               ::ActionDispatch::Routing::RouteSet.class_eval do
-                alias call_without_sk call
+                alias_method :call_without_sk, :call
 
                 def call(env)
                   Skylight::Core::Fanout.endpoint = self.class.name
-                  Skylight::Core::Fanout.instrument(title: self.class.name, category: 'rack.app') do
+                  Skylight::Core::Fanout.instrument(title: self.class.name, category: "rack.app") do
                     call_without_sk(env)
                   end
                 end
@@ -19,7 +19,6 @@ module Skylight::Core
           end
         end
       end
-
     end
 
     register(:rails_router, "ActionDispatch::Routing::RouteSet", "action_dispatch/routing/route_set", ActionDispatch::Routing::RouteSet::Probe.new)

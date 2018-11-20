@@ -1,20 +1,19 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe 'Excon integration', :excon_probe, :http, :agent, :instrumenter do
-
+describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
   def travel(amount)
     clock.tick += 100_000 * amount # tick value should be nanoseconds (1 billionth of a second)
   end
 
-  def stub_request(opts={}, &block)
+  def stub_request(opts = {})
     path = "/#{opts[:path]}"
     method = opts[:method] || :get
     delay  = opts[:delay] || 1 # agent talks units of 100 microseconds (10,000ths of a second)
 
     server.mock path, method do
       travel(delay)
-      block.call() if block
-      [200, '']
+      yield if block_given?
+      [200, ""]
     end
   end
 
@@ -42,10 +41,9 @@ describe 'Excon integration', :excon_probe, :http, :agent, :instrumenter do
     end
 
     it "logs errored requests" do
-      Excon.stub({}, lambda{|request_params|
+      Excon.stub({}, lambda { |_request_params|
         travel(2)
         raise "bad response"
-        { :body => 'body', :status => 200 }
       })
 
       Excon.get("http://example.com") rescue nil
@@ -57,12 +55,10 @@ describe 'Excon integration', :excon_probe, :http, :agent, :instrumenter do
       }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
-
   end
 
   context "descriptions" do
-
-    %w(connect delete get head options patch post put trace).each do |verb|
+    %w[connect delete get head options patch post put trace].each do |verb|
       it "describes #{verb}" do
         stub_request(method: verb)
 
@@ -93,5 +89,4 @@ describe 'Excon integration', :excon_probe, :http, :agent, :instrumenter do
       expect(current_trace.mock_spans[1]).to include(cat: "api.http.get", title: "GET 127.0.0.1")
     end
   end
-
 end

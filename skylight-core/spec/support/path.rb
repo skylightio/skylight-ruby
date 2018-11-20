@@ -1,24 +1,24 @@
-require 'pathname'
+require "pathname"
 
 module SpecHelper
   module Path
-    def root
-      @root ||= Pathname.new(ENV.fetch("SKYLIGHT_TEST_DIR", File.expand_path("../../..", __FILE__)))
-    end
+    module_function
 
-    def tmp(*path)
-      root.join("tmp", *path)
-    end
+      def root
+        @root ||= Pathname.new(ENV.fetch("SKYLIGHT_TEST_DIR", File.expand_path("../..", __dir__)))
+      end
 
-    def lockfile
-      tmp("skylight.pid")
-    end
+      def tmp(*path)
+        root.join("tmp", *path)
+      end
 
-    def sockdir_path(*args)
-      tmp(*args)
-    end
+      def lockfile
+        tmp("skylight.pid")
+      end
 
-    extend self
+      def sockdir_path(*args)
+        tmp(*args)
+      end
   end
 
   include Path
@@ -40,6 +40,6 @@ class Pathname
 
   def write(content)
     dirname.mkdir_p
-    File.open(self, 'w') { |f| f.write(content) }
+    File.open(self, "w") { |f| f.write(content) }
   end
 end

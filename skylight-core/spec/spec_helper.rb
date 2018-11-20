@@ -1,9 +1,9 @@
-require 'rubygems'
-require 'bundler/setup'
+require "rubygems"
+require "bundler/setup"
 
 # Do this at the start
 begin
-  require 'simplecov'
+  require "simplecov"
   SimpleCov.start do
     add_filter %r{/spec/}
     add_filter %r{/vendor/}
@@ -12,12 +12,12 @@ rescue LoadError
   puts "Skipping CodeClimate coverage reporting"
 end
 
-require 'skylight/core'
+require "skylight/core"
 
-require_relative 'shared_spec_helper'
+require_relative "shared_spec_helper"
 
 RSpec.configure do |config|
-  config.example_status_persistence_file_path = File.expand_path("../../tmp/rspec-examples.txt", __FILE__)
+  config.example_status_persistence_file_path = File.expand_path("../tmp/rspec-examples.txt", __dir__)
 
   config.include SpecHelper
 end
