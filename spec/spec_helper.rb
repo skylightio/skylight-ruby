@@ -6,7 +6,10 @@ require 'bundler/setup'
 # Do this at the start
 begin
   require 'simplecov'
-  SimpleCov.start
+  SimpleCov.start do
+    add_filter %r{/spec/}
+    add_filter %r{/vendor/}
+  end
 rescue LoadError
   puts "Skipping CodeClimate coverage reporting"
 end
