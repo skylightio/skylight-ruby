@@ -6,7 +6,6 @@ ruby_version = Gem::Version.new(RUBY_VERSION)
 
 if ENV['CODECLIMATE_REPO_TOKEN']
   gem "simplecov"
-  gem "codeclimate-test-reporter", "~> 1.0"
 end
 
 gem 'rake'
