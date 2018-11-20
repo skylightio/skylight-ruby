@@ -7,17 +7,20 @@ module SpecHelper
     end
 
     class Annotation
-      module AnnotationKey # this is an Enum
+      # this is an Enum
+      module AnnotationKey
+        # rubocop:disable Naming/ConstantName
         ObjectAllocationRemainder = 1
         ObjectAllocationOffset = 2
         ObjectAllocationAbsoluteOffset = 1024
         ObjectAllocationCount = 1025
+        # rubocop:enable Naming/ConstantName
       end
 
       include Beefcake::Message
 
       optional :key, AnnotationKey, 1
-      optional :val, AnnotationVal, 4;
+      optional :val, AnnotationVal, 4
     end
   end
 end

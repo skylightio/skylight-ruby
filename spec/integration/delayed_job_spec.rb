@@ -1,17 +1,17 @@
-require 'spec_helper'
-require 'skylight/core/instrumenter'
+require "spec_helper"
+require "skylight/core/instrumenter"
 
 enable = false
 begin
-  require 'delayed_job'
-  require 'delayed_job_active_record'
+  require "delayed_job"
+  require "delayed_job_active_record"
   enable = true
 rescue LoadError
   puts "[INFO] Skipping Delayed::Job integration specs"
 end
 
 if enable
-  describe 'Delayed::Job integration' do
+  describe "Delayed::Job integration" do
     around do |example|
       with_sqlite(&example)
     end
@@ -21,7 +21,7 @@ if enable
       set_agent_env
       migration = dj_migration # Schema.define instance_evals the block, so this must be a local var
       ActiveRecord::Schema.define { migration.up }
-      Skylight.probe('delayed_job')
+      Skylight.probe("delayed_job")
       Skylight.start!
     end
 
@@ -29,11 +29,11 @@ if enable
 
     class DelayedObject
       def bad_method
-        good_method { fail }
+        good_method { raise }
       end
 
       def good_method
-        Skylight.instrument(category: 'app.zomg') do
+        Skylight.instrument(category: "app.zomg") do
           sleep(0.1)
           yield if block_given?
         end
@@ -60,7 +60,7 @@ if enable
             table.timestamps null: true
           end
 
-          add_index :delayed_jobs, [:priority, :run_at], name: "delayed_jobs_priority"
+          add_index :delayed_jobs, %i[priority run_at], name: "delayed_jobs_priority"
         end
 
         def self.down
@@ -69,23 +69,22 @@ if enable
       end
     end
 
-    context 'with agent', :http, :agent do
+    context "with agent", :http, :agent do
       before do
         stub_config_validation
         stub_session_request
       end
 
       specify do
-        job = DelayedObject.new.delay(queue: 'queue-name').good_method
+        job = DelayedObject.new.delay(queue: "queue-name").good_method
         Delayed::Worker.new.run(job)
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
         endpoint = server.reports[0].endpoints[0]
         trace = endpoint.traces[0]
         spans = trace.filtered_spans
 
-
-        expect(endpoint.name).to eq('DelayedObject#good_method<sk-segment>queue-name</sk-segment>')
+        expect(endpoint.name).to eq("DelayedObject#good_method<sk-segment>queue-name</sk-segment>")
         expect(spans.map { |s| [s.event.category, s.event.description] }).to eq([
           ["app.delayed_job.worker", nil],
           ["app.zomg", nil],
@@ -95,16 +94,16 @@ if enable
         ])
       end
 
-      it 'reports problems to the error segment' do
-        job = DelayedObject.new.delay(queue: 'queue-name').bad_method
+      it "reports problems to the error segment" do
+        job = DelayedObject.new.delay(queue: "queue-name").bad_method
         Delayed::Worker.new.run(job)
 
-        server.wait resource: '/report'
+        server.wait resource: "/report"
         endpoint = server.reports[0].endpoints[0]
         trace = endpoint.traces[0]
         spans = trace.filtered_spans
 
-        expect(endpoint.name).to eq('DelayedObject#bad_method<sk-segment>error</sk-segment>')
+        expect(endpoint.name).to eq("DelayedObject#bad_method<sk-segment>error</sk-segment>")
         meta = spans.map { |s| [s.event.category, s.event.description] }
         expect(meta[0]).to eq(["app.delayed_job.worker", nil])
         expect(meta[1]).to eq(["app.zomg", nil])
@@ -114,7 +113,7 @@ if enable
 
         # column order can differ between ActiveRecord versions
         r = /UPDATE "delayed_jobs" SET (?<columns>((\"\w+\") = \?,?\s?)+) WHERE "delayed_jobs"\."id" = \?/
-        columns = meta[3][1].match(r)[:columns].split(', ')
+        columns = meta[3][1].match(r)[:columns].split(", ")
         expect(columns).to match_array([
           "\"attempts\" = ?",
           "\"last_error\" = ?",
