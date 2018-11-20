@@ -39,6 +39,11 @@ env:
     -
     - SKYLIGHT_DISABLE_AGENT=true
 
+stages:
+  - sanity
+  - test # matrix builds go here
+  - extra
+
 rvm:
   - 2.2
   - 2.5
@@ -53,69 +58,83 @@ gemfile:
   # - gemfiles/Gemfile.sinatra-edge
   # - gemfiles/Gemfile.rails-edge
 
-matrix:
+jobs:
   fast_finish: true
+
   exclude:
     # We don't need to test so many disabled combinations
     - rvm: 2.2
       env: SKYLIGHT_DISABLE_AGENT=true
 
   include:
-    # Older Rails
-    - rvm: 2.5
-      gemfile: gemfiles/Gemfile.rails-5.0.x
-      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
-      env:
-        -
-    - rvm: 2.5
-      gemfile: gemfiles/Gemfile.rails-5.1.x
-      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
-      env:
-        -
-    # Newer Rails
-    - rvm: ruby-head
-      gemfile: gemfiles/Gemfile.rails-5.2.x
-      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
-      env:
-        -
-    # Separate Code Climate coverage run, sort of duplicate of normal Rails 5 job
-    - rvm: 2.5
+      # Make sure basic tests pass and do CodeClimate while we're at it
+    - stage: sanity
+      rvm: 2.5
       gemfile: gemfiles/Gemfile.rails-5.2.x
       env:
         # CODECLIMATE_REPO_TOKEN
         - secure: "dGdkneTJSwPJ8QXfUhhG6fSxGpZPgX5pidYm3cA6o4VsErAF3m5r5cyTO54Swzb9m0Ib2mLfqJtcd0n+0IJFTRxGQe98H0QDpBE8UAf0H8AjXwHmjYpVzSxm/iPZDIuDTkDsfFLxaQ1NbOiSm2joUoU70icNyIAArvN3bh/fMpM="
-    - rvm: 2.5
+
+    # Older Rails
+    - stage: extra
+      rvm: 2.5
+      gemfile: gemfiles/Gemfile.rails-5.0.x
+      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
+      env:
+        -
+    - stage: extra
+      rvm: 2.5
+      gemfile: gemfiles/Gemfile.rails-5.1.x
+      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
+      env:
+        -
+    # Newer Ruby
+    - stage: extra
+      rvm: ruby-head
+      gemfile: gemfiles/Gemfile.rails-5.2.x
+      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
+      env:
+        -
+    # Newer Rails
+    - stage: extra
+      rvm: 2.5
       gemfile: gemfiles/Gemfile.rails-edge
       # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
       env:
         -
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       env:
         - SKYLIGHT_DISABLE_AGENT=true
       gemfile: gemfiles/Gemfile.rails-edge
     # Test old Tilt version (with Rails since Sinatra doesn't like old Tilt)
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       env:
         - TILT_VERSION=1.4.1
       gemfile: gemfiles/Gemfile.rails-4.2.x
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       env:
         - SEQUEL_VERSION=4.34.0 # Some changes were made in 4.35.0
       gemfile: gemfiles/Gemfile.sinatra-1.4.x
     # Mongo Integration
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       env:
         - TEST_MONGO_INTEGRATION=true
       gemfile: gemfiles/Gemfile.rails-4.2.x
       services: mongodb
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       env:
         - TEST_MONGO_INTEGRATION=true
         - MONGOID_VERSION="~> 4.0"
       gemfile: gemfiles/Gemfile.rails-4.2.x
       services: mongodb
     # Elasticsearch Integration
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       env:
         - TEST_ELASTICSEARCH_INTEGRATION=true
       gemfile: gemfiles/Gemfile.rails-4.2.x
@@ -123,44 +142,53 @@ matrix:
       before_script:
         - sleep 10
     # Sidekiq Integration
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       env:
         - SIDEKIQ_VERSION=4.2.10
       gemfile: gemfiles/Gemfile.rails-5.1.x
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       env:
         - SIDEKIQ_VERSION=none
       gemfile: gemfiles/Gemfile.rails-5.1.x
     # Sinatra
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       gemfile: gemfiles/Gemfile.sinatra-edge
       # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
       env:
         -
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       gemfile: gemfiles/Gemfile.sinatra-edge
       env:
         - SKYLIGHT_DISABLE_AGENT=true
     # Grape
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       env:
         - GRAPE_VERSION=0.13.0
       gemfile: gemfiles/Gemfile.grape
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       env:
         - GRAPE_VERSION=edge
       gemfile: gemfiles/Gemfile.grape
     # AMS
     # Default AMS is currently 0.10.0
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       env:
         - AMS_VERSION="~> 0.8.3"
       gemfile: gemfiles/Gemfile.rails-4.2.x
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       env:
         - AMS_VERSION="~> 0.9.5"
       gemfile: gemfiles/Gemfile.rails-4.2.x
-    - rvm: 2.5
+    - stage: extra
+      rvm: 2.5
       env:
         - AMS_VERSION=edge
       gemfile: gemfiles/Gemfile.rails-4.2.x
