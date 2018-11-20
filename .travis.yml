@@ -1,6 +1,17 @@
 language: ruby
-cache: bundler
+
+cache:
+  - bundler
+  - pip
+
 sudo: false
+
+# If this makes things too slow we may want to find an alternative to awscli
+addons:
+  apt:
+    packages:
+      - "python3"
+      - "python3-pip"
 
 before_install:
   - gem install bundler
@@ -20,7 +31,7 @@ before_install:
       curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       chmod +x ./cc-test-reporter
 
-      pip install --user awscli
+      pip3 install --user awscli
 
       export S3_BUILD_PATH=s3://$AWS_BUCKET/$TRAVIS_BUILD_NUMBER
       export S3_JOB_PATH=$S3_BUILD_PATH/$TRAVIS_JOB_NUMBER
