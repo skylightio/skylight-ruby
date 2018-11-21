@@ -1,18 +1,44 @@
 language: ruby
-cache: bundler
+
+cache:
+  - bundler
+  - pip
+
 sudo: false
+
+# If this makes things too slow we may want to find an alternative to awscli
+addons:
+  apt:
+    packages:
+      - "python3"
+      - "python3-pip"
 
 before_install:
   - gem install bundler
+  # Can't upload coverage data without these
   - |
-    if [[ -n "$CODECLIMATE_REPO_TOKEN" ]]; then
+    if [[ -n $COVERAGE ]] && \
+       [[ -z "$AWS_ACCESS_KEY_ID" || \
+          -z "$AWS_SECRET_ACCESS_KEY" || \
+          -z "$AWS_BUCKET" || \
+          -z "$CODECLIMATE_REPO_TOKEN" ]]; then
+      echo "Missing config for coverage, not running." >&2
+      unset COVERAGE
+    fi
+  - |
+    if [[ -n "$COVERAGE" ]]; then
       export CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
       curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       chmod +x ./cc-test-reporter
+
+      pip3 install --user awscli
+
+      export S3_BUILD_PATH=s3://$AWS_BUCKET/$TRAVIS_BUILD_NUMBER
+      export S3_JOB_PATH=$S3_BUILD_PATH/$TRAVIS_JOB_NUMBER
     fi
 
 before_script:
-  - if [[ -n "$CODECLIMATE_REPO_TOKEN" ]]; then ./cc-test-reporter before-build; fi
+  - if [[ -n "$COVERAGE" ]]; then ./cc-test-reporter before-build; fi
 
 script:
   - pushd skylight-core
@@ -21,9 +47,9 @@ script:
   - bundle exec rake
 
 after_script: |
-  if [[ -n "$CODECLIMATE_REPO_TOKEN" ]]; then
-    ./cc-test-reporter sum-coverage -p2 coverage/.resultset.json skylight-core/coverage/.resultset.json
-    ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+  if [[ -n "$COVERAGE" && "$TRAVIS_TEST_RESULT" == 0 ]]; then
+    aws s3 cp coverage/.resultset.json $S3_JOB_PATH/coverage.json
+    aws s3 cp skylight-core/coverage/.resultset.json $S3_JOB_PATH/core-coverage.json
   fi
 
 env:
@@ -34,6 +60,9 @@ env:
     - RAILS_ENV=development
     - EMBEDDED_HTTP_SERVER_TIMEOUT=30
     - WORKER_SPAWN_TIMEOUT=15
+    - COVERAGE=true
+    # CODECLIMATE_REPO_TOKEN
+    - secure: "dGdkneTJSwPJ8QXfUhhG6fSxGpZPgX5pidYm3cA6o4VsErAF3m5r5cyTO54Swzb9m0Ib2mLfqJtcd0n+0IJFTRxGQe98H0QDpBE8UAf0H8AjXwHmjYpVzSxm/iPZDIuDTkDsfFLxaQ1NbOiSm2joUoU70icNyIAArvN3bh/fMpM="
   matrix:
     # The first one is intentionally empty in order to run without any extra env vars
     -
@@ -43,6 +72,7 @@ stages:
   - sanity
   - test # matrix builds go here
   - extra
+  - wrapup
 
 rvm:
   - 2.2
@@ -62,6 +92,10 @@ jobs:
   fast_finish: true
 
   exclude:
+    # We already do this in the sanity stage
+    - stage: test
+      rvm: 2.5
+      gemfile: gemfiles/Gemfile.rails-5.2.x
     # We don't need to test so many disabled combinations
     - rvm: 2.2
       env: SKYLIGHT_DISABLE_AGENT=true
@@ -71,10 +105,6 @@ jobs:
     - stage: sanity
       rvm: 2.5
       gemfile: gemfiles/Gemfile.rails-5.2.x
-      env:
-        # CODECLIMATE_REPO_TOKEN
-        - secure: "dGdkneTJSwPJ8QXfUhhG6fSxGpZPgX5pidYm3cA6o4VsErAF3m5r5cyTO54Swzb9m0Ib2mLfqJtcd0n+0IJFTRxGQe98H0QDpBE8UAf0H8AjXwHmjYpVzSxm/iPZDIuDTkDsfFLxaQ1NbOiSm2joUoU70icNyIAArvN3bh/fMpM="
-
     # Older Rails
     - stage: extra
       rvm: 2.5
@@ -192,6 +222,18 @@ jobs:
       env:
         - AMS_VERSION=edge
       gemfile: gemfiles/Gemfile.rails-4.2.x
+    - stage: wrapup
+      install: # Do nothing
+      before_script: # Do nothing
+      script:
+        - aws s3 sync $S3_BUILD_PATH artifacts
+        # Convert coverage format
+        - find artifacts -name *coverage.json | xargs -I % ./cc-test-reporter format-coverage -t simplecov -o coverage/% %
+        # Sum coverages
+        - ./cc-test-reporter sum-coverage coverage/artifacts/**/*.json
+        # We don't need to check build status because we won't get here if the builds didn't succeed
+        - ./cc-test-reporter upload-coverage
+      after_script: # Do nothing
 
   allow_failures:
     # Testing edge is nice, but it probably shouldn't kill the build

@@ -115,11 +115,13 @@ def travis_builds
 
   # Group by stage
   stage_groups = builds.group_by { |build| build["stage"] }
-  builds = stages.map { |stage| stage_groups[stage] }.flatten
-
-  # Move allowed_failures to the end
-  allowed_failures = builds.select { |b| b["allow_failure"] }
-  builds = (builds - allowed_failures) + allowed_failures
+  builds = stages.map do |stage|
+    stage_builds = stage_groups[stage]
+    # Move allowed_failures to the end
+    allowed_failures = stage_builds.select { |b| b["allow_failure"] }
+    stage_builds = (stage_builds - allowed_failures) + allowed_failures
+    stage_builds
+  end.flatten
 
   builds.each.with_index do |build, index|
     build["number"] = index + 1

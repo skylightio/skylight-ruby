@@ -15,7 +15,7 @@ group :development do
   gem "yard"
 end
 
-if ENV["CODECLIMATE_REPO_TOKEN"]
+if ENV["COVERAGE"]
   gem "simplecov"
 end
 
