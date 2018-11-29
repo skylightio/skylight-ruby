@@ -198,7 +198,18 @@ jobs:
     - stage: extra
       rvm: 2.5
       env:
-        - GRAPE_VERSION=0.13.0
+        - GRAPE_VERSION="~> 0.13.0"
+      gemfile: gemfiles/Gemfile.grape
+    - stage: extra
+      rvm: 2.5
+      env:
+        - GRAPE_VERSION="~> 1.1.0"
+      gemfile: gemfiles/Gemfile.grape
+    - stage: extra
+      rvm: 2.5
+      env:
+        # there are significant architectural changes between 1.1 and 1.2
+        - GRAPE_VERSION="~> 1.2.0"
       gemfile: gemfiles/Gemfile.grape
     - stage: extra
       rvm: 2.5

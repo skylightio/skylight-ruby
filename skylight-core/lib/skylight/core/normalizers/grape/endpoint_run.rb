@@ -24,7 +24,16 @@ module Skylight::Core
               path = "#{namespace}#{path}"
             end
 
-            "#{endpoint.options[:for]} [#{method}] #{path}"
+            "#{base_app_name(endpoint)} [#{method}] #{path}".strip
+          end
+
+          def base_app_name(endpoint)
+            ep = endpoint.options[:for]
+            return ep.name if ep.name
+
+            if ep.respond_to?(:base) && ep.base.respond_to?(:name)
+              ep.base.name
+            end
           end
       end
     end
