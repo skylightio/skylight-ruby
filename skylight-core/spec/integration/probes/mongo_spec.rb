@@ -1,7 +1,7 @@
 require "spec_helper"
 
 # Requires mongodb instance to be running
-if ENV["TEST_MONGO_INTEGRATION"]
+if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
   describe "Mongo integration with offial driver", :mongo_probe, :instrumenter do
     let :client do
       Mongo::Client.new(["127.0.0.1:27017"], database: "echo_test")

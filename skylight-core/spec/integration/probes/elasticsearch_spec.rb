@@ -1,7 +1,7 @@
 require "spec_helper"
 
 # Requires elasticsearch instance to be running
-if ENV["TEST_ELASTICSEARCH_INTEGRATION"]
+if ENV["TEST_ELASTICSEARCH_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
   describe "Elasticsearch integration", :elasticsearch_probe, :instrumenter do
     let(:client) do
       Elasticsearch::Client.new

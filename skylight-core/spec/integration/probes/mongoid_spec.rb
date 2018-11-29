@@ -1,7 +1,7 @@
 require "spec_helper"
 
 # Requires mongodb instance to be running
-if ENV["TEST_MONGO_INTEGRATION"]
+if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
   describe "Mongo integration with Mongoid", :mongoid_probe, :instrumenter do
     class Artist
       include Mongoid::Document
