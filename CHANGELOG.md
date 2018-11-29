@@ -1,3 +1,6 @@
+## 3.1.2 (November 29, 2018)
+* [BUGFIX] Fix derived endpoint names under Grape 1.2
+
 ## 3.1.1 (October 25, 2018)
 * [IMPROVEMENT] Get AMS version from `Gem.loaded_specs` (thanks @mattias-lundell!)
 
