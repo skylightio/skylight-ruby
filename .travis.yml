@@ -43,15 +43,17 @@ before_script:
 script:
   - pushd skylight-core
   - bundle exec rake
-  - SKYLIGHT_DISABLE_AGENT=true bundle exec rake
+  - SKYLIGHT_DISABLE_AGENT=true COVERAGE_DIR=coverage-disabled-agent bundle exec rake
   - popd
   - bundle exec rake
-  - SKYLIGHT_DISABLE_AGENT=true bundle exec rake
+  - SKYLIGHT_DISABLE_AGENT=true COVERAGE_DIR=coverage-disabled-agent bundle exec rake
 
 after_script: |
   if [[ -n "$COVERAGE" && "$TRAVIS_TEST_RESULT" == 0 ]]; then
     aws s3 cp coverage/.resultset.json $S3_JOB_PATH/coverage.json
+    aws s3 cp coverage-disabled-agent/.resultset.json $S3_JOB_PATH/disabled-agent-coverage.json
     aws s3 cp skylight-core/coverage/.resultset.json $S3_JOB_PATH/core-coverage.json
+    aws s3 cp skylight-core/coverage-disabled-agent/.resultset.json $S3_JOB_PATH/core-disabled-agent-coverage.json
   fi
 
 env:

@@ -5,6 +5,7 @@ require "bundler/setup"
 begin
   require "simplecov"
   SimpleCov.start do
+    coverage_dir(ENV["COVERAGE_DIR"] || "coverage")
     add_filter %r{/spec/}
     add_filter %r{/vendor/}
   end
