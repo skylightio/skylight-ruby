@@ -90,9 +90,10 @@ jobs:
   fast_finish: true
 
   exclude:
-    # We already do this in the sanity stage
-    - stage: test
-      rvm: 2.5
+    # We already do this in the sanity stage.
+    # NOTE: Specifying the stage here makes this not actually work. Seems ok to
+    #   leave it off since the `include` takes precedence.
+    - rvm: 2.5
       gemfile: gemfiles/Gemfile.rails-5.2.x
 
   include:
