@@ -80,16 +80,13 @@ def travis_builds
   stages = config["stages"]
   builds = []
 
-  config["env"]["matrix"].each do |env|
-    config["rvm"].each do |rvm|
-      config["gemfile"].each do |gemfile|
-        builds << {
-          "stage"   => "test",
-          "env"     => Array(env).compact,
-          "rvm"     => rvm,
-          "gemfile" => gemfile
-        }
-      end
+  config["rvm"].each do |rvm|
+    config["gemfile"].each do |gemfile|
+      builds << {
+        "stage"   => "test",
+        "rvm"     => rvm,
+        "gemfile" => gemfile
+      }
     end
   end
 

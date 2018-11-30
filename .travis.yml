@@ -43,13 +43,17 @@ before_script:
 script:
   - pushd skylight-core
   - bundle exec rake
+  - SKYLIGHT_DISABLE_AGENT=true COVERAGE_DIR=coverage-disabled-agent bundle exec rake
   - popd
   - bundle exec rake
+  - SKYLIGHT_DISABLE_AGENT=true COVERAGE_DIR=coverage-disabled-agent bundle exec rake
 
 after_script: |
   if [[ -n "$COVERAGE" && "$TRAVIS_TEST_RESULT" == 0 ]]; then
     aws s3 cp coverage/.resultset.json $S3_JOB_PATH/coverage.json
+    aws s3 cp coverage-disabled-agent/.resultset.json $S3_JOB_PATH/disabled-agent-coverage.json
     aws s3 cp skylight-core/coverage/.resultset.json $S3_JOB_PATH/core-coverage.json
+    aws s3 cp skylight-core/coverage-disabled-agent/.resultset.json $S3_JOB_PATH/core-disabled-agent-coverage.json
   fi
 
 env:
@@ -63,10 +67,6 @@ env:
     - COVERAGE=true
     # CODECLIMATE_REPO_TOKEN
     - secure: "dGdkneTJSwPJ8QXfUhhG6fSxGpZPgX5pidYm3cA6o4VsErAF3m5r5cyTO54Swzb9m0Ib2mLfqJtcd0n+0IJFTRxGQe98H0QDpBE8UAf0H8AjXwHmjYpVzSxm/iPZDIuDTkDsfFLxaQ1NbOiSm2joUoU70icNyIAArvN3bh/fMpM="
-  matrix:
-    # The first one is intentionally empty in order to run without any extra env vars
-    -
-    - SKYLIGHT_DISABLE_AGENT=true
 
 stages:
   - sanity
@@ -92,13 +92,11 @@ jobs:
   fast_finish: true
 
   exclude:
-    # We already do this in the sanity stage
-    - stage: test
-      rvm: 2.5
+    # We already do this in the sanity stage.
+    # NOTE: Specifying the stage here makes this not actually work. Seems ok to
+    #   leave it off since the `include` takes precedence.
+    - rvm: 2.5
       gemfile: gemfiles/Gemfile.rails-5.2.x
-    # We don't need to test so many disabled combinations
-    - rvm: 2.2
-      env: SKYLIGHT_DISABLE_AGENT=true
 
   include:
       # Make sure basic tests pass and do CodeClimate while we're at it
@@ -109,33 +107,16 @@ jobs:
     - stage: extra
       rvm: 2.5
       gemfile: gemfiles/Gemfile.rails-5.0.x
-      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
-      env:
-        -
     - stage: extra
       rvm: 2.5
       gemfile: gemfiles/Gemfile.rails-5.1.x
-      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
-      env:
-        -
     # Newer Ruby
     - stage: extra
       rvm: ruby-head
       gemfile: gemfiles/Gemfile.rails-5.2.x
-      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
-      env:
-        -
     # Newer Rails
     - stage: extra
       rvm: 2.5
-      gemfile: gemfiles/Gemfile.rails-edge
-      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
-      env:
-        -
-    - stage: extra
-      rvm: 2.5
-      env:
-        - SKYLIGHT_DISABLE_AGENT=true
       gemfile: gemfiles/Gemfile.rails-edge
     # Test old Tilt version (with Rails since Sinatra doesn't like old Tilt)
     - stage: extra
@@ -186,14 +167,6 @@ jobs:
     - stage: extra
       rvm: 2.5
       gemfile: gemfiles/Gemfile.sinatra-edge
-      # Empty env is required otherwise Travis defaults to SKYLIGHT_DISABLE_AGENT=true
-      env:
-        -
-    - stage: extra
-      rvm: 2.5
-      gemfile: gemfiles/Gemfile.sinatra-edge
-      env:
-        - SKYLIGHT_DISABLE_AGENT=true
     # Grape
     - stage: extra
       rvm: 2.5
