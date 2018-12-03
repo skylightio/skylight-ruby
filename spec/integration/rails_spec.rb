@@ -628,7 +628,7 @@ if enable
             spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
 
             expect(spans).to eq([["app.rack.request", nil],
-                                 ["error.code.3", nil]])
+                                 ["agent.error.E0003", nil]])
           end
         end
 
@@ -664,9 +664,9 @@ if enable
 
             expect(categories["app.zomg.level-1"]).to eq(MyApp.config.many)
 
-            # The spans whose children were pruned should all have been replaced with an error code
-            expect(categories["app.zomg.should-prune-below-here"]).to eq(0)
-            expect(categories["error.code.3"]).to eq(MyApp.config.many)
+            # The spans whose children were pruned should all now contain an error child
+            expect(categories["app.zomg.should-prune-below-here"]).to eq(MyApp.config.many)
+            expect(categories["agent.error.E0003"]).to eq(MyApp.config.many)
 
             # These have been discarded entirely
             expect(categories["app.zomg.level-2"]).to eq(0)

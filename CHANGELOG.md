@@ -1,4 +1,12 @@
+## 4.0.0.alpha (December 3, 2018)
+* [FEATURE] Skylight for Background Jobs
+* [FEATURE] Probe for Delayed::Job (standalone)
 * [IMPROVEMENT] Handle 403 config validation response
+* [IMPROVEMENT] Config for `prune_large_traces` is now true by default
+* [BREAKING] New method for assigning 'segment' to a trace endpoint name
+
+## 3.1.2 (November 29, 2018)
+* [BUGFIX] Fix derived endpoint names under Grape 1.2
 
 ## 3.1.1 (October 25, 2018)
 * [IMPROVEMENT] Get AMS version from `Gem.loaded_specs` (thanks @mattias-lundell!)
