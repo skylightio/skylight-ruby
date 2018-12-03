@@ -5,7 +5,15 @@ module Skylight::Core
       include Util::AllocationFree
 
       def setup
-        @paths = config["normalizers.render.view_paths"] || []
+        @paths = []
+
+        Gem.path.each do |path|
+          @paths << "#{path}/bundler/gems".freeze
+          @paths << "#{path}/gems".freeze
+          @paths << path
+        end
+
+        @paths.concat(Array(config["normalizers.render.view_paths"]))
       end
 
       # Generic normalizer for renders
@@ -24,24 +32,19 @@ module Skylight::Core
       def relative_path(path)
         return path if relative_path?(path)
 
-        root = array_find(@paths) { |p| path.start_with?(p) }
-        type = :project
-
-        unless root
-          root = array_find(Gem.path) { |p| path.start_with?(p) }
-          type = :gem
-        end
-
-        if root
+        if (root = array_find(@paths) { |p| path.start_with?(p) })
           start = root.size
           start += 1 if path.getbyte(start) == SEPARATOR_BYTE
-          if type == :gem
-            "$GEM_PATH/#{path[start, path.size]}"
-          else
-            path[start, path.size]
-          end
+
+          path[start, path.size].sub(
+            # Matches a Gem Version or 12-digit hex (sha)
+            # that is preceeded by a `-` and followed by `/`
+            # Also matches 'app/views/' if it exists
+            %r{-(?:#{Gem::Version::VERSION_PATTERN}|[0-9a-f]{12})\/(?:app\/views\/)*},
+            ": ".freeze
+          )
         else
-          "Absolute Path"
+          "Absolute Path".freeze
         end
       end
 
