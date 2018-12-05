@@ -82,8 +82,8 @@ module Skylight::Core
 
     it "can handle frozen arrays" do
       expect do
-        Skylight::Core::Middleware
-          .with_after_close([200, {}, []].freeze) { true }
+        Skylight::Core::Middleware.
+          with_after_close([200, {}, []].freeze) { true }
       end.to_not raise_error
     end
   end

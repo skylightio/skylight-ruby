@@ -609,8 +609,8 @@ if enable
           it "handles too many spans" do
             segment = Rails.version =~ /^4\./ ? "html" : "text"
 
-            expect_any_instance_of(Skylight::Trace).to receive(:error)
-              .with(/\[E%04d\].+endpoint=%s/, 3, "UsersController#too_many_spans")
+            expect_any_instance_of(Skylight::Trace).to receive(:error).
+              with(/\[E%04d\].+endpoint=%s/, 3, "UsersController#too_many_spans")
 
             call MyApp, env("/users/too_many_spans")
 

@@ -15,8 +15,8 @@ module Skylight
         start!
 
         expect(gc).to be_enabled
-        expect(gc).to receive(:total_time)
-          .exactly(2).times.and_return(0.0, 0.0)
+        expect(gc).to receive(:total_time).
+          exactly(2).times.and_return(0.0, 0.0)
 
         Skylight.trace "Rack", "app.rack" do
           clock.skip 1
@@ -35,8 +35,8 @@ module Skylight
         start!
 
         expect(gc).to be_enabled
-        expect(gc).to receive(:total_time)
-          .exactly(2).times.and_return(0.0, 100_000_000)
+        expect(gc).to receive(:total_time).
+          exactly(2).times.and_return(0.0, 100_000_000)
 
         Skylight.trace "Rack", "app.rack" do
           clock.skip 1
@@ -58,8 +58,8 @@ module Skylight
         start!
 
         expect(gc).to be_enabled
-        expect(gc).to receive(:total_time)
-          .exactly(4).times.and_return(0, 0, 100_000_000, 0)
+        expect(gc).to receive(:total_time).
+          exactly(4).times.and_return(0, 0, 100_000_000, 0)
 
         Skylight.trace "Rack", "app.rack" do
           Skylight.instrument do

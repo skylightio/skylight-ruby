@@ -29,14 +29,14 @@ describe "skylight setup", :http, :agent do
     end
 
     unless token
-      expect(cli).to receive(:say)
-        .with(/Please enter your email and password/, :cyan).ordered
+      expect(cli).to receive(:say).
+        with(/Please enter your email and password/, :cyan).ordered
 
-      expect(cli).to receive(:say)
-        .with(/congratulations/i, :green).ordered
+      expect(cli).to receive(:say).
+        with(/congratulations/i, :green).ordered
 
-      expect(cli).to receive(:say)
-        .with(%r{config/skylight\.yml})
+      expect(cli).to receive(:say).
+        with(%r{config/skylight\.yml})
     end
 
     capture(:stdout) do

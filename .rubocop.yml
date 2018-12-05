@@ -7,6 +7,10 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'spec/dummy/Gemfile'
 
+# Allows for easier copy-pasting into shell and comments between lines
+Layout/DotPosition:
+  EnforcedStyle: trailing
+
 Layout/IndentationConsistency:
   EnforcedStyle: rails
 
