@@ -213,10 +213,10 @@ module Skylight
       begin
         trace = Skylight.trace "Rack", "app.rack.request"
 
-        expect(Skylight.instrumenter).to receive(:limited_description)
-          .at_least(:once)
-          .with(any_args)
-          .and_return(Instrumenter::TOO_MANY_UNIQUES)
+        expect(Skylight.instrumenter).to receive(:limited_description).
+          at_least(:once).
+          with(any_args).
+          and_return(Instrumenter::TOO_MANY_UNIQUES)
 
         a = trace.instrument "foo", "FOO", "How a foo is formed?"
         trace.record :bar, "BAR", "How a bar is formed?"
