@@ -1,3 +1,6 @@
+## 1.7.2 (December 14 2018)
+* [BUGFIX] (Backported from 3.1.x series) Fix issue where routes in mounted engines could cause spans to be closed out-of-order.
+
 ## 1.7.1 (October 16 2018)
 * [BUGFIX] (Backported from 2.x series) Fix issue wherein certain error-handling patterns could break the middleware probe.
 

@@ -11,8 +11,8 @@ rescue LoadError
 end
 
 if enable
-
   IS_RAILS_4_1_PLUS = Gem::Version.new(Rails.version) >= Gem::Version.new('4.1');
+  HAS_MOUNTABLE_ENGINES = Gem::Version.new(Rails.version) >= Gem::Version.new('3.1')
 
   TEST_VARIANTS = IS_RAILS_4_1_PLUS
   if !TEST_VARIANTS
@@ -23,6 +23,16 @@ if enable
 
     def boot
       MyApp.initialize!
+
+      if HAS_MOUNTABLE_ENGINES
+        EngineNamespace::MyEngine.routes.draw do
+          root :to => lambda { |env| [204, {}, []] }
+          get '/empty', :to => lambda { |env| [204, {}, []] }, :as => :empty
+          get '/error_from_router', :to => lambda { |env| raise RuntimeError, 'cannot even' }
+          get '/error_from_controller', :to => 'application#error'
+          get '/show', :to => 'application#show'
+        end
+      end
 
       MyApp.routes.draw do
         resources :users do
@@ -36,6 +46,9 @@ if enable
           end
         end
         get '/metal' => 'metal#show'
+        if HAS_MOUNTABLE_ENGINES
+          mount EngineNamespace::MyEngine => '/engine'
+        end
       end
     end
 
@@ -154,6 +167,26 @@ if enable
 
         def query_parameters(env)
           ActionDispatch::Request.new(env).query_parameters
+        end
+      end
+
+      module EngineNamespace
+        require 'active_record'
+
+        class MyEngine < ::Rails::Engine
+          if HAS_MOUNTABLE_ENGINES
+            isolate_namespace EngineNamespace
+          end
+        end
+
+        class ApplicationController < ActionController::Base
+          def error
+            raise ::ActiveRecord::RecordNotFound
+          end
+
+          def show
+            render json: {}
+          end
         end
       end
 
@@ -340,6 +373,7 @@ if enable
       # Clean slate
       # It's really too bad we can't run RSpec tests in a fork
       Object.send(:remove_const, :MyApp)
+      Object.send(:remove_const, :EngineNamespace)
       Object.send(:remove_const, :UsersController)
       Object.send(:remove_const, :MetalController)
       if Rails.version =~ /^3.0/
@@ -349,6 +383,8 @@ if enable
       Rails::Railtie::Configuration.class_variable_set(:@@app_middleware, nil)
       Rails.application = nil
     end
+
+    let(:router_name) { 'ActionDispatch::Routing::RouteSet' }
 
     shared_examples "with agent" do
 
@@ -429,7 +465,7 @@ if enable
 
         # Check the rest
         expect(app_and_rack_spans[(count+1)..-1]).to eq([
-          ["rack.app", "ActionDispatch::Routing::RouteSet"],
+          ["rack.app", router_name],
           ["app.controller.request", "UsersController#index"],
           ["app.method", "Check authorization"],
           ["app.method", "UsersController#index"],
@@ -574,7 +610,7 @@ if enable
           expect(reverse_spans.take(6)).to eq([
             ["app.method", "Check authorization"],
             ["app.controller.request", "UsersController#throw_something"],
-            ["rack.app", "ActionDispatch::Routing::RouteSet"],
+            ["rack.app", router_name],
             ["rack.middleware", "ThrowingMiddleware"],
             ["rack.middleware", "MonkeyInTheMiddleware"],
             ["rack.middleware", "CatchingMiddleware"]
@@ -716,6 +752,56 @@ if enable
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
         expect(endpoint.name).to eq("UsersController#no_template<sk-segment>error</sk-segment>")
+      end
+
+      if HAS_MOUNTABLE_ENGINES
+        it 'sets correct segment for router-handled requests', engine: true do
+          res = call MyApp, env('/engine/empty')
+          expect(res).to eq([])
+          server.wait resource: '/report'
+          batch = server.reports[0]
+          expect(batch).to_not be nil
+          expect(batch.endpoints.count).to eq(1)
+          endpoint = batch.endpoints[0]
+          expect(endpoint.name).to eq(router_name)
+        end
+
+        it 'sets correct segment for an engine', engine: true do
+          res = call MyApp, env('/engine/error_from_router')
+          expect(res).to eq([])
+          server.wait(resource: '/report')
+          endpoint = server.reports[0].endpoints[0]
+          expect(endpoint.name).to eq(router_name)
+          trace = endpoint.traces.first
+          spans = trace.filtered_spans
+          # Should include the routers from both the main app and the engine
+          expect(spans.last(2).map { |s| s.event.title }).to eq([router_name, router_name])
+        end
+
+        it 'forwards exceptions in the engine to the main app', engine: true do
+          res = call MyApp, env('/engine/error_from_controller')
+          server.wait(resource: '/report')
+          endpoint = server.reports[0].endpoints[0]
+          endpoint_name = 'EngineNamespace::ApplicationController#error'
+          expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>error</sk-segment>")
+          trace = endpoint.traces.first
+          spans = trace.filtered_spans.last(3)
+          # Should include the routers from both the main app and the engine
+          expect(spans.map { |s| s.event.title }).to eq([router_name, router_name, endpoint_name])
+        end
+
+        it 'handles routing errors', engine: true do
+          expect {
+            res = call MyApp, env('/engine/foo/bar/bin')
+          }.not_to raise_error
+          server.wait(resource: '/report')
+          endpoint = server.reports[0].endpoints[0]
+          expect(endpoint.name).to eq(router_name)
+          trace = endpoint.traces.first
+          spans = trace.filtered_spans.last(2)
+          # Should include the routers from both the main app and the engine
+          expect(spans.map { |s| s.event.title }).to eq([router_name, router_name])
+        end
       end
 
       if TEST_VARIANTS

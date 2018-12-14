@@ -38,29 +38,8 @@ module Skylight
       end
 
       class Probe
-
         def install
-          ActionDispatch::MiddlewareStack.class_eval do
-            alias build_without_sk build
-
-            if ::ActionPack.respond_to?(:gem_version) && ::ActionPack.gem_version >= Gem::Version.new('5.x')
-              # Rails 5
-              def build(app = Proc.new)
-                Skylight::Probes::Middleware.add_instrumentation(app, "Rack App", "rack.app")
-                build_without_sk(app)
-              end
-            else
-              # Rails 3 and 4
-              def build(app, &block)
-                app ||= block
-                raise "MiddlewareStack#build requires an app" unless app
-                Skylight::Probes::Middleware.add_instrumentation(app, "Rack App", "rack.app")
-                build_without_sk(app)
-              end
-            end
-          end
-
-          ActionDispatch::MiddlewareStack::Middleware.class_eval do
+          ::ActionDispatch::MiddlewareStack::Middleware.class_eval do
             alias build_without_sk build
             def build(*args)
               sk_instrument_middleware(build_without_sk(*args))

@@ -16,7 +16,7 @@ module Skylight
     #   net_http, action_controller, action_view, middleware, and grape are on by default
     #   See https://www.skylight.io/support/getting-more-from-skylight#available-instrumentation-options
     #   for a full list.
-    config.skylight.probes = ['net_http', 'action_controller', 'action_view', 'middleware', 'grape']
+    config.skylight.probes = ['net_http', 'action_dispatch', 'action_controller', 'action_view', 'middleware', 'grape']
 
     # The position in the middleware stack to place Skylight
     # Default is first, but can be `{ after: Middleware::Name }` or `{ before: Middleware::Name }`
