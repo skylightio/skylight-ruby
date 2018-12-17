@@ -17,7 +17,7 @@ module SpecHelper
         # most specs don't specify annotations currently
         ::Kernel.warn "[WARNING] SpecHelper::Messages::Span ignoring annotations for equality check (#{__FILE__}:#{__LINE__})"
 
-        fields.values.reject { |f| f.name == :annotations }.all? do |fld|
+        self.class.fields.values.reject { |f| f.name == :annotations }.all? do |fld|
           self[fld.name] == other[fld.name]
         end
       end
