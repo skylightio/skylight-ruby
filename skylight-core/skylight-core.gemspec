@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "activesupport", ">= 4.2.0"
 
-  spec.add_development_dependency "beefcake", "< 1.0"
+  spec.add_development_dependency "beefcake", "~> 1.0"
   spec.add_development_dependency "bundler", "~> 1.15"
   spec.add_development_dependency "puma"
   spec.add_development_dependency "rack"

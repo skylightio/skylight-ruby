@@ -28,4 +28,8 @@ module SpecHelper
       description: desc
     )
   end
+
+  def annotation(arg)
+    Messages::Annotation.new(arg)
+  end
 end
