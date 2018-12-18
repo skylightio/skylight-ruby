@@ -177,6 +177,12 @@ if enable
         # Log request ids
         config.log_tags = Rails.version =~ /^4\./ ? [:uuid] : [:request_id]
 
+        # Rails Edge: https://github.com/rails/rails/pull/33145/files
+        if defined?(config.hosts)
+          # Allow all hosts: https://github.com/rails/rails/pull/33145/files
+          config.hosts << proc { true }
+        end
+
         # This class has no name
         config.middleware.use(Class.new do
           def initialize(app)
