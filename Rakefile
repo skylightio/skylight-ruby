@@ -133,6 +133,12 @@ task :vagrant_up do
   end
 end
 
+def build_exports(env)
+  Array(env).
+    select { |e| e.is_a?(String) }.
+    map { |e| "export #{e}" }
+end
+
 task run_travis_builds: :vagrant_up do
   builds = travis_builds
 
@@ -162,9 +168,8 @@ task run_travis_builds: :vagrant_up do
         "export BUNDLE_GEMFILE=\\$PWD/#{build['gemfile']}", # Escape PWD so it runs on Vagrant, not local box
       ]
 
-      commands += travis_config["env"]["global"].map { |env| "export #{env}" }
-
-      commands += Array(build["env"]).map { |env| "export #{env}" }
+      commands += build_exports(travis_config["env"]["global"])
+      commands += build_exports(build["env"])
 
       commands << "export DEBUG=1" if debug
 
