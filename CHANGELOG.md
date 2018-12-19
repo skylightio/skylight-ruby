@@ -1,3 +1,7 @@
+## 4.0.0.alpha2 (December 19, 2018)
+* [BUGFIX] skylightd should close cloned file descriptors on startup
+* [FEATURE] instrument ActiveStorage notifications
+
 ## 4.0.0.alpha (December 3, 2018)
 * [FEATURE] Skylight for Background Jobs
 * [FEATURE] Probe for Delayed::Job (standalone)
