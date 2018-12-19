@@ -1,3 +1,6 @@
+## 3.1.3-beta (December 19, 2018)
+* [BUGFIX] skylightd should close cloned file descriptors on startup
+
 ## 3.1.2 (November 29, 2018)
 * [BUGFIX] Fix derived endpoint names under Grape 1.2
 
