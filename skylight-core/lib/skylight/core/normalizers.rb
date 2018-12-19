@@ -101,6 +101,7 @@ module Skylight::Core
         active_model_serializers/render
         active_record/instantiation
         active_record/sql
+        active_storage
         active_support/cache
         coach/handler_finish
         coach/middleware_finish
