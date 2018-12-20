@@ -155,7 +155,7 @@ module Skylight::Core
     end
 
     def disabled?
-      @disabled
+      defined?(@disabled) && @disabled
     end
 
     def self.match?(string, regex)
