@@ -206,14 +206,18 @@ jobs:
     - stage: wrapup
       install: # Do nothing
       before_script: # Do nothing
-      script:
-        - aws s3 sync $S3_BUILD_PATH artifacts
-        # Convert coverage format
-        - find artifacts -name *coverage.json | xargs -I % ./cc-test-reporter format-coverage -t simplecov -o coverage/% %
-        # Sum coverages
-        - ./cc-test-reporter sum-coverage coverage/artifacts/**/*.json
-        # We don't need to check build status because we won't get here if the builds didn't succeed
-        - ./cc-test-reporter upload-coverage
+      script: |
+        if [[ -n "$COVERAGE" ]]; then
+          aws s3 sync $S3_BUILD_PATH artifacts
+          # Convert coverage format
+          find artifacts -name *coverage.json | xargs -I % ./cc-test-reporter format-coverage -t simplecov -o coverage/% %
+          # Sum coverages
+          ./cc-test-reporter sum-coverage coverage/artifacts/**/*.json
+          # We don't need to check build status because we won't get here if the builds didn't succeed
+          ./cc-test-reporter upload-coverage
+        else
+          echo "Skipping coverage due to missing config." >&2
+        fi
       after_script: # Do nothing
 
   allow_failures:
