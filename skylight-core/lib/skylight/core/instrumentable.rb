@@ -20,7 +20,7 @@ module Skylight
         end
 
         def instrumenter
-          @instrumenter
+          defined?(@instrumenter) && @instrumenter
         end
 
         def correlation_header
@@ -37,10 +37,10 @@ module Skylight
 
         # Start instrumenting
         def start!(config = nil)
-          return @instrumenter if @instrumenter
+          return instrumenter if instrumenter
 
           const_get(:LOCK).synchronize do
-            return @instrumenter if @instrumenter
+            return instrumenter if instrumenter
 
             config ||= {}
             config = config_class.load(config) unless config.is_a?(config_class)
@@ -72,7 +72,7 @@ module Skylight
 
           const_get(:LOCK).synchronize do
             t { "stop! synchronized" }
-            return unless @instrumenter
+            return unless instrumenter
             # This is only really helpful for getting specs to pass.
             @instrumenter.current_trace = nil
 
