@@ -21,13 +21,12 @@ before_install:
        [[ -z "$AWS_ACCESS_KEY_ID" || \
           -z "$AWS_SECRET_ACCESS_KEY" || \
           -z "$AWS_BUCKET" || \
-          -z "$CODECLIMATE_REPO_TOKEN" ]]; then
+          -z "$CC_TEST_REPORTER_ID" ]]; then
       echo "Missing config for coverage, not running." >&2
       unset COVERAGE
     fi
   - |
     if [[ -n "$COVERAGE" ]]; then
-      export CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
       curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       chmod +x ./cc-test-reporter
 
@@ -65,8 +64,6 @@ env:
     - EMBEDDED_HTTP_SERVER_TIMEOUT=30
     - WORKER_SPAWN_TIMEOUT=15
     - COVERAGE=true
-    # CODECLIMATE_REPO_TOKEN
-    - secure: "dGdkneTJSwPJ8QXfUhhG6fSxGpZPgX5pidYm3cA6o4VsErAF3m5r5cyTO54Swzb9m0Ib2mLfqJtcd0n+0IJFTRxGQe98H0QDpBE8UAf0H8AjXwHmjYpVzSxm/iPZDIuDTkDsfFLxaQ1NbOiSm2joUoU70icNyIAArvN3bh/fMpM="
 
 stages:
   - sanity
@@ -209,14 +206,18 @@ jobs:
     - stage: wrapup
       install: # Do nothing
       before_script: # Do nothing
-      script:
-        - aws s3 sync $S3_BUILD_PATH artifacts
-        # Convert coverage format
-        - find artifacts -name *coverage.json | xargs -I % ./cc-test-reporter format-coverage -t simplecov -o coverage/% %
-        # Sum coverages
-        - ./cc-test-reporter sum-coverage coverage/artifacts/**/*.json
-        # We don't need to check build status because we won't get here if the builds didn't succeed
-        - ./cc-test-reporter upload-coverage
+      script: |
+        if [[ -n "$COVERAGE" ]]; then
+          aws s3 sync $S3_BUILD_PATH artifacts
+          # Convert coverage format
+          find artifacts -name *coverage.json | xargs -I % ./cc-test-reporter format-coverage -t simplecov -o coverage/% %
+          # Sum coverages
+          ./cc-test-reporter sum-coverage coverage/artifacts/**/*.json
+          # We don't need to check build status because we won't get here if the builds didn't succeed
+          ./cc-test-reporter upload-coverage
+        else
+          echo "Skipping coverage due to missing config." >&2
+        fi
       after_script: # Do nothing
 
   allow_failures:
