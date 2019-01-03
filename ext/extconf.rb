@@ -80,10 +80,10 @@ if Platform::OS == "darwin"
   # If the user installs Xcode-only, they have to approve the
   # license or no "xc*" tool will work.
   if `/usr/bin/xcrun clang 2>&1` =~ /license/ && !$CHILD_STATUS.success?
-    fail <<-MESSAGE
-You have not agreed to the Xcode license and so we are unable to build the native agent.
-To resolve this, you can agree to the license by opening Xcode.app or running:
-    sudo xcodebuild -license
+    fail <<~MESSAGE
+      You have not agreed to the Xcode license and so we are unable to build the native agent.
+      To resolve this, you can agree to the license by opening Xcode.app or running:
+          sudo xcodebuild -license
     MESSAGE
   end
 end

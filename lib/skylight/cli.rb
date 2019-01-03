@@ -22,11 +22,11 @@ module Skylight
       desc "setup TOKEN", "Sets up a new app using the provided token"
       def setup(token)
         if File.exist?(config_path)
-          say <<-OUT, :green
-A config/skylight.yml already exists for your application.
+          say <<~OUT, :green
+            A config/skylight.yml already exists for your application.
 
-Visit your app at https://www.skylight.io/app or remove config/skylight.yml
-to set it up as a new app in Skylight.
+            Visit your app at https://www.skylight.io/app or remove config/skylight.yml
+            to set it up as a new app in Skylight.
           OUT
           return
         end
@@ -38,23 +38,23 @@ to set it up as a new app in Skylight.
         config.write(config_path)
 
         say "Congratulations. Your application is on Skylight! https://www.skylight.io", :green
-        say <<-OUT
+        say <<~OUT
 
-The application was registered for you and we generated a config file
-containing your API token at:
+          The application was registered for you and we generated a config file
+          containing your API token at:
 
-  #{relative_config_path}
+            #{relative_config_path}
 
-The next step is for you to deploy your application to production. The
-easiest way is to just commit the config file to your source control
-repository and deploy from there. You can learn more about the process at:
+          The next step is for you to deploy your application to production. The
+          easiest way is to just commit the config file to your source control
+          repository and deploy from there. You can learn more about the process at:
 
-  https://docs.skylight.io/getting-set-up/#deployment
+            https://docs.skylight.io/getting-set-up/#deployment
 
-If you want to specify the authentication token as an environment variable,
-you should set the `SKYLIGHT_AUTHENTICATION` variable to:
+          If you want to specify the authentication token as an environment variable,
+          you should set the `SKYLIGHT_AUTHENTICATION` variable to:
 
-  #{config[:authentication]}
+            #{config[:authentication]}
 
         OUT
       rescue Api::CreateFailed => e
