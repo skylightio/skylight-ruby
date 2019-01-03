@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "skylight-core", version
 
   spec.add_development_dependency "beefcake", "~> 1.0"
-  spec.add_development_dependency "bundler", "~> 1.15"
+  spec.add_development_dependency "bundler", ">= 1.17.3"
   spec.add_development_dependency "puma"
   spec.add_development_dependency "rack-test"
   spec.add_development_dependency "rake", "~> 10.0"
