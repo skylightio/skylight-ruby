@@ -80,7 +80,7 @@ stages:
   - wrapup
 
 rvm:
-  - 2.2
+  - 2.3
   - 2.5
 
 gemfile:
