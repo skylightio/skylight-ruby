@@ -14,7 +14,13 @@ addons:
       - "python3-pip"
 
 before_install:
-  - gem install bundler
+  - |
+    if [[ "$(ruby -v)" =~ "ruby 2.2" ]]; then
+      gem install bundler -v "1.17.3"
+    else
+      gem update --system
+      gem install bundler
+    fi
   # Can't upload coverage data without these
   - |
     if [[ -n $COVERAGE ]] && \
