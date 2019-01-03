@@ -256,10 +256,10 @@ module Skylight
       FileUtils.mkdir_p(File.dirname(path))
 
       File.open(path, "w") do |f|
-        f.puts <<-YAML
----
-# The authentication token for the application.
-authentication: #{self[:authentication]}
+        f.puts <<~YAML
+          ---
+          # The authentication token for the application.
+          authentication: #{self[:authentication]}
         YAML
       end
     end
