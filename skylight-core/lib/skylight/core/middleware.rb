@@ -88,8 +88,8 @@ module Skylight::Core
           else
             resp
           end
-        rescue Exception
-          t { "middleware exception: #{trace}" }
+        rescue Exception => e
+          t { "middleware exception: #{e}\n#{e.backtrace.join("\n")}" }
           trace.submit if trace
           raise
         end
