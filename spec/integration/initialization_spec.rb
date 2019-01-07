@@ -55,7 +55,15 @@ describe "Initialization integration" do
     end
 
     pipe_cmd_out.close
-    pipe_cmd_in.read.strip
+
+    output = pipe_cmd_in.read.strip
+
+    # Rails 4 has a deprecation under Ruby 2.6 which isn't likely to be fixed and isn't our fault.
+    if Rails::VERSION::MAJOR == 4
+      output.split("\n").reject { |l| l =~ /BigDecimal.new is deprecated/ }.join("\n")
+    else
+      output
+    end
   rescue Timeout::Error
     Process.kill("TERM", cmd_pid)
     raise
