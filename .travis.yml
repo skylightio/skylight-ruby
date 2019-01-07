@@ -76,7 +76,7 @@ stages:
 
 rvm:
   - 2.3
-  - 2.5
+  - 2.6
 
 gemfile:
   - gemfiles/Gemfile.rails-4.2.x
@@ -95,20 +95,20 @@ jobs:
     # We already do this in the sanity stage.
     # NOTE: Specifying the stage here makes this not actually work. Seems ok to
     #   leave it off since the `include` takes precedence.
-    - rvm: 2.5
+    - rvm: 2.6
       gemfile: gemfiles/Gemfile.rails-5.2.x
 
   include:
       # Make sure basic tests pass and do CodeClimate while we're at it
     - stage: sanity
-      rvm: 2.5
+      rvm: 2.6
       gemfile: gemfiles/Gemfile.rails-5.2.x
     # Older Rails
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       gemfile: gemfiles/Gemfile.rails-5.0.x
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       gemfile: gemfiles/Gemfile.rails-5.1.x
     # Newer Ruby
     - stage: extra
@@ -116,28 +116,28 @@ jobs:
       gemfile: gemfiles/Gemfile.rails-5.2.x
     # Newer Rails
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       gemfile: gemfiles/Gemfile.rails-edge
     # Test old Tilt version (with Rails since Sinatra doesn't like old Tilt)
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         - TILT_VERSION=1.4.1
       gemfile: gemfiles/Gemfile.rails-4.2.x
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         - SEQUEL_VERSION=4.34.0 # Some changes were made in 4.35.0
       gemfile: gemfiles/Gemfile.sinatra-1.4.x
     # Mongo Integration
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         - TEST_MONGO_INTEGRATION=true
       gemfile: gemfiles/Gemfile.rails-4.2.x
       services: mongodb
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         - TEST_MONGO_INTEGRATION=true
         - MONGOID_VERSION="~> 4.0"
@@ -145,7 +145,7 @@ jobs:
       services: mongodb
     # Elasticsearch Integration
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         - TEST_ELASTICSEARCH_INTEGRATION=true
       gemfile: gemfiles/Gemfile.rails-4.2.x
@@ -154,55 +154,55 @@ jobs:
         - sleep 10
     # Sidekiq Integration
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         - SIDEKIQ_VERSION=4.2.10
       gemfile: gemfiles/Gemfile.rails-5.1.x
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         - SIDEKIQ_VERSION=none
       gemfile: gemfiles/Gemfile.rails-5.1.x
     # Sinatra
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       gemfile: gemfiles/Gemfile.sinatra-edge
     # Grape
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         - GRAPE_VERSION="~> 0.13.0"
       gemfile: gemfiles/Gemfile.grape
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         - GRAPE_VERSION="~> 1.1.0"
       gemfile: gemfiles/Gemfile.grape
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         # there are significant architectural changes between 1.1 and 1.2
         - GRAPE_VERSION="~> 1.2.0"
       gemfile: gemfiles/Gemfile.grape
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         - GRAPE_VERSION=edge
       gemfile: gemfiles/Gemfile.grape
     # AMS
     # Default AMS is currently 0.10.0
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         - AMS_VERSION="~> 0.8.3"
       gemfile: gemfiles/Gemfile.rails-4.2.x
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         - AMS_VERSION="~> 0.9.5"
       gemfile: gemfiles/Gemfile.rails-4.2.x
     - stage: extra
-      rvm: 2.5
+      rvm: 2.6
       env:
         - AMS_VERSION=edge
       gemfile: gemfiles/Gemfile.rails-4.2.x
