@@ -230,6 +230,13 @@ end
 #   potential issues.
 if SKYLIGHT_EXT_STRICT
   $CFLAGS << " -Werror"
+
+  if Platform::OS == "darwin"
+    # Enabling unused-parameter causes failures in Ruby 2.6
+    #   ruby/ruby.h:2186:35: error: unused parameter 'allow_transient'
+    # For some reason this only seems to be an issue on macOS
+    $CFLAGS << ",-Wunused-parameter"
+  end
 end
 
 checking_for "fast thread local storage" do
