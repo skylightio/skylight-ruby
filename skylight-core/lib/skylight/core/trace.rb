@@ -9,7 +9,7 @@ module Skylight::Core
     attr_reader :instrumenter, :endpoint, :notifications, :meta
     attr_accessor :uuid, :segment
 
-    def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil, meta = nil, segment: nil)
+    def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil, meta: nil, segment: nil)
       uuid = SecureRandom.uuid
       inst = native_new(normalize_time(start), uuid, endpoint, meta)
       inst.uuid = uuid

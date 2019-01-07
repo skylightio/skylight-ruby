@@ -78,7 +78,7 @@ module Skylight::Core
       else
         begin
           t { "middleware beginning trace" }
-          trace = instrumentable.trace(endpoint_name(env), "app.rack.request", nil, endpoint_meta(env))
+          trace = instrumentable.trace(endpoint_name(env), "app.rack.request", nil, meta: endpoint_meta(env))
           t { "middleware began trace=#{trace ? trace.uuid : nil}" }
 
           resp = @app.call(env)
