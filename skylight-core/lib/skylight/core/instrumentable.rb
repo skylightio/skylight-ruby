@@ -66,6 +66,10 @@ module Skylight
           false
         end
 
+        def started?
+          !!instrumenter
+        end
+
         # Stop instrumenting
         def stop!
           t { "stop!" }
