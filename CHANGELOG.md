@@ -1,3 +1,11 @@
+## 4.0.0.alpha3 (January 9, 2018)
+
+* [BREAKING] Drop support for Ruby 2.2 since it is EOL
+* [FEATURE] Add Skylight#started? method
+* [IMPROVEMENT] Better handle some things in Ruby 2.6
+* [IMPROVEMENT] Better logging in a couple places
+* [IMPROVEMENT] Fixed a couple Ruby warnings (thanks, @y-yagi!)
+
 ## 4.0.0.alpha2 (December 19, 2018)
 * [BUGFIX] skylightd should close cloned file descriptors on startup
 * [FEATURE] instrument ActiveStorage notifications
