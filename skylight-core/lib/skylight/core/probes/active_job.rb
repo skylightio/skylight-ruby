@@ -2,12 +2,14 @@ module Skylight::Core
   module Probes
     module ActiveJob
       class Probe
+        TITLE = "ActiveJob.execute".freeze
+
         def install
           ::ActiveJob::Base.instance_eval do
             alias execute_without_sk execute
 
             def execute(*args)
-              Skylight.trace("ActiveJob.execute", "app.job.execute") do |trace|
+              Skylight.trace(TITLE, "app.job.execute") do |trace|
                 # See normalizers/active_job/perform for endpoint/segment assignment
                 begin
                   execute_without_sk(*args)

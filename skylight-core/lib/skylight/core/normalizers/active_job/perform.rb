@@ -11,7 +11,7 @@ module Skylight::Core
           adapter_name = normalize_adapter_name(payload[:adapter])
           desc = "{ adapter: '#{adapter_name}', queue: '#{payload[:job].queue_name}' }"
 
-          trace.endpoint = title
+          maybe_set_endpoint(trace, title)
 
           [CAT, title, desc]
         end
@@ -28,6 +28,16 @@ module Skylight::Core
             adapter_string[/ActiveJob::QueueAdapters::(\w+)Adapter/, 1].underscore
           rescue
             "active_job"
+          end
+
+          def maybe_set_endpoint(trace, string)
+            trace.endpoint ||= string
+
+            # If a job is called using #perform_now inside a controller action
+            # or within another job's #perform method, we do not want this to
+            # overwrite the existing endpoint name (unless it is the default from ActiveJob).
+            return unless trace.endpoint == Skylight::Core::Probes::ActiveJob::Probe::TITLE
+            trace.endpoint = string
           end
       end
     end
