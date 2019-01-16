@@ -230,13 +230,6 @@ end
 #   potential issues.
 if SKYLIGHT_EXT_STRICT
   $CFLAGS << " -Werror"
-
-  if Platform::OS == "darwin"
-    # Enabling unused-parameter causes failures in Ruby 2.6
-    #   ruby/ruby.h:2186:35: error: unused parameter 'allow_transient'
-    # For some reason this only seems to be an issue on macOS
-    $CFLAGS << ",-Wunused-parameter"
-  end
 end
 
 checking_for "fast thread local storage" do
@@ -252,6 +245,10 @@ $CFLAGS << " -std=c99 -Wall -fno-strict-aliasing"
 # Allow stricter checks to be turned on for development or debugging
 if SKYLIGHT_EXT_STRICT
   $CFLAGS << " -Wextra"
+
+  # Enabling unused-parameter causes failures in Ruby 2.6+
+  #   ruby/ruby.h:2186:35: error: unused parameter 'allow_transient'
+  $CFLAGS << " -Wno-error=unused-parameter"
 end
 
 # TODO: Compute the relative path to the location
