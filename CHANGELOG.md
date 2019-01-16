@@ -1,3 +1,6 @@
+## 4.0.0.alpha4 (January 15, 2018)
+* [BUGFIX] Do not overwrite endpoint names for nested inline background jobs
+
 ## 4.0.0.alpha3 (January 9, 2018)
 
 * [BREAKING] Drop support for Ruby 2.2 since it is EOL
