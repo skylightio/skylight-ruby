@@ -1,6 +1,5 @@
 # Skylight Ruby Agent
-
-![Rubygems Version](https://img.shields.io/gem/v/skylight.svg)
+[![Gem Version](https://badge.fury.io/rb/skylight.svg)](https://badge.fury.io/rb/skylight)
 [![SemVer](https://api.dependabot.com/badges/compatibility_score?dependency-name=skylight&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score.html?dependency-name=skylight&package-manager=bundler&version-scheme=semver)
 
 Instrument your ruby application and send the data to the Skylight
