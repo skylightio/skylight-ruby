@@ -3,7 +3,7 @@ cache: bundler
 sudo: false
 
 before_install:
-  - gem install bundler
+  - gem install bundler -v '< 2'
   - |
     if [[ -n "$CODECLIMATE_REPO_TOKEN" ]]; then
       export CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
