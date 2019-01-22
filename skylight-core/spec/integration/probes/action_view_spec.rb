@@ -4,13 +4,7 @@ if defined?(ActionPack)
   CUR_VER = Gem::Version.new("#{ActionPack::VERSION::MAJOR}.#{ActionPack::VERSION::MINOR}")
 
   describe "ActionView integration", :action_view_probe, :agent do
-    class Context
-      include ::ActionView::Context
-
-      def initialize
-        _prepare_context
-      end
-
+    class Context < ActionView::Base
       def find_all(name, *_args)
         handler = ::ActionView::Template.handler_for_extension("erb")
         case name
