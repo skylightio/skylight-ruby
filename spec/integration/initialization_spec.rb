@@ -56,14 +56,19 @@ describe "Initialization integration" do
 
     pipe_cmd_out.close
 
-    output = pipe_cmd_in.read.strip
+    output = pipe_cmd_in.read.strip.split("\n")
 
     # Rails 4 has a deprecation under Ruby 2.6 which isn't likely to be fixed and isn't our fault.
     if Rails::VERSION::MAJOR == 4
-      output.split("\n").reject { |l| l =~ /BigDecimal.new is deprecated/ }.join("\n")
-    else
-      output
+      output.reject! { |l| l =~ /BigDecimal.new is deprecated/ }
     end
+
+    # Ruby 2.7 has deprecated a way that ActiveSupport creates Procs
+    if RUBY_VERSION =~ /^2\.7/
+      output.reject! { |l| l =~ /active_support.*tried to create Proc object without a block/ }
+    end
+
+    output.join("\n")
   rescue Timeout::Error
     Process.kill("TERM", cmd_pid)
     raise
