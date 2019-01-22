@@ -2,6 +2,18 @@ require "spec_helper"
 
 enable = false
 begin
+  # Sidekiq 4.2 checks for the Rails constant but not for whether it responds to
+  # `#env`. (This is fixed in Sidekiq 5+) When we use ActionView in the
+  # ActionView Probe spec, it causes the Rails constant to be defined without the
+  # `#env` method. This is a hack to make it not crash.
+  if defined?(Rails) && !Rails.respond_to?(:env) &&
+     (spec = Gem.loaded_specs["sidekiq"]) &&
+     Gem::Dependency.new("sidekiq", "~> 4.2").match?(spec)
+    def Rails.env
+      @_env ||= ActiveSupport::StringInquirer.new("")
+    end
+  end
+
   require "sidekiq/testing"
   enable = true
 rescue LoadError
