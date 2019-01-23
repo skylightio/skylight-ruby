@@ -1,3 +1,3 @@
 module Skylight
-  VERSION = '3.1.3-beta'
+  VERSION = '3.1.3'
 end
