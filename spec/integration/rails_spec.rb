@@ -4,6 +4,7 @@ enable = false
 begin
   require "rails"
   require "action_controller/railtie"
+  require "active_job/railtie"
   require "skylight/railtie"
   enable = true
 rescue LoadError
@@ -34,6 +35,7 @@ if enable
             get :no_template
             get :too_many_spans
             get :throw_something
+            get :inline_job
           end
         end
         get "/metal" => "metal#show"
@@ -43,6 +45,12 @@ if enable
 
     class ControllerError < StandardError; end
     class MiddlewareError < StandardError; end
+
+    class MyApplicationJob < ActiveJob::Base
+      def perform(*)
+        true
+      end
+    end
 
     around { |ex| set_agent_env(&ex) }
 
@@ -209,6 +217,7 @@ if enable
         config.middleware.use ThrowingMiddleware
         config.many = 10
         config.very_many = 300
+        config.active_job.queue_adapter = (Rails::VERSION::MAJOR >= 5 ? :async : :inline)
       end
 
       # We include instrument_method in multiple places to ensure
@@ -258,6 +267,11 @@ if enable
               end
             end
           end
+        end
+
+        def inline_job
+          MyApplicationJob.perform_now
+          render json: {}
         end
 
         def failure
@@ -526,7 +540,7 @@ if enable
         end
       end
 
-      context "middleware that jumps the stack", focus: true do
+      context "middleware that jumps the stack" do
         it "closes jumped spans" do
           allow_any_instance_of(AssertDeferrals).to receive(:assertion_hook) do
             expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
@@ -915,6 +929,25 @@ if enable
 
         expect(names.length).to be >= 1
         expect(names[0]).to eq("app.rack.request")
+      end
+
+      it "correctly assigns endpoint names when ActiveJob is run synchronously" do
+        res = call MyApp, env("/users/inline_job")
+
+        server.wait(resource: "/report")
+        endpoint = server.reports[0].endpoints[0]
+        endpoint_name = "UsersController#inline_job"
+        expect(endpoint.name).to eq("#{endpoint_name}")
+
+        trace = endpoint.traces.first
+        spans = trace.filtered_spans.last(4)
+
+        expect(spans.map { |s| s.event.title }).to eq([
+          router_name,
+          endpoint_name,
+          "Check authorization",
+          "MyApplicationJob"
+        ])
       end
     end
 
