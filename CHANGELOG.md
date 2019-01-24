@@ -1,3 +1,6 @@
+## 3.1.4
+* [BUGFIX] ActiveJob#perform_now should not reassign the endpoint name
+
 ## 3.1.3
 * [BUGFIX] skylightd should close cloned file descriptors on startup
 * [BUGFIX] Convert numeric git shas to strings
