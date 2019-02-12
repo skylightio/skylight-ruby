@@ -1,29 +1,32 @@
-## 4.0.0.alpha4 (January 15, 2018)
-* [BUGFIX] Do not overwrite endpoint names for nested inline background jobs
+## 4.0.beta (February 14, 2019)
 
-## 4.0.0.alpha3 (January 9, 2018)
-
-* [BREAKING] Drop support for Ruby 2.2 since it is EOL
+* [FEATURE] Skylight for Background Jobs
+* [FEATURE] instrument ActiveStorage notifications
+* [FEATURE] Probe for Delayed::Job (standalone)
 * [FEATURE] Add Skylight#started? method
 * [IMPROVEMENT] Better handle some things in Ruby 2.6
 * [IMPROVEMENT] Better logging in a couple places
 * [IMPROVEMENT] Fixed a couple Ruby warnings (thanks, @y-yagi!)
-
-## 4.0.0.alpha2 (December 19, 2018)
-* [BUGFIX] skylightd should close cloned file descriptors on startup
-* [FEATURE] instrument ActiveStorage notifications
-
-## 4.0.0.alpha (December 3, 2018)
-* [FEATURE] Skylight for Background Jobs
-* [FEATURE] Probe for Delayed::Job (standalone)
 * [IMPROVEMENT] Handle 403 config validation response
 * [IMPROVEMENT] Config for `prune_large_traces` is now true by default
+* [BREAKING] Drop support for Ruby 2.2 since it is EOL
 * [BREAKING] New method for assigning 'segment' to a trace endpoint name
 
+## 3.1.4 (January 24, 2019)
+
+* [BUGFIX] ActiveJob#perform_now should not reassign the endpoint name
+
+## 3.1.3 (January 23, 2019)
+
+* [BUGFIX] skylightd correctly closes cloned file descriptors on startup
+* [BUGFIX] Convert numeric git shas to strings
+
 ## 3.1.2 (November 29, 2018)
+
 * [BUGFIX] Fix derived endpoint names under Grape 1.2
 
 ## 3.1.1 (October 25, 2018)
+
 * [IMPROVEMENT] Get AMS version from `Gem.loaded_specs` (thanks @mattias-lundell!)
 
 ## 3.1.0 (October 22, 2018)
