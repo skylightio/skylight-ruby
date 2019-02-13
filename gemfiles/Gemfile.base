@@ -47,7 +47,7 @@ unless ENV['SKIP_EXTERNAL']
 
   unless ENV['SKIP_SEQUEL']
     gem 'sequel', ENV['SEQUEL_VERSION'] || '> 0'
-    gem 'sqlite3'
+    gem 'sqlite3', '~> 1.3.13'
   end
 
   unless ENV['SIDEKIQ_VERSION'] == 'none'
