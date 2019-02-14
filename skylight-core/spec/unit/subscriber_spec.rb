@@ -18,7 +18,11 @@ module Skylight::Core
     end
 
     def all_asn_subscribers
-      ActiveSupport::Notifications.notifier.instance_variable_get(:@subscribers)
+      ActiveSupport::Notifications.notifier.instance_exec do
+        @subscribers ||
+          # Rails > 6.0.0.beta1
+          (@other_subscribers + @string_subscribers.values).flatten
+      end
     end
 
     let(:unsub_key) { "render.active_model_serializers" }
