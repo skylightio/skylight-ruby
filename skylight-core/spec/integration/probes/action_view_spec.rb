@@ -5,6 +5,11 @@ if defined?(ActionPack)
 
   describe "ActionView integration", :action_view_probe, :agent do
     class Context < ActionView::Base
+      module CompiledTemplates
+      end
+
+      include CompiledTemplates
+
       def find_all(name, *_args)
         handler = ::ActionView::Template.handler_for_extension("erb")
         case name
@@ -15,6 +20,10 @@ if defined?(ActionPack)
         else
           raise ArgumentError, "no template"
         end
+      end
+
+      def compiled_method_container
+        CompiledTemplates
       end
     end
 
