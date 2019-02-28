@@ -826,7 +826,7 @@ if enable
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
 
-        expect(endpoint.name).to eq("UsersController#header")
+        expect(endpoint.name).to eq("UsersController#header<sk-segment>html</sk-segment>")
 
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
@@ -909,7 +909,7 @@ if enable
         expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("UsersController#header")
+        expect(endpoint.name).to eq("UsersController#header<sk-segment>json+tablet</sk-segment>")
       end
 
       it "can instrument metal controllers" do
@@ -937,7 +937,7 @@ if enable
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
         endpoint_name = "UsersController#inline_job"
-        expect(endpoint.name).to eq("#{endpoint_name}")
+        expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>json</sk-segment>")
 
         trace = endpoint.traces.first
         spans = trace.filtered_spans.last(4)
