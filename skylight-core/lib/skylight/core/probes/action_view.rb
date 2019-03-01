@@ -10,9 +10,9 @@ module Skylight::Core
               path, locals = case args.length
                              when 2
                                args
-                             when 3
-                               # Rails > 6.0.0.beta1 prepends an additional `view` argument
-                               args.last(2)
+                             when 4
+                               # Rails >= 6.0.0.beta2 arguments are (view, path, template, locals)
+                               [args[1], args[3]]
                              end
 
               layout = nil
