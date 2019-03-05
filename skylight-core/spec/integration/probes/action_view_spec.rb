@@ -1,8 +1,7 @@
+require "delegate"
 require "spec_helper"
 
 if defined?(ActionPack)
-  CUR_VER = Gem::Version.new("#{ActionPack::VERSION::MAJOR}.#{ActionPack::VERSION::MINOR}")
-
   describe "ActionView integration", :action_view_probe, :agent do
     class Context < ActionView::Base
       module CompiledTemplates
@@ -35,8 +34,19 @@ if defined?(ActionPack)
       ::ActionView::LookupContext.new(context)
     end
 
-    let(:renderer) do
+    let(:renderer_inner) do
       ::ActionView::TemplateRenderer.new(lookup_context)
+    end
+
+    let(:renderer) { Renderer.new(renderer_inner) }
+
+
+    class Renderer < SimpleDelegator
+      def render(*args, &block)
+        __getobj__.render(*args, &block).tap do |result|
+          return result.body if ActionView::VERSION::MAJOR >= 6
+        end
+      end
     end
 
     let(:events) { [] }
@@ -52,7 +62,7 @@ if defined?(ActionPack)
     end
 
     def render_plain(renderer, context, opts)
-      opts[:text] = opts.delete(:plain) if CUR_VER < Gem::Version.new("5.0")
+      opts[:text] = opts.delete(:plain) if ActionView::VERSION::MAJOR < 5
       renderer.render(context, opts)
     end
 
