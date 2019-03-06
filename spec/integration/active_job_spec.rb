@@ -75,6 +75,29 @@ if enable
       expect(endpoint.name).to eq("SkTestJob<sk-segment>default</sk-segment>")
     end
 
+    context "action mailer jobs" do
+      require "action_mailer"
+
+      class TestMailer < ActionMailer::Base
+        default from: "test@example.com"
+
+        def test_mail(_arg)
+          mail(to: "test@example.com", subject: "ActiveJob test", body: SecureRandom.hex)
+        end
+      end
+
+      specify do
+        allow_any_instance_of(ActionMailer::MessageDelivery).to receive(:deliver_now)
+
+        TestMailer.test_mail(1).deliver_later
+
+        server.wait(count: 1)
+
+        expected_endpoint = "ActionMailer::DeliveryJob[TestMailer#test_mail]<sk-segment>mailers</sk-segment>"
+        expect(server.reports[0].endpoints[0].name).to eq(expected_endpoint)
+      end
+    end
+
     context "error handling" do
       it "assigns failed jobs to the error queue" do
         begin

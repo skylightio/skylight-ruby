@@ -10,7 +10,7 @@ module Skylight::Core
               job_class = job.class
               adapter_name = EnqueueProbe.normalize_adapter_name(job_class)
               desc = "{ adapter: #{adapter_name}, queue: '#{job.queue_name}' }"
-              name = job_class.name
+              name = Skylight::Core::Normalizers::ActiveJob::Perform.normalize_title(job)
             rescue
               block.call
             else
