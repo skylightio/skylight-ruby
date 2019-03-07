@@ -3,4 +3,4 @@ development:
     default:
       database: echo_test
       hosts:
-        - 127.0.0.1:27017
+        - <%= ENV["MONGO_HOST"] || "127.0.0.1" %>:27017

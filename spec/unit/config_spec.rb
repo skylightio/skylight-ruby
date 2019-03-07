@@ -4,7 +4,10 @@ module Skylight
   describe Config do
     def with_file(opts = {})
       f = Tempfile.new("foo")
-      FileUtils.chmod 0o400, f if opts[:writable] == false
+      if opts[:writable] == false
+        allow(FileTest).to receive(:writable?).and_call_original
+        allow(FileTest).to receive(:writable?).with(f.path) { false }
+      end
       yield f
     ensure
       f.close
@@ -14,7 +17,10 @@ module Skylight
     def with_dir(opts = {})
       Dir.mktmpdir do |d|
         FileUtils.mkdir("#{d}/nested")
-        FileUtils.chmod 0o400, "#{d}/nested" if opts[:writable] == false
+        if opts[:writable] == false
+          allow(FileTest).to receive(:writable?).and_call_original
+          allow(FileTest).to receive(:writable?).with("#{d}/nested") { false }
+        end
         yield "#{d}/nested"
       end
     end
