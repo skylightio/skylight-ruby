@@ -4,6 +4,17 @@ module Skylight::Core
       class Perform < Normalizer
         register "perform.active_job"
 
+        DELIVERY_JOB = "ActionMailer::DeliveryJob".freeze
+
+        def self.normalize_title(job_instance)
+          job_instance.class.name.to_s.tap do |str|
+            if str == DELIVERY_JOB
+              mailer_class, mailer_method, * = job_instance.arguments
+              return ["#{mailer_class}##{mailer_method}", str]
+            end
+          end
+        end
+
         CAT = "app.job.perform".freeze
 
         def normalize(trace, _name, payload)
@@ -49,11 +60,13 @@ module Skylight::Core
             # If the current endpoint name matches this payload, return true to allow the
             # segment to be assigned by normalize_after.
             trace.endpoint == Skylight::Core::Probes::ActiveJob::Probe::TITLE ||
+              trace.endpoint == DELIVERY_JOB ||
               trace.endpoint == normalize_title(payload[:job])
           end
 
           def normalize_title(job_instance)
-            job_instance.class.to_s
+            title, * = self.class.normalize_title(job_instance)
+            title
           end
       end
     end

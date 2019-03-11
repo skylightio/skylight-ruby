@@ -9,8 +9,13 @@ module Skylight::Core
             begin
               job_class = job.class
               adapter_name = EnqueueProbe.normalize_adapter_name(job_class)
-              desc = "{ adapter: #{adapter_name}, queue: '#{job.queue_name}' }"
-              name = job_class.name
+
+              # If this is an ActionMailer::DeliveryJob, we'll report this as the mailer title
+              # and include ActionMailer::DeliveryJob in the description.
+              name, job_class_name = Skylight::Core::Normalizers::ActiveJob::Perform.normalize_title(job)
+              descriptors = ["adapter: '#{adapter_name}'", "queue: '#{job.queue_name}'"]
+              descriptors << "job: '#{job_class_name}'" if job_class_name
+              desc = "{ #{descriptors.join(', ')} }"
             rescue
               block.call
             else
