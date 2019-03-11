@@ -10,7 +10,7 @@ module Skylight::Core
           job_instance.class.name.to_s.tap do |str|
             if str == DELIVERY_JOB
               mailer_class, mailer_method, * = job_instance.arguments
-              str << "[#{mailer_class}##{mailer_method}]"
+              return ["#{mailer_class}##{mailer_method}", str]
             end
           end
         end
@@ -65,7 +65,8 @@ module Skylight::Core
           end
 
           def normalize_title(job_instance)
-            self.class.normalize_title(job_instance)
+            title, * = self.class.normalize_title(job_instance)
+            title
           end
       end
     end

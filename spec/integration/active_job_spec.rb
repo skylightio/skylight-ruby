@@ -93,7 +93,7 @@ if enable
 
         server.wait(count: 1)
 
-        expected_endpoint = "ActionMailer::DeliveryJob[TestMailer#test_mail]<sk-segment>mailers</sk-segment>"
+        expected_endpoint = "TestMailer#test_mail<sk-segment>mailers</sk-segment>"
         expect(server.reports[0].endpoints[0].name).to eq(expected_endpoint)
       end
     end

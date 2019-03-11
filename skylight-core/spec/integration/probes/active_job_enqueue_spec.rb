@@ -25,7 +25,7 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
       hash_including(
         title: "Enqueue TestJob",
         category: "other.active_job.enqueue",
-        description: "{ adapter: inline, queue: 'default' }"
+        description: "{ adapter: 'inline', queue: 'default' }"
       )
     )
 
@@ -36,9 +36,9 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
     expect_any_instance_of(ActionMailer::DeliveryJob).to receive(:perform)
     expect(TestNamespace).to receive(:instrument).with(
       hash_including(
-        title: "Enqueue ActionMailer::DeliveryJob[TestMailer#test_mail]",
+        title: "Enqueue TestMailer#test_mail",
         category: "other.active_job.enqueue",
-        description: "{ adapter: inline, queue: 'mailers' }"
+        description: "{ adapter: 'inline', queue: 'mailers', job: 'ActionMailer::DeliveryJob' }"
       )
     )
 
