@@ -36,15 +36,11 @@ module Skylight::Core
 
         if activate?(config)
           if config
-            begin
-              if self.class.namespace.start!(config)
-                set_middleware_position(app, config)
-                Rails.logger.info "#{log_prefix} #{self.class.gem_name} agent enabled"
-              else
-                Rails.logger.info "#{log_prefix} Unable to start, see the #{self.class.gem_name} logs for more details"
-              end
-            rescue ConfigError => e
-              Rails.logger.error "#{log_prefix} #{e.message}; disabling #{self.class.gem_name} agent"
+            if self.class.namespace.start!(config)
+              set_middleware_position(app, config)
+              Rails.logger.info "#{log_prefix} #{self.class.gem_name} agent enabled"
+            else
+              Rails.logger.info "#{log_prefix} Unable to start, see the #{self.class.gem_name} logs for more details"
             end
           end
         elsif Rails.env.development?
@@ -57,6 +53,8 @@ module Skylight::Core
             log_warning config, "#{log_prefix} You are running in the #{Rails.env} environment but haven't added it to config.#{self.class.root_key}.environments, so no data will be sent to #{config.class.service_name} servers."
           end
         end
+      rescue ConfigError => e
+        Rails.logger.error "#{log_prefix} #{e.message}; disabling #{self.class.gem_name} agent"
       end
 
       def log_warning(config, msg)

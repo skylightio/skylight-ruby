@@ -145,6 +145,16 @@ describe "Initialization integration" do
           expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to Skylight servers."
         end
       end
+
+      context "invalid environment name" do
+        let(:rails_env) { "production" }
+
+        it "warns that it is disabled" do
+          ENV["SKYLIGHT_ENV"] = "oh no!"
+          boot
+          expect(File.read("log/production.log").lines).to include(a_string_matching(/environment can only contain lowercase letters, numbers, and dashes; disabling Skylight agent/))
+        end
+      end
     end
 
   end
