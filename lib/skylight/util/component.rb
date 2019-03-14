@@ -13,7 +13,8 @@ module Skylight
         /backburner$/i,
         /delayed_job$/i,
         /que$/i,
-        /sneakers$/i
+        /sneakers$/i,
+        /shoryuken$/i
       ]
 
       WORKER_RAKE_MATCHER = Regexp.union [
