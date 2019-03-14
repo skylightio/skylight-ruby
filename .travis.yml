@@ -17,7 +17,11 @@ before_install:
   - gem update --system
   - gem install bundler
   # Rails 4.2 doesn't support Bundler 2
-  - if [[ "$BUNDLE_GEMFILE" =~ "rails-4.2" ]]; then export BUNDLER_VERSION=1; fi
+  - |
+    if [[ "$BUNDLE_GEMFILE" =~ "rails-4.2" ]]; then
+      gem install bundler -v "< 2"
+      export BUNDLER_VERSION=1
+    fi
   # Can't upload coverage data without these
   - |
     if [[ -n $COVERAGE ]] && \
