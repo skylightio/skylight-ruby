@@ -1,14 +1,20 @@
-require 'spec_helper'
+require "spec_helper"
+require "delegate"
 
 if defined?(ActionPack)
-  CUR_VER = Gem::Version.new("#{ActionPack::VERSION::MAJOR}.#{ActionPack::VERSION::MINOR}")
-
   describe 'ActionView integration', :action_view_probe, :agent do
-    class Context
-      include ::ActionView::Context
+    class Context < ActionView::Base
+      module RenderedTemplates
+      end
+
+      include RenderedTemplates
 
       def initialize
         _prepare_context
+      end
+
+      def compiled_method_container
+        RenderedTemplates
       end
 
       def find_all(name, *args)
@@ -32,8 +38,19 @@ if defined?(ActionPack)
       ::ActionView::LookupContext.new(context)
     end
 
-    let(:renderer) do
+    let(:renderer_inner) do
       ::ActionView::TemplateRenderer.new(lookup_context)
+    end
+
+
+    let(:renderer) { Renderer.new(renderer_inner) }
+
+    class Renderer < SimpleDelegator
+      def render(*args, &block)
+        __getobj__.render(*args, &block).tap do |result|
+          return result.body if ActionView::VERSION::MAJOR >= 6
+        end
+      end
     end
 
     let(:events) { [] }
@@ -49,12 +66,8 @@ if defined?(ActionPack)
     end
 
     def render_plain(renderer, context, opts)
-      if CUR_VER < Gem::Version.new("5.0")
-        opts[:text] = opts.delete(:plain)
-        renderer.render(context, opts)
-      else
-        renderer.render(context, opts)
-      end
+      opts[:text] = opts.delete(:plain) if ActionView::VERSION::MAJOR < 5
+      renderer.render(context, opts)
     end
 
     it "instruments layouts when :text is used with a layout" do
