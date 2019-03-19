@@ -1,10 +1,10 @@
-## 4.0.beta2 (March 11, 2019)
+## 4.0.0.beta2 (March 11, 2019)
 
 * [BUGFIX] Make ActionView probe compatible with Rails 6 Beta 2
 * [IMPROVEMENT] ActionMailer::DeliveryJob are now reported using the mailer name and method
 * [IMPROVEMENT] Better content type handling for ActionController normalizer
 
-## 4.0.beta (February 14, 2019)
+## 4.0.0.beta (February 14, 2019)
 
 * [FEATURE] Skylight for Background Jobs
 * [FEATURE] instrument ActiveStorage notifications
