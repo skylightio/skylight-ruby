@@ -1,3 +1,6 @@
+## 3.1.5 (March 20, 2019)
+* [BUGFIX] Make Action View probe compatible with Rails 6 (backported from 4.0.0.beta2)
+
 ## 3.1.4
 * [BUGFIX] ActiveJob#perform_now should not reassign the endpoint name
 
