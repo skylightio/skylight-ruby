@@ -3,7 +3,7 @@ cache: bundler
 sudo: false
 
 before_install:
-  - gem install bundler -v '< 2'
+  - gem install bundler -v $BUNDLER_VERSION
   - |
     if [[ -n "$CODECLIMATE_REPO_TOKEN" ]]; then
       export CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
@@ -28,6 +28,7 @@ after_script: |
 
 env:
   global:
+    - BUNDLER_VERSION=1.17.3
     - SKYLIGHT_ENABLE_TRACE_LOGS=true
     - SKYLIGHT_REQUIRED=true
     - SKYLIGHT_TEST_DIR=/tmp
