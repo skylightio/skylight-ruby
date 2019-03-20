@@ -213,6 +213,11 @@ if enable
         config.many = 10
         config.very_many = 300
         config.active_job.queue_adapter = (Rails::VERSION::MAJOR >= 5 ? :async : :inline)
+
+        if defined?(config.hosts)
+          # Allow all hosts: https://github.com/rails/rails/pull/33145/files
+          config.hosts << proc { true }
+        end
       end
 
       # We include instrument_method in multiple places to ensure

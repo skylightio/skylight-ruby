@@ -2,6 +2,7 @@ require 'spec_helper'
 
 enable = false
 begin
+  require 'rails'
   require 'sidekiq/testing'
   enable = true
 rescue LoadError

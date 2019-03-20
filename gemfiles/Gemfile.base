@@ -9,6 +9,7 @@ if ENV['CODECLIMATE_REPO_TOKEN']
   gem "codeclimate-test-reporter", "~> 1.0"
 end
 
+gem 'bundler', '~> 1.17.3'
 gem 'rake'
 gem 'timecop'
 
