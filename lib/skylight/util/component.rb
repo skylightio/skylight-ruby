@@ -79,7 +79,7 @@ module Skylight
         end
 
         def known_web_context?
-          rails_server? || rackup?
+          rails_server? || rackup? || passenger?
         end
 
         def known_worker_context?
@@ -93,6 +93,10 @@ module Skylight
 
         def rackup?
           program_name[/rackup$/]
+        end
+
+        def passenger?
+          program_name[/\APassenger AppPreloader/]
         end
     end
   end
