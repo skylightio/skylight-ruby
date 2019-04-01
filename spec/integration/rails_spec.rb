@@ -36,6 +36,10 @@ if enable
             get :too_many_spans
             get :throw_something
             get :inline_job
+            get :send_png
+            get :before_action_redirect
+            get :action_redirect
+            get :not_modified
           end
         end
         get "/metal" => "metal#show"
@@ -172,6 +176,11 @@ if enable
       end
 
       class ::MyApp < Rails::Application
+        PNG = [137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82,
+               0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 0, 0, 0, 58, 126, 155, 85, 0,
+               0, 0, 10, 73, 68, 65, 84, 120, 156, 99, 250, 15, 0, 1, 5, 1,
+               2, 207, 160, 46, 205, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130].pack("C*")
+
         config.secret_key_base = "095f674153982a9ce59914b561f4522a"
 
         config.active_support.deprecation = :stderr
@@ -324,6 +333,25 @@ if enable
 
         def throw_something
           throw(:coconut, [401, {}, ["I can't do that, Dave"]])
+        end
+
+        def send_png
+          send_data ::MyApp::PNG, content_type: "image/png", status: :ok
+        end
+
+        def not_modified
+          head :not_modified
+        end
+
+        before_action only: :before_action_redirect do
+          redirect_to '/'
+        end
+
+        def before_action_redirect
+        end
+
+        def action_redirect
+          redirect_to '/'
         end
 
         private
@@ -948,6 +976,50 @@ if enable
           "Check authorization",
           "MyApplicationJob"
         ])
+      end
+
+      it "sets correct segment and endpoint for before_action redirects" do
+        res = call MyApp, env("/users/before_action_redirect")
+
+        server.wait(resource: "/report")
+        endpoint = server.reports[0].endpoints[0]
+
+        endpoint_name = "UsersController#before_action_redirect"
+        segment       = "redirect"
+        expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>#{segment}</sk-segment>")
+      end
+
+      it "sets correct segment and endpoint for action redirect" do
+        res = call MyApp, env("/users/action_redirect")
+
+        server.wait(resource: "/report")
+        endpoint = server.reports[0].endpoints[0]
+
+        endpoint_name = "UsersController#action_redirect"
+        segment       = "redirect"
+        expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>#{segment}</sk-segment>")
+      end
+
+      it "sets correct segment and endpoint for send_file" do
+        res = call MyApp, env("/users/send_png")
+
+        server.wait(resource: "/report")
+        endpoint = server.reports[0].endpoints[0]
+
+        endpoint_name = "UsersController#send_png"
+        segment       = "png"
+        expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>#{segment}</sk-segment>")
+      end
+
+      it "sets correct segment and endpoint for not_modified" do
+        res = call MyApp, env("/users/not_modified")
+
+        server.wait(resource: "/report")
+        endpoint = server.reports[0].endpoints[0]
+
+        endpoint_name = "UsersController#not_modified"
+        segment       = "not modified"
+        expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>#{segment}</sk-segment>")
       end
     end
 
