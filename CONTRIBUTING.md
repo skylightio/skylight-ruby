@@ -8,8 +8,22 @@ Before contributing, please [sign the CLA](https://docs.google.com/spreadsheet/v
 
 In general, we recommend that you speak with us about any new features you'd like to add so we can make sure we're on the same page.
 
-## Emulating Travis Builds
+## Emulating Gitlab CI Builds
 
-We have many Travis build configurations that must pass in order to merge a pull request. You can emulate these configurations locally by running `rake run_travis_builds`. The only prerequisites are that you have both [VirtualBox](https://www.virtualbox.org/wiki/VirtualBox) and [Vagrant](https://www.vagrantup.com/) installed (most recent versions are best).
+We have many CI build configurations that must pass in order to merge a pull request. You can run these individual configurations locally by running e.g., `gitlab-runner exec docker ruby23-rails42`. The only prerequisites are that you have both [Gitlab Runner](https://docs.gitlab.com/runner/) and [Docker](https://www.docker.com/) installed (most recent versions are best). Configuration names may be found in the `.gitlab.yml` file.
 
-After that rake task completes, be sure to run `rake clobber compile`. This will delete the local native extension that was built when you ran `rake run_travis_builds` and rebuilds it.
+If you prefer to run tests in your own environment, you may do so as follows:
+
+```shell
+# Select a gemfile and bundle install
+export BUNDLE_GEMFILE=$PWD/gemfiles/Gemfile.rails-5.2.x
+bundle install
+
+# Run the skylight-core test suite (takes a few seconds)
+pushd skylight-core
+bundle exec rspec
+popd
+
+# Run the main test suite (takes 5-10 minutes)
+bundle exec rspec
+```
