@@ -3,8 +3,12 @@ require "spec_helper"
 # Requires mongodb instance to be running
 if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
   describe "Mongo integration with Moped", :moped_probe, :instrumenter do
+    def mongo_host
+      ENV["MONGO_HOST"] || "127.0.0.1"
+    end
+
     def build_session(opts = {})
-      @session = Moped::Session.new(["127.0.0.1:27017"], opts)
+      @session = Moped::Session.new(["#{mongo_host}:27017"], opts)
       @session.use "echo_test"
       @session
     end

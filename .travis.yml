@@ -241,3 +241,7 @@ notifications:
     urls: https://tilde.slack.com/services/hooks/travis?token=N5Dc2tov6aTfOjXK1VOXlxiS
     on_success: change
     on_failure: always
+
+branches:
+  except:
+    - gitlab
