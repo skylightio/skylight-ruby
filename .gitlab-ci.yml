@@ -1,6 +1,6 @@
 cache:
   paths:
-    - vendor/bundle
+    - $CI_PROJECT_DIR/vendor/bundle
     - cc-test-reporter
 
 variables:
@@ -15,6 +15,7 @@ variables:
   CORE_COVERAGE_DIR: $CI_PROJECT_DIR/skylight-core/coverage
   DISABLED_COVERAGE_DIR: $CI_PROJECT_DIR/coverage-disabled
   CORE_DISABLED_COVERAGE_DIR: $CI_PROJECT_DIR/skylight-core/coverage-disabled
+  BUNDLE_PATH: $CI_PROJECT_DIR/vendor/bundle
 
 .run_tests: &run_tests
   before_script:
@@ -26,11 +27,11 @@ variables:
       fi
   script:
     - pushd skylight-core
-    - bundle install --path ../vendor/bundle
+    - bundle install
     - COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
     - COVERAGE_DIR=$CORE_DISABLED_COVERAGE_DIR SKYLIGHT_DISABLE_AGENT=true bundle exec rake
     - popd
-    - bundle install --path vendor/bundle
+    - bundle install
     - bundle exec rake
     - COVERAGE_DIR=$DISABLED_COVERAGE_DIR SKYLIGHT_DISABLE_AGENT=true bundle exec rake
   after_script:
@@ -65,7 +66,7 @@ codeclimate_setup:
   script:
     - ./cc-test-reporter before-build
 
-sanity:
+ruby26-rails52:
   <<: *run_tests
   stage: sanity
   image: ruby:2.6
