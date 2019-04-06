@@ -52,7 +52,7 @@ variables:
     - chmod +x ./cc-test-reporter
 
 stages:
-  - sanity
+  - smoke_test
   - test
   - wrapup
 
@@ -60,7 +60,7 @@ codeclimate_setup:
   only:
     variables:
       - $COVERAGE == "true"
-  stage: sanity
+  stage: smoke_test
   image: ruby:2.6
   <<: *install_codeclimate
   script:
@@ -68,7 +68,7 @@ codeclimate_setup:
 
 ruby26-rails52:
   <<: *run_tests
-  stage: sanity
+  stage: smoke_test
   image: ruby:2.6
   variables:
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
