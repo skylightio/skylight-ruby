@@ -3,7 +3,6 @@ cache:
   key: "$RUBY_VERSION"
   paths:
     - $CI_PROJECT_DIR/vendor/bundle
-    - cc-test-reporter
 
 variables:
   SKYLIGHT_EXT_STRICT: "false"
@@ -49,9 +48,17 @@ variables:
       - $COVERAGE_DIR/coverage-core-disabled-$CI_JOB_ID.json
 
 .install_codeclimate: &install_codeclimate
+  image: ruby:2.6.2 # can probably use a lighter image, but this one is already cached.
   before_script:
     - if [[ ! -f cc-test-reporter ]]; then curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter; fi
     - chmod +x ./cc-test-reporter
+  cache:
+    key: "codeclimate"
+    paths:
+      - cc-test-reporter
+  only:
+    variables:
+      - $COVERAGE == "true"
 
 stages:
   - smoke_test
@@ -59,15 +66,19 @@ stages:
   - wrapup
 
 codeclimate_setup:
-  only:
-    variables:
-      - $COVERAGE == "true"
   stage: smoke_test
   <<: *install_codeclimate
-  variables:
-    RUBY_VERSION: "2.6.2"
   script:
     - ./cc-test-reporter before-build
+
+codeclimate:
+  stage: wrapup
+  <<: *install_codeclimate
+  script:
+    - mkdir -p formatted_coverage
+    - find coverage -name *.json | xargs -I % ./cc-test-reporter format-coverage -t simplecov -o formatted_coverage/% %
+    - ./cc-test-reporter sum-coverage formatted_coverage/**/*.json
+    - ./cc-test-reporter upload-coverage
 
 ruby26-rails52:
   <<: *run_tests
@@ -302,15 +313,3 @@ ruby-head-rails52:
     RUBY_VERSION: "2.7-dev"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
 
-codeclimate:
-  only:
-    variables:
-      - $COVERAGE == "true"
-  stage: wrapup
-  image: ruby:2.6.2 # can probably use a lighter image, but this one is already cached.
-  <<: *install_codeclimate
-  script:
-    - mkdir -p formatted_coverage
-    - find coverage -name *.json | xargs -I % ./cc-test-reporter format-coverage -t simplecov -o formatted_coverage/% %
-    - ./cc-test-reporter sum-coverage formatted_coverage/**/*.json
-    - ./cc-test-reporter upload-coverage
