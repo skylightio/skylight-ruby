@@ -71,15 +71,13 @@ if enable
 
       NonClosingMiddleware ||= Struct.new(:app) do
         def call(env)
-          res = app.call(env)
-
-          # NOTE: We are intentionally throwing away the response without calling close
-          # This is to emulate a non-conforming Middleware
-          if env["PATH_INFO"] == "/non-closing"
-            return [200, {}, ["NonClosing"]]
+          app.call(env).tap do
+            # NOTE: We are intentionally throwing away the response without calling close
+            # This is to emulate a non-conforming Middleware
+            if env["PATH_INFO"] == "/non-closing"
+              return [200, {}, ["NonClosing"]]
+            end
           end
-
-          res
         end
       end
 
@@ -533,25 +531,52 @@ if enable
         end
       end
 
-      context "middleware that don't conform to Rack SPEC" do
+      context "middleware that does not conform to Rack SPEC" do
         after :each do
           Skylight::Core::Probes::Middleware::Probe.enable!
         end
 
-        it "doesn't report middleware that don't close body", :middleware_probe do
-          ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
+        # The middleware probe is not installed when this built-in instrumenter exists.
+        if defined?(ActionDispatch::MiddlewareStack::InstrumentationProxy)
+          it "reports normally" do
+            ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
+            call MyApp, env("/non-closing")
 
-          expect_any_instance_of(Skylight::Core::Instrumenter).not_to receive(:process)
+            server.wait resource: "/report"
+            trace = server.reports[0].endpoints[0].traces[0]
+            titles = trace.filtered_spans.map { |s| s.event.title }.reverse
 
-          call MyApp, env("/non-closing")
-        end
+            expected_titles = %w[
+              Anonymous\ Middleware
+              NonClosingMiddleware
+              NonArrayMiddleware
+              InvalidMiddleware
+              CustomMiddleware
+              AssertDeferrals
+              RescuingMiddleware
+              CatchingMiddleware
+              MonkeyInTheMiddleware
+              ThrowingMiddleware
+              ActionDispatch::Routing::RouteSet
+            ]
+            expect(titles.take(11).reverse).to eq(expected_titles)
+          end
+        else
+          it "doesn't report middleware that does not close body", :middleware_probe do
+            ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
 
-        it "disables probe when middleware don't close body", :middleware_probe do
-          ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
+            expect_any_instance_of(Skylight::Core::Instrumenter).not_to receive(:process)
 
-          call MyApp, env("/non-closing")
+            call MyApp, env("/non-closing")
+          end
 
-          expect(Skylight::Core::Probes::Middleware::Probe).to be_disabled
+          it "disables probe when middleware does not close body", :middleware_probe do
+            ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
+
+            call MyApp, env("/non-closing")
+
+            expect(Skylight::Core::Probes::Middleware::Probe).to be_disabled
+          end
         end
 
         it "handles middleware that returns a non-array that is coercable", :middleware_probe do
@@ -813,7 +838,7 @@ if enable
           receive(:native_span_set_exception).and_call_original
 
         expect_any_instance_of(Skylight::Trace).to \
-          receive(:native_span_set_exception).with(*args).once.and_call_original
+          receive(:native_span_set_exception).with(*args).and_call_original
 
         res = call MyApp, env("/users/failure")
         expect(res).to be_empty

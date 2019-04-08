@@ -28,7 +28,7 @@ module Skylight::Core
               begin
                 name = self.class.name || "#{default_name}"
 
-                traces.each{|t| t.endpoint = name }
+                traces.each{ |t| t.endpoint = name }
 
                 spans = Skylight::Core::Fanout.instrument(title: name, category: "#{category}")
                 resp = call_without_sk(*args, &block)
@@ -54,6 +54,8 @@ module Skylight::Core
         end
 
         def install
+          return if defined?(::ActionDispatch::MiddlewareStack::InstrumentationProxy)
+
           ::ActionDispatch::MiddlewareStack::Middleware.class_eval do
             alias_method :build_without_sk, :build
             def build(*args)
