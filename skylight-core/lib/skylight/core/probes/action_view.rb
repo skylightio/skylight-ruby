@@ -11,8 +11,8 @@ module Skylight::Core
                              when 2
                                args
                              when 4
-                               # Rails >= 6.0.0.beta2 arguments are (view, path, template, locals)
-                               [args[1], args[3]]
+                               # Rails > 6.0.0.beta3 arguments are (view, template, path, locals)
+                               [args[2], args[3]]
                              end
 
               layout = nil
