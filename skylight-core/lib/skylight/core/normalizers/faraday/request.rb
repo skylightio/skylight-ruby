@@ -1,3 +1,5 @@
+require 'skylight/core/formatters/http'
+
 module Skylight::Core
   module Normalizers
     module Faraday
