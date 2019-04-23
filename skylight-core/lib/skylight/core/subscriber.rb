@@ -3,7 +3,7 @@ module Skylight::Core
   class Subscriber
     include Util::Logging
 
-    attr_reader :config
+    attr_reader :config, :normalizers
 
     def initialize(config, instrumenter)
       @config       = config
@@ -41,29 +41,7 @@ module Skylight::Core
     def start(name, _id, payload)
       return if @instrumenter.disabled?
       return unless (trace = @instrumenter.current_trace)
-
-      result = normalize(trace, name, payload)
-
-      unless result == :skip
-        case result.size
-        when 3, 4
-          cat, title, desc, meta = result
-        else
-          raise "Invalid normalizer result: #{result.inspect}"
-        end
-
-        span = trace.instrument(cat, title, desc, meta)
-      end
-
-      trace.notifications << Notification.new(name, span)
-    rescue Exception => e
-      error "Subscriber#start error; msg=%s", e.message
-      debug "trace=%s", trace.inspect
-      debug "in:  name=%s", name.inspect
-      debug "in:  payload=%s", payload.inspect
-      debug "out: cat=%s, title=%s, desc=%s", cat.inspect, name.inspect, desc.inspect
-      t { e.backtrace.join("\n") }
-      nil
+      _start(trace, name, payload)
     end
 
     def finish(name, _id, payload)
@@ -103,6 +81,31 @@ module Skylight::Core
 
       def normalize_after(*args)
         @normalizers.normalize_after(*args)
+      end
+
+      def _start(trace, name, payload)
+        result = normalize(trace, name, payload)
+
+        unless result == :skip
+          case result.size
+          when 3, 4
+            cat, title, desc, meta = result
+          else
+            raise "Invalid normalizer result: #{result.inspect}"
+          end
+
+          span = trace.instrument(cat, title, desc, meta)
+        end
+      rescue Exception => e
+        error "Subscriber#start error; msg=%s", e.message
+        debug "trace=%s", trace.inspect
+        debug "in:  name=%s", name.inspect
+        debug "in:  payload=%s", payload.inspect
+        debug "out: cat=%s, title=%s, desc=%s", cat.inspect, name.inspect, desc.inspect
+        t { e.backtrace.join("\n") }
+        nil
+      ensure
+        trace.notifications << Notification.new(name, span)
       end
   end
 end
