@@ -2,8 +2,51 @@ require "spec_helper"
 
 module Skylight::Core
   describe Subscriber do
+    class FakeTrace
+      def instrument(*)
+        @span_counter ||= 0
+        @span_counter += 1
+      end
+
+      def notifications
+        @notifications ||= []
+      end
+
+      def done(*); end
+    end
+
+    FakeInstrumenter = Struct.new(:current_trace) do
+      def disabled?
+        false
+      end
+    end
+
+    let(:instrumenter) do
+      FakeInstrumenter.new(trace)
+    end
+
+    let(:trace) { FakeTrace.new }
+
     let(:config) { Config.new(foo: "hello") }
-    let(:subscriber) { Subscriber.new(config, Object.new) }
+    let(:subscriber) { Subscriber.new(config, instrumenter) }
+
+    before { allow(subscriber).to receive(:raise_on_error?) { false } }
+
+    class Skylight::Core::Normalizers::SubscriberTestNormalizer < Skylight::Core::Normalizers::Normalizer
+      register "subscriber_test.spec.skylight"
+
+      def normalize(*)
+        ["spec.skylight", "normalized", nil]
+      end
+    end
+
+    class Skylight::Core::Normalizers::SubscriberTestFailureNormalizer < Skylight::Core::Normalizers::Normalizer
+      register "normalizer_failure.spec.skylight"
+
+      def normalize(*)
+        raise "something went wrong"
+      end
+    end
 
     around do |ex|
       subscriber.register!
@@ -42,6 +85,24 @@ module Skylight::Core
       }.from(1).to(0)
 
       expect(count_sk_subscribers).to eq(original_count - 1)
+    end
+
+    context "evented error handling" do
+      specify "notifications are pushed even on errors" do
+        ActiveSupport::Notifications.instrument("subscriber_test.spec.skylight") do
+          expect(trace.notifications.count).to eq(1)
+          expect(trace.notifications.first.name).to eq("subscriber_test.spec.skylight")
+
+          ActiveSupport::Notifications.instrument("normalizer_failure.spec.skylight") do
+            expect(trace.notifications.map(&:span)).to eq([1, nil])
+          end
+
+          expect(trace.notifications.count).to eq(1)
+          expect(trace.notifications.first.name).to eq("subscriber_test.spec.skylight")
+        end
+
+        expect(trace.notifications.count).to eq(0)
+      end
     end
   end
 end
