@@ -60,7 +60,7 @@ if defined?(ActiveModel::Serializer)
       end
 
       def anonymous_show
-        render json: items.first, serializer: Class.new(ItemSerializer)
+        render json: items.first, serializer: Class.new(ItemSerializer), root: :item
       end
 
       # Used by AM::S (older only?)
