@@ -1,3 +1,4 @@
+ENV['SQLITE_VERSION'] = '~> 1.4'
 ENV['MONGOID_VERSION'] = 'skip'
 ENV['RAILS_EDGE'] = 'true'
 
