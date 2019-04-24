@@ -59,6 +59,10 @@ if defined?(ActiveModel::Serializer)
         render json: items.first
       end
 
+      def anonymous_show
+        render json: items.first, serializer: Class.new(ItemSerializer), root: :item
+      end
+
       # Used by AM::S (older only?)
       def url_options
         {}
@@ -121,6 +125,24 @@ if defined?(ActiveModel::Serializer)
         opts[:desc] = "Adapter: Json"
       else
         opts[:title] = "ArraySerializer"
+      end
+
+      expect(current_trace.mock_spans[2]).to include(opts)
+    end
+
+    it "instruments anonymous serializers" do
+      _status, _header, response = dispatch(:anonymous_show)
+
+      json = { item: { name: "Test", doubled_value: 4 } }.to_json
+      expect(response.body).to eq(json)
+
+      opts = {
+        cat: "view.render.active_model_serializers",
+        title: "<Anonymous Serializer>"
+      }
+
+      if version >= Gem::Version.new("0.10.0.rc1")
+        opts[:desc] = "Adapter: Json"
       end
 
       expect(current_trace.mock_spans[2]).to include(opts)
