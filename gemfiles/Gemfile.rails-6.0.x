@@ -1,7 +1,6 @@
 ENV['MONGOID_VERSION'] = 'skip'
-ENV['RAILS_EDGE'] = 'true'
 
 eval_gemfile File.expand_path('../Gemfile.base', __FILE__)
 eval_gemfile File.expand_path('../Gemfile.rails-common', __FILE__)
 
-gem 'rails', git: 'https://github.com/rails/rails', branch: 'master'
+gem 'rails', '~> 6.0.0.rc1'

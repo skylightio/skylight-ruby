@@ -87,6 +87,13 @@ ruby26-rails52:
     RUBY_VERSION: "2.6.2"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
 
+ruby26-rails60:
+  <<: *run_tests
+  stage: test
+  variables:
+    RUBY_VERSION: "2.6.2"
+    BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-6.0.x
+
 ruby23-rails42:
   <<: *run_tests
   stage: test
