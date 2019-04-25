@@ -1,3 +1,14 @@
+## 4.0.0.beta3 (April 24, 2019)
+* [IMPROVEMENT] Support anonymous ActiveModelSerializer classes
+* [IMPROVEMENT] Improve error handling in normalizers
+* [IMPROVEMENT] Handle Rails 6's middleware instrumentation
+* [IMPROVEMENT] Better rendered format detection in Rails controllers
+* [IMPROVEMENT] Recognize the Passenger startup script as 'web'
+* [IMPROVEMENT] Detect Shoryuken as an ActiveJob framework
+* [BUGFIX] Correct issue where component validation could raise errors during boot
+* [BUGFIX] Make ActionView probe compatible with Rails 6.0.0.rc1
+* [BUGFIX] Require http formatters for Faraday (thanks, @serkin!)
+
 ## 4.0.0.beta2 (March 11, 2019)
 
 * [BUGFIX] Make ActionView probe compatible with Rails 6 Beta 2
