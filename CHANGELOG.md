@@ -1,31 +1,22 @@
-## 4.0.0.beta3 (April 24, 2019)
-* [IMPROVEMENT] Support anonymous ActiveModelSerializer classes
-* [IMPROVEMENT] Improve error handling in normalizers
-* [IMPROVEMENT] Handle Rails 6's middleware instrumentation
-* [IMPROVEMENT] Better rendered format detection in Rails controllers
-* [IMPROVEMENT] Recognize the Passenger startup script as 'web'
-* [IMPROVEMENT] Detect Shoryuken as an ActiveJob framework
-* [BUGFIX] Correct issue where component validation could raise errors during boot
-* [BUGFIX] Make ActionView probe compatible with Rails 6.0.0.rc1
-* [BUGFIX] Require http formatters for Faraday (thanks, @serkin!)
-
-## 4.0.0.beta2 (March 11, 2019)
-
-* [BUGFIX] Make ActionView probe compatible with Rails 6 Beta 2
-* [IMPROVEMENT] ActionMailer::DeliveryJob are now reported using the mailer name and method
-* [IMPROVEMENT] Better content type handling for ActionController normalizer
-
-## 4.0.0.beta (February 14, 2019)
+## 4.0.0 (May 6, 2019)
 
 * [FEATURE] Skylight for Background Jobs
 * [FEATURE] instrument ActiveStorage notifications
 * [FEATURE] Probe for Delayed::Job (standalone)
 * [FEATURE] Add Skylight#started? method
+* [IMPROVEMENT] Support anonymous ActiveModelSerializer classes
+* [IMPROVEMENT] Improve error handling in normalizers
+* [IMPROVEMENT] Handle Rails 6's middleware instrumentation
+* [IMPROVEMENT] Better rendered format detection in Rails controllers
+* [IMPROVEMENT] Recognize the Passenger startup script as 'web'
+* [IMPROVEMENT] ActionMailer::DeliveryJob are now reported using the mailer name and method
+* [IMPROVEMENT] Better content type handling for ActionController normalizer
 * [IMPROVEMENT] Better handle some things in Ruby 2.6
 * [IMPROVEMENT] Better logging in a couple places
 * [IMPROVEMENT] Fixed a couple Ruby warnings (thanks, @y-yagi!)
 * [IMPROVEMENT] Handle 403 config validation response
 * [IMPROVEMENT] Config for `prune_large_traces` is now true by default
+* [BUGFIX] Require http formatters for Faraday (thanks, @serkin!)
 * [BREAKING] Drop support for Ruby 2.2 since it is EOL
 * [BREAKING] New method for assigning 'segment' to a trace endpoint name
 
