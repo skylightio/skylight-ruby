@@ -1,5 +1,5 @@
 All other components of this product, except where otherwise noted, are
-Copyright (c) 2013-2016 Tilde, Inc.
+Copyright (c) 2013-2019 Tilde, Inc.
 All rights reserved.
 
 Certain inventions disclosed in this file may be claimed within patents
