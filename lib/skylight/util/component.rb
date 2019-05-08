@@ -79,7 +79,7 @@ module Skylight
         end
 
         def known_web_context?
-          rails_server? || rackup? || passenger?
+          rails_server? || rack_server? || passenger? || unicorn?
         end
 
         def known_worker_context?
@@ -91,8 +91,12 @@ module Skylight
           defined?(Rails::Server)
         end
 
-        def rackup?
-          program_name[/rackup$/]
+        def rack_server?
+          program_name[/(?<!\w)(falcon|puma|rackup|thin)$/]
+        end
+
+        def unicorn?
+          program_name[/\Aunicorn/]
         end
 
         def passenger?
