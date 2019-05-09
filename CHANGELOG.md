@@ -1,3 +1,6 @@
+## 4.0.1 (May 9, 2019)
+* [BUGFIX] Better detection of known web servers
+
 ## 4.0.0 (May 6, 2019)
 
 * [FEATURE] Skylight for Background Jobs

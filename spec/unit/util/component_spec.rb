@@ -1,6 +1,10 @@
 require "spec_helper"
 
 describe Skylight::Util::Component do
+  def stub_program_name(name)
+    allow_any_instance_of(described_class).to receive(:program_name) { name }
+  end
+
   let(:config) do
     Config.new
   end
@@ -52,6 +56,40 @@ describe Skylight::Util::Component do
     specify do
       expect(component.to_s).to eq("web:production")
       expect(component).to be_web
+    end
+  end
+
+  context "known rack servers force web" do
+    let(:name) { "worker-name" }
+
+    %w[puma thin falcon rackup].each do |server|
+      context "rack: #{server}" do
+        specify do
+          stub_program_name(server)
+
+          expect(component.to_s).to eq("web:production")
+          expect(component).to be_web
+        end
+
+        specify do
+          stub_program_name("/path/to/bin/#{server}")
+
+          expect(component.to_s).to eq("web:production")
+          expect(component).to be_web
+        end
+      end
+    end
+
+    specify do
+      stub_program_name("unicorn worker[0] config.ru -l0.0.0.0:8080")
+      expect(component.to_s).to eq("web:production")
+      expect(component).to be_web
+    end
+
+    specify "only complete matches are recognized" do
+      stub_program_name("/hypothetical/program/called/gyrfalcon")
+      expect(component.to_s).to eq("worker-name:production")
+      expect(component).to be_worker
     end
   end
 
