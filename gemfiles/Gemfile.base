@@ -28,6 +28,7 @@ unless ENV['SKIP_EXTERNAL']
   gem 'httpclient'
   gem 'mongo'
   gem 'faraday'
+  gem 'graphiti'
 
   unless ENV['MOPED_VERSION'] == 'skip'
     gem 'moped', (ENV['MOPED_VERSION'] || '>= 2.0.7')
