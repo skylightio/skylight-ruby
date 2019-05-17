@@ -311,12 +311,12 @@ ruby26-rails42-ams-edge:
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
     AMS_VERSION: edge
 
-ruby-head-rails52:
+ruby-head-rails60:
   <<: *run_tests
   stage: test
   allow_failure: true
   image: rubocophq/ruby-snapshot:latest
   variables:
     RUBY_VERSION: "2.7-dev"
-    BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
+    BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-6.0.x
 
