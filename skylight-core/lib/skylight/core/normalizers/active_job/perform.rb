@@ -5,6 +5,7 @@ module Skylight::Core
         register "perform.active_job"
 
         DELIVERY_JOB = "ActionMailer::DeliveryJob".freeze
+        DELAYED_JOB_WRAPPER = "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper".freeze
 
         def self.normalize_title(job_instance)
           job_instance.class.name.to_s.tap do |str|
@@ -51,7 +52,10 @@ module Skylight::Core
           def assign_endpoint?(trace, payload)
             # Always assign the endpoint if it has not yet been assigned by the ActiveJob probe.
             return true unless trace.endpoint
-            return unless defined?(Skylight::Core::Probes::ActiveJob::Probe::TITLE)
+            return true if defined?(Skylight::Core::Probes::ActiveJob::Probe::TITLE) &&
+              trace.endpoint == Skylight::Core::Probes::ActiveJob::Probe::TITLE
+            return true if defined?(SKylight::Core::Probes::DelayedJob::Probe::UNKNOWN) &&
+              trace.endpoint == Skylight::Core::Probes::DelayedJob::Probe::UNKNOWN
 
             # If a job is called using #perform_now inside a controller action
             # or within another job's #perform method, we do not want this to
@@ -59,9 +63,12 @@ module Skylight::Core
             #
             # If the current endpoint name matches this payload, return true to allow the
             # segment to be assigned by normalize_after.
-            trace.endpoint == Skylight::Core::Probes::ActiveJob::Probe::TITLE ||
-              trace.endpoint == DELIVERY_JOB ||
-              trace.endpoint == normalize_title(payload[:job])
+            trace.endpoint == DELIVERY_JOB ||
+              trace.endpoint == normalize_title(payload[:job]) ||
+              # This adapter wrapper needs to be handled specifically due to interactions with the
+              # standalone Delayed::Job probe, as there is no consistent way to get the wrapped
+              # job name among all Delayed::Job backends.
+              trace.endpoint == DELAYED_JOB_WRAPPER
           end
 
           def normalize_title(job_instance)

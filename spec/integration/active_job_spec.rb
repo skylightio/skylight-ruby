@@ -48,6 +48,12 @@ if enable
     around do |ex|
       stub_config_validation
       stub_session_request
+
+      # Prior to rails 5, queue_adapter was a class variable,
+      # so setting it to delayed_job in the DelayedJob spec could cause
+      # these tests to fail
+      ActiveJob::Base.queue_adapter = :inline if ActiveJob::VERSION::MAJOR < 5
+
       set_agent_env do
         Skylight.start!
         ex.call

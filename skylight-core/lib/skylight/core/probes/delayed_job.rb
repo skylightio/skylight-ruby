@@ -2,6 +2,8 @@ module Skylight::Core
   module Probes
     module DelayedJob
       class Probe
+        UNKNOWN = "<Delayed::Job Unknown>".freeze
+
         def install
           return unless validate_version
           ::Delayed::Worker.class_eval do
@@ -11,7 +13,18 @@ module Skylight::Core
 
             def run(job, *args)
               t { "Delayed::Job beginning trace" }
-              Skylight.trace(job.name, "app.delayed_job.worker", "Delayed::Worker#run", segment: job.queue) do
+
+              handler_name = begin
+                if defined?(::Delayed::PerformableMethod) && job.payload_object.is_a?(::Delayed::PerformableMethod)
+                  job.name
+                else
+                  job.payload_object.class.name
+                end
+              rescue
+                UNKNOWN
+              end
+
+              Skylight.trace(handler_name, "app.delayed_job.worker", "Delayed::Worker#run", segment: job.queue) do
                 run_without_sk(job, *args)
               end
             end
