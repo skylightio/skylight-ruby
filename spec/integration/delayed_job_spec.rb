@@ -10,18 +10,28 @@ rescue LoadError
   puts "[INFO] Skipping Delayed::Job integration specs"
 end
 
+enable_active_job = false
+begin
+  require "active_job/base"
+  enable_active_job = true
+rescue LoadError
+  puts "[INFO] Skipping Delayed::Job/ActiveJob integration specs"
+end
+
 if enable
   describe "Delayed::Job integration" do
     around do |example|
       with_sqlite(&example)
     end
 
+    let(:probes) { %w[delayed_job] }
+
     before do
       @original_env = ENV.to_hash
       set_agent_env
       migration = dj_migration # Schema.define instance_evals the block, so this must be a local var
       ActiveRecord::Schema.define { migration.up }
-      Skylight.probe("delayed_job")
+      Skylight.probe(*probes)
       Skylight.start!
     end
 
@@ -76,8 +86,7 @@ if enable
       end
 
       specify do
-        job = DelayedObject.new.delay(queue: "queue-name").good_method
-        Delayed::Worker.new.run(job)
+        run_job(:good_method)
 
         server.wait resource: "/report"
         endpoint = server.reports[0].endpoints[0]
@@ -95,8 +104,7 @@ if enable
       end
 
       it "reports problems to the error segment" do
-        job = DelayedObject.new.delay(queue: "queue-name").bad_method
-        Delayed::Worker.new.run(job)
+        run_job(:bad_method)
 
         server.wait resource: "/report"
         endpoint = server.reports[0].endpoints[0]
@@ -121,6 +129,90 @@ if enable
           "\"updated_at\" = ?"
         ])
         expect(meta[4]).to eq(["db.sql.query", "commit transaction"])
+      end
+    end
+
+    def run_job(method_name, *)
+      job = instance_eval("DelayedObject.new.delay(queue: 'queue-name').#{method_name}", __FILE__, __LINE__)
+      Delayed::Worker.new.run(job)
+    end
+
+    enable_active_job && describe("active_job integration") do
+      let(:probes) { %w[active_job delayed_job] }
+
+      class DelayedWorker < ActiveJob::Base
+        self.queue_adapter = :delayed_job
+        self.queue_name = 'my-queue'
+
+        def perform(*args)
+          Skylight.instrument(category: "app.zomg") do
+            sleep(0.1)
+            raise "bad_method" if args.include?("bad_method")
+            p args
+          end
+        end
+      end
+
+      def run_job(*args)
+        DelayedWorker.queue_adapter = :delayed_job # Rails 4 :(
+        DelayedWorker.perform_later(*args.map(&:to_s))
+        job = Delayed::Job.last
+        Delayed::Worker.new.run(job)
+      end
+
+      context "with agent", :http, :agent do
+        before do
+          stub_config_validation
+          stub_session_request
+        end
+
+        specify do
+          run_job(:good_method)
+
+          server.wait resource: "/report"
+          endpoint = server.reports[0].endpoints[0]
+          trace = endpoint.traces[0]
+          spans = trace.filtered_spans
+
+          expect(endpoint.name).to eq("DelayedWorker<sk-segment>my-queue</sk-segment>")
+          expect(spans.map { |s| [s.event.category, s.event.description] }).to eq([
+            ["app.delayed_job.worker", nil],
+            ["app.job.perform", "{ adapter: 'delayed_job', queue: 'my-queue' }"],
+            ["app.zomg", nil],
+            ["db.sql.query", "begin transaction"],
+            ["db.sql.query", "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?"],
+            ["db.sql.query", "commit transaction"]
+          ])
+        end
+
+        it "reports problems to the error segment" do
+          run_job(:bad_method)
+
+          server.wait resource: "/report"
+          endpoint = server.reports[0].endpoints[0]
+          trace = endpoint.traces[0]
+          spans = trace.filtered_spans
+
+          expect(endpoint.name).to eq("DelayedWorker<sk-segment>error</sk-segment>")
+          meta = spans.map { |s| [s.event.category, s.event.description] }
+          expect(meta[0]).to eq(["app.delayed_job.worker", nil])
+          expect(meta[1]).to eq(["app.job.perform", "{ adapter: 'delayed_job', queue: 'my-queue' }"])
+          expect(meta[2]).to eq(["app.zomg", nil])
+          expect(meta[3]).to eq(["db.sql.query", "begin transaction"])
+
+          expect(meta[4][0]).to eq("db.sql.query")
+
+          # column order can differ between ActiveRecord versions
+          r = /UPDATE "delayed_jobs" SET (?<columns>((\"\w+\") = \?,?\s?)+) WHERE "delayed_jobs"\."id" = \?/
+          columns = meta[4][1].match(r)[:columns].split(", ")
+          expect(columns).to match_array([
+            "\"attempts\" = ?",
+            "\"last_error\" = ?",
+            "\"run_at\" = ?",
+            "\"updated_at\" = ?"
+          ])
+          expect(meta[5]).to eq(["db.sql.query", "commit transaction"])
+        end
       end
     end
   end
