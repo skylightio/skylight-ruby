@@ -111,6 +111,8 @@ module Skylight::Core
         elasticsearch/request
         faraday/request
         grape/endpoint
+        graphiti/resolve
+        graphiti/render
         moped/query
         sequel/sql].each do |file|
       require "skylight/core/normalizers/#{file}"
