@@ -31,16 +31,7 @@ module Skylight::Core
           extracted_title, sql = extract_binds(trace.instrumenter, payload, binds)
           [name, extracted_title || title, sql]
         rescue => e
-          if defined?(Skylight::SqlLexError) && e.is_a?(Skylight::SqlLexError)
-            if config[:log_sql_parse_errors]
-              config.logger.error "[#{e.formatted_code}] Failed to extract binds from SQL query. " \
-                                  "It's likely that this query uses more advanced syntax than we currently support. " \
-                                  "sql=#{payload[:sql].inspect}"
-            end
-          else
-            config.logger.error "Failed to extract binds in SQL; sql=#{payload[:sql].inspect}; exception=#{e.inspect}"
-          end
-
+          config.logger.error "Failed to extract binds in SQL; sql=#{payload[:sql].inspect}; exception=#{e.inspect}"
           [name, title, nil]
         end
       end

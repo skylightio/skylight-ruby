@@ -2,38 +2,31 @@ require "spec_helper"
 require "date"
 
 module Skylight
-  describe "Normalizers", "sql.active_record", :agent do
+  describe "Normalizers", "sql.active_record", :http, :agent do
     before :each do
-      WebMock.enable!
+      ENV["SKYLIGHT_AUTHENTICATION"] = "lulz"
+      ENV["SKYLIGHT_VALIDATION_URL"] = "http://127.0.0.1:#{port}/agent/config"
 
-      stub_request(:post, "https://auth.skylight.io/agent/config").
-        to_return(status: 200, body: "", headers: {})
-
-      ENV["SKYLIGHT_AUTHENTICATION"] = "zomg"
-
-      @trace = nil
-      TestNamespace.mock! do |trace|
-        @trace = trace
-      end
-
-      allow(TestNamespace.instrumenter).to receive(:process_sql) do |sql|
-        Skylight.lex_sql(sql)
-      end
+      Skylight.start!
 
       # Start a trace to have it available in the trace method
-      TestNamespace.trace("Test", "app.request")
+      Skylight.trace("Test", "app.request")
 
       stub_const("ActiveRecord::Base", double(connection_config: { adapter: "postgres", database: "testdb" }))
     end
 
     after :each do
       ENV["SKYLIGHT_AUTHENTICATION"] = nil
-      TestNamespace.stop!
-      WebMock.disable!
+      ENV["SKYLIGHT_VALIDATION_URL"] = nil
+      Skylight.stop!
     end
 
     def trace
-      TestNamespace.instrumenter.current_trace
+      Skylight.instrumenter.current_trace
+    end
+
+    def config
+      Skylight.config
     end
 
     it "skips SCHEMA queries" do
@@ -110,7 +103,19 @@ module Skylight
 
     it "Produces an error if the SQL isn't parsable" do
       expect(config.logger).to receive(:error).with(/Failed to extract binds/).once
-      config[:log_sql_parse_errors] = true
+
+      name, title, desc =
+        normalize(name: "Foo Load", sql: "!!!")
+
+      expect(name).to eq("db.sql.query")
+      expect(title).to eq("Foo Load")
+      expect(desc).to eq(nil)
+    end
+
+    it "does not log a errors if logging is turned off" do
+      config[:log_sql_parse_errors] = false
+
+      expect(config.logger).to_not receive(:error)
 
       name, title, desc =
         normalize(name: "Foo Load", sql: "!!!")
