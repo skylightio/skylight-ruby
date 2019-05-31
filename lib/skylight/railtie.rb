@@ -35,13 +35,12 @@ module Skylight
 
       def activate?(sk_config)
         return false unless super && sk_config
-        activate_for_worker?(sk_config) || activate_for_web?(sk_config)
+        show_worker_activation_warning(sk_config)
+        true
       end
 
       # We must have an opt-in signal
-      def activate_for_worker?(sk_config)
-        return unless sk_config.worker_context?
-
+      def show_worker_activation_warning(sk_config)
         reasons = []
         reasons << "the 'active_job' probe is enabled" if sk_rails_config.probes.include?("active_job")
         reasons << "the 'delayed_job' probe is enabled" if sk_rails_config.probes.include?("delayed_job")
@@ -50,11 +49,6 @@ module Skylight
         return if reasons.empty?
 
         sk_config.logger.warn("Activating Skylight for Background Jobs because #{reasons.to_sentence}")
-        true
-      end
-
-      def activate_for_web?(sk_config)
-        sk_config.web_context?
       end
 
       def development_warning

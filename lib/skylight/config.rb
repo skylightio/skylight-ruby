@@ -276,7 +276,6 @@ module Skylight
       if token
         meta = {}
         meta.merge!(deploy.to_query_hash) if deploy
-        meta[:component] = component.to_s if component
         meta[:reporting_env] = true if reporting_env?
 
         # A pipe should be a safe delimiter since it's not in the standard token
@@ -291,21 +290,24 @@ module Skylight
       @deploy ||= Util::Deploy.build(self)
     end
 
-    def component
-      @component ||= Util::Component.new(
-        get(:env),
-        get(:component) || get(:worker_component)
-      )
+    def components
+      @components ||= {
+        web: Util::Component.new(
+          get(:env),
+          Util::Component::DEFAULT_NAME
+        ),
+        worker: Util::Component.new(
+          get(:env),
+          get(:component) || get(:worker_component),
+          force_worker: true
+        )
+      }
     rescue ArgumentError => e
       raise Core::ConfigError, e.message
     end
 
-    def worker_context?
-      component.worker?
-    end
-
-    def web_context?
-      component.web?
+    def component
+      components[:web]
     end
 
     def as_json(*)

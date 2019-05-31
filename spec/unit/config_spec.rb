@@ -216,7 +216,7 @@ module Skylight
       it "converts to env" do
         expect(get_env).to eq(
           # (Includes default component info)
-          "SKYLIGHT_AUTHENTICATION" => "abc123|component=web%3Aproduction&reporting_env=true",
+          "SKYLIGHT_AUTHENTICATION" => "abc123|reporting_env=true",
           "SKYLIGHT_VERSION"    => Skylight::VERSION,
           "SKYLIGHT_ROOT"       => "/tmp",
           "SKYLIGHT_HOSTNAME"   => "test.local",
@@ -229,10 +229,9 @@ module Skylight
       it "includes deploy info if available" do
         config[:'deploy.id'] = "d456"
 
-        # (Includes default component info)
         Timecop.freeze do
           expect(get_env["SKYLIGHT_AUTHENTICATION"]).to \
-            eq("abc123|timestamp=#{Time.now.to_i}&deploy_id=d456&component=web%3Aproduction&reporting_env=true")
+            eq("abc123|timestamp=#{Time.now.to_i}&deploy_id=d456&reporting_env=true")
         end
       end
 
@@ -248,13 +247,17 @@ module Skylight
         config[:env] = "staging"
         config[:component] = "worker"
         expect(get_env["SKYLIGHT_AUTHENTICATION"]).to \
-          eq("abc123|component=worker%3Astaging&reporting_env=true")
+          eq("abc123|reporting_env=true")
+
+        expect(config.components[:worker].to_s).to eq("worker:staging")
       end
 
       it "includes custom worker_component settings" do
         config[:worker_component] = "sidekiq"
         expect(get_env["SKYLIGHT_AUTHENTICATION"]).to \
-          eq("abc123|component=sidekiq%3Aproduction&reporting_env=true")
+          eq("abc123|reporting_env=true")
+
+        expect(config.components[:worker].to_s).to eq("sidekiq:production")
       end
     end
 
@@ -274,10 +277,11 @@ module Skylight
       it "includes custom component metadata" do
         config = Config.new(component: "worker", env: "development").as_json
 
-        %i[priority values].each do |subkey|
-          expect(config[:config][subkey][:component]).to eq("worker")
-          expect(config[:config][subkey][:env]).to eq("development")
-        end
+        # default component for validation is now "web"
+        expect(config[:config][:priority][:component]).to eq("web")
+        expect(config[:config][:priority][:env]).to eq("development")
+        expect(config[:config][:values][:component]).to eq("worker")
+        expect(config[:config][:values][:env]).to eq("development")
       end
 
       it "includes inferred component metadata in the priority group" do

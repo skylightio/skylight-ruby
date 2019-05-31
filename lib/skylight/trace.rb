@@ -1,7 +1,10 @@
 module Skylight
   class Trace < Core::Trace
-    def initialize(*)
+    attr_reader :component
+
+    def initialize(*, component: nil)
       super
+      self.component = component if component
       @too_many_spans = false
       native_use_pruning if use_pruning?
     end
@@ -50,6 +53,17 @@ module Skylight
 
       def use_pruning?
         config.get(:prune_large_traces)
+      end
+
+      def resolve_component(component)
+        config.components[component].to_encoded_s
+      end
+
+      def component=(component)
+        resolve_component(component).tap do |c|
+          @component = c
+          native_set_component(c)
+        end
       end
   end
 end

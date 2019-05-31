@@ -1,35 +1,19 @@
+# frozen_string_literal: true
+require "uri"
+
 module Skylight
   module Util
     class Component
       attr_accessor :environment, :name
 
       NAME_FORMAT = /\A[a-zA-Z0-9_-]+\z/
-      DEFAULT_NAME = "web".freeze
-      WORKER_NAME = "worker".freeze
-      DEFAULT_ENVIRONMENT = "production".freeze
+      DEFAULT_NAME = "web"
+      WORKER_NAME = "worker"
+      DEFAULT_ENVIRONMENT = "production"
 
-      WORKER_PROGRAM_MATCHER = Regexp.union [
-        /sidekiq$/i,
-        /backburner$/i,
-        /delayed_job$/i,
-        /que$/i,
-        /sneakers$/i,
-        /shoryuken$/i
-      ]
-
-      WORKER_RAKE_MATCHER = Regexp.union [
-        /\Aresque:/,
-        /\Abackburner:/,
-        /\Ajobs:/, # DelayedJob. can also be `rake jobs:workoff`
-        /\Aqu:/,
-        /\Aque:/,
-        /\Aqc:/,
-        /\Asneakers:/
-      ]
-
-      def initialize(environment, name)
+      def initialize(environment, name, force_worker: false)
         @environment = environment || DEFAULT_ENVIRONMENT
-        @name        = resolve_name(name)
+        @name        = resolve_name(name, force_worker)
 
         raise ArgumentError, "environment can't be blank" if @environment.empty?
         validate_string!(@environment, "environment")
@@ -38,6 +22,10 @@ module Skylight
 
       def to_s
         "#{name}:#{environment}"
+      end
+
+      def to_encoded_s
+        @to_encoded_s ||= URI.encode_www_form_component(to_s)
       end
 
       def web?
@@ -66,41 +54,17 @@ module Skylight
           ARGV
         end
 
-        def resolve_name(given_name)
-          return DEFAULT_NAME if known_web_context?
-          return given_name if given_name
-          return WORKER_NAME if known_worker_context?
-          DEFAULT_NAME
+        def resolve_name(given_name, force_worker)
+          # don't allow workers to be called 'web'
+          return WORKER_NAME if force_worker && (given_name.nil? || given_name == DEFAULT_NAME)
+          return DEFAULT_NAME if given_name.nil?
+
+          given_name
         end
 
         def validate_string!(string, kind)
           return true if string =~ NAME_FORMAT
           raise ArgumentError, "#{kind} can only contain lowercase letters, numbers, and dashes"
-        end
-
-        def known_web_context?
-          rails_server? || rack_server? || passenger? || unicorn?
-        end
-
-        def known_worker_context?
-          return true if program_name =~ WORKER_PROGRAM_MATCHER
-          program_name[/rake$/] && argv.any? { |arg| arg =~ WORKER_RAKE_MATCHER }
-        end
-
-        def rails_server?
-          defined?(Rails::Server)
-        end
-
-        def rack_server?
-          program_name[/(?<!\w)(falcon|puma|rackup|thin)$/]
-        end
-
-        def unicorn?
-          program_name[/\Aunicorn/]
-        end
-
-        def passenger?
-          program_name[/\APassenger AppPreloader/]
         end
     end
   end

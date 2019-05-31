@@ -9,11 +9,11 @@ module Skylight::Core
     attr_reader :instrumenter, :endpoint, :segment, :notifications, :meta
     attr_accessor :uuid
 
-    def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil, meta: nil, segment: nil)
+    def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil, meta: nil, segment: nil, component: nil)
       uuid = SecureRandom.uuid
       inst = native_new(normalize_time(start), uuid, endpoint, meta)
       inst.uuid = uuid
-      inst.send(:initialize, instrumenter, cat, title, desc, meta)
+      inst.send(:initialize, instrumenter, cat, title, desc, meta, component: component)
       inst.endpoint = endpoint
       inst.segment = segment
       inst
@@ -26,7 +26,7 @@ module Skylight::Core
       (time.to_i / 100_000).to_i
     end
 
-    def initialize(instrumenter, cat, title, desc, meta)
+    def initialize(instrumenter, cat, title, desc, meta, **)
       raise ArgumentError, "instrumenter is required" unless instrumenter
 
       @instrumenter = instrumenter
