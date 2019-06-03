@@ -1,3 +1,5 @@
+* [BUGFIX] re-enable aliases in skylight.yml
+
 ## 4.0.2 (May 21, 2019)
 * [BUGFIX] Fix an issue with Delayed::Job worker name formatting
 
