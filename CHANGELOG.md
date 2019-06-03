@@ -1,3 +1,5 @@
+## 4.1.0 (June 3, 2019)
+* [FEATURE] add normalizers for Graphiti >= 1.2
 * [BUGFIX] re-enable aliases in skylight.yml
 
 ## 4.0.2 (May 21, 2019)
