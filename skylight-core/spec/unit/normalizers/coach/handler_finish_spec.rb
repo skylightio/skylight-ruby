@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module Skylight
-  describe "Normalizers", "coach.handler.finish", :agent do
+  describe "Normalizers", "finish_handler.coach", :agent do
     let(:event) { { middleware: "Auth" } }
 
     it "updates the trace's endpoint" do

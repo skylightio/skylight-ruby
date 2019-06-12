@@ -2,7 +2,7 @@ module Skylight::Core
   module Normalizers
     module Coach
       class HandlerFinish < Normalizer
-        register "coach.handler.finish"
+        register "finish_handler.coach"
 
         CAT = "app.coach.handler".freeze
 

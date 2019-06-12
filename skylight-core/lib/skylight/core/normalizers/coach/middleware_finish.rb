@@ -2,7 +2,7 @@ module Skylight::Core
   module Normalizers
     module Coach
       class MiddlewareFinish < Normalizer
-        register "coach.middleware.finish"
+        register "finish_middleware.coach"
 
         CAT = "app.coach.middleware".freeze
 

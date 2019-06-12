@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module Skylight
-  describe "Normalizers", "coach.middleware.finish", :agent do
+  describe "Normalizers", "finish_middleware.coach", :agent do
     it "updates the trace's endpoint" do
       expect(trace).to receive(:endpoint=).and_call_original
       normalize(middleware: "Auth")
