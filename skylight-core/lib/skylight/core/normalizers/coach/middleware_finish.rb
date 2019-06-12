@@ -2,7 +2,17 @@ module Skylight::Core
   module Normalizers
     module Coach
       class MiddlewareFinish < Normalizer
-        register "finish_middleware.coach"
+        begin
+          require "coach/version"
+          version = Gem::Version.new(::Coach::VERSION)
+        rescue LoadError # rubocop:disable Lint/HandleExceptions
+        end
+
+        if version && version < Gem::Version.new("1.0")
+          register "coach.middleware.finish"
+        else
+          register "finish_middleware.coach"
+        end
 
         CAT = "app.coach.middleware".freeze
 
