@@ -1,3 +1,6 @@
+## 4.1.1-beta
+* [IMPROVEMENT] Improve socket retry handling in skylightd
+
 ## 4.1.0 (June 3, 2019)
 * [FEATURE] add normalizers for Graphiti >= 1.2
 * [BUGFIX] re-enable aliases in skylight.yml
