@@ -2,7 +2,17 @@ module Skylight::Core
   module Normalizers
     module Coach
       class HandlerFinish < Normalizer
-        register "coach.handler.finish"
+        begin
+          require "coach/version"
+          version = Gem::Version.new(::Coach::VERSION)
+        rescue LoadError # rubocop:disable Lint/HandleExceptions
+        end
+
+        if version && version < Gem::Version.new("1.0")
+          register "coach.handler.finish"
+        else
+          register "finish_handler.coach"
+        end
 
         CAT = "app.coach.handler".freeze
 
