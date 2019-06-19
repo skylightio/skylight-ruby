@@ -1,7 +1,7 @@
 require "openssl"
 require "skylight/util/component"
 require "skylight/util/deploy"
-require "skylight/core/util/platform"
+require "skylight/util/platform"
 require "skylight/util/hostname"
 require "skylight/util/ssl"
 
@@ -94,7 +94,7 @@ module Skylight
           report_rails_env:           true
         )
 
-        if Core::Util::Platform::OS != "darwin"
+        unless Util::Platform::OS == "darwin"
           ret[:'daemon.ssl_cert_path'] = Util::SSL.ca_cert_file_or_default
           ret[:'daemon.ssl_cert_dir'] = Util::SSL.ca_cert_dir
         end

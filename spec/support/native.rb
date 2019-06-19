@@ -2,7 +2,7 @@
 # all that ideal, sometimes people like to glob the contents of spec/support.
 
 require "skylight/core"
-require "skylight/core/util/platform"
+require "skylight/util/platform"
 
 require "skylight/instrumenter"
 require "skylight/trace"

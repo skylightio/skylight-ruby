@@ -1,4 +1,4 @@
-require "skylight/core/util/platform"
+require "skylight/util/platform"
 
 module Skylight
   # @api private
@@ -10,14 +10,14 @@ module Skylight
   end
 
   def self.libskylight_path
-    ENV["SKYLIGHT_LIB_PATH"] || File.expand_path("../native/#{Core::Util::Platform.tuple}", __FILE__)
+    ENV["SKYLIGHT_LIB_PATH"] || File.expand_path("../native/#{Util::Platform.tuple}", __FILE__)
   end
 
   skylight_required = ENV.key?("SKYLIGHT_REQUIRED") && ENV["SKYLIGHT_REQUIRED"] !~ /^false$/i
 
   begin
     unless ENV.key?("SKYLIGHT_DISABLE_AGENT") && ENV["SKYLIGHT_DISABLE_AGENT"] !~ /^false$/i
-      lib = "#{libskylight_path}/libskylight.#{Core::Util::Platform.libext}"
+      lib = "#{libskylight_path}/libskylight.#{Util::Platform.libext}"
 
       if File.exist?(lib)
         # First attempt to require the native extension

@@ -6,19 +6,8 @@ require "fileutils"
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
-require "skylight/version"
-
-# Don't use the gem for dev
-if File.exist?(File.expand_path("../Gemfile", __dir__))
-  # This approach won't work in production since skylight-core isn't in the skylight gem
-  $LOAD_PATH.unshift File.expand_path("../skylight-core/lib", __dir__)
-else
-  # Is there a better way to get this into lib?
-  gem "skylight-core", Skylight::VERSION.tr("-", ".")
-end
-
 require "skylight/native_ext_fetcher"
-require "skylight/core/util/platform"
+require "skylight/util/platform"
 
 # Util allowing proxying writes to multiple location
 class MultiIO
@@ -35,7 +24,7 @@ class MultiIO
   end
 end
 
-include Skylight::Core::Util
+include Skylight::Util
 
 SKYLIGHT_INSTALL_LOG = File.expand_path("install.log", __dir__)
 SKYLIGHT_REQUIRED   = ENV.key?("SKYLIGHT_REQUIRED") && ENV["SKYLIGHT_REQUIRED"] !~ /^false$/i
