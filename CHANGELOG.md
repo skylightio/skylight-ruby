@@ -1,4 +1,5 @@
-## 4.1.1-beta
+## 4.1.1
+* [BUGFIX] Fix Skylight installation when bundled with edge rails [Issue #132](https://github.com/skylightio/skylight-ruby/issues/132)
 * [IMPROVEMENT] Improve socket retry handling in skylightd
 
 ## 4.1.0 (June 3, 2019)
