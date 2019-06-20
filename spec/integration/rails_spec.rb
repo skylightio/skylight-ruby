@@ -101,7 +101,7 @@ if enable
         end
       end
 
-      AssertDeferrals ||= Struct.new(:app) do
+      AssertionHook ||= Struct.new(:app) do
         def call(env)
           app.call(env)
         ensure
@@ -113,6 +113,12 @@ if enable
           def assertion_hook
             # override in rspec
           end
+      end
+
+      AssertionHookA ||= Class.new(AssertionHook) do
+      end
+
+      AssertionHookB ||= Class.new(AssertionHook) do
       end
 
       RescuingMiddleware ||= Struct.new(:app) do
@@ -132,7 +138,25 @@ if enable
       MonkeyInTheMiddleware ||= Struct.new(:app) do
         # Doesn't do anything on its own; it's here just to play
         # with ThrowingMiddleware and CatchingMiddleware
-        delegate :call, to: :app
+        def call(env)
+          if should_disable_instrumentation?(env)
+            Skylight.instrument(title: "banana", meta: { mute_children: true }) do
+              app.call(env)
+            end
+          else
+            app.call(env)
+          end
+        end
+
+        private
+
+          def should_disable_instrumentation?(env)
+            query_parameters(env)[:disable_instrumentation] == "true"
+          end
+
+          def query_parameters(env)
+            ActionDispatch::Request.new(env).query_parameters
+          end
       end
 
       ThrowingMiddleware ||= Struct.new(:app) do
@@ -217,11 +241,13 @@ if enable
         config.middleware.use NonArrayMiddleware
         config.middleware.use InvalidMiddleware
         config.middleware.use CustomMiddleware
-        config.middleware.use AssertDeferrals
+        config.middleware.use AssertionHookA
         config.middleware.use RescuingMiddleware
         config.middleware.use CatchingMiddleware
         config.middleware.use MonkeyInTheMiddleware
+        config.middleware.use AssertionHookB
         config.middleware.use ThrowingMiddleware
+
         config.many = 10
         config.very_many = 300
         config.active_job.queue_adapter = (Rails::VERSION::MAJOR >= 5 ? :async : :inline)
@@ -552,10 +578,11 @@ if enable
               NonArrayMiddleware
               InvalidMiddleware
               CustomMiddleware
-              AssertDeferrals
+              AssertionHookA
               RescuingMiddleware
               CatchingMiddleware
               MonkeyInTheMiddleware
+              AssertionHookB
               ThrowingMiddleware
               ActionDispatch::Routing::RouteSet
             ]
@@ -595,7 +622,7 @@ if enable
 
       context "middleware that jumps the stack" do
         it "closes jumped spans" do
-          allow_any_instance_of(AssertDeferrals).to receive(:assertion_hook) do
+          allow_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
             expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
           end
 
@@ -609,7 +636,7 @@ if enable
           trace = endpoint.traces[0]
 
           reverse_spans = trace.filtered_spans.reverse_each.map { |span| span.event.title }
-          last, middle, catcher = reverse_spans
+          last, _hook_b, middle, catcher = reverse_spans
 
           expect(last).to eq("ThrowingMiddleware")
           expect(middle).to eq("MonkeyInTheMiddleware")
@@ -620,7 +647,7 @@ if enable
           # By the time the call stack has finished with this middleware, deferrals
           # should be empty. The rescue block in Probes::Middleware#call
           # should mark those spans done without needing to defer them.
-          allow_any_instance_of(AssertDeferrals).to receive(:assertion_hook) do
+          allow_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
             expect(Skylight.trace.send(:deferred_spans)).to eq({})
           end
 
@@ -634,7 +661,7 @@ if enable
           trace = endpoint.traces[0]
 
           reverse_spans = trace.filtered_spans.reverse_each.map { |span| span.event.title }
-          last, middle, catcher, rescuer = reverse_spans
+          last, _hook_b, middle, catcher, rescuer = reverse_spans
 
           expect(last).to eq("ThrowingMiddleware")
           expect(middle).to eq("MonkeyInTheMiddleware")
@@ -643,7 +670,7 @@ if enable
         end
 
         it "closes spans jumped in the controller" do
-          allow_any_instance_of(AssertDeferrals).to receive(:assertion_hook) do
+          allow_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
             expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
           end
 
@@ -661,11 +688,45 @@ if enable
           end
 
           # it closes all spans between the throw and the catch
-          expect(reverse_spans.take(6)).to eq([
+          expect(reverse_spans.take(7)).to eq([
             ["app.method", "Check authorization"],
             ["app.controller.request", "UsersController#throw_something"],
             ["rack.app", router_name],
             ["rack.middleware", "ThrowingMiddleware"],
+            ["rack.middleware", "AssertionHookB"],
+            ["rack.middleware", "MonkeyInTheMiddleware"],
+            ["rack.middleware", "CatchingMiddleware"]
+          ])
+        end
+
+        it "re-enables instrumentation even when the disabled span was deferred" do
+          expect_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
+            expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
+            expect(Skylight.trace).not_to be_muted
+          end
+
+          expect_any_instance_of(AssertionHookB).to receive(:assertion_hook) do
+            expect(Skylight.trace).to be_muted
+          end
+
+          call(MyApp, env("/users?disable_instrumentation=true&middleware_throws=true"))
+          server.wait(resource: "/report")
+
+          batch = server.reports[0]
+          expect(batch).to be_present
+          endpoint = batch.endpoints[0]
+
+          # This is the last endpoint name that was assigned before instrumentation was disabled
+          expect(endpoint.name).to eq("MonkeyInTheMiddleware")
+          trace = endpoint.traces[0]
+
+          reverse_spans = trace.filtered_spans.reverse_each.map do |span|
+            [span.event.category, span.event.title]
+          end
+
+          # it closes all spans between the throw and the catch
+          expect(reverse_spans.take(3)).to eq([
+            ["app.block", "banana"],
             ["rack.middleware", "MonkeyInTheMiddleware"],
             ["rack.middleware", "CatchingMiddleware"]
           ])

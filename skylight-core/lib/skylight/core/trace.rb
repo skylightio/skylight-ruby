@@ -6,8 +6,8 @@ module Skylight::Core
 
     include Util::Logging
 
-    attr_reader :instrumenter, :endpoint, :notifications, :meta
-    attr_accessor :uuid, :segment
+    attr_reader :instrumenter, :endpoint, :segment, :notifications, :meta
+    attr_accessor :uuid
 
     def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil, meta: nil, segment: nil)
       uuid = SecureRandom.uuid
@@ -51,12 +51,22 @@ module Skylight::Core
     end
 
     def endpoint=(value)
+      return if muted?
       @endpoint = value
       native_set_endpoint(value)
     end
 
+    def segment=(value)
+      return if muted?
+      @segment = value
+    end
+
     def config
       @instrumenter.config
+    end
+
+    def muted?
+      !!@child_instrumentation_muted_by || @instrumenter.muted?
     end
 
     def broken?
@@ -69,6 +79,7 @@ module Skylight::Core
     end
 
     def record(cat, title = nil, desc = nil)
+      return if muted?
       return if broken?
 
       title.freeze if title.is_a?(String)
@@ -87,6 +98,7 @@ module Skylight::Core
     end
 
     def instrument(cat, title = nil, desc = nil, meta = nil)
+      return if muted?
       return if broken?
       t { "instrument: #{cat}, #{title}" }
 
@@ -199,6 +211,8 @@ module Skylight::Core
       def start(time, cat, title, desc, meta, opts = {})
         time = self.class.normalize_time(time) unless opts[:normalize] == false
 
+        mute_children = meta && meta.delete(:mute_children)
+
         sp = native_start_span(time, cat.to_s)
         native_span_set_title(sp, title.to_s) if title
         native_span_set_description(sp, desc.to_s) if desc
@@ -208,7 +222,16 @@ module Skylight::Core
         @spans << sp
         t { "started span: #{sp} - #{cat}, #{title}" }
 
+        if mute_children
+          t { "muting child instrumentation for span=#{sp}"  }
+          mute_child_instrumentation(sp)
+        end
+
         sp
+      end
+
+      def mute_child_instrumentation(span)
+        @child_instrumentation_muted_by = span
       end
 
       # Middleware spans that were interrupted by a throw/catch should be cached here.
@@ -237,6 +260,10 @@ module Skylight::Core
       def normalized_stop(span, time)
         time = self.class.normalize_time(time)
         native_stop_span(span, time)
+
+        if @child_instrumentation_muted_by == span
+          @child_instrumentation_muted_by = nil # restart instrumenting
+        end
       end
 
       # Originally extracted from `stop`.

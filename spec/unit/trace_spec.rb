@@ -158,6 +158,33 @@ module Skylight
       end
     end
 
+    it "mutes child span instrumentation when specified" do
+      trace = Skylight.trace "Rack", "app.rack.request"
+      a = trace.instrument "foo", nil, nil, { mute_children: true }
+
+      clock.skip 0.1
+      b = trace.instrument "bar"
+      clock.skip 0.1
+      c = trace.instrument "baz"
+      clock.skip 0.1
+      expect { trace.done(a) }.to change { trace.muted? }.from(true).to(false)
+      d = trace.instrument "wibble"
+      clock.skip 0.1
+      e = trace.instrument "wobble"
+      clock.skip 0.1
+      f = trace.instrument "wubble"
+      clock.skip 0.1
+      [f, e, d].each { |span| trace.done(span) }
+      trace.submit
+
+      server.wait resource: "/report"
+
+      expect(spans.count).to eq(5)
+      expect(spans.map{ |x| x.event.category }).to eq(["app.rack.request", "foo", "wibble", "wobble", "wubble"])
+      expect(b).to be_nil
+      expect(c).to be_nil
+    end
+
     it "cleans up current_trace when broken" do
       begin
         original_raise_on_error = ENV["SKYLIGHT_RAISE_ON_ERROR"]
