@@ -5,7 +5,7 @@ require "fileutils"
 require "digest/sha2"
 require "open3"
 require "skylight/util/ssl"
-require "skylight/core/util/proxy"
+require "skylight/util/proxy"
 
 # Used from extconf.rb
 module Skylight
@@ -137,7 +137,7 @@ module Skylight
     #
     # If `ENV['HTTP_PROXY']` is set, it will be used as a proxy for this request.
     def http_get(host, port, use_ssl, path, out)
-      if (http_proxy = Core::Util::Proxy.detect_url(ENV))
+      if (http_proxy = Util::Proxy.detect_url(ENV))
         log "connecting with proxy: #{http_proxy}"
         uri = URI.parse(http_proxy)
         p_host = uri.host
