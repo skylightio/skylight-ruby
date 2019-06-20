@@ -132,6 +132,17 @@ module Skylight
           instrumenter.instrument(category, title, desc, meta, &block)
         end
 
+        def mute
+          unless instrumenter
+            return yield if block_given?
+            return
+          end
+
+          instrumenter.mute do
+            yield if block_given?
+          end
+        end
+
         def span_correlation_header(span)
           return unless instrumenter
           instrumenter.span_correlation_header(span)

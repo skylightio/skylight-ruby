@@ -13,6 +13,7 @@ module Skylight::Core
     class TraceInfo
       def initialize(key = KEY)
         @key = key
+        @muted_key = "#{key}_muted"
       end
 
       def current
@@ -21,6 +22,14 @@ module Skylight::Core
 
       def current=(trace)
         Thread.current[@key] = trace
+      end
+
+      def muted=(val)
+        Thread.current[@muted_key] = val
+      end
+
+      def muted?
+        !!Thread.current[@muted_key]
       end
     end
 
@@ -84,6 +93,22 @@ module Skylight::Core
 
     def check_install!
       true
+    end
+
+    def muted=(val)
+      @trace_info.muted = val
+    end
+
+    def muted?
+      @trace_info.muted?
+    end
+
+    def mute
+      old_muted = muted?
+      self.muted = true
+      yield if block_given?
+    ensure
+      self.muted = old_muted
     end
 
     def start!
@@ -170,6 +195,11 @@ module Skylight::Core
 
     def instrument(cat, title = nil, desc = nil, meta = nil)
       raise ArgumentError, "cat is required" unless cat
+
+      if muted?
+        return yield if block_given?
+        return
+      end
 
       unless (trace = @trace_info.current)
         return yield if block_given?
