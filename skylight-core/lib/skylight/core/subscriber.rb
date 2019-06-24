@@ -50,14 +50,12 @@ module Skylight::Core
 
       while (curr = trace.notifications.pop)
         next unless curr.name == name
-        begin
-          normalize_after(trace, curr.span, name, payload)
-        ensure
-          meta = {}
-          meta[:exception] = payload[:exception] if payload[:exception]
-          meta[:exception_object] = payload[:exception_object] if payload[:exception_object]
-          trace.done(curr.span, meta) if curr.span
-        end
+
+        meta = {}
+        meta[:exception] = payload[:exception] if payload[:exception]
+        meta[:exception_object] = payload[:exception_object] if payload[:exception_object]
+        trace.done(curr.span, meta) if curr.span
+        normalize_after(trace, curr.span, name, payload)
         return
       end
     rescue Exception => e

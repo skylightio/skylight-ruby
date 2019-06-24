@@ -1,3 +1,4 @@
+require 'pry-byebug'
 require "spec_helper"
 
 enable = false
@@ -40,6 +41,8 @@ if enable
             get :before_action_redirect
             get :action_redirect
             get :not_modified
+            get :muted_index
+            get :normalizer_muted_index
           end
         end
         get "/metal" => "metal#show"
@@ -59,19 +62,31 @@ if enable
     around { |ex| set_agent_env(&ex) }
 
     before :each do
-      CustomMiddleware ||= Struct.new(:app) do
+      SkTestMiddleware ||= Struct.new(:app) do
+        def call(env)
+          app.call(env)
+        end
+
+        private
+
+        def query_parameters(env)
+          ActionDispatch::Request.new(env).query_parameters
+        end
+      end
+
+      CustomMiddleware ||= Class.new(SkTestMiddleware) do
         def call(env)
           if env["PATH_INFO"] == "/middleware"
             return [200, {}, ["CustomMiddleware"]]
           end
 
-          app.call(env)
+          super
         end
       end
 
-      NonClosingMiddleware ||= Struct.new(:app) do
+      NonClosingMiddleware ||= Class.new(SkTestMiddleware) do
         def call(env)
-          app.call(env).tap do
+          super.tap do
             # NOTE: We are intentionally throwing away the response without calling close
             # This is to emulate a non-conforming Middleware
             if env["PATH_INFO"] == "/non-closing"
@@ -81,104 +96,109 @@ if enable
         end
       end
 
-      NonArrayMiddleware ||= Struct.new(:app) do
+      NonArrayMiddleware ||= Class.new(SkTestMiddleware) do
         def call(env)
           if env["PATH_INFO"] == "/non-array"
             return Rack::Response.new(["NonArray"])
           end
 
-          app.call(env)
+          super
         end
       end
 
-      InvalidMiddleware ||= Struct.new(:app) do
+      InvalidMiddleware ||= Class.new(SkTestMiddleware) do
         def call(env)
           if env["PATH_INFO"] == "/invalid"
             return "Hello"
           end
 
-          app.call(env)
+          super
         end
       end
 
-      AssertionHook ||= Struct.new(:app) do
+      AssertionHook ||= Class.new(SkTestMiddleware) do
         def call(env)
-          app.call(env)
+          super
         ensure
           assertion_hook
         end
 
         private
 
-          def assertion_hook
-            # override in rspec
-          end
+        def assertion_hook
+          # override in rspec
+        end
       end
 
-      AssertionHookA ||= Class.new(AssertionHook) do
-      end
+      # These need to be distinguished by class name in order to use
+      # the 'any_instance_of' matchers. It's otherwise too difficult to
+      # get compiled middleware stack instances.
+      AssertionHookA ||= Class.new(AssertionHook)
+      AssertionHookB ||= Class.new(AssertionHook)
 
-      AssertionHookB ||= Class.new(AssertionHook) do
-      end
-
-      RescuingMiddleware ||= Struct.new(:app) do
+      RescuingMiddleware ||= Class.new(SkTestMiddleware) do
         def call(env)
-          app.call(env)
+          super
         rescue MiddlewareError => e
+          # start a new span here; helps ensure traces/instrumenters are unmuted
+          Skylight.instrument('post-rescue') { sleep(0.01) }
           [500, {}, ["error=#{e.class.inspect} msg=#{e.to_s.inspect}"]]
         end
       end
 
-      CatchingMiddleware ||= Struct.new(:app) do
+      CatchingMiddleware ||= Class.new(SkTestMiddleware) do
+        def self.thrown_response
+          [:coconut, [401, {}, ["I can't do that, Dave"]]]
+        end
+
         def call(env)
-          catch(:coconut) { app.call(env) }
+          catch(thrown_response[0]) { super }.tap do |r|
+            # start a new span here; helps ensure traces/instrumenters are unmuted
+            if r == thrown_response[1]
+              Skylight.instrument('post-catch') { sleep(0.01) }
+            end
+          end
+        end
+
+        def thrown_response
+          self.class.thrown_response
         end
       end
 
-      MonkeyInTheMiddleware ||= Struct.new(:app) do
-        # Doesn't do anything on its own; it's here just to play
-        # with ThrowingMiddleware and CatchingMiddleware
+      MonkeyInTheMiddleware ||= Class.new(SkTestMiddleware) do
         def call(env)
-          if should_disable_instrumentation?(env)
+          if should_mute?(env)
             Skylight.instrument(title: "banana", meta: { mute_children: true }) do
-              app.call(env)
+              super
             end
           else
-            app.call(env)
+            super
           end
         end
 
         private
 
-          def should_disable_instrumentation?(env)
-            query_parameters(env)[:disable_instrumentation] == "true"
-          end
-
-          def query_parameters(env)
-            ActionDispatch::Request.new(env).query_parameters
-          end
+        def should_mute?(env)
+          query_parameters(env)[:mute] == "true"
+        end
       end
 
-      ThrowingMiddleware ||= Struct.new(:app) do
+      ThrowingMiddleware ||= Class.new(SkTestMiddleware) do
         def call(env)
-          throw(:coconut, [401, {}, ["I can't do that, Dave"]]) if should_throw?(env)
+          throw(*CatchingMiddleware.thrown_response) if should_throw?(env)
           raise MiddlewareError, "I can't do that, Dave" if should_raise?(env)
-          app.call(env)
+          super
         end
 
         private
 
-          def should_throw?(env)
-            query_parameters(env)[:middleware_throws] == "true"
-          end
+        def should_throw?(env)
+          query_parameters(env)[:middleware_throws] == "true"
+        end
 
-          def should_raise?(env)
-            query_parameters(env)[:middleware_raises] == "true"
-          end
-
-          def query_parameters(env)
-            ActionDispatch::Request.new(env).query_parameters
-          end
+        def should_raise?(env)
+          query_parameters(env)[:middleware_raises] == "true"
+        end
       end
 
       module EngineNamespace
@@ -194,6 +214,18 @@ if enable
           def show
             render json: {}
           end
+        end
+      end
+
+      class SkMutingNormalizer < Skylight::Core::Normalizers::Normalizer
+        register "mute.skylight"
+
+        def normalize(trace, name, payload)
+          ["app.mute", nil, nil, { mute_children: true }]
+        end
+
+        def normalize_after(trace, span, name, payload)
+          trace.endpoint = "set-by-muted-normalizer"
         end
       end
 
@@ -302,6 +334,22 @@ if enable
           end
         end
 
+        instrument_method title: 'muted-index'
+        def muted_index
+          Skylight.mute { muted_index_inner }
+        end
+
+        instrument_method title: 'normalizer-muted-index'
+        def normalizer_muted_index
+          ActiveSupport::Notifications.instrument("mute.skylight") { muted_index_inner }
+        end
+
+        def muted_index_inner
+          index
+          throw_something if params[:throw_something]
+          raise MiddlewareError if params[:raise_error]
+        end
+
         def inline_job
           MyApplicationJob.perform_now
           render json: {}
@@ -356,7 +404,7 @@ if enable
         end
 
         def throw_something
-          throw(:coconut, [401, {}, ["I can't do that, Dave"]])
+          throw(*CatchingMiddleware.thrown_response)
         end
 
         def send_png
@@ -419,6 +467,7 @@ if enable
       # Clean slate
       # It's really too bad we can't run RSpec tests in a fork
       Object.send(:remove_const, :MyApp)
+      Object.send(:remove_const, :SkMutingNormalizer)
       Object.send(:remove_const, :EngineNamespace)
       Object.send(:remove_const, :UsersController)
       Object.send(:remove_const, :MetalController)
@@ -472,7 +521,7 @@ if enable
           ["app.method", "Check authorization"],
           ["app.method", "UsersController#index"],
           ["app.inside", nil],
-          ["app.zomg", nil]
+          ["app.zomg", nil],
         ])
       end
 
@@ -480,7 +529,7 @@ if enable
         call MyApp, env("/users")
         server.wait resource: "/report"
 
-        trace = server.reports[0].endpoints[0].traces[0]
+        trace = server.reports.dig(0, :endpoints, 0, :traces, 0)
 
         app_and_rack_spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^(app|rack)./ }
 
@@ -548,7 +597,7 @@ if enable
           call MyApp, env("/users")
           server.wait resource: "/report"
 
-          trace = server.reports[0].endpoints[0].traces[0]
+          trace = server.reports.dig(0, :endpoints, 0, :traces, 0)
 
           titles = trace.filtered_spans.map { |s| s.event.title }
 
@@ -569,7 +618,7 @@ if enable
             call MyApp, env("/non-closing")
 
             server.wait resource: "/report"
-            trace = server.reports[0].endpoints[0].traces[0]
+            trace = server.reports.dig(0, :endpoints, 0, :traces, 0)
             titles = trace.filtered_spans.map { |s| s.event.title }.reverse
 
             expected_titles = %w[
@@ -613,10 +662,131 @@ if enable
           server.wait resource: "/report"
 
           trace = server.reports[0].endpoints[0].traces[0]
-
           titles = trace.filtered_spans.map { |s| s.event.title }
 
           expect(titles).to include("NonArrayMiddleware")
+        end
+      end
+
+      context "muted instrumentation" do
+        it "does not record instrumentation wrapped in a mute block" do
+          call MyApp, env("/users/muted_index")
+          server.wait resource: "/report"
+
+          endpoint = server.reports.dig(0, :endpoints, 0)
+          expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>text</sk-segment>")
+
+          trace = endpoint.dig(:traces, 0)
+          titles = trace.filtered_spans.map { |s| s.event.title }
+          spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+
+          expect(spans).to eq([
+            ["app.rack.request", nil],
+            ["app.controller.request", "UsersController#muted_index"],
+            ["app.method", "Check authorization"],
+            ["app.method", "muted-index"],
+          ])
+        end
+
+        it "handles thrown messages" do
+          call MyApp, env("/users/muted_index?throw_something=true")
+          server.wait resource: "/report"
+
+          endpoint = server.reports.dig(0, :endpoints, 0)
+          expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>text</sk-segment>")
+
+          trace = endpoint.dig(:traces, 0)
+          titles = trace.filtered_spans.map { |s| s.event.title }
+
+          spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+
+          expect(spans).to eq([
+            ["app.rack.request", nil],
+            ["app.controller.request", "UsersController#muted_index"],
+            ["app.method", "Check authorization"],
+            ["app.method", "muted-index"],
+            ["app.block", "post-catch"],
+          ])
+        end
+
+        it "handles errors" do
+          call MyApp, env("/users/muted_index?raise_error=true")
+          server.wait resource: "/report"
+
+          endpoint = server.reports.dig(0, :endpoints, 0)
+          expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>error</sk-segment>")
+
+          trace = endpoint.dig(:traces, 0)
+          spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+
+          expect(spans).to eq([
+            ["app.rack.request", nil],
+            ["app.controller.request", "UsersController#muted_index"],
+            ["app.method", "Check authorization"],
+            ["app.method", "muted-index"],
+            ["app.block", "post-rescue"],
+          ])
+        end
+      end
+
+      context "muted normalizer", mute: true do
+        it "does not record instrumentation wrapped in a mute block" do
+          call MyApp, env("/users/normalizer_muted_index")
+          server.wait resource: "/report"
+
+          endpoint = server.reports.dig(0, :endpoints, 0)
+          expect(endpoint.name).to eq("set-by-muted-normalizer<sk-segment>text</sk-segment>")
+
+          trace = endpoint.dig(:traces, 0)
+
+          spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+          expect(spans).to eq([
+            ["app.rack.request", nil],
+            ["app.controller.request", "UsersController#normalizer_muted_index"],
+            ["app.method", "Check authorization"],
+            ["app.method", "normalizer-muted-index"],
+            ["app.mute", nil],
+          ])
+        end
+
+        it "handles thrown messages" do
+          call MyApp, env("/users/normalizer_muted_index?throw_something=true")
+          server.wait resource: "/report"
+
+          endpoint = server.reports.dig(0, :endpoints, 0)
+          expect(endpoint.name).to eq("set-by-muted-normalizer<sk-segment>text</sk-segment>")
+
+          trace = endpoint.dig(:traces, 0)
+          spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+
+          expect(spans).to eq([
+            ["app.rack.request", nil],
+            ["app.controller.request", "UsersController#normalizer_muted_index"],
+            ["app.method", "Check authorization"],
+            ["app.method", "normalizer-muted-index"],
+            ["app.mute", nil],
+            ["app.block", "post-catch"],
+          ])
+        end
+
+        it "handles errors" do
+          call MyApp, env("/users/normalizer_muted_index?raise_error=true")
+          server.wait resource: "/report"
+
+          endpoint = server.reports.dig(0, :endpoints, 0)
+          expect(endpoint.name).to eq("set-by-muted-normalizer<sk-segment>error</sk-segment>")
+
+          trace = endpoint.dig(:traces, 0)
+          spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+
+          expect(spans).to eq([
+            ["app.rack.request", nil],
+            ["app.controller.request", "UsersController#normalizer_muted_index"],
+            ["app.method", "Check authorization"],
+            ["app.method", "normalizer-muted-index"],
+            ["app.mute", nil],
+            ["app.block", "post-rescue"],
+          ])
         end
       end
 
@@ -636,9 +806,10 @@ if enable
           trace = endpoint.traces[0]
 
           reverse_spans = trace.filtered_spans.reverse_each.map { |span| span.event.title }
-          last, _hook_b, middle, catcher = reverse_spans
+          post_catch, throwing, _hook_b, middle, catcher = reverse_spans
 
-          expect(last).to eq("ThrowingMiddleware")
+          expect(post_catch).to eq("post-catch")
+          expect(throwing).to eq("ThrowingMiddleware")
           expect(middle).to eq("MonkeyInTheMiddleware")
           expect(catcher).to eq("CatchingMiddleware")
         end
@@ -661,8 +832,9 @@ if enable
           trace = endpoint.traces[0]
 
           reverse_spans = trace.filtered_spans.reverse_each.map { |span| span.event.title }
-          last, _hook_b, middle, catcher, rescuer = reverse_spans
+          post_rescue, last, _hook_b, middle, catcher, rescuer = reverse_spans
 
+          expect(post_rescue).to eq("post-rescue")
           expect(last).to eq("ThrowingMiddleware")
           expect(middle).to eq("MonkeyInTheMiddleware")
           expect(catcher).to eq("CatchingMiddleware")
@@ -688,7 +860,8 @@ if enable
           end
 
           # it closes all spans between the throw and the catch
-          expect(reverse_spans.take(7)).to eq([
+          expect(reverse_spans.take(8)).to eq([
+            ["app.block", "post-catch"],
             ["app.method", "Check authorization"],
             ["app.controller.request", "UsersController#throw_something"],
             ["rack.app", router_name],
@@ -699,7 +872,7 @@ if enable
           ])
         end
 
-        it "re-enables instrumentation even when the disabled span was deferred" do
+        it "unmutes instrumentation even when the disabled span was deferred" do
           expect_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
             expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
             expect(Skylight.trace).not_to be_muted
@@ -709,7 +882,7 @@ if enable
             expect(Skylight.trace).to be_muted
           end
 
-          call(MyApp, env("/users?disable_instrumentation=true&middleware_throws=true"))
+          call(MyApp, env("/users?mute=true&middleware_throws=true"))
           server.wait(resource: "/report")
 
           batch = server.reports[0]
@@ -725,7 +898,8 @@ if enable
           end
 
           # it closes all spans between the throw and the catch
-          expect(reverse_spans.take(3)).to eq([
+          expect(reverse_spans.take(4)).to eq([
+            ["app.block", "post-catch"],
             ["app.block", "banana"],
             ["rack.middleware", "MonkeyInTheMiddleware"],
             ["rack.middleware", "CatchingMiddleware"]

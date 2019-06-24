@@ -131,7 +131,6 @@ module Skylight::Core
       # `span` will be `nil` if we failed to start instrumenting, such as in
       # the case of too many spans in a request.
       return unless span
-
       return if broken?
 
       if meta && meta[:defer]

@@ -24,6 +24,9 @@ module Skylight::Core
         Thread.current[@key] = trace
       end
 
+      # NOTE: This should only be set by the instrumenter, and only
+      # in the context of a `mute` block. Do not try to turn this
+      # flag on and off directly.
       def muted=(val)
         Thread.current[@muted_key] = val
       end
@@ -33,7 +36,7 @@ module Skylight::Core
       end
     end
 
-    attr_reader :uuid, :config, :gc, :trace_info
+    attr_reader :uuid, :config, :gc
 
     def self.trace_class
       Trace
@@ -111,6 +114,9 @@ module Skylight::Core
       self.muted = old_muted
     end
 
+    alias_method :disable, :mute
+    alias_method :disabled?, :muted?
+
     def start!
       # We do this here since we can't report these issues via Gem install without stopping install entirely.
       check_install!
@@ -170,17 +176,6 @@ module Skylight::Core
         t { "instrumenter submitting trace; trace=#{trace.uuid}" }
         trace.submit
       end
-    end
-
-    def disable
-      @disabled = true
-      yield
-    ensure
-      @disabled = false
-    end
-
-    def disabled?
-      defined?(@disabled) && @disabled
     end
 
     def self.match?(string, regex)
