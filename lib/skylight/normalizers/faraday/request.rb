@@ -9,10 +9,11 @@ module Skylight
         DISABLED_KEY = :__skylight_faraday_disabled
 
         def self.disable
+          old_value = Thread.current[DISABLED_KEY]
           Thread.current[DISABLED_KEY] = true
           yield
         ensure
-          Thread.current[DISABLED_KEY] = false
+          Thread.current[DISABLED_KEY] = old_value
         end
 
         def disabled?

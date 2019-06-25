@@ -16,6 +16,8 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
     URI.parse("#{server_uri}/test.html")
   end
 
+  let(:probe) { Skylight::Probes::HTTPClient::Probe }
+
   it "instruments get requests" do
     expected = {
       category: "api.http.get",
@@ -113,13 +115,35 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   end
 
   it "does not instrument when disabled" do
-    expect(Skylight).to_not receive(:instrument)
+    expect(Skylight).not_to receive(:instrument)
 
     Skylight::Probes::HTTPClient::Probe.disable do
       client = HTTPClient.new
       response = client.get(uri)
       expect(response).to be_a(HTTP::Message)
       expect(response).to be_ok
+      expect(probe).to be_disabled
     end
+
+    expect(probe).not_to be_disabled
+  end
+
+  it "handles nested `disable` blocks" do
+    expect(Skylight).not_to receive(:instrument)
+
+    Skylight::Probes::HTTPClient::Probe.disable do
+      Skylight::Probes::HTTPClient::Probe.disable do
+        expect(probe).to be_disabled
+      end
+
+      expect(probe).to be_disabled
+
+      client = HTTPClient.new
+      response = client.get(uri)
+      expect(response).to be_a(HTTP::Message)
+      expect(response).to be_ok
+    end
+
+    expect(probe).not_to be_disabled
   end
 end
