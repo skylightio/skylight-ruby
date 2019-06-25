@@ -184,7 +184,7 @@ module Skylight
         end
 
         def mac?
-          Core::Util::Platform::OS == "darwin"
+          Util::Platform::OS == "darwin"
         end
 
         # NOTE: This check won't work correctly on Windows
