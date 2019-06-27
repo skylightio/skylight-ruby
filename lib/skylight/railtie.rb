@@ -44,6 +44,7 @@ module Skylight
 
         reasons = []
         reasons << "the 'active_job' probe is enabled" if sk_rails_config.probes.include?("active_job")
+        reasons << "the 'delayed_job' probe is enabled" if sk_rails_config.probes.include?("delayed_job")
         reasons << "SKYLIGHT_ENABLE_SIDEKIQ is set" if sk_config.enable_sidekiq?
 
         return if reasons.empty?

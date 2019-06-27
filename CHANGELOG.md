@@ -1,3 +1,6 @@
+## 4.1.2
+* [BUGFIX] Correct an issue where the delayed_job probe may not be activated on startup
+
 ## 4.1.1
 * [BUGFIX] Fix Skylight installation when bundled with edge rails [Issue #132](https://github.com/skylightio/skylight-ruby/issues/132)
 * [IMPROVEMENT] Improve socket retry handling in skylightd
