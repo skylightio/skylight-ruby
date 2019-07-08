@@ -143,6 +143,17 @@ module Skylight
           end
         end
 
+        def unmute
+          unless instrumenter
+            return yield if block_given?
+            return
+          end
+
+          instrumenter.unmute do
+            yield if block_given?
+          end
+        end
+
         def muted?
           instrumenter && instrumenter.muted?
         end

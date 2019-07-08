@@ -114,6 +114,14 @@ module Skylight::Core
       self.muted = old_muted
     end
 
+    def unmute
+      old_muted = muted?
+      self.muted = false
+      yield if block_given?
+    ensure
+      self.muted = old_muted
+    end
+
     alias_method :disable, :mute
     alias_method :disabled?, :muted?
 
