@@ -45,6 +45,9 @@ if enable
   end
 
   describe "ActiveJob integration", :http, :agent do
+    let(:report_component) { "worker" }
+    let(:report_environment) { "production" }
+
     around do |ex|
       stub_config_validation
       stub_session_request

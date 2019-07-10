@@ -14,6 +14,11 @@ end
 if enable
 
   describe "Rails integration" do
+    # spec/support/http.rb uses these to locate the
+    # expected agent reports.
+    let(:report_environment) { "development" }
+    let(:report_component) { "web" }
+
     def boot
       MyApp.initialize!
 

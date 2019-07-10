@@ -20,6 +20,9 @@ end
 
 if enable
   describe "Delayed::Job integration" do
+    let(:report_environment) { "production" }
+    let(:report_component) { "worker" }
+
     around do |example|
       with_sqlite(migration: dj_migration, &example)
     end
