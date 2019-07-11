@@ -1,3 +1,6 @@
+## 4.2.0-beta
+* [IMPROVEMENT] Revise authorization strategy
+
 ## 4.1.2
 * [BUGFIX] Correct an issue where the delayed_job probe may not be activated on startup
 
