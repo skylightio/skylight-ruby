@@ -5,28 +5,33 @@ require "stringio"
 
 # FIXME: Move some of these tests to core with mocking
 describe "Skylight::Instrumenter", :http, :agent do
+  before :each do
+    @old_logger = config.logger
+    config.logger = logger
+  end
+
+  after :each do
+    config.logger = @old_logger
+  end
+
+  let :logger_out do
+    StringIO.new
+  end
+
+  let :logger do
+    log = Logger.new(logger_out)
+    log.level = Logger::DEBUG
+    log
+  end
+
   context "boot" do
-    let :logger_out do
-      StringIO.new
-    end
-
-    let :logger do
-      log = Logger.new(logger_out)
-      log.level = Logger::DEBUG
-      log
-    end
-
     before :each do
       @original_raise_on_error = ENV["SKYLIGHT_RAISE_ON_ERROR"]
       ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
-
-      @old_logger = config.logger
-      config.logger = logger
     end
 
     after :each do
       Skylight.stop!
-      config.logger = @old_logger
       ENV["SKYLIGHT_RAISE_ON_ERROR"] = @original_raise_on_error
     end
 
@@ -415,6 +420,128 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         expect(server.reports[0]).to have(1).endpoints
         expect(server.reports[0].endpoints.map(&:name)).to eq(["foo#bar"])
+      end
+
+      describe "#mute" do
+        def spans
+          server.reports[0].endpoints[0].traces[0].spans
+        end
+
+        context "unmute" do
+          it "can unmute from within a block" do
+            trace = Skylight.trace "Rack", "app.rack.request"
+            a = b = c = d = e = f = nil
+            a = trace.instrument "foo", nil, nil, { mute_children: true }
+
+            # unmute is not intended to work on the trace, so if `mute_children` was set
+            # by a parent span, unmute will have no effect.
+            Skylight.unmute do
+              clock.skip 0.1
+              b = trace.instrument "bar"
+              clock.skip 0.1
+              c = trace.instrument "baz"
+              clock.skip 0.1
+              expect { trace.done(a) }.to change { trace.muted? }.from(true).to(false)
+            end
+
+            Skylight.mute do
+              d = trace.instrument "wibble"
+              clock.skip 0.1
+              e = trace.instrument "wobble"
+              clock.skip 0.1
+
+              # Here we are unmuting the instrumenter, so we
+              # expect the 'wubble' span to be added
+              f = Skylight.unmute do
+                trace.instrument "wubble"
+              end
+
+              clock.skip 0.1
+              [f, e, d].each { |span| trace.done(span) }
+            end
+
+            trace.submit
+
+            server.wait resource: "/report"
+
+            expect(spans.count).to eq(3)
+            expect(spans.map{ |x| x.event.category }).to eq(["app.rack.request", "foo", "wubble"])
+            expect(b).to be_nil
+            expect(c).to be_nil
+          end
+
+          it "can stack mute and unmute blocks" do
+            trace = Skylight.trace "Rack", "app.rack.request"
+            a = b = c = d = e = f = nil
+            Skylight.instrument(title: "foo") do
+
+              Skylight.unmute do
+                clock.skip 0.1
+                Skylight.instrument(title: "bar") do
+                  Skylight.mute do
+                    clock.skip 0.1
+                    Skylight.instrument(title: "baz") do
+                      Skylight.unmute do
+                        Skylight.instrument(title: "wibble") do
+                          clock.skip 0.1
+                        end
+                      end
+                    end
+                  end
+
+                  clock.skip 0.1
+                end
+              end
+
+              Skylight.mute do
+                Skylight.instrument(title: "wobble") do
+                  Skylight.unmute do
+                    clock.skip 0.1
+                    Skylight.instrument(title: "wubble") do
+                      Skylight.mute do
+                        Skylight.instrument(title: "flob") do
+                          clock.skip(0.1)
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+
+            trace.submit
+
+            server.wait resource: "/report"
+
+            expect(spans.count).to eq(5)
+            expect(spans.map{ |x| x.event.title }).to eq([nil, "foo", "bar", "wibble", "wubble"])
+            expect(b).to be_nil
+            expect(c).to be_nil
+          end
+        end
+
+        context "logging" do
+          it "warns only once when trying to set a endpoint name from a muted block" do
+            trace = Skylight.trace "Rack", "app.rack.request"
+            a = trace.instrument "foo", nil, nil, { mute_children: true }
+
+            trace.endpoint = "my endpoint name"
+            trace.endpoint = "my endpoint name 2"
+            trace.segment = "my segment name"
+            trace.segment = "my segment name 2"
+
+            expect { trace.done(a) }.to change { trace.muted? }.from(true).to(false)
+
+            trace.submit
+
+            server.wait resource: "/report"
+
+            expect(spans.map{ |x| x.event.category }).to eq(["app.rack.request", "foo"])
+
+            expect(logger_out.string.lines.grep(/tried to set endpoint/).count).to eq(1)
+            expect(logger_out.string.lines.grep(/tried to set segment/).count).to eq(1)
+          end
+        end
       end
     end
 

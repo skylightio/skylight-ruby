@@ -63,6 +63,7 @@ module Skylight::Core
 
       key = "#{KEY}_#{self.class.trace_class.name}".gsub(/\W/, "_")
       @trace_info = @config[:trace_info] || TraceInfo.new(key)
+      @mutex = Mutex.new
     end
 
     def log_context
@@ -120,6 +121,18 @@ module Skylight::Core
       yield if block_given?
     ensure
       self.muted = old_muted
+    end
+
+    def silence_warnings(context)
+      @warnings_silenced || @mutex.synchronize do
+        @warnings_silenced ||= {}
+      end
+
+      @warnings_silenced[context] = true
+    end
+
+    def warnings_silenced?(context)
+      @warnings_silenced && @warnings_silenced[context]
     end
 
     alias_method :disable, :mute

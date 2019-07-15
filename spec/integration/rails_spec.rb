@@ -1,4 +1,3 @@
-require 'pry-byebug'
 require "spec_helper"
 
 enable = false
@@ -635,7 +634,7 @@ if enable
               ThrowingMiddleware
               ActionDispatch::Routing::RouteSet
             ]
-            expect(titles.take(11).reverse).to eq(expected_titles)
+            expect(titles.take(12).reverse).to eq(expected_titles)
           end
         else
           it "doesn't report middleware that does not close body", :middleware_probe do
@@ -669,12 +668,13 @@ if enable
       end
 
       context "muted instrumentation" do
+        let(:segment) { Rails.version =~ /^4\./ ? "html" : "text" }
         it "does not record instrumentation wrapped in a mute block" do
-          call MyApp, env("/users/muted_index")
+          res = call MyApp, env("/users/muted_index")
           server.wait resource: "/report"
 
           endpoint = server.reports.dig(0, :endpoints, 0)
-          expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>text</sk-segment>")
+          expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>#{segment}</sk-segment>")
 
           trace = endpoint.dig(:traces, 0)
           titles = trace.filtered_spans.map { |s| s.event.title }
@@ -693,7 +693,7 @@ if enable
           server.wait resource: "/report"
 
           endpoint = server.reports.dig(0, :endpoints, 0)
-          expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>text</sk-segment>")
+          expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>#{segment}</sk-segment>")
 
           trace = endpoint.dig(:traces, 0)
           titles = trace.filtered_spans.map { |s| s.event.title }
@@ -730,12 +730,14 @@ if enable
       end
 
       context "muted normalizer", mute: true do
+        let(:segment) { Rails.version =~ /^4\./ ? "html" : "text" }
+
         it "does not record instrumentation wrapped in a mute block" do
           call MyApp, env("/users/normalizer_muted_index")
           server.wait resource: "/report"
 
           endpoint = server.reports.dig(0, :endpoints, 0)
-          expect(endpoint.name).to eq("set-by-muted-normalizer<sk-segment>text</sk-segment>")
+          expect(endpoint.name).to eq("set-by-muted-normalizer<sk-segment>#{segment}</sk-segment>")
 
           trace = endpoint.dig(:traces, 0)
 
@@ -754,7 +756,7 @@ if enable
           server.wait resource: "/report"
 
           endpoint = server.reports.dig(0, :endpoints, 0)
-          expect(endpoint.name).to eq("set-by-muted-normalizer<sk-segment>text</sk-segment>")
+          expect(endpoint.name).to eq("set-by-muted-normalizer<sk-segment>#{segment}</sk-segment>")
 
           trace = endpoint.dig(:traces, 0)
           spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }

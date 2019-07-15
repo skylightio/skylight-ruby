@@ -51,13 +51,19 @@ module Skylight::Core
     end
 
     def endpoint=(value)
-      return if muted?
+      if muted?
+        maybe_warn(:endpoint_set_muted, "tried to set endpoint name while muted")
+        return
+      end
       @endpoint = value
       native_set_endpoint(value)
     end
 
     def segment=(value)
-      return if muted?
+      if muted?
+        maybe_warn(:segment_set_muted, "tried to set segment name while muted")
+        return
+      end
       @segment = value
     end
 
@@ -79,8 +85,7 @@ module Skylight::Core
     end
 
     def record(cat, title = nil, desc = nil)
-      return if muted?
-      return if broken?
+      return if muted? || broken?
 
       title.freeze if title.is_a?(String)
       desc.freeze  if desc.is_a?(String)
@@ -133,7 +138,7 @@ module Skylight::Core
       return unless span
       return if broken?
 
-      if meta && meta[:defer]
+      if meta&.[](:defer)
         deferred_spans[span] ||= (Util::Clock.nanos - gc_time)
         return
       end
@@ -210,7 +215,7 @@ module Skylight::Core
       def start(time, cat, title, desc, meta, opts = {})
         time = self.class.normalize_time(time) unless opts[:normalize] == false
 
-        mute_children = meta && meta.delete(:mute_children)
+        mute_children = meta&.delete(:mute_children)
 
         sp = native_start_span(time, cat.to_s)
         native_span_set_title(sp, title.to_s) if title
@@ -222,7 +227,7 @@ module Skylight::Core
         t { "started span: #{sp} - #{cat}, #{title}" }
 
         if mute_children
-          t { "muting child instrumentation for span=#{sp}"  }
+          t { "muting child instrumentation for span=#{sp}" }
           mute_child_instrumentation(sp)
         end
 
@@ -296,6 +301,17 @@ module Skylight::Core
         return 0 unless @gc
         @gc.update
         @gc.time
+      end
+
+      def maybe_warn(context, msg)
+        return if warnings_silenced?(context)
+        instrumenter.silence_warnings(context)
+
+        warn(msg)
+      end
+
+      def warnings_silenced?(context)
+        instrumenter.warnings_silenced?(context)
       end
   end
 end

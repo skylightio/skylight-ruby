@@ -155,7 +155,7 @@ module Skylight
         end
 
         def muted?
-          instrumenter && instrumenter.muted?
+          instrumenter&.muted?
         end
 
         def span_correlation_header(span)

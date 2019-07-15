@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "active_support/core_ext/string"
 
 module SpecHelper
@@ -6,7 +8,7 @@ module SpecHelper
       def dig(*args)
         head, *tail = args
         return self unless head
-        self[head] && self[head].dig(*tail)
+        self[head]&.dig(*tail)
       end
     end
   end
