@@ -113,6 +113,7 @@ module Skylight::Core
         grape/endpoint
         graphiti/resolve
         graphiti/render
+        graphql/base
         moped/query
         sequel/sql].each do |file|
       require "skylight/core/normalizers/#{file}"

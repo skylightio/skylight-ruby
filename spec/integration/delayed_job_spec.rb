@@ -21,7 +21,7 @@ end
 if enable
   describe "Delayed::Job integration" do
     around do |example|
-      with_sqlite(&example)
+      with_sqlite(migration: dj_migration, &example)
     end
 
     let(:probes) { %w[delayed_job] }
@@ -29,8 +29,6 @@ if enable
     before do
       @original_env = ENV.to_hash
       set_agent_env
-      migration = dj_migration # Schema.define instance_evals the block, so this must be a local var
-      ActiveRecord::Schema.define { migration.up }
       Skylight.probe(*probes)
       Skylight.start!
     end

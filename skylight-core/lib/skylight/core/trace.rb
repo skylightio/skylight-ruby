@@ -67,6 +67,8 @@ module Skylight::Core
       @segment = value
     end
 
+    attr_accessor :compound_response_error_status
+
     def config
       @instrumenter.config
     end
