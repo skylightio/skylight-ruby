@@ -13,6 +13,7 @@ module Skylight::Core
     class TraceInfo
       def initialize(key = KEY)
         @key = key
+        @muted_key = "#{key}_muted"
       end
 
       def current
@@ -22,9 +23,20 @@ module Skylight::Core
       def current=(trace)
         Thread.current[@key] = trace
       end
+
+      # NOTE: This should only be set by the instrumenter, and only
+      # in the context of a `mute` block. Do not try to turn this
+      # flag on and off directly.
+      def muted=(val)
+        Thread.current[@muted_key] = val
+      end
+
+      def muted?
+        !!Thread.current[@muted_key]
+      end
     end
 
-    attr_reader :uuid, :config, :gc, :trace_info
+    attr_reader :uuid, :config, :gc
 
     def self.trace_class
       Trace
@@ -51,6 +63,7 @@ module Skylight::Core
 
       key = "#{KEY}_#{self.class.trace_class.name}".gsub(/\W/, "_")
       @trace_info = @config[:trace_info] || TraceInfo.new(key)
+      @mutex = Mutex.new
     end
 
     def log_context
@@ -85,6 +98,45 @@ module Skylight::Core
     def check_install!
       true
     end
+
+    def muted=(val)
+      @trace_info.muted = val
+    end
+
+    def muted?
+      @trace_info.muted?
+    end
+
+    def mute
+      old_muted = muted?
+      self.muted = true
+      yield if block_given?
+    ensure
+      self.muted = old_muted
+    end
+
+    def unmute
+      old_muted = muted?
+      self.muted = false
+      yield if block_given?
+    ensure
+      self.muted = old_muted
+    end
+
+    def silence_warnings(context)
+      @warnings_silenced || @mutex.synchronize do
+        @warnings_silenced ||= {}
+      end
+
+      @warnings_silenced[context] = true
+    end
+
+    def warnings_silenced?(context)
+      @warnings_silenced && @warnings_silenced[context]
+    end
+
+    alias_method :disable, :mute
+    alias_method :disabled?, :muted?
 
     def start!
       # We do this here since we can't report these issues via Gem install without stopping install entirely.
@@ -147,17 +199,6 @@ module Skylight::Core
       end
     end
 
-    def disable
-      @disabled = true
-      yield
-    ensure
-      @disabled = false
-    end
-
-    def disabled?
-      defined?(@disabled) && @disabled
-    end
-
     def self.match?(string, regex)
       @scanner ||= StringScanner.new("")
       @scanner.string = string
@@ -170,6 +211,11 @@ module Skylight::Core
 
     def instrument(cat, title = nil, desc = nil, meta = nil)
       raise ArgumentError, "cat is required" unless cat
+
+      if muted?
+        return yield if block_given?
+        return
+      end
 
       unless (trace = @trace_info.current)
         return yield if block_given?
