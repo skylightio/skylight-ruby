@@ -29,7 +29,7 @@ unless ENV['SKIP_EXTERNAL']
   gem 'mongo'
   gem 'faraday'
   gem 'graphiti'
-  gem 'graphql'
+  gem 'graphql', ENV['GRAPHQL_VERSION'] || '~> 1.9.0'
 
   unless ENV['MOPED_VERSION'] == 'skip'
     gem 'moped', (ENV['MOPED_VERSION'] || '>= 2.0.7')
