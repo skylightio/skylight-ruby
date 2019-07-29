@@ -99,6 +99,7 @@ ruby23-rails42:
   stage: test
   variables:
     RUBY_VERSION: "2.3.8"
+    GRAPHQL_VERSION: "~> 1.7.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
 
 ruby26-rails42:
@@ -120,6 +121,7 @@ ruby26-rails50:
   stage: test
   variables:
     RUBY_VERSION: "2.6.2"
+    GRAPHQL_VERSION: "~> 1.7.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.0.x
 
 ruby26-rails51:
@@ -127,6 +129,7 @@ ruby26-rails51:
   stage: test
   variables:
     RUBY_VERSION: "2.6.2"
+    GRAPHQL_VERSION: "~> 1.8.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.1.x
 
 ruby26-rails-edge:
