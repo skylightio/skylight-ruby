@@ -9,19 +9,24 @@ module Skylight::Core
               def append_info_to_payload(payload)
                 append_info_to_payload_without_sk(payload)
 
-                rendered_mime = begin
-                  if content_type.is_a?(Mime::Type)
-                    content_type
-                  elsif content_type.respond_to?(:to_s)
-                    type_str = content_type.to_s.split(';').first
-                    Mime::Type.lookup(type_str) unless type_str.blank?
-                  elsif respond_to?(:rendered_format) && rendered_format
-                    rendered_format
-                  end
+                payload[:sk_rendered_format] = sk_rendered_mime.try(:ref)
+                payload[:sk_variant] = request.respond_to?(:variant) ? request.variant : nil
+              end
+
+              def sk_rendered_mime
+                if respond_to?(:media_type)
+                  mt = media_type
+                  return mt && Mime::Type.lookup(mt)
                 end
 
-                payload[:sk_rendered_format] = rendered_mime.try(:ref)
-                payload[:sk_variant] = request.respond_to?(:variant) ? request.variant : nil
+                if content_type.is_a?(Mime::Type)
+                  content_type
+                elsif content_type.respond_to?(:to_s)
+                  type_str = content_type.to_s.split(';').first
+                  Mime::Type.lookup(type_str) unless type_str.blank?
+                elsif respond_to?(:rendered_format) && rendered_format
+                  rendered_format
+                end
               end
           end
         end
