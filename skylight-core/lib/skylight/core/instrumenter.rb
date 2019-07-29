@@ -305,9 +305,29 @@ module Skylight::Core
       [nil, sql]
     end
 
+    # Because GraphQL can return multiple results, each of which
+    # may have their own success/error states, we need to set the
+    # skylight segment as follows:
+    #
+    # - when all queries have errors: "error"
+    # - when some queries have errors: "<rendered format>+error"
+    # - when no queries have errors: "<rendered format>"
+    #
+    # <rendered format> will be determined by the Rails controller as usual.
+    # See Instrumenter#finalize_endpoint_segment for the actual segment/error assignment.
     def finalize_endpoint_segment(trace)
-      return unless trace.segment
-      trace.endpoint += "<sk-segment>#{trace.segment}</sk-segment>"
+      return unless (segment = trace.segment)
+
+      segment = case trace.compound_response_error_status
+                when :all
+                  "error"
+                when :partial
+                  "#{segment}+error"
+                else
+                  segment
+                end
+
+      trace.endpoint += "<sk-segment>#{segment}</sk-segment>"
     end
   end
 end

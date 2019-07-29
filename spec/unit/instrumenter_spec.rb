@@ -537,7 +537,6 @@ describe "Skylight::Instrumenter", :http, :agent do
             server.wait resource: "/report"
 
             expect(spans.map{ |x| x.event.category }).to eq(["app.rack.request", "foo"])
-
             expect(logger_out.string.lines.grep(/tried to set endpoint/).count).to eq(1)
             expect(logger_out.string.lines.grep(/tried to set segment/).count).to eq(1)
           end

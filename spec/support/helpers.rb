@@ -64,9 +64,14 @@ module SpecHelper
     result
   end
 
-  def with_sqlite
+  def with_sqlite(migration: nil)
     ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
+    verbose_was = ActiveRecord::Migration.verbose
+    ActiveRecord::Migration.verbose = false
+    ActiveRecord::Schema.define { migration.up } if migration
     yield
     ActiveRecord::Base.remove_connection
+  ensure
+    ActiveRecord::Migration.verbose = verbose_was
   end
 end
