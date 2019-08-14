@@ -335,6 +335,34 @@ trace_set_endpoint(VALUE self, VALUE endpoint) {
 }
 
 static VALUE
+trace_get_component(VALUE self) {
+  sky_trace_t* trace;
+  sky_buf_t component;
+
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+
+  CHECK_FFI(
+      sky_trace_component(trace, &component),
+      "Trace#native_get_component");
+
+  return BUF2STR(component);
+}
+
+static VALUE
+trace_set_component(VALUE self, VALUE component) {
+  sky_trace_t* trace;
+
+  CHECK_TYPE(component, T_STRING);
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+
+  CHECK_FFI(
+      sky_trace_set_component(trace, STR2BUF(component)),
+      "Trace#native_set_component");
+
+  return Qnil;
+}
+
+static VALUE
 trace_use_pruning(VALUE self) {
   sky_trace_t* trace;
 
@@ -569,6 +597,8 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_get_started_at", trace_get_started_at, 0);
   rb_define_method(rb_cTrace, "native_get_endpoint", trace_get_endpoint, 0);
   rb_define_method(rb_cTrace, "native_set_endpoint", trace_set_endpoint, 1);
+  rb_define_method(rb_cTrace, "native_get_component", trace_get_component, 0);
+  rb_define_method(rb_cTrace, "native_set_component", trace_set_component, 1);
   rb_define_method(rb_cTrace, "native_use_pruning", trace_use_pruning, 0);
   rb_define_method(rb_cTrace, "native_set_exception", trace_set_exception, 1);
   rb_define_method(rb_cTrace, "native_get_uuid", trace_get_uuid, 0);

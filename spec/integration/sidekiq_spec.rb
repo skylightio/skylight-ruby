@@ -11,6 +11,9 @@ end
 
 if enable
   describe "Sidekiq integration" do
+    let(:report_environment) { "production" }
+    let(:report_component) { "worker" }
+
     before :each do
       @original_env = ENV.to_hash
       set_agent_env

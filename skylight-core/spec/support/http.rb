@@ -201,7 +201,23 @@ module SpecHelper
   end
 
   def server
-    ServerDelegate.new(Server).set_authentication(token)
+    auth = if token
+      [token, report_component, report_environment].join(":")
+    end
+
+    ServerDelegate.new(Server).set_authentication(auth)
+  end
+
+  # override in tests (using def or let) to declare the component
+  # to which agent reports should be expected
+  def report_component
+    "web"
+  end
+
+  # override in tests (using def or let) to declare the environment
+  # to which agent reports should be expected
+  def report_environment
+    "production"
   end
 
   def start_server(opts = {})
@@ -234,9 +250,11 @@ module SpecHelper
   end
 
   def stub_session_request
-    server.mock "/agent" do |_env|
-      # TTL: 3 hours
-      { auth: { session: { token: token, expiry_ttl: 10800 } } }
+    server.mock "/agent" do |env|
+      _token, meta = env.fetch("HTTP_AUTHORIZATION").split("|")
+      meta = URI.decode_www_form(meta).to_h
+      component = meta.fetch("component")
+      { auth: { session: { token: "#{token}:#{component}", expiry_ttl: 10800 } } }
     end
   end
 end

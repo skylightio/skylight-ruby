@@ -24,7 +24,7 @@ module Skylight::Core
                 UNKNOWN
               end
 
-              Skylight.trace(handler_name, "app.delayed_job.worker", "Delayed::Worker#run", segment: job.queue) do
+              Skylight.trace(handler_name, "app.delayed_job.worker", "Delayed::Worker#run", component: :worker, segment: job.queue) do
                 run_without_sk(job, *args)
               end
             end

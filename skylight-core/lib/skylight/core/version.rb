@@ -1,5 +1,5 @@
 module Skylight
   module Core
-    VERSION = "4.1.2".freeze
+    VERSION = "4.2.0-beta".freeze
   end
 end

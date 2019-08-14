@@ -152,7 +152,9 @@ describe "Initialization integration" do
         it "warns that it is disabled" do
           ENV["SKYLIGHT_ENV"] = "oh no!"
           boot
-          expect(File.read("log/production.log").lines).to include(a_string_matching(/environment can only contain lowercase letters, numbers, and dashes; disabling Skylight agent/))
+
+          log_lines = File.read("log/production.log").lines + File.read("log/skylight.log").lines
+          expect(log_lines).to include(a_string_matching(/environment can only contain lowercase letters, numbers, and dashes;/))
         end
       end
     end
