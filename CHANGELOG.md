@@ -1,5 +1,7 @@
 ## 4.2.0-beta
-* [IMPROVEMENT] Revise authorization strategy
+* [FEATURE] Add `Skylight.mute` and `Skylight.unmute` blocks to selectively disable and re-enable instrumentation
+* [IMPROVEMENT] Revise agent authorization strategy (fixes some issues related to activation for background jobs)
+* [IMPROVEMENT] Fix Rails 6 deprecation warnings
 
 ## 4.1.2
 * [BUGFIX] Correct an issue where the delayed_job probe may not be activated on startup
