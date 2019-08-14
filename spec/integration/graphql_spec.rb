@@ -67,11 +67,33 @@ if enable
         end
       end
 
+      module Mutations
+        CreateSpeciesResult = GraphQL::ObjectType.define do
+          name "CreateSpeciesResult"
+          field :species, !Types::SpeciesType
+        end
+
+        MutationType = GraphQL::ObjectType.define do
+          name "Mutation"
+          field :createSpecies, CreateSpeciesResult do
+            argument :genus, !types.String
+            argument :species, !types.String
+
+            resolve ->(o,args,c) {
+              genus = Genus.find_by!(name: args[:genus])
+              species = genus.species.new(name: args[:species])
+              if species.save
+                OpenStruct.new({ species: species })
+              end
+            }
+          end
+        end
+      end
+
       TestAppSchema = GraphQL::Schema.define do
         tracer(GraphQL::Tracing::ActiveSupportNotificationsTracing)
 
-        # FIXME: add/test mutations
-        # mutation(Types::MutationType)
+        mutation(Mutations::MutationType)
         query(Types::QueryType)
       end
     else
@@ -113,11 +135,54 @@ if enable
         end
       end
 
+      module Mutations
+        class BaseMutation < GraphQL::Schema::Mutation
+          # Add your custom classes if you have them:
+          # This is used for generating payload types
+          object_class Types::BaseObject
+          # This is used for return fields on the mutation's payload
+          # field_class Types::BaseField
+          # This is used for generating the `input: { ... }` object type
+          # input_object_class Types::BaseInputObject
+        end
+
+        class CreateSpecies < BaseMutation
+          null true
+
+          argument :genus, String, required: true
+          argument :species, String, required: true
+
+          field :species, Types::SpeciesType, null: true
+          field :errors, [String], null: false
+
+          def resolve(genus:, species:)
+            genus = Genus.find_by!(name: genus)
+            species = genus.species.new(name: species)
+            if species.save
+              # Successful creation, return the created object with no errors
+              {
+                species: species,
+                errors: [],
+              }
+            else
+              # Failed save, return the errors to the client
+              {
+                species: nil,
+                errors: species.errors.full_messages
+              }
+            end
+          end
+        end
+      end
+
+      class Types::MutationType < Types::BaseObject
+        field :create_species, mutation: Mutations::CreateSpecies
+      end
+
       class TestAppSchema < GraphQL::Schema
         tracer(GraphQL::Tracing::ActiveSupportNotificationsTracing)
 
-        # FIXME: add/test mutations
-        # mutation(Types::MutationType)
+        mutation(Types::MutationType)
         query(Types::QueryType)
       end
 
@@ -129,8 +194,7 @@ if enable
           use GraphQL::Execution::Interpreter
           tracer(GraphQL::Tracing::ActiveSupportNotificationsTracing)
 
-          # FIXME: add/test mutations
-          # mutation(Types::MutationType)
+          mutation(Types::MutationType)
           query(Types::QueryType)
         end
       end
@@ -297,8 +361,8 @@ if enable
           stub_session_request
         end
 
-        def make_graphql_request(query:)
-          call env("/", method: :POST, params: { query: query })
+        def make_graphql_request(query:, variables: {})
+          call env("/", method: :POST, params: { query: query, variables: variables })
         end
 
         # Handles expected analysis events for legacy style (GraphQL 1.7.0-1.9.x)
@@ -325,8 +389,8 @@ if enable
 
         let(:query_inner) { "#{TestApp.format_field_name('someDragonflies')} { name }" }
 
-        context "with single queries", focus: true do
-          it "successfully calls into graphql with anonymous queries", :anonymous do
+        context "with single queries" do
+          it "successfully calls into graphql with anonymous queries" do
             res = make_graphql_request(query: "query { #{query_inner} }")
 
             server.wait resource: "/report"
@@ -352,7 +416,7 @@ if enable
             ])
           end
 
-          it "successfully calls into graphql with named queries", :named do
+          it "successfully calls into graphql with named queries" do
             res = call env("/test", method: :POST, params: {
               operationName: "Anisoptera", # This is optional if there is only one query node
               query: "query Anisoptera { #{query_inner} }" })
@@ -383,8 +447,8 @@ if enable
           end
         end
 
-        context "with multiplex queries", :multiplex, focus: true do
-          it "successfully calls into graphql with anonymous queries", :anonymous do
+        context "with multiplex queries" do
+          it "successfully calls into graphql with anonymous queries" do
             queries = ["query { #{query_inner} }"].cycle.take(3)
 
             res = call env("/test", method: :POST, params: { queries: queries })
@@ -414,7 +478,7 @@ if enable
             ])
           end
 
-          it "successfully calls into graphql with name and anonymous queries", :anonymous, :named do
+          it "successfully calls into graphql with name and anonymous queries" do
             queries = ["query { #{query_inner} }"].cycle.take(3)
             queries.push("query myFavoriteDragonflies { #{query_inner} }")
 
@@ -448,7 +512,7 @@ if enable
             ])
           end
 
-          it "successfully calls into graphql with named queries", :named do
+          it "successfully calls into graphql with named queries" do
             queries = [
               "query myFavoriteDragonflies { #{query_inner} }",
               "query kindOfOkayDragonflies { #{query_inner} }"
@@ -545,6 +609,51 @@ if enable
               ["app.graphql", "graphql.execute_multiplex"],
               *expected_analysis_events(2).reject { |_, e| e["graphql.analyze"]},
               ["app.graphql", "graphql.execute_query_lazy.multiplex"]
+            ])
+          end
+        end
+
+        let(:mutation_inner) do
+          <<~GRAPHQL
+            createSpecies(genus: $genus, species: $species) {
+              species { #{TestApp.format_field_name('scientificName')} }
+            }
+          GRAPHQL
+        end
+
+        context "with single mutations" do
+          let(:mutation_name) { "CreateSpeciesMutation" }
+
+          it "successfully calls into graphql with anonymous mutations" do
+            res = make_graphql_request(
+              query: "mutation #{mutation_name}($genus: String!, $species: String!) { #{mutation_inner} }",
+              variables: {"genus": "Ischnura", "species": "damula"}
+            )
+
+            server.wait resource: "/report"
+
+            batch = server.reports[0]
+            expect(batch).to_not be nil
+            expect(batch.endpoints.count).to eq(1)
+            endpoint = batch.endpoints[0]
+
+            expect(endpoint.name).to eq("graphql:#{mutation_name}<sk-segment>json</sk-segment>")
+            expect(endpoint.traces.count).to eq(1)
+            trace = endpoint.traces[0]
+
+            data = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
+
+            expect(data).to eq([
+              ["app.rack.request", nil],
+              ["app.graphql", "graphql.execute_multiplex"],
+              *expected_analysis_events,
+              ["app.graphql", "graphql.execute_query: #{mutation_name}"],
+              ["db.sql.query", "SELECT FROM genera"],
+              ["db.active_record.instantiation", "Genus Instantiation"],
+              ["db.sql.query", "SQL"],
+              ["db.sql.query", "INSERT INTO species"],
+              ["db.sql.query", "SQL"],
+              ["app.graphql", "graphql.execute_query_lazy: #{mutation_name}"]
             ])
           end
         end
