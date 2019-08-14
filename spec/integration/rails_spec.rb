@@ -252,6 +252,10 @@ if enable
         # Log request ids
         config.log_tags = Rails.version =~ /^4\./ ? [:uuid] : [:request_id]
 
+        if defined?(ActionView::Railtie::NULL_OPTION)
+          config.action_view.finalize_compiled_template_methods = ActionView::Railtie::NULL_OPTION
+        end
+
         # Rails Edge: https://github.com/rails/rails/pull/33145/files
         if defined?(config.hosts)
           # Allow all hosts: https://github.com/rails/rails/pull/33145/files
