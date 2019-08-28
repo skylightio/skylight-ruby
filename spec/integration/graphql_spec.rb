@@ -180,7 +180,7 @@ if enable
       end
 
       class TestAppSchema < GraphQL::Schema
-        tracer(GraphQL::Tracing::ActiveSupportNotificationsTracing)
+        # tracer(GraphQL::Tracing::ActiveSupportNotificationsTracing)
 
         mutation(Types::MutationType)
         query(Types::QueryType)
@@ -192,7 +192,7 @@ if enable
         # will eventually become the new default interpreter.
         class InterpreterSchema < GraphQL::Schema
           use GraphQL::Execution::Interpreter
-          tracer(GraphQL::Tracing::ActiveSupportNotificationsTracing)
+          # tracer(GraphQL::Tracing::ActiveSupportNotificationsTracing)
 
           mutation(Types::MutationType)
           query(Types::QueryType)
@@ -274,6 +274,7 @@ if enable
     before :each do
       @original_env = ENV.to_hash
       set_agent_env
+      Skylight.probe('graphql')
       Skylight.start!
 
       class ApplicationRecord < ActiveRecord::Base
