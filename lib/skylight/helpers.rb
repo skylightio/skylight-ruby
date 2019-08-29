@@ -141,8 +141,8 @@ module Skylight
             def #{name}(*args, &blk)
               span = Skylight.instrument(
                 category:  :"#{category}",
-                title:       #{title.inspect},
-                description: #{desc.inspect})
+                title:       #{title.inspect}.freeze,
+                description: #{desc.inspect}.freeze)
 
               meta = {}
               begin
