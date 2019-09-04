@@ -17,7 +17,7 @@ module SpecHelper
   def set_agent_env
     @_original_env = ENV.to_hash
 
-    ENV["SKYLIGHT_AUTHENTICATION"]       = "lulz"
+    ENV["SKYLIGHT_AUTHENTICATION"]       = test_config_values[:authentication]
     ENV["SKYLIGHT_BATCH_FLUSH_INTERVAL"] = "1"
     ENV["SKYLIGHT_REPORT_URL"]           = "http://127.0.0.1:#{port}/report"
     ENV["SKYLIGHT_REPORT_HTTP_DEFLATE"]  = "false"
