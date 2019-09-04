@@ -67,6 +67,6 @@ RSpec.configure do |config|
 
   config.after do
     # Kill any daemon that may have been started
-    system("killall -9 skylightd > /dev/null 2>&1")
+    `pkill -9 skylightd`
   end
 end
