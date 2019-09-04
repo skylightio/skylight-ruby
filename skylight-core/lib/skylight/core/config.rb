@@ -36,6 +36,7 @@ module Skylight::Core
         # == Instrumenter ==
         "ENABLE_SEGMENTS" => :enable_segments,
         "ENABLE_SIDEKIQ" => :enable_sidekiq,
+        "SINATRA_ROUTE_PREFIXES" => :sinatra_route_prefixes,
 
         # == User config settings ==
         "USER_CONFIG_PATH" => :user_config_path,
@@ -54,6 +55,7 @@ module Skylight::Core
         log_sql_parse_errors:     true,
         enable_segments:          true,
         enable_sidekiq:           false,
+        sinatra_route_prefixes:   false,
         'heroku.dyno_info_path':  "/etc/heroku/dyno"
       }
     end
@@ -409,6 +411,10 @@ module Skylight::Core
 
     def enable_sidekiq?
       !!get(:enable_sidekiq)
+    end
+
+    def sinatra_route_prefixes?
+      !!get(:sinatra_route_prefixes)
     end
 
     def user_config
