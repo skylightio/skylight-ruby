@@ -14,10 +14,10 @@ Layout/DotPosition:
 Layout/IndentationConsistency:
   EnforcedStyle: rails
 
-Layout/IndentArray:
+Layout/IndentFirstArrayElement:
   EnforcedStyle: consistent
 
-Layout/IndentHash:
+Layout/IndentFirstHashElement:
   EnforcedStyle: consistent
 
 # We shouldn't worry about this in specs
