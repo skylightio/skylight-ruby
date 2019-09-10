@@ -1,3 +1,7 @@
+## 4.2.0-beta2
+* [FEATURE] Add GraphQL probe
+* [FEATURE] Optionally add Rack mount point to Sinatra endpoint names
+
 ## 4.2.0-beta
 * [FEATURE] Add `Skylight.mute` and `Skylight.unmute` blocks to selectively disable and re-enable instrumentation
 * [IMPROVEMENT] Revise agent authorization strategy (fixes some issues related to activation for background jobs)
