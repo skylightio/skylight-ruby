@@ -40,7 +40,10 @@ if enable
     end
 
     let :app do
-      Rack::Builder.new { run MyApp }
+      Rack::URLMap.new(
+        '/' => MyApp,
+        '/url_prefix/api' => MyApp
+      )
     end
 
     context "with agent", :http, :agent do
@@ -49,26 +52,52 @@ if enable
         stub_session_request
       end
 
-      it "successfully calls into sinatra" do
-        res = call env("/test")
-        expect(res).to eq(["Hello"])
+      shared_examples_for :sinatra do
+        it "successfully calls into sinatra" do
+          res = call env(req_path)
+          expect(res).to eq(["Hello"])
 
-        server.wait resource: "/report"
+          server.wait resource: "/report"
 
-        batch = server.reports[0]
-        expect(batch).to_not be nil
-        expect(batch.endpoints.count).to eq(1)
-        endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("GET /test")
-        expect(endpoint.traces.count).to eq(1)
-        trace = endpoint.traces[0]
+          batch = server.reports[0]
+          expect(batch).to_not be nil
+          expect(batch.endpoints.count).to eq(1)
+          endpoint = batch.endpoints[0]
+          expect(endpoint.name).to eq(endpoint_name)
+          expect(endpoint.traces.count).to eq(1)
+          trace = endpoint.traces[0]
 
-        names = trace.spans.map { |s| s.event.category }
+          names = trace.spans.map { |s| s.event.category }
 
-        expect(names.length).to be >= 3
-        expect(names).to include("app.zomg")
-        expect(names).to include("app.inside")
-        expect(names[0]).to eq("app.rack.request")
+          expect(names.length).to be >= 3
+          expect(names).to include("app.zomg")
+          expect(names).to include("app.inside")
+          expect(names[0]).to eq("app.rack.request")
+        end
+      end
+
+      it_behaves_like :sinatra do
+        let(:req_path) { "/test" }
+        let(:endpoint_name) { "GET /test" }
+      end
+
+      context "url prefixes disabled" do
+        it_behaves_like :sinatra do
+          let(:req_path) { "/url_prefix/api/test" }
+          let(:endpoint_name) { "GET /test" }
+        end
+      end
+
+      context "url prefixes enabled" do
+        def set_agent_env
+          super
+          ENV['SKYLIGHT_SINATRA_ROUTE_PREFIXES'] = 'true'
+        end
+
+        it_behaves_like :sinatra do
+          let(:req_path) { "/url_prefix/api/test" }
+          let(:endpoint_name) { "GET [/url_prefix/api]/test" }
+        end
       end
     end
 
