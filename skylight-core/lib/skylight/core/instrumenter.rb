@@ -260,6 +260,14 @@ module Skylight::Core
       trace.broken!
     end
 
+    def poison!
+      @poisoned = true
+    end
+
+    def poisoned?
+      @poisoned
+    end
+
     def done(span, meta = nil)
       return unless (trace = @trace_info.current)
       trace.done(span, meta)
@@ -290,10 +298,14 @@ module Skylight::Core
         native_submit_trace(trace)
         true
       rescue => e
-        warn "failed to submit trace to worker; trace=%s, err=%s", trace.uuid, e
-        t { "BACKTRACE:\n#{e.backtrace.join("\n")}" }
-        false
+        handle_instrumenter_error(trace, e)
       end
+    end
+
+    def handle_instrumenter_error(trace, e)
+      warn "failed to submit trace to worker; trace=%s, err=%s", trace.uuid, e
+      t { "BACKTRACE:\n#{e.backtrace.join("\n")}" }
+      false
     end
 
     def ignore?(trace)

@@ -27,5 +27,10 @@ module Skylight
       end
       nil
     end
+
+    def handle_instrumenter_error(trace, e)
+      poison! if e.is_a?(Skylight::InstrumenterUnrecoverableError)
+      super
+    end
   end
 end
