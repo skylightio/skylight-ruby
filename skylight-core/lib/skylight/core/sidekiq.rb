@@ -2,6 +2,11 @@ module Skylight
   module Core
     module Sidekiq
       def self.add_middleware(instrumentable)
+        unless defined?(::Sidekiq)
+          instrumentable.warn "Skylight for Sidekiq is active, but Sidekiq is not defined."
+          return
+        end
+
         ::Sidekiq.configure_server do |sidekiq_config|
           instrumentable.debug "Adding Sidekiq Middleware"
 
