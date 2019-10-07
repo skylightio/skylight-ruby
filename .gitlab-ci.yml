@@ -48,7 +48,7 @@ variables:
       - $COVERAGE_DIR/coverage-core-disabled-$CI_JOB_ID.json
 
 .install_codeclimate: &install_codeclimate
-  image: ruby:2.6.4 # can probably use a lighter image, but this one is already cached.
+  image: ruby:2.6.5 # can probably use a lighter image, but this one is already cached.
   before_script:
     - if [[ ! -f cc-test-reporter ]]; then curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter; fi
     - chmod +x ./cc-test-reporter
@@ -84,14 +84,14 @@ ruby26-rails52:
   <<: *run_tests
   stage: smoke_test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
 
 ruby26-rails60:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-6.0.x
 
 ruby23-rails42:
@@ -106,7 +106,7 @@ ruby26-rails42:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
 
 ruby23-rails52:
@@ -120,7 +120,7 @@ ruby26-rails50:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     GRAPHQL_VERSION: "~> 1.7.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.0.x
 
@@ -128,7 +128,7 @@ ruby26-rails51:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     GRAPHQL_VERSION: "~> 1.8.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.1.x
 
@@ -137,7 +137,7 @@ ruby26-rails-edge:
   stage: test
   allow_failure: true
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-edge
 
 ruby23-sinatra14:
@@ -151,7 +151,7 @@ ruby26-sinatra14:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-1.4.x
 
 ruby23-sinatra20:
@@ -165,7 +165,7 @@ ruby26-sinatra20:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-2.0.x
 
 ruby26-sinatra-edge:
@@ -173,7 +173,7 @@ ruby26-sinatra-edge:
   stage: test
   allow_failure: true
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-edge
 
 ruby23-grape:
@@ -187,14 +187,14 @@ ruby26-grape:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
 
 ruby26-grape013:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 0.13.0"
 
@@ -202,7 +202,7 @@ ruby26-grape110:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 1.1.0"
 
@@ -210,7 +210,7 @@ ruby26-grape120:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 1.2.0"
 
@@ -219,7 +219,7 @@ ruby26-grape-edge:
   stage: test
   allow_failure: true
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: edge
 
@@ -227,7 +227,7 @@ ruby26-rails42-tilt:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
     TILT_VERSION: 1.4.1
 
@@ -235,7 +235,7 @@ ruby26-sinatra14-sequel:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-1.4.x
     SEQUEL_VERSION: 4.34.0
 
@@ -245,7 +245,7 @@ ruby26-rails42-mongo:
   services:
     - mongo:3.4-jessie
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
     TEST_MONGO_INTEGRATION: "true"
     MONGO_HOST: mongo
@@ -256,7 +256,7 @@ ruby26-rails42-mongoid:
   services:
     - mongo:3.4-jessie
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
     TEST_MONGO_INTEGRATION: "true"
     MONGO_HOST: mongo
@@ -268,7 +268,7 @@ ruby26-rails42-elasticsearch:
   services:
     - elasticsearch:5-alpine
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
     TEST_ELASTICSEARCH_INTEGRATION: "true"
     ELASTICSEARCH_URL: "http://elasticsearch:9200"
@@ -277,7 +277,7 @@ ruby26-rails51-sidekiq4:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.1.x
     SIDEKIQ_VERSION: 4.2.10
 
@@ -285,7 +285,7 @@ ruby26-rails51-sidekiq-none:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.1.x
     SIDEKIQ_VERSION: "none"
 
@@ -293,7 +293,7 @@ ruby26-rails42-ams83:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
     AMS_VERSION: "~> 0.8.3"
 
@@ -301,7 +301,7 @@ ruby26-rails42-ams95:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
     AMS_VERSION: "~> 0.9.5"
 
@@ -310,7 +310,7 @@ ruby26-rails42-ams-edge:
   stage: test
   allow_failure: true
   variables:
-    RUBY_VERSION: "2.6.4"
+    RUBY_VERSION: "2.6.5"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
     AMS_VERSION: edge
 
