@@ -1,3 +1,8 @@
+## 4.2.0-beta3
+* [BUGFIX] Skip the Sidekiq probe if Sidekiq is not present
+* [BUGFIX] Fix an issue in which traces may not be reported correctly when upgrading Skylight
+* [IMPROVEMENT] Shut down the native instrumenter when the remote daemon is unreachable
+
 ## 4.2.0-beta2
 * [FEATURE] Add GraphQL probe
 * [FEATURE] Optionally add Rack mount point to Sinatra endpoint names
