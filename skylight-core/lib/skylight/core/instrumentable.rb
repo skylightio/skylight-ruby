@@ -98,6 +98,12 @@ module Skylight
             return
           end
 
+          if instrumenter.poisoned?
+            spawn_shutdown_thread!
+            return yield if block_given?
+            return
+          end
+
           cat ||= DEFAULT_CATEGORY
 
           if block_given?
@@ -187,6 +193,14 @@ module Skylight
         def config
           return unless instrumenter
           instrumenter.config
+        end
+
+        # Runs the shutdown procedure in the background.
+        # This should do little more than unsubscribe from all ActiveSupport::Notifications
+        def spawn_shutdown_thread!
+          @shutdown_thread || const_get(:LOCK).synchronize do
+            @shutdown_thread ||= Thread.new { @instrumenter&.shutdown }
+          end
         end
       end
     end

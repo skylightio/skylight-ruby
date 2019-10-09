@@ -51,5 +51,8 @@ module Skylight
 
     # E0004
     register(4, "SqlLex", "Failed to lex SQL query.")
+
+    # E0005
+    register(5, "InstrumenterUnrecoverable", "Instrumenter is not running.")
   end
 end

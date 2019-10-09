@@ -542,6 +542,34 @@ describe "Skylight::Instrumenter", :http, :agent do
           end
         end
       end
+
+      describe "#poison" do
+        specify do
+          expect(Skylight.instrumenter).to receive(:native_submit_trace) do
+            raise Skylight::InstrumenterUnrecoverableError, "instrumenter is not running"
+          end
+
+          has_subscribers = lambda do
+            [:@subscriber, :@subscribers].reduce(Skylight.instrumenter) do |m, n|
+              m.instance_variable_get(n)
+            end.present?
+          end
+
+          Skylight.trace("Rack", "app.rack.request") do
+          end
+
+          expect(Skylight.instrumenter).to be_poisoned
+
+          expect do
+            # First trace on a poisoned instrumenter kicks off the shutdown thread
+            Skylight.trace("Rack", "app.rack.request") do
+            end
+
+            # wait for unsubscribe
+            Skylight.instance_variable_get(:@shutdown_thread).join
+          end.to change(&has_subscribers).from(true).to(false)
+        end
+      end
     end
 
     def with_endpoint(endpoint)
