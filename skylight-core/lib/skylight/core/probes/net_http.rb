@@ -8,10 +8,11 @@ module Skylight::Core
         DISABLED_KEY = :__skylight_net_http_disabled
 
         def self.disable
+          state_was = Thread.current[DISABLED_KEY]
           Thread.current[DISABLED_KEY] = true
           yield
         ensure
-          Thread.current[DISABLED_KEY] = false
+          Thread.current[DISABLED_KEY] = state_was
         end
 
         def self.disabled?
