@@ -89,7 +89,9 @@ module SpecHelper
     ENV["SKYLIGHT_AUTH_URL"]             = "http://127.0.0.1:#{port}/agent"
     ENV["SKYLIGHT_VALIDATION_URL"]       = "http://127.0.0.1:#{port}/agent/config"
     ENV["SKYLIGHT_AUTH_HTTP_DEFLATE"]    = "false"
-    ENV["SKYLIGHT_ENABLE_SEGMENTS"]      = "true"
+
+    # Experimental features
+    ENV["SKYLIGHT_ENABLE_SOURCE_LOCATIONS"] = "true"
 
     if ENV["DEBUG"]
       ENV["SKYLIGHT_ENABLE_TRACE_LOGS"]    = "true"

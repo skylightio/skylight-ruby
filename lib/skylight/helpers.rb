@@ -135,14 +135,18 @@ module Skylight
           title    = (opts[:title] || title).to_s
           desc     = opts[:description].to_s if opts[:description]
 
+          source_file, source_line = klass.instance_method(name).source_location
+
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
             alias_method :"before_instrument_#{name}", :"#{name}"
 
             def #{name}(*args, &blk)
               span = Skylight.instrument(
-                category:  :"#{category}",
+                category:    :"#{category}",
                 title:       #{title.inspect},
-                description: #{desc.inspect})
+                description: #{desc.inspect},
+                source_file: #{source_file.inspect},
+                source_line: #{source_line.inspect})
 
               meta = {}
               begin
