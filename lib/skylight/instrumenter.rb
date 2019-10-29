@@ -244,11 +244,12 @@ module Skylight
 
       return sp unless block_given?
 
-      meta = {}
       begin
         yield sp
       rescue Exception => e
-        meta = { exception: [e.class.name, e.message], exception_object: e }
+        meta ||= {}
+        meta[:exception] = [e.class.name, e.message]
+        meta[:exception_object] = e
         raise e
       ensure
         trace.done(sp, meta)
