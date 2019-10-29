@@ -366,6 +366,11 @@ module Skylight
         Hash[*Bundler.load.specs.to_a.map { |s| s.full_require_paths.map { |p| [p, s.name] } }.flatten]
     end
 
+    # Offset of 1 will find the line before where it was called
+    def find_caller(offset = 1)
+      caller_locations(offset + 1).find { |l| find_source_gem(l.absolute_path) || project_path?(l.absolute_path) }
+    end
+
     def find_source_gem(path)
       _, name = gem_require_paths.find do |rpath, name|
         path.start_with?(rpath) && !config.source_location_ignored_gems.include?(name)

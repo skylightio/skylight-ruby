@@ -160,7 +160,18 @@ module Skylight
       end
     end
 
-    # Instrument
+    # @overload instrument(opts)
+    #   @param [Hash] opts the options for instrumentation.
+    #   @option opts [String] :category (`DEFAULT_CATEGORY`) The category
+    #   @option opts [String] :title The title
+    #   @option opts [String] :description The description
+    #   @option opts [Hash] :meta The meta
+    #   @option opts [String] :source_location The source location
+    #   @option opts [String] :source_file The source file. (Will be sanitized.)
+    #   @option opts [String] :source_line The source line.
+    # @overload instrument(title)
+    #   Instrument with the specified title and the default category
+    #   @param [String] title The title
     def instrument(opts = DEFAULT_OPTIONS, &block)
       unless instrumenter
         return yield if block_given?
@@ -173,11 +184,31 @@ module Skylight
         title       = opts[:title]
         desc        = opts[:description]
         meta        = opts[:meta]
+        source_location = opts[:source_location] || opts[:meta]&.[](:source_location)
+        source_file = opts[:source_file] || opts[:meta]&.[](:source_file)
+        source_line = opts[:source_line] || opts[:meta]&.[](:source_line)
       else
         category    = DEFAULT_CATEGORY
         title       = opts.to_s
         desc        = nil
         meta        = nil
+        source_location = nil
+        source_file = nil
+        source_line = nil
+      end
+
+      meta ||= {}
+      if source_location
+        meta[:source_location] = source_location
+      elsif source_file
+        meta[:source_file] = source_file
+        meta[:source_line] = source_line
+      else
+        warn "Ignoring source_line without source_file" if source_line
+        if (location = instrumenter.find_caller)
+          meta[:source_file] = location.absolute_path
+          meta[:source_line] = location.lineno
+        end
       end
 
       instrumenter.instrument(category, title, desc, meta, &block)

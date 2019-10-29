@@ -27,7 +27,7 @@ if defined?(ActionDispatch)
 
     before do
       expect(trace).to receive(:instrument).with(
-        "rack.app", "ActionDispatch::Routing::RouteSet", nil, nil
+        "rack.app", "ActionDispatch::Routing::RouteSet", nil, an_instance_of(Hash)
       )
     end
 

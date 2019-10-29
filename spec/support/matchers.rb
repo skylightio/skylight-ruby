@@ -119,6 +119,35 @@ module SpecHelper
     end
   end
 
+  RSpec::Matchers.define :an_annotation do |expected_type, expected_value|
+    match do |actual|
+      actual_hash = actual.to_hash
+
+      expected_key = SpecHelper::Messages::Annotation::AnnotationKey.const_get(expected_type)
+      expect(actual_hash[:key]).to eq(expected_key)
+
+      actual_value =
+        case expected_value
+        when Integer
+          actual_hash[:val][:uint_val]
+        when String
+          actual_hash[:val][:string_val]
+        else
+          raise TypeError, "unknown value type; #{expected_value.class}"
+        end
+
+      expect(actual_value).to eq(expected_value)
+    end
+
+    failure_message do
+      "an annotation match failed"
+    end
+
+    failure_message_when_negated do
+      "an annotation match negated failed"
+    end
+  end
+
   def get_json(*args)
     hdrs = {}
     hdrs = args.pop if args[-1].is_a?(Hash)

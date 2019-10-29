@@ -100,6 +100,71 @@ describe Skylight::Instrumenter, :http, :agent do
                                   ))
     end
 
+    context "source location" do
+      before do
+        # Change root so that we can properly test sanitization
+        Skylight.config.set(:root, root)
+        Skylight.config.remove_instance_variable(:@root)
+      end
+
+      it "tracks source location" do
+        line = nil
+        Skylight.trace "Testin", "app.rack.request" do
+          clock.skip 0.1
+          line = __LINE__ + 1
+          Skylight.instrument category: "app.foo" do
+            clock.skip 0.1
+          end
+        end
+
+        clock.unfreeze
+        server.wait resource: "/report"
+
+        span = server.reports[0].endpoints[0].traces[0].spans[1]
+        expect(span).to match(
+          a_span_including(
+            annotations: array_including(
+              an_annotation(:SourceLocation, "#{Pathname.new(__FILE__).relative_path_from(root)}:#{line}")
+            )
+          )
+        )
+      end
+
+      it "allows a custom source file and line to be set" do
+        Skylight.trace "Testin", "app.rack.request" do
+          Skylight.instrument(source_file: "#{root}/foo.rb", source_line: 10) {}
+        end
+
+        server.wait resource: "/report"
+
+        span = server.reports[0].endpoints[0].traces[0].spans[1]
+        expect(span).to match(
+          a_span_including(
+            annotations: array_including(
+              an_annotation(:SourceLocation, "foo.rb:10")
+            )
+          )
+        )
+      end
+
+      it "allows a custom source location to be set" do
+        Skylight.trace "Testin", "app.rack.request" do
+          Skylight.instrument(source_location: "foo.rb:10") {}
+        end
+
+        server.wait resource: "/report"
+
+        span = server.reports[0].endpoints[0].traces[0].spans[1]
+        expect(span).to match(
+          a_span_including(
+            annotations: array_including(
+              an_annotation(:SourceLocation, "foo.rb:10")
+            )
+          )
+        )
+      end
+    end
+
     class MyClass
       include Skylight::Helpers
 
