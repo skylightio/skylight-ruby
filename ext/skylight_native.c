@@ -502,9 +502,24 @@ trace_span_set_description(VALUE self, VALUE span, VALUE desc) {
 
 static VALUE
 trace_span_set_meta(VALUE self, VALUE span, VALUE meta) {
-  UNUSED(self);
-  UNUSED(span);
-  UNUSED(meta);
+  sky_trace_t* trace;
+  VALUE rb_source_location;
+
+  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+
+  CHECK_TYPE(span, T_FIXNUM);
+  CHECK_TYPE(meta, T_HASH);
+
+  rb_source_location = rb_hash_lookup(meta, ID2SYM(rb_intern("source_location")));
+  if (rb_source_location != Qnil) {
+    sky_buf_t source_location;
+
+    CHECK_TYPE(rb_source_location, T_STRING);
+    source_location = STR2BUF(rb_source_location);
+
+    sky_trace_span_add_string_annotation(trace, FIX2UINT(span), 3, source_location);
+  }
+
   return Qnil;
 }
 

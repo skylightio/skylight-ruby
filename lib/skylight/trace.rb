@@ -5,7 +5,7 @@ module Skylight
   class Trace
     GC_CAT = "noise.gc".freeze
 
-    META_KEYS = %i(mute_children).freeze
+    META_KEYS = %i(source_location source_file source_line mute_children).freeze
 
     include Util::Logging
 
@@ -356,6 +356,7 @@ module Skylight
 
       def preprocess_meta(meta)
         validate_meta(meta)
+        preprocess_source_location(meta)
       end
 
       def validate_meta(meta)
@@ -364,6 +365,28 @@ module Skylight
           warn "Unknown meta keys will be ignored; keys=#{unknown_keys.inspect}"
           unknown_keys.each { |key| meta.delete(key) }
         end
+      end
+
+      def preprocess_source_location(meta)
+        source_line = meta.delete(:source_line)
+        source_file = meta.delete(:source_file)
+
+        if meta[:source_location]
+          if source_file || source_line
+            warn "Found both source_location and source_file or source_line, using source_location\n" \
+                 "  location=#{meta[:source_location]}; file=#{source_file}; line=#{source_line}"
+          end
+        elsif source_file
+          meta[:source_location] = [source_file, source_line].compact.join(":")
+        elsif source_line
+          warn "Ignoring source_line without source_file; source_line=#{source_line}"
+        end
+
+        if meta[:source_location]
+          debug("source_location=#{meta[:source_location]}")
+        end
+
+        meta
       end
 
       def maybe_warn(context, msg)

@@ -271,8 +271,85 @@ module Skylight
       trace.done(span)
     end
 
+    context "source location" do
+      it "allows source_location to be set" do
+        trace = Skylight.trace "Rack", "app.rack.request"
+        span = trace.instrument("app.block", nil, nil, source_location: "foo/bar.rb:1")
+        trace.done(span)
+        trace.submit
+
+        server.wait resource: "/report"
+
+        annotation = get_annotation_val(spans[1], :SourceLocation)
+        expect(annotation&.string_val).to eq("foo/bar.rb:1")
+      end
+
+      it "allows only source_file to be set" do
+        trace = Skylight.trace "Rack", "app.rack.request"
+        span = trace.instrument("app.block", nil, nil, source_file: "foo/bar.rb")
+        trace.done(span)
+        trace.submit
+
+        server.wait resource: "/report"
+
+        annotation = get_annotation_val(spans[1], :SourceLocation)
+        expect(annotation&.string_val).to eq("foo/bar.rb")
+      end
+
+      it "allows only source_file and source_line to be set" do
+        trace = Skylight.trace "Rack", "app.rack.request"
+        span = trace.instrument("app.block", nil, nil, source_file: "foo/bar.rb", source_line: 123)
+        trace.done(span)
+        trace.submit
+
+        server.wait resource: "/report"
+
+        annotation = get_annotation_val(spans[1], :SourceLocation)
+        expect(annotation&.string_val).to eq("foo/bar.rb:123")
+      end
+
+      it "ignores source_line without source_file" do
+        trace = Skylight.trace "Rack", "app.rack.request"
+
+        expect(trace).to receive(:warn).with("Ignoring source_line without source_file; source_line=123")
+
+        span = trace.instrument("app.block", nil, nil, source_line: 123)
+        trace.done(span)
+        trace.submit
+
+        server.wait resource: "/report"
+
+        annotation = get_annotation_val(spans[1], :SourceLocation)
+        expect(annotation).to be_nil
+      end
+
+      it "gives priority to source_location" do
+        trace = Skylight.trace "Rack", "app.rack.request"
+
+        expect(trace).to receive(:warn).with(
+          "Found both source_location and source_file or source_line, using source_location\n" \
+          "  location=foo/bar.rb:1; file=foo.rb; line=123")
+
+        span = trace.instrument("app.block", nil, nil,
+                                source_location: "foo/bar.rb:1", source_file: "foo.rb", source_line: 123)
+        trace.done(span)
+        trace.submit
+
+        server.wait resource: "/report"
+
+        annotation = get_annotation_val(spans[1], :SourceLocation)
+        expect(annotation&.string_val).to eq("foo/bar.rb:1")
+      end
+    end
+
     def spans
       server.reports[0].endpoints[0].traces[0].spans
+    end
+
+    def get_annotation_val(span, key)
+      key = SpecHelper::Messages::Annotation::AnnotationKey.const_get(key)
+      annotation = span.annotations.find { |a| a.key == key }
+      annotation&.val
     end
   end
 end
