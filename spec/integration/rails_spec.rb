@@ -312,6 +312,7 @@ if enable
           render json: { error: exception.message }, status: 500
         end
 
+        INDEX_LINE = __LINE__ + 1
         def index
           Skylight.instrument category: "app.inside" do
             if Rails.version =~ /^4\./
@@ -490,6 +491,7 @@ if enable
     end
 
     let(:router_name) { "ActionDispatch::Routing::RouteSet" }
+    let(:spec_root) { Pathname.new(File.expand_path("..", __dir__)) }
 
     shared_examples "with agent" do
       context "configuration" do
@@ -1300,6 +1302,31 @@ if enable
         endpoint_name = "UsersController#not_modified"
         segment       = "not modified"
         expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>#{segment}</sk-segment>")
+      end
+
+      context "source location" do
+        before do
+          # Change root so that we can properly test sanitization
+          Skylight.config.set(:root, spec_root)
+          Skylight.config.remove_instance_variable(:@root)
+        end
+
+        it "sets source_location for action" do
+          call MyApp, env("/users")
+
+          server.wait(resource: "/report")
+
+          source_location = "#{Pathname.new(__FILE__).relative_path_from(spec_root)}:#{::UsersController::INDEX_LINE}"
+
+          expect(server.reports[0].endpoints[0].traces[0].spans).to include(
+            a_span_including(
+              event:       an_exact_event(category: "app.controller.request", title: "UsersController#index"),
+              annotations: array_including(
+                an_annotation(:SourceLocation, source_location)
+              )
+            )
+          )
+        end
       end
     end
 

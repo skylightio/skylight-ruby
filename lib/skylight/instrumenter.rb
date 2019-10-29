@@ -60,6 +60,8 @@ module Skylight
 
       @trace_info = @config[:trace_info] || TraceInfo.new(KEY)
       @mutex = Mutex.new
+
+      @instance_method_source_location_cache = Hash.new { |h, k| h[k] = {} }
     end
 
     def log_context
@@ -388,6 +390,32 @@ module Skylight
 
       # So it must be a project file
       true
+    end
+
+    def instance_method_source_location(constant_name, method_name)
+      limit_hash(@instance_method_source_location_cache)
+
+      methods_cache = @instance_method_source_location_cache[constant_name]
+
+      methods_cache.fetch(method_name) do
+        limit_hash(methods_cache)
+
+        methods_cache[method_name] =
+          if (constant = ::ActiveSupport::Dependencies.safe_constantize(constant_name))
+            if constant.instance_methods.include?(:"before_instrument_#{method_name}")
+              method_name = :"before_instrument_#{method_name}"
+            end
+            begin
+              constant.instance_method(method_name).source_location
+            rescue NameError
+              nil
+            end
+          end
+      end
+    end
+
+    def limit_hash(hash, limit: 100)
+      hash.delete(hash.keys.first) while hash.length > limit
     end
   end
 end
