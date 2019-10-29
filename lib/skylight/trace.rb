@@ -5,6 +5,8 @@ module Skylight
   class Trace
     GC_CAT = "noise.gc".freeze
 
+    META_KEYS = %i(mute_children).freeze
+
     include Util::Logging
 
     attr_reader :instrumenter, :endpoint, :segment, :notifications, :meta, :component
@@ -148,6 +150,8 @@ module Skylight
         debug "original desc=%s", original_desc
         debug "cat=%s, title=%s, desc=%s", cat, title, desc
       end
+
+      preprocess_meta(meta) if meta
 
       start(now - gc_time, cat, title, desc, meta)
     rescue => e
@@ -347,6 +351,18 @@ module Skylight
           # Would it be better for the component getter to get from native?
           @component = c
           native_set_component(c)
+        end
+      end
+
+      def preprocess_meta(meta)
+        validate_meta(meta)
+      end
+
+      def validate_meta(meta)
+        unknown_keys = meta.keys - META_KEYS
+        if unknown_keys.any?
+          warn "Unknown meta keys will be ignored; keys=#{unknown_keys.inspect}"
+          unknown_keys.each { |key| meta.delete(key) }
         end
       end
 
