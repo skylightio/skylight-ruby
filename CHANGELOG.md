@@ -1,16 +1,12 @@
-## 4.2.0-beta3
-* [BUGFIX] Skip the Sidekiq probe if Sidekiq is not present
-* [BUGFIX] Fix an issue in which traces may not be reported correctly when upgrading Skylight
-* [IMPROVEMENT] Shut down the native instrumenter when the remote daemon is unreachable
-
-## 4.2.0-beta2
+## 4.2.0
 * [FEATURE] Add GraphQL probe
 * [FEATURE] Optionally add Rack mount point to Sinatra endpoint names
-
-## 4.2.0-beta
-* [FEATURE] Add `Skylight.mute` and `Skylight.unmute` blocks to selectively disable and re-enable instrumentation
+* [FEATURE] Add `Skylight.mute` and `Skylight.unmute` blocks to selectively disable and re-enable
+* [IMPROVEMENT] Shut down the native instrumenter when the remote daemon is unreachable
+instrumentation
 * [IMPROVEMENT] Revise agent authorization strategy (fixes some issues related to activation for background jobs)
 * [IMPROVEMENT] Fix Rails 6 deprecation warnings
+* [BUGFIX] Skip the Sidekiq probe if Sidekiq is not present
 
 ## 4.1.2
 * [BUGFIX] Correct an issue where the delayed_job probe may not be activated on startup
