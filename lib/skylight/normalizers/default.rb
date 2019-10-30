@@ -2,7 +2,6 @@ module Skylight
   module Normalizers
     # The default normalizer, used if no other is found.
     class Default < Normalizer
-
       def initialize
         super(nil) # Pass no config and handle it in new method
       end

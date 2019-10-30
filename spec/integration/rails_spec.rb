@@ -78,6 +78,7 @@ if enable
           end
       end
 
+      @custom_middleware_line = __LINE__ + 2
       CustomMiddleware ||= Class.new(SkTestMiddleware) do
         def call(env)
           if env["PATH_INFO"] == "/middleware"
@@ -264,6 +265,7 @@ if enable
         end
 
         # This class has no name
+        ANONYMOUS_MIDDLEWARE_LINE = __LINE__ + 6
         config.middleware.use(Class.new do
           def initialize(app)
             @app = app
@@ -437,6 +439,7 @@ if enable
 
         private
 
+          AUTHORIZED_LINE = __LINE__ + 1
           def authorized?
             true
           end
@@ -542,42 +545,87 @@ if enable
       end
 
       it "successfully instruments middleware", :middleware_probe do
+        # Change root so that we can properly test sanitization
+        Skylight.config.set(:root, spec_root)
+        Skylight.config.remove_instance_variable(:@root)
+
         call MyApp, env("/users")
         server.wait resource: "/report"
 
         trace = server.reports.dig(0, :endpoints, 0, :traces, 0)
 
         app_and_rack_spans = trace.
-                             filtered_spans.
-                             map { |s| [s.event.category, s.event.title] }.
-                             select { |s| s[0] =~ /^(app|rack)./ }
+                             spans.
+                             select { |s| s.event.category =~ /^(app|rack)./ }
 
         # We know the first one
-        expect(app_and_rack_spans[0]).to eq(["app.rack.request", nil])
+        expect(app_and_rack_spans[0]).to match(
+          a_span_including(
+            event: an_exact_event(category: "app.rack.request")
+          )
+        )
 
         # But the middlewares will be variable, depending on the Rails version
-        count = 0
+        middleware_count = 0
         loop do
-          break if app_and_rack_spans[count + 1][0] != "rack.middleware"
+          break if app_and_rack_spans[middleware_count + 1].event.category != "rack.middleware"
 
-          count += 1
+          middleware_count += 1
         end
 
         # We should have at least 2, but in reality a lot more
-        expect(count).to be > 2
+        expect(middleware_count).to be > 2
 
-        # This one should be in all versions
-        expect(app_and_rack_spans).to include(["rack.middleware", "Anonymous Middleware"],
-                                              ["rack.middleware", "CustomMiddleware"])
+        source_file = Pathname.new(__FILE__).relative_path_from(spec_root).to_s
+
+        # These ones should be in all versions
+        expect(app_and_rack_spans[0..middleware_count]).to include(
+          a_span_including(
+            event:       an_exact_event(category: "rack.middleware", title: "Anonymous Middleware"),
+            annotations: include(
+              an_annotation(:SourceLocation, "#{source_file}:#{::MyApp::ANONYMOUS_MIDDLEWARE_LINE}")
+            )
+          ),
+          a_span_including(
+            event:       an_exact_event(category: "rack.middleware", title: "CustomMiddleware"),
+            annotations: include(
+              an_annotation(:SourceLocation, "#{source_file}:#{@custom_middleware_line}")
+            )
+          )
+        )
 
         # Check the rest
-        expect(app_and_rack_spans[(count + 1)..-1]).to eq([
-          ["rack.app", router_name],
-          ["app.controller.request", "UsersController#index"],
-          ["app.method", "Check authorization"],
-          ["app.method", "UsersController#index"],
-          ["app.inside", nil],
-          ["app.zomg", nil]
+        expect(app_and_rack_spans[(middleware_count + 1)..-1]).to match([
+          a_span_including(
+            event:       an_exact_event(category: "rack.app", title: router_name),
+            annotations: include(
+              an_annotation(:SourceLocation, "actionpack")
+            )
+          ),
+          a_span_including(
+            event:       an_exact_event(category: "app.controller.request", title: "UsersController#index"),
+            annotations: include(
+              an_annotation(:SourceLocation, "#{source_file}:#{::UsersController::INDEX_LINE}")
+            )
+          ),
+          a_span_including(
+            event:       an_exact_event(category: "app.method", title: "Check authorization"),
+            annotations: include(
+              an_annotation(:SourceLocation, "#{source_file}:#{::UsersController::AUTHORIZED_LINE}")
+            )
+          ),
+          a_span_including(
+            event:       an_exact_event(category: "app.method", title: "UsersController#index"),
+            annotations: include(
+              an_annotation(:SourceLocation, "#{source_file}:#{::UsersController::INDEX_LINE}")
+            )
+          ),
+          a_span_including(
+            event: an_exact_event(category: "app.inside")
+          ),
+          a_span_including(
+            event: an_exact_event(category: "app.zomg")
+          )
         ])
       end
 
