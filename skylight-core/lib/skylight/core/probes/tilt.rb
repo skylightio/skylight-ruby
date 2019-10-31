@@ -13,7 +13,7 @@ module Skylight::Core
                 title: options[:sky_virtual_path] || basename || "Unknown template name"
               }
 
-              Skylight::Core::Fanout.instrument(opts) do
+              Skylight::Fanout.instrument(opts) do
                 render_without_sk(*args, &block)
               end
             end

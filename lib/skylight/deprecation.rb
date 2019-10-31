@@ -1,6 +1,6 @@
 require "active_support/deprecation"
 
-module Skylight::Core
+module Skylight
   SKYLIGHT_GEM_ROOT = File.expand_path("../..", __dir__) + "/"
 
   class Deprecation < ActiveSupport::Deprecation

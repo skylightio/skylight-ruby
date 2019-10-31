@@ -34,7 +34,7 @@ module Skylight::Core
 
             def dispatch!(*args, &block)
               dispatch_without_sk!(*args, &block).tap do
-                Skylight::Core::Fanout.each_trace do |trace|
+                Skylight::Fanout.each_trace do |trace|
                   # Set the endpoint name to the route name
                   if (route = env["sinatra.route"])
                     # Include the app's mount point (if available)

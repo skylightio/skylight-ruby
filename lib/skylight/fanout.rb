@@ -1,4 +1,4 @@
-module Skylight::Core
+module Skylight
   module Fanout
     def self.registered
       @registered ||= []

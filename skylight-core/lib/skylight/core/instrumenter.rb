@@ -60,7 +60,7 @@ module Skylight::Core
       @uuid = uuid
       @gc = config.gc
       @config = config
-      @subscriber = Subscriber.new(config, self)
+      @subscriber = Skylight::Subscriber.new(config, self)
 
       key = "#{KEY}_#{self.class.trace_class.name}".gsub(/\W/, "_")
       @trace_info = @config[:trace_info] || TraceInfo.new(key)

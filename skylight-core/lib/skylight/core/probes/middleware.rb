@@ -22,7 +22,7 @@ module Skylight::Core
             def call(*args, &block)
               return call_without_sk(*args, &block) if Skylight::Core::Probes::Middleware::Probe.disabled?
 
-              traces = Skylight::Core::Fanout.each_trace.to_a
+              traces = Skylight::Fanout.each_trace.to_a
               return call_without_sk(*args, &block) if traces.empty?
 
               begin
@@ -30,15 +30,15 @@ module Skylight::Core
 
                 traces.each{ |t| t.endpoint = name }
 
-                spans = Skylight::Core::Fanout.instrument(title: name, category: "#{category}")
+                spans = Skylight::Fanout.instrument(title: name, category: "#{category}")
                 resp = call_without_sk(*args, &block)
 
                 proxied_response = Skylight::Core::Middleware.with_after_close(resp) do
-                  Skylight::Core::Fanout.done(spans)
+                  Skylight::Fanout.done(spans)
                 end
               rescue Exception => err
                 # FIXME: Log this?
-                Skylight::Core::Fanout.done(spans, exception_object: err)
+                Skylight::Fanout.done(spans, exception_object: err)
                 raise
               ensure
                 unless err || proxied_response
@@ -46,7 +46,7 @@ module Skylight::Core
                   # a throw/catch has bypassed a portion of the callstack. Since these spans would not otherwise
                   # be closed, mark them deferred to indicate that they should be implicitly closed.
                   # See Core::Trace#deferred_spans or Core::Trace#stop for more information.
-                  Skylight::Core::Fanout.done(spans, defer: true)
+                  Skylight::Fanout.done(spans, defer: true)
                 end
               end
             end

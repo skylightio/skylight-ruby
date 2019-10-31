@@ -1,7 +1,7 @@
-module Skylight::Core
+module Skylight
   module Instrumentable
     def self.included(base)
-      base.extend(Skylight::Util::Logging)
+      base.extend(Util::Logging)
       base.extend(ClassMethods)
 
       base.const_set(:LOCK, Mutex.new)
@@ -10,12 +10,12 @@ module Skylight::Core
         at_exit { stop! }
       end
 
-      Skylight::Core::Fanout.register(base)
+      Fanout.register(base)
     end
 
     module ClassMethods
       def instrumenter_class
-        Skylight::Core::Instrumenter
+        Core::Instrumenter
       end
 
       def instrumenter
@@ -27,11 +27,11 @@ module Skylight::Core
       end
 
       def probe(*args)
-        Skylight::Core::Probes.probe(*args)
+        Core::Probes.probe(*args)
       end
 
       def enable_normalizer(*names)
-        Skylight::Core::Normalizers.enable(*names)
+        Core::Normalizers.enable(*names)
       end
 
       # Start instrumenting

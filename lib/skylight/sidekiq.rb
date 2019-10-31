@@ -1,4 +1,4 @@
-module Skylight::Core
+module Skylight
   module Sidekiq
     def self.add_middleware(instrumentable)
       unless defined?(::Sidekiq)
@@ -17,7 +17,7 @@ module Skylight::Core
     end
 
     class ServerMiddleware
-      include Skylight::Util::Logging
+      include Util::Logging
 
       def initialize(instrumentable)
         @instrumentable = instrumentable

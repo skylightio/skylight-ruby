@@ -80,7 +80,7 @@ puts "Skipping probes: #{skipped_probes.join(', ')}"  unless skipped_probes.empt
 ENV["SKYLIGHT_RAISE_ON_ERROR"] = "true"
 
 module TestNamespace
-  include Skylight::Core::Instrumentable
+  include Skylight::Instrumentable
 
   unless ENV["SKYLIGHT_DISABLE_AGENT"]
     require "skylight/core/test"
@@ -88,7 +88,7 @@ module TestNamespace
   end
 
   def self.config_class
-    Skylight::Core::Config
+    Skylight::Config
   end
 
   class Middleware < Skylight::Core::Middleware

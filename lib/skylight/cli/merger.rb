@@ -252,7 +252,7 @@ module Skylight
 
         def valid_component?(component_name, env)
           return false unless env
-          Skylight::Util::Component.new(env, component_name) && true
+          Util::Component.new(env, component_name) && true
         rescue ArgumentError
           false
         end

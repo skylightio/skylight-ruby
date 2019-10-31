@@ -1,13 +1,13 @@
-module Skylight::Core
+module Skylight
   # @api private
   class Subscriber
-    include Skylight::Util::Logging
+    include Util::Logging
 
     attr_reader :config, :normalizers
 
     def initialize(config, instrumenter)
       @config       = config
-      @normalizers  = Normalizers.build(config)
+      @normalizers  = Core::Normalizers.build(config)
       @instrumenter = instrumenter
       @subscribers  = []
     end

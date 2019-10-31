@@ -1,5 +1,4 @@
 require "skylight/core/version"
-require "skylight/core/deprecation"
 
 module Skylight
   module Core
@@ -59,12 +58,8 @@ module Skylight
   require "active_support/notifications"
 
   require "skylight/core/instrumenter"
-  require "skylight/core/fanout"
   require "skylight/core/trace"
   require "skylight/core/middleware"
-  require "skylight/core/sidekiq"
-  require "skylight/core/subscriber"
-  require "skylight/core/instrumentable"
 
   require "skylight/core/probes"
 

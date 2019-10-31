@@ -122,7 +122,7 @@ module Skylight::Core
               meta:        { database: event.database_name }
             }
 
-            @events[event.operation_id] = Skylight::Core::Fanout.instrument(opts)
+            @events[event.operation_id] = Skylight::Fanout.instrument(opts)
           rescue Exception => e
             error "failed to begin instrumentation for Mongo; msg=%s", e.message
           end
@@ -133,7 +133,7 @@ module Skylight::Core
               if event.is_a?(::Mongo::Monitoring::Event::CommandFailed)
                 meta[:exception] = ["CommandFailed", event.message]
               end
-              Skylight::Core::Fanout.done(original_event, meta)
+              Skylight::Fanout.done(original_event, meta)
             end
           rescue Exception => e
             error "failed to end instrumentation for Mongo; msg=%s", e.message

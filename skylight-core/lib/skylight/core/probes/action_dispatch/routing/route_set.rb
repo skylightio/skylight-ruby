@@ -9,8 +9,8 @@ module Skylight::Core
                 alias_method :call_without_sk, :call
 
                 def call(env)
-                  Skylight::Core::Fanout.endpoint = self.class.name
-                  Skylight::Core::Fanout.instrument(title: self.class.name, category: "rack.app") do
+                  Skylight::Fanout.endpoint = self.class.name
+                  Skylight::Fanout.instrument(title: self.class.name, category: "rack.app") do
                     call_without_sk(env)
                   end
                 end

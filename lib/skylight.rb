@@ -1,6 +1,8 @@
 require "skylight/version"
 require "skylight/core"
+require "skylight/fanout"
 require "skylight/trace"
+require "skylight/instrumentable"
 require "skylight/instrumenter"
 require "skylight/middleware"
 require "skylight/api"
@@ -12,6 +14,9 @@ require "skylight/native"
 require "skylight/gc"
 require "skylight/vm/gc"
 require "skylight/util"
+require "skylight/deprecation"
+require "skylight/subscriber"
+require "skylight/sidekiq"
 
 # For prettier global names
 require "English"
@@ -26,7 +31,7 @@ module Skylight
     require "skylight/railtie"
   end
 
-  include Core::Instrumentable
+  include Instrumentable
 
   def self.instrumenter_class
     Instrumenter
