@@ -104,7 +104,7 @@ module Skylight::Core
       def config_for_logging
         if respond_to?(:config)
           config
-        elsif is_a?(Config)
+        elsif is_a?(Skylight::Config)
           self
         end
       end

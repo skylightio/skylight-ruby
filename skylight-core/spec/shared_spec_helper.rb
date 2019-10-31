@@ -115,7 +115,7 @@ RSpec.configure do |config|
   e = ENV.clone
 
   config.before :each do
-    Skylight::Core::Config.env_to_key.keys.each do |key|
+    Skylight::Config::ENV_TO_KEY.keys.each do |key|
       # TODO: It would be good to test other prefixes as well
       key = "SKYLIGHT_#{key}"
       ENV[key] = e[key]

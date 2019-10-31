@@ -58,7 +58,6 @@ module Skylight
 
   require "active_support/notifications"
 
-  require "skylight/core/config"
   require "skylight/core/user_config"
   require "skylight/core/gc"
   require "skylight/core/instrumenter"

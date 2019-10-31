@@ -1,3 +1,5 @@
+require "skylight/core/util/logging"
+
 module Skylight::Core
   # @api private
   class GC

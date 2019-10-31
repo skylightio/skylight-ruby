@@ -1,3 +1,5 @@
+require "json"
+
 module Skylight
   class NativeError < StandardError
     @classes = {}

@@ -45,7 +45,7 @@ describe "skylight setup", :http, :agent do
 
     expect(tmp("config/skylight.yml")).to exist
 
-    c = Skylight::Core::Config.load(file: tmp("config/skylight.yml"))
+    c = Skylight::Config.load(file: tmp("config/skylight.yml"))
     expect(c[:authentication]).to eq("my-app-token")
   end
 

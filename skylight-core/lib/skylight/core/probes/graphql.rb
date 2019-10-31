@@ -16,7 +16,7 @@ module Skylight::Core
             end
 
             def sk_add_tracer
-              Skylight::Core::Config::MUTEX.synchronize do
+              Skylight::Config::MUTEX.synchronize do
                 graphql_tracer = ::GraphQL::Tracing::ActiveSupportNotificationsTracing
                 unless tracers.include?(graphql_tracer)
                   $stdout.puts "[SKYLIGHT::CORE] Adding tracer 'GraphQL::Tracing::ActiveSupportNotificationsTracing' to schema"
