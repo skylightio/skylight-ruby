@@ -17,7 +17,7 @@ module Skylight::Core
     end
 
     class ServerMiddleware
-      include Util::Logging
+      include Skylight::Util::Logging
 
       def initialize(instrumentable)
         @instrumentable = instrumentable

@@ -1,7 +1,7 @@
 module Skylight::Core
   # @api private
   class Subscriber
-    include Util::Logging
+    include Skylight::Util::Logging
 
     attr_reader :config, :normalizers
 

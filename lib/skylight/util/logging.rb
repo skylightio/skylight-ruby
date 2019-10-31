@@ -1,6 +1,6 @@
 require "logger"
 
-module Skylight::Core
+module Skylight
   module Util
     # Log both to the specified logger and STDOUT
     class AlertLogger

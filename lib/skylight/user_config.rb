@@ -1,7 +1,7 @@
 require "yaml"
-require "skylight/core/errors"
+require "skylight/errors"
 
-module Skylight::Core
+module Skylight
   class UserConfig
     attr_accessor :disable_dev_warning, :disable_env_warning
 

@@ -58,12 +58,9 @@ module Skylight
 
   require "active_support/notifications"
 
-  require "skylight/core/user_config"
-  require "skylight/core/gc"
   require "skylight/core/instrumenter"
   require "skylight/core/fanout"
   require "skylight/core/trace"
-  require "skylight/core/vm/gc"
   require "skylight/core/util"
   require "skylight/core/middleware"
   require "skylight/core/sidekiq"

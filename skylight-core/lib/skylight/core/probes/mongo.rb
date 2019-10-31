@@ -10,7 +10,7 @@ module Skylight::Core
       end
 
       class Subscriber
-        include Util::Logging
+        include Skylight::Util::Logging
 
         COMMANDS = %i[insert find count distinct update findandmodify delete aggregate].freeze
 

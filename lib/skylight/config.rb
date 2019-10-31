@@ -3,9 +3,9 @@ require "yaml"
 require "fileutils"
 require "erb"
 require "json"
-require "skylight/core/util/logging"
+require "skylight/util/logging"
 require "skylight/core/util/proxy"
-require "skylight/core/errors"
+require "skylight/errors"
 require "skylight/util/component"
 require "skylight/util/deploy"
 require "skylight/util/platform"
@@ -16,7 +16,7 @@ require "skylight/util/ssl"
 
 module Skylight
   class Config
-    include Core::Util::Logging
+    include Util::Logging
 
     # @api private
     MUTEX = Mutex.new
@@ -281,7 +281,7 @@ module Skylight
           error = e.message
         end
 
-        raise Core::ConfigError, "could not load config file; msg=#{error}" if error
+        raise ConfigError, "could not load config file; msg=#{error}" if error
       end
 
       if env
@@ -335,7 +335,7 @@ module Skylight
     def validate!
       REQUIRED_KEYS.each do |k, v|
         unless get(k)
-          raise Core::ConfigError, "#{v} required"
+          raise ConfigError, "#{v} required"
         end
       end
 
@@ -368,11 +368,11 @@ module Skylight
       FileUtils.mkdir_p file_root rescue nil
 
       if File.exist?(file) && !FileTest.writable?(file)
-        raise Core::ConfigError, "File `#{file}` is not writable. Please set #{key} in your config to a writable path"
+        raise ConfigError, "File `#{file}` is not writable. Please set #{key} in your config to a writable path"
       end
 
       unless FileTest.writable?(file_root)
-        raise Core::ConfigError, "Directory `#{file_root}` is not writable. Please set #{key} in your config to a writable path"
+        raise ConfigError, "Directory `#{file_root}` is not writable. Please set #{key} in your config to a writable path"
       end
     end
 
@@ -423,7 +423,7 @@ module Skylight
           unless blk.call(val, self)
             error_msg = "invalid value for #{k} (#{val})"
             error_msg << ", #{msg}" if msg
-            raise Core::ConfigError, error_msg
+            raise ConfigError, error_msg
           end
         end
 
@@ -505,7 +505,7 @@ module Skylight
 
     # @api private
     def gc
-      @gc ||= Core::GC.new(self, get("gc.profiler", Core::VM::GC.new))
+      @gc ||= GC.new(self, get("gc.profiler", VM::GC.new))
     end
 
     # @api private
@@ -543,7 +543,7 @@ module Skylight
       @alert_logger ||= MUTEX.synchronize do
         unless (l = @alert_logger)
           out = get(:alert_log_file)
-          out = Core::Util::AlertLogger.new(load_logger) if out == "-"
+          out = Util::AlertLogger.new(load_logger) if out == "-"
 
           l = create_logger(out)
           l.level = Logger::DEBUG
@@ -568,7 +568,7 @@ module Skylight
     end
 
     def user_config
-      @user_config ||= Core::UserConfig.new(self)
+      @user_config ||= UserConfig.new(self)
     end
 
     def on_heroku?
@@ -678,11 +678,11 @@ module Skylight
       FileUtils.mkdir_p sockdir_path rescue nil
 
       unless FileTest.writable?(sockdir_path)
-        raise Core::ConfigError, "Directory `#{sockdir_path}` is not writable. Please set daemon.sockdir_path in your config to a writable path"
+        raise ConfigError, "Directory `#{sockdir_path}` is not writable. Please set daemon.sockdir_path in your config to a writable path"
       end
 
       if check_nfs(sockdir_path)
-        raise Core::ConfigError, "Directory `#{sockdir_path}` is an NFS mount and will not allow sockets. Please set daemon.sockdir_path in your config to a non-NFS path."
+        raise ConfigError, "Directory `#{sockdir_path}` is an NFS mount and will not allow sockets. Please set daemon.sockdir_path in your config to a non-NFS path."
       end
     end
 
@@ -737,7 +737,7 @@ module Skylight
         )
       }
     rescue ArgumentError => e
-      raise Core::ConfigError, e.message
+      raise ConfigError, e.message
     end
 
     def component

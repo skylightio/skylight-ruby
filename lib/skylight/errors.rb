@@ -1,6 +1,9 @@
 require "json"
 
 module Skylight
+  # @api private
+  class ConfigError < RuntimeError; end
+
   class NativeError < StandardError
     @classes = {}
 

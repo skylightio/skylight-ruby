@@ -6,7 +6,7 @@ module Skylight::Core
       # Middleware for Excon that instruments requests
       class Middleware < ::Excon::Middleware::Base
         # This probably won't work since config isn't defined
-        include Util::Logging
+        include Skylight::Util::Logging
 
         def initialize(*)
           @requests = {}

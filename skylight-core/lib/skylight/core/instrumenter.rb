@@ -1,5 +1,6 @@
 require "strscan"
 require "securerandom"
+require "skylight/util/logging"
 
 module Skylight::Core
   # @api private
@@ -8,7 +9,7 @@ module Skylight::Core
 
     TOO_MANY_UNIQUES = "<too many unique descriptions>".freeze
 
-    include Util::Logging
+    include Skylight::Util::Logging
 
     class TraceInfo
       def initialize(key = KEY)

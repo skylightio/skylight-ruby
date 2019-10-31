@@ -1,7 +1,7 @@
 module Skylight::Core
   module Instrumentable
     def self.included(base)
-      base.extend(Util::Logging)
+      base.extend(Skylight::Util::Logging)
       base.extend(ClassMethods)
 
       base.const_set(:LOCK, Mutex.new)

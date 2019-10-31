@@ -1,6 +1,6 @@
-require "skylight/core/util/logging"
+require "skylight/util/logging"
 
-module Skylight::Core
+module Skylight
   # @api private
   class GC
     METHODS   = %i[enable total_time].freeze

@@ -126,7 +126,7 @@ describe "Skylight::Instrumenter", :http, :agent do
     end
 
     it "doesn't crash on failed config" do
-      allow(config).to receive(:validate!).and_raise(Skylight::Core::ConfigError.new("Test Failure"))
+      allow(config).to receive(:validate!).and_raise(Skylight::ConfigError.new("Test Failure"))
       expect(config).to receive(:log_warn).
         with("Unable to start Instrumenter due to a configuration error: Test Failure")
 

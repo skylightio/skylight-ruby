@@ -6,8 +6,11 @@ require "skylight/middleware"
 require "skylight/api"
 require "skylight/helpers"
 require "skylight/config"
+require "skylight/user_config"
 require "skylight/errors"
 require "skylight/native"
+require "skylight/gc"
+require "skylight/vm/gc"
 
 # For prettier global names
 require "English"

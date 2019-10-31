@@ -1,6 +1,6 @@
 require "spec_helper"
 
-module Skylight::Core
+module Skylight
   describe UserConfig do
     let :config do
       UserConfig.new(Config.load)

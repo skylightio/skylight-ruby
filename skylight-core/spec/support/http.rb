@@ -1,7 +1,7 @@
 require "rack"
 require "active_support"
 require "json"
-require "skylight/core/util/logging"
+require "skylight/util/logging"
 require "puma"
 require "puma/events"
 require "puma/server"

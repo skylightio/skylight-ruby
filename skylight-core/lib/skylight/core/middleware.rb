@@ -55,7 +55,7 @@ module Skylight::Core
       [status, headers, BodyProxy.new(body, &block)]
     end
 
-    include Util::Logging
+    include Skylight::Util::Logging
 
     # For Util::Logging
     attr_reader :config

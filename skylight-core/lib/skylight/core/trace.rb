@@ -4,7 +4,7 @@ module Skylight::Core
   class Trace
     GC_CAT = "noise.gc".freeze
 
-    include Util::Logging
+    include Skylight::Util::Logging
 
     attr_reader :instrumenter, :endpoint, :segment, :notifications, :meta
     attr_accessor :uuid

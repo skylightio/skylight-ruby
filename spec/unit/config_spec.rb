@@ -284,17 +284,17 @@ module Skylight
       context "invalid" do
         it "has useable error for empty files" do
           file.write ""
-          expect { config }.to raise_error(Core::ConfigError, "could not load config file; msg=empty file")
+          expect { config }.to raise_error(ConfigError, "could not load config file; msg=empty file")
         end
 
         it "has useable error for files with only newlines" do
           file.write "\n"
-          expect { config }.to raise_error(Core::ConfigError, "could not load config file; msg=empty file")
+          expect { config }.to raise_error(ConfigError, "could not load config file; msg=empty file")
         end
 
         it "has useable error for files with arrays" do
           file.write "- foo\n- bar"
-          expect { config }.to raise_error(Core::ConfigError, "could not load config file; msg=invalid format")
+          expect { config }.to raise_error(ConfigError, "could not load config file; msg=invalid format")
         end
       end
     end
@@ -340,7 +340,7 @@ module Skylight
       it "creates an alert_logger" do
         c = Config.new(alert_log_file: "-")
         out = log_out(c.alert_logger)
-        expect(out).to be_a(Core::Util::AlertLogger)
+        expect(out).to be_a(Util::AlertLogger)
         expect(log_out(out.instance_variable_get(:@logger))).to eq(STDOUT)
 
         with_file do |f|
@@ -362,7 +362,7 @@ module Skylight
       Config::REQUIRED_KEYS.each do |key, name|
         it "requires #{key}" do
           config[key] = nil
-          expect { config.validate! }.to raise_error(Core::ConfigError, "#{name} required")
+          expect { config.validate! }.to raise_error(ConfigError, "#{name} required")
         end
       end
 
@@ -373,7 +373,7 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(Core::ConfigError, "File `#{f.path}` is not writable. Please set log_file in your config to a writable path")
+            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set log_file in your config to a writable path")
           end
         end
 
@@ -383,7 +383,7 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(Core::ConfigError, "Directory `#{d}` is not writable. Please set log_file in your config to a writable path")
+            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set log_file in your config to a writable path")
           end
         end
 
@@ -393,7 +393,7 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(Core::ConfigError, "File `#{f.path}` is not writable. Please set alert_log_file in your config to a writable path")
+            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set alert_log_file in your config to a writable path")
           end
         end
 
@@ -403,7 +403,7 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(Core::ConfigError, "Directory `#{d}` is not writable. Please set alert_log_file in your config to a writable path")
+            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set alert_log_file in your config to a writable path")
           end
         end
       end
@@ -594,11 +594,11 @@ module Skylight
       it "does not allow agent.interval to be a non-zero integer" do
         expect do
           config["agent.interval"] = "abc"
-        end.to raise_error(Core::ConfigError, "invalid value for agent.interval (abc), must be an integer greater than 0")
+        end.to raise_error(ConfigError, "invalid value for agent.interval (abc), must be an integer greater than 0")
 
         expect do
           config["agent.interval"] = -1
-        end.to raise_error(Core::ConfigError, "invalid value for agent.interval (-1), must be an integer greater than 0")
+        end.to raise_error(ConfigError, "invalid value for agent.interval (-1), must be an integer greater than 0")
 
         expect do
           config["agent.interval"] = 5
@@ -612,7 +612,7 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(Core::ConfigError, "File `#{f.path}` is not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path")
+            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path")
           end
         end
 
@@ -622,7 +622,7 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(Core::ConfigError, "Directory `#{d}` is not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path")
+            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path")
           end
         end
 
@@ -633,7 +633,7 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(Core::ConfigError, "Directory `#{d}` is not writable. Please set daemon.sockdir_path in your config to a writable path")
+            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set daemon.sockdir_path in your config to a writable path")
           end
         end
       end

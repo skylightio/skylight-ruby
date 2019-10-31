@@ -1,4 +1,4 @@
-module Skylight::Core
+module Skylight
   # @api private
   module VM
     if defined?(JRUBY_VERSION)

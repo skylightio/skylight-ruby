@@ -19,7 +19,7 @@ module Skylight
       DEFLATE          = "deflate".freeze
       GZIP             = "gzip".freeze
 
-      include Core::Util::Logging
+      include Logging
 
       attr_accessor :authentication
       attr_reader :host, :port, :config
