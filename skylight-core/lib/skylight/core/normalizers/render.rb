@@ -2,7 +2,7 @@ module Skylight::Core
   module Normalizers
     # Base Normalizer for Rails rendering
     class RenderNormalizer < Normalizer
-      include Util::AllocationFree
+      include Skylight::Util::AllocationFree
 
       def setup
         @paths = []

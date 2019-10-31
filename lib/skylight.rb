@@ -11,6 +11,7 @@ require "skylight/errors"
 require "skylight/native"
 require "skylight/gc"
 require "skylight/vm/gc"
+require "skylight/util"
 
 # For prettier global names
 require "English"

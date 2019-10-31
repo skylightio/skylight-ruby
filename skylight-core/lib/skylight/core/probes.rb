@@ -58,7 +58,7 @@ module Skylight::Core
       end
 
       def available?(klass_name)
-        !!Skylight::Core::Util::Inflector.safe_constantize(klass_name)
+        !!Skylight::Util::Inflector.safe_constantize(klass_name)
       end
 
       def register(name, *args)

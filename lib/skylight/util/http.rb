@@ -3,7 +3,7 @@ require "json"
 require "openssl"
 require "net/http"
 require "net/https"
-require "skylight/core/util/gzip"
+require "skylight/util/gzip"
 require "skylight/util/ssl"
 
 module Skylight

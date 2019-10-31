@@ -1,5 +1,5 @@
 module SpecHelper
-  class TestClock < Skylight::Core::Util::Clock
+  class TestClock < Skylight::Util::Clock
     alias __tick tick
 
     def initialize
@@ -40,16 +40,16 @@ module SpecHelper
   end
 
   def mock_clock!
-    return if Skylight::Core::Util::Clock.default.is_a?(TestClock)
-    Skylight::Core::Util::Clock.default = TestClock.new
+    return if Skylight::Util::Clock.default.is_a?(TestClock)
+    Skylight::Util::Clock.default = TestClock.new
   end
 
   def reset_clock!
-    Skylight::Core::Util::Clock.default = Skylight::Core::Util::Clock.new
+    Skylight::Util::Clock.default = Skylight::Util::Clock.new
   end
 
   def clock
-    c = Skylight::Core::Util::Clock.default
+    c = Skylight::Util::Clock.default
     c.is_a?(TestClock) ? c : nil
   end
 end

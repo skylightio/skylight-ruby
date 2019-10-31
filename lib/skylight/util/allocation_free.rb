@@ -1,4 +1,4 @@
-module Skylight::Core
+module Skylight
   module Util
     # Helpers to reduce memory allocation
     module AllocationFree

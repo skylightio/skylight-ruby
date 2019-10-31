@@ -94,7 +94,7 @@ module Skylight::Core
 
       desc = @instrumenter.limited_description(desc)
 
-      time = Util::Clock.nanos - gc_time
+      time = Skylight::Util::Clock.nanos - gc_time
 
       stop(start(time, cat, title, desc, nil), time)
 
@@ -113,7 +113,7 @@ module Skylight::Core
       desc.freeze  if desc.is_a?(String)
 
       original_desc = desc
-      now           = Util::Clock.nanos
+      now           = Skylight::Util::Clock.nanos
       desc          = @instrumenter.limited_description(desc)
 
       if desc == Instrumenter::TOO_MANY_UNIQUES
@@ -141,7 +141,7 @@ module Skylight::Core
       return if broken?
 
       if meta&.[](:defer)
-        deferred_spans[span] ||= (Util::Clock.nanos - gc_time)
+        deferred_spans[span] ||= (Skylight::Util::Clock.nanos - gc_time)
         return
       end
 
@@ -149,7 +149,7 @@ module Skylight::Core
         native_span_set_exception(span, meta[:exception_object], meta[:exception])
       end
 
-      stop(span, Util::Clock.nanos - gc_time)
+      stop(span, Skylight::Util::Clock.nanos - gc_time)
     rescue => e
       error "failed to close span; msg=%s; endpoint=%s", e.message, endpoint
       log_trace "Original Backtrace:\n#{e.backtrace.join("\n")}"
@@ -174,7 +174,7 @@ module Skylight::Core
 
     def traced
       gc = gc_time
-      now = Util::Clock.nanos
+      now = Skylight::Util::Clock.nanos
       track_gc(gc, now)
       stop(@root, now)
     end

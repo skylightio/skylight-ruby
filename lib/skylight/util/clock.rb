@@ -1,4 +1,4 @@
-module Skylight::Core
+module Skylight
   module Util
     # A more precise clock
     class Clock

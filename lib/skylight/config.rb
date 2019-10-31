@@ -4,7 +4,7 @@ require "fileutils"
 require "erb"
 require "json"
 require "skylight/util/logging"
-require "skylight/core/util/proxy"
+require "skylight/util/proxy"
 require "skylight/errors"
 require "skylight/util/component"
 require "skylight/util/deploy"
@@ -309,7 +309,7 @@ module Skylight
       return ret unless env
 
       # Only set if it exists, we don't want to set to a nil value
-      if (proxy_url = Core::Util::Proxy.detect_url(env))
+      if (proxy_url = Util::Proxy.detect_url(env))
         ret[:proxy_url] = proxy_url
       end
 

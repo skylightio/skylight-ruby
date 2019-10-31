@@ -1,6 +1,6 @@
 require "zlib"
 
-module Skylight::Core
+module Skylight
   module Util
     # Provides Gzip compressing support
     module Gzip

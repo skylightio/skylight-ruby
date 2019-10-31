@@ -1,6 +1,6 @@
 # rubocop:disable all
 
-module Skylight::Core
+module Skylight
   module Util
     # String Inflector methods
     #

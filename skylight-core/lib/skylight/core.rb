@@ -9,7 +9,7 @@ module Skylight
 
   # Some methods exepected to be defined by the native code (OUTDATED)
   #
-  #   * Skylight::Core::Util::Clock#native_hrtime
+  #   * Skylight::Util::Clock#native_hrtime
   #       - returns current time in nanoseconds
   #   * Skylight::Core::Trace#native_new(start, uuid, endpoint)
   #       - start is milliseconds
@@ -61,7 +61,6 @@ module Skylight
   require "skylight/core/instrumenter"
   require "skylight/core/fanout"
   require "skylight/core/trace"
-  require "skylight/core/util"
   require "skylight/core/middleware"
   require "skylight/core/sidekiq"
   require "skylight/core/subscriber"
