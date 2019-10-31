@@ -1,6 +1,6 @@
 module SpecHelper
   def normalizers
-    @normalizers ||= Skylight::Core::Normalizers.build(config)
+    @normalizers ||= Skylight::Normalizers.build(config)
   end
 
   # avoid polluting allocation counter

@@ -7,7 +7,7 @@ module Skylight
 
     def initialize(config, instrumenter)
       @config       = config
-      @normalizers  = Core::Normalizers.build(config)
+      @normalizers  = Normalizers.build(config)
       @instrumenter = instrumenter
       @subscribers  = []
     end

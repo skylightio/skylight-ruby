@@ -53,7 +53,7 @@ module Skylight::Core
             log_warning config, "#{log_prefix} You are running in the #{Rails.env} environment but haven't added it to config.#{self.class.root_key}.environments, so no data will be sent to #{config.class.service_name} servers."
           end
         end
-      rescue ConfigError => e
+      rescue Skylight::ConfigError => e
         Rails.logger.error "#{log_prefix} #{e.message}; disabling #{self.class.gem_name} agent"
       end
 
@@ -129,7 +129,7 @@ module Skylight::Core
 
       def load_probes
         probes = sk_rails_config.probes || []
-        Probes.probe(*probes)
+        Skylight::Probes.probe(*probes)
       end
 
       def middleware_position

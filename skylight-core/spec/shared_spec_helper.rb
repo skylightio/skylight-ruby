@@ -25,7 +25,7 @@ end
 %w[excon tilt sinatra sequel faraday mongo moped mongoid active_model_serializers httpclient elasticsearch].each do |library|
   begin
     require library
-    Skylight::Core::Probes.probe(library)
+    Skylight::Probes.probe(library)
   rescue LoadError
     puts "Unable to load #{library}"
   end
@@ -34,40 +34,40 @@ end
 begin
   require "redis"
   require "fakeredis/rspec"
-  Skylight::Core::Probes.probe(:redis)
+  Skylight::Probes.probe(:redis)
 rescue LoadError
 end
 
 begin
   require "action_dispatch"
   require "action_view"
-  Skylight::Core::Probes.probe(:action_view)
+  Skylight::Probes.probe(:action_view)
 rescue LoadError
 end
 
 begin
   require "action_dispatch/middleware/request_id"
-  Skylight::Core::Probes.probe(:'action_dispatch/request_id')
+  Skylight::Probes.probe(:'action_dispatch/request_id')
 rescue LoadError
 end
 
 begin
   require "active_job"
-  Skylight::Core::Probes.probe(:active_job_enqueue)
+  Skylight::Probes.probe(:active_job_enqueue)
 rescue LoadError
 end
 
 # rubocop:enable Lint/HandleExceptions
 
 require "net/http"
-Skylight::Core::Probes.probe(:net_http)
+Skylight::Probes.probe(:net_http)
 
-Skylight::Core::Probes.probe(:middleware)
+Skylight::Probes.probe(:middleware)
 
 # End Probed Libraries
 
 all_probes = %w[Excon Faraday Net::HTTP HTTPClient Redis Tilt::Template Sinatra::Base Sequel ActionView::TemplateRenderer ActionDispatch::MiddlewareStack::Middleware]
-installed_probes = Skylight::Core::Probes.installed.keys
+installed_probes = Skylight::Probes.installed.keys
 skipped_probes = all_probes - installed_probes
 
 rspec_probe_tags = {
@@ -179,7 +179,7 @@ RSpec.configure do |config|
     reset_clock!
 
     # Reset the starting paths
-    Skylight::Core::Probes.instance_variable_set(:@require_hooks, {})
+    Skylight::Probes.instance_variable_set(:@require_hooks, {})
 
     # Remove the ProbeTestClass if it exists so that the probe won't find it
     if defined?(SpecHelper::ProbeTestClass)

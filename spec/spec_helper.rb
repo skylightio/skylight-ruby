@@ -62,7 +62,7 @@ RSpec.configure do |config|
   config.include SpecHelper
 
   config.before do
-    Skylight::Core::Probes::Middleware::Probe.instance_exec { @disabled = nil }
+    Skylight::Probes::Middleware::Probe.instance_exec { @disabled = nil }
   end
 
   config.after do

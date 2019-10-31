@@ -17,6 +17,7 @@ require "skylight/util"
 require "skylight/deprecation"
 require "skylight/subscriber"
 require "skylight/sidekiq"
+require "skylight/probes"
 
 # For prettier global names
 require "English"
@@ -24,6 +25,8 @@ require "English"
 module Skylight
   # Used from the CLI
   autoload :CLI, "skylight/cli"
+  # Is this autoload even useful?
+  autoload :Normalizers, "skylight/normalizers"
 
   # Specifically check for Railtie since we've had at least one case of a
   #   customer having Rails defined without having all of Rails loaded.
@@ -40,6 +43,4 @@ module Skylight
   def self.config_class
     Config
   end
-
-  Core::Probes.add_path(File.expand_path("skylight/probes", __dir__))
 end

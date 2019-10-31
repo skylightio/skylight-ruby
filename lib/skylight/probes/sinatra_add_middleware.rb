@@ -15,6 +15,6 @@ module Skylight
       end
     end
 
-    Skylight::Core::Probes.register(:sinatra_add_middleware, "Sinatra::Base", "sinatra/base", Sinatra::Probe.new)
+    register(:sinatra_add_middleware, "Sinatra::Base", "sinatra/base", Sinatra::Probe.new)
   end
 end

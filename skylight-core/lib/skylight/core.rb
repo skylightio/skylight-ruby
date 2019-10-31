@@ -1,11 +1,6 @@
 require "skylight/core/version"
 
 module Skylight
-  module Core
-    # Is this autoload even useful?
-    autoload :Normalizers, "skylight/core/normalizers"
-  end
-
   # Some methods exepected to be defined by the native code (OUTDATED)
   #
   #   * Skylight::Util::Clock#native_hrtime
@@ -60,8 +55,6 @@ module Skylight
   require "skylight/core/instrumenter"
   require "skylight/core/trace"
   require "skylight/core/middleware"
-
-  require "skylight/core/probes"
 
   # @api private
   TIERS = %w[

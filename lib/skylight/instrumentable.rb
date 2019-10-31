@@ -27,11 +27,11 @@ module Skylight
       end
 
       def probe(*args)
-        Core::Probes.probe(*args)
+        Probes.probe(*args)
       end
 
       def enable_normalizer(*names)
-        Core::Normalizers.enable(*names)
+        Normalizers.enable(*names)
       end
 
       # Start instrumenting

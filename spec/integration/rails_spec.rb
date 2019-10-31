@@ -221,7 +221,7 @@ if enable
         end
       end
 
-      class SkMutingNormalizer < Skylight::Core::Normalizers::Normalizer
+      class SkMutingNormalizer < Skylight::Normalizers::Normalizer
         register "mute.skylight"
 
         def normalize(trace, name, payload)
@@ -616,7 +616,7 @@ if enable
 
       context "middleware that does not conform to Rack SPEC" do
         after :each do
-          Skylight::Core::Probes::Middleware::Probe.enable!
+          Skylight::Probes::Middleware::Probe.enable!
         end
 
         # The middleware probe is not installed when this built-in instrumenter exists.
@@ -659,7 +659,7 @@ if enable
 
             call MyApp, env("/non-closing")
 
-            expect(Skylight::Core::Probes::Middleware::Probe).to be_disabled
+            expect(Skylight::Probes::Middleware::Probe).to be_disabled
           end
         end
 
