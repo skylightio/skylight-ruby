@@ -1,4 +1,4 @@
-require "skylight/core"
+require "skylight"
 require "rails"
 
 module Skylight
@@ -11,7 +11,7 @@ module Skylight
     def self.gem_name; "Skylight" end
     def self.log_file_name; "skylight" end
     def self.namespace; Skylight end
-    def self.version; Skylight::Core::VERSION end
+    def self.version; Skylight::VERSION end
     # rubocop:enable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
 
     config.skylight = ActiveSupport::OrderedOptions.new
