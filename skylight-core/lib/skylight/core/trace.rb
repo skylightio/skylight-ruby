@@ -1,13 +1,13 @@
 require "securerandom"
 require "skylight/util/logging"
 
-module Skylight::Core
+module Skylight
   class Trace
     GC_CAT = "noise.gc".freeze
 
-    include Skylight::Util::Logging
+    include Util::Logging
 
-    attr_reader :instrumenter, :endpoint, :segment, :notifications, :meta
+    attr_reader :instrumenter, :endpoint, :segment, :notifications, :meta, :component
     attr_accessor :uuid
 
     def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil, meta: nil, segment: nil, component: nil)
@@ -27,7 +27,7 @@ module Skylight::Core
       (time.to_i / 100_000).to_i
     end
 
-    def initialize(instrumenter, cat, title, desc, meta, **)
+    def initialize(instrumenter, cat, title, desc, meta, component: nil)
       raise ArgumentError, "instrumenter is required" unless instrumenter
 
       @instrumenter = instrumenter
@@ -45,6 +45,27 @@ module Skylight::Core
       @meta = meta
 
       @gc = config.gc.track unless ENV.key?("SKYLIGHT_DISABLE_GC_TRACKING")
+
+      self.component = component if component
+      @too_many_spans = false
+      native_use_pruning if use_pruning?
+    end
+
+    def uuid
+      native_get_uuid
+    end
+
+    def uuid=(value)
+      # We can't change the UUID so just check to make sure we weren't trying to change
+      raise "unable to change uuid" unless value == uuid
+    end
+
+    def too_many_spans!
+      @too_many_spans = true
+    end
+
+    def too_many_spans?
+      !!@too_many_spans
     end
 
     def log_context
@@ -83,8 +104,12 @@ module Skylight::Core
     end
 
     def maybe_broken(err)
-      error "failed to instrument span; msg=%s; endpoint=%s", err.message, endpoint
-      broken!
+      if err.is_a?(Skylight::MaximumTraceSpansError) && config.get(:report_max_spans_exceeded)
+        too_many_spans!
+      else
+        error "failed to instrument span; msg=%s; endpoint=%s", err.message, endpoint
+        broken!
+      end
     end
 
     def record(cat, title = nil, desc = nil)
@@ -174,6 +199,11 @@ module Skylight::Core
     end
 
     def traced
+      if too_many_spans?
+        error("[E%04d] The request exceeded the maximum number of spans allowed. It will still " \
+              "be tracked but with reduced information. endpoint=%s", Skylight::MaximumTraceSpansError.code, endpoint)
+      end
+
       gc = gc_time
       now = Skylight::Util::Clock.nanos
       track_gc(gc, now)
@@ -209,6 +239,9 @@ module Skylight::Core
     private
 
       def track_gc(time, now)
+        # This attempts to log another span which will fail if we have too many
+        return if too_many_spans?
+
         if time > 0
           t { fmt "tracking GC time; duration=%d", time }
           stop(start(now - time, GC_CAT, nil, nil, nil), now)
@@ -304,6 +337,21 @@ module Skylight::Core
         return 0 unless @gc
         @gc.update
         @gc.time
+      end
+
+      def use_pruning?
+        config.get(:prune_large_traces)
+      end
+
+      def resolve_component(component)
+        config.components[component].to_encoded_s
+      end
+
+      def component=(component)
+        resolve_component(component).tap do |c|
+          @component = c
+          native_set_component(c)
+        end
       end
 
       def maybe_warn(context, msg)
