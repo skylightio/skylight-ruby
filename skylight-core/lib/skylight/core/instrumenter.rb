@@ -2,7 +2,7 @@ require "strscan"
 require "securerandom"
 require "skylight/util/logging"
 
-module Skylight::Core
+module Skylight
   # @api private
   class Instrumenter
     KEY = :__skylight_current_trace
@@ -97,7 +97,16 @@ module Skylight::Core
     end
 
     def check_install!
-      true
+      # Warn if there was an error installing Skylight.
+
+      if defined?(Skylight.check_install_errors)
+        Skylight.check_install_errors(config)
+      end
+
+      if !Skylight.native? && defined?(Skylight.warn_skylight_native_missing)
+        Skylight.warn_skylight_native_missing(config)
+        return
+      end
     end
 
     def muted=(val)
@@ -304,8 +313,11 @@ module Skylight::Core
     end
 
     def handle_instrumenter_error(trace, e)
+      poison! if e.is_a?(Skylight::InstrumenterUnrecoverableError)
+
       warn "failed to submit trace to worker; trace=%s, err=%s", trace.uuid, e
       t { "BACKTRACE:\n#{e.backtrace.join("\n")}" }
+
       false
     end
 
@@ -315,7 +327,14 @@ module Skylight::Core
 
     # Return [title, sql]
     def process_sql(sql)
-      [nil, sql]
+      Skylight.lex_sql(sql)
+    rescue SqlLexError => e
+      if config[:log_sql_parse_errors]
+        config.logger.error "[#{e.formatted_code}] Failed to extract binds from SQL query. " \
+                            "It's likely that this query uses more advanced syntax than we currently support. " \
+                            "sql=#{sql.inspect}"
+      end
+      nil
     end
 
     # Because GraphQL can return multiple results, each of which
