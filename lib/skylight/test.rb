@@ -1,4 +1,4 @@
-module Skylight::Core
+module Skylight
   module Test
     module Mocking
       def mock!(config_opts = {}, &callback)

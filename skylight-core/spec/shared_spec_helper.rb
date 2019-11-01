@@ -83,8 +83,8 @@ module TestNamespace
   include Skylight::Instrumentable
 
   unless ENV["SKYLIGHT_DISABLE_AGENT"]
-    require "skylight/core/test"
-    extend Skylight::Core::Test::Mocking
+    require "skylight/test"
+    extend Skylight::Test::Mocking
   end
 
   def self.config_class
