@@ -91,7 +91,7 @@ module TestNamespace
     Skylight::Config
   end
 
-  class Middleware < Skylight::Core::Middleware
+  class Middleware < Skylight::Middleware
     def instrumentable
       TestNamespace
     end

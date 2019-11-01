@@ -54,7 +54,6 @@ module Skylight
 
   require "skylight/core/instrumenter"
   require "skylight/core/trace"
-  require "skylight/core/middleware"
 
   # @api private
   TIERS = %w[

@@ -33,7 +33,7 @@ module Skylight
                 spans = Skylight::Fanout.instrument(title: name, category: "#{category}")
                 resp = call_without_sk(*args, &block)
 
-                proxied_response = Skylight::Core::Middleware.with_after_close(resp) do
+                proxied_response = Skylight::Middleware.with_after_close(resp) do
                   Skylight::Fanout.done(spans)
                 end
               rescue Exception => err
@@ -63,7 +63,7 @@ module Skylight
             end
 
             def sk_instrument_middleware(middleware)
-              return middleware if middleware.is_a?(Skylight::Core::Middleware)
+              return middleware if middleware.is_a?(Skylight::Middleware)
 
               # Not sure how this would actually happen
               return middleware if middleware.respond_to?(:call_without_sk)
