@@ -1,7 +1,7 @@
 require "spec_helper"
 
 if defined?(ActionDispatch)
-  require "./lib/skylight/core/probes/action_dispatch/routing/route_set"
+  require "./lib/skylight/probes/action_dispatch/routing/route_set"
 
   describe "ActionDispatch::Routing::RouteSet integration", :'action_dispatch/routing/route_set_probe', :agent do
     around do |example|

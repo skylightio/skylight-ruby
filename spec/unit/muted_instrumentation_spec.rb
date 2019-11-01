@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-module Skylight::Core
+module Skylight
   describe Instrumenter do
     let :hello do
       double("hello")

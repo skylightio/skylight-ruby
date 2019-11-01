@@ -241,8 +241,8 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   it "does not instrument when disabled" do
     expect(TestNamespace).not_to receive(:instrument)
 
-    Skylight::Core::Probes::NetHTTP::Probe.disable do
-      Skylight::Core::Probes::NetHTTP::Probe.disable {}
+    Skylight::Probes::NetHTTP::Probe.disable do
+      Skylight::Probes::NetHTTP::Probe.disable {}
       response = Net::HTTP.get_response(uri)
       expect(response).to be_a(Net::HTTPOK)
     end

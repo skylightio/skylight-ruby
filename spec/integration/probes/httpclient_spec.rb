@@ -121,7 +121,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   it "does not instrument when disabled" do
     expect(TestNamespace).to_not receive(:instrument)
 
-    Skylight::Core::Probes::HTTPClient::Probe.disable do
+    Skylight::Probes::HTTPClient::Probe.disable do
       client = HTTPClient.new
       response = client.get(uri)
       expect(response).to be_a(HTTP::Message)

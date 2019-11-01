@@ -1,6 +1,6 @@
 require "spec_helper"
 
-module Skylight::Core
+module Skylight
   describe Subscriber do
     class FakeTrace
       def instrument(*)
@@ -32,7 +32,7 @@ module Skylight::Core
 
     before { allow(subscriber).to receive(:raise_on_error?) { false } }
 
-    class Skylight::Core::Normalizers::SubscriberTestNormalizer < Skylight::Core::Normalizers::Normalizer
+    class Skylight::Normalizers::SubscriberTestNormalizer < Skylight::Normalizers::Normalizer
       register "subscriber_test.spec.skylight"
 
       def normalize(*)
@@ -40,7 +40,7 @@ module Skylight::Core
       end
     end
 
-    class Skylight::Core::Normalizers::SubscriberTestFailureNormalizer < Skylight::Core::Normalizers::Normalizer
+    class Skylight::Normalizers::SubscriberTestFailureNormalizer < Skylight::Normalizers::Normalizer
       register "normalizer_failure.spec.skylight"
 
       def normalize(*)
@@ -56,7 +56,7 @@ module Skylight::Core
 
     def count_sk_subscribers(collection = all_asn_subscribers)
       collection.count do |subscriber|
-        subscriber.instance_variable_get(:@delegate).is_a?(Skylight::Core::Subscriber)
+        subscriber.instance_variable_get(:@delegate).is_a?(Skylight::Subscriber)
       end
     end
 

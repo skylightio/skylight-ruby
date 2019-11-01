@@ -21,7 +21,7 @@ rescue LoadError
 end
 
 if enable
-  module Skylight::Core
+  module Skylight
     describe "Sidekiq" do
       after :each do
         ::Sidekiq.server_middleware.clear
@@ -32,10 +32,10 @@ if enable
         allow(::Sidekiq).to receive(:server?).and_return(true)
 
         instrumentable = double(debug: nil)
-        Skylight::Core::Sidekiq.add_middleware(instrumentable)
+        Skylight::Sidekiq.add_middleware(instrumentable)
 
         middleware = double
-        expect(Skylight::Core::Sidekiq::ServerMiddleware).to \
+        expect(Skylight::Sidekiq::ServerMiddleware).to \
           receive(:new).and_return(middleware)
 
         # Force the Sidekiq Middleware to get built

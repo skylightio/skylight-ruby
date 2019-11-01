@@ -12,7 +12,7 @@ if defined?(ActionDispatch)
     end
 
     def build_middleware
-      Class.new(Skylight::Core::Middleware) do
+      Class.new(Skylight::Middleware) do
         def instrumentable
           TestNamespace
         end

@@ -1,10 +1,10 @@
 require "spec_helper"
 require "date"
 
-module Skylight::Core
+module Skylight
   describe "Normalizers", "*.active_storage", :agent do
     # This has the same behavior for all keys specified in
-    # Skylight::Core::Normalizers::ActiveStorage::TITLES.
+    # Skylight::Normalizers::ActiveStorage::TITLES.
     specify do
       category, title, desc =
         normalize("preview.active_storage")
