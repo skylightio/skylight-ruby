@@ -52,7 +52,6 @@ module Skylight
 
   require "active_support/notifications"
 
-  require "skylight/core/instrumenter"
   require "skylight/core/trace"
 
   # @api private

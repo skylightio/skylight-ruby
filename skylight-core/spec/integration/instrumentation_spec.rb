@@ -1,5 +1,5 @@
 require "spec_helper"
-require "skylight/core/instrumenter"
+require "skylight/instrumenter"
 
 module Skylight
   # Doesn't require a running agent, but mocking is turned off when the agent is disabled

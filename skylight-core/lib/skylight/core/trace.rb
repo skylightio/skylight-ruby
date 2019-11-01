@@ -1,4 +1,5 @@
 require "securerandom"
+require "skylight/util/logging"
 
 module Skylight::Core
   class Trace
@@ -116,7 +117,7 @@ module Skylight::Core
       now           = Skylight::Util::Clock.nanos
       desc          = @instrumenter.limited_description(desc)
 
-      if desc == Instrumenter::TOO_MANY_UNIQUES
+      if desc == Skylight::Instrumenter::TOO_MANY_UNIQUES
         error "[E0002] The number of unique span descriptions allowed per-request has been exceeded " \
                   "for endpoint: #{endpoint}."
         debug "original desc=%s", original_desc

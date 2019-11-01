@@ -649,7 +649,7 @@ if enable
           it "doesn't report middleware that does not close body", :middleware_probe do
             ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
 
-            expect_any_instance_of(Skylight::Core::Instrumenter).not_to receive(:process)
+            expect_any_instance_of(Skylight::Instrumenter).not_to receive(:process)
 
             call MyApp, env("/non-closing")
           end

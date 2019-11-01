@@ -1,5 +1,5 @@
 require "spec_helper"
-require "skylight/core/instrumenter"
+require "skylight/instrumenter"
 
 enable = false
 begin

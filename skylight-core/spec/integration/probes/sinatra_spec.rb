@@ -1,5 +1,5 @@
 require "spec_helper"
-require "skylight/core/instrumenter"
+require "skylight/instrumenter"
 
 if defined?(Sinatra)
   describe "Sinatra integration", :sinatra_probe, :agent do
