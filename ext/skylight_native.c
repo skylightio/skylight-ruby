@@ -268,7 +268,7 @@ instrumenter_track_desc(VALUE self, VALUE rb_endpoint, VALUE rb_desc) {
 
 /*
  *
- * class Skylight::Core::Trace
+ * class Skylight::Trace
  *
  */
 

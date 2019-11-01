@@ -5,32 +5,32 @@ module Skylight
   #
   #   * Skylight::Util::Clock#native_hrtime
   #       - returns current time in nanoseconds
-  #   * Skylight::Core::Trace#native_new(start, uuid, endpoint)
+  #   * Skylight::Trace#native_new(start, uuid, endpoint)
   #       - start is milliseconds
   #       - uuid is currently unused
   #       - endpoint is the endpoint name
   #       - returns an instance of Trace
-  #   * Skylight::Core::Trace#native_get_started_at
+  #   * Skylight::Trace#native_get_started_at
   #       - returns the start time
-  #   * Skylight::Core::Trace#native_get_endpoint
+  #   * Skylight::Trace#native_get_endpoint
   #       - returns the endpoint name
-  #   * Skylight::Core::Trace#native_set_endpoint(endpoint)
+  #   * Skylight::Trace#native_set_endpoint(endpoint)
   #       - returns nil
-  #   * Skylight::Core::Trace#native_get_uuid
+  #   * Skylight::Trace#native_get_uuid
   #       - returns the uuid
-  #   * Skylight::Core::Trace#native_start_span(time, category)
+  #   * Skylight::Trace#native_start_span(time, category)
   #       - time is milliseconds
   #       - category is a string
   #       - returns a numeric span id
-  #   * Skylight::Core::Trace#native_stop_span(span, time)
+  #   * Skylight::Trace#native_stop_span(span, time)
   #       - span is the span id
   #       - time is milliseconds
   #       - returns nil
-  #   * Skylight::Core::Trace#native_span_set_title(span, title)
+  #   * Skylight::Trace#native_span_set_title(span, title)
   #       - span is the span id
   #       - title is a string
   #       - returns nil
-  #   * Skylight::Core::Trace#native_span_set_description(span, desc)
+  #   * Skylight::Trace#native_span_set_description(span, desc)
   #       - span is the span id
   #       - desc is a string
   #       - returns nil
@@ -51,8 +51,6 @@ module Skylight
   #       - returns truthy unless uniqueness cap exceeded
 
   require "active_support/notifications"
-
-  require "skylight/core/trace"
 
   # @api private
   TIERS = %w[

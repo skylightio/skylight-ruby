@@ -45,7 +45,7 @@ module Skylight
                   # If we've gotten to this point, the most likely scenario is that
                   # a throw/catch has bypassed a portion of the callstack. Since these spans would not otherwise
                   # be closed, mark them deferred to indicate that they should be implicitly closed.
-                  # See Core::Trace#deferred_spans or Core::Trace#stop for more information.
+                  # See Trace#deferred_spans or Trace#stop for more information.
                   Skylight::Fanout.done(spans, defer: true)
                 end
               end
