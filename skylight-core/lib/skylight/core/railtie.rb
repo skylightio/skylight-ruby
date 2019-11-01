@@ -1,31 +1,62 @@
 require "skylight/core"
 require "rails"
 
-module Skylight::Core
+module Skylight
   # @api private
-  module Railtie
-    extend ActiveSupport::Concern
+  class Railtie < Rails::Railtie
+    # rubocop:disable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
+    def self.root_key; :skylight end
+    def self.config_class; Config end
+    def self.middleware_class; Middleware end
+    def self.gem_name; "Skylight" end
+    def self.log_file_name; "skylight" end
+    def self.namespace; Skylight end
+    def self.version; Skylight::Core::VERSION end
+    # rubocop:enable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
 
-    included do
-      # rubocop:disable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
-      def self.root_key; :skylight end
-      def self.config_class; Config end
-      def self.middleware_class; Middleware end
-      def self.gem_name; "Skylight" end
-      def self.log_file_name; "skylight" end
-      def self.namespace; Skylight end
-      def self.version; Skylight::Core::VERSION end
-      # rubocop:enable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
+    config.skylight = ActiveSupport::OrderedOptions.new
+
+    # The environments in which skylight should be enabled
+    config.skylight.environments = ["production"]
+
+    # The path to the configuration file
+    config.skylight.config_path = "config/skylight.yml"
+
+    # The probes to load
+    #   net_http, action_controller, action_dispatch, action_view, and middleware are on by default
+    #   See https://www.skylight.io/support/getting-more-from-skylight#available-instrumentation-options
+    #   for a full list.
+    config.skylight.probes = %w[net_http action_controller action_dispatch action_view middleware active_job_enqueue]
+
+    # The position in the middleware stack to place Skylight
+    # Default is first, but can be `{ after: Middleware::Name }` or `{ before: Middleware::Name }`
+    config.skylight.middleware_position = 0
+
+    initializer "skylight.configure" do |app|
+      run_initializer(app)
     end
 
     private
+
+      # We must have an opt-in signal
+      def show_worker_activation_warning(sk_config)
+        reasons = []
+        reasons << "the 'active_job' probe is enabled" if sk_rails_config.probes.include?("active_job")
+        reasons << "the 'delayed_job' probe is enabled" if sk_rails_config.probes.include?("delayed_job")
+        reasons << "SKYLIGHT_ENABLE_SIDEKIQ is set" if sk_config.enable_sidekiq?
+
+        return if reasons.empty?
+
+        sk_config.logger.warn("Activating Skylight for Background Jobs because #{reasons.to_sentence}")
+      end
 
       def log_prefix
         "[#{self.class.gem_name.upcase}] [#{self.class.version}]"
       end
 
       def development_warning
-        "#{log_prefix} Running #{self.class.gem_name} in development mode. No data will be reported until you deploy your app."
+        "#{log_prefix} Running #{self.class.gem_name} in development mode. No data will be reported until you deploy your app.\n" \
+          "(To disable this message for all local apps, run `skylight disable_dev_warning`.)"
       end
 
       def run_initializer(app)
@@ -85,6 +116,11 @@ module Skylight::Core
 
         config[:'daemon.sockdir_path'] ||= tmp
         config[:'normalizers.render.view_paths'] = existent_paths(app.config.paths["app/views"]) + [Rails.root.to_s]
+
+        if config[:report_rails_env]
+          config[:env] ||= Rails.env.to_s
+        end
+
         config
       end
 
@@ -118,13 +154,20 @@ module Skylight::Core
         Array(sk_rails_config.environments).map { |e| e && e.to_s }.compact
       end
 
-      def activate?(_sk_config)
+      def activate?(sk_config)
+        return false unless sk_config
+
         key = "#{self.class.config_class.env_prefix}ENABLED"
-        if ENV.key?(key)
-          ENV[key] !~ /^false$/i
-        else
-          environments.include?(Rails.env.to_s)
-        end
+        activate =
+          if ENV.key?(key)
+            ENV[key] !~ /^false$/i
+          else
+            environments.include?(Rails.env.to_s)
+          end
+
+        show_worker_activation_warning(sk_config) if activate
+
+        activate
       end
 
       def load_probes
