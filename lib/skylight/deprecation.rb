@@ -11,5 +11,5 @@ module Skylight
       end
   end
 
-  DEPRECATOR = Deprecation.new("4.0", "skylight-core")
+  DEPRECATOR = Deprecation.new("4.0", "skylight")
 end

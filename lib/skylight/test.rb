@@ -3,7 +3,25 @@ module Skylight
     module Mocking
       def mock!(config_opts = {}, &callback)
         config_opts[:mock_submission] ||= callback || proc {}
+
+        unless respond_to?(:__original_config_class)
+          class_eval do
+            class << self
+              alias_method :__original_config_class, :config_class
+
+              def config_class
+                @config_class ||= Class.new(__original_config_class) do
+                  def validate_with_server
+                    true
+                  end
+                end
+              end
+            end
+          end
+        end
+
         config = config_class.load(config_opts)
+        config[:authentication] ||= "zomg"
 
         unless respond_to?(:__original_instrumenter_class)
           class_eval do
@@ -37,12 +55,24 @@ module Skylight
                         @mock_spans ||= []
                       end
 
+                      def native_get_uuid
+                        @uuid
+                      end
+
+                      def uuid=(value)
+                        @uuid = value
+                      end
+
                       def native_get_started_at
                         @start
                       end
 
                       def native_set_endpoint(endpoint)
                         @endpoint = endpoint
+                      end
+
+                      def native_set_component(component)
+                        @component = component
                       end
 
                       def native_start_span(time, cat)
@@ -78,6 +108,10 @@ module Skylight
                         span = mock_spans[span]
                         span[:duration] = time - span[:start]
                         nil
+                      end
+
+                      def native_use_pruning
+                        @using_native_pruning = true
                       end
                     end
                   end

@@ -349,6 +349,7 @@ module Skylight
 
       def component=(component)
         resolve_component(component).tap do |c|
+          # Would it be better for the component getter to get from native?
           @component = c
           native_set_component(c)
         end

@@ -52,10 +52,10 @@ module Skylight
           def assign_endpoint?(trace, payload)
             # Always assign the endpoint if it has not yet been assigned by the ActiveJob probe.
             return true unless trace.endpoint
-            return true if defined?(Skylight::Core::Probes::ActiveJob::Probe::TITLE) &&
-              trace.endpoint == Skylight::Core::Probes::ActiveJob::Probe::TITLE
-            return true if defined?(SKylight::Core::Probes::DelayedJob::Probe::UNKNOWN) &&
-              trace.endpoint == Skylight::Core::Probes::DelayedJob::Probe::UNKNOWN
+            return true if defined?(Skylight::Probes::ActiveJob::Probe::TITLE) &&
+              trace.endpoint == Skylight::Probes::ActiveJob::Probe::TITLE
+            return true if defined?(SKylight::Probes::DelayedJob::Probe::UNKNOWN) &&
+              trace.endpoint == Skylight::Probes::DelayedJob::Probe::UNKNOWN
 
             # If a job is called using #perform_now inside a controller action
             # or within another job's #perform method, we do not want this to

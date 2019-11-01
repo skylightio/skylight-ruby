@@ -79,7 +79,7 @@ module SpecHelper
   end
 
   def current_trace
-    inst = Skylight.instrumenter
+    inst = TestNamespace.instrumenter || Skylight.instrumenter
     inst ? inst.current_trace : nil
   end
 

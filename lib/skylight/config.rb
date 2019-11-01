@@ -357,10 +357,6 @@ module Skylight
       true
     end
 
-    def validate_with_server
-      true
-    end
-
     def check_file_permissions(file, key)
       file_root = File.dirname(file)
 

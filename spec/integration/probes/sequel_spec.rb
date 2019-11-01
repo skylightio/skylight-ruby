@@ -41,12 +41,8 @@ describe "Sequel integration", :sequel_probe, :agent do
 
     expect(trace).to receive(:instrument).with(
       "db.sql.query",
-      # With native lexer:
-      #  'SELECT FROM items',
-      #  RegexMatcher.new(/^SELECT count\(\*\) AS \? FROM `items` LIMIT \?$/i)
-      # Without native lexer:
-      "SQL",
-      "SELECT count(*) AS 'count' FROM `items` LIMIT 1",
+      "SELECT FROM items",
+      RegexMatcher.new(/^SELECT count\(\*\) AS \? FROM `items` LIMIT \?$/i),
       nil
     ).and_call_original
 

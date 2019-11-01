@@ -7,7 +7,7 @@ module Skylight
         def install
           return unless validate_version
           ::Delayed::Worker.class_eval do
-            include Skylight::Core::Util::Logging
+            include Skylight::Util::Logging
             alias_method :run_without_sk, :run
             alias_method :handle_failed_job_without_sk, :handle_failed_job
 
@@ -44,7 +44,7 @@ module Skylight
             version = spec && spec.version
 
             if !version || version < Gem::Version.new("4.0.0")
-              $stderr.puts "[SKYLIGHT::CORE] [#{Skylight::Core::VERSION}] The installed version of DelayedJob is not supported on Skylight. Your jobs will not be tracked."
+              $stderr.puts "[SKYLIGHT::CORE] [#{Skylight::VERSION}] The installed version of DelayedJob is not supported on Skylight. Your jobs will not be tracked."
 
               return false
             end

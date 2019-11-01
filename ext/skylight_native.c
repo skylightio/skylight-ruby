@@ -151,7 +151,7 @@ clock_high_res_time(VALUE self) {
 
 /*
  *
- * class Skylight::Core::Instrumenter
+ * class Skylight::Instrumenter
  *
  */
 

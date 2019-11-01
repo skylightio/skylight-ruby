@@ -7,7 +7,7 @@ module Skylight
     include Rack::Test::Methods
 
     before do
-      Core::Normalizers.register("unmatched.test", Core::Normalizers::Normalizer)
+      Normalizers.register("unmatched.test", Normalizers::Normalizer)
 
       @called_endpoint = nil
       TestNamespace.mock! do |trace|
@@ -17,7 +17,7 @@ module Skylight
 
     after do
       TestNamespace.stop!
-      Core::Normalizers.unregister("unmatched.test")
+      Normalizers.unregister("unmatched.test")
     end
 
     def app
@@ -33,7 +33,7 @@ module Skylight
     end
 
     it "it handles a :skip" do
-      expect_any_instance_of(Core::Subscriber).not_to receive(:error)
+      expect_any_instance_of(Subscriber).not_to receive(:error)
 
       get "/"
 

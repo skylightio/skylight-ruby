@@ -7,9 +7,9 @@ module Skylight
           version = Gem::Version.new(::Mongoid::VERSION)
 
           if version < Gem::Version.new("5.0")
-            Skylight::Core::Probes.probe(:moped)
+            Skylight::Probes.probe(:moped)
           else
-            Skylight::Core::Probes.probe(:mongo)
+            Skylight::Probes.probe(:mongo)
           end
         end
       end
