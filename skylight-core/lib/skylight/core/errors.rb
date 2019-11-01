@@ -1,6 +1,4 @@
-module Skylight
-  module Core
-    # @api private
-    class ConfigError < RuntimeError; end
-  end
+module Skylight::Core
+  # @api private
+  class ConfigError < RuntimeError; end
 end
