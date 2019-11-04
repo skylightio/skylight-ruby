@@ -5,6 +5,10 @@ if defined?(Sinatra)
   describe "Sinatra integration", :sinatra_probe, :agent do
     include Rack::Test::Methods
 
+    before :all do
+      Skylight.probe(:sinatra_add_middleware)
+    end
+
     before do
       Skylight.mock! do |trace|
         @current_trace = trace
