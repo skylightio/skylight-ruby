@@ -18,16 +18,16 @@ describe "Sequel integration", :sequel_probe, :agent do
   end
 
   around do |example|
-    TestNamespace.mock!
-    TestNamespace.trace("Rack") { example.run }
+    Skylight.mock!
+    Skylight.trace("Rack") { example.run }
   end
 
   after do
-    TestNamespace.stop!
+    Skylight.stop!
   end
 
   let(:trace) do
-    TestNamespace.instrumenter.current_trace
+    Skylight.instrumenter.current_trace
   end
 
   it "instruments SQL queries" do

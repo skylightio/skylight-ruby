@@ -10,19 +10,19 @@ module Skylight
       Normalizers.register("unmatched.test", Normalizers::Normalizer)
 
       @called_endpoint = nil
-      TestNamespace.mock! do |trace|
+      Skylight.mock! do |trace|
         @called_endpoint = trace.endpoint
       end
     end
 
     after do
-      TestNamespace.stop!
+      Skylight.stop!
       Normalizers.unregister("unmatched.test")
     end
 
     def app
       @app ||= Rack::Builder.new do
-        use TestNamespace::Middleware
+        use Skylight::Middleware
         run lambda { |_env|
           # This will cause the normalizer to return a :skip
           ActiveSupport::Notifications.instrument("unmatched.test") do

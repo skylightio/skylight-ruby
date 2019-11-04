@@ -108,12 +108,12 @@ if defined?(Graphiti)
 
     around do |example|
       begin
-        TestNamespace.mock!
-        TestNamespace.trace do
+        Skylight.mock!
+        Skylight.trace do
           example.run
         end
       ensure
-        TestNamespace.stop!
+        Skylight.stop!
       end
     end
 
@@ -124,7 +124,7 @@ if defined?(Graphiti)
     end
 
     let(:trace) do
-      TestNamespace.instrumenter.current_trace
+      Skylight.instrumenter.current_trace
     end
 
     it "instruments resolve and render" do

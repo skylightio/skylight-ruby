@@ -281,10 +281,10 @@ describe Skylight::Instrumenter, :http, :agent do
     it "does not break code" do
       expect(hello).to receive(:hello)
 
-      TestNamespace.trace "Zomg", "app.rack.request" do |t|
+      Skylight.trace "Zomg", "app.rack.request" do |t|
         expect(t).to be_nil
 
-        ret = TestNamespace.instrument category: "foo.bar" do |s|
+        ret = Skylight.instrument category: "foo.bar" do |s|
           expect(s).to be_nil
           hello.hello
           1
@@ -293,7 +293,7 @@ describe Skylight::Instrumenter, :http, :agent do
         expect(ret).to eq(1)
       end
 
-      expect(TestNamespace.instrumenter).to be_nil
+      expect(Skylight.instrumenter).to be_nil
     end
   end
 end

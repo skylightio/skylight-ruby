@@ -28,7 +28,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
       title: "GET 127.0.0.1",
       meta: { host: "127.0.0.1" }
     }
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     response = Net::HTTP.get_response(uri)
 
@@ -41,7 +41,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
       title: "GET 127.0.0.1",
       meta: { host: "127.0.0.1" }
     }
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     response = http.request(Net::HTTP::Get.new(uri.request_uri))
@@ -55,7 +55,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
       title: "GET 127.0.0.1",
       meta: { host: "127.0.0.1" }
     }
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Get.new(uri.request_uri)
@@ -72,7 +72,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     response = Net::HTTP.post_form(uri, "q" => "My query", "per_page" => "50")
 
@@ -86,7 +86,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Post.new(uri.request_uri)
@@ -99,7 +99,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   it "instruments https requests" do
     skip "needs test server tweaks"
 
-    # expect(TestNamespace).to receive(:instrument).with(category: "api.http.get", title: "GET 127.0.0.1",
+    # expect(Skylight).to receive(:instrument).with(category: "api.http.get", title: "GET 127.0.0.1",
     #                                             description: "GET #{server_uri}/test.html").and_call_original
 
     # uri = URI.parse("https://127.0.0.1/test.html")
@@ -121,7 +121,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Put.new(uri.request_uri)
@@ -138,7 +138,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Delete.new(uri.request_uri)
@@ -163,7 +163,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     http.open_timeout = 0.1 # in seconds
@@ -181,7 +181,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new("127.0.0.1", port)
     response = http.request(Net::HTTP::Get.new("/test.html"))
@@ -196,7 +196,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new("127.0.0.1", port)
     response = http.request(CustomType.new("/test.html"))
@@ -211,7 +211,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Get.new(uri.request_uri)
@@ -228,7 +228,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).twice.and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).twice.and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
     response1 = http.request(Net::HTTP::Get.new(uri.request_uri))
@@ -239,7 +239,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "does not instrument when disabled" do
-    expect(TestNamespace).not_to receive(:instrument)
+    expect(Skylight).not_to receive(:instrument)
 
     Skylight::Probes::NetHTTP::Probe.disable do
       Skylight::Probes::NetHTTP::Probe.disable {}

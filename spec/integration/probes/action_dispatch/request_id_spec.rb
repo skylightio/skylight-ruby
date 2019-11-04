@@ -4,17 +4,17 @@ if defined?(ActionDispatch)
 
   describe "ActionDispatch::RequestId integration", :'action_dispatch/request_id_probe', :agent do
     before do
-      TestNamespace.mock!
+      Skylight.mock!
     end
 
     after do
-      TestNamespace.stop!
+      Skylight.stop!
     end
 
     def build_middleware
       Class.new(Skylight::Middleware) do
         def instrumentable
-          TestNamespace
+          Skylight
         end
       end
     end

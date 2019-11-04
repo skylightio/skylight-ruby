@@ -23,7 +23,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     client = HTTPClient.new
 
@@ -39,7 +39,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     client = HTTPClient.new
 
@@ -55,7 +55,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     client = HTTPClient.new
 
@@ -79,7 +79,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     client = HTTPClient.new
 
@@ -95,7 +95,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     client = HTTPClient.new
 
@@ -111,7 +111,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     response = HTTPClient.get(uri)
     expect(response).to be_a(HTTP::Message)
@@ -119,7 +119,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   end
 
   it "does not instrument when disabled" do
-    expect(TestNamespace).to_not receive(:instrument)
+    expect(Skylight).to_not receive(:instrument)
 
     Skylight::Probes::HTTPClient::Probe.disable do
       client = HTTPClient.new

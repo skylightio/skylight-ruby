@@ -6,18 +6,16 @@ if defined?(Sinatra)
     include Rack::Test::Methods
 
     before do
-      TestNamespace.mock! do |trace|
+      Skylight.mock! do |trace|
         @current_trace = trace
       end
     end
 
     after do
-      TestNamespace.stop!
+      Skylight.stop!
     end
 
     class SinatraTest < ::Sinatra::Base
-      use TestNamespace::Middleware
-
       disable :show_exceptions
 
       template :hello do
@@ -38,7 +36,7 @@ if defined?(Sinatra)
     end
 
     it "creates a Trace for a Sinatra app" do
-      expect(TestNamespace).to receive(:trace).with("Rack", "app.rack.request", nil, meta: nil, component: :web).and_call_original
+      expect(Skylight).to receive(:trace).with("Rack", "app.rack.request", nil, meta: nil, component: :web).and_call_original
 
       get "/named-template"
       expect(@current_trace.endpoint).to eq("GET /named-template")
@@ -46,7 +44,7 @@ if defined?(Sinatra)
     end
 
     it "instruments named templates" do
-      expect(TestNamespace).to receive(:instrument).with(
+      expect(Skylight).to receive(:instrument).with(
         category: "view.render.template",
         title: "hello"
       ).and_call_original
@@ -57,7 +55,7 @@ if defined?(Sinatra)
     end
 
     it "instruments inline templates" do
-      expect(TestNamespace).to receive(:instrument).with(
+      expect(Skylight).to receive(:instrument).with(
         category: "view.render.template",
         title: "Inline template (erb)"
       ).and_call_original

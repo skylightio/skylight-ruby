@@ -21,7 +21,7 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
 
   it "reports job metadata" do
     expect_any_instance_of(TestJob).to receive(:perform)
-    expect(TestNamespace).to receive(:instrument).with(
+    expect(Skylight).to receive(:instrument).with(
       hash_including(
         title: "Enqueue TestJob",
         category: "other.active_job.enqueue",
@@ -34,7 +34,7 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
 
   it "reports ActionMailer methods" do
     expect_any_instance_of(ActionMailer::DeliveryJob).to receive(:perform)
-    expect(TestNamespace).to receive(:instrument).with(
+    expect(Skylight).to receive(:instrument).with(
       hash_including(
         title: "Enqueue TestMailer#test_mail",
         category: "other.active_job.enqueue",

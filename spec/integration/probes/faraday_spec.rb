@@ -23,7 +23,7 @@ describe "Faraday integration", :faraday_probe, :http, :faraday, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     client = Faraday.new(url: server_uri)
 
@@ -39,7 +39,7 @@ describe "Faraday integration", :faraday_probe, :http, :faraday, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     client = Faraday.new(url: server_uri)
 
@@ -55,7 +55,7 @@ describe "Faraday integration", :faraday_probe, :http, :faraday, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     client = Faraday.new(url: server_uri)
 
@@ -79,7 +79,7 @@ describe "Faraday integration", :faraday_probe, :http, :faraday, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     client = Faraday.new(url: server_uri)
 
@@ -95,7 +95,7 @@ describe "Faraday integration", :faraday_probe, :http, :faraday, :agent do
       meta: { host: "127.0.0.1" }
     }
 
-    expect(TestNamespace).to receive(:instrument).with(expected).and_call_original
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     response = Faraday.get(uri)
     expect(response).to be_a(Faraday::Response)

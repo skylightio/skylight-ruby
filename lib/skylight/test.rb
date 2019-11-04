@@ -137,6 +137,26 @@ module Skylight
 
         start!(config)
       end
+
+      def unmock!
+        if respond_to?(:__original_config_class)
+          class_eval do
+            class << self
+              alias_method :config_class, :__original_config_class
+              remove_method :__original_config_class
+            end
+          end
+        end
+
+        if respond_to?(:__original_instrumenter_class)
+          class_eval do
+            class << self
+              alias_method :instrumenter_class, :__original_instrumenter_class
+              remove_method :__original_instrumenter_class
+            end
+          end
+        end
+      end
     end
   end
 end

@@ -58,8 +58,8 @@ if enable
             include ::Sidekiq::Worker
 
             def perform
-              TestNamespace.instrument category: "app.inside" do
-                TestNamespace.instrument category: "app.zomg" do
+              Skylight.instrument category: "app.inside" do
+                Skylight.instrument category: "app.zomg" do
                   # nothing
                   sleep 0.1
                 end
@@ -69,13 +69,13 @@ if enable
           end
 
           @trace = nil
-          TestNamespace.mock!(enable_sidekiq: true) do |trace|
+          Skylight.mock!(enable_sidekiq: true) do |trace|
             @trace = trace
           end
         end
 
         after :each do
-          TestNamespace.stop!
+          Skylight.stop!
 
           ::Sidekiq::Testing.disable!
           ::Sidekiq.server_middleware.clear

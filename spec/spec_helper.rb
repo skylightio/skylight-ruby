@@ -101,23 +101,9 @@ puts "Skipping probes: #{skipped_probes.join(', ')}"  unless skipped_probes.empt
 
 ENV["SKYLIGHT_RAISE_ON_ERROR"] = "true"
 
-module TestNamespace
-  include Skylight::Instrumentable
-
-  unless ENV["SKYLIGHT_DISABLE_AGENT"]
-    require "skylight/test"
-    extend Skylight::Test::Mocking
-  end
-
-  def self.config_class
-    Skylight::Config
-  end
-
-  class Middleware < Skylight::Middleware
-    def instrumentable
-      TestNamespace
-    end
-  end
+unless ENV["SKYLIGHT_DISABLE_AGENT"]
+  require "skylight/test"
+  Skylight.extend Skylight::Test::Mocking
 end
 
 # Similar to above, but this is for waiting for the embedded HTTP server to
@@ -199,6 +185,8 @@ RSpec.configure do |config|
       SpecHelper.send(:remove_const, :ProbeTestClass)
     end
 
+    Skylight.unmock!
+
     # Kill any daemon that may have been started
     `pkill -9 skylightd`
   end
@@ -229,10 +217,10 @@ RSpec.configure do |config|
     begin
       mock_clock! # This happens before the before(:each) below
       clock.freeze
-      TestNamespace.mock!
-      TestNamespace.trace("Test") { example.run }
+      Skylight.mock!
+      Skylight.trace("Test") { example.run }
     ensure
-      TestNamespace.stop!
+      Skylight.stop!
     end
   end
 

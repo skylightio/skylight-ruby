@@ -5,9 +5,9 @@ if defined?(ActionDispatch)
 
   describe "ActionDispatch::Routing::RouteSet integration", :'action_dispatch/routing/route_set_probe', :agent do
     around do |example|
-      TestNamespace.mock!
-      TestNamespace.trace("test") { example.run }
-      TestNamespace.stop!
+      Skylight.mock!
+      Skylight.trace("test") { example.run }
+      Skylight.stop!
     end
 
     class CustomError < RuntimeError; end
@@ -22,7 +22,7 @@ if defined?(ActionDispatch)
     end
 
     let(:trace) do
-      TestNamespace.instrumenter.current_trace
+      Skylight.instrumenter.current_trace
     end
 
     before do
