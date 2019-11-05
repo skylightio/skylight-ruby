@@ -17,7 +17,8 @@ module Skylight
 
         class_eval do
           unless const_defined?(:OriginalInstrumenter)
-            const_set(:OriginalInstrumenter, Instrumenter)
+            const_set :OriginalInstrumenter, Instrumenter
+            remove_const :Instrumenter
             const_set(:Instrumenter, Class.new(OriginalInstrumenter) do
               def self.name
                 "Mocked Instrumenter"
@@ -42,7 +43,8 @@ module Skylight
               end
             end)
 
-            const_set(:OriginalTrace, Trace)
+            const_set :OriginalTrace, Trace
+            remove_const :Trace
             const_set(:Trace, Class.new(OriginalTrace) do
               def self.native_new(start, _uuid, endpoint, meta)
                 inst = allocate
@@ -127,10 +129,12 @@ module Skylight
       def unmock!
         if const_defined?(:OriginalInstrumenter)
           class_eval do
-            const_set(:Instrumenter, OriginalInstrumenter)
+            remove_const :Instrumenter
+            const_set :Instrumenter, OriginalInstrumenter
             remove_const :OriginalInstrumenter
 
-            const_set(:Trace, OriginalTrace)
+            remove_const :Trace
+            const_set :Trace, OriginalTrace
             remove_const :OriginalTrace
           end
         end
