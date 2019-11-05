@@ -41,7 +41,7 @@ end
 # rubocop:enable Lint/HandleExceptions
 
 require "rspec/core/rake_task"
-RSpec::RakeTask.new(:spec) do |t|
+RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = "--order random"
 end
 task spec: :compile
