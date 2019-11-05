@@ -38,6 +38,8 @@ module Skylight
   at_exit { stop! }
 
   class << self
+    extend Util::InstrumenterMethod
+
     def instrumenter
       defined?(@instrumenter) && @instrumenter
     end
@@ -103,7 +105,7 @@ module Skylight
     # Check tracing
     def tracing?
       t { "checking tracing?; thread=#{Thread.current.object_id}" }
-      instrumenter && instrumenter.current_trace
+      instrumenter&.current_trace
     end
 
     # Start a trace
@@ -153,57 +155,19 @@ module Skylight
       instrumenter.instrument(category, title, desc, meta, &block)
     end
 
-    def mute
-      unless instrumenter
-        return yield if block_given?
-        return
-      end
+    instrumenter_method :config
 
-      instrumenter.mute do
-        yield if block_given?
-      end
-    end
-
-    def unmute
-      unless instrumenter
-        return yield if block_given?
-        return
-      end
-
-      instrumenter.unmute do
-        yield if block_given?
-      end
-    end
-
-    def muted?
-      instrumenter&.muted?
-    end
+    instrumenter_method :mute, block: true
+    instrumenter_method :unmute, block: true
+    instrumenter_method :muted?
 
     # End a span
-    def done(span, meta = nil)
-      return unless instrumenter
-      instrumenter.done(span, meta)
-    end
+    instrumenter_method :done
 
-    def broken!
-      return unless instrumenter
-      instrumenter.broken!
-    end
+    instrumenter_method :broken!
 
     # Temporarily disable
-    def disable
-      unless instrumenter
-        return yield if block_given?
-        return
-      end
-
-      instrumenter.disable { yield }
-    end
-
-    def config
-      return unless instrumenter
-      instrumenter.config
-    end
+    instrumenter_method :disable, block: true
 
     # Runs the shutdown procedure in the background.
     # This should do little more than unsubscribe from all ActiveSupport::Notifications
