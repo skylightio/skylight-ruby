@@ -32,9 +32,8 @@ module SpecHelper
     hdrs  = args.pop if args[-1].is_a?(Hash)
     path  = args.shift
 
-    @fails = []
-
     match do |env|
+      @fails = []
       @env = env
       if env
         ret = true
