@@ -38,10 +38,6 @@ module Skylight
   at_exit { stop! }
 
   class << self
-    def instrumenter_class
-      Instrumenter
-    end
-
     def instrumenter
       defined?(@instrumenter) && @instrumenter
     end
@@ -68,7 +64,7 @@ module Skylight
         config ||= {}
         config = Config.load(config) unless config.is_a?(Config)
 
-        @instrumenter = instrumenter_class.new(config).start!
+        @instrumenter = Instrumenter.new(config).start!
       end
     rescue => e
       level, message =
@@ -225,10 +221,6 @@ module Skylight
         @shutdown_thread ||= Thread.new { @instrumenter&.shutdown }
       end
     end
-  end
-
-  def self.instrumenter_class
-    Instrumenter
   end
 
   # Some methods exepected to be defined by the native code (OUTDATED)
