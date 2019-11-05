@@ -9,7 +9,7 @@ module SpecHelper
       end
 
       def tmp(*path)
-        root.join("tmp", *path)
+        root.join("tmp/spec", *path)
       end
 
       def lockfile
