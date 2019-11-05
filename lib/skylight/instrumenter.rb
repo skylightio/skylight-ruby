@@ -39,10 +39,6 @@ module Skylight
 
     attr_reader :uuid, :config, :gc
 
-    def self.trace_class
-      Trace
-    end
-
     def self.native_new(_uuid, _config_env)
       raise "not implemented"
     end
@@ -62,8 +58,7 @@ module Skylight
       @config = config
       @subscriber = Skylight::Subscriber.new(config, self)
 
-      key = "#{KEY}_#{self.class.trace_class.name}".gsub(/\W/, "_")
-      @trace_info = @config[:trace_info] || TraceInfo.new(key)
+      @trace_info = @config[:trace_info] || TraceInfo.new(KEY)
       @mutex = Mutex.new
     end
 
@@ -190,7 +185,7 @@ module Skylight
       end
 
       begin
-        trace = self.class.trace_class.new(self, endpoint, Skylight::Util::Clock.nanos, cat, title, desc, meta: meta, segment: segment, component: component)
+        trace = Trace.new(self, endpoint, Skylight::Util::Clock.nanos, cat, title, desc, meta: meta, segment: segment, component: component)
       rescue Exception => e
         log_error e.message
         t { e.backtrace.join("\n") }
