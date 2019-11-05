@@ -34,20 +34,17 @@ module Skylight
 
             def dispatch!(*args, &block)
               dispatch_without_sk!(*args, &block).tap do
-                Skylight::Fanout.each_trace do |trace|
-                  # Set the endpoint name to the route name
-                  if (route = env["sinatra.route"])
-                    # Include the app's mount point (if available)
-                    script_name = trace.instrumenter.config.sinatra_route_prefixes? && env["SCRIPT_NAME"]
+                if (trace = Skylight.instrumenter&.current_trace) && (route = env["sinatra.route"])
+                  # Include the app's mount point (if available)
+                  script_name = trace.instrumenter.config.sinatra_route_prefixes? && env["SCRIPT_NAME"]
 
-                    trace.endpoint =
-                      if script_name && !script_name.empty?
-                        verb, path = route.split(" ", 2)
-                        "#{verb} [#{script_name}]#{path}"
-                      else
-                        route
-                      end
-                  end
+                  trace.endpoint =
+                    if script_name && !script_name.empty?
+                      verb, path = route.split(" ", 2)
+                      "#{verb} [#{script_name}]#{path}"
+                    else
+                      route
+                    end
                 end
               end
             end

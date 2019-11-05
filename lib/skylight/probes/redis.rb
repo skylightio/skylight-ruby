@@ -25,7 +25,7 @@ module Skylight
                 title:    command_name.upcase.to_s
               }
 
-              Skylight::Fanout.instrument(opts) do
+              Skylight.instrument(opts) do
                 call_without_sk(command, &block)
               end
             end
@@ -49,7 +49,7 @@ module Skylight
           alias_method :pipelined_without_sk, :pipelined
 
           def pipelined(&block)
-            Skylight::Fanout.instrument(PIPELINED_OPTS) do
+            Skylight.instrument(PIPELINED_OPTS) do
               pipelined_without_sk(&block)
             end
           end
@@ -57,7 +57,7 @@ module Skylight
           alias_method :multi_without_sk, :multi
 
           def multi(&block)
-            Skylight::Fanout.instrument(MULTI_OPTS) do
+            Skylight.instrument(MULTI_OPTS) do
               multi_without_sk(&block)
             end
           end

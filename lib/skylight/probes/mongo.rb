@@ -36,13 +36,7 @@ module Skylight
 
         # For logging
         def config
-          # Just log to the first instrumentable's config for now.
-          # FIXME: Revisit this
-          if (instrumentable = Fanout.registered.first)
-            if (instrumenter = instrumentable.instrumenter)
-              instrumenter.config
-            end
-          end
+          Skylight.config
         end
 
         private
@@ -122,7 +116,7 @@ module Skylight
               meta:        { database: event.database_name }
             }
 
-            @events[event.operation_id] = Skylight::Fanout.instrument(opts)
+            @events[event.operation_id] = Skylight.instrument(opts)
           rescue Exception => e
             error "failed to begin instrumentation for Mongo; msg=%s", e.message
           end
@@ -133,7 +127,7 @@ module Skylight
               if event.is_a?(::Mongo::Monitoring::Event::CommandFailed)
                 meta[:exception] = ["CommandFailed", event.message]
               end
-              Skylight::Fanout.done(original_event, meta)
+              Skylight.done(original_event, meta)
             end
           rescue Exception => e
             error "failed to end instrumentation for Mongo; msg=%s", e.message

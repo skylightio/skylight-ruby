@@ -19,9 +19,7 @@ module Skylight
             rescue
               block.call
             else
-              Skylight::Fanout.instrument(
-                title: "Enqueue #{name}", category: CAT, description: desc, &block
-              )
+              Skylight.instrument(title: "Enqueue #{name}", category: CAT, description: desc, &block)
             end
           end
 

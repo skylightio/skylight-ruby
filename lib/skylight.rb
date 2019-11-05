@@ -1,7 +1,5 @@
 require "skylight/version"
-require "skylight/fanout"
 require "skylight/trace"
-require "skylight/instrumentable"
 require "skylight/instrumenter"
 require "skylight/middleware"
 require "skylight/api"
@@ -38,8 +36,6 @@ module Skylight
   LOCK = Mutex.new
 
   at_exit { stop! }
-
-  Fanout.register(self)
 
   class << self
     def instrumenter_class

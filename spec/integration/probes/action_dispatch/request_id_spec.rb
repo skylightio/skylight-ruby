@@ -11,20 +11,11 @@ if defined?(ActionDispatch)
       Skylight.stop!
     end
 
-    def build_middleware
-      Class.new(Skylight::Middleware) do
-        def instrumentable
-          Skylight
-        end
-      end
-    end
-
     it "uses skylight.request_id" do
       final_env = nil
-      middleware = build_middleware
 
       app = Rack::Builder.new do
-        use middleware
+        use Skylight::Middleware
         use ActionDispatch::RequestId
         run(lambda do |env|
           final_env = env

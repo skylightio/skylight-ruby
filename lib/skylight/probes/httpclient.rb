@@ -32,7 +32,7 @@ module Skylight
 
               opts = Formatters::HTTP.build_opts(method, uri.scheme, uri.host, uri.port, uri.path, uri.query)
 
-              Skylight::Fanout.instrument(opts) do
+              Skylight.instrument(opts) do
                 do_request_without_sk(method, uri, query, body, header, &block)
               end
             end

@@ -9,8 +9,10 @@ module Skylight
                 alias_method :call_without_sk, :call
 
                 def call(env)
-                  Skylight::Fanout.endpoint = self.class.name
-                  Skylight::Fanout.instrument(title: self.class.name, category: "rack.app") do
+                  if (trace = Skylight.instrumenter&.current_trace)
+                    trace.endpoint = self.class.name
+                  end
+                  Skylight.instrument(title: self.class.name, category: "rack.app") do
                     call_without_sk(env)
                   end
                 end

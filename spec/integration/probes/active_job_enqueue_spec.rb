@@ -27,7 +27,7 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
         category: "other.active_job.enqueue",
         description: "{ adapter: 'inline', queue: 'default' }"
       )
-    )
+    ).and_call_original
 
     TestJob.perform_later
   end
@@ -40,7 +40,7 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
         category: "other.active_job.enqueue",
         description: "{ adapter: 'inline', queue: 'mailers', job: 'ActionMailer::DeliveryJob' }"
       )
-    )
+    ).and_call_original
 
     TestMailer.test_mail(1).deliver_later
   end

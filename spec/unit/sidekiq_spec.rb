@@ -31,8 +31,7 @@ if enable
         # Sidekiq checks this internally
         allow(::Sidekiq).to receive(:server?).and_return(true)
 
-        instrumentable = double(debug: nil)
-        Skylight::Sidekiq.add_middleware(instrumentable)
+        Skylight::Sidekiq.add_middleware
 
         middleware = double
         expect(Skylight::Sidekiq::ServerMiddleware).to \

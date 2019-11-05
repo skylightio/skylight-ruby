@@ -68,7 +68,7 @@ module Skylight
     def call(env)
       set_request_id(env)
 
-      if instrumentable.tracing?
+      if Skylight.tracing?
         error "Already instrumenting. Make sure the Skylight Rack Middleware hasn't been added more than once."
       end
 
@@ -78,7 +78,7 @@ module Skylight
       else
         begin
           t { "middleware beginning trace" }
-          trace = instrumentable.trace(endpoint_name(env), "app.rack.request", nil, meta: endpoint_meta(env), component: :web)
+          trace = Skylight.trace(endpoint_name(env), "app.rack.request", nil, meta: endpoint_meta(env), component: :web)
           t { "middleware began trace=#{trace ? trace.uuid : nil}" }
 
           resp = @app.call(env)
@@ -100,12 +100,7 @@ module Skylight
 
       def log_context
         # Don't cache this, it will change
-        inst_id = instrumentable.instrumenter ? instrumentable.instrumenter.uuid : nil
-        { request_id: @current_request_id, inst: inst_id }
-      end
-
-      def instrumentable
-        Skylight
+        { request_id: @current_request_id, inst: Skylight.instrumenter&.uuid }
       end
 
       # Allow for overwriting
