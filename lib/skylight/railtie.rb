@@ -6,7 +6,6 @@ module Skylight
   class Railtie < Rails::Railtie
     # rubocop:disable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
     def self.root_key; :skylight end
-    def self.config_class; Config end
     def self.middleware_class; Middleware end
     def self.gem_name; "Skylight" end
     def self.log_file_name; "skylight" end
@@ -109,7 +108,7 @@ module Skylight
           return nil
         end
 
-        config = self.class.config_class.load(file: path, environment: Rails.env.to_s)
+        config = Config.load(file: path, environment: Rails.env.to_s)
         config[:root] = Rails.root
 
         configure_logging(config, app)
@@ -157,7 +156,7 @@ module Skylight
       def activate?(sk_config)
         return false unless sk_config
 
-        key = "#{self.class.config_class.env_prefix}ENABLED"
+        key = "#{Config.env_prefix}ENABLED"
         activate =
           if ENV.key?(key)
             ENV[key] !~ /^false$/i

@@ -4,23 +4,15 @@ module Skylight
       def mock!(config_opts = {}, &callback)
         config_opts[:mock_submission] ||= callback || proc {}
 
-        unless respond_to?(:__original_config_class)
-          class_eval do
-            class << self
-              alias_method :__original_config_class, :config_class
-
-              def config_class
-                @config_class ||= Class.new(__original_config_class) do
-                  def validate_with_server
-                    true
-                  end
-                end
-              end
-            end
+        config_class = Class.new(Config) do
+          def validate_with_server
+            true
           end
         end
 
         config = config_class.load(config_opts)
+
+        # FIXME: Revisit this
         config[:authentication] ||= "zomg"
 
         unless respond_to?(:__original_instrumenter_class)
@@ -139,15 +131,6 @@ module Skylight
       end
 
       def unmock!
-        if respond_to?(:__original_config_class)
-          class_eval do
-            class << self
-              alias_method :config_class, :__original_config_class
-              remove_method :__original_config_class
-            end
-          end
-        end
-
         if respond_to?(:__original_instrumenter_class)
           class_eval do
             class << self

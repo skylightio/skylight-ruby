@@ -66,7 +66,7 @@ module Skylight
         return instrumenter if instrumenter
 
         config ||= {}
-        config = config_class.load(config) unless config.is_a?(config_class)
+        config = Config.load(config) unless config.is_a?(Config)
 
         @instrumenter = instrumenter_class.new(config).start!
       end
@@ -229,10 +229,6 @@ module Skylight
 
   def self.instrumenter_class
     Instrumenter
-  end
-
-  def self.config_class
-    Config
   end
 
   # Some methods exepected to be defined by the native code (OUTDATED)
