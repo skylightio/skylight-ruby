@@ -155,11 +155,6 @@ module Skylight
       nil
     end
 
-    def span_correlation_header(span)
-      return unless span
-      native_span_get_correlation_header(span)
-    end
-
     def done(span, meta = nil)
       # `span` will be `nil` if we failed to start instrumenting, such as in
       # the case of too many spans in a request.

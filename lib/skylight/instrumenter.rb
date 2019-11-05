@@ -255,11 +255,6 @@ module Skylight
       end
     end
 
-    def span_correlation_header(span)
-      return unless (trace = @trace_info.current)
-      trace.span_correlation_header(span)
-    end
-
     def broken!
       return unless (trace = @trace_info.current)
       trace.broken!

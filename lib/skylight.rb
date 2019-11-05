@@ -42,10 +42,6 @@ module Skylight
       defined?(@instrumenter) && @instrumenter
     end
 
-    def correlation_header
-      nil
-    end
-
     def probe(*args)
       Probes.probe(*args)
     end
@@ -181,11 +177,6 @@ module Skylight
 
     def muted?
       instrumenter&.muted?
-    end
-
-    def span_correlation_header(span)
-      return unless instrumenter
-      instrumenter.span_correlation_header(span)
     end
 
     # End a span
