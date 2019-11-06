@@ -7,7 +7,7 @@ module Skylight
     end
 
     def set_file_path(path)
-      allow(config).to receive(:file_path).and_return(File.expand_path(path, __FILE__))
+      allow(config).to receive(:file_path).and_return(File.expand_path(path, __dir__))
       config.reload
     end
 
@@ -70,34 +70,41 @@ module Skylight
 
     it "has defaults" do
       set_file_path "missing"
-      expect(config.disable_dev_warning?).to be_falsy
+
+      # SKYLIGHT_DISABLE_DEV_WARNING is set for normal specs
+      with_env("SKYLIGHT_DISABLE_DEV_WARNING" => nil) do
+        expect(config.disable_dev_warning?).to be_falsy
+      end
     end
 
     it "loads from file" do
-      set_file_path "../../support/skylight_user_config.yml"
+      set_file_path "../support/skylight_user_config.yml"
       expect(config.disable_dev_warning?).to eq(true)
       expect(config.disable_env_warning?).to eq(false)
     end
 
     it "writes to a new file" do
       begin
-        set_file_path "../../support/skylight_user_config_new.yml"
+        set_file_path "../support/skylight_user_config_new.yml"
 
-        expect(config.disable_dev_warning?).to be_falsy
-        config.disable_dev_warning = true
+        # SKYLIGHT_DISABLE_DEV_WARNING is set for normal specs
+        with_env("SKYLIGHT_DISABLE_DEV_WARNING" => nil) do
+          expect(config.disable_dev_warning?).to be_falsy
+          config.disable_dev_warning = true
 
-        expect(config.disable_env_warning?).to be_falsy
-        config.disable_env_warning = true
+          expect(config.disable_env_warning?).to be_falsy
+          config.disable_env_warning = true
 
-        config.save
-        config.reload
+          config.save
+          config.reload
 
-        expect(config.disable_dev_warning?).to eq(true)
-        expect(config.disable_env_warning?).to eq(true)
+          expect(config.disable_dev_warning?).to eq(true)
+          expect(config.disable_env_warning?).to eq(true)
 
-        yaml = YAML.load_file(config.file_path)
-        expect(yaml).to include("disable_dev_warning" => true)
-        expect(yaml).to include("disable_env_warning" => true)
+          yaml = YAML.load_file(config.file_path)
+          expect(yaml).to include("disable_dev_warning" => true)
+          expect(yaml).to include("disable_env_warning" => true)
+        end
       ensure
         FileUtils.rm(config.file_path)
       end
