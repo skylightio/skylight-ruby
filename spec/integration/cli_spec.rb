@@ -4,11 +4,13 @@ require "open3"
 describe "CLI integration", :http do
   def run_command(cmd)
     Open3.popen3("bundle exec skylight #{cmd}") do |stdin, stdout, stderr, wait_thr|
-      yield stdin, stdout, stderr, wait_thr
-    rescue RSpec::Expectations::ExpectationNotMetError
-      # Provide some potential debugging information
-      puts stderr.read if ENV["DEBUG"]
-      raise
+      begin
+        yield stdin, stdout, stderr, wait_thr
+      rescue RSpec::Expectations::ExpectationNotMetError
+        # Provide some potential debugging information
+        puts stderr.read if ENV["DEBUG"]
+        raise
+      end
     end
   end
 
