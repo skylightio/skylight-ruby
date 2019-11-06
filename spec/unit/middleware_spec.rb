@@ -2,7 +2,7 @@ require "spec_helper"
 
 # This is here because we need the native agent to test
 # FIXME: Move at least some specs to core with mocking
-module Skylight::Core
+module Skylight
   describe Middleware, :http, :agent do
     before :each do
       start!
@@ -82,7 +82,7 @@ module Skylight::Core
 
     it "can handle frozen arrays" do
       expect do
-        Skylight::Core::Middleware.
+        Skylight::Middleware.
           with_after_close([200, {}, []].freeze) { true }
       end.to_not raise_error
     end

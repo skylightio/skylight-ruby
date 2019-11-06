@@ -4,7 +4,7 @@ require "skylight/util/http"
 module Skylight
   # @api private
   class Api
-    include Core::Util::Logging
+    include Util::Logging
 
     attr_reader :config
 
@@ -36,7 +36,7 @@ module Skylight
     end
 
     class ConfigValidationResults
-      include Core::Util::Logging
+      include Util::Logging
 
       attr_reader :raw_response
 

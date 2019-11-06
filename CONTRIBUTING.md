@@ -18,12 +18,6 @@ If you prefer to run tests in your own environment, you may do so as follows:
 # Select a gemfile and bundle install
 export BUNDLE_GEMFILE=$PWD/gemfiles/Gemfile.rails-5.2.x
 bundle install
-
-# Run the skylight-core test suite (takes a few seconds)
-pushd skylight-core
-bundle exec rspec
-popd
-
-# Run the main test suite (takes 5-10 minutes)
+# Run the test suite (takes 5-10 minutes)
 bundle exec rspec
 ```

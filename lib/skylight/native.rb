@@ -40,7 +40,8 @@ module Skylight
   end
 
   if Skylight.native?
-    Skylight::Core::Util::Clock.use_native!
+    require 'skylight/util/clock'
+    Util::Clock.use_native!
   else
     class Instrumenter
       def self.native_new(*_args)

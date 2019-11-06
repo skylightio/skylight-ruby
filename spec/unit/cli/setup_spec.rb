@@ -45,7 +45,7 @@ describe "skylight setup", :http, :agent do
 
     expect(tmp("config/skylight.yml")).to exist
 
-    c = Skylight::Core::Config.load(file: tmp("config/skylight.yml"))
+    c = Skylight::Config.load(file: tmp("config/skylight.yml"))
     expect(c[:authentication]).to eq("my-app-token")
   end
 
@@ -53,9 +53,10 @@ describe "skylight setup", :http, :agent do
     it "does not ask for login info" do
       should_successfully_create_app("foobar")
 
+      # Name "Spec" comes from the default file location of tmp/spec
       expect(server.requests[0]).to post_json("/apps",
                                               authorization: nil,
-                                              input: { "app" => { "name" => "Tmp" }, "token" => "foobar" })
+                                              input: { "app" => { "name" => "Spec" }, "token" => "foobar" })
     end
 
     it "handles server errors" do

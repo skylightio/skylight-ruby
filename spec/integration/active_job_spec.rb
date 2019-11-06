@@ -2,7 +2,7 @@ require "spec_helper"
 
 enable = false
 begin
-  require "skylight/core/probes/active_job"
+  require "skylight/probes/active_job"
   require "active_job/base"
   require "active_job/test_helper"
   require "skylight/railtie"

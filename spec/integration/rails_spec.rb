@@ -221,7 +221,7 @@ if enable
         end
       end
 
-      class SkMutingNormalizer < Skylight::Core::Normalizers::Normalizer
+      class SkMutingNormalizer < Skylight::Normalizers::Normalizer
         register "mute.skylight"
 
         def normalize(trace, name, payload)
@@ -493,7 +493,7 @@ if enable
 
         context "on heroku" do
           def pre_boot
-            ENV["SKYLIGHT_HEROKU_DYNO_INFO_PATH"] = File.expand_path("../../skylight-core/spec/support/heroku_dyno_info_sample", __dir__)
+            ENV["SKYLIGHT_HEROKU_DYNO_INFO_PATH"] = File.expand_path("../support/heroku_dyno_info_sample", __dir__)
           end
 
           it "recognizes heroku" do
@@ -616,7 +616,7 @@ if enable
 
       context "middleware that does not conform to Rack SPEC" do
         after :each do
-          Skylight::Core::Probes::Middleware::Probe.enable!
+          Skylight::Probes::Middleware::Probe.enable!
         end
 
         # The middleware probe is not installed when this built-in instrumenter exists.
@@ -649,7 +649,7 @@ if enable
           it "doesn't report middleware that does not close body", :middleware_probe do
             ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
 
-            expect_any_instance_of(Skylight::Core::Instrumenter).not_to receive(:process)
+            expect_any_instance_of(Skylight::Instrumenter).not_to receive(:process)
 
             call MyApp, env("/non-closing")
           end
@@ -659,7 +659,7 @@ if enable
 
             call MyApp, env("/non-closing")
 
-            expect(Skylight::Core::Probes::Middleware::Probe).to be_disabled
+            expect(Skylight::Probes::Middleware::Probe).to be_disabled
           end
         end
 

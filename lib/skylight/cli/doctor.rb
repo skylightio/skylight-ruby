@@ -87,7 +87,7 @@ module Skylight
           begin
             config.validate!
             say "Configuration is valid", :green
-          rescue Core::ConfigError => e
+          rescue ConfigError => e
             encountered_error!
 
             say "Configuration is invalid", :red

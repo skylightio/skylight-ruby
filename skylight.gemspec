@@ -17,13 +17,12 @@ Gem::Specification.new do |spec|
     Dir["lib/**/*.{rb,pem}"] +
     Dir["ext/**/*.{h,c,rb,yml}"] +
     Dir["*.md"])
-  files -= Dir["skylight-core"]
 
   spec.files         = files
   spec.require_paths = ["lib"]
 
   # Dependencies
-  spec.add_dependency "skylight-core", version
+  spec.add_dependency "activesupport", ">= 4.2.0"
 
   spec.add_development_dependency "beefcake", "~> 1.0"
   spec.add_development_dependency "bundler", ">= 1.17.3"

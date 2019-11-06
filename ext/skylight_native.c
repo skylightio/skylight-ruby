@@ -103,7 +103,6 @@ typedef VALUE (*blocking_fn_t)(void*);
 
 VALUE rb_mSkylight;
 VALUE rb_eNativeError;
-VALUE rb_mCore;
 VALUE rb_mUtil;
 VALUE rb_cClock;
 VALUE rb_cTrace;
@@ -140,7 +139,7 @@ load_libskylight(VALUE klass, VALUE path) {
 
 /*
  *
- * class Skylight::Core::Util::Clock
+ * class Skylight::Util::Clock
  *
  */
 
@@ -152,7 +151,7 @@ clock_high_res_time(VALUE self) {
 
 /*
  *
- * class Skylight::Core::Instrumenter
+ * class Skylight::Instrumenter
  *
  */
 
@@ -269,7 +268,7 @@ instrumenter_track_desc(VALUE self, VALUE rb_endpoint, VALUE rb_desc) {
 
 /*
  *
- * class Skylight::Core::Trace
+ * class Skylight::Trace
  *
  */
 
@@ -525,13 +524,6 @@ trace_span_set_exception(VALUE self, VALUE span, VALUE exception, VALUE exceptio
 }
 
 static VALUE
-trace_span_get_correlation_header(VALUE self, VALUE span_id) {
-  UNUSED(self);
-  UNUSED(span_id);
-  return Qnil;
-}
-
-static VALUE
 lex_sql(VALUE klass, VALUE rb_sql) {
   sky_buf_t sql;
   sky_buf_t title;
@@ -585,10 +577,7 @@ void Init_skylight_native() {
   rb_define_singleton_method(rb_mSkylight, "load_libskylight", load_libskylight, 1);
   rb_define_singleton_method(rb_mSkylight, "lex_sql", lex_sql, 1);
 
-  rb_mCore = rb_define_module_under(rb_mSkylight, "Core");
-
-  // FIXME: Don't put these under Core
-  rb_mUtil  = rb_define_module_under(rb_mCore, "Util");
+  rb_mUtil  = rb_define_module_under(rb_mSkylight, "Util");
   rb_cClock = rb_define_class_under(rb_mUtil, "Clock", rb_cObject);
   rb_define_method(rb_cClock, "native_hrtime", clock_high_res_time, 0);
 
@@ -611,7 +600,6 @@ void Init_skylight_native() {
   rb_define_method(rb_cTrace, "native_span_set_meta", trace_span_set_meta, 2);
   rb_define_method(rb_cTrace, "native_span_started", trace_span_started, 1);
   rb_define_method(rb_cTrace, "native_span_set_exception", trace_span_set_exception, 3);
-  rb_define_method(rb_cTrace, "native_span_get_correlation_header", trace_span_get_correlation_header, 1);
 
   rb_cInstrumenter = rb_const_get(rb_mSkylight, rb_intern("Instrumenter"));
   rb_define_singleton_method(rb_cInstrumenter, "native_new", instrumenter_new, 2);

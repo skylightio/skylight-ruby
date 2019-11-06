@@ -1,9 +1,7 @@
 # This file should handle being loaded more than once. While this isn't really
 # all that ideal, sometimes people like to glob the contents of spec/support.
 
-require "skylight/core"
 require "skylight/util/platform"
-
 require "skylight/instrumenter"
 require "skylight/trace"
 require "skylight/errors"

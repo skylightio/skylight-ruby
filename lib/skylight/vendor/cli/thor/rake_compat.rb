@@ -11,7 +11,7 @@ class Thor
   #   class Default < Thor
   #     include Thor::RakeCompat
   #
-  #     RSpec::Core::RakeTask.new(:spec) do |t|
+  #     RSpec::RakeTask.new(:spec) do |t|
   #       t.spec_opts = ['--options', "./.rspec"]
   #       t.spec_files = FileList['spec/**/*_spec.rb']
   #     end

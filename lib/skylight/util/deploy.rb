@@ -1,5 +1,5 @@
 require "json"
-require "skylight/core/util/logging"
+require "skylight/util/logging"
 
 module Skylight
   module Util
@@ -45,7 +45,7 @@ module Skylight
       end
 
       class DefaultDeploy < EmptyDeploy
-        include Core::Util::Logging
+        include Util::Logging
 
         def initialize(*)
           super
