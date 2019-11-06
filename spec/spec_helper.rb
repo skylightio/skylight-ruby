@@ -185,7 +185,7 @@ RSpec.configure do |config|
       SpecHelper.send(:remove_const, :ProbeTestClass)
     end
 
-    Skylight.unmock!
+    Skylight.unmock! if Skylight.respond_to?(:unmock!)
 
     # Kill any daemon that may have been started
     `pkill -9 skylightd`
