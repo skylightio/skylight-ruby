@@ -1,11 +1,7 @@
-require "skylight/normalizers/default"
-
 module Skylight
   # @api private
   # Convert AS::N events to Skylight events
   module Normalizers
-    DEFAULT = Default.new
-
     def self.registry
       @registry ||= {}
     end
@@ -67,6 +63,9 @@ module Skylight
 
       def normalize_after(trace, span, name, payload); end
     end
+
+    require "skylight/normalizers/default"
+    DEFAULT = Default.new
 
     class Container
       def initialize(normalizers)
