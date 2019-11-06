@@ -39,6 +39,9 @@ if enable
     after do
       Skylight.stop!
       ENV.replace(@original_env)
+      if @original_queue_adapter
+        DelayedWorker.queue_adapter = @original_queue_adapter
+      end
     end
 
     class DelayedObject
@@ -158,6 +161,7 @@ if enable
       end
 
       def run_job(*args)
+        @original_queue_adapter = DelayedWorker.queue_adapter
         DelayedWorker.queue_adapter = :delayed_job # Rails 4 :(
         DelayedWorker.perform_later(*args.map(&:to_s))
         job = Delayed::Job.last
