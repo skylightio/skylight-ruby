@@ -22,9 +22,6 @@ if defined?(ActiveModel::Serializer)
         attr_accessor :name, :value
       end
 
-      # This usually happens in a Railtie
-      ActionController::Base.send(:include, ActionController::Serialization)
-
       ActiveModelSerializers.config.adapter = :json
     else
       class Item
@@ -49,6 +46,9 @@ if defined?(ActiveModel::Serializer)
     end
 
     class ItemController < ActionController::Base
+      # This usually happens in a Railtie
+      include ActionController::Serialization
+
       layout nil
 
       def list
