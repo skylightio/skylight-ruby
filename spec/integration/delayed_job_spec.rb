@@ -36,7 +36,10 @@ if enable
       Skylight.start!
     end
 
-    after { Skylight.stop! }
+    after do
+      Skylight.stop!
+      ENV.replace(@original_env)
+    end
 
     class DelayedObject
       def bad_method
