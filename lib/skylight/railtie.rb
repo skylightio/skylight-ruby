@@ -4,15 +4,6 @@ require "rails"
 module Skylight
   # @api private
   class Railtie < Rails::Railtie
-    # rubocop:disable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
-    def self.root_key; :skylight end
-    def self.middleware_class; Middleware end
-    def self.gem_name; "Skylight" end
-    def self.log_file_name; "skylight" end
-    def self.namespace; Skylight end
-    def self.version; Skylight::VERSION end
-    # rubocop:enable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
-
     config.skylight = ActiveSupport::OrderedOptions.new
 
     # The environments in which skylight should be enabled
@@ -50,11 +41,11 @@ module Skylight
       end
 
       def log_prefix
-        "[#{self.class.gem_name.upcase}] [#{self.class.version}]"
+        "[SKYLIGHT] [#{Skylight::VERSION}]"
       end
 
       def development_warning
-        "#{log_prefix} Running #{self.class.gem_name} in development mode. No data will be reported until you deploy your app.\n" \
+        "#{log_prefix} Running Skylight in development mode. No data will be reported until you deploy your app.\n" \
           "(To disable this message for all local apps, run `skylight disable_dev_warning`.)"
       end
 
@@ -66,11 +57,11 @@ module Skylight
 
         if activate?(config)
           if config
-            if self.class.namespace.start!(config)
+            if Skylight.start!(config)
               set_middleware_position(app, config)
-              Rails.logger.info "#{log_prefix} #{self.class.gem_name} agent enabled"
+              Rails.logger.info "#{log_prefix} Skylight agent enabled"
             else
-              Rails.logger.info "#{log_prefix} Unable to start, see the #{self.class.gem_name} logs for more details"
+              Rails.logger.info "#{log_prefix} Unable to start, see the Skylight logs for more details"
             end
           end
         elsif Rails.env.development?
@@ -80,11 +71,11 @@ module Skylight
           end
         elsif !Rails.env.test?
           unless config.user_config.disable_env_warning?
-            log_warning config, "#{log_prefix} You are running in the #{Rails.env} environment but haven't added it to config.#{self.class.root_key}.environments, so no data will be sent to Skylight servers."
+            log_warning config, "#{log_prefix} You are running in the #{Rails.env} environment but haven't added it to config.skylight.environments, so no data will be sent to Skylight servers."
           end
         end
       rescue Skylight::ConfigError => e
-        Rails.logger.error "#{log_prefix} #{e.message}; disabling #{self.class.gem_name} agent"
+        Rails.logger.error "#{log_prefix} #{e.message}; disabling Skylight agent"
       end
 
       def log_warning(config, msg)
@@ -131,7 +122,7 @@ module Skylight
           if (log_file = sk_rails_config(app).log_file)
             config["log_file"] = log_file
           elsif !config.key?("log_file") && !config.on_heroku?
-            config["log_file"] = File.join(Rails.root, "log/#{self.class.log_file_name}.log")
+            config["log_file"] = File.join(Rails.root, "log/skylight.log")
           end
 
           # Configure the log level
@@ -180,28 +171,28 @@ module Skylight
 
       def insert_middleware(app, config)
         if middleware_position.key?(:after)
-          app.middleware.insert_after(middleware_position[:after], self.class.middleware_class, config: config)
+          app.middleware.insert_after(middleware_position[:after], Skylight::Middleware, config: config)
         elsif middleware_position.key?(:before)
-          app.middleware.insert_before(middleware_position[:before], self.class.middleware_class, config: config)
+          app.middleware.insert_before(middleware_position[:before], Skylight::Middleware, config: config)
         else
-          raise "The middleware position you have set is invalid. Please be sure `config.#{self.class.root_key}.middleware_position` is set up correctly."
+          raise "The middleware position you have set is invalid. Please be sure `config.skylight.middleware_position` is set up correctly."
         end
       end
 
       def set_middleware_position(app, config)
         if middleware_position.is_a?(Integer)
-          app.middleware.insert middleware_position, self.class.middleware_class, config: config
+          app.middleware.insert middleware_position, Skylight::Middleware, config: config
         elsif middleware_position.is_a?(Hash) && middleware_position.keys.count == 1
           insert_middleware(app, config)
         elsif middleware_position.nil?
-          app.middleware.insert 0, self.class.middleware_class, config: config
+          app.middleware.insert 0, Skylight::Middleware, config: config
         else
-          raise "The middleware position you have set is invalid. Please be sure `config.#{self.class.root_key}.middleware_position` is set up correctly."
+          raise "The middleware position you have set is invalid. Please be sure `config.skylight.middleware_position` is set up correctly."
         end
       end
 
       def sk_rails_config(target = self)
-        target.config.send(self.class.root_key)
+        target.config.skylight
       end
   end
 end
