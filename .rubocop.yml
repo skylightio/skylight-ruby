@@ -12,7 +12,7 @@ Layout/DotPosition:
   EnforcedStyle: trailing
 
 Layout/IndentationConsistency:
-  EnforcedStyle: rails
+  EnforcedStyle: indented_internal_methods
 
 Layout/IndentFirstArrayElement:
   EnforcedStyle: consistent
