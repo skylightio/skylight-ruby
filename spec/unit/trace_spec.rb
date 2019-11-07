@@ -36,9 +36,9 @@ module Skylight
       b = trace.instrument "cat2"
       c = trace.instrument "cat3"
       clock.skip 0.001
-      trace.record "cat4"
+      record trace, "cat4"
       clock.skip 0.002
-      trace.record "cat5"
+      record trace, "cat5"
       trace.done(c)
       clock.skip 0.003
       trace.done(b)
@@ -210,7 +210,7 @@ module Skylight
     it "tracks the title" do
       trace = Skylight.trace "Rack", "app.rack.request"
       a = trace.instrument "foo", "How a foo is formed?"
-      trace.record :bar, "How a bar is formed?"
+      record trace, :bar, "How a bar is formed?"
       trace.done(a)
       trace.submit
 
@@ -223,7 +223,7 @@ module Skylight
     it "tracks the description" do
       trace = Skylight.trace "Rack", "app.rack.request"
       a = trace.instrument "foo", "FOO", "How a foo is formed?"
-      trace.record :bar, "BAR", "How a bar is formed?"
+      record trace, :bar, "BAR", "How a bar is formed?"
       trace.done(a)
       trace.submit
 
@@ -247,7 +247,7 @@ module Skylight
           and_return(Instrumenter::TOO_MANY_UNIQUES)
 
         a = trace.instrument "foo", "FOO", "How a foo is formed?"
-        trace.record :bar, "BAR", "How a bar is formed?"
+        record trace, :bar, "BAR", "How a bar is formed?"
         trace.done(a)
         trace.submit
 
@@ -344,6 +344,12 @@ module Skylight
 
     def spans
       server.reports[0].endpoints[0].traces[0].spans
+    end
+
+    def record(trace, *args)
+      if (span = trace.instrument(*args))
+        trace.done(span)
+      end
     end
 
     def get_annotation_val(span, key)

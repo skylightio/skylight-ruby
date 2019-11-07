@@ -114,24 +114,6 @@ module Skylight
       end
     end
 
-    def record(cat, title = nil, desc = nil)
-      return if muted? || broken?
-
-      title.freeze if title.is_a?(String)
-      desc.freeze  if desc.is_a?(String)
-
-      desc = @instrumenter.limited_description(desc)
-
-      time = Skylight::Util::Clock.nanos - gc_time
-
-      stop(start(time, cat, title, desc, nil), time)
-
-      nil
-    rescue => e
-      maybe_broken(e)
-      nil
-    end
-
     def instrument(cat, title = nil, desc = nil, meta = nil)
       return if muted?
       return if broken?
