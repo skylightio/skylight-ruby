@@ -464,7 +464,7 @@ module Skylight
       it "converts to env" do
         expect(get_env).to match(a_hash_including(
                                    "SKYLIGHT_VERSION" => Skylight::VERSION,
-                                   "SKYLIGHT_ROOT"    => "/tmp"
+                                   "SKYLIGHT_ROOT"    => Pathname.new("/tmp").realpath.to_s
                                  ))
       end
 
@@ -596,6 +596,18 @@ module Skylight
       end
     end
 
+    context "source locations" do
+      it "has default ignored gems" do
+        expect(Config.new.source_location_ignored_gems).to contain_exactly("skylight", "activesupport", "activerecord")
+      end
+
+      it "can add ignored gems" do
+        config = Config.new(source_location_ignored_gems: %w[rails graphiti])
+        expect(config.source_location_ignored_gems).to \
+          contain_exactly("skylight", "activesupport", "activerecord", "rails", "graphiti")
+      end
+    end
+
     context "validations" do
       let :config do
         Config.new(authentication: "testtoken")
@@ -679,7 +691,7 @@ module Skylight
           # (Includes default component info)
           "SKYLIGHT_AUTHENTICATION"          => "abc123|reporting_env=true",
           "SKYLIGHT_VERSION"                 => Skylight::VERSION,
-          "SKYLIGHT_ROOT"                    => "/tmp",
+          "SKYLIGHT_ROOT"                    => Pathname.new("/tmp").realpath.to_s,
           "SKYLIGHT_HOSTNAME"                => "test.local",
           "SKYLIGHT_AUTH_URL"                => "https://auth.skylight.io/agent",
           "SKYLIGHT_LAZY_START"              => "false",

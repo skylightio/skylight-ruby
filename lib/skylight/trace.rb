@@ -368,7 +368,7 @@ module Skylight
                  "  location=#{meta[:source_location]}; file=#{source_file}; line=#{source_line}"
           end
         elsif source_file
-          meta[:source_location] = [source_file, source_line].compact.join(":")
+          meta[:source_location] = sanitize_source_location(source_file, source_line)
         elsif source_line
           warn "Ignoring source_line without source_file; source_line=#{source_line}"
         end
@@ -378,6 +378,22 @@ module Skylight
         end
 
         meta
+      end
+
+      def sanitize_source_location(path, line)
+        # Do this first since gems may be vendored in the app repo. However, it might be slower.
+        # Should we cache matches?
+        if (gem_name = instrumenter.find_source_gem(path))
+          path = gem_name
+          line = nil
+        elsif instrumenter.project_path?(path)
+          # Get relative path to root
+          path = Pathname.new(path).relative_path_from(config.root).to_s
+        else
+          return
+        end
+
+        line ? "#{path}:#{line}" : path
       end
 
       def maybe_warn(context, msg)

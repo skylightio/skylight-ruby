@@ -106,11 +106,20 @@ module Skylight
       -"USER_CONFIG_PATH"             => :user_config_path,
 
       # == Heroku settings ==
-      -"HEROKU_DYNO_INFO_PATH"        => :'heroku.dyno_info_path'
+      -"HEROKU_DYNO_INFO_PATH"        => :'heroku.dyno_info_path',
+
+      # == Source Location ==
+      -"SOURCE_LOCATION_IGNORED_GEMS" => :source_location_ignored_gems
     }.freeze
 
     SERVER_VALIDATE = %i[
       enable_source_locations
+    ].freeze
+
+    DEFAULT_IGNORED_SOURCE_LOCATION_GEMS = [
+      -"skylight",
+      -"activesupport",
+      -"activerecord"
     ].freeze
 
     # Default values for Skylight configuration keys
@@ -499,8 +508,21 @@ module Skylight
         end
     end
 
+    # @api private
+    def source_location_ignored_gems
+      @source_location_ignored_gems ||=
+        begin
+          ignored_gems = get(:source_location_ignored_gems)
+          if ignored_gems.is_a?(String)
+            ignored_gems = ignored_gems.split(/\s*,\s*/)
+          end
+
+          Array(ignored_gems) | DEFAULT_IGNORED_SOURCE_LOCATION_GEMS
+        end
+    end
+
     def root
-      self[:root] || Dir.pwd
+      @root ||= Pathname.new(self[:root] || Dir.pwd).realpath
     end
 
     def logger
