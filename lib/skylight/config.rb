@@ -21,15 +21,6 @@ module Skylight
     # @api private
     MUTEX = Mutex.new
 
-    LOG_NAME = -"Skylight"
-
-    # rubocop:disable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
-    # FIXME: Remove these
-    def self.env_prefix; "SKYLIGHT_" end
-    def self.service_name; LOG_NAME end
-    def self.support_email; -"support@skylight.io" end
-    # rubocop:enable Style/SingleLineMethods, Layout/EmptyLineBetweenDefs
-
     # Map environment variable keys with Skylight configuration keys
     ENV_TO_KEY = {
       # == Authentication ==
@@ -585,7 +576,7 @@ module Skylight
         rescue
           Logger.new(STDOUT)
         end
-        l.progname = LOG_NAME
+        l.progname = "Skylight"
         l
       end
 

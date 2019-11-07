@@ -27,20 +27,12 @@ module Skylight
         {}
       end
 
-      def log_env_prefix
-        if (c = config_for_logging)
-          c.class.env_prefix
-        else
-          "SKYLIGHT_"
-        end
-      end
-
       def trace?
-        !!ENV["#{log_env_prefix}ENABLE_TRACE_LOGS"]
+        !!ENV[-"SKYLIGHT_ENABLE_TRACE_LOGS"]
       end
 
       def raise_on_error?
-        !!ENV["#{log_env_prefix}RAISE_ON_ERROR"]
+        !!ENV[-"SKYLIGHT_RAISE_ON_ERROR"]
       end
 
       # Logs if tracing

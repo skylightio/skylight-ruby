@@ -305,7 +305,7 @@ module Skylight
           end
         end
 
-        message << "\nThis request will not be tracked. Please contact #{config.class.support_email} for more information."
+        message << "\nThis request will not be tracked. Please contact support@skylight.io for more information."
 
         error message
 
