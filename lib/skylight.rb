@@ -167,9 +167,6 @@ module Skylight
         title       = opts[:title]
         desc        = opts[:description]
         meta        = opts[:meta]
-        if opts.key?(:annotations)
-          warn "call to #instrument included deprecated annotations"
-        end
       else
         category    = DEFAULT_CATEGORY
         title       = opts.to_s
