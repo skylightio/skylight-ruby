@@ -224,11 +224,11 @@ if enable
       class SkMutingNormalizer < Skylight::Normalizers::Normalizer
         register "mute.skylight"
 
-        def normalize(trace, name, payload)
+        def normalize(_trace, _name, _payload)
           ["app.mute", nil, nil, { mute_children: true }]
         end
 
-        def normalize_after(trace, span, name, payload)
+        def normalize_after(trace, _span, _name, _payload)
           trace.endpoint = "set-by-muted-normalizer"
         end
       end
@@ -679,14 +679,13 @@ if enable
       context "muted instrumentation" do
         let(:segment) { Rails.version =~ /^4\./ ? "html" : "text" }
         it "does not record instrumentation wrapped in a mute block" do
-          res = call MyApp, env("/users/muted_index")
+          call MyApp, env("/users/muted_index")
           server.wait resource: "/report"
 
           endpoint = server.reports.dig(0, :endpoints, 0)
           expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>#{segment}</sk-segment>")
 
           trace = endpoint.dig(:traces, 0)
-          titles = trace.filtered_spans.map { |s| s.event.title }
           spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
           expect(spans).to eq([
@@ -705,7 +704,6 @@ if enable
           expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>#{segment}</sk-segment>")
 
           trace = endpoint.dig(:traces, 0)
-          titles = trace.filtered_spans.map { |s| s.event.title }
 
           spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
@@ -1231,7 +1229,7 @@ if enable
       end
 
       it "correctly assigns endpoint names when ActiveJob is run synchronously" do
-        res = call MyApp, env("/users/inline_job")
+        call MyApp, env("/users/inline_job")
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
@@ -1250,7 +1248,7 @@ if enable
       end
 
       it "sets correct segment and endpoint for before_action redirects" do
-        res = call MyApp, env("/users/before_action_redirect")
+        call MyApp, env("/users/before_action_redirect")
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
@@ -1261,7 +1259,7 @@ if enable
       end
 
       it "sets correct segment and endpoint for action redirect" do
-        res = call MyApp, env("/users/action_redirect")
+        call MyApp, env("/users/action_redirect")
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
@@ -1272,7 +1270,7 @@ if enable
       end
 
       it "sets correct segment and endpoint for send_file" do
-        res = call MyApp, env("/users/send_png")
+        call MyApp, env("/users/send_png")
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
@@ -1283,7 +1281,7 @@ if enable
       end
 
       it "sets correct segment and endpoint for not_modified" do
-        res = call MyApp, env("/users/not_modified")
+        call MyApp, env("/users/not_modified")
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]

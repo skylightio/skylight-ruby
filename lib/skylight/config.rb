@@ -446,19 +446,6 @@ module Skylight
       end
     end
 
-    def to_json(*)
-      JSON.generate(as_json)
-    end
-
-    def as_json(*)
-      {
-        config: {
-          priority: @priority,
-          values:   @values
-        }
-      }
-    end
-
     def to_native_env
       ret = []
 
@@ -474,10 +461,6 @@ module Skylight
       ret << "SKYLIGHT_VALIDATE_AUTHENTICATION" << "false"
 
       ret
-    end
-
-    def write(_path)
-      raise "not implemented"
     end
 
     #
@@ -729,6 +712,10 @@ module Skylight
 
     def component
       components[:web]
+    end
+
+    def to_json(*)
+      JSON.generate(as_json)
     end
 
     def as_json(*)

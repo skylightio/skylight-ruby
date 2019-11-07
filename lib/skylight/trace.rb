@@ -10,7 +10,6 @@ module Skylight
     include Util::Logging
 
     attr_reader :instrumenter, :endpoint, :segment, :notifications, :meta, :component
-    attr_accessor :uuid
 
     def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil, meta: nil, segment: nil, component: nil)
       uuid = SecureRandom.uuid

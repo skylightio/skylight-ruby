@@ -143,7 +143,7 @@ if enable
             QueryType = GraphQL::ObjectType.define do
               name "Query"
               field :some_dragonflies, !types[Types::SpeciesType], description: "A list of some of the dragonflies" do
-                resolve -> (obj, args, ctx) {
+                resolve -> (_obj, _args, _ctx) {
                   Species.all
                 }
               end
@@ -173,7 +173,7 @@ if enable
                 argument :genus, !types.String
                 argument :species, !types.String
 
-                resolve ->(o,args,c) {
+                resolve -> (_, args, _) {
                   genus = Genus.find_by!(name: args[:genus])
                   species = genus.species.new(name: args[:species])
                   if species.save
@@ -439,7 +439,7 @@ if enable
 
         context "with single queries" do
           it "successfully calls into graphql with anonymous queries" do
-            res = make_graphql_request(query: "query { #{query_inner} }")
+            make_graphql_request(query: "query { #{query_inner} }")
 
             server.wait resource: "/report"
 
@@ -465,7 +465,7 @@ if enable
           end
 
           it "successfully calls into graphql with named queries" do
-            res = call env("/test", method: :POST, params: {
+            call env("/test", method: :POST, params: {
               operationName: "Anisoptera", # This is optional if there is only one query node
               query: "query Anisoptera { #{query_inner} }" })
 
@@ -499,7 +499,7 @@ if enable
           it "successfully calls into graphql with anonymous queries" do
             queries = ["query { #{query_inner} }"].cycle.take(3)
 
-            res = call env("/test", method: :POST, params: { queries: queries })
+            call env("/test", method: :POST, params: { queries: queries })
 
             server.wait resource: "/report"
 
@@ -530,7 +530,7 @@ if enable
             queries = ["query { #{query_inner} }"].cycle.take(3)
             queries.push("query myFavoriteDragonflies { #{query_inner} }")
 
-            res = call env("/test", method: :POST, params: { queries: queries })
+            call env("/test", method: :POST, params: { queries: queries })
 
             server.wait resource: "/report"
 
@@ -566,7 +566,7 @@ if enable
               "query kindOfOkayDragonflies { #{query_inner} }"
             ]
 
-            res = call env("/test", method: :POST, params: { queries: queries })
+            call env("/test", method: :POST, params: { queries: queries })
 
             server.wait resource: "/report"
 
@@ -673,7 +673,7 @@ if enable
           let(:mutation_name) { "CreateSpeciesMutation" }
 
           it "successfully calls into graphql with anonymous mutations" do
-            res = make_graphql_request(
+            make_graphql_request(
               query: "mutation #{mutation_name}($genus: String!, $species: String!) { #{mutation_inner} }",
               variables: {"genus": "Ischnura", "species": "damula"}
             )

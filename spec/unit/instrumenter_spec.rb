@@ -472,7 +472,6 @@ describe "Skylight::Instrumenter", :http, :agent do
 
           it "can stack mute and unmute blocks" do
             trace = Skylight.trace "Rack", "app.rack.request"
-            a = b = c = d = e = f = nil
             Skylight.instrument(title: "foo") do
 
               Skylight.unmute do
