@@ -72,8 +72,7 @@ module Skylight
 
         it "instruments a successful request" do
           args = { category: "api.http.get",
-                   title: "GET www.example.com",
-                   meta: { host: "www.example.com" } }
+                   title: "GET www.example.com" }
 
           expect(Skylight).to receive(:instrument).with(args).and_return(123)
           expect(Skylight).to receive(:done).with(123, {}).once
@@ -85,8 +84,7 @@ module Skylight
 
         it "instruments an errored request" do
           args = { category: "api.http.get",
-                   title: "GET www.example.com",
-                   meta: { host: "www.example.com" } }
+                   title: "GET www.example.com" }
           expect(Skylight).to receive(:instrument).with(args).and_return(123)
           expect(Skylight).to receive(:done).with(123, {}).once
 

@@ -19,25 +19,52 @@ require "skylight/probes"
 # For prettier global names
 require "English"
 
+require "active_support/notifications"
+
+# Specifically check for Railtie since we've had at least one case of a
+#   customer having Rails defined without having all of Rails loaded.
+if defined?(Rails::Railtie)
+  require "skylight/railtie"
+end
+
 module Skylight
   # Used from the CLI
   autoload :CLI, "skylight/cli"
   # Is this autoload even useful?
   autoload :Normalizers, "skylight/normalizers"
 
-  # Specifically check for Railtie since we've had at least one case of a
-  #   customer having Rails defined without having all of Rails loaded.
-  if defined?(Rails::Railtie)
-    require "skylight/railtie"
-  end
-
   extend Util::Logging
 
   LOCK = Mutex.new
 
+  # @api private
+  TIERS = %w[
+    rack
+    api
+    app
+    view
+    db
+    noise
+    other
+  ].freeze
+
+  # @api private
+  TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/u
+
+  # @api private
+  CATEGORY_REGEX = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/iu
+
+  # @api private
+  DEFAULT_CATEGORY = "app.block".freeze
+
+  # @api private
+  DEFAULT_OPTIONS = { category: DEFAULT_CATEGORY }.freeze
+
   at_exit { stop! }
 
   class << self
+    extend Util::InstrumenterMethod
+
     def instrumenter
       defined?(@instrumenter) && @instrumenter
     end
@@ -103,7 +130,7 @@ module Skylight
     # Check tracing
     def tracing?
       t { "checking tracing?; thread=#{Thread.current.object_id}" }
-      instrumenter && instrumenter.current_trace
+      instrumenter&.current_trace
     end
 
     # Start a trace
@@ -153,57 +180,19 @@ module Skylight
       instrumenter.instrument(category, title, desc, meta, &block)
     end
 
-    def mute
-      unless instrumenter
-        return yield if block_given?
-        return
-      end
+    instrumenter_method :config
 
-      instrumenter.mute do
-        yield if block_given?
-      end
-    end
-
-    def unmute
-      unless instrumenter
-        return yield if block_given?
-        return
-      end
-
-      instrumenter.unmute do
-        yield if block_given?
-      end
-    end
-
-    def muted?
-      instrumenter&.muted?
-    end
+    instrumenter_method :mute, block: true
+    instrumenter_method :unmute, block: true
+    instrumenter_method :muted?
 
     # End a span
-    def done(span, meta = nil)
-      return unless instrumenter
-      instrumenter.done(span, meta)
-    end
+    instrumenter_method :done
 
-    def broken!
-      return unless instrumenter
-      instrumenter.broken!
-    end
+    instrumenter_method :broken!
 
     # Temporarily disable
-    def disable
-      unless instrumenter
-        return yield if block_given?
-        return
-      end
-
-      instrumenter.disable { yield }
-    end
-
-    def config
-      return unless instrumenter
-      instrumenter.config
-    end
+    instrumenter_method :disable, block: true
 
     # Runs the shutdown procedure in the background.
     # This should do little more than unsubscribe from all ActiveSupport::Notifications
@@ -213,78 +202,4 @@ module Skylight
       end
     end
   end
-
-  # Some methods exepected to be defined by the native code (OUTDATED)
-  #
-  #   * Skylight::Util::Clock#native_hrtime
-  #       - returns current time in nanoseconds
-  #   * Skylight::Trace#native_new(start, uuid, endpoint)
-  #       - start is milliseconds
-  #       - uuid is currently unused
-  #       - endpoint is the endpoint name
-  #       - returns an instance of Trace
-  #   * Skylight::Trace#native_get_started_at
-  #       - returns the start time
-  #   * Skylight::Trace#native_get_endpoint
-  #       - returns the endpoint name
-  #   * Skylight::Trace#native_set_endpoint(endpoint)
-  #       - returns nil
-  #   * Skylight::Trace#native_get_uuid
-  #       - returns the uuid
-  #   * Skylight::Trace#native_start_span(time, category)
-  #       - time is milliseconds
-  #       - category is a string
-  #       - returns a numeric span id
-  #   * Skylight::Trace#native_stop_span(span, time)
-  #       - span is the span id
-  #       - time is milliseconds
-  #       - returns nil
-  #   * Skylight::Trace#native_span_set_title(span, title)
-  #       - span is the span id
-  #       - title is a string
-  #       - returns nil
-  #   * Skylight::Trace#native_span_set_description(span, desc)
-  #       - span is the span id
-  #       - desc is a string
-  #       - returns nil
-  #   * Skylight::Instrumenter#native_new(env)
-  #       - env is the config converted to a flattened array of ENV style values
-  #             e.g. `["SKYLIGHT_AUTHENTICATION", "abc123", ...]
-  #       - returns a new Instrumenter instance
-  #   * Skylight::Instrumenter#native_start()
-  #       - returns a truthy value if successful
-  #   * Skylight::Instrumenter#native_stop()
-  #       - returns nil
-  #   * Skylight::Instrumenter#native_submit_trace(trace)
-  #       - trace is a Trace instance
-  #       - returns nil
-  #   * Skylight::Instrumenter#native_track_desc(endpoint, description)
-  #       - endpoint is a string
-  #       - description is a string
-  #       - returns truthy unless uniqueness cap exceeded
-
-  require "active_support/notifications"
-
-  # @api private
-  TIERS = %w[
-    rack
-    api
-    app
-    view
-    db
-    noise
-    other
-  ].freeze
-
-  # @api private
-  TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/u
-
-  # @api private
-  CATEGORY_REGEX = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/iu
-
-  # @api private
-  DEFAULT_CATEGORY = "app.block".freeze
-
-  # @api private
-  DEFAULT_OPTIONS = { category: DEFAULT_CATEGORY }.freeze
 end

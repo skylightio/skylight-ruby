@@ -1,6 +1,55 @@
 require "skylight/util/platform"
 
 module Skylight
+  # Some methods exepected to be defined by the native code (OUTDATED)
+  #
+  #   * Skylight::Util::Clock#native_hrtime
+  #       - returns current time in nanoseconds
+  #   * Skylight::Trace#native_new(start, uuid, endpoint)
+  #       - start is milliseconds
+  #       - uuid is currently unused
+  #       - endpoint is the endpoint name
+  #       - returns an instance of Trace
+  #   * Skylight::Trace#native_get_started_at
+  #       - returns the start time
+  #   * Skylight::Trace#native_get_endpoint
+  #       - returns the endpoint name
+  #   * Skylight::Trace#native_set_endpoint(endpoint)
+  #       - returns nil
+  #   * Skylight::Trace#native_get_uuid
+  #       - returns the uuid
+  #   * Skylight::Trace#native_start_span(time, category)
+  #       - time is milliseconds
+  #       - category is a string
+  #       - returns a numeric span id
+  #   * Skylight::Trace#native_stop_span(span, time)
+  #       - span is the span id
+  #       - time is milliseconds
+  #       - returns nil
+  #   * Skylight::Trace#native_span_set_title(span, title)
+  #       - span is the span id
+  #       - title is a string
+  #       - returns nil
+  #   * Skylight::Trace#native_span_set_description(span, desc)
+  #       - span is the span id
+  #       - desc is a string
+  #       - returns nil
+  #   * Skylight::Instrumenter#native_new(env)
+  #       - env is the config converted to a flattened array of ENV style values
+  #             e.g. `["SKYLIGHT_AUTHENTICATION", "abc123", ...]
+  #       - returns a new Instrumenter instance
+  #   * Skylight::Instrumenter#native_start()
+  #       - returns a truthy value if successful
+  #   * Skylight::Instrumenter#native_stop()
+  #       - returns nil
+  #   * Skylight::Instrumenter#native_submit_trace(trace)
+  #       - trace is a Trace instance
+  #       - returns nil
+  #   * Skylight::Instrumenter#native_track_desc(endpoint, description)
+  #       - endpoint is a string
+  #       - description is a string
+  #       - returns truthy unless uniqueness cap exceeded
+
   # @api private
   # Whether or not the native extension is present
   @has_native_ext = false

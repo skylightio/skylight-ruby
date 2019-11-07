@@ -1,4 +1,3 @@
-ENV['SQLITE_VERSION'] = '~> 1.4'
 ENV['MONGOID_VERSION'] = 'skip'
 ENV['DELAYED_JOB_VERSION'] = 'none'
 ENV['RAILS_EDGE'] = 'true'

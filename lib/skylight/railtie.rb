@@ -150,7 +150,7 @@ module Skylight
       end
 
       def environments
-        Array(sk_rails_config.environments).map { |e| e && e.to_s }.compact
+        Array(sk_rails_config.environments).map { |e| e&.to_s }.compact
       end
 
       def activate?(sk_config)

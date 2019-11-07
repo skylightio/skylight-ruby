@@ -40,13 +40,12 @@ module Skylight
     end
 
     it "Processes uncached queries" do
-      name, title, desc, meta =
+      name, title, desc =
         normalize(name: "Foo Load", sql: "select * from foo")
 
       expect(name).to eq("db.sql.query")
       expect(title).to eq("SELECT FROM foo")
       expect(desc).to eq("select * from foo")
-      expect(meta).to eq(adapter: "postgres", database: "testdb")
     end
 
     it "Pulls out binds" do
