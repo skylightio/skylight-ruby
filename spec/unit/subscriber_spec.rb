@@ -2,33 +2,8 @@ require "spec_helper"
 
 module Skylight
   describe Subscriber do
-    class FakeTrace
-      def instrument(*)
-        @span_counter ||= 0
-        @span_counter += 1
-      end
-
-      def notifications
-        @notifications ||= []
-      end
-
-      def done(*); end
-    end
-
-    FakeInstrumenter = Struct.new(:current_trace) do
-      def disabled?
-        false
-      end
-    end
-
-    let(:instrumenter) do
-      FakeInstrumenter.new(trace)
-    end
-
-    let(:trace) { FakeTrace.new }
-
     let(:config) { Config.new(foo: "hello") }
-    let(:subscriber) { Subscriber.new(config, instrumenter) }
+    let(:subscriber) { Subscriber.new(config, trace.instrumenter) }
 
     before { allow(subscriber).to receive(:raise_on_error?) { false } }
 

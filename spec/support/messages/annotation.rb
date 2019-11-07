@@ -3,7 +3,11 @@ module SpecHelper
     class AnnotationVal
       include Beefcake::Message
 
-      optional :uint_val, :uint64, 1
+      optional :uint_val,   :uint64, 1
+      optional :int_val,    :int64,  2 # Currently unused
+      optional :double_val, :double, 3 # Currently unused
+      optional :string_val, :string, 4
+      repeated :nested,     AnnotationVal, 5 # Currently unused
     end
 
     class Annotation
@@ -12,6 +16,8 @@ module SpecHelper
         # rubocop:disable Naming/ConstantName
         ObjectAllocationRemainder = 1
         ObjectAllocationOffset = 2
+        SourceLocation = 3
+
         ObjectAllocationAbsoluteOffset = 1024
         ObjectAllocationCount = 1025
         # rubocop:enable Naming/ConstantName
