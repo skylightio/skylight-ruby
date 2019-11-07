@@ -5,7 +5,7 @@ module Skylight
   class Trace
     GC_CAT = "noise.gc".freeze
 
-    META_KEYS = %i(source_location source_file source_line mute_children).freeze
+    META_KEYS = %i[source_location source_file source_line mute_children].freeze
 
     include Util::Logging
 
