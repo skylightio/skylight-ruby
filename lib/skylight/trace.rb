@@ -5,7 +5,7 @@ module Skylight
   class Trace
     GC_CAT = "noise.gc".freeze
 
-    META_KEYS = %i(source_location source_file source_line mute_children).freeze
+    META_KEYS = %i[source_location source_file source_line mute_children].freeze
 
     include Util::Logging
 
@@ -112,24 +112,6 @@ module Skylight
         error "failed to instrument span; msg=%s; endpoint=%s", err.message, endpoint
         broken!
       end
-    end
-
-    def record(cat, title = nil, desc = nil)
-      return if muted? || broken?
-
-      title.freeze if title.is_a?(String)
-      desc.freeze  if desc.is_a?(String)
-
-      desc = @instrumenter.limited_description(desc)
-
-      time = Skylight::Util::Clock.nanos - gc_time
-
-      stop(start(time, cat, title, desc, nil), time)
-
-      nil
-    rescue => e
-      maybe_broken(e)
-      nil
     end
 
     def instrument(cat, title = nil, desc = nil, meta = nil)
@@ -323,7 +305,7 @@ module Skylight
           end
         end
 
-        message << "\nThis request will not be tracked. Please contact #{config.class.support_email} for more information."
+        message << "\nThis request will not be tracked. Please contact support@skylight.io for more information."
 
         error message
 
