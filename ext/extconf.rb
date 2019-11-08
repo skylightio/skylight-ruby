@@ -140,14 +140,14 @@ if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(
 
   begin
     res = Skylight::NativeExtFetcher.fetch(
-      source: SKYLIGHT_SOURCE_URL,
-      version: version,
-      target: hdrpath,
+      source:   SKYLIGHT_SOURCE_URL,
+      version:  version,
+      target:   hdrpath,
       checksum: checksum,
-      arch: Platform.tuple,
+      arch:     Platform.tuple,
       required: SKYLIGHT_REQUIRED,
       platform: Platform.tuple,
-      logger: LOG
+      logger:   LOG
     )
 
     unless res

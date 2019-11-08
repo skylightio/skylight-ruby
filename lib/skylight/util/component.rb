@@ -42,7 +42,7 @@ module Skylight
       def as_json(*)
         {
           component: name,
-          env: environment
+          env:       environment
         }
       end
 

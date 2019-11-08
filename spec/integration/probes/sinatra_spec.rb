@@ -51,7 +51,7 @@ if defined?(Sinatra)
     it "instruments named templates" do
       expect(Skylight).to receive(:instrument).with(
         category: "view.render.template",
-        title: "hello"
+        title:    "hello"
       ).and_call_original
 
       get "/named-template"
@@ -62,7 +62,7 @@ if defined?(Sinatra)
     it "instruments inline templates" do
       expect(Skylight).to receive(:instrument).with(
         category: "view.render.template",
-        title: "Inline template (erb)"
+        title:    "Inline template (erb)"
       ).and_call_original
 
       get "/inline-template"

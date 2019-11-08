@@ -22,8 +22,8 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
     Excon.get(server_uri)
 
     expected = {
-      cat: "api.http.get",
-      title: "GET 127.0.0.1",
+      cat:      "api.http.get",
+      title:    "GET 127.0.0.1",
       duration: 1
     }
     expect(current_trace.mock_spans[1]).to include(expected)
@@ -49,8 +49,8 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
       Excon.get("http://example.com") rescue nil
 
       expected = {
-        cat: "api.http.get",
-        title: "GET example.com",
+        cat:      "api.http.get",
+        title:    "GET example.com",
         duration: 2
       }
       expect(current_trace.mock_spans[1]).to include(expected)

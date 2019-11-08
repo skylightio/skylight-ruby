@@ -8,9 +8,9 @@ module Skylight
             def perform_request(method, path, *args, &block)
               ActiveSupport::Notifications.instrument(
                 "request.elasticsearch",
-                name: "Request",
+                name:   "Request",
                 method: method,
-                path: path
+                path:   path
               ) do
                 # Prevent HTTP-related probes from firing
                 Skylight::Normalizers::Faraday::Request.disable do

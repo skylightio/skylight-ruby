@@ -1,7 +1,6 @@
 module Skylight
   module Normalizers
     class ActiveStorage < Normalizer
-      # rubocop:disable Layout/AlignHash # Ideally we'd be able to switch to EnforcedColonStyle: table temporarily
       TITLES = {
         "preview.active_storage"                    => "Preview",
         "transform.active_storage"                  => "Transform",
@@ -14,7 +13,6 @@ module Skylight
         "service_exist.active_storage"              => "Exist",
         "service_url.active_storage"                => "Url"
       }.freeze
-      # rubocop:enable Layout/AlignHash
 
       TITLES.each_key do |key|
         register key

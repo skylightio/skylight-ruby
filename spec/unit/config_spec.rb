@@ -107,18 +107,18 @@ module Skylight
       let :config do
         Config.new(
           "production",
-          foo: "bar",
-          one: 1,
-          zomg: "YAY",
-          nested: { "wat" => "w0t", "yes" => "no" },
+          foo:        "bar",
+          one:        1,
+          zomg:       "YAY",
+          nested:     { "wat" => "w0t", "yes" => "no" },
           production: {
-            foo: "baz",
-            two: 2,
-            zomg: nil,
+            foo:    "baz",
+            two:    2,
+            zomg:   nil,
             nested: { "yes" => "YES" }
           },
-          staging: {
-            foo: "no",
+          staging:    {
+            foo:   "no",
             three: 3
           }
         )
@@ -155,12 +155,12 @@ module Skylight
       let :config do
         Config.new(
           "production",
-          foo: "bar",
-          nested: { foo: "bar", "baz" => "zomg" },
+          foo:        "bar",
+          nested:     { foo: "bar", "baz" => "zomg" },
           production: {
             foo: "baz"
           },
-          priority: {
+          priority:   {
             foo: "win",
             one: "1",
             "nested.foo" => "p"
@@ -229,8 +229,8 @@ module Skylight
 
       let :config do
         Config.load({ file: file, environment: "production" },
-                    "foo" => "fail",
-                    "SKYLIGHT_LOG_FILE" => "production.log",
+                    "foo"                     => "fail",
+                    "SKYLIGHT_LOG_FILE"       => "production.log",
                     "SKYLIGHT_ALERT_LOG_FILE" => "alert.log")
       end
 
@@ -312,7 +312,7 @@ module Skylight
 
       let :config do
         Config.load({ file: file, environment: "production" },
-                    "foo" => "fail",
+                    "foo"         => "fail",
                     "SK_LOG_FILE" => "test.log")
       end
 
@@ -446,7 +446,7 @@ module Skylight
       it "prioritizes skylight's proxy env var" do
         c = Config.load({ environment: :production },
                         "SKYLIGHT_PROXY_URL" => "http://foo.com",
-                        "HTTP_PROXY" => "http://bar.com")
+                        "HTTP_PROXY"         => "http://bar.com")
 
         expect(c[:proxy_url]).to eq("http://foo.com")
       end
@@ -464,7 +464,7 @@ module Skylight
       it "converts to env" do
         expect(get_env).to match(a_hash_including(
                                    "SKYLIGHT_VERSION" => Skylight::VERSION,
-                                   "SKYLIGHT_ROOT" => "/tmp"
+                                   "SKYLIGHT_ROOT"    => "/tmp"
                                  ))
       end
 
@@ -506,9 +506,9 @@ module Skylight
       it "converts to query string" do
         Timecop.freeze Time.at(1452620644) do
           config = Config.new deploy: {
-            id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
+            id:          "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
                 "1234567890abcdefghijklmnopqrstuvwxyz",
-            git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dwhat?",
+            git_sha:     "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dwhat?",
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt " \
                           "ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation " \
                           "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " \
@@ -518,10 +518,10 @@ module Skylight
           }
 
           expect(config.deploy.to_query_hash).to eq(
-            timestamp: 1452620644,
-            deploy_id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
+            timestamp:   1452620644,
+            deploy_id:   "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
                        "1234567890abcdefghijklmnopqrs",
-            git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dw",
+            git_sha:     "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dw",
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt " \
                           "ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation " \
                           "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in"
@@ -677,12 +677,12 @@ module Skylight
       it "converts to env" do
         expect(get_env).to eq(
           # (Includes default component info)
-          "SKYLIGHT_AUTHENTICATION" => "abc123|reporting_env=true",
-          "SKYLIGHT_VERSION" => Skylight::VERSION,
-          "SKYLIGHT_ROOT" => "/tmp",
-          "SKYLIGHT_HOSTNAME" => "test.local",
-          "SKYLIGHT_AUTH_URL" => "https://auth.skylight.io/agent",
-          "SKYLIGHT_LAZY_START" => "false",
+          "SKYLIGHT_AUTHENTICATION"          => "abc123|reporting_env=true",
+          "SKYLIGHT_VERSION"                 => Skylight::VERSION,
+          "SKYLIGHT_ROOT"                    => "/tmp",
+          "SKYLIGHT_HOSTNAME"                => "test.local",
+          "SKYLIGHT_AUTH_URL"                => "https://auth.skylight.io/agent",
+          "SKYLIGHT_LAZY_START"              => "false",
           "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false"
         )
       end

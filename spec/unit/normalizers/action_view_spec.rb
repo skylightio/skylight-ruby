@@ -23,7 +23,7 @@ module Skylight
       it "normalizes the title to a path relative to view paths" do
         complete_payload = {
           identifier: "#{project_root}/app/views/foo/bar",
-          count: 10
+          count:      10
         }.merge(group_payload)
         name, title, desc = normalize(complete_payload)
         expect(name).to eq(group_name)

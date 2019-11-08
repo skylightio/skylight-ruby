@@ -24,8 +24,8 @@ describe "skylight setup", :http, :agent do
   def should_successfully_create_app(token = nil)
     server.mock "/apps", :post do
       { app:
-        { id: "my-app-id",
-          token: "my-app-token" } }
+             { id:    "my-app-id",
+               token: "my-app-token" } }
     end
 
     unless token
@@ -56,7 +56,7 @@ describe "skylight setup", :http, :agent do
       # Name "Spec" comes from the default file location of tmp/spec
       expect(server.requests[0]).to post_json("/apps",
                                               authorization: nil,
-                                              input: { "app" => { "name" => "Spec" }, "token" => "foobar" })
+                                              input:         { "app" => { "name" => "Spec" }, "token" => "foobar" })
     end
 
     it "handles server errors" do

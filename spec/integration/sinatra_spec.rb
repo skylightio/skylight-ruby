@@ -41,7 +41,7 @@ if enable
 
     let :app do
       Rack::URLMap.new(
-        '/' => MyApp,
+        '/'               => MyApp,
         '/url_prefix/api' => MyApp
       )
     end

@@ -19,46 +19,45 @@ module Skylight
     # @api private
     MUTEX = Mutex.new
 
-    # rubocop:disable Layout/AlignHash # Ideally we'd be able to switch to EnforcedColonStyle: table temporarily
     # Map environment variable keys with Skylight configuration keys
     ENV_TO_KEY = {
       # == Authentication ==
-      -"AUTHENTICATION" => :authentication,
+      -"AUTHENTICATION"               => :authentication,
 
       # == App settings ==
-      -"ROOT"          => :root,
-      -"HOSTNAME"      => :hostname,
-      -"SESSION_TOKEN" => :session_token,
+      -"ROOT"                         => :root,
+      -"HOSTNAME"                     => :hostname,
+      -"SESSION_TOKEN"                => :session_token,
 
       # == Component settings ==
-      -"ENV" => :env,
-      -"COMPONENT" => :component,
-      -"REPORT_RAILS_ENV" => :report_rails_env,
+      -"ENV"                          => :env,
+      -"COMPONENT"                    => :component,
+      -"REPORT_RAILS_ENV"             => :report_rails_env,
 
       # == Deploy settings ==
-      -"DEPLOY_ID"          => :'deploy.id',
-      -"DEPLOY_GIT_SHA"     => :'deploy.git_sha',
-      -"DEPLOY_DESCRIPTION" => :'deploy.description',
+      -"DEPLOY_ID"                    => :'deploy.id',
+      -"DEPLOY_GIT_SHA"               => :'deploy.git_sha',
+      -"DEPLOY_DESCRIPTION"           => :'deploy.description',
 
       # == Logging ==
-      -"LOG_FILE"       => :log_file,
-      -"LOG_LEVEL"      => :log_level,
-      -"ALERT_LOG_FILE" => :alert_log_file,
-      -"LOG_SQL_PARSE_ERRORS" => :log_sql_parse_errors,
+      -"LOG_FILE"                     => :log_file,
+      -"LOG_LEVEL"                    => :log_level,
+      -"ALERT_LOG_FILE"               => :alert_log_file,
+      -"LOG_SQL_PARSE_ERRORS"         => :log_sql_parse_errors,
 
       # == Proxy ==
-      -"PROXY_URL" => :proxy_url,
+      -"PROXY_URL"                    => :proxy_url,
 
       # == Instrumenter ==
-      -"ENABLE_SEGMENTS" => :enable_segments,
-      -"ENABLE_SIDEKIQ" => :enable_sidekiq,
-      -"IGNORED_ENDPOINT" => :ignored_endpoint,
-      -"IGNORED_ENDPOINTS" => :ignored_endpoints,
-      -"SINATRA_ROUTE_PREFIXES" => :sinatra_route_prefixes,
+      -"ENABLE_SEGMENTS"              => :enable_segments,
+      -"ENABLE_SIDEKIQ"               => :enable_sidekiq,
+      -"IGNORED_ENDPOINT"             => :ignored_endpoint,
+      -"IGNORED_ENDPOINTS"            => :ignored_endpoints,
+      -"SINATRA_ROUTE_PREFIXES"       => :sinatra_route_prefixes,
 
       # == Max Span Handling ==
-      -"REPORT_MAX_SPANS_EXCEEDED" => :report_max_spans_exceeded,
-      -"PRUNE_LARGE_TRACES" => :prune_large_traces,
+      -"REPORT_MAX_SPANS_EXCEEDED"    => :report_max_spans_exceeded,
+      -"PRUNE_LARGE_TRACES"           => :prune_large_traces,
 
       # == Skylight Remote ==
       -"AUTH_URL"                     => :auth_url,
@@ -99,49 +98,47 @@ module Skylight
 
       # == Legacy env vars ==
       #
-      -"AGENT_LOCKFILE"      => :'agent.lockfile',
-      -"AGENT_SOCKFILE_PATH" => :'agent.sockfile_path',
+      -"AGENT_LOCKFILE"               => :'agent.lockfile',
+      -"AGENT_SOCKFILE_PATH"          => :'agent.sockfile_path',
 
       # == User config settings ==
-      -"USER_CONFIG_PATH" => :user_config_path,
+      -"USER_CONFIG_PATH"             => :user_config_path,
 
       # == Heroku settings ==
-      -"HEROKU_DYNO_INFO_PATH" => :'heroku.dyno_info_path'
+      -"HEROKU_DYNO_INFO_PATH"        => :'heroku.dyno_info_path'
     }.freeze
-    # rubocop:enable Layout/AlignHash
 
-    # rubocop:disable Layout/AlignHash # Ideally we'd be able to switch to EnforcedColonStyle: table temporarily
     # Default values for Skylight configuration keys
     def self.default_values
       @default_values ||=
         begin
           ret = {
             # URLs
-            auth_url:                 -"https://auth.skylight.io/agent",
-            app_create_url:           -"https://www.skylight.io/apps",
-            merges_url:               -"https://www.skylight.io/merges",
-            validation_url:           -"https://auth.skylight.io/agent/config",
+            auth_url:                  -"https://auth.skylight.io/agent",
+            app_create_url:            -"https://www.skylight.io/apps",
+            merges_url:                -"https://www.skylight.io/merges",
+            validation_url:            -"https://auth.skylight.io/agent/config",
 
             # Logging
-            log_file:                 -"-",
-            log_level:                -"INFO",
-            alert_log_file:           -"-",
-            log_sql_parse_errors:     true,
+            log_file:                  -"-",
+            log_level:                 -"INFO",
+            alert_log_file:            -"-",
+            log_sql_parse_errors:      true,
 
             # Features
-            enable_segments:          true,
-            enable_sidekiq:           false,
-            sinatra_route_prefixes:   false,
+            enable_segments:           true,
+            enable_sidekiq:            false,
+            sinatra_route_prefixes:    false,
 
             # Deploys
-            'heroku.dyno_info_path':  -"/etc/heroku/dyno",
-            report_rails_env:         true,
+            'heroku.dyno_info_path':   -"/etc/heroku/dyno",
+            report_rails_env:          true,
 
             # Daemon
-            'daemon.lazy_start':        true,
-            hostname:                   Util::Hostname.default_hostname,
-            report_max_spans_exceeded:  false,
-            prune_large_traces:         true
+            'daemon.lazy_start':       true,
+            hostname:                  Util::Hostname.default_hostname,
+            report_max_spans_exceeded: false,
+            prune_large_traces:        true
           }
 
           unless Util::Platform::OS == -"darwin"
@@ -159,16 +156,13 @@ module Skylight
           ret
         end
     end
-    # rubocop:enable Layout/AlignHash
 
-    # rubocop:disable Layout/AlignHash # Ideally we'd be able to switch to EnforcedColonStyle: table temporarily
     REQUIRED_KEYS = {
       authentication: "authentication token",
       hostname:       "server hostname",
       auth_url:       "authentication url",
       validation_url: "config validation url"
     }.freeze
-    # rubocop:enable Layout/AlignHash
 
     def self.native_env_keys
       @native_env_keys ||= %i[
@@ -209,7 +203,6 @@ module Skylight
       ]
     end
 
-    # rubocop:disable Layout/AlignHash # Ideally we'd be able to switch to EnforcedColonStyle: table temporarily
     # Maps legacy config keys to new config keys
     def self.legacy_keys
       @legacy_keys ||= {
@@ -217,7 +210,6 @@ module Skylight
         'agent.lockfile':      :'daemon.pidfile_path'
       }
     end
-    # rubocop:enable Layout/AlignHash
 
     def self.validators
       @validators ||= {
@@ -705,7 +697,7 @@ module Skylight
 
     def components
       @components ||= {
-        web: Util::Component.new(
+        web:    Util::Component.new(
           get(:env),
           Util::Component::DEFAULT_NAME
         ),
@@ -731,7 +723,7 @@ module Skylight
       {
         config: {
           priority: @priority.merge(component.as_json),
-          values: @values
+          values:   @values
         }
       }
     end

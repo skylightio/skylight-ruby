@@ -455,7 +455,7 @@ if enable
         def show
           render(
             status: 200,
-            text: "Zomg!"
+            text:   "Zomg!"
           )
         end
 

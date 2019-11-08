@@ -7,9 +7,9 @@ module Skylight
                            "address=Oxford+University%2C+uk&sensor=false", nil)
 
       category, title, description = normalize(
-        url: url,
+        url:    url,
         method: :get,
-        name: "request.faraday"
+        name:   "request.faraday"
       )
 
       expect(category).to    eq("api.http.get")

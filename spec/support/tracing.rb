@@ -52,8 +52,8 @@ module SpecHelper
 
   def event(cat, title = nil, desc = nil)
     Messages::Event.new(
-      category: cat,
-      title: title,
+      category:    cat,
+      title:       title,
       description: desc
     )
   end

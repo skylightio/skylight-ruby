@@ -64,8 +64,8 @@ module SpecHelper
 
       unless ret
         @fails << {
-          key: key,
-          actual: env[key],
+          key:      key,
+          actual:   env[key],
           expected: val
         }
       end

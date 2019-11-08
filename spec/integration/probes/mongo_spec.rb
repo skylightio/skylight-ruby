@@ -13,7 +13,7 @@ if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
 
       # No details on the insert because the documents aren't guaranteed to follow any pattern
       expected = {
-        cat: "db.mongo.command",
+        cat:   "db.mongo.command",
         title: "echo_test.insert artists"
       }
       expect(current_trace.mock_spans[1]).to include(expected)
@@ -147,9 +147,9 @@ if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
       ]).to_a
 
       expected = {
-        cat: "db.mongo.command",
+        cat:   "db.mongo.command",
         title: "echo_test.aggregate artists",
-        desc: %({"pipeline":[{"$match":{"x":"?"}},{"$group":{"_id":"?","accumulator":{"$max":"?"}}}]})
+        desc:  %({"pipeline":[{"$match":{"x":"?"}},{"$group":{"_id":"?","accumulator":{"$max":"?"}}}]})
       }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
@@ -159,16 +159,16 @@ if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
         { "$match" => { likes: { "$gte" => 1000, "$lt" => 5000 } } },
         { "$unwind" => { path: "$homeCities", includeArrayIndex: "arrayIndex" } },
         { "$group" => {
-          _id: nil,
-          total: { "$sum" => "$likes" },
+          _id:           nil,
+          total:         { "$sum" => "$likes" },
           average_likes: { "$avg" => "$likes" },
-          min_likes: { "$min" => "$likes" },
-          max_likes: { "$max" => "$amount" }
+          min_likes:     { "$min" => "$likes" },
+          max_likes:     { "$max" => "$amount" }
         } }
       ]).to_a
 
       expected = {
-        cat: "db.mongo.command",
+        cat:   "db.mongo.command",
         title: "echo_test.aggregate artists"
       }
 
@@ -177,11 +177,11 @@ if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
           { "$match" => { "likes" => { "$gte" => "?", "$lt" => "?" } } },
           { "$unwind" => { "path" => "?", "includeArrayIndex" => "?" } },
           { "$group" => {
-            "_id" => "?",
-            "total" => { "$sum" => "?" },
+            "_id"           => "?",
+            "total"         => { "$sum" => "?" },
             "average_likes" => { "$avg" => "?" },
-            "min_likes" => { "$min" => "?" },
-            "max_likes" => { "$max" => "?" }
+            "min_likes"     => { "$min" => "?" },
+            "max_likes"     => { "$max" => "?" }
           } }
         ]
       }

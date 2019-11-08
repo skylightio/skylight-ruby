@@ -55,7 +55,7 @@ if enable
 
             err = {
               "runtime_error" => RuntimeError,
-              "shutdown" => Sidekiq::Shutdown
+              "shutdown"      => Sidekiq::Shutdown
             }.fetch(key)
 
             raise err

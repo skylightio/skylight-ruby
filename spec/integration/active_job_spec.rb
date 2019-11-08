@@ -38,7 +38,7 @@ if enable
 
         err = {
           "runtime_error" => RuntimeError,
-          "exception" => Exception
+          "exception"     => Exception
         }[key]
 
         raise err if err

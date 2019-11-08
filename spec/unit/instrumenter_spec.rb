@@ -179,9 +179,9 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(t.uuid).to eq("test-uuid")
         expect(t.spans[0]).to eq(
           span(
-            event: event("app.rack"),
+            event:      event("app.rack"),
             started_at: 0,
-            duration: 10_000
+            duration:   10_000
           )
         )
       end
@@ -214,9 +214,9 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(t.uuid).to eq("test-uuid")
         expect(t.spans[0]).to eq(
           span(
-            event: event("app.rack"),
+            event:      event("app.rack"),
             started_at: 0,
-            duration: 10_000
+            duration:   10_000
           )
         )
       end
@@ -247,18 +247,18 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         expect(t.spans[0]).to eq(
           span(
-            event: event("app.rack"),
+            event:      event("app.rack"),
             started_at: 0,
-            duration: 10_000
+            duration:   10_000
           )
         )
 
         expect(t.spans[1]).to eq(
           span(
-            parent: 0,
-            event: event("db.sql.query", "Load User"),
+            parent:     0,
+            event:      event("db.sql.query", "Load User"),
             started_at: 0,
-            duration: 10_000
+            duration:   10_000
           )
         )
       end
@@ -289,18 +289,18 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         expect(t.spans[0]).to eq(
           span(
-            event: event("app.rack"),
+            event:      event("app.rack"),
             started_at: 0,
-            duration: 10_000
+            duration:   10_000
           )
         )
 
         expect(t.spans[1]).to eq(
           span(
-            parent: 0,
-            event: event("db.sql.query", "Load User"),
+            parent:     0,
+            event:      event("db.sql.query", "Load User"),
             started_at: 0,
-            duration: 10_000
+            duration:   10_000
           )
         )
       end
@@ -331,18 +331,18 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         expect(t.spans[0]).to eq(
           span(
-            event: event("app.rack"),
+            event:      event("app.rack"),
             started_at: 0,
-            duration: 10_000
+            duration:   10_000
           )
         )
 
         expect(t.spans[1]).to eq(
           span(
-            parent: 0,
-            event: event("db.sql.query", "Load User"),
+            parent:     0,
+            event:      event("db.sql.query", "Load User"),
             started_at: 0,
-            duration: 10_000
+            duration:   10_000
           )
         )
       end

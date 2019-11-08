@@ -210,10 +210,10 @@ if enable
             end
 
             class QueryType < BaseObject
-              field :some_dragonflies, [Types::SpeciesType], null: false,
+              field :some_dragonflies, [Types::SpeciesType], null:        false,
                                                              description: "A list of some of the dragonflies"
 
-              field :families, [Types::FamilyType], null: false,
+              field :families, [Types::FamilyType], null:        false,
                                                     description: "A list of families"
 
               field :family, Types::FamilyType, null: false, description: "A specific family" do
@@ -257,13 +257,13 @@ if enable
                   # Successful creation, return the created object with no errors
                   {
                     species: species,
-                    errors: [],
+                    errors:  [],
                   }
                 else
                   # Failed save, return the errors to the client
                   {
                     species: nil,
-                    errors: species.errors.full_messages
+                    errors:  species.errors.full_messages
                   }
                 end
               end
@@ -342,17 +342,17 @@ if enable
             if params[:queries]
               formatted_queries = params[:queries].map do |q|
                 {
-                  query: q,
+                  query:     q,
                   variables: variables,
-                  context: context
+                  context:   context
                 }
               end
 
               TestApp.current_schema.multiplex(formatted_queries)
             else
               TestApp.current_schema.execute(params[:query],
-                                             variables: variables,
-                                             context: context,
+                                             variables:      variables,
+                                             context:        context,
                                              operation_name: params[:operation_name])
             end
 
@@ -468,7 +468,7 @@ if enable
           it "successfully calls into graphql with named queries" do
             call env("/test", method: :POST, params: {
               operationName: "Anisoptera", # This is optional if there is only one query node
-              query: "query Anisoptera { #{query_inner} }"
+              query:         "query Anisoptera { #{query_inner} }"
             })
 
             server.wait resource: "/report"
@@ -679,7 +679,7 @@ if enable
 
           it "successfully calls into graphql with anonymous mutations" do
             make_graphql_request(
-              query: "mutation #{mutation_name}($genus: String!, $species: String!) { #{mutation_inner} }",
+              query:     "mutation #{mutation_name}($genus: String!, $species: String!) { #{mutation_inner} }",
               variables: { "genus": "Ischnura", "species": "damula" }
             )
 

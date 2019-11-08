@@ -7,6 +7,10 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'spec/dummy/Gemfile'
 
+Layout/AlignHash:
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+
 # Allows for easier copy-pasting into shell and comments between lines
 Layout/DotPosition:
   EnforcedStyle: trailing
