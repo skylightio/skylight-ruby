@@ -33,6 +33,7 @@ module Skylight
       end
     end
 
-    register(:action_controller, "ActionController::Instrumentation", "action_controller/metal/instrumentation", ActionController::Probe.new)
+    register(:action_controller, "ActionController::Instrumentation", "action_controller/metal/instrumentation",
+             ActionController::Probe.new)
   end
 end

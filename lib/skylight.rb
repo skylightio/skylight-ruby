@@ -149,7 +149,9 @@ module Skylight
       cat ||= DEFAULT_CATEGORY
 
       if block_given?
-        instrumenter.trace(endpoint, cat, title, nil, meta: meta, segment: segment, component: component) { |tr| yield tr }
+        instrumenter.trace(endpoint, cat, title, nil, meta: meta, segment: segment, component: component) do |tr|
+          yield tr
+        end
       else
         instrumenter.trace(endpoint, cat, title, nil, meta: meta, segment: segment, component: component)
       end

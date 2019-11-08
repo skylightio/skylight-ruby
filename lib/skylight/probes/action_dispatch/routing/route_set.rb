@@ -23,6 +23,7 @@ module Skylight
       end
     end
 
-    register(:rails_router, "ActionDispatch::Routing::RouteSet", "action_dispatch/routing/route_set", ActionDispatch::Routing::RouteSet::Probe.new)
+    register(:rails_router, "ActionDispatch::Routing::RouteSet", "action_dispatch/routing/route_set",
+             ActionDispatch::Routing::RouteSet::Probe.new)
   end
 end

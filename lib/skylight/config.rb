@@ -359,7 +359,8 @@ module Skylight
       end
 
       unless FileTest.writable?(file_root)
-        raise ConfigError, "Directory `#{file_root}` is not writable. Please set #{key} in your config to a writable path"
+        raise ConfigError, "Directory `#{file_root}` is not writable. Please set #{key} in your config to a " \
+                           "writable path"
       end
     end
 
@@ -648,11 +649,13 @@ module Skylight
       FileUtils.mkdir_p sockdir_path rescue nil
 
       unless FileTest.writable?(sockdir_path)
-        raise ConfigError, "Directory `#{sockdir_path}` is not writable. Please set daemon.sockdir_path in your config to a writable path"
+        raise ConfigError, "Directory `#{sockdir_path}` is not writable. Please set daemon.sockdir_path in " \
+                           "your config to a writable path"
       end
 
       if check_nfs(sockdir_path)
-        raise ConfigError, "Directory `#{sockdir_path}` is an NFS mount and will not allow sockets. Please set daemon.sockdir_path in your config to a non-NFS path."
+        raise ConfigError, "Directory `#{sockdir_path}` is an NFS mount and will not allow sockets. Please set " \
+                           "daemon.sockdir_path in your config to a non-NFS path."
       end
     end
 

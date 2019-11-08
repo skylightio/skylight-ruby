@@ -185,7 +185,8 @@ module Skylight
       end
 
       begin
-        trace = Trace.new(self, endpoint, Skylight::Util::Clock.nanos, cat, title, desc, meta: meta, segment: segment, component: component)
+        trace = Trace.new(self, endpoint, Skylight::Util::Clock.nanos, cat, title, desc,
+                          meta: meta, segment: segment, component: component)
       rescue Exception => e
         log_error e.message
         t { e.backtrace.join("\n") }

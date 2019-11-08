@@ -44,7 +44,8 @@ end
 
 # rubocop:disable Lint/HandleExceptions
 
-%w[excon tilt sinatra sequel faraday mongo moped mongoid active_model_serializers httpclient elasticsearch].each do |library|
+%w[excon tilt sinatra sequel faraday mongo moped mongoid active_model_serializers
+   httpclient elasticsearch].each do |library|
   begin
     require library
     Skylight::Probes.probe(library)
@@ -88,7 +89,8 @@ Skylight::Probes.probe(:middleware)
 
 # End Probed Libraries
 
-all_probes = %w[Excon Faraday Net::HTTP HTTPClient Redis Tilt::Template Sinatra::Base Sequel ActionView::TemplateRenderer ActionDispatch::MiddlewareStack::Middleware]
+all_probes = %w[Excon Faraday Net::HTTP HTTPClient Redis Tilt::Template Sinatra::Base Sequel
+                ActionView::TemplateRenderer ActionDispatch::MiddlewareStack::Middleware]
 installed_probes = Skylight::Probes.installed.keys
 skipped_probes = all_probes - installed_probes
 

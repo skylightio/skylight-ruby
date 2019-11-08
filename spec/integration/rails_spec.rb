@@ -539,7 +539,10 @@ if enable
 
         trace = server.reports.dig(0, :endpoints, 0, :traces, 0)
 
-        app_and_rack_spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^(app|rack)./ }
+        app_and_rack_spans = trace.
+                             filtered_spans.
+                             map { |s| [s.event.category, s.event.title] }.
+                             select { |s| s[0] =~ /^(app|rack)./ }
 
         # We know the first one
         expect(app_and_rack_spans[0]).to eq(["app.rack.request", nil])
@@ -555,7 +558,8 @@ if enable
         expect(count).to be > 2
 
         # This one should be in all versions
-        expect(app_and_rack_spans).to include(["rack.middleware", "Anonymous Middleware"], ["rack.middleware", "CustomMiddleware"])
+        expect(app_and_rack_spans).to include(["rack.middleware", "Anonymous Middleware"],
+                                              ["rack.middleware", "CustomMiddleware"])
 
         # Check the rest
         expect(app_and_rack_spans[(count + 1)..-1]).to eq([

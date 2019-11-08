@@ -69,14 +69,16 @@ module Skylight
     end
 
     it "Handles Rails-style insertions" do
-      sql = %{INSERT INTO "agent_errors" ("body", "created_at", "hostname", "reason") VALUES ($1, $2, $3, $4) RETURNING "id"}
+      sql = %{INSERT INTO "agent_errors" ("body", "created_at", "hostname", "reason") VALUES ($1, $2, $3, $4) } +
+            %{RETURNING "id"}
 
       name, title, desc =
         normalize(name: "SQL", sql: sql)
 
       expect(name).to eq("db.sql.query")
       expect(title).to eq("INSERT INTO agent_errors")
-      expect(desc).to eq(%{INSERT INTO "agent_errors" ("body", "created_at", "hostname", "reason") VALUES (?, ?, ?, ?) RETURNING "id"})
+      expect(desc).to eq(%{INSERT INTO "agent_errors" ("body", "created_at", "hostname", "reason") } +
+                         %{VALUES (?, ?, ?, ?) RETURNING "id"})
     end
 
     it "Determines embedded binds" do
@@ -89,8 +91,10 @@ module Skylight
     end
 
     it "handles some precomputed binds" do
-      sql = %{INSERT INTO "agent_errors" ("body", "created_at", "value", "hostname", "reason") VALUES ($1, $2, NULL, $3, $4) RETURNING "id"}
-      extracted = %{INSERT INTO "agent_errors" ("body", "created_at", "value", "hostname", "reason") VALUES (?, ?, ?, ?, ?) RETURNING "id"}
+      sql = %{INSERT INTO "agent_errors" ("body", "created_at", "value", "hostname", "reason") } +
+            %{VALUES ($1, $2, NULL, $3, $4) RETURNING "id"}
+      extracted = %{INSERT INTO "agent_errors" ("body", "created_at", "value", "hostname", "reason") } +
+                  %{VALUES (?, ?, ?, ?, ?) RETURNING "id"}
 
       name, title, desc =
         normalize(name: "SQL", sql: sql)

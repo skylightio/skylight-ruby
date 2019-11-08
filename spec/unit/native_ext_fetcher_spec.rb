@@ -46,8 +46,10 @@ module Skylight
       end
 
       it "follows redirects" do
-        stub_request(:get, "https://s3.amazonaws.com/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz").
-          to_return(status: 301, headers: { "Location" => "https://example.org/zomg/bar.gz" })
+        stub_request(
+          :get,
+          "https://s3.amazonaws.com/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz"
+        ).to_return(status: 301, headers: { "Location" => "https://example.org/zomg/bar.gz" })
 
         stub_ext_request("https://example.org/zomg/bar.gz")
 
@@ -58,10 +60,12 @@ module Skylight
 
       it "retries on failure" do
         expect_any_instance_of(NativeExtFetcher).to receive(:http_get) { raise "nope" }.
-          with("s3.amazonaws.com", 443, true, "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File))
+          with("s3.amazonaws.com", 443, true,
+               "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File))
 
         expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
-          with("s3.amazonaws.com", 443, true, "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File)).
+          with("s3.amazonaws.com", 443, true,
+               "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File)).
           and_return([:success, checksum])
 
         ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
@@ -72,7 +76,8 @@ module Skylight
     context "fetching unsuccessfully" do
       it "verifies the checksum" do
         expect_any_instance_of(NativeExtFetcher).to receive(:http_get).
-          with("s3.amazonaws.com", 443, true, "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File)).
+          with("s3.amazonaws.com", 443, true,
+               "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz", an_instance_of(File)).
           and_return([:success, checksum])
 
         ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: "abcdefghijklmnop"

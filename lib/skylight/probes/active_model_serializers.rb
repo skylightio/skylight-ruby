@@ -51,6 +51,7 @@ module Skylight
       end
     end
 
-    register(:active_model_serializers, "ActiveModel::Serializer", "active_model/serializer", ActiveModelSerializers::Probe.new)
+    register(:active_model_serializers, "ActiveModel::Serializer", "active_model/serializer",
+             ActiveModelSerializers::Probe.new)
   end
 end

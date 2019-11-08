@@ -373,7 +373,8 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set log_file in your config to a writable path")
+            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set log_file in your config " \
+                                            "to a writable path")
           end
         end
 
@@ -383,7 +384,8 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set log_file in your config to a writable path")
+            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set log_file in your config " \
+                                            "to a writable path")
           end
         end
 
@@ -393,7 +395,8 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set alert_log_file in your config to a writable path")
+            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set alert_log_file in your " \
+                                            "config to a writable path")
           end
         end
 
@@ -403,7 +406,8 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set alert_log_file in your config to a writable path")
+            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set alert_log_file in your " \
+                                            "config to a writable path")
           end
         end
       end
@@ -487,7 +491,8 @@ module Skylight
 
     context "deploy" do
       it "uses provided deploy" do
-        config = Config.new deploy: { id: "12345", git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572d", description: "Fix stuff" }
+        config = Config.new deploy: { id: "12345", git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572d",
+                                      description: "Fix stuff" }
         expect(config.deploy.id).to eq("12345")
         expect(config.deploy.git_sha).to eq("19a8cfc47c10d8069916ae8adba0c9cb4c6c572d")
         expect(config.deploy.description).to eq("Fix stuff")
@@ -501,22 +506,25 @@ module Skylight
       it "converts to query string" do
         Timecop.freeze Time.at(1452620644) do
           config = Config.new deploy: {
-            id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz",
+            id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
+                "1234567890abcdefghijklmnopqrstuvwxyz",
             git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dwhat?",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et " \
-                          "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut " \
-                          "aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse " \
-                          "cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in " \
-                          "culpa qui officia deserunt mollit anim id est laborum."
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt " \
+                          "ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation " \
+                          "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " \
+                          "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur " \
+                          "sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id " \
+                          "est laborum."
           }
 
           expect(config.deploy.to_query_hash).to eq(
             timestamp: 1452620644,
-            deploy_id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrs",
+            deploy_id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
+                       "1234567890abcdefghijklmnopqrs",
             git_sha:   "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dw",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore " \
-                          "et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut " \
-                          "aliquip ex ea commodo consequat. Duis aute irure dolor in"
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt " \
+                          "ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation " \
+                          "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in"
           )
         end
       end
@@ -524,12 +532,14 @@ module Skylight
       it "only requires the id" do
         Timecop.freeze Time.at(1452620644) do
           config = Config.new deploy: {
-            id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz"
+            id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
+                "1234567890abcdefghijklmnopqrstuvwxyz"
           }
 
           expect(config.deploy.to_query_hash).to eq(
             timestamp: 1452620644,
-            deploy_id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrs"
+            deploy_id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
+                       "1234567890abcdefghijklmnopqrs"
           )
         end
       end
@@ -612,7 +622,8 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path")
+            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set daemon.pidfile_path or " \
+                                            "daemon.sockdir_path in your config to a writable path")
           end
         end
 
@@ -622,7 +633,8 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set daemon.pidfile_path or daemon.sockdir_path in your config to a writable path")
+            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set daemon.pidfile_path or " \
+                                            "daemon.sockdir_path in your config to a writable path")
           end
         end
 
@@ -633,7 +645,8 @@ module Skylight
 
             expect do
               config.validate!
-            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set daemon.sockdir_path in your config to a writable path")
+            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set daemon.sockdir_path in " \
+                                            "your config to a writable path")
           end
         end
       end

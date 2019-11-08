@@ -25,6 +25,7 @@ module Skylight
       end
     end
 
-    register(:action_dispatch, "ActionDispatch::RequestId", "action_dispatch/middleware/request_id", ActionDispatch::RequestId::Probe.new)
+    register(:action_dispatch, "ActionDispatch::RequestId", "action_dispatch/middleware/request_id",
+             ActionDispatch::RequestId::Probe.new)
   end
 end

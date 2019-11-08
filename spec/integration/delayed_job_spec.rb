@@ -64,6 +64,7 @@ if enable
       Class.new(base) do
         # Copied from delayed_job_active_record's generator template
         def self.up
+          # rubocop:disable Metrics/LineLength
           create_table :delayed_jobs, force: true do |table|
             table.integer :priority, default: 0, null: false # Allows some jobs to jump to the front of the queue
             table.integer :attempts, default: 0, null: false # Provides for retries, but still fail eventually.
@@ -76,6 +77,7 @@ if enable
             table.string :queue                              # The name of the queue this job is in
             table.timestamps null: true
           end
+          # rubocop:enable Metrics/LineLength
 
           add_index :delayed_jobs, %i[priority run_at], name: "delayed_jobs_priority"
         end

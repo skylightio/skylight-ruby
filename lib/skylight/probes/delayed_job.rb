@@ -24,7 +24,8 @@ module Skylight
                 UNKNOWN
               end
 
-              Skylight.trace(handler_name, "app.delayed_job.worker", "Delayed::Worker#run", component: :worker, segment: job.queue) do
+              Skylight.trace(handler_name, "app.delayed_job.worker", "Delayed::Worker#run",
+                             component: :worker, segment: job.queue) do
                 run_without_sk(job, *args)
               end
             end
@@ -44,7 +45,8 @@ module Skylight
             version = spec && spec.version
 
             if !version || version < Gem::Version.new("4.0.0")
-              $stderr.puts "[SKYLIGHT::CORE] [#{Skylight::VERSION}] The installed version of DelayedJob is not supported on Skylight. Your jobs will not be tracked."
+              $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] The installed version of DelayedJob is not " \
+                           "supported on Skylight. Your jobs will not be tracked."
 
               return false
             end

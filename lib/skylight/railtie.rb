@@ -71,7 +71,8 @@ module Skylight
           end
         elsif !Rails.env.test?
           unless config.user_config.disable_env_warning?
-            log_warning config, "#{log_prefix} You are running in the #{Rails.env} environment but haven't added it to config.skylight.environments, so no data will be sent to Skylight servers."
+            log_warning config, "#{log_prefix} You are running in the #{Rails.env} environment but haven't added it " \
+                                "to config.skylight.environments, so no data will be sent to Skylight servers."
           end
         end
       rescue Skylight::ConfigError => e
@@ -166,7 +167,11 @@ module Skylight
       end
 
       def middleware_position
-        sk_rails_config.middleware_position.is_a?(Hash) ? sk_rails_config.middleware_position.symbolize_keys : sk_rails_config.middleware_position
+        if sk_rails_config.middleware_position.is_a?(Hash)
+          sk_rails_config.middleware_position.symbolize_keys
+        else
+          sk_rails_config.middleware_position
+        end
       end
 
       def insert_middleware(app, config)
@@ -175,7 +180,8 @@ module Skylight
         elsif middleware_position.key?(:before)
           app.middleware.insert_before(middleware_position[:before], Skylight::Middleware, config: config)
         else
-          raise "The middleware position you have set is invalid. Please be sure `config.skylight.middleware_position` is set up correctly."
+          raise "The middleware position you have set is invalid. Please be sure " \
+                "`config.skylight.middleware_position` is set up correctly."
         end
       end
 
@@ -187,7 +193,8 @@ module Skylight
         elsif middleware_position.nil?
           app.middleware.insert 0, Skylight::Middleware, config: config
         else
-          raise "The middleware position you have set is invalid. Please be sure `config.skylight.middleware_position` is set up correctly."
+          raise "The middleware position you have set is invalid. Please be sure " \
+                "`config.skylight.middleware_position` is set up correctly."
         end
       end
 

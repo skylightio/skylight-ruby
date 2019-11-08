@@ -59,7 +59,8 @@ describe "Skylight::Instrumenter", :http, :agent do
     #
     #   it "doesn't keep invalid config values" do
     #     config.set('test.enable_segments', true)
-    #     stub_config_validation(422, { corrected: { enable_segments: false }, errors: { enable_segments: "not allowed to be set" } })
+    #     stub_config_validation(422, { corrected: { enable_segments: false },
+    #                                   errors: { enable_segments: "not allowed to be set" } })
     #
     #     expect(Skylight.start!(config)).to be_truthy
     #
@@ -190,7 +191,10 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         Skylight.trace "Testin", "app.rack" do
           Skylight.disable do
-            ActiveSupport::Notifications.instrument("sql.active_record", name: "Load User", sql: "SELECT * FROM posts", binds: []) do
+            ActiveSupport::Notifications.instrument(
+              "sql.active_record",
+              name: "Load User", sql: "SELECT * FROM posts", binds: []
+            ) do
               clock.skip 1
             end
           end

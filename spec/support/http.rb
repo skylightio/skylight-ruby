@@ -45,7 +45,8 @@ module SpecHelper
               puts "seeking auth: #{opts[:authentication]}"
               puts "requests:"
               @requests.each do |request|
-                puts "[auth: #{request['HTTP_AUTHORIZATION']}] #{Rack::Request.new(request).url}: #{!!filter.call(request)}"
+                puts "[auth: #{request['HTTP_AUTHORIZATION']}] #{Rack::Request.new(request).url}: " \
+                     "#{!!filter.call(request)}"
               end
               puts "*************"
               raise "Server.wait timeout: got #{filter_requests(opts).count(&filter)} not #{opts[:count]}"

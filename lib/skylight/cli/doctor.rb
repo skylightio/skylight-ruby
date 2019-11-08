@@ -24,7 +24,8 @@ module Skylight
                   say "Please update your certificates with RVM by running `rvm osx-ssl-certs update all`.", :yellow
                   say "Alternatively, try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your environment.", :yellow
                 else
-                  say "Please update your local certificates or try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your environment.", :yellow
+                  say "Please update your local certificates or try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your " \
+                      "environment.", :yellow
                 end
               end
             else

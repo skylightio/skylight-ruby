@@ -79,7 +79,8 @@ describe "Initialization integration" do
     context "native" do
       context "development" do
         it "warns development mode" do
-          expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
+          expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data " \
+                                  "will be reported until you deploy your app."
         end
 
         # FIXME: This is a very fragile test, due to the "to_not"
@@ -88,8 +89,10 @@ describe "Initialization integration" do
 
           boot
 
-          expect(File.read("log/development.log")).to_not include "[SKYLIGHT] [#{Skylight::VERSION}] Unable to start, see the Skylight logs for more details"
-          expect(File.read("log/skylight.log")).to_not include "Skylight: Unable to start Instrumenter due to a configuration error: authentication token required"
+          expect(File.read("log/development.log")).to_not include "[SKYLIGHT] [#{Skylight::VERSION}] Unable to " \
+                                                                  "start, see the Skylight logs for more details"
+          expect(File.read("log/skylight.log")).to_not include "Skylight: Unable to start Instrumenter due to a " \
+                                                               "configuration error: authentication token required"
         end
 
         it "doesn't warn in development mode if disable_dev_warning has been set" do
@@ -124,8 +127,10 @@ describe "Initialization integration" do
           ENV["SKYLIGHT_AUTHENTICATION"] = nil
 
           boot
-          expect(File.read("log/production.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] Unable to start, see the Skylight logs for more details"
-          expect(File.read("log/skylight.log")).to include "Skylight: Unable to start Instrumenter due to a configuration error: authentication token required"
+          expect(File.read("log/production.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] Unable to start, " \
+                                                             "see the Skylight logs for more details"
+          expect(File.read("log/skylight.log")).to include "Skylight: Unable to start Instrumenter due to a " \
+                                                           "configuration error: authentication token required"
         end
       end
 
@@ -142,7 +147,9 @@ describe "Initialization integration" do
         let(:rails_env) { "other" }
 
         it "warns that it is disabled" do
-          expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to Skylight servers."
+          expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but " \
+                                  "haven't added it to config.skylight.environments, so no data will be sent to " \
+                                  "Skylight servers."
         end
       end
 
@@ -154,7 +161,8 @@ describe "Initialization integration" do
           boot
 
           log_lines = File.read("log/production.log").lines + File.read("log/skylight.log").lines
-          expect(log_lines).to include(a_string_matching(/environment can only contain lowercase letters, numbers, and dashes;/))
+          expect(log_lines).to \
+            include(a_string_matching(/environment can only contain lowercase letters, numbers, and dashes;/))
         end
       end
     end
@@ -168,7 +176,8 @@ describe "Initialization integration" do
 
     context "development" do
       it "warns development mode" do
-        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data will be reported until you deploy your app."
+        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data " \
+                                "will be reported until you deploy your app."
       end
     end
 
@@ -184,7 +193,11 @@ describe "Initialization integration" do
       let(:rails_env) { "production" }
 
       it "warns not enabled verbose" do
-        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. Supported operating systems are Linux 2.6.18+ and Mac OS X 10.8+. The missing extension will not affect the functioning of your application. If you are on a supported platform, please contact support at support@skylight.io."
+        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your " \
+                                "platform wasn't found. Supported operating systems are Linux 2.6.18+ and " \
+                                "Mac OS X 10.8+. The missing extension will not affect the functioning of your " \
+                                "application. If you are on a supported platform, please contact support at " \
+                                "support@skylight.io."
       end
     end
 
@@ -192,7 +205,11 @@ describe "Initialization integration" do
       let(:rails_env) { "staging" }
 
       it "warns not enabled verbose" do
-        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your platform wasn't found. Supported operating systems are Linux 2.6.18+ and Mac OS X 10.8+. The missing extension will not affect the functioning of your application. If you are on a supported platform, please contact support at support@skylight.io."
+        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your " \
+                                "platform wasn't found. Supported operating systems are Linux 2.6.18+ and " \
+                                "Mac OS X 10.8+. The missing extension will not affect the functioning of your " \
+                                "application. If you are on a supported platform, please contact support at " \
+                                "support@skylight.io."
       end
     end
 
@@ -200,7 +217,9 @@ describe "Initialization integration" do
       let(:rails_env) { "other" }
 
       it "warns that it is disabled" do
-        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but haven't added it to config.skylight.environments, so no data will be sent to Skylight servers."
+        expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but " \
+                                "haven't added it to config.skylight.environments, so no data will be sent to " \
+                                "Skylight servers."
       end
     end
   end

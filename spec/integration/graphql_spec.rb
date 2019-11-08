@@ -575,7 +575,8 @@ if enable
             expect(batch.endpoints.count).to eq(1)
             endpoint = batch.endpoints[0]
 
-            expect(endpoint.name).to eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>json</sk-segment>")
+            expect(endpoint.name).to \
+              eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>json</sk-segment>")
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
@@ -612,7 +613,8 @@ if enable
             expect(batch.endpoints.count).to eq(1)
             endpoint = batch.endpoints[0]
 
-            expect(endpoint.name).to eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>json+error</sk-segment>")
+            expect(endpoint.name).to \
+              eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>json+error</sk-segment>")
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
@@ -646,7 +648,8 @@ if enable
             expect(batch.endpoints.count).to eq(1)
             endpoint = batch.endpoints[0]
 
-            expect(endpoint.name).to eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>error</sk-segment>")
+            expect(endpoint.name).to \
+              eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>error</sk-segment>")
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 

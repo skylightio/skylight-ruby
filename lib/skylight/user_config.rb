@@ -20,7 +20,8 @@ module Skylight
         if home_dir
           File.join(home_dir, ".skylight")
         else
-          raise ConfigError, "The Skylight `user_config_path` must be defined since the home directory cannot be inferred"
+          raise ConfigError,
+                "The Skylight `user_config_path` must be defined since the home directory cannot be inferred"
         end
       end
 
