@@ -518,8 +518,6 @@ describe "Skylight::Instrumenter", :http, :agent do
 
             expect(spans.count).to eq(5)
             expect(spans.map{ |x| x.event.title }).to eq([nil, "foo", "bar", "wibble", "wubble"])
-            expect(b).to be_nil
-            expect(c).to be_nil
           end
         end
 
