@@ -73,9 +73,9 @@ if enable
 
         private
 
-        def query_parameters(env)
-          ActionDispatch::Request.new(env).query_parameters
-        end
+          def query_parameters(env)
+            ActionDispatch::Request.new(env).query_parameters
+          end
       end
 
       CustomMiddleware ||= Class.new(SkTestMiddleware) do
@@ -129,9 +129,9 @@ if enable
 
         private
 
-        def assertion_hook
-          # override in rspec
-        end
+          def assertion_hook
+            # override in rspec
+          end
       end
 
       # These need to be distinguished by class name in order to use
@@ -182,27 +182,28 @@ if enable
 
         private
 
-        def should_mute?(env)
-          query_parameters(env)[:mute] == "true"
-        end
+          def should_mute?(env)
+            query_parameters(env)[:mute] == "true"
+          end
       end
 
       ThrowingMiddleware ||= Class.new(SkTestMiddleware) do
         def call(env)
           throw(*CatchingMiddleware.thrown_response) if should_throw?(env)
           raise MiddlewareError, "I can't do that, Dave" if should_raise?(env)
+
           super
         end
 
         private
 
-        def should_throw?(env)
-          query_parameters(env)[:middleware_throws] == "true"
-        end
+          def should_throw?(env)
+            query_parameters(env)[:middleware_throws] == "true"
+          end
 
-        def should_raise?(env)
-          query_parameters(env)[:middleware_raises] == "true"
-        end
+          def should_raise?(env)
+            query_parameters(env)[:middleware_raises] == "true"
+          end
       end
 
       module EngineNamespace
@@ -551,6 +552,7 @@ if enable
         count = 0
         loop do
           break if app_and_rack_spans[count + 1][0] != "rack.middleware"
+
           count += 1
         end
 

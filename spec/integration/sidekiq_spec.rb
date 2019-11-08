@@ -52,6 +52,7 @@ if enable
 
           def maybe_raise(key)
             return unless key
+
             err = {
               "runtime_error" => RuntimeError,
               "shutdown" => Sidekiq::Shutdown

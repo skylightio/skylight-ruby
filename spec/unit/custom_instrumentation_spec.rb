@@ -44,17 +44,17 @@ describe Skylight::Instrumenter, :http, :agent do
       expect(t.spans.count).to eq(2)
       expect(t.spans[0]).to eq(
         span(
-          event:      event("app.rack.request"),
+          event: event("app.rack.request"),
           started_at: 0,
-          duration:   2_000
+          duration: 2_000
         )
       )
       expect(t.spans[1]).to eq(
         span(
-          parent:     0,
-          event:      event("app.foo"),
+          parent: 0,
+          event: event("app.foo"),
           started_at: 1_000,
-          duration:   1_000
+          duration: 1_000
         )
       )
     end
@@ -75,10 +75,10 @@ describe Skylight::Instrumenter, :http, :agent do
 
       expect(t.spans[1]).to eq(
         span(
-          parent:     0,
-          event:      event("other.foo"),
+          parent: 0,
+          event: event("other.foo"),
           started_at: 1_000,
-          duration:   1_000
+          duration: 1_000
         )
       )
     end
@@ -99,10 +99,10 @@ describe Skylight::Instrumenter, :http, :agent do
 
       expect(t.spans[1]).to eq(
         span(
-          parent:     0,
-          event:      event("app.block", "foo"),
+          parent: 0,
+          event: event("app.block", "foo"),
           started_at: 1_000,
-          duration:   1_000
+          duration: 1_000
         )
       )
     end
@@ -206,72 +206,72 @@ describe Skylight::Instrumenter, :http, :agent do
       # Root span
       expect(t.spans[0]).to eq(
         span(
-          event:      event("app.rack.request"),
+          event: event("app.rack.request"),
           started_at: 0,
-          duration:   15_000
+          duration: 15_000
         )
       )
 
       expect(t.spans[1]).to eq(
         span(
-          parent:     0,
-          event:      event("app.method", "MyClass#one"),
+          parent: 0,
+          event: event("app.method", "MyClass#one"),
           started_at: 1_000,
-          duration:   1_000
+          duration: 1_000
         )
       )
 
       expect(t.spans[2]).to eq(
         span(
-          parent:     0,
-          event:      event("app.method", "MyClass#three"),
+          parent: 0,
+          event: event("app.method", "MyClass#three"),
           started_at: 5_000,
-          duration:   1_000
+          duration: 1_000
         )
       )
 
       expect(t.spans[3]).to eq(
         span(
-          parent:     0,
-          event:      event("app.winning", "Win"),
+          parent: 0,
+          event: event("app.winning", "Win"),
           started_at: 7_000,
-          duration:   1_000
+          duration: 1_000
         )
       )
 
       expect(t.spans[4]).to eq(
         span(
-          parent:     0,
-          event:      event("app.method", "MyClass.singleton_method"),
+          parent: 0,
+          event: event("app.method", "MyClass.singleton_method"),
           started_at: 9_000,
-          duration:   1_000
+          duration: 1_000
         )
       )
 
       expect(t.spans[5]).to eq(
         span(
-          parent:     0,
-          event:      event("app.method", "MyClass.singleton_method_without_options"),
+          parent: 0,
+          event: event("app.method", "MyClass.singleton_method_without_options"),
           started_at: 11_000,
-          duration:   1_000
+          duration: 1_000
         )
       )
 
       expect(t.spans[6]).to eq(
         span(
-          parent:     0,
-          event:      event("app.singleton", "Singleton Method"),
+          parent: 0,
+          event: event("app.singleton", "Singleton Method"),
           started_at: 13_000,
-          duration:   1_000
+          duration: 1_000
         )
       )
 
       expect(t.spans[7]).to eq(
         span(
-          parent:     0,
-          event:      event("app.method", "MyClass#myvar="),
+          parent: 0,
+          event: event("app.method", "MyClass#myvar="),
           started_at: 15_000,
-          duration:   0
+          duration: 0
         )
       )
     end

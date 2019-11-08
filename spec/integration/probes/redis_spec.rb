@@ -8,7 +8,7 @@ describe "Redis integration", :redis_probe, :agent do
   it "instruments redis commands" do
     expected = {
       category: "db.redis.command",
-      title:    "LRANGE"
+      title: "LRANGE"
     }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
@@ -25,7 +25,7 @@ describe "Redis integration", :redis_probe, :agent do
   it "instruments pipelining" do
     expected = {
       category: "db.redis.pipelined",
-      title:    "PIPELINE"
+      title: "PIPELINE"
     }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
@@ -38,7 +38,7 @@ describe "Redis integration", :redis_probe, :agent do
   it "instruments multi" do
     expected = {
       category: "db.redis.multi",
-      title:    "MULTI"
+      title: "MULTI"
     }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original

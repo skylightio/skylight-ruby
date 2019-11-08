@@ -157,6 +157,7 @@ if enable
           Skylight.instrument(category: "app.zomg") do
             sleep(0.1)
             raise "bad_method" if args.include?("bad_method")
+
             p args
           end
         end

@@ -67,7 +67,7 @@ module Skylight
           parent: 0,
           event: event("app.block", "hello"),
           started_at: 1_000,
-          duration:   2_000
+          duration: 2_000
         )
       )
     end

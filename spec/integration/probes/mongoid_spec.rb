@@ -48,9 +48,9 @@ if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
 
       let :options_hash do
         {
-          cat:   "db.mongo.command",
+          cat: "db.mongo.command",
           title: "echo_test.find artists",
-          desc:  { filter: { signed_at: "?" } }.to_json
+          desc: { filter: { signed_at: "?" } }.to_json
         }
       end
 

@@ -179,9 +179,9 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(t.uuid).to eq("test-uuid")
         expect(t.spans[0]).to eq(
           span(
-            event:      event("app.rack"),
+            event: event("app.rack"),
             started_at: 0,
-            duration:   10_000
+            duration: 10_000
           )
         )
       end
@@ -214,9 +214,9 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(t.uuid).to eq("test-uuid")
         expect(t.spans[0]).to eq(
           span(
-            event:      event("app.rack"),
+            event: event("app.rack"),
             started_at: 0,
-            duration:   10_000
+            duration: 10_000
           )
         )
       end
@@ -247,18 +247,18 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         expect(t.spans[0]).to eq(
           span(
-            event:      event("app.rack"),
+            event: event("app.rack"),
             started_at: 0,
-            duration:   10_000
+            duration: 10_000
           )
         )
 
         expect(t.spans[1]).to eq(
           span(
-            parent:     0,
-            event:      event("db.sql.query", "Load User"),
+            parent: 0,
+            event: event("db.sql.query", "Load User"),
             started_at: 0,
-            duration:   10_000
+            duration: 10_000
           )
         )
       end
@@ -289,18 +289,18 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         expect(t.spans[0]).to eq(
           span(
-            event:      event("app.rack"),
+            event: event("app.rack"),
             started_at: 0,
-            duration:   10_000
+            duration: 10_000
           )
         )
 
         expect(t.spans[1]).to eq(
           span(
-            parent:     0,
-            event:      event("db.sql.query", "Load User"),
+            parent: 0,
+            event: event("db.sql.query", "Load User"),
             started_at: 0,
-            duration:   10_000
+            duration: 10_000
           )
         )
       end
@@ -331,18 +331,18 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         expect(t.spans[0]).to eq(
           span(
-            event:      event("app.rack"),
+            event: event("app.rack"),
             started_at: 0,
-            duration:   10_000
+            duration: 10_000
           )
         )
 
         expect(t.spans[1]).to eq(
           span(
-            parent:     0,
-            event:      event("db.sql.query", "Load User"),
+            parent: 0,
+            event: event("db.sql.query", "Load User"),
             started_at: 0,
-            duration:   10_000
+            duration: 10_000
           )
         )
       end
@@ -469,7 +469,7 @@ describe "Skylight::Instrumenter", :http, :agent do
             server.wait resource: "/report"
 
             expect(spans.count).to eq(3)
-            expect(spans.map{ |x| x.event.category }).to eq(["app.rack.request", "foo", "wubble"])
+            expect(spans.map { |x| x.event.category }).to eq(["app.rack.request", "foo", "wubble"])
             expect(b).to be_nil
             expect(c).to be_nil
           end
@@ -477,7 +477,6 @@ describe "Skylight::Instrumenter", :http, :agent do
           it "can stack mute and unmute blocks" do
             trace = Skylight.trace "Rack", "app.rack.request"
             Skylight.instrument(title: "foo") do
-
               Skylight.unmute do
                 clock.skip 0.1
                 Skylight.instrument(title: "bar") do
@@ -517,7 +516,7 @@ describe "Skylight::Instrumenter", :http, :agent do
             server.wait resource: "/report"
 
             expect(spans.count).to eq(5)
-            expect(spans.map{ |x| x.event.title }).to eq([nil, "foo", "bar", "wibble", "wubble"])
+            expect(spans.map { |x| x.event.title }).to eq([nil, "foo", "bar", "wibble", "wubble"])
           end
         end
 
@@ -537,7 +536,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
             server.wait resource: "/report"
 
-            expect(spans.map{ |x| x.event.category }).to eq(["app.rack.request", "foo"])
+            expect(spans.map { |x| x.event.category }).to eq(["app.rack.request", "foo"])
             expect(logger_out.string.lines.grep(/tried to set endpoint/).count).to eq(1)
             expect(logger_out.string.lines.grep(/tried to set segment/).count).to eq(1)
           end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "uri"
 
 module Skylight
@@ -16,6 +17,7 @@ module Skylight
         @name        = resolve_name(name, force_worker)
 
         raise ArgumentError, "environment can't be blank" if @environment.empty?
+
         validate_string!(@environment, "environment")
         validate_string!(@name, "name")
       end
@@ -64,6 +66,7 @@ module Skylight
 
         def validate_string!(string, kind)
           return true if string =~ NAME_FORMAT
+
           raise ArgumentError, "#{kind} can only contain lowercase letters, numbers, and dashes"
         end
     end

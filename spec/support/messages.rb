@@ -8,6 +8,7 @@ module SpecHelper
       def dig(*args)
         head, *tail = args
         return self unless head
+
         self[head]&.dig(*tail)
       end
     end

@@ -5,6 +5,7 @@ module Skylight
         def install
           ::ActionController::Instrumentation.class_eval do
             private
+
               alias_method :append_info_to_payload_without_sk, :append_info_to_payload
               def append_info_to_payload(payload)
                 append_info_to_payload_without_sk(payload)

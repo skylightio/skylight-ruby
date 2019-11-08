@@ -12,11 +12,13 @@ module Skylight
 
       def respond_to_missing?(*args)
         return false if args.first.to_s !~ /^to_ary$/
+
         @body.respond_to?(*args)
       end
 
       def close
         return if @closed
+
         @closed = true
         begin
           @body.close if @body.respond_to? :close

@@ -30,12 +30,12 @@ if enable
         { common: 'Variable Darner', latin: 'Aeshna interrupta', family: 'Aeshnidae' },
         { common: 'California Darner', latin: 'Rhionaeschna californica', family: 'Aeshnidae' },
         { common: 'Blue-Eyed Darner', latin: 'Rhionaeschna multicolor', family: 'Aeshnidae' },
-        { common: 'Cardinal Meadowhawk', latin: 'Sympetrum illotum', 	family: 'Libellulidae' },
-        { common: 'Variegated Meadowhawk', latin: 'Sympetrum corruptum', 	family: 'Libellulidae' },
+        { common: 'Cardinal Meadowhawk', latin: 'Sympetrum illotum', family: 'Libellulidae' },
+        { common: 'Variegated Meadowhawk', latin: 'Sympetrum corruptum', family: 'Libellulidae' },
         { common: 'Western Pondhawk', latin: 'Erythemis collocata', family: 'Libellulidae' },
-        { common: 'Common Whitetail', latin: 'Plathemis lydia',	family: 'Libellulidae' },
-        { common: 'Twelve-Spotted Skimmer', latin: 'Libellula pulchella',	family: 'Libellulidae' },
-        { common: 'Black Saddlebags', latin: 'Tramea lacerata',	family: 'Libellulidae' },
+        { common: 'Common Whitetail', latin: 'Plathemis lydia', family: 'Libellulidae' },
+        { common: 'Twelve-Spotted Skimmer', latin: 'Libellula pulchella', family: 'Libellulidae' },
+        { common: 'Black Saddlebags', latin: 'Tramea lacerata', family: 'Libellulidae' },
         { common: 'Wandering Glider', latin: 'Pantala flavescens', family: 'Libellulidae' },
         { common: 'Vivid Dancer', latin: 'Argia vivida', family: 'Coenagrionidae' },
         { common: 'Boreal Bluet', latin: 'Enallagma boreale', family: 'Coenagrionidae' },
@@ -92,6 +92,7 @@ if enable
 
         def self.graphql_17?
           return @graphql_17 if defined?(@graphql_17)
+
           @graphql_17 = Gem::Version.new(GraphQL::VERSION) < Gem::Version.new("1.8")
         end
 
@@ -149,7 +150,7 @@ if enable
               end
 
               field :families, !types[Types::FamilyType],
-                description: "A list of families"
+                    description: "A list of families"
 
               field :family, Types::FamilyType, description: "A specific family" do
                 argument :name, !types.String
@@ -173,7 +174,7 @@ if enable
                 argument :genus, !types.String
                 argument :species, !types.String
 
-                resolve -> (_, args, _) {
+                resolve ->(_, args, _) {
                   genus = Genus.find_by!(name: args[:genus])
                   species = genus.species.new(name: args[:species])
                   if species.save
@@ -210,10 +211,10 @@ if enable
 
             class QueryType < BaseObject
               field :some_dragonflies, [Types::SpeciesType], null: false,
-                description: "A list of some of the dragonflies"
+                                                             description: "A list of some of the dragonflies"
 
               field :families, [Types::FamilyType], null: false,
-                description: "A list of families"
+                                                    description: "A list of families"
 
               field :family, Types::FamilyType, null: false, description: "A specific family" do
                 argument :name, String, required: true
@@ -337,22 +338,23 @@ if enable
             # current_user: current_user,
           }
 
-          result = if params[:queries]
-            formatted_queries = params[:queries].map do |q|
-              {
-                query: q,
-                variables: variables,
-                context: context
-              }
-            end
+          result =
+            if params[:queries]
+              formatted_queries = params[:queries].map do |q|
+                {
+                  query: q,
+                  variables: variables,
+                  context: context
+                }
+              end
 
-            TestApp.current_schema.multiplex(formatted_queries)
-          else
-            TestApp.current_schema.execute(params[:query],
-                                           variables: variables,
-                                           context: context,
-                                           operation_name: params[:operation_name])
-          end
+              TestApp.current_schema.multiplex(formatted_queries)
+            else
+              TestApp.current_schema.execute(params[:query],
+                                             variables: variables,
+                                             context: context,
+                                             operation_name: params[:operation_name])
+            end
 
           # Normally Rails would set this as content_type, but this app doesn't
           # use Rails controllers.
@@ -380,7 +382,6 @@ if enable
     end
 
     context "with agent", :http, :agent do
-
       shared_examples_for(:graphql_instrumentation) do
         before :each do
           stub_config_validation
@@ -467,7 +468,8 @@ if enable
           it "successfully calls into graphql with named queries" do
             call env("/test", method: :POST, params: {
               operationName: "Anisoptera", # This is optional if there is only one query node
-              query: "query Anisoptera { #{query_inner} }" })
+              query: "query Anisoptera { #{query_inner} }"
+            })
 
             server.wait resource: "/report"
 
@@ -658,7 +660,7 @@ if enable
             expect(data).to eq([
               ["app.rack.request", nil],
               ["app.graphql", "graphql.execute_multiplex"],
-              *expected_analysis_events(2).reject { |_, e| e["graphql.analyze"]},
+              *expected_analysis_events(2).reject { |_, e| e["graphql.analyze"] },
               ["app.graphql", "graphql.execute_query_lazy.multiplex"]
             ])
           end
@@ -678,7 +680,7 @@ if enable
           it "successfully calls into graphql with anonymous mutations" do
             make_graphql_request(
               query: "mutation #{mutation_name}($genus: String!, $species: String!) { #{mutation_inner} }",
-              variables: {"genus": "Ischnura", "species": "damula"}
+              variables: { "genus": "Ischnura", "species": "damula" }
             )
 
             server.wait resource: "/report"
@@ -709,8 +711,6 @@ if enable
           end
         end
       end
-
-
 
       [
         { schema: :TestAppSchema, expectation_event_style: :grouped }

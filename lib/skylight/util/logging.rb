@@ -42,6 +42,7 @@ module Skylight
       # See {trace?}.
       def trace(msg, *args)
         return unless trace?
+
         log :debug, msg, *args
       end
 
@@ -53,6 +54,7 @@ module Skylight
       # See {trace?}.
       def t
         return unless trace?
+
         log :debug, yield
       end
 

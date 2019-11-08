@@ -44,6 +44,7 @@ describe Skylight::CLI::Merger do
     def test_line(line)
       puts "[OUT]: #{line.inspect}" if ENV["DEBUG"]
       return if line.strip.empty?
+
       out, reply = Array(expectations.next)
       @expector.call(line.strip, out)
       # raise 'no match' unless out === line
@@ -83,17 +84,18 @@ describe Skylight::CLI::Merger do
   end
 
   def run_shell(token: "token", success: true)
-    status = begin
-      shell = TestShell.new(yield) do |line, expected|
-        expect(line).to match(expected)
+    status =
+      begin
+        shell = TestShell.new(yield) do |line, expected|
+          expect(line).to match(expected)
+        end
+
+        described_class.new([token], {}, shell: shell).invoke_all
+
+        0
+      rescue SystemExit => e
+        e.status
       end
-
-      described_class.new([token], {}, shell: shell).invoke_all
-
-      0
-    rescue SystemExit => e
-      e.status
-    end
 
     expect(status).to eq(success ? 0 : 1)
   end

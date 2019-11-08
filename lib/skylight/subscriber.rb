@@ -41,6 +41,7 @@ module Skylight
     def start(name, _id, payload)
       return if @instrumenter.disabled?
       return unless (trace = @instrumenter.current_trace)
+
       _start(trace, name, payload)
     end
 

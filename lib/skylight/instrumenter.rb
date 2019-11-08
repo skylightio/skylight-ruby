@@ -181,6 +181,7 @@ module Skylight
       # If a trace is already in progress, continue with that one
       if (trace = @trace_info.current)
         return yield(trace) if block_given?
+
         return trace
       end
 
@@ -220,11 +221,13 @@ module Skylight
 
       if muted?
         return yield if block_given?
+
         return
       end
 
       unless (trace = @trace_info.current)
         return yield if block_given?
+
         return
       end
 
@@ -233,6 +236,7 @@ module Skylight
       unless match?(cat, Skylight::CATEGORY_REGEX)
         warn "invalid skylight instrumentation category; trace=%s; value=%s", trace.uuid, cat
         return yield if block_given?
+
         return
       end
 
@@ -240,6 +244,7 @@ module Skylight
 
       unless (sp = trace.instrument(cat, title, desc, meta))
         return yield if block_given?
+
         return
       end
 
@@ -259,6 +264,7 @@ module Skylight
 
     def broken!
       return unless (trace = @trace_info.current)
+
       trace.broken!
     end
 
@@ -272,6 +278,7 @@ module Skylight
 
     def done(span, meta = nil)
       return unless (trace = @trace_info.current)
+
       trace.done(span, meta)
     end
 

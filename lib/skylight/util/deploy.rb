@@ -35,8 +35,8 @@ module Skylight
 
         def to_query_hash
           hash = {
-            timestamp:   timestamp,
-            deploy_id:   id.to_s[0..100] # Keep this sane
+            timestamp: timestamp,
+            deploy_id: id.to_s[0..100] # Keep this sane
           }
           hash[:git_sha] = git_sha.to_s[0..40] if git_sha # A valid SHA will never exceed 40
           hash[:description] = description[0..255] if description # Avoid massive descriptions

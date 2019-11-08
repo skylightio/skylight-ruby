@@ -252,6 +252,7 @@ module Skylight
 
         def valid_component?(component_name, env)
           return false unless env
+
           Util::Component.new(env, component_name) && true
         rescue ArgumentError
           false
@@ -265,6 +266,7 @@ module Skylight
           ret = Enumerator.new do |yielder|
             @parents.each do |_, app|
               next if app == @parent_app
+
               app.components.each do |component|
                 yielder << OpenStruct.new({ app_name: app.name }.merge(component))
               end

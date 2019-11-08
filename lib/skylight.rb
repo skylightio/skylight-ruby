@@ -93,7 +93,7 @@ module Skylight
       level, message =
         if e.is_a?(ConfigError)
           [:warn, format("Unable to start Instrumenter due to a configuration error: %<message>s",
-                          message: e.message)]
+                         message: e.message)]
         else
           [:error, format("Unable to start Instrumenter; msg=%<message>s; class=%<klass>s",
                           message: e.message, klass: e.class)]
@@ -119,6 +119,7 @@ module Skylight
       const_get(:LOCK).synchronize do
         t { "stop! synchronized" }
         return unless instrumenter
+
         # This is only really helpful for getting specs to pass.
         @instrumenter.current_trace = nil
 
@@ -137,12 +138,14 @@ module Skylight
     def trace(endpoint = nil, cat = nil, title = nil, meta: nil, segment: nil, component: nil)
       unless instrumenter
         return yield if block_given?
+
         return
       end
 
       if instrumenter.poisoned?
         spawn_shutdown_thread!
         return yield if block_given?
+
         return
       end
 
@@ -161,6 +164,7 @@ module Skylight
     def instrument(opts = DEFAULT_OPTIONS, &block)
       unless instrumenter
         return yield if block_given?
+
         return
       end
 

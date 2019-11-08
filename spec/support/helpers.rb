@@ -110,6 +110,7 @@ module SpecHelper
 
   def restore_env!
     return unless @_original_env
+
     ENV.replace(@_original_env)
     @_original_env = nil
   end

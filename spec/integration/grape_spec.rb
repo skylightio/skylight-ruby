@@ -84,11 +84,12 @@ if enable
         end
       end
 
-      paths = if Gem.loaded_specs['grape'].version <= Gem::Version.new('1.0.0')
-        MyApp.routes.map { |r| r.to_s.split('path=').last }
-      else
-        MyApp.routes.map(&:path)
-      end
+      paths =
+        if Gem.loaded_specs['grape'].version <= Gem::Version.new('1.0.0')
+          MyApp.routes.map { |r| r.to_s.split('path=').last }
+        else
+          MyApp.routes.map(&:path)
+        end
 
       # sanity check
       expect(paths).to eq([

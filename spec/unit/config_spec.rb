@@ -107,18 +107,18 @@ module Skylight
       let :config do
         Config.new(
           "production",
-          foo:    "bar",
-          one:    1,
-          zomg:   "YAY",
+          foo: "bar",
+          one: 1,
+          zomg: "YAY",
           nested: { "wat" => "w0t", "yes" => "no" },
           production: {
-            foo:    "baz",
-            two:    2,
-            zomg:   nil,
+            foo: "baz",
+            two: 2,
+            zomg: nil,
             nested: { "yes" => "YES" }
           },
           staging: {
-            foo:  "no",
+            foo: "no",
             three: 3
           }
         )
@@ -229,8 +229,8 @@ module Skylight
 
       let :config do
         Config.load({ file: file, environment: "production" },
-                    "foo"                     => "fail",
-                    "SKYLIGHT_LOG_FILE"       => "production.log",
+                    "foo" => "fail",
+                    "SKYLIGHT_LOG_FILE" => "production.log",
                     "SKYLIGHT_ALERT_LOG_FILE" => "alert.log")
       end
 
@@ -312,7 +312,7 @@ module Skylight
 
       let :config do
         Config.load({ file: file, environment: "production" },
-                    "foo"         => "fail",
+                    "foo" => "fail",
                     "SK_LOG_FILE" => "test.log")
       end
 
@@ -463,9 +463,9 @@ module Skylight
 
       it "converts to env" do
         expect(get_env).to match(a_hash_including(
-          "SKYLIGHT_VERSION"    => Skylight::VERSION,
-          "SKYLIGHT_ROOT"       => "/tmp"
-        ))
+                                   "SKYLIGHT_VERSION" => Skylight::VERSION,
+                                   "SKYLIGHT_ROOT" => "/tmp"
+                                 ))
       end
 
       it "includes keys only if value is set" do
@@ -521,7 +521,7 @@ module Skylight
             timestamp: 1452620644,
             deploy_id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
                        "1234567890abcdefghijklmnopqrs",
-            git_sha:   "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dw",
+            git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dw",
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt " \
                           "ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation " \
                           "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in"
@@ -656,8 +656,8 @@ module Skylight
       let :config do
         Config.new(
           authentication: "abc123",
-          hostname:  "test.local",
-          root:      "/tmp",
+          hostname: "test.local",
+          root: "/tmp",
 
           # These are set in some envs and not others
           "daemon.ssl_cert_dir" => nil,
@@ -678,10 +678,10 @@ module Skylight
         expect(get_env).to eq(
           # (Includes default component info)
           "SKYLIGHT_AUTHENTICATION" => "abc123|reporting_env=true",
-          "SKYLIGHT_VERSION"    => Skylight::VERSION,
-          "SKYLIGHT_ROOT"       => "/tmp",
-          "SKYLIGHT_HOSTNAME"   => "test.local",
-          "SKYLIGHT_AUTH_URL"   => "https://auth.skylight.io/agent",
+          "SKYLIGHT_VERSION" => Skylight::VERSION,
+          "SKYLIGHT_ROOT" => "/tmp",
+          "SKYLIGHT_HOSTNAME" => "test.local",
+          "SKYLIGHT_AUTH_URL" => "https://auth.skylight.io/agent",
           "SKYLIGHT_LAZY_START" => "false",
           "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false"
         )

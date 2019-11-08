@@ -22,7 +22,7 @@ module Skylight
 
               opts = {
                 category: "db.redis.command",
-                title:    command_name.upcase.to_s
+                title: command_name.upcase.to_s
               }
 
               Skylight.instrument(opts) do
@@ -37,12 +37,12 @@ module Skylight
 
         PIPELINED_OPTS = {
           category: "db.redis.pipelined".freeze,
-          title:    "PIPELINE".freeze
+          title: "PIPELINE".freeze
         }.freeze
 
         MULTI_OPTS = {
           category: "db.redis.multi".freeze,
-          title:    "MULTI".freeze
+          title: "MULTI".freeze
         }.freeze
 
         ::Redis.class_eval do

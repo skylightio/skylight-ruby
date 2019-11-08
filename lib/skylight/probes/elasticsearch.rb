@@ -6,11 +6,12 @@ module Skylight
           ::Elasticsearch::Transport::Transport::Base.class_eval do
             alias_method :perform_request_without_sk, :perform_request
             def perform_request(method, path, *args, &block)
-              ActiveSupport::Notifications.instrument "request.elasticsearch",
-                                                      name:   "Request",
-                                                      method: method,
-                                                      path:   path do
-
+              ActiveSupport::Notifications.instrument(
+                "request.elasticsearch",
+                name: "Request",
+                method: method,
+                path: path
+              ) do
                 # Prevent HTTP-related probes from firing
                 Skylight::Normalizers::Faraday::Request.disable do
                   disable_skylight_probe(:NetHTTP) do

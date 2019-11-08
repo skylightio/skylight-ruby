@@ -12,8 +12,6 @@ require "skylight/util/platform"
 require "skylight/util/hostname"
 require "skylight/util/ssl"
 
-
-
 module Skylight
   class Config
     include Util::Logging
@@ -21,6 +19,7 @@ module Skylight
     # @api private
     MUTEX = Mutex.new
 
+    # rubocop:disable Layout/AlignHash # Ideally we'd be able to switch to EnforcedColonStyle: table temporarily
     # Map environment variable keys with Skylight configuration keys
     ENV_TO_KEY = {
       # == Authentication ==
@@ -109,7 +108,9 @@ module Skylight
       # == Heroku settings ==
       -"HEROKU_DYNO_INFO_PATH" => :'heroku.dyno_info_path'
     }.freeze
+    # rubocop:enable Layout/AlignHash
 
+    # rubocop:disable Layout/AlignHash # Ideally we'd be able to switch to EnforcedColonStyle: table temporarily
     # Default values for Skylight configuration keys
     def self.default_values
       @default_values ||=
@@ -158,13 +159,16 @@ module Skylight
           ret
         end
     end
+    # rubocop:enable Layout/AlignHash
 
+    # rubocop:disable Layout/AlignHash # Ideally we'd be able to switch to EnforcedColonStyle: table temporarily
     REQUIRED_KEYS = {
       authentication: "authentication token",
       hostname:       "server hostname",
       auth_url:       "authentication url",
       validation_url: "config validation url"
     }.freeze
+    # rubocop:enable Layout/AlignHash
 
     def self.native_env_keys
       @native_env_keys ||= %i[
@@ -205,6 +209,7 @@ module Skylight
       ]
     end
 
+    # rubocop:disable Layout/AlignHash # Ideally we'd be able to switch to EnforcedColonStyle: table temporarily
     # Maps legacy config keys to new config keys
     def self.legacy_keys
       @legacy_keys ||= {
@@ -212,6 +217,7 @@ module Skylight
         'agent.lockfile':      :'daemon.pidfile_path'
       }
     end
+    # rubocop:enable Layout/AlignHash
 
     def self.validators
       @validators ||= {
@@ -262,10 +268,9 @@ module Skylight
         error = nil
         begin
           attrs = YAML.safe_load(ERB.new(File.read(path)).result,
-                                  [], # permitted_classes
-                                  [], # permitted_symbols
-                                  true # aliases enabled
-                                )
+                                 [], # permitted_classes
+                                 [], # permitted_symbols
+                                 true) # aliases enabled
           error = "empty file" unless attrs
           error = "invalid format" if attrs && !attrs.is_a?(Hash)
         rescue Exception => e
@@ -366,6 +371,7 @@ module Skylight
 
     def check_logfile_permissions(log_file, key)
       return if log_file == "-" # STDOUT
+
       log_file = File.expand_path(log_file, root)
       check_file_permissions(log_file, key)
     end
@@ -549,17 +555,18 @@ module Skylight
     private
 
       def create_logger(out)
-        l = begin
-          if out.is_a?(String)
-            out = File.expand_path(out, root)
-            # May be redundant since we also do this in the permissions check
-            FileUtils.mkdir_p(File.dirname(out))
-          end
+        l =
+          begin
+            if out.is_a?(String)
+              out = File.expand_path(out, root)
+              # May be redundant since we also do this in the permissions check
+              FileUtils.mkdir_p(File.dirname(out))
+            end
 
-          Logger.new(out)
-        rescue
-          Logger.new(STDOUT)
-        end
+            Logger.new(out)
+          rescue
+            Logger.new(STDOUT)
+          end
         l.progname = "Skylight"
         l
       end
@@ -598,7 +605,6 @@ module Skylight
       end
 
     public
-
 
     # @api private
     def api
