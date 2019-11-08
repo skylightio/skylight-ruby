@@ -45,20 +45,4 @@ module SpecHelper
   def trace
     @trace ||= MockTrace.new
   end
-
-  def span(arg)
-    Messages::Span.new(arg)
-  end
-
-  def event(cat, title = nil, desc = nil)
-    Messages::Event.new(
-      category:    cat,
-      title:       title,
-      description: desc
-    )
-  end
-
-  def annotation(arg)
-    Messages::Annotation.new(arg)
-  end
 end

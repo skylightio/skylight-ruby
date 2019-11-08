@@ -175,15 +175,14 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(ep.traces.count).to eq(1)
 
         t = ep.traces[0]
-        expect(t.spans.count).to eq(1)
         expect(t.uuid).to eq("test-uuid")
-        expect(t.spans[0]).to eq(
-          span(
-            event:      event("app.rack"),
+        expect(t.spans).to match([
+          a_span_including(
+            event:      an_exact_event(category: "app.rack"),
             started_at: 0,
             duration:   10_000
           )
-        )
+        ])
       end
 
       it "ignores disabled parts of the trace" do
@@ -210,15 +209,14 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(ep.traces.count).to eq(1)
 
         t = ep.traces[0]
-        expect(t.spans.count).to eq(1)
         expect(t.uuid).to eq("test-uuid")
-        expect(t.spans[0]).to eq(
-          span(
-            event:      event("app.rack"),
+        expect(t.spans).to match([
+          a_span_including(
+            event:      an_exact_event(category: "app.rack"),
             started_at: 0,
             duration:   10_000
           )
-        )
+        ])
       end
 
       it "handles un-lexable SQL" do
@@ -242,25 +240,21 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(ep.traces.count).to eq(1)
 
         t = ep.traces[0]
-        expect(t.spans.count).to eq(2)
         expect(t.uuid).to eq("test-uuid")
 
-        expect(t.spans[0]).to eq(
-          span(
-            event:      event("app.rack"),
+        expect(t.spans).to match([
+          a_span_including(
+            event:      an_exact_event(category: "app.rack"),
             started_at: 0,
             duration:   10_000
-          )
-        )
-
-        expect(t.spans[1]).to eq(
-          span(
+          ),
+          a_span_including(
             parent:     0,
-            event:      event("db.sql.query", "Load User"),
+            event:      an_exact_event(category: "db.sql.query", title: "Load User"),
             started_at: 0,
             duration:   10_000
           )
-        )
+        ])
       end
 
       it "handles SQL with binary data" do
@@ -284,25 +278,21 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(ep.traces.count).to eq(1)
 
         t = ep.traces[0]
-        expect(t.spans.count).to eq(2)
         expect(t.uuid).to eq("test-uuid")
 
-        expect(t.spans[0]).to eq(
-          span(
-            event:      event("app.rack"),
+        expect(t.spans).to match([
+          a_span_including(
+            event:      an_exact_event(category: "app.rack"),
             started_at: 0,
             duration:   10_000
-          )
-        )
-
-        expect(t.spans[1]).to eq(
-          span(
+          ),
+          a_span_including(
             parent:     0,
-            event:      event("db.sql.query", "Load User"),
+            event:      an_exact_event(category: "db.sql.query", title: "Load User"),
             started_at: 0,
             duration:   10_000
           )
-        )
+        ])
       end
 
       it "handles invalid string encodings" do
@@ -326,25 +316,21 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(ep.traces.count).to eq(1)
 
         t = ep.traces[0]
-        expect(t.spans.count).to eq(2)
         expect(t.uuid).to eq("test-uuid")
 
-        expect(t.spans[0]).to eq(
-          span(
-            event:      event("app.rack"),
+        expect(t.spans).to match([
+          a_span_including(
+            event:      an_exact_event(category: "app.rack"),
             started_at: 0,
             duration:   10_000
-          )
-        )
-
-        expect(t.spans[1]).to eq(
-          span(
+          ),
+          a_span_including(
             parent:     0,
-            event:      event("db.sql.query", "Load User"),
+            event:      an_exact_event(category: "db.sql.query", title: "Load User"),
             started_at: 0,
             duration:   10_000
           )
-        )
+        ])
       end
 
       it "ignores endpoints" do

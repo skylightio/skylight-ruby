@@ -89,6 +89,62 @@ module SpecHelper
     end
   end
 
+  RSpec::Matchers.define :a_span_including do |expected|
+    match do |actual|
+      expect(actual.to_hash).to match(a_hash_including(expected))
+    end
+
+    failure_message do
+      "span match failed"
+    end
+
+    failure_message_when_negated do
+      "span match negated failed"
+    end
+  end
+
+  RSpec::Matchers.define :an_exact_span do |expected|
+    match do |actual|
+      expect(actual.to_hash).to eq(expected)
+    end
+
+    failure_message do
+      "an exact span match failed"
+    end
+
+    failure_message_when_negated do
+      "an exact span match negated failed"
+    end
+  end
+
+  RSpec::Matchers.define :an_event_including do |expected|
+    match do |actual|
+      expect(actual.to_hash).to match(a_hash_including(expected))
+    end
+
+    failure_message do
+      "event match failed"
+    end
+
+    failure_message_when_negated do
+      "event match negated failed"
+    end
+  end
+
+  RSpec::Matchers.define :an_exact_event do |expected|
+    match do |actual|
+      expect(actual.to_hash).to eq(expected)
+    end
+
+    failure_message do
+      "an exact event match failed"
+    end
+
+    failure_message_when_negated do
+      "an exact event match negated failed"
+    end
+  end
+
   def get_json(*args)
     hdrs = {}
     hdrs = args.pop if args[-1].is_a?(Hash)

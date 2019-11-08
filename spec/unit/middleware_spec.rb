@@ -52,24 +52,19 @@ module Skylight
       expect(ep.traces.count).to eq(1)
 
       t = ep.traces[0]
-      expect(t.spans.count).to eq(2)
-
-      expect(t.spans[0]).to eq(
-        span(
-          event:      event("app.rack.request"),
+      expect(t.spans).to match([
+        a_span_including(
+          event:      an_exact_event(category: "app.rack.request"),
           started_at: 0,
           duration:   3_000
-        )
-      )
-
-      expect(t.spans[1]).to eq(
-        span(
+        ),
+        a_span_including(
           parent:     0,
-          event:      event("app.block", "hello"),
+          event:      an_exact_event(category: "app.block", title: "hello"),
           started_at: 1_000,
           duration:   2_000
         )
-      )
+      ])
     end
 
     it "skips HEAD" do
