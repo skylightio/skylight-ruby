@@ -7,7 +7,7 @@ module Skylight
     class Component
       attr_accessor :environment, :name
 
-      NAME_FORMAT = /\A[a-zA-Z0-9_-]+\z/
+      NAME_FORMAT = /\A[a-zA-Z0-9_-]+\z/.freeze
       DEFAULT_NAME = "web"
       WORKER_NAME = "worker"
       DEFAULT_ENVIRONMENT = "production"

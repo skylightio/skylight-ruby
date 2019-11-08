@@ -140,8 +140,8 @@ module Skylight
       @warnings_silenced && @warnings_silenced[context]
     end
 
-    alias_method :disable, :mute
-    alias_method :disabled?, :muted?
+    alias disable mute
+    alias disabled? muted?
 
     def start!
       # We do this here since we can't report these issues via Gem install without stopping install entirely.

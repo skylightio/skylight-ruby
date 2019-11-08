@@ -41,8 +41,8 @@ if enable
 
     let :app do
       Rack::URLMap.new(
-        '/'               => MyApp,
-        '/url_prefix/api' => MyApp
+        "/"               => MyApp,
+        "/url_prefix/api" => MyApp
       )
     end
 
@@ -91,7 +91,7 @@ if enable
       context "url prefixes enabled" do
         def set_agent_env
           super
-          ENV['SKYLIGHT_SINATRA_ROUTE_PREFIXES'] = 'true'
+          ENV["SKYLIGHT_SINATRA_ROUTE_PREFIXES"] = "true"
         end
 
         it_behaves_like :sinatra do

@@ -70,7 +70,7 @@ module Skylight
 
     it "Handles Rails-style insertions" do
       sql = %{INSERT INTO "agent_errors" ("body", "created_at", "hostname", "reason") VALUES ($1, $2, $3, $4) } +
-            %{RETURNING "id"}
+            %(RETURNING "id")
 
       name, title, desc =
         normalize(name: "SQL", sql: sql)

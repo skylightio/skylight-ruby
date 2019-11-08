@@ -19,7 +19,7 @@ if enable
   describe "graphql integration" do
     around do |example|
       ActiveSupport::Inflector.inflections(:en) do |inflect|
-        inflect.irregular 'genus', 'genera'
+        inflect.irregular "genus", "genera"
       end
 
       with_sqlite(migration: migration, &example)
@@ -27,30 +27,30 @@ if enable
 
     def seed_db
       [
-        { common: 'Variable Darner', latin: 'Aeshna interrupta', family: 'Aeshnidae' },
-        { common: 'California Darner', latin: 'Rhionaeschna californica', family: 'Aeshnidae' },
-        { common: 'Blue-Eyed Darner', latin: 'Rhionaeschna multicolor', family: 'Aeshnidae' },
-        { common: 'Cardinal Meadowhawk', latin: 'Sympetrum illotum', family: 'Libellulidae' },
-        { common: 'Variegated Meadowhawk', latin: 'Sympetrum corruptum', family: 'Libellulidae' },
-        { common: 'Western Pondhawk', latin: 'Erythemis collocata', family: 'Libellulidae' },
-        { common: 'Common Whitetail', latin: 'Plathemis lydia', family: 'Libellulidae' },
-        { common: 'Twelve-Spotted Skimmer', latin: 'Libellula pulchella', family: 'Libellulidae' },
-        { common: 'Black Saddlebags', latin: 'Tramea lacerata', family: 'Libellulidae' },
-        { common: 'Wandering Glider', latin: 'Pantala flavescens', family: 'Libellulidae' },
-        { common: 'Vivid Dancer', latin: 'Argia vivida', family: 'Coenagrionidae' },
-        { common: 'Boreal Bluet', latin: 'Enallagma boreale', family: 'Coenagrionidae' },
-        { common: 'Tule Bluet', latin: 'Enallagma carunculatum', family: 'Coenagrionidae' },
-        { common: 'Pacific Forktail', latin: 'Ischnura cervula', family: 'Coenagrionidae' },
-        { common: 'Western Forktail', latin: 'Ischnura perparva', family: 'Coenagrionidae' },
-        { common: 'White-belted Ringtail', latin: 'Erpetogomphus compositus', family: 'Gomphidae' },
-        { common: 'Dragonhunter', latin: 'Hagenius brevistylus', family: 'Gomphidae' },
-        { common: 'Sinuous Snaketail', latin: 'Ophiogomphus occidentis', family: 'Gomphidae' },
-        { common: 'Mountain Emerald', latin: 'Somatochlora semicircularis', family: 'Corduliidae' },
-        { common: 'Beaverpond Baskettail', latin: 'Epitheca canis', family: 'Corduliidae' },
-        { common: 'Ebony Boghaunter', latin: 'Williamsonia fletcheri', family: 'Corduliidae' },
+        { common: "Variable Darner", latin: "Aeshna interrupta", family: "Aeshnidae" },
+        { common: "California Darner", latin: "Rhionaeschna californica", family: "Aeshnidae" },
+        { common: "Blue-Eyed Darner", latin: "Rhionaeschna multicolor", family: "Aeshnidae" },
+        { common: "Cardinal Meadowhawk", latin: "Sympetrum illotum", family: "Libellulidae" },
+        { common: "Variegated Meadowhawk", latin: "Sympetrum corruptum", family: "Libellulidae" },
+        { common: "Western Pondhawk", latin: "Erythemis collocata", family: "Libellulidae" },
+        { common: "Common Whitetail", latin: "Plathemis lydia", family: "Libellulidae" },
+        { common: "Twelve-Spotted Skimmer", latin: "Libellula pulchella", family: "Libellulidae" },
+        { common: "Black Saddlebags", latin: "Tramea lacerata", family: "Libellulidae" },
+        { common: "Wandering Glider", latin: "Pantala flavescens", family: "Libellulidae" },
+        { common: "Vivid Dancer", latin: "Argia vivida", family: "Coenagrionidae" },
+        { common: "Boreal Bluet", latin: "Enallagma boreale", family: "Coenagrionidae" },
+        { common: "Tule Bluet", latin: "Enallagma carunculatum", family: "Coenagrionidae" },
+        { common: "Pacific Forktail", latin: "Ischnura cervula", family: "Coenagrionidae" },
+        { common: "Western Forktail", latin: "Ischnura perparva", family: "Coenagrionidae" },
+        { common: "White-belted Ringtail", latin: "Erpetogomphus compositus", family: "Gomphidae" },
+        { common: "Dragonhunter", latin: "Hagenius brevistylus", family: "Gomphidae" },
+        { common: "Sinuous Snaketail", latin: "Ophiogomphus occidentis", family: "Gomphidae" },
+        { common: "Mountain Emerald", latin: "Somatochlora semicircularis", family: "Corduliidae" },
+        { common: "Beaverpond Baskettail", latin: "Epitheca canis", family: "Corduliidae" },
+        { common: "Ebony Boghaunter", latin: "Williamsonia fletcheri", family: "Corduliidae" }
       ].each do |entry|
         family = Family.find_or_create_by!(name: entry[:family])
-        g, s = entry[:latin].split(' ')
+        g, s = entry[:latin].split(" ")
         genus = Genus.find_or_create_by!(name: g, family: family)
         Species.create!(name: s, genus: genus, common_name: entry[:common])
       end
@@ -144,7 +144,7 @@ if enable
             QueryType = GraphQL::ObjectType.define do
               name "Query"
               field :some_dragonflies, !types[Types::SpeciesType], description: "A list of some of the dragonflies" do
-                resolve -> (_obj, _args, _ctx) {
+                resolve lambda { |_obj, _args, _ctx|
                   Species.all
                 }
               end
@@ -174,11 +174,11 @@ if enable
                 argument :genus, !types.String
                 argument :species, !types.String
 
-                resolve ->(_, args, _) {
+                resolve lambda { |_, args, _|
                   genus = Genus.find_by!(name: args[:genus])
                   species = genus.species.new(name: args[:species])
                   if species.save
-                    OpenStruct.new({ species: species })
+                    OpenStruct.new(species: species)
                   end
                 }
               end
@@ -257,7 +257,7 @@ if enable
                   # Successful creation, return the created object with no errors
                   {
                     species: species,
-                    errors:  [],
+                    errors:  []
                   }
                 else
                   # Failed save, return the errors to the client
@@ -299,7 +299,7 @@ if enable
 
       @original_env = ENV.to_hash
       set_agent_env
-      Skylight.probe('graphql')
+      Skylight.probe("graphql")
       Skylight.start!
 
       class ApplicationRecord < ActiveRecord::Base
@@ -358,7 +358,7 @@ if enable
 
           # Normally Rails would set this as content_type, but this app doesn't
           # use Rails controllers.
-          Skylight.trace.segment = 'json'
+          Skylight.trace.segment = "json"
           [200, {}, result]
         end
       end

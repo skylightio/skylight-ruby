@@ -85,8 +85,8 @@ if enable
       end
 
       paths =
-        if Gem.loaded_specs['grape'].version <= Gem::Version.new('1.0.0')
-          MyApp.routes.map { |r| r.to_s.split('path=').last }
+        if Gem.loaded_specs["grape"].version <= Gem::Version.new("1.0.0")
+          MyApp.routes.map { |r| r.to_s.split("path=").last }
         else
           MyApp.routes.map(&:path)
         end
@@ -99,7 +99,7 @@ if enable
         # sub app
         "/sub_ns/test(.:format)",
         "/test(.:format)",
-        "/inherited/inherited_ns/test(.:format)",
+        "/inherited/inherited_ns/test(.:format)"
       ])
     end
 

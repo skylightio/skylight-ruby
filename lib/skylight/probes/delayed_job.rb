@@ -45,7 +45,7 @@ module Skylight
 
           def validate_version
             spec = Gem.loaded_specs["delayed_job"]
-            version = spec && spec.version
+            version = spec&.version
 
             if !version || version < Gem::Version.new("4.0.0")
               $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] The installed version of DelayedJob is not " \

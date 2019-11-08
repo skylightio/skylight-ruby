@@ -13,7 +13,7 @@ module Skylight
 
         # Try to avoid writing to STDOUT/STDERR twice
         logger_logdev = @logger.instance_variable_get(:@logdev)
-        logger_out = logger_logdev && logger_logdev.respond_to?(:dev) ? logger_logdev.dev : nil
+        logger_out = logger_logdev&.respond_to?(:dev) ? logger_logdev.dev : nil
         if logger_out != STDOUT && logger_out != STDERR
           @logger.<<(*args)
         end

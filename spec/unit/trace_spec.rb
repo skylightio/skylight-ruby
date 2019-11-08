@@ -160,7 +160,7 @@ module Skylight
 
     it "mutes child span instrumentation when specified" do
       trace = Skylight.trace "Rack", "app.rack.request"
-      a = trace.instrument "foo", nil, nil, { mute_children: true }
+      a = trace.instrument "foo", nil, nil, mute_children: true
 
       clock.skip 0.1
       b = trace.instrument "bar"

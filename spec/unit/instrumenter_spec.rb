@@ -435,7 +435,7 @@ describe "Skylight::Instrumenter", :http, :agent do
           it "can unmute from within a block" do
             trace = Skylight.trace "Rack", "app.rack.request"
             a = b = c = d = e = f = nil
-            a = trace.instrument "foo", nil, nil, { mute_children: true }
+            a = trace.instrument "foo", nil, nil, mute_children: true
 
             # unmute is not intended to work on the trace, so if `mute_children` was set
             # by a parent span, unmute will have no effect.
@@ -523,7 +523,7 @@ describe "Skylight::Instrumenter", :http, :agent do
         context "logging" do
           it "warns only once when trying to set a endpoint name from a muted block" do
             trace = Skylight.trace "Rack", "app.rack.request"
-            a = trace.instrument "foo", nil, nil, { mute_children: true }
+            a = trace.instrument "foo", nil, nil, mute_children: true
 
             trace.endpoint = "my endpoint name"
             trace.endpoint = "my endpoint name 2"
@@ -550,7 +550,7 @@ describe "Skylight::Instrumenter", :http, :agent do
           end
 
           has_subscribers = lambda do
-            [:@subscriber, :@subscribers].reduce(Skylight.instrumenter) do |m, n|
+            %i[@subscriber @subscribers].reduce(Skylight.instrumenter) do |m, n|
               m.instance_variable_get(n)
             end.present?
           end

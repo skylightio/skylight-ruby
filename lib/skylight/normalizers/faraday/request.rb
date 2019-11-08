@@ -1,4 +1,4 @@
-require 'skylight/formatters/http'
+require "skylight/formatters/http"
 
 module Skylight
   module Normalizers

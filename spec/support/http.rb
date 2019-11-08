@@ -25,7 +25,7 @@ module SpecHelper
       end
 
       def status
-        @server_thread && @server_thread.status
+        @server_thread&.status
       end
 
       def wait(opts = {})

@@ -244,10 +244,8 @@ module Skylight
         self[k] = v
       end
 
-      if p
-        p.each do |k, v|
-          @priority[self.class.remap_key(k)] = v
-        end
+      p&.each do |k, v|
+        @priority[self.class.remap_key(k)] = v
       end
     end
 

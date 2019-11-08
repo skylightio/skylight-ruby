@@ -89,7 +89,7 @@ module Skylight
   end
 
   if Skylight.native?
-    require 'skylight/util/clock'
+    require "skylight/util/clock"
     Util::Clock.use_native!
   else
     class Instrumenter

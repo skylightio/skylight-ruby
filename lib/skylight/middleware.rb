@@ -92,7 +92,7 @@ module Skylight
           end
         rescue Exception => e
           t { "middleware exception: #{e}\n#{e.backtrace.join("\n")}" }
-          trace.submit if trace
+          trace&.submit
           raise
         end
       end

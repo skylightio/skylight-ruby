@@ -118,7 +118,7 @@ module Skylight
 
           yield res
         ensure
-          client.finish if client
+          client&.finish
         end
 
         def execute(req, body = nil)

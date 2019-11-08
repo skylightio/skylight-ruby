@@ -49,10 +49,10 @@ module Skylight
   ].freeze
 
   # @api private
-  TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/u
+  TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/u.freeze
 
   # @api private
-  CATEGORY_REGEX = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/iu
+  CATEGORY_REGEX = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/iu.freeze
 
   # @api private
   DEFAULT_CATEGORY = "app.block".freeze
@@ -99,7 +99,7 @@ module Skylight
                           message: e.message, klass: e.class)]
         end
 
-      if config && config.respond_to?("log_#{level}") && config.respond_to?(:log_trace)
+      if config&.respond_to?("log_#{level}") && config&.respond_to?(:log_trace)
         config.send("log_#{level}", message)
         config.log_trace e.backtrace.join("\n")
       else

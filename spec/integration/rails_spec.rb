@@ -145,7 +145,7 @@ if enable
           super
         rescue MiddlewareError => e
           # start a new span here; helps ensure traces/instrumenters are unmuted
-          Skylight.instrument('post-rescue') { sleep(0.01) }
+          Skylight.instrument("post-rescue") { sleep(0.01) }
           [500, {}, ["error=#{e.class.inspect} msg=#{e.to_s.inspect}"]]
         end
       end
@@ -159,7 +159,7 @@ if enable
           catch(thrown_response[0]) { super }.tap do |r|
             # start a new span here; helps ensure traces/instrumenters are unmuted
             if r == thrown_response[1]
-              Skylight.instrument('post-catch') { sleep(0.01) }
+              Skylight.instrument("post-catch") { sleep(0.01) }
             end
           end
         end
@@ -343,12 +343,12 @@ if enable
           end
         end
 
-        instrument_method title: 'muted-index'
+        instrument_method title: "muted-index"
         def muted_index
           Skylight.mute { muted_index_inner }
         end
 
-        instrument_method title: 'normalizer-muted-index'
+        instrument_method title: "normalizer-muted-index"
         def normalizer_muted_index
           ActiveSupport::Notifications.instrument("mute.skylight") { muted_index_inner }
         end
@@ -425,14 +425,13 @@ if enable
         end
 
         before_action only: :before_action_redirect do
-          redirect_to '/'
+          redirect_to "/"
         end
 
-        def before_action_redirect
-        end
+        def before_action_redirect; end
 
         def action_redirect
-          redirect_to '/'
+          redirect_to "/"
         end
 
         private
@@ -530,7 +529,7 @@ if enable
           ["app.method", "Check authorization"],
           ["app.method", "UsersController#index"],
           ["app.inside", nil],
-          ["app.zomg", nil],
+          ["app.zomg", nil]
         ])
       end
 
@@ -698,7 +697,7 @@ if enable
             ["app.rack.request", nil],
             ["app.controller.request", "UsersController#muted_index"],
             ["app.method", "Check authorization"],
-            ["app.method", "muted-index"],
+            ["app.method", "muted-index"]
           ])
         end
 
@@ -718,7 +717,7 @@ if enable
             ["app.controller.request", "UsersController#muted_index"],
             ["app.method", "Check authorization"],
             ["app.method", "muted-index"],
-            ["app.block", "post-catch"],
+            ["app.block", "post-catch"]
           ])
         end
 
@@ -737,7 +736,7 @@ if enable
             ["app.controller.request", "UsersController#muted_index"],
             ["app.method", "Check authorization"],
             ["app.method", "muted-index"],
-            ["app.block", "post-rescue"],
+            ["app.block", "post-rescue"]
           ])
         end
       end
@@ -760,7 +759,7 @@ if enable
             ["app.controller.request", "UsersController#normalizer_muted_index"],
             ["app.method", "Check authorization"],
             ["app.method", "normalizer-muted-index"],
-            ["app.mute", nil],
+            ["app.mute", nil]
           ])
         end
 
@@ -780,7 +779,7 @@ if enable
             ["app.method", "Check authorization"],
             ["app.method", "normalizer-muted-index"],
             ["app.mute", nil],
-            ["app.block", "post-catch"],
+            ["app.block", "post-catch"]
           ])
         end
 
@@ -800,7 +799,7 @@ if enable
             ["app.method", "Check authorization"],
             ["app.method", "normalizer-muted-index"],
             ["app.mute", nil],
-            ["app.block", "post-rescue"],
+            ["app.block", "post-rescue"]
           ])
         end
       end

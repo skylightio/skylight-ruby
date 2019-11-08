@@ -151,7 +151,7 @@ if enable
 
       class DelayedWorker < ActiveJob::Base
         self.queue_adapter = :delayed_job
-        self.queue_name = 'my-queue'
+        self.queue_name = "my-queue"
 
         def perform(*args)
           Skylight.instrument(category: "app.zomg") do
