@@ -4,8 +4,7 @@ module Skylight
       class Probe
         def install
           if ::Sinatra::VERSION < "1.4.0"
-            # Using $stderr here isn't great, but we don't have a logger accessible
-            $stderr.puts "[SKYLIGHT::CORE] [#{Skylight::VERSION}] Sinatra must be version 1.4.0 or greater."
+            Skylight.error "Sinatra must be version 1.4.0 or greater."
             return
           end
 

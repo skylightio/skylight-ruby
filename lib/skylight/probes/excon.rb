@@ -13,9 +13,8 @@ module Skylight
             # TODO: Handle possibility of idx being nil
             ::Excon.defaults[:middlewares].insert(idx, Probes::Excon::Middleware)
           else
-            # Using $stderr here isn't great, but we don't have a logger accessible
-            $stderr.puts "[SKYLIGHT::CORE] [#{Skylight::VERSION}] The installed version of Excon doesn't " \
-                          "support Middlewares. The Excon probe will be disabled."
+            Skylight.error "The installed version of Excon doesn't support Middlewares. " \
+                           "The Excon probe will be disabled."
           end
         end
       end
