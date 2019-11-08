@@ -311,11 +311,11 @@ module Skylight
       end
     end
 
-    def handle_instrumenter_error(trace, e)
-      poison! if e.is_a?(Skylight::InstrumenterUnrecoverableError)
+    def handle_instrumenter_error(trace, err)
+      poison! if err.is_a?(Skylight::InstrumenterUnrecoverableError)
 
-      warn "failed to submit trace to worker; trace=%s, err=%s", trace.uuid, e
-      t { "BACKTRACE:\n#{e.backtrace.join("\n")}" }
+      warn "failed to submit trace to worker; trace=%s, err=%s", trace.uuid, err
+      t { "BACKTRACE:\n#{err.backtrace.join("\n")}" }
 
       false
     end

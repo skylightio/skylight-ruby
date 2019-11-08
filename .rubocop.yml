@@ -54,6 +54,10 @@ Style/DoubleNegation:
 Style/Documentation:
   Enabled: false
 
+# We may want this, but since it could break stuff let's disable it for now.
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
 Style/GlobalVars:
   Exclude:
     - 'ext/extconf.rb'
@@ -69,6 +73,9 @@ Style/IfUnlessModifier:
 Style/MixinUsage:
   Exclude:
     - 'ext/extconf.rb'
+
+Style/NumericPredicate:
+  Enabled: false
 
 # Maybe we can revisit this later
 Style/PerlBackrefs:

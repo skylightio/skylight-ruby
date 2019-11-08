@@ -90,23 +90,23 @@ if enable
       module TestApp
         mattr_accessor :current_schema
 
-        def self.graphql_17?
-          return @graphql_17 if defined?(@graphql_17)
+        def self.graphql17?
+          return @graphql17 if defined?(@graphql17)
 
-          @graphql_17 = Gem::Version.new(GraphQL::VERSION) < Gem::Version.new("1.8")
+          @graphql17 = Gem::Version.new(GraphQL::VERSION) < Gem::Version.new("1.8")
         end
 
         def self.format_field_name(field)
           # As of graphql 1.8, client-side queries are expected to have camel-cased keys
           # (these are converted to snake-case server-side).
           # In 1.7 and earlier, they used whatever format was used to define the schema.
-          graphql_17? ? field.underscore : field.camelize(:lower)
+          graphql17? ? field.underscore : field.camelize(:lower)
         end
 
         # Utility method to test that the graphql probe does not duplicate the
         # GraphQL::Tracing::ActiveSupportNotificationsTracing module if the user has already added it
         def self.add_tracer(tracer_mod)
-          if graphql_17?
+          if graphql17?
             # under 1.7 the schema is an instance, which requires us to duplicate its
             # original definition to add instrumentation
             self.current_schema = current_schema.redefine do
@@ -121,7 +121,7 @@ if enable
           end
         end
 
-        if graphql_17?
+        if graphql17?
           module Types
             SpeciesType = GraphQL::ObjectType.define do
               name "Species"
@@ -402,7 +402,7 @@ if enable
           ].freeze
 
           analyze_event = ["app.graphql", "graphql.analyze_query"]
-          event_style = TestApp.graphql_17? ? :inline : expectation_event_style
+          event_style = TestApp.graphql17? ? :inline : expectation_event_style
           if event_style == :grouped
             events.cycle(query_count).to_a.tap do |a|
               a.concat([analyze_event].cycle(query_count).to_a)
@@ -420,7 +420,7 @@ if enable
           let(:tracer_mod) { GraphQL::Tracing::ActiveSupportNotificationsTracing }
           let(:current_schema_tracers) do
             lambda do
-              TestApp.graphql_17? ? TestApp.current_schema.tracers : TestApp.current_schema.graphql_definition.tracers
+              TestApp.graphql17? ? TestApp.current_schema.tracers : TestApp.current_schema.graphql_definition.tracers
             end
           end
 
@@ -712,13 +712,13 @@ if enable
         end
       end
 
-      [
-        { schema: :TestAppSchema, expectation_event_style: :grouped }
-      ].tap do |ary|
+      configs = [{ schema: :TestAppSchema, expectation_event_style: :grouped }].tap do |ary|
         if test_interpreter_schema?
           ary << { schema: :InterpreterSchema, expectation_event_style: :inline }
         end
-      end.each do |config|
+      end
+
+      configs.each do |config|
         context config[:schema].to_s do
           let(:expectation_event_style) { config[:expectation_event_style] }
           it_behaves_like :graphql_instrumentation do
