@@ -41,6 +41,7 @@ module SpecHelper
 
   def mock_clock!
     return if Skylight::Util::Clock.default.is_a?(TestClock)
+
     Skylight::Util::Clock.default = TestClock.new
   end
 

@@ -39,26 +39,26 @@ module SpecHelper
 
   def test_config_values
     @test_config_values ||= {
-      authentication: SecureRandom.uuid,
-      log: log_path,
-      log_level: ENV["DEBUG"] ? :debug : :fatal,
-      user_config_path: tmp("user_config.yml"),
-      report_url: "http://127.0.0.1:#{port}/report",
-      report_http_deflate: false,
-      report_http_disabled: false,
+      authentication:              SecureRandom.uuid,
+      log:                         log_path,
+      log_level:                   ENV["DEBUG"] ? :debug : :fatal,
+      user_config_path:            tmp("user_config.yml"),
+      report_url:                  "http://127.0.0.1:#{port}/report",
+      report_http_deflate:         false,
+      report_http_disabled:        false,
       report_http_connect_timeout: "1sec",
-      report_http_read_timeout: "1sec",
-      auth_url: "http://127.0.0.1:#{port}/agent",
-      app_create_url: "http://127.0.0.1:#{port}/apps",
-      validation_url: "http://127.0.0.1:#{port}/agent/config",
-      auth_http_deflate: false,
-      auth_http_connect_timeout: "2sec",
-      auth_http_read_timeout: "2sec",
-      gc: {
+      report_http_read_timeout:    "1sec",
+      auth_url:                    "http://127.0.0.1:#{port}/agent",
+      app_create_url:              "http://127.0.0.1:#{port}/apps",
+      validation_url:              "http://127.0.0.1:#{port}/agent/config",
+      auth_http_deflate:           false,
+      auth_http_connect_timeout:   "2sec",
+      auth_http_read_timeout:      "2sec",
+      gc:                          {
         profiler: gc
       }.freeze,
-      daemon: {
-        sockdir_path: sockdir_path,
+      daemon:                      {
+        sockdir_path:         sockdir_path,
         batch_flush_interval: "1sec"
       }.freeze
     }.freeze
@@ -66,10 +66,6 @@ module SpecHelper
 
   def gc
     @gc ||= MockGC.new
-  end
-
-  def config
-    @config ||= Skylight::Config.new(:test, test_config_values)
   end
 
   def start!
@@ -114,6 +110,7 @@ module SpecHelper
 
   def restore_env!
     return unless @_original_env
+
     ENV.replace(@_original_env)
     @_original_env = nil
   end

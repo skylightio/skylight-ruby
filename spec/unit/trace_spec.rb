@@ -160,7 +160,7 @@ module Skylight
 
     it "mutes child span instrumentation when specified" do
       trace = Skylight.trace "Rack", "app.rack.request"
-      a = trace.instrument "foo", nil, nil, { mute_children: true }
+      a = trace.instrument "foo", nil, nil, mute_children: true
 
       clock.skip 0.1
       b = trace.instrument "bar"
@@ -180,11 +180,10 @@ module Skylight
       server.wait resource: "/report"
 
       expect(spans.count).to eq(5)
-      expect(spans.map{ |x| x.event.category }).to eq(["app.rack.request", "foo", "wibble", "wobble", "wubble"])
+      expect(spans.map { |x| x.event.category }).to eq(["app.rack.request", "foo", "wibble", "wobble", "wubble"])
       expect(b).to be_nil
       expect(c).to be_nil
     end
-
 
     it "cleans up current_trace when broken" do
       begin
@@ -328,7 +327,8 @@ module Skylight
 
         expect(trace).to receive(:warn).with(
           "Found both source_location and source_file or source_line, using source_location\n" \
-          "  location=foo/bar.rb:1; file=foo.rb; line=123")
+          "  location=foo/bar.rb:1; file=foo.rb; line=123"
+        )
 
         span = trace.instrument("app.block", nil, nil,
                                 source_location: "foo/bar.rb:1", source_file: "foo.rb", source_line: 123)

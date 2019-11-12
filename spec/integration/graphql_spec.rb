@@ -19,7 +19,7 @@ if enable
   describe "graphql integration" do
     around do |example|
       ActiveSupport::Inflector.inflections(:en) do |inflect|
-        inflect.irregular 'genus', 'genera'
+        inflect.irregular "genus", "genera"
       end
 
       with_sqlite(migration: migration, &example)
@@ -27,30 +27,30 @@ if enable
 
     def seed_db
       [
-        { common: 'Variable Darner', latin: 'Aeshna interrupta', family: 'Aeshnidae' },
-        { common: 'California Darner', latin: 'Rhionaeschna californica', family: 'Aeshnidae' },
-        { common: 'Blue-Eyed Darner', latin: 'Rhionaeschna multicolor', family: 'Aeshnidae' },
-        { common: 'Cardinal Meadowhawk', latin: 'Sympetrum illotum', 	family: 'Libellulidae' },
-        { common: 'Variegated Meadowhawk', latin: 'Sympetrum corruptum', 	family: 'Libellulidae' },
-        { common: 'Western Pondhawk', latin: 'Erythemis collocata', family: 'Libellulidae' },
-        { common: 'Common Whitetail', latin: 'Plathemis lydia',	family: 'Libellulidae' },
-        { common: 'Twelve-Spotted Skimmer', latin: 'Libellula pulchella',	family: 'Libellulidae' },
-        { common: 'Black Saddlebags', latin: 'Tramea lacerata',	family: 'Libellulidae' },
-        { common: 'Wandering Glider', latin: 'Pantala flavescens', family: 'Libellulidae' },
-        { common: 'Vivid Dancer', latin: 'Argia vivida', family: 'Coenagrionidae' },
-        { common: 'Boreal Bluet', latin: 'Enallagma boreale', family: 'Coenagrionidae' },
-        { common: 'Tule Bluet', latin: 'Enallagma carunculatum', family: 'Coenagrionidae' },
-        { common: 'Pacific Forktail', latin: 'Ischnura cervula', family: 'Coenagrionidae' },
-        { common: 'Western Forktail', latin: 'Ischnura perparva', family: 'Coenagrionidae' },
-        { common: 'White-belted Ringtail', latin: 'Erpetogomphus compositus', family: 'Gomphidae' },
-        { common: 'Dragonhunter', latin: 'Hagenius brevistylus', family: 'Gomphidae' },
-        { common: 'Sinuous Snaketail', latin: 'Ophiogomphus occidentis', family: 'Gomphidae' },
-        { common: 'Mountain Emerald', latin: 'Somatochlora semicircularis', family: 'Corduliidae' },
-        { common: 'Beaverpond Baskettail', latin: 'Epitheca canis', family: 'Corduliidae' },
-        { common: 'Ebony Boghaunter', latin: 'Williamsonia fletcheri', family: 'Corduliidae' },
+        { common: "Variable Darner", latin: "Aeshna interrupta", family: "Aeshnidae" },
+        { common: "California Darner", latin: "Rhionaeschna californica", family: "Aeshnidae" },
+        { common: "Blue-Eyed Darner", latin: "Rhionaeschna multicolor", family: "Aeshnidae" },
+        { common: "Cardinal Meadowhawk", latin: "Sympetrum illotum", family: "Libellulidae" },
+        { common: "Variegated Meadowhawk", latin: "Sympetrum corruptum", family: "Libellulidae" },
+        { common: "Western Pondhawk", latin: "Erythemis collocata", family: "Libellulidae" },
+        { common: "Common Whitetail", latin: "Plathemis lydia", family: "Libellulidae" },
+        { common: "Twelve-Spotted Skimmer", latin: "Libellula pulchella", family: "Libellulidae" },
+        { common: "Black Saddlebags", latin: "Tramea lacerata", family: "Libellulidae" },
+        { common: "Wandering Glider", latin: "Pantala flavescens", family: "Libellulidae" },
+        { common: "Vivid Dancer", latin: "Argia vivida", family: "Coenagrionidae" },
+        { common: "Boreal Bluet", latin: "Enallagma boreale", family: "Coenagrionidae" },
+        { common: "Tule Bluet", latin: "Enallagma carunculatum", family: "Coenagrionidae" },
+        { common: "Pacific Forktail", latin: "Ischnura cervula", family: "Coenagrionidae" },
+        { common: "Western Forktail", latin: "Ischnura perparva", family: "Coenagrionidae" },
+        { common: "White-belted Ringtail", latin: "Erpetogomphus compositus", family: "Gomphidae" },
+        { common: "Dragonhunter", latin: "Hagenius brevistylus", family: "Gomphidae" },
+        { common: "Sinuous Snaketail", latin: "Ophiogomphus occidentis", family: "Gomphidae" },
+        { common: "Mountain Emerald", latin: "Somatochlora semicircularis", family: "Corduliidae" },
+        { common: "Beaverpond Baskettail", latin: "Epitheca canis", family: "Corduliidae" },
+        { common: "Ebony Boghaunter", latin: "Williamsonia fletcheri", family: "Corduliidae" }
       ].each do |entry|
         family = Family.find_or_create_by!(name: entry[:family])
-        g, s = entry[:latin].split(' ')
+        g, s = entry[:latin].split(" ")
         genus = Genus.find_or_create_by!(name: g, family: family)
         Species.create!(name: s, genus: genus, common_name: entry[:common])
       end
@@ -90,22 +90,23 @@ if enable
       module TestApp
         mattr_accessor :current_schema
 
-        def self.graphql_17?
-          return @graphql_17 if defined?(@graphql_17)
-          @graphql_17 = Gem::Version.new(GraphQL::VERSION) < Gem::Version.new("1.8")
+        def self.graphql17?
+          return @graphql17 if defined?(@graphql17)
+
+          @graphql17 = Gem::Version.new(GraphQL::VERSION) < Gem::Version.new("1.8")
         end
 
         def self.format_field_name(field)
           # As of graphql 1.8, client-side queries are expected to have camel-cased keys
           # (these are converted to snake-case server-side).
           # In 1.7 and earlier, they used whatever format was used to define the schema.
-          graphql_17? ? field.underscore : field.camelize(:lower)
+          graphql17? ? field.underscore : field.camelize(:lower)
         end
 
         # Utility method to test that the graphql probe does not duplicate the
         # GraphQL::Tracing::ActiveSupportNotificationsTracing module if the user has already added it
         def self.add_tracer(tracer_mod)
-          if graphql_17?
+          if graphql17?
             # under 1.7 the schema is an instance, which requires us to duplicate its
             # original definition to add instrumentation
             self.current_schema = current_schema.redefine do
@@ -120,7 +121,7 @@ if enable
           end
         end
 
-        if graphql_17?
+        if graphql17?
           module Types
             SpeciesType = GraphQL::ObjectType.define do
               name "Species"
@@ -143,13 +144,13 @@ if enable
             QueryType = GraphQL::ObjectType.define do
               name "Query"
               field :some_dragonflies, !types[Types::SpeciesType], description: "A list of some of the dragonflies" do
-                resolve -> (obj, args, ctx) {
+                resolve lambda { |_obj, _args, _ctx|
                   Species.all
                 }
               end
 
               field :families, !types[Types::FamilyType],
-                description: "A list of families"
+                    description: "A list of families"
 
               field :family, Types::FamilyType, description: "A specific family" do
                 argument :name, !types.String
@@ -173,11 +174,11 @@ if enable
                 argument :genus, !types.String
                 argument :species, !types.String
 
-                resolve ->(o,args,c) {
+                resolve lambda { |_, args, _|
                   genus = Genus.find_by!(name: args[:genus])
                   species = genus.species.new(name: args[:species])
                   if species.save
-                    OpenStruct.new({ species: species })
+                    OpenStruct.new(species: species)
                   end
                 }
               end
@@ -209,11 +210,11 @@ if enable
             end
 
             class QueryType < BaseObject
-              field :some_dragonflies, [Types::SpeciesType], null: false,
-                description: "A list of some of the dragonflies"
+              field :some_dragonflies, [Types::SpeciesType], null:        false,
+                                                             description: "A list of some of the dragonflies"
 
-              field :families, [Types::FamilyType], null: false,
-                description: "A list of families"
+              field :families, [Types::FamilyType], null:        false,
+                                                    description: "A list of families"
 
               field :family, Types::FamilyType, null: false, description: "A specific family" do
                 argument :name, String, required: true
@@ -256,13 +257,13 @@ if enable
                   # Successful creation, return the created object with no errors
                   {
                     species: species,
-                    errors: [],
+                    errors:  []
                   }
                 else
                   # Failed save, return the errors to the client
                   {
                     species: nil,
-                    errors: species.errors.full_messages
+                    errors:  species.errors.full_messages
                   }
                 end
               end
@@ -298,7 +299,7 @@ if enable
 
       @original_env = ENV.to_hash
       set_agent_env
-      Skylight.probe('graphql')
+      Skylight.probe("graphql")
       Skylight.start!
 
       class ApplicationRecord < ActiveRecord::Base
@@ -337,26 +338,27 @@ if enable
             # current_user: current_user,
           }
 
-          result = if params[:queries]
-            formatted_queries = params[:queries].map do |q|
-              {
-                query: q,
-                variables: variables,
-                context: context
-              }
-            end
+          result =
+            if params[:queries]
+              formatted_queries = params[:queries].map do |q|
+                {
+                  query:     q,
+                  variables: variables,
+                  context:   context
+                }
+              end
 
-            TestApp.current_schema.multiplex(formatted_queries)
-          else
-            TestApp.current_schema.execute(params[:query],
-                                           variables: variables,
-                                           context: context,
-                                           operation_name: params[:operation_name])
-          end
+              TestApp.current_schema.multiplex(formatted_queries)
+            else
+              TestApp.current_schema.execute(params[:query],
+                                             variables:      variables,
+                                             context:        context,
+                                             operation_name: params[:operation_name])
+            end
 
           # Normally Rails would set this as content_type, but this app doesn't
           # use Rails controllers.
-          Skylight.trace.segment = 'json'
+          Skylight.trace.segment = "json"
           [200, {}, result]
         end
       end
@@ -380,7 +382,6 @@ if enable
     end
 
     context "with agent", :http, :agent do
-
       shared_examples_for(:graphql_instrumentation) do
         before :each do
           stub_config_validation
@@ -401,7 +402,7 @@ if enable
           ].freeze
 
           analyze_event = ["app.graphql", "graphql.analyze_query"]
-          event_style = TestApp.graphql_17? ? :inline : expectation_event_style
+          event_style = TestApp.graphql17? ? :inline : expectation_event_style
           if event_style == :grouped
             events.cycle(query_count).to_a.tap do |a|
               a.concat([analyze_event].cycle(query_count).to_a)
@@ -419,7 +420,7 @@ if enable
           let(:tracer_mod) { GraphQL::Tracing::ActiveSupportNotificationsTracing }
           let(:current_schema_tracers) do
             lambda do
-              TestApp.graphql_17? ? TestApp.current_schema.tracers : TestApp.current_schema.graphql_definition.tracers
+              TestApp.graphql17? ? TestApp.current_schema.tracers : TestApp.current_schema.graphql_definition.tracers
             end
           end
 
@@ -439,7 +440,7 @@ if enable
 
         context "with single queries" do
           it "successfully calls into graphql with anonymous queries" do
-            res = make_graphql_request(query: "query { #{query_inner} }")
+            make_graphql_request(query: "query { #{query_inner} }")
 
             server.wait resource: "/report"
 
@@ -465,9 +466,10 @@ if enable
           end
 
           it "successfully calls into graphql with named queries" do
-            res = call env("/test", method: :POST, params: {
+            call env("/test", method: :POST, params: {
               operationName: "Anisoptera", # This is optional if there is only one query node
-              query: "query Anisoptera { #{query_inner} }" })
+              query:         "query Anisoptera { #{query_inner} }"
+            })
 
             server.wait resource: "/report"
 
@@ -499,7 +501,7 @@ if enable
           it "successfully calls into graphql with anonymous queries" do
             queries = ["query { #{query_inner} }"].cycle.take(3)
 
-            res = call env("/test", method: :POST, params: { queries: queries })
+            call env("/test", method: :POST, params: { queries: queries })
 
             server.wait resource: "/report"
 
@@ -530,7 +532,7 @@ if enable
             queries = ["query { #{query_inner} }"].cycle.take(3)
             queries.push("query myFavoriteDragonflies { #{query_inner} }")
 
-            res = call env("/test", method: :POST, params: { queries: queries })
+            call env("/test", method: :POST, params: { queries: queries })
 
             server.wait resource: "/report"
 
@@ -566,7 +568,7 @@ if enable
               "query kindOfOkayDragonflies { #{query_inner} }"
             ]
 
-            res = call env("/test", method: :POST, params: { queries: queries })
+            call env("/test", method: :POST, params: { queries: queries })
 
             server.wait resource: "/report"
 
@@ -575,7 +577,8 @@ if enable
             expect(batch.endpoints.count).to eq(1)
             endpoint = batch.endpoints[0]
 
-            expect(endpoint.name).to eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>json</sk-segment>")
+            expect(endpoint.name).to \
+              eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>json</sk-segment>")
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
@@ -612,7 +615,8 @@ if enable
             expect(batch.endpoints.count).to eq(1)
             endpoint = batch.endpoints[0]
 
-            expect(endpoint.name).to eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>json+error</sk-segment>")
+            expect(endpoint.name).to \
+              eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>json+error</sk-segment>")
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
@@ -646,7 +650,8 @@ if enable
             expect(batch.endpoints.count).to eq(1)
             endpoint = batch.endpoints[0]
 
-            expect(endpoint.name).to eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>error</sk-segment>")
+            expect(endpoint.name).to \
+              eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>error</sk-segment>")
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
@@ -655,7 +660,7 @@ if enable
             expect(data).to eq([
               ["app.rack.request", nil],
               ["app.graphql", "graphql.execute_multiplex"],
-              *expected_analysis_events(2).reject { |_, e| e["graphql.analyze"]},
+              *expected_analysis_events(2).reject { |_, e| e["graphql.analyze"] },
               ["app.graphql", "graphql.execute_query_lazy.multiplex"]
             ])
           end
@@ -673,9 +678,9 @@ if enable
           let(:mutation_name) { "CreateSpeciesMutation" }
 
           it "successfully calls into graphql with anonymous mutations" do
-            res = make_graphql_request(
-              query: "mutation #{mutation_name}($genus: String!, $species: String!) { #{mutation_inner} }",
-              variables: {"genus": "Ischnura", "species": "damula"}
+            make_graphql_request(
+              query:     "mutation #{mutation_name}($genus: String!, $species: String!) { #{mutation_inner} }",
+              variables: { "genus": "Ischnura", "species": "damula" }
             )
 
             server.wait resource: "/report"
@@ -707,15 +712,13 @@ if enable
         end
       end
 
-
-
-      [
-        { schema: :TestAppSchema, expectation_event_style: :grouped }
-      ].tap do |ary|
+      configs = [{ schema: :TestAppSchema, expectation_event_style: :grouped }].tap do |ary|
         if test_interpreter_schema?
           ary << { schema: :InterpreterSchema, expectation_event_style: :inline }
         end
-      end.each do |config|
+      end
+
+      configs.each do |config|
         context config[:schema].to_s do
           let(:expectation_event_style) { config[:expectation_event_style] }
           it_behaves_like :graphql_instrumentation do

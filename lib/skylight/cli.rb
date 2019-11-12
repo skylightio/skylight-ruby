@@ -60,7 +60,7 @@ module Skylight
       rescue Api::CreateFailed => e
         say "Could not create the application. Please run `bundle exec skylight doctor` for diagnostics.", :red
         say e.to_s, :yellow
-      rescue Interrupt
+      rescue Interrupt # rubocop:disable Lint/HandleExceptions
       end
 
       desc "disable_dev_warning", "Disables warning about running Skylight in development mode for all local apps"
@@ -71,7 +71,8 @@ module Skylight
         say "Development mode warning disabled", :green
       end
 
-      desc "disable_env_warning", "Disables warning about running Skylight in environments not defined in config.skylight.environments"
+      desc "disable_env_warning", "Disables warning about running Skylight in environments not defined in " \
+                                  "config.skylight.environments"
       def disable_env_warning
         user_config.disable_env_warning = true
         user_config.save
@@ -93,7 +94,7 @@ module Skylight
                 begin
                   namefile = Tempfile.new("skylight-app-name")
                   # Windows appears to need double quotes for `rails runner`
-                  `rails runner "File.open('#{namefile.path}', 'w') {|f| f.write(Rails.application.class.name) rescue '' }"`
+                  `rails runner "File.open('#{namefile.path}', 'w') {|f| f.write(Rails.application.class.name) rescue '' }"` # rubocop:disable Metrics/LineLength
                   name = namefile.read.split("::").first.underscore.titleize
                   name = nil if name.empty?
                 rescue => e

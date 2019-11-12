@@ -6,6 +6,7 @@ module Skylight
 
         def install
           return unless validate_version
+
           ::Delayed::Worker.class_eval do
             include Skylight::Util::Logging
             alias_method :run_without_sk, :run
@@ -14,17 +15,19 @@ module Skylight
             def run(job, *args)
               t { "Delayed::Job beginning trace" }
 
-              handler_name = begin
-                if defined?(::Delayed::PerformableMethod) && job.payload_object.is_a?(::Delayed::PerformableMethod)
-                  job.name
-                else
-                  job.payload_object.class.name
+              handler_name =
+                begin
+                  if defined?(::Delayed::PerformableMethod) && job.payload_object.is_a?(::Delayed::PerformableMethod)
+                    job.name
+                  else
+                    job.payload_object.class.name
+                  end
+                rescue
+                  UNKNOWN
                 end
-              rescue
-                UNKNOWN
-              end
 
-              Skylight.trace(handler_name, "app.delayed_job.worker", "Delayed::Worker#run", component: :worker, segment: job.queue) do
+              Skylight.trace(handler_name, "app.delayed_job.worker", "Delayed::Worker#run",
+                             component: :worker, segment: job.queue) do
                 run_without_sk(job, *args)
               end
             end
@@ -32,6 +35,7 @@ module Skylight
             def handle_failed_job(job, error, *args)
               handle_failed_job_without_sk(job, error, *args)
               return unless Skylight.trace
+
               Skylight.trace.segment = "error"
             end
           end
@@ -41,10 +45,11 @@ module Skylight
 
           def validate_version
             spec = Gem.loaded_specs["delayed_job"]
-            version = spec && spec.version
+            version = spec&.version
 
             if !version || version < Gem::Version.new("4.0.0")
-              $stderr.puts "[SKYLIGHT::CORE] [#{Skylight::VERSION}] The installed version of DelayedJob is not supported on Skylight. Your jobs will not be tracked."
+              $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] The installed version of DelayedJob is not " \
+                           "supported on Skylight. Your jobs will not be tracked."
 
               return false
             end

@@ -15,7 +15,8 @@ module SpecHelper
         return s unless other[:annotations].nil? ^ self[:annotations].nil?
 
         # most specs don't specify annotations currently
-        ::Kernel.warn "[WARNING] SpecHelper::Messages::Span ignoring annotations for equality check (#{__FILE__}:#{__LINE__})"
+        ::Kernel.warn "[WARNING] SpecHelper::Messages::Span ignoring annotations for equality check " \
+                      "(#{__FILE__}:#{__LINE__})"
 
         self.class.fields.values.reject { |f| f.name == :annotations }.all? do |fld|
           self[fld.name] == other[fld.name]

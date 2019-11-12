@@ -14,7 +14,7 @@ module Skylight
 
       STRINGS = {
         get_token: "get your merge token from `https://www.skylight.io/merging`",
-        unlisted: "My app isn't listed here :("
+        unlisted:  "My app isn't listed here :("
       }.freeze
 
       argument :merge_token, type: :string, desc: STRINGS[:get_token]
@@ -171,9 +171,9 @@ module Skylight
           say "Merging..."
 
           api.merge_apps!(@merge_token,
-                          app_guid: @parent_app.guid,
+                          app_guid:       @parent_app.guid,
                           component_guid: @child_app.guid,
-                          environment: @child_env)
+                          environment:    @child_env)
         rescue => e
           say("Something went wrong. Please contact support@skylight.io for more information.", :red)
           done!(message: e.message, success: false)
@@ -252,6 +252,7 @@ module Skylight
 
         def valid_component?(component_name, env)
           return false unless env
+
           Util::Component.new(env, component_name) && true
         rescue ArgumentError
           false
@@ -265,6 +266,7 @@ module Skylight
           ret = Enumerator.new do |yielder|
             @parents.each do |_, app|
               next if app == @parent_app
+
               app.components.each do |component|
                 yielder << OpenStruct.new({ app_name: app.name }.merge(component))
               end

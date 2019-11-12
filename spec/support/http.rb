@@ -15,6 +15,7 @@ module SpecHelper
     class << self
       def start(opts)
         return if @started
+
         LOCK.synchronize do
           @started = true
           @server = Puma::Server.new(self, Puma::Events.new(STDOUT, STDERR))
@@ -24,7 +25,7 @@ module SpecHelper
       end
 
       def status
-        @server_thread && @server_thread.status
+        @server_thread&.status
       end
 
       def wait(opts = {})
@@ -45,7 +46,8 @@ module SpecHelper
               puts "seeking auth: #{opts[:authentication]}"
               puts "requests:"
               @requests.each do |request|
-                puts "[auth: #{request['HTTP_AUTHORIZATION']}] #{Rack::Request.new(request).url}: #{!!filter.call(request)}"
+                puts "[auth: #{request['HTTP_AUTHORIZATION']}] #{Rack::Request.new(request).url}: " \
+                     "#{!!filter.call(request)}"
               end
               puts "*************"
               raise "Server.wait timeout: got #{filter_requests(opts).count(&filter)} not #{opts[:count]}"
@@ -98,74 +100,74 @@ module SpecHelper
 
       private
 
-      def handle(env)
-        if (input = env.delete("rack.input"))
-          str = input.read.dup
-          str.freeze
+        def handle(env)
+          if (input = env.delete("rack.input"))
+            str = input.read.dup
+            str.freeze
 
-          if env["CONTENT_TYPE"] == "application/json"
-            str = JSON.parse(str)
+            if env["CONTENT_TYPE"] == "application/json"
+              str = JSON.parse(str)
+            end
+
+            env["rack.input"] = str
           end
 
-          env["rack.input"] = str
-        end
+          json = ["application/json", "application/json; charset=UTF-8"].sample
 
-        json = ["application/json", "application/json; charset=UTF-8"].sample
+          LOCK.synchronize do
+            @requests << env
+            COND.broadcast
 
-        LOCK.synchronize do
-          @requests << env
-          COND.broadcast
+            mock = @mocks.find do |m|
+              (!m[:path] || m[:path] == env["PATH_INFO"]) &&
+                (!m[:method] || m[:method].to_s.upcase == env["REQUEST_METHOD"])
+            end
 
-          mock = @mocks.find do |m|
-            (!m[:path] || m[:path] == env["PATH_INFO"]) &&
-              (!m[:method] || m[:method].to_s.upcase == env["REQUEST_METHOD"])
-          end
+            if mock
+              @mocks.delete(mock)
 
-          if mock
-            @mocks.delete(mock)
+              ret =
+                begin
+                  mock[:blk].call(env)
+                rescue => e
+                  trace "#{e.inspect}\n#{e.backtrace.map { |l| "  #{l}" }.join("\n")}"
+                  [500, { "content-type" => "text/plain", "content-length" => "4" }, ["Fail"]]
+                end
 
-            ret =
-              begin
-                mock[:blk].call(env)
-              rescue => e
-                trace "#{e.inspect}\n#{e.backtrace.map { |l| "  #{l}" }.join("\n")}"
-                [500, { "content-type" => "text/plain", "content-length" => "4" }, ["Fail"]]
+              if ret.is_a?(Array)
+                return ret if ret.length == 3
+
+                body = ret.last
+                body = body.to_json if body.is_a?(Hash)
+
+                return [ret[0], { "content-type" => json, "content-length" => body.bytesize.to_s }, [body]]
+              elsif respond_to?(:to_str)
+                return [200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret]]
+              else
+                ret = ret.to_json
+                return [200, { "content-type" => json, "content-length" => ret.bytesize.to_s }, [ret]]
               end
-
-            if ret.is_a?(Array)
-              return ret if ret.length == 3
-
-              body = ret.last
-              body = body.to_json if body.is_a?(Hash)
-
-              return [ret[0], { "content-type" => json, "content-length" => body.bytesize.to_s }, [body]]
-            elsif respond_to?(:to_str)
-              return [200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret]]
-            else
-              ret = ret.to_json
-              return [200, { "content-type" => json, "content-length" => ret.bytesize.to_s }, [ret]]
             end
           end
+
+          [200, { "content-type" => "text/plain", "content-length" => "7" }, ["Thanks!"]]
         end
 
-        [200, { "content-type" => "text/plain", "content-length" => "7" }, ["Thanks!"]]
-      end
-
-      def trace(line, *args)
-        if ENV["SKYLIGHT_ENABLE_TRACE_LOGS"]
-          printf("[HTTP Server] #{line}\n", *args)
+        def trace(line, *args)
+          if ENV["SKYLIGHT_ENABLE_TRACE_LOGS"]
+            printf("[HTTP Server] #{line}\n", *args)
+          end
         end
-      end
 
-      def monotonic_time
-        Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      end
-
-      def filter_requests(opts = {})
-        @requests.select do |x|
-          opts[:authentication] ? x["HTTP_AUTHORIZATION"].start_with?(opts[:authentication]) : true
+        def monotonic_time
+          Process.clock_gettime(Process::CLOCK_MONOTONIC)
         end
-      end
+
+        def filter_requests(opts = {})
+          @requests.select do |x|
+            opts[:authentication] ? x["HTTP_AUTHORIZATION"].start_with?(opts[:authentication]) : true
+          end
+        end
     end
   end
 
@@ -202,9 +204,10 @@ module SpecHelper
   end
 
   def server
-    auth = if token
-      [token, report_component, report_environment].join(":")
-    end
+    auth =
+      if token
+        [token, report_component, report_environment].join(":")
+      end
 
     ServerDelegate.new(Server).set_authentication(auth)
   end

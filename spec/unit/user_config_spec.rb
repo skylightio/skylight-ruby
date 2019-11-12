@@ -63,7 +63,8 @@ module Skylight
         with_env("HOME" => nil, "USER" => nil) do
           expect do
             config.file_path
-          end.to raise_error(ConfigError, "The Skylight `user_config_path` must be defined since the home directory cannot be inferred")
+          end.to raise_error(ConfigError, "The Skylight `user_config_path` must be defined since the home directory " \
+                                          "cannot be inferred")
         end
       end
     end

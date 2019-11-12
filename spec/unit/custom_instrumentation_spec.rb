@@ -146,7 +146,7 @@ describe Skylight::Instrumenter, :http, :agent do
       end
       instrument_class_method :singleton_method_with_options,
                               category: "app.singleton",
-                              title: "Singleton Method"
+                              title:    "Singleton Method"
 
       attr_accessor :myvar
       instrument_method :myvar=

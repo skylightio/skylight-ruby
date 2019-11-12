@@ -39,11 +39,13 @@ module Skylight
           def segment_from_payload(payload)
             # Show 'error' if there's an unhandled exception or if the status is 4xx or 5xx
             return "error" if payload[:exception] || payload[:exception_object]
-            segment_from_status(payload[:status]) || if payload[:sk_rendered_format]
-              # We only show the variant if we actually have a format
-              # We won't have a sk_rendered_format if it's a `head` outside of a `respond_to` block.
-              [payload[:sk_rendered_format], payload[:sk_variant]].compact.flatten.join("+")
-            end
+
+            segment_from_status(payload[:status]) ||
+              if payload[:sk_rendered_format]
+                # We only show the variant if we actually have a format
+                # We won't have a sk_rendered_format if it's a `head` outside of a `respond_to` block.
+                [payload[:sk_rendered_format], payload[:sk_variant]].compact.flatten.join("+")
+              end
           end
 
           def segment_from_status(status)

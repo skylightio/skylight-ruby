@@ -44,6 +44,7 @@ describe Skylight::CLI::Merger do
     def test_line(line)
       puts "[OUT]: #{line.inspect}" if ENV["DEBUG"]
       return if line.strip.empty?
+
       out, reply = Array(expectations.next)
       @expector.call(line.strip, out)
       # raise 'no match' unless out === line
@@ -83,36 +84,37 @@ describe Skylight::CLI::Merger do
   end
 
   def run_shell(token: "token", success: true)
-    status = begin
-      shell = TestShell.new(yield) do |line, expected|
-        expect(line).to match(expected)
+    status =
+      begin
+        shell = TestShell.new(yield) do |line, expected|
+          expect(line).to match(expected)
+        end
+
+        described_class.new([token], {}, shell: shell).invoke_all
+
+        0
+      rescue SystemExit => e
+        e.status
       end
-
-      described_class.new([token], {}, shell: shell).invoke_all
-
-      0
-    rescue SystemExit => e
-      e.status
-    end
 
     expect(status).to eq(success ? 0 : 1)
   end
 
   def generate_component(attrs = {})
     {
-      "name" => "web",
+      "name"        => "web",
       "environment" => "production",
-      "guid" => SecureRandom.hex(4)
+      "guid"        => SecureRandom.hex(4)
     }.merge(attrs)
   end
 
   MATCHERS = {
-    intro: /Hello! Welcome to the `skylight merge` CLI!/,
-    explanation: /This CLI is for/,
-    fetch: /Fetching your apps/,
+    intro:             /Hello! Welcome to the `skylight merge` CLI!/,
+    explanation:       /This CLI is for/,
+    fetch:             /Fetching your apps/,
     further_questions: /If you have any questions, please contact/,
-    app_not_found: /Sorry, `skylight merge` is only able to merge apps that you own/,
-    unlisted_app: /\d\. My app isn\'t listed here/
+    app_not_found:     /Sorry, `skylight merge` is only able to merge apps that you own/,
+    unlisted_app:      /\d\. My app isn\'t listed here/
   }.freeze
 
   before do
@@ -143,8 +145,8 @@ describe Skylight::CLI::Merger do
     let(:app2) { { guid: "abcedf124", name: "app2", components: [generate_component] } }
     let(:app3) do
       {
-        guid: "abcedf124",
-        name: "app3",
+        guid:       "abcedf124",
+        name:       "app3",
         components: [generate_component, generate_component(environment: "staging")]
       }
     end
@@ -181,9 +183,9 @@ describe Skylight::CLI::Merger do
     before do
       allow_any_instance_of(Skylight::Api).to receive(:merge_apps!).with(
         "token",
-        app_guid: app1[:guid],
+        app_guid:       app1[:guid],
         component_guid: app2[:components][0]["guid"],
-        environment: child_env
+        environment:    child_env
       ) { merge_response }
     end
 

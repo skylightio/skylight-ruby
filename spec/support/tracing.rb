@@ -10,11 +10,11 @@ module SpecHelper
       false
     end
 
-    def instance_method_source_location(*args)
+    def instance_method_source_location(*)
       nil
     end
 
-    def find_caller(*args)
+    def find_caller(*)
       nil
     end
   end

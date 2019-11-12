@@ -58,7 +58,7 @@ module Skylight
 
         if File.const_defined?(:NULL) ? File::NULL == "NUL" : RbConfig::CONFIG["host_os"] =~ /mingw|mswin32/
           # This is a DOSish environment
-          ALT_SEPARATOR_BYTE = File::ALT_SEPARATOR && File::ALT_SEPARATOR.ord
+          ALT_SEPARATOR_BYTE = File::ALT_SEPARATOR&.ord
           COLON_BYTE = ":".ord
           SEPARATOR_BYTES = [SEPARATOR_BYTE, ALT_SEPARATOR_BYTE].freeze
 

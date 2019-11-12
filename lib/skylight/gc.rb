@@ -27,7 +27,7 @@ module Skylight
     end
 
     def enable
-      @profiler.enable if @profiler
+      @profiler&.enable
     end
 
     # Total time in microseconds for GC over entire process lifetime
@@ -94,7 +94,7 @@ module Skylight
         end
 
         def update
-          @global.update if @global
+          @global&.update
         end
 
         def add(time)
@@ -102,7 +102,7 @@ module Skylight
         end
 
         def release
-          @global.release(self) if @global
+          @global&.release(self)
         end
       end
   end

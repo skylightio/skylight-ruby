@@ -84,7 +84,7 @@ module Skylight
               def native_start_span(time, cat)
                 span = {
                   start: time,
-                  cat: cat
+                  cat:   cat
                 }
                 mock_spans << span
                 # Return integer like the native method does

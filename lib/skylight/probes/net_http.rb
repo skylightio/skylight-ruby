@@ -41,7 +41,7 @@ module Skylight
               scheme = use_ssl? ? "https" : "http"
 
               # Contained in the path
-              query  = nil
+              query = nil
 
               opts = Formatters::HTTP.build_opts(method, scheme, host, port, path, query)
 

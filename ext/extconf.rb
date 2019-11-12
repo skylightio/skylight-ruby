@@ -32,7 +32,8 @@ SKYLIGHT_FETCH_LIB  = !ENV.key?("SKYLIGHT_FETCH_LIB") || ENV["SKYLIGHT_FETCH_LIB
 
 # Directory where skylight.h exists
 SKYLIGHT_HDR_PATH = ENV["SKYLIGHT_HDR_PATH"] || ENV["SKYLIGHT_LIB_PATH"] || "."
-SKYLIGHT_LIB_PATH = ENV["SKYLIGHT_LIB_PATH"] || File.expand_path("../../lib/skylight/native/#{Platform.tuple}", __FILE__)
+SKYLIGHT_LIB_PATH = ENV["SKYLIGHT_LIB_PATH"] ||
+                    File.expand_path("../../lib/skylight/native/#{Platform.tuple}", __FILE__)
 
 SKYLIGHT_SOURCE_URL = ENV["SKYLIGHT_SOURCE_URL"]
 SKYLIGHT_VERSION = ENV["SKYLIGHT_VERSION"]

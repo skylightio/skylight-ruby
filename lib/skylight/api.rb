@@ -21,6 +21,7 @@ module Skylight
 
       def errors
         return unless res.respond_to?(:body) && res.body.is_a?(Hash)
+
         res.body["errors"]
       end
 
@@ -87,11 +88,13 @@ module Skylight
 
       def validation_errors
         return {} if config_valid? || !body
+
         body["errors"]
       end
 
       def corrected_config
         return {} if config_valid? || !body
+
         body["corrected"]
       end
     end
@@ -107,6 +110,7 @@ module Skylight
       res = http_request(:app_create, :post, params)
 
       raise CreateFailed, res unless res.success?
+
       res
     end
 

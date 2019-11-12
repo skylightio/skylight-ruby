@@ -24,8 +24,8 @@ describe "skylight setup", :http, :agent do
   def should_successfully_create_app(token = nil)
     server.mock "/apps", :post do
       { app:
-        { id: "my-app-id",
-          token: "my-app-token" } }
+             { id:    "my-app-id",
+               token: "my-app-token" } }
     end
 
     unless token
@@ -56,7 +56,7 @@ describe "skylight setup", :http, :agent do
       # Name "Spec" comes from the default file location of tmp/spec
       expect(server.requests[0]).to post_json("/apps",
                                               authorization: nil,
-                                              input: { "app" => { "name" => "Spec" }, "token" => "foobar" })
+                                              input:         { "app" => { "name" => "Spec" }, "token" => "foobar" })
     end
 
     it "handles server errors" do
@@ -64,7 +64,8 @@ describe "skylight setup", :http, :agent do
         [403, { errors: { request: "token is invalid" } }]
       end
 
-      expect(cli).to receive(:say).with("Could not create the application. Please run `bundle exec skylight doctor` for diagnostics.", :red).ordered
+      expect(cli).to receive(:say).with("Could not create the application. Please run `bundle exec skylight doctor` " \
+                                        "for diagnostics.", :red).ordered
       expect(cli).to receive(:say).with('{"request"=>"token is invalid"}', :yellow).ordered
 
       cli.setup("foobar")
@@ -75,7 +76,8 @@ describe "skylight setup", :http, :agent do
         raise "http error"
       end
 
-      expect(cli).to receive(:say).with("Could not create the application. Please run `bundle exec skylight doctor` for diagnostics.", :red).ordered
+      expect(cli).to receive(:say).with("Could not create the application. Please run `bundle exec skylight doctor` " \
+                                        "for diagnostics.", :red).ordered
       expect(cli).to receive(:say).with("Skylight::Util::HTTP::Response: Fail", :yellow).ordered
 
       cli.setup("foobar")

@@ -56,16 +56,16 @@ module Skylight
 
       expect(t.spans[0]).to eq(
         span(
-          event: event("app.rack.request"),
+          event:      event("app.rack.request"),
           started_at: 0,
-          duration: 3_000
+          duration:   3_000
         )
       )
 
       expect(t.spans[1]).to eq(
         span(
-          parent: 0,
-          event: event("app.block", "hello"),
+          parent:     0,
+          event:      event("app.block", "hello"),
           started_at: 1_000,
           duration:   2_000
         )

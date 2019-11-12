@@ -46,6 +46,9 @@ RSpec::Core::RakeTask.new(:spec) do |t|
 end
 task spec: :compile
 
+require "rubocop/rake_task"
+RuboCop::RakeTask.new(:rubocop)
+
 namespace :vendor do
   namespace :update do
     task :highline do
@@ -68,4 +71,4 @@ if defined?(YARD)
   YARD::Rake::YardocTask.new
 end
 
-task default: :spec
+task default: %i[rubocop spec]

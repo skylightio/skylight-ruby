@@ -112,7 +112,8 @@ module Skylight
         rescue => e
           remaining_attempts -= 1
 
-          error "failed to fetch native extension; uri=#{uri}; msg=#{e.message}; remaining-attempts=#{remaining_attempts}", e
+          error "failed to fetch native extension; uri=#{uri}; msg=#{e.message}; " \
+                "remaining-attempts=#{remaining_attempts}", e
 
           if remaining_attempts > 0
             sleep 2

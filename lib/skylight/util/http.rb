@@ -118,7 +118,7 @@ module Skylight
 
           yield res
         ensure
-          client.finish if client
+          client&.finish
         end
 
         def execute(req, body = nil)
@@ -189,13 +189,7 @@ module Skylight
           end
 
           def get(key)
-            return nil unless body.is_a?(Hash)
-
-            res = body
-            key.split(".").each do |part|
-              return unless (res = res[part])
-            end
-            res
+            body.dig(*key.split(".")) if body.is_a?(Hash)
           end
 
           def respond_to_missing?(name, include_all = false)

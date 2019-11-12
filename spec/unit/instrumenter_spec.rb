@@ -59,7 +59,8 @@ describe "Skylight::Instrumenter", :http, :agent do
     #
     #   it "doesn't keep invalid config values" do
     #     config.set('test.enable_segments', true)
-    #     stub_config_validation(422, { corrected: { enable_segments: false }, errors: { enable_segments: "not allowed to be set" } })
+    #     stub_config_validation(422, { corrected: { enable_segments: false },
+    #                                   errors: { enable_segments: "not allowed to be set" } })
     #
     #     expect(Skylight.start!(config)).to be_truthy
     #
@@ -190,7 +191,10 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         Skylight.trace "Testin", "app.rack" do
           Skylight.disable do
-            ActiveSupport::Notifications.instrument("sql.active_record", name: "Load User", sql: "SELECT * FROM posts", binds: []) do
+            ActiveSupport::Notifications.instrument(
+              "sql.active_record",
+              name: "Load User", sql: "SELECT * FROM posts", binds: []
+            ) do
               clock.skip 1
             end
           end
@@ -431,7 +435,7 @@ describe "Skylight::Instrumenter", :http, :agent do
           it "can unmute from within a block" do
             trace = Skylight.trace "Rack", "app.rack.request"
             a = b = c = d = e = f = nil
-            a = trace.instrument "foo", nil, nil, { mute_children: true }
+            a = trace.instrument "foo", nil, nil, mute_children: true
 
             # unmute is not intended to work on the trace, so if `mute_children` was set
             # by a parent span, unmute will have no effect.
@@ -465,16 +469,14 @@ describe "Skylight::Instrumenter", :http, :agent do
             server.wait resource: "/report"
 
             expect(spans.count).to eq(3)
-            expect(spans.map{ |x| x.event.category }).to eq(["app.rack.request", "foo", "wubble"])
+            expect(spans.map { |x| x.event.category }).to eq(["app.rack.request", "foo", "wubble"])
             expect(b).to be_nil
             expect(c).to be_nil
           end
 
           it "can stack mute and unmute blocks" do
             trace = Skylight.trace "Rack", "app.rack.request"
-            a = b = c = d = e = f = nil
             Skylight.instrument(title: "foo") do
-
               Skylight.unmute do
                 clock.skip 0.1
                 Skylight.instrument(title: "bar") do
@@ -514,16 +516,14 @@ describe "Skylight::Instrumenter", :http, :agent do
             server.wait resource: "/report"
 
             expect(spans.count).to eq(5)
-            expect(spans.map{ |x| x.event.title }).to eq([nil, "foo", "bar", "wibble", "wubble"])
-            expect(b).to be_nil
-            expect(c).to be_nil
+            expect(spans.map { |x| x.event.title }).to eq([nil, "foo", "bar", "wibble", "wubble"])
           end
         end
 
         context "logging" do
           it "warns only once when trying to set a endpoint name from a muted block" do
             trace = Skylight.trace "Rack", "app.rack.request"
-            a = trace.instrument "foo", nil, nil, { mute_children: true }
+            a = trace.instrument "foo", nil, nil, mute_children: true
 
             trace.endpoint = "my endpoint name"
             trace.endpoint = "my endpoint name 2"
@@ -536,7 +536,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
             server.wait resource: "/report"
 
-            expect(spans.map{ |x| x.event.category }).to eq(["app.rack.request", "foo"])
+            expect(spans.map { |x| x.event.category }).to eq(["app.rack.request", "foo"])
             expect(logger_out.string.lines.grep(/tried to set endpoint/).count).to eq(1)
             expect(logger_out.string.lines.grep(/tried to set segment/).count).to eq(1)
           end
@@ -550,7 +550,7 @@ describe "Skylight::Instrumenter", :http, :agent do
           end
 
           has_subscribers = lambda do
-            [:@subscriber, :@subscribers].reduce(Skylight.instrumenter) do |m, n|
+            %i[@subscriber @subscribers].reduce(Skylight.instrumenter) do |m, n|
               m.instance_variable_get(n)
             end.present?
           end

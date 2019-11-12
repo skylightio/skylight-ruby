@@ -3,9 +3,9 @@ require "spec_helper"
 describe SpecHelper::Messages::Span do
   def test_span(**attrs)
     span({
-      event: event("app.rack"),
+      event:      event("app.rack"),
       started_at: 0,
-      duration: 10_000
+      duration:   10_000
     }.merge(attrs))
   end
 

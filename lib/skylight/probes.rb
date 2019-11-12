@@ -30,6 +30,7 @@ module Skylight
           if available.key?(name)
             raise "duplicate probe name: #{name}; original=#{available[name]}; new=#{f}"
           end
+
           available[name] = f
         end
       end
@@ -119,7 +120,7 @@ module ::Kernel
 
       begin
         Skylight::Probes.require_hook(name)
-      rescue Exception
+      rescue Exception # rubocop:disable Lint/HandleExceptions
         # FIXME: Log these errors
       end
 

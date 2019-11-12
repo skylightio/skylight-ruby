@@ -10,7 +10,6 @@ module Skylight
     include Util::Logging
 
     attr_reader :instrumenter, :endpoint, :segment, :notifications, :meta, :component
-    attr_accessor :uuid
 
     def self.new(instrumenter, endpoint, start, cat, title = nil, desc = nil, meta: nil, segment: nil, component: nil)
       uuid = SecureRandom.uuid
@@ -117,6 +116,7 @@ module Skylight
     def instrument(cat, title = nil, desc = nil, meta = nil)
       return if muted?
       return if broken?
+
       t { "instrument: #{cat}, #{title}" }
 
       title.freeze if title.is_a?(String)
@@ -171,6 +171,7 @@ module Skylight
     def release
       t { "release; is_current=#{@instrumenter.current_trace == self}" }
       return unless @instrumenter.current_trace == self
+
       @instrumenter.current_trace = nil
     end
 
@@ -295,7 +296,7 @@ module Skylight
                     "but got '#{native_span_get_title(span)}' instead."
 
         if native_span_get_category(span) == "rack.middleware" &&
-          Skylight::Probes.installed.key?("ActionDispatch::MiddlewareStack::Middleware")
+           Skylight::Probes.installed.key?("ActionDispatch::MiddlewareStack::Middleware")
           if Skylight::Probes::Middleware::Probe.disabled?
             message << "\nWe disabled the Middleware probe but unfortunately, this didn't solve the issue."
           else
@@ -316,6 +317,7 @@ module Skylight
 
       def gc_time
         return 0 unless @gc
+
         @gc.update
         @gc.time
       end
@@ -373,6 +375,7 @@ module Skylight
 
       def maybe_warn(context, msg)
         return if warnings_silenced?(context)
+
         instrumenter.silence_warnings(context)
 
         warn(msg)

@@ -98,7 +98,7 @@ if defined?(ActiveModel::Serializer)
       expect(response.body).to eq(json)
 
       opts = {
-        cat: "view.render.active_model_serializers",
+        cat:   "view.render.active_model_serializers",
         title: "ItemSerializer"
       }
 
@@ -137,7 +137,7 @@ if defined?(ActiveModel::Serializer)
       expect(response.body).to eq(json)
 
       opts = {
-        cat: "view.render.active_model_serializers",
+        cat:   "view.render.active_model_serializers",
         title: "<Anonymous Serializer>"
       }
 

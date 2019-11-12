@@ -12,8 +12,6 @@ require "skylight/util/platform"
 require "skylight/util/hostname"
 require "skylight/util/ssl"
 
-
-
 module Skylight
   class Config
     include Util::Logging
@@ -24,42 +22,42 @@ module Skylight
     # Map environment variable keys with Skylight configuration keys
     ENV_TO_KEY = {
       # == Authentication ==
-      -"AUTHENTICATION" => :authentication,
+      -"AUTHENTICATION"               => :authentication,
 
       # == App settings ==
-      -"ROOT"          => :root,
-      -"HOSTNAME"      => :hostname,
-      -"SESSION_TOKEN" => :session_token,
+      -"ROOT"                         => :root,
+      -"HOSTNAME"                     => :hostname,
+      -"SESSION_TOKEN"                => :session_token,
 
       # == Component settings ==
-      -"ENV" => :env,
-      -"COMPONENT" => :component,
-      -"REPORT_RAILS_ENV" => :report_rails_env,
+      -"ENV"                          => :env,
+      -"COMPONENT"                    => :component,
+      -"REPORT_RAILS_ENV"             => :report_rails_env,
 
       # == Deploy settings ==
-      -"DEPLOY_ID"          => :'deploy.id',
-      -"DEPLOY_GIT_SHA"     => :'deploy.git_sha',
-      -"DEPLOY_DESCRIPTION" => :'deploy.description',
+      -"DEPLOY_ID"                    => :'deploy.id',
+      -"DEPLOY_GIT_SHA"               => :'deploy.git_sha',
+      -"DEPLOY_DESCRIPTION"           => :'deploy.description',
 
       # == Logging ==
-      -"LOG_FILE"       => :log_file,
-      -"LOG_LEVEL"      => :log_level,
-      -"ALERT_LOG_FILE" => :alert_log_file,
-      -"LOG_SQL_PARSE_ERRORS" => :log_sql_parse_errors,
+      -"LOG_FILE"                     => :log_file,
+      -"LOG_LEVEL"                    => :log_level,
+      -"ALERT_LOG_FILE"               => :alert_log_file,
+      -"LOG_SQL_PARSE_ERRORS"         => :log_sql_parse_errors,
 
       # == Proxy ==
-      -"PROXY_URL" => :proxy_url,
+      -"PROXY_URL"                    => :proxy_url,
 
       # == Instrumenter ==
-      -"ENABLE_SEGMENTS" => :enable_segments,
-      -"ENABLE_SIDEKIQ" => :enable_sidekiq,
-      -"IGNORED_ENDPOINT" => :ignored_endpoint,
-      -"IGNORED_ENDPOINTS" => :ignored_endpoints,
-      -"SINATRA_ROUTE_PREFIXES" => :sinatra_route_prefixes,
+      -"ENABLE_SEGMENTS"              => :enable_segments,
+      -"ENABLE_SIDEKIQ"               => :enable_sidekiq,
+      -"IGNORED_ENDPOINT"             => :ignored_endpoint,
+      -"IGNORED_ENDPOINTS"            => :ignored_endpoints,
+      -"SINATRA_ROUTE_PREFIXES"       => :sinatra_route_prefixes,
 
       # == Max Span Handling ==
-      -"REPORT_MAX_SPANS_EXCEEDED" => :report_max_spans_exceeded,
-      -"PRUNE_LARGE_TRACES" => :prune_large_traces,
+      -"REPORT_MAX_SPANS_EXCEEDED"    => :report_max_spans_exceeded,
+      -"PRUNE_LARGE_TRACES"           => :prune_large_traces,
 
       # == Skylight Remote ==
       -"AUTH_URL"                     => :auth_url,
@@ -100,14 +98,14 @@ module Skylight
 
       # == Legacy env vars ==
       #
-      -"AGENT_LOCKFILE"      => :'agent.lockfile',
-      -"AGENT_SOCKFILE_PATH" => :'agent.sockfile_path',
+      -"AGENT_LOCKFILE"               => :'agent.lockfile',
+      -"AGENT_SOCKFILE_PATH"          => :'agent.sockfile_path',
 
       # == User config settings ==
-      -"USER_CONFIG_PATH" => :user_config_path,
+      -"USER_CONFIG_PATH"             => :user_config_path,
 
       # == Heroku settings ==
-      -"HEROKU_DYNO_INFO_PATH" => :'heroku.dyno_info_path'
+      -"HEROKU_DYNO_INFO_PATH"        => :'heroku.dyno_info_path'
     }.freeze
 
     # Default values for Skylight configuration keys
@@ -116,31 +114,31 @@ module Skylight
         begin
           ret = {
             # URLs
-            auth_url:                 -"https://auth.skylight.io/agent",
-            app_create_url:           -"https://www.skylight.io/apps",
-            merges_url:               -"https://www.skylight.io/merges",
-            validation_url:           -"https://auth.skylight.io/agent/config",
+            auth_url:                  -"https://auth.skylight.io/agent",
+            app_create_url:            -"https://www.skylight.io/apps",
+            merges_url:                -"https://www.skylight.io/merges",
+            validation_url:            -"https://auth.skylight.io/agent/config",
 
             # Logging
-            log_file:                 -"-",
-            log_level:                -"INFO",
-            alert_log_file:           -"-",
-            log_sql_parse_errors:     true,
+            log_file:                  -"-",
+            log_level:                 -"INFO",
+            alert_log_file:            -"-",
+            log_sql_parse_errors:      true,
 
             # Features
-            enable_segments:          true,
-            enable_sidekiq:           false,
-            sinatra_route_prefixes:   false,
+            enable_segments:           true,
+            enable_sidekiq:            false,
+            sinatra_route_prefixes:    false,
 
             # Deploys
-            'heroku.dyno_info_path':  -"/etc/heroku/dyno",
-            report_rails_env:         true,
+            'heroku.dyno_info_path':   -"/etc/heroku/dyno",
+            report_rails_env:          true,
 
             # Daemon
-            'daemon.lazy_start':        true,
-            hostname:                   Util::Hostname.default_hostname,
-            report_max_spans_exceeded:  false,
-            prune_large_traces:         true
+            'daemon.lazy_start':       true,
+            hostname:                  Util::Hostname.default_hostname,
+            report_max_spans_exceeded: false,
+            prune_large_traces:        true
           }
 
           unless Util::Platform::OS == -"darwin"
@@ -246,10 +244,8 @@ module Skylight
         self[k] = v
       end
 
-      if p
-        p.each do |k, v|
-          @priority[self.class.remap_key(k)] = v
-        end
+      p&.each do |k, v|
+        @priority[self.class.remap_key(k)] = v
       end
     end
 
@@ -262,10 +258,9 @@ module Skylight
         error = nil
         begin
           attrs = YAML.safe_load(ERB.new(File.read(path)).result,
-                                  [], # permitted_classes
-                                  [], # permitted_symbols
-                                  true # aliases enabled
-                                )
+                                 [], # permitted_classes
+                                 [], # permitted_symbols
+                                 true) # aliases enabled
           error = "empty file" unless attrs
           error = "invalid format" if attrs && !attrs.is_a?(Hash)
         rescue Exception => e
@@ -359,12 +354,14 @@ module Skylight
       end
 
       unless FileTest.writable?(file_root)
-        raise ConfigError, "Directory `#{file_root}` is not writable. Please set #{key} in your config to a writable path"
+        raise ConfigError, "Directory `#{file_root}` is not writable. Please set #{key} in your config to a " \
+                           "writable path"
       end
     end
 
     def check_logfile_permissions(log_file, key)
       return if log_file == "-" # STDOUT
+
       log_file = File.expand_path(log_file, root)
       check_file_permissions(log_file, key)
     end
@@ -446,19 +443,6 @@ module Skylight
       end
     end
 
-    def to_json(*)
-      JSON.generate(as_json)
-    end
-
-    def as_json(*)
-      {
-        config: {
-          priority: @priority,
-          values:   @values
-        }
-      }
-    end
-
     def to_native_env
       ret = []
 
@@ -474,10 +458,6 @@ module Skylight
       ret << "SKYLIGHT_VALIDATE_AUTHENTICATION" << "false"
 
       ret
-    end
-
-    def write(_path)
-      raise "not implemented"
     end
 
     #
@@ -565,17 +545,18 @@ module Skylight
     private
 
       def create_logger(out)
-        l = begin
-          if out.is_a?(String)
-            out = File.expand_path(out, root)
-            # May be redundant since we also do this in the permissions check
-            FileUtils.mkdir_p(File.dirname(out))
-          end
+        l =
+          begin
+            if out.is_a?(String)
+              out = File.expand_path(out, root)
+              # May be redundant since we also do this in the permissions check
+              FileUtils.mkdir_p(File.dirname(out))
+            end
 
-          Logger.new(out)
-        rescue
-          Logger.new(STDOUT)
-        end
+            Logger.new(out)
+          rescue
+            Logger.new(STDOUT)
+          end
         l.progname = "Skylight"
         l
       end
@@ -614,7 +595,6 @@ module Skylight
       end
 
     public
-
 
     # @api private
     def api
@@ -665,11 +645,13 @@ module Skylight
       FileUtils.mkdir_p sockdir_path rescue nil
 
       unless FileTest.writable?(sockdir_path)
-        raise ConfigError, "Directory `#{sockdir_path}` is not writable. Please set daemon.sockdir_path in your config to a writable path"
+        raise ConfigError, "Directory `#{sockdir_path}` is not writable. Please set daemon.sockdir_path in " \
+                           "your config to a writable path"
       end
 
       if check_nfs(sockdir_path)
-        raise ConfigError, "Directory `#{sockdir_path}` is an NFS mount and will not allow sockets. Please set daemon.sockdir_path in your config to a non-NFS path."
+        raise ConfigError, "Directory `#{sockdir_path}` is an NFS mount and will not allow sockets. Please set " \
+                           "daemon.sockdir_path in your config to a non-NFS path."
       end
     end
 
@@ -713,7 +695,7 @@ module Skylight
 
     def components
       @components ||= {
-        web: Util::Component.new(
+        web:    Util::Component.new(
           get(:env),
           Util::Component::DEFAULT_NAME
         ),
@@ -731,11 +713,15 @@ module Skylight
       components[:web]
     end
 
+    def to_json(*)
+      JSON.generate(as_json)
+    end
+
     def as_json(*)
       {
         config: {
           priority: @priority.merge(component.as_json),
-          values: @values
+          values:   @values
         }
       }
     end

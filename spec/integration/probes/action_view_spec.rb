@@ -40,7 +40,6 @@ if defined?(ActionPack)
 
     let(:renderer) { Renderer.new(renderer_inner) }
 
-
     class Renderer < SimpleDelegator
       def render(*args, &block)
         __getobj__.render(*args, &block).tap do |result|

@@ -140,8 +140,8 @@ module Skylight
       @warnings_silenced && @warnings_silenced[context]
     end
 
-    alias_method :disable, :mute
-    alias_method :disabled?, :muted?
+    alias disable mute
+    alias disabled? muted?
 
     def start!
       # We do this here since we can't report these issues via Gem install without stopping install entirely.
@@ -181,11 +181,13 @@ module Skylight
       # If a trace is already in progress, continue with that one
       if (trace = @trace_info.current)
         return yield(trace) if block_given?
+
         return trace
       end
 
       begin
-        trace = Trace.new(self, endpoint, Skylight::Util::Clock.nanos, cat, title, desc, meta: meta, segment: segment, component: component)
+        trace = Trace.new(self, endpoint, Skylight::Util::Clock.nanos, cat, title, desc,
+                          meta: meta, segment: segment, component: component)
       rescue Exception => e
         log_error e.message
         t { e.backtrace.join("\n") }
@@ -219,11 +221,13 @@ module Skylight
 
       if muted?
         return yield if block_given?
+
         return
       end
 
       unless (trace = @trace_info.current)
         return yield if block_given?
+
         return
       end
 
@@ -232,6 +236,7 @@ module Skylight
       unless match?(cat, Skylight::CATEGORY_REGEX)
         warn "invalid skylight instrumentation category; trace=%s; value=%s", trace.uuid, cat
         return yield if block_given?
+
         return
       end
 
@@ -239,6 +244,7 @@ module Skylight
 
       unless (sp = trace.instrument(cat, title, desc, meta))
         return yield if block_given?
+
         return
       end
 
@@ -258,6 +264,7 @@ module Skylight
 
     def broken!
       return unless (trace = @trace_info.current)
+
       trace.broken!
     end
 
@@ -271,6 +278,7 @@ module Skylight
 
     def done(span, meta = nil)
       return unless (trace = @trace_info.current)
+
       trace.done(span, meta)
     end
 
@@ -303,11 +311,11 @@ module Skylight
       end
     end
 
-    def handle_instrumenter_error(trace, e)
-      poison! if e.is_a?(Skylight::InstrumenterUnrecoverableError)
+    def handle_instrumenter_error(trace, err)
+      poison! if err.is_a?(Skylight::InstrumenterUnrecoverableError)
 
-      warn "failed to submit trace to worker; trace=%s, err=%s", trace.uuid, e
-      t { "BACKTRACE:\n#{e.backtrace.join("\n")}" }
+      warn "failed to submit trace to worker; trace=%s, err=%s", trace.uuid, err
+      t { "BACKTRACE:\n#{err.backtrace.join("\n")}" }
 
       false
     end

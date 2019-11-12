@@ -23,8 +23,8 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
     expect_any_instance_of(TestJob).to receive(:perform)
     expect(Skylight).to receive(:instrument).with(
       hash_including(
-        title: "Enqueue TestJob",
-        category: "other.active_job.enqueue",
+        title:       "Enqueue TestJob",
+        category:    "other.active_job.enqueue",
         description: "{ adapter: 'inline', queue: 'default' }"
       )
     ).and_call_original
@@ -36,8 +36,8 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
     expect_any_instance_of(ActionMailer::DeliveryJob).to receive(:perform)
     expect(Skylight).to receive(:instrument).with(
       hash_including(
-        title: "Enqueue TestMailer#test_mail",
-        category: "other.active_job.enqueue",
+        title:       "Enqueue TestMailer#test_mail",
+        category:    "other.active_job.enqueue",
         description: "{ adapter: 'inline', queue: 'mailers', job: 'ActionMailer::DeliveryJob' }"
       )
     ).and_call_original

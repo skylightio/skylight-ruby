@@ -49,10 +49,10 @@ module Skylight
   ].freeze
 
   # @api private
-  TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/u
+  TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/u.freeze
 
   # @api private
-  CATEGORY_REGEX = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/iu
+  CATEGORY_REGEX = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/iu.freeze
 
   # @api private
   DEFAULT_CATEGORY = "app.block".freeze
@@ -93,13 +93,13 @@ module Skylight
       level, message =
         if e.is_a?(ConfigError)
           [:warn, format("Unable to start Instrumenter due to a configuration error: %<message>s",
-                          message: e.message)]
+                         message: e.message)]
         else
           [:error, format("Unable to start Instrumenter; msg=%<message>s; class=%<klass>s",
                           message: e.message, klass: e.class)]
         end
 
-      if config && config.respond_to?("log_#{level}") && config.respond_to?(:log_trace)
+      if config&.respond_to?("log_#{level}") && config&.respond_to?(:log_trace)
         config.send("log_#{level}", message)
         config.log_trace e.backtrace.join("\n")
       else
@@ -119,6 +119,7 @@ module Skylight
       const_get(:LOCK).synchronize do
         t { "stop! synchronized" }
         return unless instrumenter
+
         # This is only really helpful for getting specs to pass.
         @instrumenter.current_trace = nil
 
@@ -137,19 +138,23 @@ module Skylight
     def trace(endpoint = nil, cat = nil, title = nil, meta: nil, segment: nil, component: nil)
       unless instrumenter
         return yield if block_given?
+
         return
       end
 
       if instrumenter.poisoned?
         spawn_shutdown_thread!
         return yield if block_given?
+
         return
       end
 
       cat ||= DEFAULT_CATEGORY
 
       if block_given?
-        instrumenter.trace(endpoint, cat, title, nil, meta: meta, segment: segment, component: component) { |tr| yield tr }
+        instrumenter.trace(endpoint, cat, title, nil, meta: meta, segment: segment, component: component) do |tr|
+          yield tr
+        end
       else
         instrumenter.trace(endpoint, cat, title, nil, meta: meta, segment: segment, component: component)
       end
@@ -159,6 +164,7 @@ module Skylight
     def instrument(opts = DEFAULT_OPTIONS, &block)
       unless instrumenter
         return yield if block_given?
+
         return
       end
 

@@ -8,8 +8,8 @@ module Skylight::Normalizers::GraphQL
   #  - "graphql.execute_field_lazy"
 
   class Base < Skylight::Normalizers::Normalizer
-    ANONYMOUS = "[anonymous]".freeze
-    CAT = "app.graphql".freeze
+    ANONYMOUS = "[anonymous]"
+    CAT = "app.graphql"
 
     def normalize(_trace, name, _payload)
       [CAT, name, nil]
@@ -51,7 +51,7 @@ module Skylight::Normalizers::GraphQL
       trace.endpoint = "graphql:#{queries.sort.join('+')}"
       trace.compound_response_error_status = if has_errors.all?
                                                :all
-                                             elsif !has_errors.none?
+                                             elsif has_errors.any?
                                                :partial
                                              end
     end

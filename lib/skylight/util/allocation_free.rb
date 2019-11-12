@@ -15,6 +15,7 @@ module Skylight
         while i < array.size
           item = array[i]
           return item if yield item
+
           i += 1
         end
 

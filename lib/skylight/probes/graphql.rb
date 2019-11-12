@@ -19,7 +19,8 @@ module Skylight
               Skylight::Config::MUTEX.synchronize do
                 graphql_tracer = ::GraphQL::Tracing::ActiveSupportNotificationsTracing
                 unless tracers.include?(graphql_tracer)
-                  $stdout.puts "[SKYLIGHT::CORE] Adding tracer 'GraphQL::Tracing::ActiveSupportNotificationsTracing' to schema"
+                  $stdout.puts "[SKYLIGHT] Adding tracer " \
+                               "'GraphQL::Tracing::ActiveSupportNotificationsTracing' to schema"
                   tracers << graphql_tracer
                 end
 

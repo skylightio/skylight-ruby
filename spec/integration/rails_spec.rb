@@ -73,9 +73,9 @@ if enable
 
         private
 
-        def query_parameters(env)
-          ActionDispatch::Request.new(env).query_parameters
-        end
+          def query_parameters(env)
+            ActionDispatch::Request.new(env).query_parameters
+          end
       end
 
       CustomMiddleware ||= Class.new(SkTestMiddleware) do
@@ -129,9 +129,9 @@ if enable
 
         private
 
-        def assertion_hook
-          # override in rspec
-        end
+          def assertion_hook
+            # override in rspec
+          end
       end
 
       # These need to be distinguished by class name in order to use
@@ -145,7 +145,7 @@ if enable
           super
         rescue MiddlewareError => e
           # start a new span here; helps ensure traces/instrumenters are unmuted
-          Skylight.instrument('post-rescue') { sleep(0.01) }
+          Skylight.instrument("post-rescue") { sleep(0.01) }
           [500, {}, ["error=#{e.class.inspect} msg=#{e.to_s.inspect}"]]
         end
       end
@@ -159,7 +159,7 @@ if enable
           catch(thrown_response[0]) { super }.tap do |r|
             # start a new span here; helps ensure traces/instrumenters are unmuted
             if r == thrown_response[1]
-              Skylight.instrument('post-catch') { sleep(0.01) }
+              Skylight.instrument("post-catch") { sleep(0.01) }
             end
           end
         end
@@ -182,27 +182,28 @@ if enable
 
         private
 
-        def should_mute?(env)
-          query_parameters(env)[:mute] == "true"
-        end
+          def should_mute?(env)
+            query_parameters(env)[:mute] == "true"
+          end
       end
 
       ThrowingMiddleware ||= Class.new(SkTestMiddleware) do
         def call(env)
           throw(*CatchingMiddleware.thrown_response) if should_throw?(env)
           raise MiddlewareError, "I can't do that, Dave" if should_raise?(env)
+
           super
         end
 
         private
 
-        def should_throw?(env)
-          query_parameters(env)[:middleware_throws] == "true"
-        end
+          def should_throw?(env)
+            query_parameters(env)[:middleware_throws] == "true"
+          end
 
-        def should_raise?(env)
-          query_parameters(env)[:middleware_raises] == "true"
-        end
+          def should_raise?(env)
+            query_parameters(env)[:middleware_raises] == "true"
+          end
       end
 
       module EngineNamespace
@@ -224,11 +225,11 @@ if enable
       class SkMutingNormalizer < Skylight::Normalizers::Normalizer
         register "mute.skylight"
 
-        def normalize(trace, name, payload)
+        def normalize(_trace, _name, _payload)
           ["app.mute", nil, nil, { mute_children: true }]
         end
 
-        def normalize_after(trace, span, name, payload)
+        def normalize_after(trace, _span, _name, _payload)
           trace.endpoint = "set-by-muted-normalizer"
         end
       end
@@ -342,12 +343,12 @@ if enable
           end
         end
 
-        instrument_method title: 'muted-index'
+        instrument_method title: "muted-index"
         def muted_index
           Skylight.mute { muted_index_inner }
         end
 
-        instrument_method title: 'normalizer-muted-index'
+        instrument_method title: "normalizer-muted-index"
         def normalizer_muted_index
           ActiveSupport::Notifications.instrument("mute.skylight") { muted_index_inner }
         end
@@ -424,14 +425,13 @@ if enable
         end
 
         before_action only: :before_action_redirect do
-          redirect_to '/'
+          redirect_to "/"
         end
 
-        def before_action_redirect
-        end
+        def before_action_redirect; end
 
         def action_redirect
-          redirect_to '/'
+          redirect_to "/"
         end
 
         private
@@ -454,7 +454,7 @@ if enable
         def show
           render(
             status: 200,
-            text: "Zomg!"
+            text:   "Zomg!"
           )
         end
 
@@ -529,7 +529,7 @@ if enable
           ["app.method", "Check authorization"],
           ["app.method", "UsersController#index"],
           ["app.inside", nil],
-          ["app.zomg", nil],
+          ["app.zomg", nil]
         ])
       end
 
@@ -539,7 +539,10 @@ if enable
 
         trace = server.reports.dig(0, :endpoints, 0, :traces, 0)
 
-        app_and_rack_spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^(app|rack)./ }
+        app_and_rack_spans = trace.
+                             filtered_spans.
+                             map { |s| [s.event.category, s.event.title] }.
+                             select { |s| s[0] =~ /^(app|rack)./ }
 
         # We know the first one
         expect(app_and_rack_spans[0]).to eq(["app.rack.request", nil])
@@ -548,6 +551,7 @@ if enable
         count = 0
         loop do
           break if app_and_rack_spans[count + 1][0] != "rack.middleware"
+
           count += 1
         end
 
@@ -555,7 +559,8 @@ if enable
         expect(count).to be > 2
 
         # This one should be in all versions
-        expect(app_and_rack_spans).to include(["rack.middleware", "Anonymous Middleware"], ["rack.middleware", "CustomMiddleware"])
+        expect(app_and_rack_spans).to include(["rack.middleware", "Anonymous Middleware"],
+                                              ["rack.middleware", "CustomMiddleware"])
 
         # Check the rest
         expect(app_and_rack_spans[(count + 1)..-1]).to eq([
@@ -679,21 +684,20 @@ if enable
       context "muted instrumentation" do
         let(:segment) { Rails.version =~ /^4\./ ? "html" : "text" }
         it "does not record instrumentation wrapped in a mute block" do
-          res = call MyApp, env("/users/muted_index")
+          call MyApp, env("/users/muted_index")
           server.wait resource: "/report"
 
           endpoint = server.reports.dig(0, :endpoints, 0)
           expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>#{segment}</sk-segment>")
 
           trace = endpoint.dig(:traces, 0)
-          titles = trace.filtered_spans.map { |s| s.event.title }
           spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
           expect(spans).to eq([
             ["app.rack.request", nil],
             ["app.controller.request", "UsersController#muted_index"],
             ["app.method", "Check authorization"],
-            ["app.method", "muted-index"],
+            ["app.method", "muted-index"]
           ])
         end
 
@@ -705,7 +709,6 @@ if enable
           expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>#{segment}</sk-segment>")
 
           trace = endpoint.dig(:traces, 0)
-          titles = trace.filtered_spans.map { |s| s.event.title }
 
           spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
@@ -714,7 +717,7 @@ if enable
             ["app.controller.request", "UsersController#muted_index"],
             ["app.method", "Check authorization"],
             ["app.method", "muted-index"],
-            ["app.block", "post-catch"],
+            ["app.block", "post-catch"]
           ])
         end
 
@@ -733,7 +736,7 @@ if enable
             ["app.controller.request", "UsersController#muted_index"],
             ["app.method", "Check authorization"],
             ["app.method", "muted-index"],
-            ["app.block", "post-rescue"],
+            ["app.block", "post-rescue"]
           ])
         end
       end
@@ -756,7 +759,7 @@ if enable
             ["app.controller.request", "UsersController#normalizer_muted_index"],
             ["app.method", "Check authorization"],
             ["app.method", "normalizer-muted-index"],
-            ["app.mute", nil],
+            ["app.mute", nil]
           ])
         end
 
@@ -776,7 +779,7 @@ if enable
             ["app.method", "Check authorization"],
             ["app.method", "normalizer-muted-index"],
             ["app.mute", nil],
-            ["app.block", "post-catch"],
+            ["app.block", "post-catch"]
           ])
         end
 
@@ -796,7 +799,7 @@ if enable
             ["app.method", "Check authorization"],
             ["app.method", "normalizer-muted-index"],
             ["app.mute", nil],
-            ["app.block", "post-rescue"],
+            ["app.block", "post-rescue"]
           ])
         end
       end
@@ -1231,7 +1234,7 @@ if enable
       end
 
       it "correctly assigns endpoint names when ActiveJob is run synchronously" do
-        res = call MyApp, env("/users/inline_job")
+        call MyApp, env("/users/inline_job")
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
@@ -1250,7 +1253,7 @@ if enable
       end
 
       it "sets correct segment and endpoint for before_action redirects" do
-        res = call MyApp, env("/users/before_action_redirect")
+        call MyApp, env("/users/before_action_redirect")
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
@@ -1261,7 +1264,7 @@ if enable
       end
 
       it "sets correct segment and endpoint for action redirect" do
-        res = call MyApp, env("/users/action_redirect")
+        call MyApp, env("/users/action_redirect")
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
@@ -1272,7 +1275,7 @@ if enable
       end
 
       it "sets correct segment and endpoint for send_file" do
-        res = call MyApp, env("/users/send_png")
+        call MyApp, env("/users/send_png")
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
@@ -1283,7 +1286,7 @@ if enable
       end
 
       it "sets correct segment and endpoint for not_modified" do
-        res = call MyApp, env("/users/not_modified")
+        call MyApp, env("/users/not_modified")
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]

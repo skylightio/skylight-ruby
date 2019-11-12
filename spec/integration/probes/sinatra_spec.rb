@@ -40,7 +40,8 @@ if defined?(Sinatra)
     end
 
     it "creates a Trace for a Sinatra app" do
-      expect(Skylight).to receive(:trace).with("Rack", "app.rack.request", nil, meta: nil, component: :web).and_call_original
+      expect(Skylight).to receive(:trace).with("Rack", "app.rack.request", nil, meta: nil, component: :web).
+        and_call_original
 
       get "/named-template"
       expect(@current_trace.endpoint).to eq("GET /named-template")
@@ -50,7 +51,7 @@ if defined?(Sinatra)
     it "instruments named templates" do
       expect(Skylight).to receive(:instrument).with(
         category: "view.render.template",
-        title: "hello"
+        title:    "hello"
       ).and_call_original
 
       get "/named-template"
@@ -61,7 +62,7 @@ if defined?(Sinatra)
     it "instruments inline templates" do
       expect(Skylight).to receive(:instrument).with(
         category: "view.render.template",
-        title: "Inline template (erb)"
+        title:    "Inline template (erb)"
       ).and_call_original
 
       get "/inline-template"

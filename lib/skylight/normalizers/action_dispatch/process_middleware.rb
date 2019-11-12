@@ -8,7 +8,7 @@ module Skylight
 
         CAT = "rack.middleware"
         ANONYMOUS_MIDDLEWARE = "Anonymous Middleware"
-        ANONYMOUS = /\A#<(Class|Module|Proc):/
+        ANONYMOUS = /\A#<(Class|Module|Proc):/.freeze
 
         def normalize(trace, _name, payload)
           name = payload[:middleware].to_s
