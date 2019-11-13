@@ -1,30 +1,4 @@
 module SpecHelper
-  RSpec::Matchers.define :happen do |timeout = 1, interval = 0.1|
-    match do |blk|
-      res = false
-      start = Time.now
-
-      while timeout > Time.now - start
-        if blk.call
-          res = true
-          break
-        end
-
-        sleep interval
-      end
-
-      res
-    end
-
-    failure_message do
-      "expected block to happen but it didn't"
-    end
-
-    failure_message_when_negated do
-      "expected block not to happen but it did"
-    end
-  end
-
   SPECIAL_HEADERS = %w[CONTENT_TYPE REQUEST_METHOD rack.input].freeze
 
   RSpec::Matchers.define :be_request do |*args|
@@ -86,6 +60,62 @@ module SpecHelper
       else
         "request is nil"
       end
+    end
+  end
+
+  RSpec::Matchers.define :a_span_including do |expected|
+    match do |actual|
+      expect(actual.to_hash).to match(a_hash_including(expected))
+    end
+
+    failure_message do
+      "span match failed"
+    end
+
+    failure_message_when_negated do
+      "span match negated failed"
+    end
+  end
+
+  RSpec::Matchers.define :an_exact_span do |expected|
+    match do |actual|
+      expect(actual.to_hash).to eq(expected)
+    end
+
+    failure_message do
+      "an exact span match failed"
+    end
+
+    failure_message_when_negated do
+      "an exact span match negated failed"
+    end
+  end
+
+  RSpec::Matchers.define :an_event_including do |expected|
+    match do |actual|
+      expect(actual.to_hash).to match(a_hash_including(expected))
+    end
+
+    failure_message do
+      "event match failed"
+    end
+
+    failure_message_when_negated do
+      "event match negated failed"
+    end
+  end
+
+  RSpec::Matchers.define :an_exact_event do |expected|
+    match do |actual|
+      expect(actual.to_hash).to eq(expected)
+    end
+
+    failure_message do
+      "an exact event match failed"
+    end
+
+    failure_message_when_negated do
+      "an exact event match negated failed"
     end
   end
 

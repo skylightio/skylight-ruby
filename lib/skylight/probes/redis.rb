@@ -6,9 +6,8 @@ module Skylight
           version = defined?(::Redis::VERSION) ? Gem::Version.new(::Redis::VERSION) : nil
 
           if !version || version < Gem::Version.new("3.0.0")
-            # Using $stderr here isn't great, but we don't have a logger accessible
-            $stderr.puts "[SKYLIGHT::CORE] [#{Skylight::VERSION}] The installed version of Redis doesn't " \
-                          "support Middlewares. At least version 3.0.0 is required."
+            Skylight.error "The installed version of Redis doesn't support Middlewares. " \
+                           "At least version 3.0.0 is required."
             return
           end
 

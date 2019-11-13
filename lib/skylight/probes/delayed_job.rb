@@ -48,8 +48,8 @@ module Skylight
             version = spec&.version
 
             if !version || version < Gem::Version.new("4.0.0")
-              $stderr.puts "[SKYLIGHT] [#{Skylight::VERSION}] The installed version of DelayedJob is not " \
-                           "supported on Skylight. Your jobs will not be tracked."
+              Skylight.error "The installed version of DelayedJob is not supported on Skylight. " \
+                             "Your jobs will not be tracked."
 
               return false
             end
