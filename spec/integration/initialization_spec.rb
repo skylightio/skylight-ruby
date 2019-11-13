@@ -63,9 +63,24 @@ describe "Initialization integration" do
       output.reject! { |l| l =~ /BigDecimal.new is deprecated/ }
     end
 
-    # Ruby 2.7 has deprecated a way that ActiveSupport creates Procs
+    # This deprecation is not our fault
+    output.reject! { |l| l.include?("Rack::File is deprecated") }
+
+    # Ruby 2.7 has deprecated some keyword behaviors
     if RUBY_VERSION =~ /^2\.7/
-      output.reject! { |l| l =~ /active_support.*tried to create Proc object without a block/ }
+      filtered_output = []
+      keyword_warning = false
+      output.each do |l|
+        if l.include?("warning: The last argument is used as the keyword parameter")
+          keyword_warning = true
+        elsif keyword_warning && l.include?("warning: for")
+          # Ignore
+        else
+          keyword_warning = false
+          filtered_output << l
+        end
+      end
+      output = filtered_output
     end
 
     output.join("\n")
