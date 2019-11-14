@@ -10,6 +10,8 @@ engines:
   rubocop:
     enabled: true
     channel: rubocop-0-74
+    config:
+      file: .rubocop_cc.yml
 
 ratings:
   paths:
