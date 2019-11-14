@@ -1,113 +1,30 @@
-inherit_from: .rubocop_todo.yml
+inherit_from: .rubocop_cc.yml
 
-AllCops:
-  TargetRubyVersion: 2.3
-  Exclude:
-    - '**/vendor/**/*'
+# We want these to run on CodeClimate, but not in regular checks
 
-Bundler/DuplicatedGem:
-  Exclude:
-    - 'spec/dummy/Gemfile'
-
-Layout/AlignHash:
-  EnforcedHashRocketStyle: table
-  EnforcedColonStyle: table
-
-# Allows for easier copy-pasting into shell and comments between lines
-Layout/DotPosition:
-  EnforcedStyle: trailing
-
-Layout/IndentationConsistency:
-  EnforcedStyle: indented_internal_methods
-
-Layout/IndentFirstArrayElement:
-  EnforcedStyle: consistent
-
-Layout/IndentFirstHashElement:
-  EnforcedStyle: consistent
-
-# We shouldn't worry about this in specs
-Lint/HandleExceptions:
-  Exclude:
-    - '**/*_spec.rb'
-
-# We do a lot of handling of all error classes. This seems probably ok for our case.
-Lint/RescueException:
+Metrics/AbcSize:
   Enabled: false
 
-# Doesn't make sense to have to split up module and context blocks
 Metrics/BlockLength:
-  Exclude:
-    - '**/*_spec.rb'
-
-# Longer lines can be ok at time
-Metrics/LineLength:
-  Max: 120
-
-# This is a bit too strict for us
-Style/ClassAndModuleChildren:
   Enabled: false
 
-# It's nice to actually have boolean values
-Style/DoubleNegation:
+Metrics/BlockNesting:
   Enabled: false
 
-# We don't necessarily need to document every module, but maybe we can remove this later.
-Style/Documentation:
+Metrics/ClassLength:
   Enabled: false
 
-# We may want this, but since it could break stuff let's disable it for now.
-Style/FrozenStringLiteralComment:
+Metrics/CyclomaticComplexity:
   Enabled: false
 
-Style/GlobalVars:
-  Exclude:
-    - 'ext/extconf.rb'
-
-# Not convinced this makes things better
-Style/GuardClause:
+Metrics/MethodLength:
   Enabled: false
 
-# While long lines can be ok, having the condition after a long line isn't great
-Style/IfUnlessModifier:
+Metrics/ModuleLength:
   Enabled: false
 
-Style/MixinUsage:
-  Exclude:
-    - 'ext/extconf.rb'
-
-Style/NumericPredicate:
+Metrics/ParameterLists:
   Enabled: false
 
-# Maybe we can revisit this later
-Style/PerlBackrefs:
+Metrics/PerceivedComplexity:
   Enabled: false
-
-# Overly verbose to have to declare rescue class
-Style/RescueStandardError:
-  EnforcedStyle: implicit
-
-# We use timestamps in some tests and this doesn't play nice
-Style/NumericLiterals:
-  Enabled: false
-
-# No performance penalty for double quotes and easier to be consistent
-Style/StringLiterals:
-  EnforcedStyle: double_quotes
-
-# This may not be a great idea but we do it frequently. We should revisit.
-Style/RescueModifier:
-  Enabled: false
-
-# We don't want to use warn because we want to treat these like errors.
-Style/StderrPuts:
-  Enabled: false
-
-# In some cases `get_*` or `set_*` seems more appropriate than without.
-Naming/AccessorMethodName:
-  Enabled: false
-
-Naming/PredicateName:
-  NameWhitelist:
-    - is_a?       # Default
-    - has_errors? # Seems clearer than suggested `errors?`
