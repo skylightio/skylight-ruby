@@ -154,6 +154,12 @@ module Skylight
                 Skylight.done(span, meta) if span
               end
             end
+
+            if protected_method_defined?(:"before_instrument_#{name}")
+              protected :"#{name}"
+            elsif private_method_defined?(:"before_instrument_#{name}")
+              private :"#{name}"
+            end
           RUBY
         end
 

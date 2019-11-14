@@ -446,6 +446,12 @@ if enable
           def set_variant
             request.variant = :tablet if params[:tablet]
           end
+
+        protected
+
+          # For checking visibilty only
+          instrument_method
+          def unused; end
       end
 
       class ::MetalController < ActionController::Metal
@@ -1375,6 +1381,16 @@ if enable
       end
 
       it_behaves_like "without agent"
+    end
+
+    context "instrument_method" do
+      it "maintains privacy" do
+        expect(UsersController.private_method_defined?(:authorized?)).to be_truthy
+      end
+
+      it "maintains protectedness" do
+        expect(UsersController.protected_method_defined?(:unused)).to be_truthy
+      end
     end
 
     def call_full(app, env)
