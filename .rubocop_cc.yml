@@ -38,7 +38,7 @@ Metrics/BlockLength:
   Exclude:
     - '**/*_spec.rb'
 
-# Longer lines can be ok at time
+# Longer lines can be ok at times
 Metrics/LineLength:
   Max: 120
 
