@@ -2,6 +2,19 @@ module Skylight
   module Probes
     module Redis
       class Probe
+        # Unfortunately, because of the nature of pipelining, there's no way for us to
+        # give a time breakdown on the individual items.
+
+        PIPELINED_OPTS = {
+          category: "db.redis.pipelined".freeze,
+          title:    "PIPELINE".freeze
+        }.freeze
+
+        MULTI_OPTS = {
+          category: "db.redis.multi".freeze,
+          title:    "MULTI".freeze
+        }.freeze
+
         def install
           version = defined?(::Redis::VERSION) ? Gem::Version.new(::Redis::VERSION) : nil
 
@@ -29,35 +42,22 @@ module Skylight
               end
             end
           end
-        end
 
-        # Unfortunately, because of the nature of pipelining, there's no way for us to
-        # give a time breakdown on the individual items.
+          ::Redis.class_eval do
+            alias_method :pipelined_without_sk, :pipelined
 
-        PIPELINED_OPTS = {
-          category: "db.redis.pipelined".freeze,
-          title:    "PIPELINE".freeze
-        }.freeze
-
-        MULTI_OPTS = {
-          category: "db.redis.multi".freeze,
-          title:    "MULTI".freeze
-        }.freeze
-
-        ::Redis.class_eval do
-          alias_method :pipelined_without_sk, :pipelined
-
-          def pipelined(&block)
-            Skylight.instrument(PIPELINED_OPTS) do
-              pipelined_without_sk(&block)
+            def pipelined(&block)
+              Skylight.instrument(PIPELINED_OPTS) do
+                pipelined_without_sk(&block)
+              end
             end
-          end
 
-          alias_method :multi_without_sk, :multi
+            alias_method :multi_without_sk, :multi
 
-          def multi(&block)
-            Skylight.instrument(MULTI_OPTS) do
-              multi_without_sk(&block)
+            def multi(&block)
+              Skylight.instrument(MULTI_OPTS) do
+                multi_without_sk(&block)
+              end
             end
           end
         end
