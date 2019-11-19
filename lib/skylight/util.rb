@@ -7,7 +7,6 @@ module Skylight
     require "skylight/util/instrumenter_method"
 
     # Used from the CLI
-    autoload :Gzip,      "skylight/util/gzip"
-    autoload :Inflector, "skylight/util/inflector"
+    autoload :Gzip, "skylight/util/gzip"
   end
 end
