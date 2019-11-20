@@ -49,6 +49,8 @@ module SpecHelper
     Skylight::Util::Clock.default = Skylight::Util::Clock.new
   end
 
+  module_function
+
   def clock
     c = Skylight::Util::Clock.default
     c.is_a?(TestClock) ? c : nil

@@ -51,7 +51,7 @@ if enable
 
       def good_method
         Skylight.instrument(category: "app.zomg") do
-          sleep(0.1)
+          SpecHelper.clock.skip 1
           yield if block_given?
         end
       end
@@ -155,7 +155,7 @@ if enable
 
         def perform(*args)
           Skylight.instrument(category: "app.zomg") do
-            sleep(0.1)
+            SpecHelper.clock.skip 1
             raise "bad_method" if args.include?("bad_method")
 
             p args

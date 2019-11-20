@@ -39,12 +39,12 @@ if enable
           Skylight.instrument category: "app.inside" do
             Skylight.instrument category: "app.zomg" do
               # nothing
-              sleep 0.1
+              SpecHelper.clock.skip 1
 
               maybe_raise(error_key)
             end
 
-            Skylight.instrument(category: "app.after_zomg") { sleep 0.1 }
+            Skylight.instrument(category: "app.after_zomg") { SpecHelper.clock.skip 1 }
           end
         end
 
