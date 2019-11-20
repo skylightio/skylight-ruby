@@ -143,7 +143,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
 
   it "instruments timedout requests" do
     server.mock "/slow.html" do
-      sleep 2
+      sleep 1
       ret = "Slow"
       [200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret]]
     end
