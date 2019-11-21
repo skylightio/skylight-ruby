@@ -4,12 +4,12 @@ module Skylight
       class Perform < Normalizer
         register "perform.active_job"
 
-        DELIVERY_JOB = "ActionMailer::DeliveryJob".freeze
+        DELIVERY_JOB = /\AActionMailer::(Mail)?DeliveryJob\Z/.freeze
         DELAYED_JOB_WRAPPER = "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper".freeze
 
         def self.normalize_title(job_instance)
           job_instance.class.name.to_s.tap do |str|
-            if str == DELIVERY_JOB
+            if str.match(DELIVERY_JOB)
               mailer_class, mailer_method, * = job_instance.arguments
               return ["#{mailer_class}##{mailer_method}", str]
             end

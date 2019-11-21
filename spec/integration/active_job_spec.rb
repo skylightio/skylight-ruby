@@ -58,6 +58,10 @@ if enable
       # these tests to fail
       ActiveJob::Base.queue_adapter = :inline if ActiveJob::VERSION::MAJOR < 5
 
+      if defined?(ActionMailer::MailDeliveryJob)
+        ActionMailer::Base.delivery_job = ActionMailer::MailDeliveryJob
+      end
+
       set_agent_env do
         Skylight.start!
         ex.call
