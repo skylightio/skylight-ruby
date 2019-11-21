@@ -352,6 +352,13 @@ module Skylight
       end
 
       def preprocess_source_location(meta)
+        unless config.enable_source_locations?
+          meta.delete(:source_location)
+          meta.delete(:source_file)
+          meta.delete(:source_line)
+          return
+        end
+
         source_line = meta.delete(:source_line)
         source_file = meta.delete(:source_file)
 

@@ -54,6 +54,7 @@ module Skylight
       -"IGNORED_ENDPOINT"             => :ignored_endpoint,
       -"IGNORED_ENDPOINTS"            => :ignored_endpoints,
       -"SINATRA_ROUTE_PREFIXES"       => :sinatra_route_prefixes,
+      -"ENABLE_SOURCE_LOCATIONS"      => :enable_source_locations,
 
       # == Max Span Handling ==
       -"REPORT_MAX_SPANS_EXCEEDED"    => :report_max_spans_exceeded,
@@ -108,6 +109,10 @@ module Skylight
       -"HEROKU_DYNO_INFO_PATH"        => :'heroku.dyno_info_path'
     }.freeze
 
+    SERVER_VALIDATE = %i[
+      enable_source_locations
+    ].freeze
+
     # Default values for Skylight configuration keys
     def self.default_values
       @default_values ||=
@@ -129,6 +134,7 @@ module Skylight
             enable_segments:           true,
             enable_sidekiq:            false,
             sinatra_route_prefixes:    false,
+            enable_source_locations:   false,
 
             # Deploys
             'heroku.dyno_info_path':   -"/etc/heroku/dyno",
@@ -534,6 +540,10 @@ module Skylight
       !!get(:sinatra_route_prefixes)
     end
 
+    def enable_source_locations?
+      !!get(:enable_source_locations)
+    end
+
     def user_config
       @user_config ||= UserConfig.new(self)
     end
@@ -622,6 +632,10 @@ module Skylight
         return false if res.forbidden?
 
         corrected_config = res.corrected_config
+
+        # Use defaults if no corrected config is available. This will happen if the request failed.
+        corrected_config ||= Hash[SERVER_VALIDATE.map { |k| [k, self.class.default_values.fetch(k)] }]
+
         config_to_update = corrected_config.reject { |k, v| get(k) == v }
         unless config_to_update.empty?
           info("Updating config values:")
