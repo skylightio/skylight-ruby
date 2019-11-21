@@ -288,21 +288,9 @@ module Skylight
           Skylight.config.set(:enable_source_locations, true)
         end
 
-        it "allows source_location to be set" do
-          trace = Skylight.trace "Rack", "app.rack.request"
-          span = trace.instrument("app.block", nil, nil, source_location: "foo/bar.rb:1")
-          trace.done(span)
-          trace.submit
-
-          server.wait resource: "/report"
-
-          annotation = get_annotation_val(spans[1], :SourceLocation)
-          expect(annotation&.string_val).to eq("foo/bar.rb:1")
-        end
-
         it "allows only source_file to be set" do
           trace = Skylight.trace "Rack", "app.rack.request"
-          span = trace.instrument("app.block", nil, nil, source_file: "foo/bar.rb")
+          span = trace.instrument("app.block", nil, nil, source_file: trace.config.root.join("foo/bar.rb").to_s)
           trace.done(span)
           trace.submit
 
@@ -314,7 +302,8 @@ module Skylight
 
         it "allows only source_file and source_line to be set" do
           trace = Skylight.trace "Rack", "app.rack.request"
-          span = trace.instrument("app.block", nil, nil, source_file: "foo/bar.rb", source_line: 123)
+          span = trace.instrument("app.block", nil, nil, source_file: trace.config.root.join("foo/bar.rb").to_s,
+                                                         source_line: 123)
           trace.done(span)
           trace.submit
 
@@ -356,6 +345,51 @@ module Skylight
 
           annotation = get_annotation_val(spans[1], :SourceLocation)
           expect(annotation&.string_val).to eq("foo/bar.rb:1")
+        end
+
+        context "sanitization" do
+          it "shows gem name" do
+            rake_spec = Bundler.load.specs.find { |s| s.name == "rake" }
+            path = rake_spec.full_require_paths.first + "/dummy.rb"
+
+            trace = Skylight.trace "Rack", "app.rack.request"
+            span = trace.instrument("app.block", nil, nil, source_file: path, source_line: 123)
+            trace.done(span)
+            trace.submit
+
+            server.wait resource: "/report"
+
+            annotation = get_annotation_val(spans[1], :SourceLocation)
+            expect(annotation&.string_val).to eq("rake")
+          end
+
+          it "ignores ignored gems" do
+            rake_spec = Bundler.load.specs.find { |s| s.name == "activesupport" }
+            path = rake_spec.full_require_paths.first + "/dummy.rb"
+
+            trace = Skylight.trace "Rack", "app.rack.request"
+            span = trace.instrument("app.block", nil, nil, source_file: path, source_line: 123)
+            trace.done(span)
+            trace.submit
+
+            server.wait resource: "/report"
+
+            annotation = get_annotation_val(spans[1], :SourceLocation)
+            expect(annotation).to be_nil
+          end
+
+          it "ignores vendored Ruby" do
+            trace = Skylight.trace "Rack", "app.rack.request"
+            path = trace.config.root.join("/ruby-#{RUBY_VERSION}/lib/ruby/dummy.rb").to_s
+            span = trace.instrument("app.block", nil, nil, source_file: path, source_line: 123)
+            trace.done(span)
+            trace.submit
+
+            server.wait resource: "/report"
+
+            annotation = get_annotation_val(spans[1], :SourceLocation)
+            expect(annotation).to be_nil
+          end
         end
       end
     end

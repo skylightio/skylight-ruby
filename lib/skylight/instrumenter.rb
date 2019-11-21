@@ -9,7 +9,7 @@ module Skylight
 
     TOO_MANY_UNIQUES = "<too many unique descriptions>".freeze
 
-    include Skylight::Util::Logging
+    include Util::Logging
 
     class TraceInfo
       def initialize(key = KEY)
@@ -359,6 +359,30 @@ module Skylight
                 end
 
       trace.endpoint += "<sk-segment>#{segment}</sk-segment>"
+    end
+
+    def gem_require_paths
+      @gem_require_paths ||=
+        Hash[*Bundler.load.specs.to_a.map { |s| s.full_require_paths.map { |p| [p, s.name] } }.flatten]
+    end
+
+    def find_source_gem(path)
+      _, name = gem_require_paths.find do |rpath, name|
+        path.start_with?(rpath) && !config.source_location_ignored_gems.include?(name)
+      end
+      name
+    end
+
+    def project_path?(path)
+      # Must be in the project root
+      return false unless path.start_with?(config.root.to_s)
+      # Must not be Bundler's vendor location
+      return false if path.start_with?(Bundler.bundle_path.to_s)
+      # Must not be Ruby files
+      return false if path.include?("/ruby-#{RUBY_VERSION}/lib/ruby/")
+
+      # So it must be a project file
+      true
     end
   end
 end
