@@ -44,7 +44,7 @@ if defined?(Grape)
 
         namespace :admin do
           before do
-            Skylight.instrument("verifying admin") { sleep 0.1 }
+            Skylight.instrument("verifying admin") { SpecHelper.clock.skip 1 }
           end
 
           get :secret do

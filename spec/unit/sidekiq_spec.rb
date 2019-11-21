@@ -60,9 +60,9 @@ if enable
               Skylight.instrument category: "app.inside" do
                 Skylight.instrument category: "app.zomg" do
                   # nothing
-                  sleep 0.1
+                  SpecHelper.clock.skip 1
                 end
-                sleep 0.1
+                SpecHelper.clock.skip 1
               end
             end
           end

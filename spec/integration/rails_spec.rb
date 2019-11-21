@@ -145,7 +145,7 @@ if enable
           super
         rescue MiddlewareError => e
           # start a new span here; helps ensure traces/instrumenters are unmuted
-          Skylight.instrument("post-rescue") { sleep(0.01) }
+          Skylight.instrument("post-rescue") { SpecHelper.clock.skip 1 }
           [500, {}, ["error=#{e.class.inspect} msg=#{e.to_s.inspect}"]]
         end
       end
@@ -159,7 +159,7 @@ if enable
           catch(thrown_response[0]) { super }.tap do |r|
             # start a new span here; helps ensure traces/instrumenters are unmuted
             if r == thrown_response[1]
-              Skylight.instrument("post-catch") { sleep(0.01) }
+              Skylight.instrument("post-catch") { SpecHelper.clock.skip 1 }
             end
           end
         end
