@@ -9,7 +9,16 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
     def perform; end
   end
 
-  ActionMailer::DeliveryJob.queue_adapter = :inline
+  job_class = ActionMailer::DeliveryJob
+
+  if defined?(ActionMailer::MailDeliveryJob)
+    ActionMailer::Base.delivery_job = ActionMailer::MailDeliveryJob
+    job_class = ActionMailer::MailDeliveryJob
+  end
+
+  job_class.queue_adapter = :inline
+
+  ActiveJob::Base.logger.level = ENV["DEBUG"] ? Logger::DEBUG : Logger::FATAL
 
   class TestMailer < ActionMailer::Base
     default from: "test@example.com"
@@ -33,12 +42,12 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
   end
 
   it "reports ActionMailer methods" do
-    expect_any_instance_of(ActionMailer::DeliveryJob).to receive(:perform)
+    expect_any_instance_of(job_class).to receive(:perform)
     expect(Skylight).to receive(:instrument).with(
       hash_including(
         title:       "Enqueue TestMailer#test_mail",
         category:    "other.active_job.enqueue",
-        description: "{ adapter: 'inline', queue: 'mailers', job: 'ActionMailer::DeliveryJob' }"
+        description: "{ adapter: 'inline', queue: 'mailers', job: '#{job_class}' }"
       )
     ).and_call_original
 
