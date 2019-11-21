@@ -62,6 +62,8 @@ if enable
         ActionMailer::Base.delivery_job = ActionMailer::MailDeliveryJob
       end
 
+      ActiveJob::Base.logger.level = ENV["DEBUG"] ? Logger::DEBUG : Logger::FATAL
+
       set_agent_env do
         Skylight.start!
         ex.call

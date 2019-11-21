@@ -18,6 +18,8 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
 
   job_class.queue_adapter = :inline
 
+  ActiveJob::Base.logger.level = ENV["DEBUG"] ? Logger::DEBUG : Logger::FATAL
+
   class TestMailer < ActionMailer::Base
     default from: "test@example.com"
 
