@@ -72,7 +72,6 @@ if enable
     end
 
     include ActiveJob::TestHelper
-    # ActiveJob::Base.queue_adapter = :test
 
     specify do
       4.times do |n|
