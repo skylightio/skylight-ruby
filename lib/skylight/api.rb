@@ -93,7 +93,7 @@ module Skylight
       end
 
       def corrected_config
-        return {} if config_valid? || !body
+        return nil if config_valid? || !body
 
         body["corrected"]
       end
