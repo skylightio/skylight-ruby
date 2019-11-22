@@ -524,8 +524,9 @@ trace_span_set_meta(VALUE self, VALUE span, VALUE meta) {
 }
 
 static VALUE
-trace_span_started(VALUE self) {
+trace_span_started(VALUE self, VALUE span) {
   UNUSED(self);
+  UNUSED(span);
   return Qnil;
 }
 
