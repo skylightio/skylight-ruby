@@ -86,11 +86,11 @@ module Skylight
       end
     end
 
-    def fetch(opts)
+    def fetch(**opts)
       opts[:logger] ||= Logger.new(STDOUT).tap do |l|
         l.level = ENV["DEBUG"] ? Logger::DEBUG : Logger::FATAL
       end
-      NativeExtFetcher.fetch(opts)
+      NativeExtFetcher.fetch(**opts)
     end
 
     def stub_ext_request(url = nil)
