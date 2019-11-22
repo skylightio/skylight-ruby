@@ -123,14 +123,10 @@ module Skylight
           else
             Kernel.warn "Invalid logger"
           end
+        # Fallback to stderr for warn and error levels
+        elsif %i[warn error].include?(level)
+          $stderr.puts format("[SKYLIGHT] #{msg}", *args)
         end
-
-        # Fallback
-        if (module_name = is_a?(Module) ? name : self.class.name)
-          root_name = module_name.split("::").first.upcase
-          msg.prepend("[#{root_name}] ")
-        end
-        puts format(msg, *args)
       rescue Exception => e
         if trace?
           puts "[ERROR] #{e.message}"
