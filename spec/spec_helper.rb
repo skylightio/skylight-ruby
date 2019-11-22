@@ -164,6 +164,20 @@ RSpec.configure do |config|
 
   e = ENV.clone
 
+  config.before(:all) do
+    if defined?(ActiveJob)
+      ActiveJob::Base.logger.level = ENV["DEBUG"] ? Logger::DEBUG : Logger::FATAL
+
+      if defined?(ActionMailer::MailDeliveryJob)
+        ActionMailer::Base.delivery_job = ActionMailer::MailDeliveryJob
+      end
+    end
+
+    if defined?(Concurrent) && !ENV["DEBUG"]
+      Concurrent.global_logger = Concurrent::NULL_LOGGER
+    end
+  end
+
   config.before do
     Skylight::Config::ENV_TO_KEY.keys.each do |key|
       # TODO: It would be good to test other prefixes as well

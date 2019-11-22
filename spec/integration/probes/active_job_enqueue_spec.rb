@@ -9,23 +9,24 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
     def perform; end
   end
 
-  job_class = ActionMailer::DeliveryJob
-
-  if defined?(ActionMailer::MailDeliveryJob)
-    ActionMailer::Base.delivery_job = ActionMailer::MailDeliveryJob
-    job_class = ActionMailer::MailDeliveryJob
-  end
-
-  job_class.queue_adapter = :inline
-
-  ActiveJob::Base.logger.level = ENV["DEBUG"] ? Logger::DEBUG : Logger::FATAL
-
   class TestMailer < ActionMailer::Base
     default from: "test@example.com"
 
     def test_mail(_arg)
       mail(to: "test@example.com", body: "sk test")
     end
+  end
+
+  before do
+    @job_class =
+      if ActionMailer::Base.respond_to?(:delivery_job)
+        ActionMailer::Base.delivery_job
+      else
+        ActionMailer::DeliveryJob
+      end
+
+    # NOTE: We don't reset this so it does leak, which could potentially matter in the future
+    @job_class.queue_adapter = :inline
   end
 
   it "reports job metadata" do
@@ -42,12 +43,12 @@ defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enq
   end
 
   it "reports ActionMailer methods" do
-    expect_any_instance_of(job_class).to receive(:perform)
+    expect_any_instance_of(@job_class).to receive(:perform)
     expect(Skylight).to receive(:instrument).with(
       hash_including(
         title:       "Enqueue TestMailer#test_mail",
         category:    "other.active_job.enqueue",
-        description: "{ adapter: 'inline', queue: 'mailers', job: '#{job_class}' }"
+        description: "{ adapter: 'inline', queue: 'mailers', job: '#{@job_class}' }"
       )
     ).and_call_original
 

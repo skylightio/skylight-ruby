@@ -56,13 +56,8 @@ if enable
       # Prior to rails 5, queue_adapter was a class variable,
       # so setting it to delayed_job in the DelayedJob spec could cause
       # these tests to fail
+      # NOTE: We don't reset this so it does leak, which could potentially matter in the future
       ActiveJob::Base.queue_adapter = :inline if ActiveJob::VERSION::MAJOR < 5
-
-      if defined?(ActionMailer::MailDeliveryJob)
-        ActionMailer::Base.delivery_job = ActionMailer::MailDeliveryJob
-      end
-
-      ActiveJob::Base.logger.level = ENV["DEBUG"] ? Logger::DEBUG : Logger::FATAL
 
       set_agent_env do
         Skylight.start!
