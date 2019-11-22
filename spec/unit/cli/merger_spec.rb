@@ -35,8 +35,8 @@ describe Skylight::CLI::Merger do
   class TestShell < Thor::Shell::Basic
     attr_reader :expectations
 
-    def initialize(expectations)
-      @expector = Proc.new
+    def initialize(expectations, &block)
+      @expector = block
       @expectations = expectations.to_enum
       super()
     end
