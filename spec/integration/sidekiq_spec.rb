@@ -19,6 +19,7 @@ if enable
       set_agent_env
       ENV["SKYLIGHT_ENABLE_SIDEKIQ"] = "true"
 
+      Sidekiq.logger.level = Logger::FATAL
       Sidekiq::Testing.inline!
 
       # `Sidekiq.server?` doesn't return true in testing
