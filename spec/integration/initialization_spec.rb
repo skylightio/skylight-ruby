@@ -18,7 +18,7 @@ describe "Initialization integration" do
   end
 
   around :each do |example|
-    # Any ENV vars set inside of with_clean_env will be reset
+    # Any ENV vars set inside of with_unbundled_env will be reset
     with_standalone(dir: @tmpdir) do
       user_config_path = "#{@tmpdir}/skylight_user_config.yml"
       ENV["SKYLIGHT_AUTHENTICATION"] = "lulz"
