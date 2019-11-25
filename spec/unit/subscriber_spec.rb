@@ -2,7 +2,7 @@ require "spec_helper"
 
 module Skylight
   describe Subscriber do
-    let(:config) { Config.new(foo: "hello") }
+    let(:config) { Config.new(foo: "hello", log_level: :fatal) }
     let(:subscriber) { Subscriber.new(config, trace.instrumenter) }
 
     before { allow(subscriber).to receive(:raise_on_error?) { false } }
