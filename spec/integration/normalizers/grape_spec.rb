@@ -86,7 +86,7 @@ if defined?(Grape)
       allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
-        with("app.grape.endpoint", title, nil, nil).
+        with("app.grape.endpoint", title, nil, an_instance_of(Hash)).
         once
     end
 
@@ -136,7 +136,7 @@ if defined?(Grape)
       allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
-        with("app.grape.endpoint", "#{wildcard} *path", nil, nil).
+        with("app.grape.endpoint", "#{wildcard} *path", nil, an_instance_of(Hash)).
         once
 
       delete "/app/missing"
@@ -148,7 +148,7 @@ if defined?(Grape)
       allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
-        with("app.grape.endpoint", "GET... data", nil, nil).
+        with("app.grape.endpoint", "GET... data", nil, an_instance_of(Hash)).
         once
 
       get "/data"
@@ -160,7 +160,7 @@ if defined?(Grape)
       allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
-        with("app.grape.endpoint", "GET raise", nil, nil).
+        with("app.grape.endpoint", "GET raise", nil, an_instance_of(Hash)).
         once
 
       expect do
@@ -175,15 +175,15 @@ if defined?(Grape)
 
       # TODO: Attempt to verify order
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
-        with("app.grape.filters", "Before Filters", nil, nil).
+        with("app.grape.filters", "Before Filters", nil, an_instance_of(Hash)).
         once
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
-        with("app.block", "verifying admin", nil, nil).
+        with("app.block", "verifying admin", nil, an_instance_of(Hash)).
         once
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
-        with("app.grape.endpoint", "GET admin secret", nil, nil).
+        with("app.grape.endpoint", "GET admin secret", nil, an_instance_of(Hash)).
         once
 
       get "/app/admin/secret"
