@@ -376,8 +376,6 @@ module Skylight
         if meta[:source_location]
           debug("source_location=#{meta[:source_location]}")
         end
-
-        meta
       end
 
       def sanitize_source_location(path, line)
