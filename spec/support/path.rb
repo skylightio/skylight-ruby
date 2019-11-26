@@ -19,6 +19,16 @@ module SpecHelper
       def sockdir_path(*args)
         tmp(*args)
       end
+
+      def spec_root
+        @spec_root ||= Pathname.new(File.expand_path("..", __dir__))
+      end
+
+      # Change root so that we can properly test sanitization
+      def use_spec_root!
+        Skylight.config.set(:root, spec_root)
+        Skylight.config.remove_instance_variable(:@root)
+      end
   end
 
   include Path

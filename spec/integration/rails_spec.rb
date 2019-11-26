@@ -494,7 +494,6 @@ if enable
     end
 
     let(:router_name) { "ActionDispatch::Routing::RouteSet" }
-    let(:spec_root) { Pathname.new(File.expand_path("..", __dir__)) }
 
     shared_examples "with agent" do
       context "configuration" do
@@ -546,8 +545,7 @@ if enable
 
       it "successfully instruments middleware", :middleware_probe do
         # Change root so that we can properly test sanitization
-        Skylight.config.set(:root, spec_root)
-        Skylight.config.remove_instance_variable(:@root)
+        use_spec_root!
 
         call MyApp, env("/users")
         server.wait resource: "/report"
@@ -1354,9 +1352,7 @@ if enable
 
       context "source location" do
         before do
-          # Change root so that we can properly test sanitization
-          Skylight.config.set(:root, spec_root)
-          Skylight.config.remove_instance_variable(:@root)
+          use_spec_root!
         end
 
         it "sets source_location for action" do

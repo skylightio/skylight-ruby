@@ -14,17 +14,10 @@ describe Skylight::Instrumenter, :http, :agent do
       # rubocop:enable Naming/MemoizedInstanceVariableName
     end
 
-    let(:spec_root) do
-      Pathname.new(File.expand_path("..", __dir__))
-    end
-
     before :each do
       start!
       clock.freeze
-
-      # Change root so that we can properly test sanitization
-      Skylight.config.set(:root, spec_root)
-      Skylight.config.remove_instance_variable(:@root)
+      use_spec_root!
     end
 
     after :each do
