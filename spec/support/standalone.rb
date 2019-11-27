@@ -34,6 +34,14 @@ module SpecHelper
     Rails.version
   end
 
+  # `with_unbundled_env` is preferred, but not in older versions of Bundler
+  UNBUNDLED_METHOD =
+    if Bundler.respond_to?(:with_unbundled_env)
+      Bundler.method(:with_unbundled_env)
+    else
+      Bundler.method(:with_clean_env)
+    end
+
   def with_standalone(opts = {})
     # Make sure this is executed before we mess with the env, just in case
 
@@ -47,7 +55,7 @@ module SpecHelper
 
     # This also resets other ENV vars that are set in the block
     rails_edge = ENV["RAILS_EDGE"]
-    Bundler.with_clean_env do
+    UNBUNDLED_METHOD.call do
       Standalone.with_dummy opts[:dir] do
         Standalone.set_env(opts[:rails_version], opts[:port])
         ENV["RAILS_EDGE"] = rails_edge if rails_edge

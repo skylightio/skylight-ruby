@@ -10,9 +10,9 @@ module Skylight
 
             # Schema#execute also delegates to multiplex, so this is the only method
             # we need to override.
-            def multiplex(*args, &block)
+            def multiplex(*args, **keywords, &block)
               sk_add_tracer
-              multiplex_without_sk(*args, &block)
+              multiplex_without_sk(*args, **keywords, &block)
             end
 
             def sk_add_tracer
