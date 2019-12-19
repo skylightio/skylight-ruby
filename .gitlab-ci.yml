@@ -18,7 +18,7 @@ variables:
 
 .ruby_23: &ruby_23 "2.3.8"
 .ruby_26: &ruby_26 "2.6.5"
-.ruby_head: &ruby_head "2.7.0-preview2"
+.ruby_head: &ruby_head "2.7.0-rc1"
 
 .run_tests: &run_tests
   before_script:
