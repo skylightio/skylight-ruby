@@ -17,7 +17,7 @@ module Skylight
           [CAT, name, nil]
         end
 
-        def source_location(_trace, _name, payload)
+        def source_location(_trace, _name, payload, cache_key: nil)
           payload[:source_location]
         end
       end

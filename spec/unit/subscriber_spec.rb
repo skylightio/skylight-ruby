@@ -28,7 +28,7 @@ module Skylight
         ["spec_source_location.skylight", "normalized", nil]
       end
 
-      def source_location(trace, *)
+      def source_location(trace, *, **)
         [trace.config.root.join("custom_path.rb").to_s, 123]
       end
     end

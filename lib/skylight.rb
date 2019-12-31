@@ -205,7 +205,7 @@ module Skylight
         meta[:source_line] = source_line
       else
         warn "Ignoring source_line without source_file" if source_line
-        if (location = instrumenter.find_caller)
+        if (location = instrumenter.find_caller(cache_key: opts.hash))
           meta[:source_file] = location.absolute_path
           meta[:source_line] = location.lineno
         end

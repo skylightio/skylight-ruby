@@ -1,6 +1,7 @@
 require "strscan"
 require "securerandom"
 require "skylight/util/logging"
+require "skylight/util/lru_cache"
 
 module Skylight
   # @api private
@@ -61,7 +62,8 @@ module Skylight
       @trace_info = @config[:trace_info] || TraceInfo.new(KEY)
       @mutex = Mutex.new
 
-      @instance_method_source_location_cache = Hash.new { |h, k| h[k] = {} }
+      @caller_cache = Util::LruCache.new(100)
+      @instance_method_source_location_cache = Util::LruCache.new(100)
     end
 
     def log_context
@@ -368,9 +370,15 @@ module Skylight
         Hash[*Bundler.load.specs.to_a.map { |s| s.full_require_paths.map { |p| [p, s.name] } }.flatten]
     end
 
-    # Offset of 1 will find the line before where it was called
-    def find_caller(offset = 1)
-      caller_locations(offset + 1).find { |l| find_source_gem(l.absolute_path) || project_path?(l.absolute_path) }
+    def find_caller(cache_key: nil)
+      if cache_key && @caller_cache.key?(cache_key)
+        return @caller_cache[cache_key]
+      end
+
+      # Start at file before this one
+      caller_locations(1).find { |l| find_source_gem(l.absolute_path) || project_path?(l.absolute_path) }.tap do |loc|
+        @caller_cache[cache_key] = loc if cache_key
+      end
     end
 
     def find_source_gem(path)
@@ -393,29 +401,17 @@ module Skylight
     end
 
     def instance_method_source_location(constant_name, method_name)
-      limit_hash(@instance_method_source_location_cache)
-
-      methods_cache = @instance_method_source_location_cache[constant_name]
-
-      methods_cache.fetch(method_name) do
-        limit_hash(methods_cache)
-
-        methods_cache[method_name] =
-          if (constant = ::ActiveSupport::Dependencies.safe_constantize(constant_name))
-            if constant.instance_methods.include?(:"before_instrument_#{method_name}")
-              method_name = :"before_instrument_#{method_name}"
-            end
-            begin
-              constant.instance_method(method_name).source_location
-            rescue NameError
-              nil
-            end
+      @instance_method_source_location_cache[[constant_name, method_name]] ||=
+        if (constant = ::ActiveSupport::Dependencies.safe_constantize(constant_name))
+          if constant.instance_methods.include?(:"before_instrument_#{method_name}")
+            method_name = :"before_instrument_#{method_name}"
           end
-      end
-    end
-
-    def limit_hash(hash, limit: 100)
-      hash.delete(hash.keys.first) while hash.length > limit
+          begin
+            constant.instance_method(method_name).source_location
+          rescue NameError
+            nil
+          end
+        end
     end
   end
 end

@@ -66,7 +66,7 @@ module Skylight
       def normalize_with_meta(trace, name, payload)
         ret = normalize(trace, name, payload)
         # If we have a normal response but no meta, add it
-        ret << build_meta(trace, name, payload) if ret.length == 3
+        ret << build_meta(trace, name, payload, cache_key: ret.hash) if ret.length == 3
         ret
       end
 
@@ -74,8 +74,8 @@ module Skylight
 
       private
 
-        def build_meta(trace, name, payload)
-          if (sl = source_location(trace, name, payload))
+        def build_meta(trace, name, payload, cache_key: nil)
+          if (sl = source_location(trace, name, payload, cache_key: cache_key))
             meta = {}
             debug("normalizer source_location=#{sl}")
             meta[:source_file], meta[:source_line] = sl
@@ -84,8 +84,8 @@ module Skylight
         end
 
         # Returns an array of file and line
-        def source_location(trace, _name, _payload)
-          if (location = trace.instrumenter.find_caller)
+        def source_location(trace, _name, _payload, cache_key: nil)
+          if (location = trace.instrumenter.find_caller(cache_key: cache_key))
             [location.absolute_path, location.lineno]
           end
         end
