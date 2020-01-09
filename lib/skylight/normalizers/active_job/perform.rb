@@ -52,8 +52,8 @@ module Skylight
           def assign_endpoint?(trace, payload)
             # Always assign the endpoint if it has not yet been assigned by the ActiveJob probe.
             return true unless trace.endpoint
-            return true if defined?(Skylight::Probes::ActiveJob::Probe::TITLE) &&
-                           trace.endpoint == Skylight::Probes::ActiveJob::Probe::TITLE
+            return true if defined?(Skylight::Probes::ActiveJob::TITLE) &&
+                           trace.endpoint == Skylight::Probes::ActiveJob::TITLE
             return true if defined?(SKylight::Probes::DelayedJob::Probe::UNKNOWN) &&
                            trace.endpoint == Skylight::Probes::DelayedJob::Probe::UNKNOWN
 

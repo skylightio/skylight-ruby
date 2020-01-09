@@ -10,9 +10,10 @@ module Skylight
         expect(reg.probe).to be_a(Skylight::Probes::Redis::Probe)
       end
 
-      it "wraps Redis::Client#call" do
+      it "adds instrumentation modules" do
         # This test is somewhat lame
-        expect(::Redis::Client.instance_methods).to include(:call_without_sk)
+        expect(::Redis.ancestors).to include(::Skylight::Probes::Redis::Instrumentation)
+        expect(::Redis::Client.ancestors).to include(::Skylight::Probes::Redis::ClientInstrumentation)
       end
     end
   end

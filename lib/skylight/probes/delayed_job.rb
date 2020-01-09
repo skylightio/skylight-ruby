@@ -1,44 +1,42 @@
 module Skylight
   module Probes
     module DelayedJob
+      module Instrumentation
+        include Skylight::Util::Logging
+
+        def run(job, *)
+          t { "Delayed::Job beginning trace" }
+
+          handler_name =
+            begin
+              if defined?(::Delayed::PerformableMethod) && job.payload_object.is_a?(::Delayed::PerformableMethod)
+                job.name
+              else
+                job.payload_object.class.name
+              end
+            rescue
+              UNKNOWN
+            end
+
+          Skylight.trace(handler_name, "app.delayed_job.worker", "Delayed::Worker#run",
+                         component: :worker, segment: job.queue) { super }
+        end
+
+        def handle_failed_job(*)
+          super
+          return unless Skylight.trace
+
+          Skylight.trace.segment = "error"
+        end
+      end
+
       class Probe
         UNKNOWN = "<Delayed::Job Unknown>".freeze
 
         def install
           return unless validate_version
 
-          ::Delayed::Worker.class_eval do
-            include Skylight::Util::Logging
-            alias_method :run_without_sk, :run
-            alias_method :handle_failed_job_without_sk, :handle_failed_job
-
-            def run(job, *args)
-              t { "Delayed::Job beginning trace" }
-
-              handler_name =
-                begin
-                  if defined?(::Delayed::PerformableMethod) && job.payload_object.is_a?(::Delayed::PerformableMethod)
-                    job.name
-                  else
-                    job.payload_object.class.name
-                  end
-                rescue
-                  UNKNOWN
-                end
-
-              Skylight.trace(handler_name, "app.delayed_job.worker", "Delayed::Worker#run",
-                             component: :worker, segment: job.queue) do
-                run_without_sk(job, *args)
-              end
-            end
-
-            def handle_failed_job(job, error, *args)
-              handle_failed_job_without_sk(job, error, *args)
-              return unless Skylight.trace
-
-              Skylight.trace.segment = "error"
-            end
-          end
+          ::Delayed::Worker.prepend(Instrumentation)
         end
 
         private

@@ -10,9 +10,9 @@ module Skylight
         expect(reg.probe).to be_a(Skylight::Probes::HTTPClient::Probe)
       end
 
-      it "wraps HTTPClient#do_request" do
+      it "adds instrumentation module" do
         # This test is somewhat lame
-        expect(::HTTPClient.private_instance_methods).to include(:do_request_without_sk)
+        expect(::HTTPClient.ancestors).to include(::Skylight::Probes::HTTPClient::Instrumentation)
       end
     end
   end

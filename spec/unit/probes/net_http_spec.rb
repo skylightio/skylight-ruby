@@ -10,9 +10,9 @@ module Skylight
         expect(reg.probe).to be_a(Skylight::Probes::NetHTTP::Probe)
       end
 
-      it "wraps Net::HTTP#request" do
+      it "adds instrumentation module" do
         # This test is somewhat lame
-        expect(Net::HTTP.instance_methods).to include(:request_without_sk)
+        expect(Net::HTTP.ancestors).to include(::Skylight::Probes::NetHTTP::Instrumentation)
       end
     end
   end

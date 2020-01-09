@@ -1,16 +1,16 @@
 module Skylight
   module Probes
     module Sinatra
+      module Instrumentation
+        def build(*)
+          use Skylight::Middleware
+          super
+        end
+      end
+
       class AddMiddlewareProbe
         def install
-          class << ::Sinatra::Base
-            alias_method :build_without_sk, :build
-
-            def build(*args, &block)
-              use Skylight::Middleware
-              build_without_sk(*args, &block)
-            end
-          end
+          ::Sinatra::Base.singleton_class.prepend(Instrumentation)
         end
       end
     end

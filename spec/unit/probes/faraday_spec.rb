@@ -10,8 +10,8 @@ module Skylight
         expect(reg.probe).to be_a(Skylight::Probes::Faraday::Probe)
       end
 
-      it "wraps Faraday#initialize" do
-        expect(::Faraday::Connection.private_instance_methods).to include(:initialize_without_sk)
+      it "adds instrumentation module" do
+        expect(::Faraday::Connection.ancestors).to include(::Skylight::Probes::Faraday::Instrumentation)
       end
     end
   end

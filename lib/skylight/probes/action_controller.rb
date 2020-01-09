@@ -3,6 +3,7 @@ module Skylight
     module ActionController
       class Probe
         def install
+          # Prepending doesn't work here since this a module that's already been included
           ::ActionController::Instrumentation.class_eval do
             private
 

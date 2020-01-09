@@ -1,17 +1,16 @@
 module Skylight
   module Probes
     module Faraday
+      module Instrumentation
+        def initialize(*)
+          super
+          @builder.insert 0, ::Faraday::Request::Instrumentation
+        end
+      end
+
       class Probe
         def install
-          ::Faraday::Connection.class_eval do
-            alias_method :initialize_without_sk, :initialize
-
-            def initialize(*args, &block)
-              initialize_without_sk(*args, &block)
-
-              @builder.insert 0, ::Faraday::Request::Instrumentation
-            end
-          end
+          ::Faraday::Connection.prepend(Instrumentation)
         end
       end
     end
