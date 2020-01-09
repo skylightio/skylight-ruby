@@ -4,9 +4,9 @@ module Skylight
   module Probes
     describe "Excon", :excon_probe do
       describe "Probe", :probes do
-        it "is registered" do
-          reg = Skylight::Probes.installed["Excon"]
-          expect(reg.klass_name).to eq("Excon")
+        it "is installed" do
+          reg = Skylight::Probes.installed.fetch(:excon)
+          expect(reg.const_name).to eq("Excon")
           expect(reg.require_paths).to eq(["excon"])
           expect(reg.probe).to be_a(Skylight::Probes::Excon::Probe)
         end

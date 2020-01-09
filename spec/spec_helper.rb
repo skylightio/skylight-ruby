@@ -76,7 +76,7 @@ end
 
 begin
   require "active_job"
-  Skylight::Probes.probe(:active_job_enqueue)
+  Skylight::Probes.probe(:active_job, :active_job_enqueue)
 rescue LoadError
 end
 
@@ -89,17 +89,17 @@ Skylight::Probes.probe(:middleware)
 
 # End Probed Libraries
 
-all_probes = %w[Excon Faraday Net::HTTP HTTPClient Redis Tilt::Template Sinatra::Base Sequel
-                ActionView::TemplateRenderer ActionDispatch::MiddlewareStack::Middleware]
-installed_probes = Skylight::Probes.installed.keys
-skipped_probes = all_probes - installed_probes
+all_probes = %i[excon tilt sinatra sequel faraday mongo httpclient elasticsearch redis
+                action_view action_dispatch active_job_enqueue net_http middleware active_job]
 
-rspec_probe_tags = {
-  "ActionDispatch::MiddlewareStack::Middleware" => "middleware"
-}
+# Check probes that could be installed but don't actually install them
+installable_probes = Skylight::Probes.registered.
+                     select { |_, registration| registration.constant_available? }.
+                     map(&:first)
+skipped_probes = all_probes - installable_probes
 
-puts "Testing probes: #{installed_probes.join(', ')}" unless installed_probes.empty?
-puts "Skipping probes: #{skipped_probes.join(', ')}"  unless skipped_probes.empty?
+puts "Testing probes: #{installable_probes.join(', ')}" unless installable_probes.empty?
+puts "Skipping probes: #{skipped_probes.join(', ')}" unless skipped_probes.empty?
 
 ENV["SKYLIGHT_RAISE_ON_ERROR"] = "true"
 
@@ -147,12 +147,21 @@ RSpec.configure do |config|
     config.filter_run_excluding agent: true
   end
 
+  # Install probes if we're running their specs.
+  #   This does limit our abilities to fully test the installation upon Instrumenter start, but we do need
+  #   this to be done for the tests to run.
+  all_probes.each do |p|
+    config.before(:all, "#{p}_probe": true) do
+      reg = Skylight::Probes.registered.fetch(p)
+      Skylight::Probes.install_probe(reg)
+    end
+  end
+
   unless skipped_probes.empty?
     args = {}
 
     skipped_probes.each do |p|
-      probe_name = rspec_probe_tags[p] || p.downcase.gsub("::", "_")
-      args["#{probe_name}_probe".to_sym] = true
+      args["#{p}_probe".to_sym] = true
     end
 
     config.filter_run_excluding args

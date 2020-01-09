@@ -295,8 +295,7 @@ module Skylight
         message = "[E0001] Spans were closed out of order. Expected to see '#{native_span_get_title(expected)}', " \
                     "but got '#{native_span_get_title(span)}' instead."
 
-        if native_span_get_category(span) == "rack.middleware" &&
-           Skylight::Probes.installed.key?("ActionDispatch::MiddlewareStack::Middleware")
+        if native_span_get_category(span) == "rack.middleware" && Skylight::Probes.installed.key?(:middleware)
           if Skylight::Probes::Middleware::Probe.disabled?
             message << "\nWe disabled the Middleware probe but unfortunately, this didn't solve the issue."
           else
