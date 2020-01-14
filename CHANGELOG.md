@@ -1,4 +1,5 @@
 ## 4.2.1 (January 14, 2020)
+* [IMPROVEMENT] Enable instrumentation for ActionMailer::MailDeliveryJob
 * [BUGFIX] Improved handling for non-SPEC compliant Rack middleware
 
 ## 4.2.0 (October 30, 2019)
