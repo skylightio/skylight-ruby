@@ -1,4 +1,8 @@
-## 4.2.0
+## 4.2.1 (January 14, 2020)
+* [IMPROVEMENT] Enable instrumentation for ActionMailer::MailDeliveryJob
+* [BUGFIX] Improved handling for non-SPEC compliant Rack middleware
+
+## 4.2.0 (October 30, 2019)
 * [FEATURE] Add GraphQL probe
 * [FEATURE] Optionally add Rack mount point to Sinatra endpoint names
 * [FEATURE] Add `Skylight.mute` and `Skylight.unmute` blocks to selectively disable and re-enable
@@ -8,10 +12,10 @@ instrumentation
 * [IMPROVEMENT] Fix Rails 6 deprecation warnings
 * [BUGFIX] Skip the Sidekiq probe if Sidekiq is not present
 
-## 4.1.2
+## 4.1.2 (June 27, 2019)
 * [BUGFIX] Correct an issue where the delayed_job probe may not be activated on startup
 
-## 4.1.1
+## 4.1.1 (June 25, 2019)
 * [BUGFIX] Fix Skylight installation when bundled with edge rails [Issue #132](https://github.com/skylightio/skylight-ruby/issues/132)
 * [IMPROVEMENT] Improve socket retry handling in skylightd
 
