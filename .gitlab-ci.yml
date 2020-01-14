@@ -208,6 +208,14 @@ ruby26-grape120:
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 1.2.0"
 
+ruby26-grape130:
+  <<: *run_tests
+  stage: test
+  variables:
+    RUBY_VERSION: *ruby_26
+    BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
+    GRAPE_VERSION: "~> 1.3.0"
+
 ruby26-grape-edge:
   <<: *run_tests
   stage: test
