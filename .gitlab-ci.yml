@@ -176,6 +176,7 @@ ruby23-grape:
   variables:
     RUBY_VERSION: *ruby_23
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
+    RACK_VERSION: "~> 2.0.8"
 
 ruby26-grape:
   <<: *run_tests
@@ -191,6 +192,7 @@ ruby26-grape013:
     RUBY_VERSION: *ruby_26
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 0.13.0"
+    RACK_VERSION: "~> 2.0.8"
 
 ruby26-grape110:
   <<: *run_tests
@@ -199,6 +201,7 @@ ruby26-grape110:
     RUBY_VERSION: *ruby_26
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 1.1.0"
+    RACK_VERSION: "~> 2.0.8"
 
 ruby26-grape120:
   <<: *run_tests
@@ -207,6 +210,7 @@ ruby26-grape120:
     RUBY_VERSION: *ruby_26
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 1.2.0"
+    RACK_VERSION: "~> 2.0.8"
 
 ruby26-grape130:
   <<: *run_tests
