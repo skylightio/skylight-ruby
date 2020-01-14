@@ -33,7 +33,7 @@ module Skylight::Core
                 spans = Skylight::Core::Fanout.instrument(title: name, category: "#{category}")
                 resp = call_without_sk(*args, &block)
 
-                proxied_response = Skylight::Core::Middleware.with_after_close(resp) do
+                proxied_response = Skylight::Core::Middleware.with_after_close(resp, debug_identifier: "Middleware: #{name}") do
                   Skylight::Core::Fanout.done(spans)
                 end
               rescue Exception => err

@@ -33,10 +33,12 @@ variables:
   script:
     - pushd skylight-core
     - bundle install
+    - bundle update
     - COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
     - COVERAGE_DIR=$CORE_DISABLED_COVERAGE_DIR SKYLIGHT_DISABLE_AGENT=true bundle exec rake
     - popd
     - bundle install
+    - bundle update
     - bundle exec rake
     - COVERAGE_DIR=$DISABLED_COVERAGE_DIR SKYLIGHT_DISABLE_AGENT=true bundle exec rake
   after_script:
@@ -187,6 +189,7 @@ ruby23-grape:
   variables:
     RUBY_VERSION: *ruby_23
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
+    RACK_VERSION: "~> 2.0.8"
 
 ruby26-grape:
   <<: *run_tests
@@ -202,6 +205,7 @@ ruby26-grape013:
     RUBY_VERSION: *ruby_26
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 0.13.0"
+    RACK_VERSION: "~> 2.0.8"
 
 ruby26-grape110:
   <<: *run_tests
@@ -210,6 +214,7 @@ ruby26-grape110:
     RUBY_VERSION: *ruby_26
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 1.1.0"
+    RACK_VERSION: "~> 2.0.8"
 
 ruby26-grape120:
   <<: *run_tests
@@ -218,6 +223,15 @@ ruby26-grape120:
     RUBY_VERSION: *ruby_26
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 1.2.0"
+    RACK_VERSION: "~> 2.0.8"
+
+ruby26-grape130:
+  <<: *run_tests
+  stage: test
+  variables:
+    RUBY_VERSION: *ruby_26
+    BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
+    GRAPE_VERSION: "~> 1.3.0"
 
 ruby26-grape-edge:
   <<: *run_tests
