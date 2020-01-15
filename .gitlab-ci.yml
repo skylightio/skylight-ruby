@@ -249,7 +249,7 @@ ruby26-rails42-mongo:
   <<: *run_tests
   stage: test
   services:
-    - mongo:3.4-jessie
+    - mongo:4.0
   variables:
     RUBY_VERSION: *ruby_26
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
@@ -260,7 +260,7 @@ ruby26-rails42-mongoid:
   <<: *run_tests
   stage: test
   services:
-    - mongo:3.4-jessie
+    - mongo:4.0
   variables:
     RUBY_VERSION: *ruby_26
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
