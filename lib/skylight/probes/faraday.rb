@@ -2,9 +2,12 @@ module Skylight
   module Probes
     module Faraday
       module Instrumentation
-        def initialize(*)
-          super
-          @builder.insert 0, ::Faraday::Request::Instrumentation
+        def builder
+          unless defined?(@__sk__setup)
+            @__sk__setup = true
+            @builder.insert 0, ::Faraday::Request::Instrumentation
+          end
+          @builder
         end
       end
 
