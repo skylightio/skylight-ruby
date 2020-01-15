@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe "Faraday integration", :faraday_probe, :http, :faraday, :agent do
+describe "Faraday integration", :faraday_probe, :http, :agent, :instrumenter do
   before(:each) do
     server.mock "/test.html" do
       ret = "Testing"
@@ -16,46 +16,39 @@ describe "Faraday integration", :faraday_probe, :http, :faraday, :agent do
     URI.parse("#{server_uri}/test.html")
   end
 
+  let :client do
+    Faraday.new(url: server_uri)
+  end
+
   it "instruments get requests" do
-    expected = {
-      category: "api.http.get",
-      title:    "GET 127.0.0.1"
-    }
-
-    expect(Skylight).to receive(:instrument).with(expected).and_call_original
-
-    client = Faraday.new(url: server_uri)
-
-    response = client.get("/test.html")
+    response = client.get(uri)
     expect(response).to be_a(Faraday::Response)
     expect(response.status).to eq(200)
+
+    expect(current_trace.mock_spans).to include(
+      a_hash_including(
+        cat:   "api.http.get",
+        title: "Faraday",
+        desc:  "GET 127.0.0.1"
+      )
+    )
   end
 
   it "instruments post requests" do
-    expected = {
-      category: "api.http.post",
-      title:    "POST 127.0.0.1"
-    }
-
-    expect(Skylight).to receive(:instrument).with(expected).and_call_original
-
-    client = Faraday.new(url: server_uri)
-
     response = client.post(uri, body: "Hi there!")
     expect(response).to be_a(Faraday::Response)
     expect(response.status).to eq(200)
+
+    expect(current_trace.mock_spans).to include(
+      a_hash_including(
+        cat:   "api.http.post",
+        title: "Faraday",
+        desc:  "POST 127.0.0.1"
+      )
+    )
   end
 
   it "instruments multipart post requests" do
-    expected = {
-      category: "api.http.post",
-      title:    "POST 127.0.0.1"
-    }
-
-    expect(Skylight).to receive(:instrument).with(expected).and_call_original
-
-    client = Faraday.new(url: server_uri)
-
     response = client.post(uri, header: { "Content-Type" => "multipart/form-data" }, body: [{
       "Content-Type"        => "text/plain; charset=UTF-8",
       "Content-Disposition" => 'form-data; name="name"',
@@ -67,33 +60,41 @@ describe "Faraday integration", :faraday_probe, :http, :faraday, :agent do
     }])
     expect(response).to be_a(Faraday::Response)
     expect(response.status).to eq(200)
+
+    expect(current_trace.mock_spans).to include(
+      a_hash_including(
+        cat:   "api.http.post",
+        title: "Faraday",
+        desc:  "POST 127.0.0.1"
+      )
+    )
   end
 
   it "instruments head requests" do
-    expected = {
-      category: "api.http.head",
-      title:    "HEAD 127.0.0.1"
-    }
-
-    expect(Skylight).to receive(:instrument).with(expected).and_call_original
-
-    client = Faraday.new(url: server_uri)
-
     response = client.head(uri)
     expect(response).to be_a(Faraday::Response)
     expect(response.status).to eq(200)
+
+    expect(current_trace.mock_spans).to include(
+      a_hash_including(
+        cat:   "api.http.head",
+        title: "Faraday",
+        desc:  "HEAD 127.0.0.1"
+      )
+    )
   end
 
   it "instruments Faraday.methodname static methods" do
-    expected = {
-      category: "api.http.get",
-      title:    "GET 127.0.0.1"
-    }
-
-    expect(Skylight).to receive(:instrument).with(expected).and_call_original
-
     response = Faraday.get(uri)
     expect(response).to be_a(Faraday::Response)
     expect(response.status).to eq(200)
+
+    expect(current_trace.mock_spans).to include(
+      a_hash_including(
+        cat:   "api.http.get",
+        title: "Faraday",
+        desc:  "GET 127.0.0.1"
+      )
+    )
   end
 end
