@@ -272,7 +272,8 @@ ruby26-rails42-elasticsearch:
   <<: *run_tests
   stage: test
   services:
-    - elasticsearch:5-alpine
+    - name: elasticsearch:6.8.6
+      command: ["bin/elasticsearch", "-Ediscovery.type=single-node"]
   variables:
     RUBY_VERSION: *ruby_26
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
