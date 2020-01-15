@@ -46,14 +46,20 @@ module Skylight
       end
     end
 
-    def self.with_after_close(resp, &block)
-      # Responses should be arrays but in some situations they aren't
-      #   e.g. https://github.com/ruby-grape/grape/issues/1041
-      # The safest approach seems to be to rely on implicit destructuring
-      #   since that is currently what Rack::Lint does.
-      # See also https://github.com/rack/rack/issues/1239
-      status, headers, body = resp
+    def self.with_after_close(resp, debug_identifier: "unknown", &block)
+      unless resp.respond_to?(:to_ary)
+        if resp.respond_to?(:to_a)
+          Skylight.warn("Rack response from \"#{debug_identifier}\" cannot be implicitly converted to an array. " \
+                        "This is in violation of the Rack SPEC and will raise an error in future versions.")
+          resp = resp.to_a
+        else
+          Skylight.error("Rack response from \"#{debug_identifier}\" cannot be converted to an array. This is in " \
+                         "violation of the Rack SPEC and may cause problems with Skylight operation.")
+          return resp
+        end
+      end
 
+      status, headers, body = resp
       [status, headers, BodyProxy.new(body, &block)]
     end
 
@@ -86,7 +92,7 @@ module Skylight
           resp = @app.call(env)
 
           if trace
-            Middleware.with_after_close(resp) { trace.submit }
+            Middleware.with_after_close(resp, debug_identifier: "Rack App: #{@app.class}") { trace.submit }
           else
             resp
           end

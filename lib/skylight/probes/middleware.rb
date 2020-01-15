@@ -33,7 +33,7 @@ module Skylight
                 spans = Skylight.instrument(title: name, category: "#{category}")
                 resp = call_without_sk(*args, &block)
 
-                proxied_response = Skylight::Middleware.with_after_close(resp) do
+                proxied_response = Skylight::Middleware.with_after_close(resp, debug_identifier: "Middleware: #{name}") do
                   Skylight.done(spans)
                 end
               rescue Exception => err

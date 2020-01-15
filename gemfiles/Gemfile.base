@@ -14,7 +14,7 @@ gem 'timecop'
 if ENV['RAILS_EDGE']
   gem 'rack', git: 'https://github.com/rack/rack', branch: 'master'
 else
-  gem 'rack'
+  gem 'rack', ENV['RACK_VERSION']
 end
 
 if ENV['NOKOGIRI_VERSION']
