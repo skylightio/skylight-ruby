@@ -173,7 +173,7 @@ RSpec.configure do |config|
       end
     end
 
-    if defined?(Concurrent) && !ENV["DEBUG"]
+    if defined?(Concurrent) && Concurrent.respond_to?(:global_logger) && !ENV["DEBUG"]
       Concurrent.global_logger = Concurrent::NULL_LOGGER
     end
   end
