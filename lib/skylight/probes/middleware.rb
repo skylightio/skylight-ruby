@@ -4,6 +4,24 @@ module Skylight
       class Probe
         DISABLED_KEY = :__skylight_middleware_disabled
 
+        module InstrumentationExtensions
+          def initialize(middleware, class_name)
+            super
+
+            # NOTE: Caching here leads to better performance, but will not notice if the method is overridden
+            @payload[:source_location] =
+              begin
+                if middleware.is_a?(Proc)
+                  middleware.source_location
+                elsif middleware.respond_to?(:call)
+                  middleware.method(:call).source_location
+                end
+              rescue
+                nil
+              end
+          end
+        end
+
         def self.disable!
           @disabled = true
         end
@@ -30,15 +48,17 @@ module Skylight
 
                 trace.endpoint = name
 
-                spans = Skylight.instrument(title: name, category: "#{category}")
+                source_file, source_line = singleton_class.instance_method(:call_without_sk).source_location
+
+                span = Skylight.instrument(title: name, category: "#{category}", source_file: source_file, source_line: source_line)
                 resp = call_without_sk(*args, &block)
 
                 proxied_response = Skylight::Middleware.with_after_close(resp, debug_identifier: "Middleware: #{name}") do
-                  Skylight.done(spans)
+                  Skylight.done(span)
                 end
               rescue Exception => err
                 # FIXME: Log this?
-                Skylight.done(spans, exception_object: err)
+                Skylight.done(span, exception_object: err)
                 raise
               ensure
                 unless err || proxied_response
@@ -46,7 +66,7 @@ module Skylight
                   # a throw/catch has bypassed a portion of the callstack. Since these spans would not otherwise
                   # be closed, mark them deferred to indicate that they should be implicitly closed.
                   # See Trace#deferred_spans or Trace#stop for more information.
-                  Skylight.done(spans, defer: true)
+                  Skylight.done(span, defer: true)
                 end
               end
             end
@@ -54,26 +74,28 @@ module Skylight
         end
 
         def install
-          return if defined?(::ActionDispatch::MiddlewareStack::InstrumentationProxy)
+          if defined?(::ActionDispatch::MiddlewareStack::InstrumentationProxy)
+            ::ActionDispatch::MiddlewareStack::InstrumentationProxy.prepend InstrumentationExtensions
+          else
+            ::ActionDispatch::MiddlewareStack::Middleware.class_eval do
+              alias_method :build_without_sk, :build
+              def build(*args)
+                sk_instrument_middleware(build_without_sk(*args))
+              end
 
-          ::ActionDispatch::MiddlewareStack::Middleware.class_eval do
-            alias_method :build_without_sk, :build
-            def build(*args)
-              sk_instrument_middleware(build_without_sk(*args))
-            end
+              def sk_instrument_middleware(middleware)
+                return middleware if middleware.is_a?(Skylight::Middleware)
 
-            def sk_instrument_middleware(middleware)
-              return middleware if middleware.is_a?(Skylight::Middleware)
+                # Not sure how this would actually happen
+                return middleware if middleware.respond_to?(:call_without_sk)
 
-              # Not sure how this would actually happen
-              return middleware if middleware.respond_to?(:call_without_sk)
+                # On Rails 3, ActionDispatch::Session::CookieStore is frozen, for one
+                return middleware if middleware.frozen?
 
-              # On Rails 3, ActionDispatch::Session::CookieStore is frozen, for one
-              return middleware if middleware.frozen?
+                Skylight::Probes::Middleware::Probe.add_instrumentation(middleware)
 
-              Skylight::Probes::Middleware::Probe.add_instrumentation(middleware)
-
-              middleware
+                middleware
+              end
             end
           end
         end

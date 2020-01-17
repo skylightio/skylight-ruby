@@ -8,9 +8,16 @@ describe Skylight::Instrumenter, :http, :agent do
   end
 
   context "when the instrumenter is running" do
+    def test_config_values
+      # rubocop:disable Naming/MemoizedInstanceVariableName
+      @updated_test_config_values ||= super.merge(enable_source_locations: true)
+      # rubocop:enable Naming/MemoizedInstanceVariableName
+    end
+
     before :each do
       start!
       clock.freeze
+      use_spec_root!
     end
 
     after :each do
@@ -100,9 +107,69 @@ describe Skylight::Instrumenter, :http, :agent do
                                   ))
     end
 
+    context "source location" do
+      it "tracks source location" do
+        line = nil
+        Skylight.trace "Testin", "app.rack.request" do
+          clock.skip 0.1
+          line = __LINE__ + 1
+          Skylight.instrument category: "app.foo" do
+            clock.skip 0.1
+          end
+        end
+
+        clock.unfreeze
+        server.wait resource: "/report"
+
+        span = server.reports[0].endpoints[0].traces[0].spans[1]
+        expect(span).to match(
+          a_span_including(
+            annotations: array_including(
+              an_annotation(:SourceLocation, "#{Pathname.new(__FILE__).relative_path_from(spec_root)}:#{line}")
+            )
+          )
+        )
+      end
+
+      it "allows a custom source file and line to be set" do
+        Skylight.trace "Testin", "app.rack.request" do
+          Skylight.instrument(source_file: "#{spec_root}/foo.rb", source_line: 10) {}
+        end
+
+        server.wait resource: "/report"
+
+        span = server.reports[0].endpoints[0].traces[0].spans[1]
+        expect(span).to match(
+          a_span_including(
+            annotations: array_including(
+              an_annotation(:SourceLocation, "foo.rb:10")
+            )
+          )
+        )
+      end
+
+      it "allows a custom source location to be set" do
+        Skylight.trace "Testin", "app.rack.request" do
+          Skylight.instrument(source_location: "foo.rb:10") {}
+        end
+
+        server.wait resource: "/report"
+
+        span = server.reports[0].endpoints[0].traces[0].spans[1]
+        expect(span).to match(
+          a_span_including(
+            annotations: array_including(
+              an_annotation(:SourceLocation, "foo.rb:10")
+            )
+          )
+        )
+      end
+    end
+
     class MyClass
       include Skylight::Helpers
 
+      ONE_LINE = __LINE__ + 2
       instrument_method
       def one(arg)
         yield if block_given?
@@ -113,10 +180,12 @@ describe Skylight::Instrumenter, :http, :agent do
         yield if block_given?
       end
 
+      THREE_LINE = __LINE__ + 1
       def three
         yield if block_given?
       end
 
+      CUSTOM_LINE = __LINE__ + 2
       instrument_method category: "app.winning", title: "Win"
       def custom
         yield if block_given?
@@ -124,16 +193,19 @@ describe Skylight::Instrumenter, :http, :agent do
 
       instrument_method :three
 
+      SINGLETON_LINE = __LINE__ + 2
       instrument_method
       def self.singleton_method
         yield if block_given?
       end
 
+      SINGLETON_WITHOUT_OPTIONS_LINE = __LINE__ + 1
       def self.singleton_method_without_options
         yield if block_given?
       end
       instrument_class_method :singleton_method_without_options
 
+      SINGLETON_WITH_OPTIONS_LINE = __LINE__ + 1
       def self.singleton_method_with_options
         yield if block_given?
       end
@@ -141,6 +213,7 @@ describe Skylight::Instrumenter, :http, :agent do
                               category: "app.singleton",
                               title:    "Singleton Method"
 
+      ATTR_WRITER_LINE = __LINE__ + 1
       attr_accessor :myvar
       instrument_method :myvar=
     end
@@ -193,6 +266,8 @@ describe Skylight::Instrumenter, :http, :agent do
       expect(ep.name).to eq("Testin")
       expect(ep.traces.count).to eq(1)
 
+      source_file = Pathname.new(__FILE__).relative_path_from(spec_root)
+
       t = ep.traces[0]
       expect(t.spans).to match([
         a_span_including(
@@ -201,46 +276,67 @@ describe Skylight::Instrumenter, :http, :agent do
           duration:   15_000
         ),
         a_span_including(
-          parent:     0,
-          event:      an_exact_event(category: "app.method", title: "MyClass#one"),
-          started_at: 1_000,
-          duration:   1_000
+          parent:      0,
+          event:       an_exact_event(category: "app.method", title: "MyClass#one"),
+          started_at:  1_000,
+          duration:    1_000,
+          annotations: array_including(
+            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::ONE_LINE}")
+          )
         ),
         a_span_including(
-          parent:     0,
-          event:      an_exact_event(category: "app.method", title: "MyClass#three"),
-          started_at: 5_000,
-          duration:   1_000
+          parent:      0,
+          event:       an_exact_event(category: "app.method", title: "MyClass#three"),
+          started_at:  5_000,
+          duration:    1_000,
+          annotations: array_including(
+            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::THREE_LINE}")
+          )
         ),
         a_span_including(
-          parent:     0,
-          event:      an_exact_event(category: "app.winning", title: "Win"),
-          started_at: 7_000,
-          duration:   1_000
+          parent:      0,
+          event:       an_exact_event(category: "app.winning", title: "Win"),
+          started_at:  7_000,
+          duration:    1_000,
+          annotations: array_including(
+            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::CUSTOM_LINE}")
+          )
         ),
         a_span_including(
-          parent:     0,
-          event:      an_exact_event(category: "app.method", title: "MyClass.singleton_method"),
-          started_at: 9_000,
-          duration:   1_000
+          parent:      0,
+          event:       an_exact_event(category: "app.method", title: "MyClass.singleton_method"),
+          started_at:  9_000,
+          duration:    1_000,
+          annotations: array_including(
+            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::SINGLETON_LINE}")
+          )
         ),
         a_span_including(
-          parent:     0,
-          event:      an_exact_event(category: "app.method", title: "MyClass.singleton_method_without_options"),
-          started_at: 11_000,
-          duration:   1_000
+          parent:      0,
+          event:       an_exact_event(category: "app.method", title: "MyClass.singleton_method_without_options"),
+          started_at:  11_000,
+          duration:    1_000,
+          annotations: array_including(
+            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::SINGLETON_WITHOUT_OPTIONS_LINE}")
+          )
         ),
         a_span_including(
-          parent:     0,
-          event:      an_exact_event(category: "app.singleton", title: "Singleton Method"),
-          started_at: 13_000,
-          duration:   1_000
+          parent:      0,
+          event:       an_exact_event(category: "app.singleton", title: "Singleton Method"),
+          started_at:  13_000,
+          duration:    1_000,
+          annotations: array_including(
+            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::SINGLETON_WITH_OPTIONS_LINE}")
+          )
         ),
         a_span_including(
-          parent:     0,
-          event:      an_exact_event(category: "app.method", title: "MyClass#myvar="),
-          started_at: 15_000,
-          duration:   0
+          parent:      0,
+          event:       an_exact_event(category: "app.method", title: "MyClass#myvar="),
+          started_at:  15_000,
+          duration:    0,
+          annotations: array_including(
+            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::ATTR_WRITER_LINE}")
+          )
         )
       ])
     end

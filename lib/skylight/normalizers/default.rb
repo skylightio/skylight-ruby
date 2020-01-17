@@ -1,7 +1,15 @@
 module Skylight
   module Normalizers
     # The default normalizer, used if no other is found.
-    class Default
+    class Default < Normalizer
+      def initialize
+        super(nil) # Pass no config and handle it in new method
+      end
+
+      def config
+        Skylight.config
+      end
+
       # @param trace [Skylight::Messages::Trace::Builder] ignored, only present to match API
       # @param name [String]
       # @param payload [Hash]

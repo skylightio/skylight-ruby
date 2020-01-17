@@ -36,6 +36,10 @@ module Skylight
             "#{payload[:controller]}##{payload[:action]}"
           end
 
+          def source_location(trace, _name, payload, cache_key: nil)
+            trace.instrumenter.instance_method_source_location(payload[:controller], payload[:action])
+          end
+
           def segment_from_payload(payload)
             # Show 'error' if there's an unhandled exception or if the status is 4xx or 5xx
             return "error" if payload[:exception] || payload[:exception_object]

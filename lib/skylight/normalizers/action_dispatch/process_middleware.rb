@@ -16,6 +16,10 @@ module Skylight
           trace.endpoint = name
           [CAT, name, nil]
         end
+
+        def source_location(_trace, _name, payload, cache_key: nil)
+          payload[:source_location]
+        end
       end
     end
   end

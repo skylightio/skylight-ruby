@@ -33,6 +33,9 @@ Lint/HandleExceptions:
 Lint/RescueException:
   Enabled: false
 
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true
+
 # Doesn't make sense to have to split up module and context blocks
 Metrics/BlockLength:
   Exclude:

@@ -16,11 +16,12 @@ if ENV["TEST_ELASTICSEARCH_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
 
     it "instruments without affecting default instrumenter" do
       expect(current_trace).to receive(:instrument).
-        with("db.elasticsearch.request", "PUT skylight-test", nil, nil).and_call_original.once
+        with("db.elasticsearch.request", "PUT skylight-test", nil, an_instance_of(Hash)).and_call_original.once
       client.indices.create(index: "skylight-test")
 
       expect(current_trace).to receive(:instrument).
-        with("db.elasticsearch.request", "PUT skylight-test", { type: "person", id: "?" }.to_json, nil).
+        with("db.elasticsearch.request", "PUT skylight-test",
+             { type: "person", id: "?" }.to_json, an_instance_of(Hash)).
         and_call_original.once
       client.index(index: "skylight-test", type: "person", id: "1", body: { name: "Joe" })
     end
@@ -38,11 +39,12 @@ if ENV["TEST_ELASTICSEARCH_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
           receive(:do_request) { |obj, *args| obj.send(:do_request_without_sk, *args) }
 
         expect(current_trace).to receive(:instrument).
-          with("db.elasticsearch.request", "PUT skylight-test", nil, nil).and_call_original.once
+          with("db.elasticsearch.request", "PUT skylight-test", nil, an_instance_of(Hash)).and_call_original.once
         client.indices.create(index: "skylight-test")
 
         expect(current_trace).to receive(:instrument).
-          with("db.elasticsearch.request", "PUT skylight-test", { type: "person", id: "?" }.to_json, nil).
+          with("db.elasticsearch.request", "PUT skylight-test",
+               { type: "person", id: "?" }.to_json, an_instance_of(Hash)).
           and_call_original.once
         client.index(index: "skylight-test", type: "person", id: "1", body: { name: "Joe" })
       ensure
