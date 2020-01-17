@@ -5,9 +5,6 @@ module Skylight
     module Excon
       # Middleware for Excon that instruments requests
       class Middleware < ::Excon::Middleware::Base
-        # This probably won't work since config isn't defined
-        include Skylight::Util::Logging
-
         def initialize(*)
           @requests = {}
           super
@@ -49,7 +46,7 @@ module Skylight
 
             @requests[datum.object_id] = Skylight.instrument(opts)
           rescue Exception => e
-            error "failed to begin instrumentation for Excon; msg=%s", e.message
+            Skylight.error "failed to begin instrumentation for Excon; msg=%s", e.message
           end
 
           def end_instrumentation(datum)
@@ -61,7 +58,7 @@ module Skylight
               Skylight.done(request, meta)
             end
           rescue Exception => e
-            error "failed to end instrumentation for Excon; msg=%s", e.message
+            Skylight.error "failed to end instrumentation for Excon; msg=%s", e.message
           end
       end
     end
