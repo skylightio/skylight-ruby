@@ -19,6 +19,7 @@ variables:
 .ruby_24: &ruby_24 "2.4.9"
 .ruby_26: &ruby_26 "2.6.5"
 .ruby_27: &ruby_27 "2.7.0"
+.ruby_head: &ruby_head "2.8.0-dev"
 
 .run_tests: &run_tests
   before_script:
@@ -282,3 +283,11 @@ ruby26-rails52-ams-edge:
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
     AMS_VERSION: edge
 
+ruby-head-rails-edge:
+  <<: *run_tests
+  stage: test
+  allow_failure: true
+  image: rubocophq/ruby-snapshot:latest
+  variables:
+    RUBY_VERSION: *ruby_head
+    BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-edge
