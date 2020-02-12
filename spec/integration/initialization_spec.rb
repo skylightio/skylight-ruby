@@ -71,9 +71,9 @@ describe "Initialization integration" do
       filtered_output = []
       keyword_warning = false
       output.each do |l|
-        if l.include?("warning: The last argument is used as the keyword parameter")
+        if l.include?("warning: Using the last argument as keyword parameters is deprecated")
           keyword_warning = true
-        elsif keyword_warning && l.include?("warning: for")
+        elsif keyword_warning && l.include?("warning: The called method")
           # Ignore
         else
           keyword_warning = false
