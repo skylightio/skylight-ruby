@@ -18,7 +18,7 @@ variables:
 
 .ruby_24: &ruby_24 "2.4.9"
 .ruby_26: &ruby_26 "2.6.5"
-.ruby_head: &ruby_head "2.7.0-rc1"
+.ruby_27: &ruby_27 "2.7.0"
 
 .run_tests: &run_tests
   before_script:
@@ -45,7 +45,7 @@ variables:
     paths:
       - cc-test-reporter
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
   only:
     variables:
       - $COVERAGE == "true"
@@ -74,7 +74,7 @@ ruby26-rails60:
   <<: *run_tests
   stage: smoke_test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-6.0.x
 
 ruby24-rails52:
@@ -90,7 +90,7 @@ ruby26-rails52:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     GRAPHQL_VERSION: "~> 1.9.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
 
@@ -98,7 +98,7 @@ ruby26-rails52:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     GRAPHQL_VERSION: "~> 1.8.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
 
@@ -107,7 +107,7 @@ ruby26-rails-edge:
   stage: test
   allow_failure: true
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-edge
 
 ruby24-sinatra14:
@@ -121,7 +121,7 @@ ruby26-sinatra14:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-1.4.x
 
 ruby24-sinatra20:
@@ -135,7 +135,7 @@ ruby26-sinatra20:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-2.0.x
 
 ruby26-sinatra-edge:
@@ -143,7 +143,7 @@ ruby26-sinatra-edge:
   stage: test
   allow_failure: true
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-edge
 
 ruby24-grape:
@@ -158,14 +158,14 @@ ruby26-grape:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
 
 ruby26-grape013:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 0.13.0"
     RACK_VERSION: "~> 2.0.8"
@@ -174,7 +174,7 @@ ruby26-grape110:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 1.1.0"
     RACK_VERSION: "~> 2.0.8"
@@ -183,7 +183,7 @@ ruby26-grape120:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 1.2.0"
     RACK_VERSION: "~> 2.0.8"
@@ -192,7 +192,7 @@ ruby26-grape130:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 1.3.0"
 
@@ -201,7 +201,7 @@ ruby26-grape-edge:
   stage: test
   allow_failure: true
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: edge
 
@@ -209,7 +209,7 @@ ruby26-rails52-tilt:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
     TILT_VERSION: 1.4.1
 
@@ -217,7 +217,7 @@ ruby26-sinatra14-sequel:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-1.4.x
     SEQUEL_VERSION: 4.34.0
 
@@ -227,7 +227,7 @@ ruby26-rails52-mongo:
   services:
     - mongo:4.0
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
     TEST_MONGO_INTEGRATION: "true"
     MONGO_HOST: mongo
@@ -238,7 +238,7 @@ ruby26-rails52-mongoid:
   services:
     - mongo:4.0
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
     TEST_MONGO_INTEGRATION: "true"
     MONGO_HOST: mongo
@@ -251,7 +251,7 @@ ruby26-rails52-elasticsearch:
     - name: elasticsearch:6.8.6
       command: ["bin/elasticsearch", "-Ediscovery.type=single-node"]
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
     TEST_ELASTICSEARCH_INTEGRATION: "true"
     ELASTICSEARCH_URL: "http://elasticsearch:9200"
@@ -260,7 +260,7 @@ ruby26-rails52-ams83:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
     AMS_VERSION: "~> 0.8.3"
     SIDEKIQ_VERSION: "none"
@@ -269,7 +269,7 @@ ruby26-rails52-ams95:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
     AMS_VERSION: "~> 0.9.5"
 
@@ -278,16 +278,7 @@ ruby26-rails52-ams-edge:
   stage: test
   allow_failure: true
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
     AMS_VERSION: edge
-
-ruby-head-rails-edge:
-  <<: *run_tests
-  stage: test
-  allow_failure: true
-  image: rubocophq/ruby-snapshot:latest
-  variables:
-    RUBY_VERSION: *ruby_head
-    BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-edge
 
