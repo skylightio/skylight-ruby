@@ -60,7 +60,7 @@ module Skylight
       rescue Api::CreateFailed => e
         say "Could not create the application. Please run `bundle exec skylight doctor` for diagnostics.", :red
         say e.to_s, :yellow
-      rescue Interrupt # rubocop:disable Lint/HandleExceptions
+      rescue Interrupt # rubocop:disable Lint/SuppressedException
       end
 
       desc "disable_dev_warning", "Disables warning about running Skylight in development mode for all local apps"

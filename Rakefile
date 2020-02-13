@@ -33,12 +33,12 @@ end
 CLEAN << File.expand_path("ext/install.log", __dir__)
 CLOBBER << File.expand_path("lib/skylight/native", __dir__)
 
-# rubocop:disable Lint/HandleExceptions
+# rubocop:disable Lint/SuppressedException
 begin
   require "yard"
 rescue LoadError
 end
-# rubocop:enable Lint/HandleExceptions
+# rubocop:enable Lint/SuppressedException
 
 require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new(:spec) do |t|

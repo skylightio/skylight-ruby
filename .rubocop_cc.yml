@@ -31,7 +31,6 @@ Layout/LineLength:
 # We shouldn't worry about this in specs
 Lint/SuppressedException:
   Exclude:
-    - spec/spec_helper.rb
     - '**/*_spec.rb'
 
 # We do a lot of handling of all error classes. This seems probably ok for our case.

@@ -120,7 +120,7 @@ module ::Kernel
 
       begin
         Skylight::Probes.require_hook(name)
-      rescue Exception # rubocop:disable Lint/HandleExceptions
+      rescue Exception # rubocop:disable Lint/SuppressedException
         # FIXME: Log these errors
       end
 
