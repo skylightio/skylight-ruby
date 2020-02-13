@@ -9,7 +9,7 @@ engines:
     enabled: true
   rubocop:
     enabled: true
-    channel: rubocop-0-74
+    channel: rubocop-0-79
     config:
       file: .rubocop_cc.yml
 
