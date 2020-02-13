@@ -94,7 +94,7 @@ module Skylight
                 begin
                   namefile = Tempfile.new("skylight-app-name")
                   # Windows appears to need double quotes for `rails runner`
-                  `rails runner "File.open('#{namefile.path}', 'w') {|f| f.write(Rails.application.class.name) rescue '' }"` # rubocop:disable Metrics/LineLength
+                  `rails runner "File.open('#{namefile.path}', 'w') {|f| f.write(Rails.application.class.name) rescue '' }"` # rubocop:disable Layout/LineLength
                   name = namefile.read.split("::").first.underscore.titleize
                   name = nil if name.empty?
                 rescue => e
