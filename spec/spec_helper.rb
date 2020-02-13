@@ -32,7 +32,7 @@ require "support/native"
 module SpecHelper
 end
 
-Dir[File.expand_path("support/*.rb", __dir__)].each do |f|
+Dir[File.expand_path("support/*.rb", __dir__)].sort.each do |f|
   require f
 end
 

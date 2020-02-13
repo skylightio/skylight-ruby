@@ -119,7 +119,7 @@ module Skylight
             else
               logger.send level, msg
             end
-            return
+            return # rubocop:disable Style/RedundantReturn
           else
             Kernel.warn "Invalid logger"
           end
