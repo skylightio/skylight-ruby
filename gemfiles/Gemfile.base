@@ -5,6 +5,11 @@ gemspec path: File.expand_path('../..', __FILE__)
 ruby_version = Gem::Version.new(RUBY_VERSION)
 
 if ENV['COVERAGE']
+  # FIXME: There's currently an incompatibility between SimpleCov 0.18+ and
+  # CodeClimate's test reporter. The current workaround is to pin the
+  # SimpleCov version to 0.17.1 or below.
+  #
+  # See: https://github.com/codeclimate/test-reporter/issues/413
   gem "simplecov", "~> 0.17.1"
 end
 
