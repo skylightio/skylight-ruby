@@ -91,6 +91,14 @@ ruby26-rails52:
   stage: test
   variables:
     RUBY_VERSION: *ruby_26
+    GRAPHQL_VERSION: "~> 1.9.0"
+    BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
+
+ruby26-rails52:
+  <<: *run_tests
+  stage: test
+  variables:
+    RUBY_VERSION: *ruby_26
     GRAPHQL_VERSION: "~> 1.8.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
 

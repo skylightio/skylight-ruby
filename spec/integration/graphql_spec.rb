@@ -96,6 +96,12 @@ if enable
           @graphql17 = Gem::Version.new(GraphQL::VERSION) < Gem::Version.new("1.8")
         end
 
+        def self.graphql110?
+          return @graphql110 if defined?(@graphql110)
+
+          @graphql110 = Gem::Version.new(GraphQL::VERSION) >= Gem::Version.new("1.10")
+        end
+
         def self.format_field_name(field)
           # As of graphql 1.8, client-side queries are expected to have camel-cased keys
           # (these are converted to snake-case server-side).
@@ -287,6 +293,7 @@ if enable
             # will eventually become the new default interpreter.
             class InterpreterSchema < GraphQL::Schema
               use GraphQL::Execution::Interpreter
+              use GraphQL::Analysis::AST if defined?(GraphQL::Analysis::AST)
 
               mutation(Types::MutationType)
               query(Types::QueryType)
@@ -420,7 +427,11 @@ if enable
           let(:tracer_mod) { GraphQL::Tracing::ActiveSupportNotificationsTracing }
           let(:current_schema_tracers) do
             lambda do
-              TestApp.graphql17? ? TestApp.current_schema.tracers : TestApp.current_schema.graphql_definition.tracers
+              if TestApp.graphql17? || TestApp.graphql110?
+                TestApp.current_schema.tracers
+              else
+                TestApp.current_schema.graphql_definition.tracers
+              end
             end
           end
 
