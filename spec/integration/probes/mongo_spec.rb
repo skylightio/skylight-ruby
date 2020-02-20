@@ -54,10 +54,8 @@ if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
 
     it "instruments update_one" do
       client[:artists].find(name: "Goldie").update_one("$inc" => { plays: 1 })
-
       description = { updates: [{ "q" => { name: "?" },
-                                  "u" => { "$inc" => { plays: "?" } },
-                                  "multi" => false, "upsert" => false }] }.to_json
+                                  "u" => { "$inc" => { plays: "?" } } }] }.to_json
       expected = { cat: "db.mongo.command", title: "echo_test.update artists", desc: description }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
@@ -67,7 +65,7 @@ if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
 
       description = { updates: [{ "q" => { label: "?" },
                                   "u" => { "$inc" => { plays: "?" } },
-                                  "multi" => true, "upsert" => false }] }.to_json
+                                  "multi" => true }] }.to_json
       expected = { cat: "db.mongo.command", title: "echo_test.update artists", desc: description }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
@@ -76,8 +74,7 @@ if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
       client[:artists].find(name: "Aphex Twin").replace_one(name: "Richard James")
 
       description = { updates: [{ "q" => { name: "?" },
-                                  "u" => { "name" => "?" },
-                                  "multi" => false, "upsert" => false }] }.to_json
+                                  "u" => { "name" => "?" } }] }.to_json
       expected = { cat: "db.mongo.command", title: "echo_test.update artists", desc: description }
       expect(current_trace.mock_spans[1]).to include(expected)
     end

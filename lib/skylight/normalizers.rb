@@ -141,7 +141,6 @@ module Skylight
         graphiti/resolve
         graphiti/render
         graphql/base
-        moped/query
         sequel/sql].each do |file|
       require "skylight/normalizers/#{file}"
     end

@@ -44,7 +44,7 @@ end
 
 # rubocop:disable Lint/HandleExceptions
 
-%w[excon tilt sinatra sequel faraday mongo moped mongoid active_model_serializers
+%w[excon tilt sinatra sequel faraday mongo mongoid active_model_serializers
    httpclient elasticsearch].each do |library|
   begin
     require library
@@ -142,10 +142,6 @@ RSpec.configure do |config|
   config.include SpecHelper
   config.include WebMock::API
   config.include WebMock::Matchers
-
-  unless defined?(Moped) && defined?(Mongoid)
-    config.filter_run_excluding moped: true
-  end
 
   if ENV["SKYLIGHT_DISABLE_AGENT"]
     config.filter_run_excluding agent: true

@@ -234,7 +234,7 @@ ruby26-rails52-mongoid:
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
     TEST_MONGO_INTEGRATION: "true"
     MONGO_HOST: mongo
-    MONGOID_VERSION: "~> 4.0"
+    MONGOID_VERSION: "~> 6.0"
 
 ruby26-rails52-elasticsearch:
   <<: *run_tests

@@ -12,7 +12,7 @@ module Skylight
       class Subscriber
         include Skylight::Util::Logging
 
-        COMMANDS = %i[insert find count distinct update findandmodify delete aggregate].freeze
+        COMMANDS = %i[insert find count distinct update findandmodify findAndModify delete aggregate].freeze
 
         COMMAND_NAMES = {
           findandmodify: "findAndModify".freeze
@@ -44,7 +44,7 @@ module Skylight
           def begin_instrumentation(event)
             return unless COMMANDS.include?(event.command_name.to_sym)
 
-            command_name = COMMAND_NAMES[event.command_name] || event.command_name
+            command_name = COMMAND_NAMES[event.command_name] || event.command_name.to_s
 
             title = "#{event.database_name}.#{command_name}"
 
@@ -65,7 +65,7 @@ module Skylight
             add_bound("filter".freeze, command, payload)
             add_value("sort".freeze, command, payload)
 
-            if event.command_name == :findandmodify
+            if command_name == "findAndModify".freeze
               add_bound("update".freeze, command, payload)
             end
 
