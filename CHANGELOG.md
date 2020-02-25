@@ -1,3 +1,6 @@
+## 4.2.2 (February 25, 2020)
+* Support graphql-ruby version 1.10
+
 ## 4.2.1 (January 14, 2020)
 * [IMPROVEMENT] Enable instrumentation for ActionMailer::MailDeliveryJob
 * [BUGFIX] Improved handling for non-SPEC compliant Rack middleware
