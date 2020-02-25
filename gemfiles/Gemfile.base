@@ -5,7 +5,7 @@ gemspec path: File.expand_path('../..', __FILE__)
 ruby_version = Gem::Version.new(RUBY_VERSION)
 
 if ENV['COVERAGE']
-  gem "simplecov"
+  gem "simplecov", "~> 0.17.1"
 end
 
 gem 'rake'
