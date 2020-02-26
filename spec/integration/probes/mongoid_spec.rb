@@ -4,7 +4,7 @@ require "spec_helper"
 if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
   describe "Mongo integration with Mongoid", :mongoid_probe, :instrumenter do
     class Artist
-      include Mongoid::Document
+      include ::Mongoid::Document
       field :name, type: String
       field :signed_at, type: Time
     end
@@ -14,7 +14,7 @@ if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
     end
 
     def make_query
-      Mongoid.load!(File.expand_path("../../../support/#{config}", __FILE__), :development)
+      ::Mongoid.load!(File.expand_path("../../../support/#{config}", __FILE__), :development)
 
       # Test with a time here because apparently we had issues with this in the normalizer in the past
       time = Time.now
@@ -23,7 +23,7 @@ if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
     end
 
     require "mongoid/version"
-    version = Gem::Version.new(Mongoid::VERSION)
+    version = Gem::Version.new(::Mongoid::VERSION)
 
     if version < Gem::Version.new("5.0")
       # Moped
@@ -50,7 +50,7 @@ if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
         {
           cat:   "db.mongo.command",
           title: "echo_test.find artists",
-          desc:  { filter: { signed_at: "?" } }.to_json
+          desc:  { filter: { signed_at: "?" }, sort: { "_id" => 1 } }.to_json
         }
       end
 

@@ -1,4 +1,3 @@
-ENV["MOPED_VERSION"] = "skip"
 ENV["MONGOID_VERSION"] = "skip"
 ENV["TILT_VERSION"] = "~> 2.0"
 

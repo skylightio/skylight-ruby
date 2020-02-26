@@ -71,4 +71,4 @@ if defined?(YARD)
   YARD::Rake::YardocTask.new
 end
 
-task default: %i[rubocop spec]
+task default: %i[spec]
