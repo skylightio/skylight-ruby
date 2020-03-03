@@ -86,14 +86,6 @@ typedef void* (*blocking_fn_t)(void*);
 #define WITHOUT_GVL(fn, a) \
   rb_thread_call_without_gvl((blocking_fn_t)(fn), (a), 0, 0)
 
-// Ruby 1.9
-#elif defined(HAVE_RB_THREAD_BLOCKING_REGION)
-
-typedef VALUE (*blocking_fn_t)(void*);
-#define WITHOUT_GVL(fn, a) \
-  rb_thread_blocking_region((blocking_fn_t)(fn), (a), 0, 0)
-
-
 #endif
 
 

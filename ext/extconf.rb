@@ -207,8 +207,8 @@ find_header "skylight_dlopen.h", hdrpath
 fail "could not create Makefile; dlfcn.h missing" unless have_header "dlfcn.h"
 
 # For escaping the GVL
-unless have_func("rb_thread_call_without_gvl", "ruby/thread.h") || have_func("rb_thread_blocking_region")
-  abort "Ruby is unexpectedly missing rb_thread_blocking_region. This should not happen."
+unless have_func("rb_thread_call_without_gvl", "ruby/thread.h")
+  abort "Ruby is unexpectedly missing rb_thread_call_without_gvl. This should not happen."
 end
 
 # Previous comment stated:
