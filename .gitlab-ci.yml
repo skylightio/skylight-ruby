@@ -16,7 +16,7 @@ variables:
   DISABLED_COVERAGE_DIR: $CI_PROJECT_DIR/coverage-disabled
   BUNDLE_PATH: $CI_PROJECT_DIR/vendor/bundle
 
-.ruby_23: &ruby_23 "2.3.8"
+.ruby_24: &ruby_24 "2.4.9"
 .ruby_26: &ruby_26 "2.6.5"
 .ruby_head: &ruby_head "2.7.0-rc1"
 
@@ -77,11 +77,11 @@ ruby26-rails60:
     RUBY_VERSION: *ruby_26
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-6.0.x
 
-ruby23-rails52:
+ruby24-rails52:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_23
+    RUBY_VERSION: *ruby_24
     GRAPHQL_VERSION: "~> 1.7.0"
     SIDEKIQ_VERSION: "~> 4"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
@@ -102,11 +102,11 @@ ruby26-rails-edge:
     RUBY_VERSION: *ruby_26
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-edge
 
-ruby23-sinatra14:
+ruby24-sinatra14:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_23
+    RUBY_VERSION: *ruby_24
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-1.4.x
 
 ruby26-sinatra14:
@@ -116,11 +116,11 @@ ruby26-sinatra14:
     RUBY_VERSION: *ruby_26
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-1.4.x
 
-ruby23-sinatra20:
+ruby24-sinatra20:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_23
+    RUBY_VERSION: *ruby_24
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-2.0.x
 
 ruby26-sinatra20:
@@ -138,11 +138,11 @@ ruby26-sinatra-edge:
     RUBY_VERSION: *ruby_26
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-edge
 
-ruby23-grape:
+ruby24-grape:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_23
+    RUBY_VERSION: *ruby_24
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     RACK_VERSION: "~> 2.0.8"
 
