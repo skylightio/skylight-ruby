@@ -210,16 +210,6 @@ module Skylight
       end
     end
 
-    def self.match?(string, regex)
-      @scanner ||= StringScanner.new("")
-      @scanner.string = string
-      @scanner.match?(regex)
-    end
-
-    def match?(string, regex)
-      self.class.match?(string, regex)
-    end
-
     def instrument(cat, title = nil, desc = nil, meta = nil)
       raise ArgumentError, "cat is required" unless cat
 
@@ -237,14 +227,14 @@ module Skylight
 
       cat = cat.to_s
 
-      unless match?(cat, Skylight::CATEGORY_REGEX)
+      unless Skylight::CATEGORY_REGEX.match?(cat)
         warn "invalid skylight instrumentation category; trace=%s; value=%s", trace.uuid, cat
         return yield if block_given?
 
         return
       end
 
-      cat = "other.#{cat}" unless match?(cat, Skylight::TIER_REGEX)
+      cat = "other.#{cat}" unless Skylight::TIER_REGEX.match?(cat)
 
       unless (sp = trace.instrument(cat, title, desc, meta))
         return yield if block_given?
