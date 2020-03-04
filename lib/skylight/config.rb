@@ -540,8 +540,7 @@ module Skylight
           out = get(:alert_log_file)
           out = Util::AlertLogger.new(load_logger) if out == "-"
 
-          l = create_logger(out)
-          l.level = Logger::DEBUG
+          l = create_logger(out, level: Logger::DEBUG)
         end
 
         l
@@ -576,30 +575,23 @@ module Skylight
 
     private
 
-      def create_logger(out)
-        l =
-          begin
-            if out.is_a?(String)
-              out = File.expand_path(out, root)
-              # May be redundant since we also do this in the permissions check
-              FileUtils.mkdir_p(File.dirname(out))
-            end
+      def create_logger(out, level: :info)
+        if out.is_a?(String)
+          out = File.expand_path(out, root)
+          # May be redundant since we also do this in the permissions check
+          FileUtils.mkdir_p(File.dirname(out))
+        end
 
-            Logger.new(out)
-          rescue
-            Logger.new(STDOUT)
-          end
-        l.progname = "Skylight"
-        l
+        Logger.new(out, progname: "Skylight", level: level)
+      rescue
+        Logger.new(STDOUT, progname: "Skylight", level: level)
       end
 
       def load_logger
         unless (l = @logger)
           out = get(:log_file)
           out = STDOUT if out == "-"
-
-          l = create_logger(out)
-          l.level =
+          level =
             if trace?
               Logger::DEBUG
             else
@@ -612,6 +604,8 @@ module Skylight
               else Logger::ERROR
               end
             end
+
+          l = create_logger(out, level: level)
         end
 
         l
