@@ -11,25 +11,50 @@ module Skylight::Normalizers::GraphQL
     ANONYMOUS = "[anonymous]"
     CAT = "app.graphql"
 
-    def normalize(_trace, name, _payload)
-      [CAT, name, nil]
+    if defined?(::GraphQL::VERSION) && Gem::Version.new(::GraphQL::VERSION) >= Gem::Version.new("1.10")
+      def self.register_graphql
+        register("#{key}.graphql")
+      end
+    else
+      def self.register_graphql
+        register("graphql.#{key}")
+      end
     end
+
+    def self.inherited(klass)
+      klass.const_set(:KEY, klass.name.demodulize.underscore.freeze)
+    end
+
+    def self.key
+      self::KEY
+    end
+
+    def normalize(_trace, _name, _payload)
+      [CAT, "graphql.#{key}", nil]
+    end
+
+    private
+
+      def key
+        self.class.key
+      end
   end
 
   class Lex < Base
-    register "graphql.lex"
+    register_graphql
   end
 
   class Parse < Base
-    register "graphql.parse"
+    register_graphql
   end
 
   class Validate < Base
-    register "graphql.validate"
+    register_graphql
   end
 
   class ExecuteMultiplex < Base
-    register "graphql.execute_multiplex"
+    register_graphql
+
     def normalize_after(trace, _span, _name, payload)
       # This is in normalize_after because the queries may not have
       # an assigned operation name before they are executed.
@@ -58,13 +83,13 @@ module Skylight::Normalizers::GraphQL
   end
 
   class AnalyzeQuery < Base
-    register "graphql.analyze_query"
+    register_graphql
   end
 
   class ExecuteQuery < Base
-    register "graphql.execute_query"
+    register_graphql
 
-    def normalize(trace, name, payload)
+    def normalize(trace, _name, payload)
       query_name = payload[:query]&.operation_name || ANONYMOUS
 
       if query_name == ANONYMOUS
@@ -75,18 +100,18 @@ module Skylight::Normalizers::GraphQL
       # but in the case of a single query, it will be the same value anyway.
       trace.endpoint = "graphql:#{query_name}"
 
-      [CAT, "#{name}: #{query_name}", nil, meta]
+      [CAT, "graphql.#{key}: #{query_name}", nil, meta]
     end
   end
 
   class ExecuteQueryLazy < ExecuteQuery
-    register "graphql.execute_query_lazy"
+    register_graphql
 
-    def normalize(trace, name, payload)
+    def normalize(trace, _name, payload)
       if payload[:query]
         super
       elsif payload[:multiplex]
-        [CAT, "#{name}.multiplex", nil]
+        [CAT, "graphql.#{key}.multiplex", nil]
       end
     end
   end
