@@ -1,3 +1,6 @@
+## 4.2.3 (March 10, 2020)
+* [BUGFIX] Fix an issue where the GraphQL probe may not always be installed
+
 ## 4.2.2 (February 25, 2020)
 * Support graphql-ruby version 1.10
 
