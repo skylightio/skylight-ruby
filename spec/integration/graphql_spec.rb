@@ -95,11 +95,6 @@ if enable
           @graphql_17 = Gem::Version.new(GraphQL::VERSION) < Gem::Version.new("1.8")
         end
 
-        def self.graphql_110?
-          return @graphql_110 if defined?(@graphql_110)
-          @graphql_110 = Gem::Version.new(GraphQL::VERSION) >= Gem::Version.new("1.10")
-        end
-
         def self.format_field_name(field)
           # As of graphql 1.8, client-side queries are expected to have camel-cased keys
           # (these are converted to snake-case server-side).
@@ -421,28 +416,6 @@ if enable
 
         let(:query_inner) { "#{TestApp.format_field_name('someDragonflies')} { name }" }
 
-        context "automatically adds a tracer" do
-          let(:tracer_mod) { GraphQL::Tracing::ActiveSupportNotificationsTracing }
-          let(:current_schema_tracers) do
-            lambda do
-              TestApp.graphql_17? || TestApp.graphql_110? ? TestApp.current_schema.tracers : TestApp.current_schema.graphql_definition.tracers
-            end
-          end
-
-          let(:make_request) do
-            -> { make_graphql_request(query: "query { #{query_inner} }") }
-          end
-
-          it "adds a tracer if one doesn't exist" do
-            expect(&make_request).to change(&current_schema_tracers).from([]).to([tracer_mod])
-          end
-
-          it "doesn't add a tracer if one exists" do
-            TestApp.add_tracer(tracer_mod)
-            expect(&make_request).not_to change(&current_schema_tracers).from([tracer_mod])
-          end
-        end
-
         context "with single queries" do
           it "successfully calls into graphql with anonymous queries" do
             res = make_graphql_request(query: "query { #{query_inner} }")
@@ -532,7 +505,7 @@ if enable
             ])
           end
 
-          it "successfully calls into graphql with name and anonymous queries" do
+          it "successfully calls into graphql with named and anonymous queries" do
             queries = ["query { #{query_inner} }"].cycle.take(3)
             queries.push("query myFavoriteDragonflies { #{query_inner} }")
 
