@@ -96,35 +96,11 @@ if enable
           @graphql17 = Gem::Version.new(GraphQL::VERSION) < Gem::Version.new("1.8")
         end
 
-        def self.graphql110?
-          return @graphql110 if defined?(@graphql110)
-
-          @graphql110 = Gem::Version.new(GraphQL::VERSION) >= Gem::Version.new("1.10")
-        end
-
         def self.format_field_name(field)
           # As of graphql 1.8, client-side queries are expected to have camel-cased keys
           # (these are converted to snake-case server-side).
           # In 1.7 and earlier, they used whatever format was used to define the schema.
           graphql17? ? field.underscore : field.camelize(:lower)
-        end
-
-        # Utility method to test that the graphql probe does not duplicate the
-        # GraphQL::Tracing::ActiveSupportNotificationsTracing module if the user has already added it
-        def self.add_tracer(tracer_mod)
-          if graphql17?
-            # under 1.7 the schema is an instance, which requires us to duplicate its
-            # original definition to add instrumentation
-            self.current_schema = current_schema.redefine do
-              tracer(tracer_mod)
-            end
-          else
-            # under >= 1.8 the schema is a class. The instance
-            # is lazily compiled when needed; here we remove the instance so the tracer
-            # definition will be added when recompiled.
-            current_schema.instance_exec { @graphql_definition = nil }
-            current_schema.tracer(tracer_mod)
-          end
         end
 
         if graphql17?
@@ -422,32 +398,6 @@ if enable
         end
 
         let(:query_inner) { "#{TestApp.format_field_name('someDragonflies')} { name }" }
-
-        context "automatically adds a tracer" do
-          let(:tracer_mod) { GraphQL::Tracing::ActiveSupportNotificationsTracing }
-          let(:current_schema_tracers) do
-            lambda do
-              if TestApp.graphql17? || TestApp.graphql110?
-                TestApp.current_schema.tracers
-              else
-                TestApp.current_schema.graphql_definition.tracers
-              end
-            end
-          end
-
-          let(:make_request) do
-            -> { make_graphql_request(query: "query { #{query_inner} }") }
-          end
-
-          it "adds a tracer if one doesn't exist" do
-            expect(&make_request).to change(&current_schema_tracers).from([]).to([tracer_mod])
-          end
-
-          it "doesn't add a tracer if one exists" do
-            TestApp.add_tracer(tracer_mod)
-            expect(&make_request).not_to change(&current_schema_tracers).from([tracer_mod])
-          end
-        end
 
         context "with single queries" do
           it "successfully calls into graphql with anonymous queries" do
