@@ -102,24 +102,6 @@ if enable
           graphql_17? ? field.underscore : field.camelize(:lower)
         end
 
-        # Utility method to test that the graphql probe does not duplicate the
-        # GraphQL::Tracing::ActiveSupportNotificationsTracing module if the user has already added it
-        def self.add_tracer(tracer_mod)
-          if graphql_17?
-            # under 1.7 the schema is an instance, which requires us to duplicate its
-            # original definition to add instrumentation
-            self.current_schema = current_schema.redefine do
-              tracer(tracer_mod)
-            end
-          else
-            # under >= 1.8 the schema is a class. The instance
-            # is lazily compiled when needed; here we remove the instance so the tracer
-            # definition will be added when recompiled.
-            current_schema.instance_exec { @graphql_definition = nil }
-            current_schema.tracer(tracer_mod)
-          end
-        end
-
         if graphql_17?
           module Types
             SpeciesType = GraphQL::ObjectType.define do
