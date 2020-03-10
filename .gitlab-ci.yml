@@ -87,7 +87,7 @@ ruby24-rails52:
     SIDEKIQ_VERSION: "~> 4"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
 
-ruby27-rails52:
+ruby27-rails52-gql19:
   <<: *run_tests
   stage: test
   variables:
@@ -95,7 +95,7 @@ ruby27-rails52:
     GRAPHQL_VERSION: "~> 1.9.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
 
-ruby27-rails52:
+ruby27-rails52-gql18:
   <<: *run_tests
   stage: test
   variables:
