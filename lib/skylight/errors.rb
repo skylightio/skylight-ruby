@@ -48,7 +48,7 @@ module Skylight
     end
 
     def formatted_code
-      format("%04d", code)
+      format("%<code>04d", code: code)
     end
 
     # E0003

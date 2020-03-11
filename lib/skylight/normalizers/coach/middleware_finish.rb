@@ -5,7 +5,7 @@ module Skylight
         begin
           require "coach/version"
           version = Gem::Version.new(::Coach::VERSION)
-        rescue LoadError # rubocop:disable Lint/HandleExceptions
+        rescue LoadError # rubocop:disable Lint/SuppressedException
         end
 
         if version && version < Gem::Version.new("1.0")

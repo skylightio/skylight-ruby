@@ -32,7 +32,7 @@ require "support/native"
 module SpecHelper
 end
 
-Dir[File.expand_path("support/*.rb", __dir__)].each do |f|
+Dir[File.expand_path("support/*.rb", __dir__)].sort.each do |f|
   require f
 end
 
@@ -42,7 +42,7 @@ if ENV["AMS_VERSION"] == "edge"
   require "active_support/inflector"
 end
 
-# rubocop:disable Lint/HandleExceptions
+# rubocop:disable Lint/SuppressedException
 
 %w[excon tilt sinatra sequel faraday mongo mongoid active_model_serializers
    httpclient elasticsearch].each do |library|
@@ -80,7 +80,7 @@ begin
 rescue LoadError
 end
 
-# rubocop:enable Lint/HandleExceptions
+# rubocop:enable Lint/SuppressedException
 
 require "net/http"
 Skylight::Probes.probe(:net_http)

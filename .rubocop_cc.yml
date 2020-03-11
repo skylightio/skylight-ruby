@@ -7,7 +7,7 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'spec/dummy/Gemfile'
 
-Layout/AlignHash:
+Layout/HashAlignment:
   EnforcedHashRocketStyle: table
   EnforcedColonStyle: table
 
@@ -18,14 +18,18 @@ Layout/DotPosition:
 Layout/IndentationConsistency:
   EnforcedStyle: indented_internal_methods
 
-Layout/IndentFirstArrayElement:
+Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
-Layout/IndentFirstHashElement:
+Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
+
+# Longer lines can be ok at times
+Layout/LineLength:
+  Max: 120
 
 # We shouldn't worry about this in specs
-Lint/HandleExceptions:
+Lint/SuppressedException:
   Exclude:
     - '**/*_spec.rb'
 
@@ -40,10 +44,6 @@ Lint/UnusedMethodArgument:
 Metrics/BlockLength:
   Exclude:
     - '**/*_spec.rb'
-
-# Longer lines can be ok at times
-Metrics/LineLength:
-  Max: 120
 
 # This is a bit too strict for us
 Style/ClassAndModuleChildren:
@@ -109,6 +109,6 @@ Naming/AccessorMethodName:
   Enabled: false
 
 Naming/PredicateName:
-  NameWhitelist:
+  AllowedMethods:
     - is_a?       # Default
     - has_errors? # Seems clearer than suggested `errors?`

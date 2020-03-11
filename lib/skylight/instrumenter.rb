@@ -104,7 +104,7 @@ module Skylight
 
       if !Skylight.native? && defined?(Skylight.warn_skylight_native_missing)
         Skylight.warn_skylight_native_missing(config)
-        return
+        return # rubocop:disable Style/RedundantReturn
       end
     end
 

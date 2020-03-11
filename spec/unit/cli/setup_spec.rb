@@ -49,6 +49,35 @@ describe "skylight setup", :http, :agent do
     expect(c[:authentication]).to eq("my-app-token")
   end
 
+  context "within a Rails app" do
+    let!(:namefile) { Tempfile.new }
+
+    before do
+      allow(Tempfile).to receive(:new).with("skylight-app-name") { namefile }
+      allow(namefile).to receive(:read) { "MyCoolRailsApp::Application" }
+
+      # The existence of this file is how we determine whether
+      # we're running within a Rails app.
+      tmp("config/application.rb").tap do |file|
+        FileUtils.mkdir_p(file.dirname)
+        FileUtils.touch(file)
+      end
+    end
+
+    it "infers the app name from Rails" do
+      should_successfully_create_app("foobar")
+
+      expect(server.requests[0]).to post_json(
+        "/apps",
+        hash_including(
+          input: hash_including(
+            app: { name: "My Cool Rails App" }
+          )
+        )
+      )
+    end
+  end
+
   context "with token" do
     it "does not ask for login info" do
       should_successfully_create_app("foobar")
