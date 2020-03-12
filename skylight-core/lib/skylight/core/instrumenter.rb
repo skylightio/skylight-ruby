@@ -51,6 +51,7 @@ module Skylight::Core
 
       key = "#{KEY}_#{self.class.trace_class.name}".gsub(/\W/, "_")
       @trace_info = @config[:trace_info] || TraceInfo.new(key)
+      _t { "starting instrumenter; ignored_endpoints=#{config.ignored_endpoints.inspect}" }
     end
 
     def log_context
@@ -231,11 +232,16 @@ module Skylight::Core
       end
     end
 
+    # enable trace logging for this class
+    def _t(*)
+      log :info, yield
+    end
+
     def process(trace)
-      t { fmt "processing trace=#{trace.uuid}" }
+      _t { fmt "processing trace=#{trace.uuid} endpoint=#{trace.endpoint}" }
 
       if ignore?(trace)
-        t { fmt "ignoring trace=#{trace.uuid}" }
+        _t { fmt "ignoring trace=#{trace.uuid} endpoint=#{trace.endpoint}" }
         return false
       end
 
