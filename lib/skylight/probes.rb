@@ -1,4 +1,5 @@
 require "pathname"
+require "active_support/inflector"
 
 module Skylight
   # @api private
@@ -18,11 +19,15 @@ module Skylight
       end
 
       def constant_available?
-        ::ActiveSupport::Inflector.safe_constantize(const_name).present?
+        Skylight::Probes.constant_available?(const_name)
       end
     end
 
     class << self
+      def constant_available?(const_name)
+        ::ActiveSupport::Inflector.safe_constantize(const_name).present?
+      end
+
       def install!
         pending = registered.values - installed.values
 

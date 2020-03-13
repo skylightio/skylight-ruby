@@ -22,14 +22,14 @@ module Skylight
 
     subject { Probes }
 
-    # it "can determine const availability" do
-    #   expect(subject.available?("Skylight")).to be_truthy
-    #   expect(subject.available?("Skylight::Probes")).to be_truthy
-    #   expect(subject.available?("Nonexistent")).to be_falsey
+    it "can determine const availability" do
+      expect(subject.constant_available?("Skylight")).to be_truthy
+      expect(subject.constant_available?("Skylight::Probes")).to be_truthy
+      expect(subject.constant_available?("Nonexistent")).to be_falsey
 
-    #   expect(subject.available?("Skylight::Nonexistent")).to be_falsey
-    #   expect(subject.available?("Skylight::Fail")).to be_falsey
-    # end
+      expect(subject.constant_available?("Skylight::Nonexistent")).to be_falsey
+      expect(subject.constant_available?("Skylight::Fail")).to be_falsey
+    end
 
     it "installs probe if constant is available" do
       register(:skylight, "Skylight", "skylight", probe)

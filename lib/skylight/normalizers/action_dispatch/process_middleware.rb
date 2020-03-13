@@ -18,7 +18,7 @@ module Skylight
         end
 
         def source_location(_trace, _name, payload, cache_key: nil)
-          payload[:source_location]
+          payload[:sk_source_location]
         end
       end
     end
