@@ -38,6 +38,12 @@ module Skylight::Core::Normalizers::GraphQL
       def key
         self.class.key
       end
+
+      def extract_query_name(query)
+        query&.context&.[](:skylight_endpoint) ||
+          query&.operation_name ||
+          ANONYMOUS
+      end
   end
 
   class Lex < Base
@@ -69,7 +75,7 @@ module Skylight::Core::Normalizers::GraphQL
       # has not been done yet at the point where execute_multiplex starts.
       # [1] https://graphql.org/learn/serving-over-http/#post-request
       queries, has_errors = payload[:multiplex].queries.each_with_object([Set.new, Set.new]) do |query, (names, errors)|
-        names << (query.operation_name || ANONYMOUS)
+        names << extract_query_name(query)
         errors << query.static_errors.any?
       end
 
@@ -90,7 +96,7 @@ module Skylight::Core::Normalizers::GraphQL
     register_graphql
 
     def normalize(trace, _name, payload)
-      query_name = payload[:query]&.operation_name || ANONYMOUS
+      query_name = extract_query_name(payload[:query])
 
       if query_name == ANONYMOUS
         meta = { mute_children: true }
