@@ -532,7 +532,7 @@ if enable
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
-        app_spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+        app_spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
         expect(app_spans).to eq([
           ["app.rack.request", nil],
           ["app.controller.request", "UsersController#index"],
@@ -666,7 +666,7 @@ if enable
 
           trace = server.reports.dig(0, :endpoints, 0, :traces, 0)
 
-          titles = trace.filtered_spans.map { |s| s.event.title }
+          titles = trace.filter_spans.map { |s| s.event.title }
 
           # If Skylight runs after CustomMiddleware, we shouldn't see it
           expect(titles).not_to include("CustomMiddleware")
@@ -686,7 +686,7 @@ if enable
 
             server.wait resource: "/report"
             trace = server.reports.dig(0, :endpoints, 0, :traces, 0)
-            titles = trace.filtered_spans.map { |s| s.event.title }.reverse
+            titles = trace.filter_spans.map { |s| s.event.title }.reverse
 
             expected_titles = %w[
               Anonymous\ Middleware
@@ -729,7 +729,7 @@ if enable
           server.wait resource: "/report"
 
           trace = server.reports[0].endpoints[0].traces[0]
-          titles = trace.filtered_spans.map { |s| s.event.title }
+          titles = trace.filter_spans.map { |s| s.event.title }
 
           expect(titles).to include("NonArrayMiddleware")
         end
@@ -745,7 +745,7 @@ if enable
           expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>#{segment}</sk-segment>")
 
           trace = endpoint.dig(:traces, 0)
-          spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+          spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
           expect(spans).to eq([
             ["app.rack.request", nil],
@@ -764,7 +764,7 @@ if enable
 
           trace = endpoint.dig(:traces, 0)
 
-          spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+          spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
           expect(spans).to eq([
             ["app.rack.request", nil],
@@ -783,7 +783,7 @@ if enable
           expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>error</sk-segment>")
 
           trace = endpoint.dig(:traces, 0)
-          spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+          spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
           expect(spans).to eq([
             ["app.rack.request", nil],
@@ -807,7 +807,7 @@ if enable
 
           trace = endpoint.dig(:traces, 0)
 
-          spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+          spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
           expect(spans).to eq([
             ["app.rack.request", nil],
             ["app.controller.request", "UsersController#normalizer_muted_index"],
@@ -825,7 +825,7 @@ if enable
           expect(endpoint.name).to eq("set-by-muted-normalizer<sk-segment>#{segment}</sk-segment>")
 
           trace = endpoint.dig(:traces, 0)
-          spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+          spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
           expect(spans).to eq([
             ["app.rack.request", nil],
@@ -845,7 +845,7 @@ if enable
           expect(endpoint.name).to eq("set-by-muted-normalizer<sk-segment>error</sk-segment>")
 
           trace = endpoint.dig(:traces, 0)
-          spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+          spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
           expect(spans).to eq([
             ["app.rack.request", nil],
@@ -873,7 +873,7 @@ if enable
           expect(endpoint.name).to eq("ThrowingMiddleware")
           trace = endpoint.traces[0]
 
-          reverse_spans = trace.filtered_spans.reverse_each.map { |span| span.event.title }
+          reverse_spans = trace.filter_spans.reverse_each.map { |span| span.event.title }
           post_catch, throwing, _hook_b, middle, catcher = reverse_spans
 
           expect(post_catch).to eq("post-catch")
@@ -899,7 +899,7 @@ if enable
           expect(endpoint.name).to eq("ThrowingMiddleware")
           trace = endpoint.traces[0]
 
-          reverse_spans = trace.filtered_spans.reverse_each.map { |span| span.event.title }
+          reverse_spans = trace.filter_spans.reverse_each.map { |span| span.event.title }
           post_rescue, last, _hook_b, middle, catcher, rescuer = reverse_spans
 
           expect(post_rescue).to eq("post-rescue")
@@ -923,7 +923,7 @@ if enable
           expect(endpoint.name).to eq("UsersController#throw_something")
           trace = endpoint.traces[0]
 
-          reverse_spans = trace.filtered_spans.reverse_each.map do |span|
+          reverse_spans = trace.filter_spans.reverse_each.map do |span|
             [span.event.category, span.event.title]
           end
 
@@ -961,7 +961,7 @@ if enable
           expect(endpoint.name).to eq("MonkeyInTheMiddleware")
           trace = endpoint.traces[0]
 
-          reverse_spans = trace.filtered_spans.reverse_each.map do |span|
+          reverse_spans = trace.filter_spans.reverse_each.map do |span|
             [span.event.category, span.event.title]
           end
 
@@ -1001,7 +1001,7 @@ if enable
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
-            spans = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
+            spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
             expect(spans).to eq([["app.rack.request", nil],
                                  ["agent.error.E0003", nil]])
@@ -1083,7 +1083,7 @@ if enable
         endpoint = server.reports[0].endpoints[0]
         expect(endpoint.name).to eq(router_name)
         trace = endpoint.traces.first
-        spans = trace.filtered_spans
+        spans = trace.filter_spans
 
         # Should include the routers from both the main app and the engine
         expect(spans.last(2).map { |s| s.event.title }).to eq([router_name, router_name])
@@ -1097,7 +1097,7 @@ if enable
         endpoint_name = "EngineNamespace::ApplicationController#error"
         expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>error</sk-segment>")
         trace = endpoint.traces.first
-        spans = trace.filtered_spans.last(3)
+        spans = trace.filter_spans.last(3)
         # Should include the routers from both the main app and the engine
         expect(spans.map { |s| s.event.title }).to eq([router_name, router_name, endpoint_name])
       end
@@ -1109,7 +1109,7 @@ if enable
         endpoint = server.reports[0].endpoints[0]
         expect(endpoint.name).to eq(router_name)
         trace = endpoint.traces.first
-        spans = trace.filtered_spans.last(2)
+        spans = trace.filter_spans.last(2)
         # Should include the routers from both the main app and the engine
         expect(spans.map { |s| s.event.title }).to eq([router_name, router_name])
       end
@@ -1186,7 +1186,7 @@ if enable
 
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
-        names = trace.filtered_spans.map { |s| s.event.category }
+        names = trace.filter_spans.map { |s| s.event.category }
 
         expect(names.length).to be >= 3
         expect(names).to include("app.zomg")
@@ -1281,7 +1281,7 @@ if enable
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
-        names = trace.filtered_spans.map { |s| s.event.category }
+        names = trace.filter_spans.map { |s| s.event.category }
 
         expect(names.length).to be >= 1
         expect(names[0]).to eq("app.rack.request")
@@ -1296,7 +1296,7 @@ if enable
         expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>json</sk-segment>")
 
         trace = endpoint.traces.first
-        spans = trace.filtered_spans.last(4)
+        spans = trace.filter_spans.last(4)
 
         expect(spans.map { |s| s.event.title }).to eq([
           router_name,

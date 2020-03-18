@@ -100,7 +100,7 @@ if enable
         server.wait resource: "/report"
         endpoint = server.reports[0].endpoints[0]
         trace = endpoint.traces[0]
-        spans = trace.filtered_spans
+        spans = trace.filter_spans
 
         expect(endpoint.name).to eq("DelayedObject#good_method<sk-segment>queue-name</sk-segment>")
         expect(spans.map { |s| [s.event.category, s.event.description] }).to eq([
@@ -118,7 +118,7 @@ if enable
         server.wait resource: "/report"
         endpoint = server.reports[0].endpoints[0]
         trace = endpoint.traces[0]
-        spans = trace.filtered_spans
+        spans = trace.filter_spans
 
         expect(endpoint.name).to eq("DelayedObject#bad_method<sk-segment>error</sk-segment>")
         meta = spans.map { |s| [s.event.category, s.event.description] }
@@ -183,7 +183,7 @@ if enable
           server.wait resource: "/report"
           endpoint = server.reports[0].endpoints[0]
           trace = endpoint.traces[0]
-          spans = trace.filtered_spans
+          spans = trace.filter_spans
 
           expect(endpoint.name).to eq("DelayedWorker<sk-segment>my-queue</sk-segment>")
           expect(spans.map { |s| [s.event.category, s.event.description] }).to eq([
@@ -202,7 +202,7 @@ if enable
           server.wait resource: "/report"
           endpoint = server.reports[0].endpoints[0]
           trace = endpoint.traces[0]
-          spans = trace.filtered_spans
+          spans = trace.filter_spans
 
           expect(endpoint.name).to eq("DelayedWorker<sk-segment>error</sk-segment>")
           meta = spans.map { |s| [s.event.category, s.event.description] }

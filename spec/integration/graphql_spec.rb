@@ -464,7 +464,7 @@ if enable
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
-            data = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
+            data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
             query_name = "[anonymous]"
             expect(data).to eq([
@@ -493,7 +493,7 @@ if enable
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
-            data = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
+            data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
             query_name = "Anisoptera"
             expect(data).to eq([
@@ -525,7 +525,7 @@ if enable
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
-            data = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
+            data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
             query_name = "[anonymous]"
             expect(data).to eq([
@@ -556,7 +556,7 @@ if enable
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
-            data = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
+            data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
             query_name = "[anonymous]"
             expect(data).to eq([
@@ -593,7 +593,7 @@ if enable
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
-            data = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
+            data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
             expect(data).to eq([
               ["app.rack.request", nil],
@@ -631,7 +631,7 @@ if enable
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
-            data = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
+            data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
             expect(data).to eq([
               ["app.rack.request", nil],
@@ -666,7 +666,7 @@ if enable
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
-            data = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
+            data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
             expect(data).to eq([
               ["app.rack.request", nil],
@@ -705,7 +705,7 @@ if enable
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
-            data = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
+            data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
             expect(data).to eq([
               ["app.rack.request", nil],

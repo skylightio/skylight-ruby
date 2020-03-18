@@ -146,7 +146,7 @@ if enable
           expect(endpoint.traces.count).to eq(1)
           trace = endpoint.traces[0]
 
-          names = trace.filtered_spans.map { |s| s.event.category }
+          names = trace.filter_spans.map { |s| s.event.category }
 
           expect(names.length).to be >= 3
           expect(names).to include("app.zomg")

@@ -61,6 +61,14 @@ module Skylight
                 @mock_spans ||= []
               end
 
+              def filter_spans
+                if block_given?
+                  mock_spans.select { |span| yield span }
+                else
+                  mock_spans.reject { |span| span[:cat] == "noise.gc" }
+                end
+              end
+
               def native_get_uuid
                 @uuid
               end

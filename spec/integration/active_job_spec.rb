@@ -77,7 +77,7 @@ if enable
       expect(server.reports).to be_present
       endpoint = server.reports[0].endpoints[0]
       traces = endpoint.traces
-      uniq_spans = traces.map { |trace| trace.filtered_spans.map { |span| span.event.category } }.uniq
+      uniq_spans = traces.map { |trace| trace.filter_spans.map { |span| span.event.category } }.uniq
       expect(traces.count).to eq(4)
       expect(uniq_spans).to eq(
         [["app.job.execute", "app.job.perform", "app.inside", "app.zomg", "app.after_zomg"]]
@@ -119,7 +119,7 @@ if enable
         expect(server.reports).to be_present
         endpoint = server.reports[0].endpoints[0]
         traces = endpoint.traces
-        uniq_spans = traces.map { |trace| trace.filtered_spans.map { |span| span.event.category } }.uniq
+        uniq_spans = traces.map { |trace| trace.filter_spans.map { |span| span.event.category } }.uniq
         expect(traces.count).to eq(1)
         expect(uniq_spans).to eq(
           [["app.job.execute", "app.job.perform", "app.inside", "app.zomg"]]
@@ -137,7 +137,7 @@ if enable
         expect(server.reports).to be_present
         endpoint = server.reports[0].endpoints[0]
         traces = endpoint.traces
-        uniq_spans = traces.map { |trace| trace.filtered_spans.map { |span| span.event.category } }.uniq
+        uniq_spans = traces.map { |trace| trace.filter_spans.map { |span| span.event.category } }.uniq
         expect(traces.count).to eq(1)
         expect(uniq_spans).to eq(
           [["app.job.execute", "app.job.perform", "app.inside", "app.zomg"]]
