@@ -1,3 +1,6 @@
+## 4.3.0 (March 18, 2020)
+* [IMPROVEMENT] Allow setting `skylight_endpoint` in GraphQL context to name anonymous queries
+
 ## 4.2.3 (March 10, 2020)
 * [BUGFIX] Fix an issue where the GraphQL probe may not always be installed
 
