@@ -92,7 +92,7 @@ if enable
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
-        names = trace.filtered_spans.map { |s| s.event.category }
+        names = trace.filter_spans.map { |s| s.event.category }
 
         expect(names).to eq(["app.sidekiq.worker", "app.inside", "app.zomg", "app.after_zomg"])
       end
@@ -113,7 +113,7 @@ if enable
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
-        names = trace.filtered_spans.map { |s| s.event.category }
+        names = trace.filter_spans.map { |s| s.event.category }
 
         expect(names).to eq(["app.sidekiq.worker", "app.inside", "app.zomg"])
       end
@@ -134,7 +134,7 @@ if enable
         expect(endpoint.traces.count).to eq(1)
         trace = endpoint.traces[0]
 
-        names = trace.filtered_spans.map { |s| s.event.category }
+        names = trace.filter_spans.map { |s| s.event.category }
 
         expect(names).to eq(["app.sidekiq.worker", "app.inside", "app.zomg"])
       end
