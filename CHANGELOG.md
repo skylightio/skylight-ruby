@@ -1,3 +1,8 @@
+## 4.3.0 (March 18, 2020)
+* [IMPROVEMENT] Fix Ruby 2.7 warnings
+* [IMPROVEMENT] Update Grape normalizer for version 1.3.1
+* [BUGFIX] Fix an issue where GraphQL normalizers could fail to load in non-Rails contexts
+
 ## 4.2.3 (March 10, 2020)
 * [BUGFIX] Fix an issue where the GraphQL probe may not always be installed
 
