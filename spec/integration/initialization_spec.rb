@@ -74,6 +74,25 @@ describe "Initialization integration" do
     raise
   end
 
+  shared_examples_for "silent boot" do
+    let(:whitelisted_output_patterns) do
+      [
+        # These two lines are emitted by the Ruby 2.7 keyword-arg deprecation warning,
+        # and thus are beyond our control to silence.
+        /warning\: Using the last argument as keyword parameters is deprecated/,
+        /warning\: The called method .+? is defined here/
+      ]
+    end
+
+    subject(:boot_output) do
+      boot(debug:false).each_line.reject do |line|
+        whitelisted_output_patterns.any? { |pattern| line.match?(pattern) }
+      end
+    end
+
+    it { is_expected.to be_empty }
+  end
+
   if Skylight.native?
 
     context "native" do
@@ -107,9 +126,7 @@ describe "Initialization integration" do
       context "test" do
         let(:rails_env) { "test" }
 
-        it "doesn't boot or warn" do
-          expect(boot(debug: false)).to eq("")
-        end
+        include_examples "silent boot"
       end
 
       context "production" do
@@ -175,9 +192,7 @@ describe "Initialization integration" do
     context "test" do
       let(:rails_env) { "test" }
 
-      it "doesn't boot or warn" do
-        expect(boot(debug: false)).to eq("")
-      end
+      include_examples "silent boot"
     end
 
     context "production" do
