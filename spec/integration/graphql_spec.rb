@@ -652,18 +652,18 @@ if enable
 
             data = trace.filtered_spans.map { |s| [s.event.category, s.event.title] }
 
-            expect(data).to eq([
-              ["app.rack.request", nil],
+            expect(data).to include(
               ["app.graphql", "graphql.execute_multiplex"],
+              ["app.rack.request", nil],
               *expected_analysis_events,
               ["app.graphql", "graphql.execute_query: #{mutation_name}"],
               ["db.sql.query", "SELECT FROM genera"],
               ["db.active_record.instantiation", "Genus Instantiation"],
-              ["db.sql.query", "SQL"],
+              ["db.sql.query", a_string_matching(/TRANSACTION|SQL/)],
               ["db.sql.query", "INSERT INTO species"],
-              ["db.sql.query", "SQL"],
+              ["db.sql.query", a_string_matching(/TRANSACTION|SQL/)],
               ["app.graphql", "graphql.execute_query_lazy: #{mutation_name}"]
-            ])
+            )
           end
         end
       end
