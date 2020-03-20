@@ -80,7 +80,10 @@ describe "Initialization integration" do
         # These two lines are emitted by the Ruby 2.7 keyword-arg deprecation warning,
         # and thus are beyond our control to silence.
         /warning\: Using the last argument as keyword parameters is deprecated/,
-        /warning\: The called method .+? is defined here/
+        /warning\: The called method .+? is defined here/,
+
+        # This line is emitted by Ruby 2.7, and thus is beyond our control to silence.
+        /warning\: Capturing the given block using Proc\.new is deprecated/
       ]
     end
 
