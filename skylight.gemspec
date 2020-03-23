@@ -1,8 +1,9 @@
-version = File.read(File.expand_path("SKYLIGHT_VERSION", __dir__)).strip.tr("-", ".")
+$LOAD_PATH.push(File.expand_path("lib", __dir__))
+require "skylight/version"
 
 Gem::Specification.new do |spec|
   spec.name        = "skylight"
-  spec.version     = version
+  spec.version     = Skylight::VERSION.tr("-", ".")
   spec.authors     = ["Tilde, Inc."]
   spec.email       = ["engineering@tilde.io"]
 
