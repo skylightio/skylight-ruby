@@ -20,6 +20,7 @@ variables:
 
 .ruby_23: &ruby_23 "2.3.8"
 .ruby_26: &ruby_26 "2.6.5"
+.ruby_27: &ruby_27 "2.7.0"
 .ruby_head: &ruby_head "2.7-dev"
 
 .run_tests: &run_tests
@@ -87,19 +88,19 @@ codeclimate:
     - ./cc-test-reporter sum-coverage formatted_coverage/**/*.json
     - ./cc-test-reporter upload-coverage
 
-ruby26-rails52:
+ruby27-rails52:
   <<: *run_tests
   stage: smoke_test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     GRAPHQL_VERSION: "~> 1.9.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
 
-ruby26-rails60:
+ruby27-rails60:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-6.0.x
 
 ruby23-rails42:
@@ -110,6 +111,7 @@ ruby23-rails42:
     GRAPHQL_VERSION: "~> 1.7.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
 
+# Rails 4.2 doesn't support Ruby 2.7
 ruby26-rails42:
   <<: *run_tests
   stage: test
@@ -124,28 +126,29 @@ ruby23-rails52:
     RUBY_VERSION: *ruby_23
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.2.x
 
-ruby26-rails50:
+ruby27-rails50:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     GRAPHQL_VERSION: "~> 1.7.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.0.x
 
-ruby26-rails51:
+ruby27-rails51:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     GRAPHQL_VERSION: "~> 1.8.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.1.x
 
-ruby26-rails-edge:
+ruby27-rails-edge:
   <<: *run_tests
   stage: test
   allow_failure: true
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
+    GRAPHQL_VERSION: "~> 1.9.0"
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-edge
 
 ruby23-sinatra14:
@@ -155,11 +158,11 @@ ruby23-sinatra14:
     RUBY_VERSION: *ruby_23
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-1.4.x
 
-ruby26-sinatra14:
+ruby27-sinatra14:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-1.4.x
 
 ruby23-sinatra20:
@@ -169,19 +172,19 @@ ruby23-sinatra20:
     RUBY_VERSION: *ruby_23
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-2.0.x
 
-ruby26-sinatra20:
+ruby27-sinatra20:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-2.0.x
 
-ruby26-sinatra-edge:
+ruby27-sinatra-edge:
   <<: *run_tests
   stage: test
   allow_failure: true
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-edge
 
 ruby23-grape:
@@ -192,57 +195,58 @@ ruby23-grape:
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     RACK_VERSION: "~> 2.0.8"
 
-ruby26-grape:
+ruby27-grape:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
 
-ruby26-grape013:
+ruby27-grape013:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 0.13.0"
     RACK_VERSION: "~> 2.0.8"
 
-ruby26-grape110:
+ruby27-grape110:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 1.1.0"
     RACK_VERSION: "~> 2.0.8"
 
-ruby26-grape120:
+ruby27-grape120:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 1.2.0"
     RACK_VERSION: "~> 2.0.8"
 
-ruby26-grape130:
+ruby27-grape130:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: "~> 1.3.0"
 
-ruby26-grape-edge:
+ruby27-grape-edge:
   <<: *run_tests
   stage: test
   allow_failure: true
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.grape
     GRAPE_VERSION: edge
 
+# Rails 4.2 doesn't support Ruby 2.7
 ruby26-rails42-tilt:
   <<: *run_tests
   stage: test
@@ -251,14 +255,15 @@ ruby26-rails42-tilt:
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
     TILT_VERSION: 1.4.1
 
-ruby26-sinatra14-sequel:
+ruby27-sinatra14-sequel:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.sinatra-1.4.x
     SEQUEL_VERSION: 4.34.0
 
+# Rails 4.2 doesn't support Ruby 2.7
 ruby26-rails42-mongo:
   <<: *run_tests
   stage: test
@@ -270,6 +275,7 @@ ruby26-rails42-mongo:
     TEST_MONGO_INTEGRATION: "true"
     MONGO_HOST: mongo
 
+# Rails 4.2 doesn't support Ruby 2.7
 ruby26-rails42-mongoid:
   <<: *run_tests
   stage: test
@@ -282,6 +288,7 @@ ruby26-rails42-mongoid:
     MONGO_HOST: mongo
     MONGOID_VERSION: "~> 4.0"
 
+# Rails 4.2 doesn't support Ruby 2.7
 ruby26-rails42-elasticsearch:
   <<: *run_tests
   stage: test
@@ -293,14 +300,16 @@ ruby26-rails42-elasticsearch:
     TEST_ELASTICSEARCH_INTEGRATION: "true"
     ELASTICSEARCH_URL: "http://elasticsearch:9200"
 
-ruby26-rails51-sidekiq4:
+# Many many deprecation warnings in Rails 5.1 on Ruby 2.7
+ruby27-rails51-sidekiq4:
   <<: *run_tests
   stage: test
   variables:
-    RUBY_VERSION: *ruby_26
+    RUBY_VERSION: *ruby_27
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.1.x
     SIDEKIQ_VERSION: 4.2.10
 
+# Many many deprecation warnings in Rails 5.1 on Ruby 2.7
 ruby26-rails51-sidekiq-none:
   <<: *run_tests
   stage: test
@@ -309,6 +318,7 @@ ruby26-rails51-sidekiq-none:
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-5.1.x
     SIDEKIQ_VERSION: "none"
 
+# Rails 4.2 doesn't support Ruby 2.7
 ruby26-rails42-ams83:
   <<: *run_tests
   stage: test
@@ -317,6 +327,7 @@ ruby26-rails42-ams83:
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
     AMS_VERSION: "~> 0.8.3"
 
+# Rails 4.2 doesn't support Ruby 2.7
 ruby26-rails42-ams95:
   <<: *run_tests
   stage: test
@@ -325,6 +336,7 @@ ruby26-rails42-ams95:
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-4.2.x
     AMS_VERSION: "~> 0.9.5"
 
+# Rails 4.2 doesn't support Ruby 2.7
 ruby26-rails42-ams-edge:
   <<: *run_tests
   stage: test
@@ -342,4 +354,3 @@ ruby-head-rails60:
   variables:
     RUBY_VERSION: *ruby_head
     BUNDLE_GEMFILE: $CI_PROJECT_DIR/gemfiles/Gemfile.rails-6.0.x
-
