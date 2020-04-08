@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "active_support/inflector"
+
 module Skylight::Normalizers::GraphQL
   # Some AS::N events in GraphQL are not super useful.
   # We are purposefully ignoring the following keys (and you probably shouldn't add them):
@@ -22,7 +24,12 @@ module Skylight::Normalizers::GraphQL
     end
 
     def self.inherited(klass)
-      klass.const_set(:KEY, klass.name.demodulize.underscore.freeze)
+      klass.const_set(
+        :KEY,
+        ActiveSupport::Inflector.underscore(
+          ActiveSupport::Inflector.demodulize(klass.name)
+        ).freeze
+      )
     end
 
     def self.key
