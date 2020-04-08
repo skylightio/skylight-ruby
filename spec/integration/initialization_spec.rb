@@ -75,22 +75,24 @@ describe "Initialization integration" do
   end
 
   shared_examples_for "silent boot" do
-    let(:whitelisted_output_patterns) do
-      [
+    let(:allowed_output) do
+      Regexp.union(
         # These two lines are emitted by the Ruby 2.7 keyword-arg deprecation warning,
         # and thus are beyond our control to silence.
         /warning\: Using the last argument as keyword parameters is deprecated/,
         /warning\: The called method .+? is defined here/,
 
         # This line is emitted by Ruby 2.7, and thus is beyond our control to silence.
-        /warning\: Capturing the given block using Proc\.new is deprecated/
-      ]
+        /warning\: Capturing the given block using Proc\.new is deprecated/,
+
+        # Emitted in container builds on Github Actions
+        /Not a git repository/,
+        /Stopping at filesystem boundary/
+      )
     end
 
     subject(:boot_output) do
-      boot(debug:false).each_line.reject do |line|
-        whitelisted_output_patterns.any? { |pattern| line.match?(pattern) }
-      end
+      boot(debug:false).each_line.to_a.grep_v(allowed_output)
     end
 
     it { is_expected.to be_empty }
