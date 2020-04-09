@@ -1,5 +1,7 @@
 # WARNING: this file is written by a script. To make changes,
-# alter the config in /Users/zach/workspace/direwolf-agent/lib/tasks/workflow.rake and run `bundle exec rake workflow`.---
+# alter the config in lib/tasks/workflow.rake and 
+# run `bundle exec rake workflow`.
+---
 name: Skylight Agent
 env:
   BUNDLE_PATH: "${{ github.workspace }}/vendor/bundle"
@@ -13,6 +15,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+  CONFIG_DIGEST: 45055acfd10dd5b9c35d2ca6b13d6be85630ef452afe929bdd8d10a8e162af25
 'on':
   pull_request: {}
   push:
@@ -51,7 +54,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -103,7 +108,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -154,7 +161,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -200,7 +209,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -245,7 +256,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -290,7 +303,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -334,7 +349,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -378,7 +395,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -422,7 +441,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -466,7 +487,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -510,7 +533,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -554,7 +579,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -598,7 +625,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -643,7 +672,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -687,7 +718,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -733,7 +766,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -779,7 +814,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -825,7 +862,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -870,7 +909,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -915,7 +956,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -960,7 +1003,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -1005,7 +1050,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -1051,7 +1098,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -1096,7 +1145,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -1141,7 +1192,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
@@ -1180,7 +1233,9 @@ jobs:
         gem install bundler
         bundle install
     - name: Run tests
-      run: bundle exec rake
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
     - name: Run tests (agent disabled)
       env:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"

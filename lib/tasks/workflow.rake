@@ -3,6 +3,7 @@
 require "yaml"
 require "json"
 require "active_support/inflector"
+require "digest"
 
 # rubocop:disable Layout/HashAlignment
 module WorkflowConfigGenerator
@@ -204,7 +205,7 @@ module WorkflowConfigGenerator
     }
   ].freeze
 
-  def self.to_yaml
+  def self.to_json
     jobs = TEST_JOBS.map do |j|
       if j[:container]
         ContainerTestJob.new(j)
@@ -233,7 +234,27 @@ module WorkflowConfigGenerator
       jobs: job_defs
     }
 
-    JSON.parse(JSON.generate(template)).to_yaml
+    JSON.generate(template)
+  end
+
+  def self.to_yaml
+    json = to_json
+    key = digest(json)
+    config = JSON.parse(json)
+    config["env"] ||= {}
+    config["env"]["CONFIG_DIGEST"] = key
+    config.to_yaml
+  end
+
+  def self.digest(str = to_json)
+    Digest::SHA256.hexdigest(str)
+  end
+
+  def self.verify!(str)
+    unless digest == str
+      raise "digest does not match #{str}; " \
+        "please run `rake workflow:generate` to update the config."
+    end
   end
 
   DEFAULT_ENV = {
@@ -355,7 +376,10 @@ module WorkflowConfigGenerator
     def run_tests_step
       {
         name: "Run tests",
-        run: "bundle exec rake"
+        run: <<~RUN
+          bundle exec rake workflow:verify[$CONFIG_DIGEST]
+          bundle exec rake
+        RUN
       }
     end
 
@@ -567,9 +591,15 @@ namespace :workflow do
   task :generate do
     File.open(".github/workflows/build.yml", "w") do |f|
       f << "# WARNING: this file is written by a script. To make changes,\n"
-      f << "# alter the config in #{__FILE__} and run `bundle exec rake workflow`.\n"
-      f << WorkflowConfigGenerator.to_yaml.tap { |x| puts x.inspect }
+      f << "# alter the config in lib/tasks/workflow.rake and \n"
+      f << "# run `bundle exec rake workflow`.\n"
+      f << WorkflowConfigGenerator.to_yaml
     end
+  end
+
+  desc "verify the config digest"
+  task :verify, [:digest] do |t, args|
+    WorkflowConfigGenerator.verify!(args.digest)
   end
 end
 
