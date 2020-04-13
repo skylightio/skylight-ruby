@@ -260,6 +260,9 @@ module WorkflowConfigGenerator
     "WORKER_SPAWN_TIMEOUT" => "15",
     "COVERAGE" => "true",
     "COVERAGE_DIR" => "${{ github.workspace }}/coverage",
+    # simplecov's automerge doesn't work with this setup, so we need
+    # an additional coverage dir for skylight-core
+    "CORE_COVERAGE_DIR" => "${{ github.workspace }}/skylight-core/coverage",
   }.freeze
 
   class BaseJob
@@ -393,7 +396,7 @@ module WorkflowConfigGenerator
         run: <<~RUN
           #{bundle_command} exec rake workflow:verify[$CONFIG_DIGEST]
           cd skylight-core
-          #{bundle_command} exec rake
+          COVERAGE_DIR=$CORE_COVERAGE_DIR #{bundle_command} exec rake
           cd -
           #{bundle_command} exec rake
         RUN
@@ -418,7 +421,12 @@ module WorkflowConfigGenerator
         env: {
           "SKYLIGHT_DISABLE_AGENT" => "true"
         },
-        run: "bundle exec rake"
+        run: <<~RUN
+          cd skylight-core
+          COVERAGE_DIR=$CORE_COVERAGE_DIR #{bundle_command} exec rake
+          cd -
+          #{bundle_command} exec rake
+        RUN
       }
     end
 
@@ -428,6 +436,7 @@ module WorkflowConfigGenerator
         run: <<~RUN
           mkdir -p coverage-sync/${{ github.run_id }}
           cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.#{id}.json
+          cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.#{id}.json
         RUN
       }
     end

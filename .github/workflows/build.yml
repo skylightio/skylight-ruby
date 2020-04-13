@@ -14,7 +14,8 @@ env:
   WORKER_SPAWN_TIMEOUT: '15'
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
-  CONFIG_DIGEST: 11cb497168bed67dbb68ee3bf1aa77f660ebacb603535504e9c04f2411c5de61
+  CORE_COVERAGE_DIR: "${{ github.workspace }}/skylight-core/coverage"
+  CONFIG_DIGEST: 466816ffd5e9a1b4a5efce3f149c415311fa5fa87ab0c063cddef26523d66a9d
 'on':
   pull_request: {}
   push:
@@ -62,17 +63,22 @@ jobs:
       run: |
         bundle _1.17.3_ exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle _1.17.3_ exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
         cd -
         bundle _1.17.3_ exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
+        cd -
+        bundle _1.17.3_ exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-6-rails-4-2-x-mongo.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-6-rails-4-2-x-mongo.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -123,17 +129,22 @@ jobs:
       run: |
         bundle _1.17.3_ exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle _1.17.3_ exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
         cd -
         bundle _1.17.3_ exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
+        cd -
+        bundle _1.17.3_ exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-6-rails-4-2-x-mongoid_version-4-0.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-6-rails-4-2-x-mongoid_version-4-0.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -184,17 +195,22 @@ jobs:
       run: |
         bundle _1.17.3_ exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle _1.17.3_ exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
         cd -
         bundle _1.17.3_ exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
+        cd -
+        bundle _1.17.3_ exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-6-rails-4-2-x-elasticsearch.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-6-rails-4-2-x-elasticsearch.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -234,17 +250,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-rails-5-2-x-graphql_version-1-9-0.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-rails-5-2-x-graphql_version-1-9-0.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -283,17 +304,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-rails-6-0-x.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-rails-6-0-x.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -337,17 +363,22 @@ jobs:
       run: |
         bundle _1.17.3_ exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle _1.17.3_ exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
         cd -
         bundle _1.17.3_ exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
+        cd -
+        bundle _1.17.3_ exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-4-rails-4-2-x-graphql_version-1-7-0.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-4-rails-4-2-x-graphql_version-1-7-0.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -390,17 +421,22 @@ jobs:
       run: |
         bundle _1.17.3_ exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle _1.17.3_ exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
         cd -
         bundle _1.17.3_ exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
+        cd -
+        bundle _1.17.3_ exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-6-rails-4-2-x.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-6-rails-4-2-x.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -439,17 +475,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-4-rails-5-2-x.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-4-rails-5-2-x.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -489,17 +530,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-rails-5-0-x-graphql_version-1-7-0.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-rails-5-0-x-graphql_version-1-7-0.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -543,17 +589,22 @@ jobs:
       run: |
         bundle _1.17.3_ exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle _1.17.3_ exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
         cd -
         bundle _1.17.3_ exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
+        cd -
+        bundle _1.17.3_ exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-rails-5-1-x-graphql_version-1-8-0.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-rails-5-1-x-graphql_version-1-8-0.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -593,17 +644,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-rails-edge-graphql_version-1-9-0.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-rails-edge-graphql_version-1-9-0.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -642,17 +698,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-4-sinatra-1-4-x.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-4-sinatra-1-4-x.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -691,17 +752,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-sinatra-1-4-x.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-sinatra-1-4-x.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -740,17 +806,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-4-sinatra-2-0-x.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-4-sinatra-2-0-x.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -789,17 +860,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-sinatra-2-0-x.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-sinatra-2-0-x.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -838,17 +914,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-sinatra-edge.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-sinatra-edge.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -888,17 +969,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-4-grape-rack_version-2-0-8.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-4-grape-rack_version-2-0-8.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -937,17 +1023,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-grape.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-grape.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -988,17 +1079,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-grape-grape_version-0-13-0-rack_version-2-0-8.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-grape-grape_version-0-13-0-rack_version-2-0-8.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -1039,17 +1135,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-grape-grape_version-1-1-0-rack_version-2-0-8.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-grape-grape_version-1-1-0-rack_version-2-0-8.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -1090,17 +1191,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-grape-grape_version-1-2-0-rack_version-2-0-8.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-grape-grape_version-1-2-0-rack_version-2-0-8.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -1140,17 +1246,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-grape-grape_version-1-3-0.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-grape-grape_version-1-3-0.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -1190,17 +1301,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-grape-grape_version-edge.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-grape-grape_version-edge.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -1244,17 +1360,22 @@ jobs:
       run: |
         bundle _1.17.3_ exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle _1.17.3_ exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
         cd -
         bundle _1.17.3_ exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
+        cd -
+        bundle _1.17.3_ exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-6-rails-4-2-x-tilt_version-1-4-1.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-6-rails-4-2-x-tilt_version-1-4-1.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -1294,17 +1415,22 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-sinatra-1-4-x-sequel_version-4-34-0.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-sinatra-1-4-x-sequel_version-4-34-0.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -1348,17 +1474,22 @@ jobs:
       run: |
         bundle _1.17.3_ exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle _1.17.3_ exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
         cd -
         bundle _1.17.3_ exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
+        cd -
+        bundle _1.17.3_ exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-7-rails-5-1-x-sidekiq_version-4-2-10.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-7-rails-5-1-x-sidekiq_version-4-2-10.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -1402,17 +1533,22 @@ jobs:
       run: |
         bundle _1.17.3_ exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle _1.17.3_ exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
         cd -
         bundle _1.17.3_ exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
+        cd -
+        bundle _1.17.3_ exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-6-rails-5-1-x-sidekiq_version-none.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-6-rails-5-1-x-sidekiq_version-none.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -1456,17 +1592,22 @@ jobs:
       run: |
         bundle _1.17.3_ exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle _1.17.3_ exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
         cd -
         bundle _1.17.3_ exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
+        cd -
+        bundle _1.17.3_ exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-6-rails-4-2-x-ams_version-0-8-3.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-6-rails-4-2-x-ams_version-0-8-3.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -1510,17 +1651,22 @@ jobs:
       run: |
         bundle _1.17.3_ exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle _1.17.3_ exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
         cd -
         bundle _1.17.3_ exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
+        cd -
+        bundle _1.17.3_ exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-6-rails-4-2-x-ams_version-0-9-5.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-6-rails-4-2-x-ams_version-0-9-5.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -1564,17 +1710,22 @@ jobs:
       run: |
         bundle _1.17.3_ exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle _1.17.3_ exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
         cd -
         bundle _1.17.3_ exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle _1.17.3_ exec rake
+        cd -
+        bundle _1.17.3_ exec rake
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync/${{ github.run_id }}
         cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.ruby-2-6-rails-4-2-x-ams_version-edge.json
+        cp skylight-core/coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.core.ruby-2-6-rails-4-2-x-ams_version-edge.json
     - name: Upload coverage files
       uses: jakejarvis/s3-sync-action@v0.5.1
       if: success()
@@ -1610,13 +1761,17 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
   ruby-2-3-rails-4-2-x-ruby_version-2-3-7:
     name: ruby 2.3, rails-4.2.x, RUBY_VERSION=2.3.7
     runs-on: ubuntu-latest
@@ -1644,13 +1799,17 @@ jobs:
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
         cd skylight-core
-        bundle exec rake
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
         cd -
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
+      run: |
+        cd skylight-core
+        COVERAGE_DIR=$CORE_COVERAGE_DIR bundle exec rake
+        cd -
+        bundle exec rake
   upload-coverage:
     name: upload-coverage
     runs-on: ubuntu-latest
