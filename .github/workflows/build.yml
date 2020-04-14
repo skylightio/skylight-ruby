@@ -1,0 +1,1339 @@
+# WARNING: this file is written by a script. To make changes,
+# alter the config in lib/tasks/workflow.rake and 
+# run `bundle exec rake workflow`.
+---
+name: Skylight Agent
+env:
+  BUNDLE_PATH: "${{ github.workspace }}/vendor/bundle"
+  SKYLIGHT_EXT_STRICT: 'false'
+  SKYLIGHT_REQUIRED: 'true'
+  SKYLIGHT_ENABLE_TRACE_LOGS: 'true'
+  SKYLIGHT_TEST_DIR: "/tmp"
+  RAILS_ENV: development
+  EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
+  WORKER_SPAWN_TIMEOUT: '15'
+  COVERAGE: 'true'
+  COVERAGE_DIR: "${{ github.workspace }}/coverage"
+  DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+  CONFIG_DIGEST: 45055acfd10dd5b9c35d2ca6b13d6be85630ef452afe929bdd8d10a8e162af25
+'on':
+  pull_request: {}
+  push:
+    branches:
+    - master
+jobs:
+  ruby-2-7-rails-5-2-x-mongo:
+    name: ruby 2.7, rails-5.2.x, mongo
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:4.0
+        ports:
+        - 27017:27017
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      TEST_MONGO_INTEGRATION: 'true'
+      MONGO_HOST: localhost
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-rails-5-2-x-mongoid-6-mongoid_version-6-0:
+    name: ruby 2.7, rails-5.2.x, mongoid-6, MONGOID_VERSION=~> 6.0
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:4.0
+        ports:
+        - 27017:27017
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      TEST_MONGO_INTEGRATION: 'true'
+      MONGO_HOST: localhost
+      MONGOID_VERSION: "~> 6.0"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-rails-5-2-x-elasticsearch:
+    name: ruby 2.7, rails-5.2.x, elasticsearch
+    runs-on: ubuntu-latest
+    services:
+      elasticsearch:
+        image: elasticsearch:6.8.6
+        ports:
+        - 9200:9200
+        - 9300:9300
+        options: -e "discovery.type=single-node"
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-4-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0:
+    name: ruby 2.4, rails-5.2.x, SIDEKIQ_VERSION=~> 4 GRAPHQL_VERSION=~> 1.7.0
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      SIDEKIQ_VERSION: "~> 4"
+      GRAPHQL_VERSION: "~> 1.7.0"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.4'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.4-rails-5.2.x"
+        restore-keys: "${{ runner.os }}-gems-2.4-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-rails-5-2-x-graphql_version-1-9-0:
+    name: ruby 2.7, rails-5.2.x, GRAPHQL_VERSION=~> 1.9.0
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      GRAPHQL_VERSION: "~> 1.9.0"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-rails-5-2-x-graphql_version-1-8-0:
+    name: ruby 2.7, rails-5.2.x, GRAPHQL_VERSION=~> 1.8.0
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      GRAPHQL_VERSION: "~> 1.8.0"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-rails-6-0-x:
+    name: ruby 2.7, rails-6.0.x
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-6.0.x
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-rails-6.0.x"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-rails-edge:
+    name: "[allowed to fail] ruby 2.7, rails-edge"
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-edge
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-rails-edge"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-4-sinatra-1-4-x:
+    name: ruby 2.4, sinatra-1.4.x
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-1.4.x
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.4'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.4-sinatra-1.4.x"
+        restore-keys: "${{ runner.os }}-gems-2.4-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-sinatra-1-4-x:
+    name: ruby 2.7, sinatra-1.4.x
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-1.4.x
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-sinatra-1.4.x"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-4-sinatra-2-0-x:
+    name: ruby 2.4, sinatra-2.0.x
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-2.0.x
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.4'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.4-sinatra-2.0.x"
+        restore-keys: "${{ runner.os }}-gems-2.4-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-sinatra-2-0-x:
+    name: ruby 2.7, sinatra-2.0.x
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-2.0.x
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-sinatra-2.0.x"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-sinatra-edge:
+    name: "[allowed to fail] ruby 2.7, sinatra-edge"
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-edge
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-sinatra-edge"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-4-grape-rack_version-2-0-8:
+    name: ruby 2.4, grape, RACK_VERSION=~> 2.0.8
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+      RACK_VERSION: "~> 2.0.8"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.4'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.4-grape"
+        restore-keys: "${{ runner.os }}-gems-2.4-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-grape:
+    name: ruby 2.7, grape
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-grape"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-grape-grape_version-0-13-0-rack_version-2-0-8:
+    name: ruby 2.7, grape, GRAPE_VERSION=~> 0.13.0 RACK_VERSION=~> 2.0.8
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+      GRAPE_VERSION: "~> 0.13.0"
+      RACK_VERSION: "~> 2.0.8"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-grape"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-grape-grape_version-1-1-0-rack_version-2-0-8:
+    name: ruby 2.7, grape, GRAPE_VERSION=~> 1.1.0 RACK_VERSION=~> 2.0.8
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+      GRAPE_VERSION: "~> 1.1.0"
+      RACK_VERSION: "~> 2.0.8"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-grape"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-grape-grape_version-1-2-0-rack_version-2-0-8:
+    name: ruby 2.7, grape, GRAPE_VERSION=~> 1.2.0 RACK_VERSION=~> 2.0.8
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+      GRAPE_VERSION: "~> 1.2.0"
+      RACK_VERSION: "~> 2.0.8"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-grape"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-grape-grape_version-1-3-0:
+    name: ruby 2.7, grape, GRAPE_VERSION=~> 1.3.0
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+      GRAPE_VERSION: "~> 1.3.0"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-grape"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-grape-grape_version-edge:
+    name: "[allowed to fail] ruby 2.7, grape, GRAPE_VERSION=edge"
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+      GRAPE_VERSION: edge
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-grape"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-rails-5-2-x-tilt_version-1-4-1:
+    name: ruby 2.7, rails-5.2.x, TILT_VERSION=1.4.1
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      TILT_VERSION: 1.4.1
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-sinatra-1-4-x-sequel_version-4-34-0:
+    name: ruby 2.7, sinatra-1.4.x, SEQUEL_VERSION=4.34.0
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-1.4.x
+      SEQUEL_VERSION: 4.34.0
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-sinatra-1.4.x"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-rails-5-2-x-ams_version-0-8-3-sidekiq_version-none:
+    name: ruby 2.7, rails-5.2.x, AMS_VERSION=~> 0.8.3 SIDEKIQ_VERSION=none
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      AMS_VERSION: "~> 0.8.3"
+      SIDEKIQ_VERSION: none
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-rails-5-2-x-ams_version-0-9-5:
+    name: ruby 2.7, rails-5.2.x, AMS_VERSION=~> 0.9.5
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      AMS_VERSION: "~> 0.9.5"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-7-rails-5-2-x-ams_version-edge:
+    name: "[allowed to fail] ruby 2.7, rails-5.2.x, AMS_VERSION=edge"
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      AMS_VERSION: edge
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        restore-keys: "${{ runner.os }}-gems-2.7-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync/${{ github.run_id }}
+        cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      if: success()
+      env:
+        AWS_S3_BUCKET: direwolf-agent-github
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        SOURCE_DIR: coverage-sync
+  ruby-2-8-rails-edge-ruby_version-2-8-0-dev:
+    name: "[allowed to fail] ruby 2.8, rails-edge, RUBY_VERSION=2.8.0-dev"
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-edge
+      RUBY_VERSION: 2.8.0-dev
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.8-rails-edge"
+        restore-keys: "${{ runner.os }}-gems-2.8-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+  upload-coverage:
+    name: upload-coverage
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up commit metadata (push)
+      if: github.event_name == 'push'
+      env:
+        GIT_COMMIT_SHA: "${{ github.sha }}"
+        GIT_BRANCH: "${{ github.ref }}"
+      run: |
+        echo "::set-env name=GIT_COMMIT_SHA::${GIT_COMMIT_SHA}"
+        echo "::set-env name=GIT_BRANCH::${GIT_BRANCH/refs/heads//}"
+    - name: Set up commit metadata (pull_request)
+      if: github.event_name == 'pull_request'
+      env:
+        GIT_COMMIT_SHA: "${{ github.event.pull_request.head.sha }}"
+        GIT_BRANCH: "${{ github.event.pull_request.head.ref }}"
+      run: |
+        echo "::set-env name=GIT_COMMIT_SHA::${GIT_COMMIT_SHA}"
+        echo "::set-env name=GIT_BRANCH::${GIT_BRANCH}"
+    - name: Install AWS CLI
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
+    - name: Install Codeclimate test reporter
+      run: |
+        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        chmod +x ./cc-test-reporter
+    - name: Download coverage data
+      env:
+        AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+      run: |
+        mkdir -p coverage
+        mkdir -p formatted_coverage
+        aws s3 sync s3://direwolf-agent-github/${{ github.run_id }} coverage
+    - name: Prepare and upload coverage
+      env:
+        CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"
+      run: |
+        find coverage -name '*.json' | xargs -I % ./cc-test-reporter format-coverage -t simplecov -o formatted_coverage/% %
+        ./cc-test-reporter sum-coverage formatted_coverage/**/*.json
+        ./cc-test-reporter upload-coverage
+    needs:
+    - ruby-2-7-rails-5-2-x-mongo
+    - ruby-2-7-rails-5-2-x-mongoid-6-mongoid_version-6-0
+    - ruby-2-7-rails-5-2-x-elasticsearch
+    - ruby-2-4-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0
+    - ruby-2-7-rails-5-2-x-graphql_version-1-9-0
+    - ruby-2-7-rails-5-2-x-graphql_version-1-8-0
+    - ruby-2-7-rails-6-0-x
+    - ruby-2-4-sinatra-1-4-x
+    - ruby-2-7-sinatra-1-4-x
+    - ruby-2-4-sinatra-2-0-x
+    - ruby-2-7-sinatra-2-0-x
+    - ruby-2-4-grape-rack_version-2-0-8
+    - ruby-2-7-grape
+    - ruby-2-7-grape-grape_version-0-13-0-rack_version-2-0-8
+    - ruby-2-7-grape-grape_version-1-1-0-rack_version-2-0-8
+    - ruby-2-7-grape-grape_version-1-2-0-rack_version-2-0-8
+    - ruby-2-7-grape-grape_version-1-3-0
+    - ruby-2-7-rails-5-2-x-tilt_version-1-4-1
+    - ruby-2-7-sinatra-1-4-x-sequel_version-4-34-0
+    - ruby-2-7-rails-5-2-x-ams_version-0-8-3-sidekiq_version-none
+    - ruby-2-7-rails-5-2-x-ams_version-0-9-5
+  required-tests-passed:
+    name: Required Tests Passed
+    runs-on: ubuntu-latest
+    steps:
+    - name: Mark tests passed
+      run: 'true'
+    needs:
+    - ruby-2-7-rails-5-2-x-mongo
+    - ruby-2-7-rails-5-2-x-mongoid-6-mongoid_version-6-0
+    - ruby-2-7-rails-5-2-x-elasticsearch
+    - ruby-2-4-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0
+    - ruby-2-7-rails-5-2-x-graphql_version-1-9-0
+    - ruby-2-7-rails-5-2-x-graphql_version-1-8-0
+    - ruby-2-7-rails-6-0-x
+    - ruby-2-4-sinatra-1-4-x
+    - ruby-2-7-sinatra-1-4-x
+    - ruby-2-4-sinatra-2-0-x
+    - ruby-2-7-sinatra-2-0-x
+    - ruby-2-4-grape-rack_version-2-0-8
+    - ruby-2-7-grape
+    - ruby-2-7-grape-grape_version-0-13-0-rack_version-2-0-8
+    - ruby-2-7-grape-grape_version-1-1-0-rack_version-2-0-8
+    - ruby-2-7-grape-grape_version-1-2-0-rack_version-2-0-8
+    - ruby-2-7-grape-grape_version-1-3-0
+    - ruby-2-7-rails-5-2-x-tilt_version-1-4-1
+    - ruby-2-7-sinatra-1-4-x-sequel_version-4-34-0
+    - ruby-2-7-rails-5-2-x-ams_version-0-8-3-sidekiq_version-none
+    - ruby-2-7-rails-5-2-x-ams_version-0-9-5
