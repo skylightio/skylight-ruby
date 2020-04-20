@@ -18,16 +18,11 @@ module Skylight
               layout = nil
 
               if path
-                layout =
-                  if ::ActionView::VERSION::MAJOR >= 5
-                    find_layout(path, locals.keys, [formats.first])
-                  else
-                    find_layout(path, locals.keys)
-                  end
+                layout = find_layout(path, locals.keys, [formats.first])
               end
 
               if layout
-                instrument(:template, identifier: layout.identifier) do
+                ActiveSupport::Notifications.instrument("render_template.action_view", identifier: layout.identifier) do
                   render_with_layout_without_sk(*args, &block)
                 end
               else

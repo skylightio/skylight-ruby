@@ -78,7 +78,8 @@ module WorkflowConfigGenerator
     {
       ruby_version: "2.7",
       allow_failure: true,
-      gemfile: "rails-edge"
+      gemfile: "rails-edge",
+      env: { AMS_VERSION: "edge" }
     },
 
     {

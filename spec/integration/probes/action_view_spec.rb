@@ -73,10 +73,15 @@ if defined?(ActionView)
       renderer.render(context, opts)
     end
 
+    # On Rails >= 6.1, the FixtureResolver prepends a "/" to the path.
+    def normalize_template_path(path)
+      path.sub(/^\//, '')
+    end
+
     it "instruments layouts when :text is used with a layout" do
       expect(render_plain(renderer, context, plain: "Hello World", layout: "our-layout")).to eq("<Hello World>")
 
-      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
         ["render_template.action_view", "text template"],
         ["render_template.action_view", "our-layout.erb"]
       ])
@@ -85,7 +90,7 @@ if defined?(ActionView)
     it "does not instrument layouts when :text is used without a layout" do
       expect(render_plain(renderer, context, plain: "Hello World")).to eq("Hello World")
 
-      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
         ["render_template.action_view", "text template"]
       ])
     end
@@ -93,7 +98,7 @@ if defined?(ActionView)
     it "instruments layouts when :inline is used with a layout" do
       expect(renderer.render(context, inline: "Hello World", layout: "our-layout")).to eq("<Hello World>")
 
-      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
         ["render_template.action_view", "inline template"],
         ["render_template.action_view", "our-layout.erb"]
       ])
@@ -102,7 +107,7 @@ if defined?(ActionView)
     it "does not instrument layouts when :inline is used without a layout" do
       expect(renderer.render(context, inline: "Hello World")).to eq("Hello World")
 
-      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
         ["render_template.action_view", "inline template"]
       ])
     end
@@ -110,7 +115,7 @@ if defined?(ActionView)
     it "instruments layouts when :template is used with a layout" do
       expect(renderer.render(context, template: "our-template", layout: "our-layout")).to eq("<Hello World>")
 
-      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
         ["render_template.action_view", "our-template.erb"],
         ["render_template.action_view", "our-layout.erb"]
       ])
@@ -119,7 +124,7 @@ if defined?(ActionView)
     it "does not instrument layouts when :template is used without a layout" do
       expect(renderer.render(context, template: "our-template")).to eq("Hello World")
 
-      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
         ["render_template.action_view", "our-template.erb"]
       ])
     end

@@ -15,7 +15,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 45055acfd10dd5b9c35d2ca6b13d6be85630ef452afe929bdd8d10a8e162af25
+  CONFIG_DIGEST: 487d00e093df6be03620867ef0caec99a387ada8f8286deb0e0974771d24a263
 'on':
   pull_request: {}
   push:
@@ -370,11 +370,12 @@ jobs:
         AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         SOURCE_DIR: coverage-sync
-  ruby-2-7-rails-edge:
-    name: "[allowed to fail] ruby 2.7, rails-edge"
+  ruby-2-7-rails-edge-ams_version-edge:
+    name: "[allowed to fail] ruby 2.7, rails-edge, AMS_VERSION=edge"
     runs-on: ubuntu-latest
     env:
       BUNDLE_GEMFILE: gemfiles/Gemfile.rails-edge
+      AMS_VERSION: edge
     steps:
     - name: Checkout
       uses: actions/checkout@v2
