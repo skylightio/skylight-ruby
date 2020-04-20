@@ -45,6 +45,7 @@ if enable
             get :before_action_redirect
             get :action_redirect
             get :not_modified
+            get :template_index
             get :muted_index
             get :normalizer_muted_index
           end
@@ -337,13 +338,14 @@ if enable
               json.none   { render json: { hola: params[:id] } }
             end
             format.html do
-              if Rails.version =~ /^4\./
-                render text: "Hola: #{params[:id]}"
-              else
-                render plain: "Hola: #{params[:id]}"
-              end
+              render plain: "Hola: #{params[:id]}"
             end
           end
+        end
+
+        def template_index
+          @hello = "hi"
+          render "index", layout: "app"
         end
 
         instrument_method title: "muted-index"
@@ -625,6 +627,45 @@ if enable
             event: an_exact_event(category: "app.zomg")
           )
         ])
+      end
+
+      context "with template rendering" do
+
+        def pre_boot
+          super
+          FileUtils.mkdir_p(expand_path("users"))
+          FileUtils.mkdir_p(expand_path("layouts"))
+          File.open(expand_path("users/index.html.erb"), "w") { |f| f << "<%= @hello %>" }
+          File.open(expand_path("layouts/app.html.erb"), "w") { |f| f << "<h1>App.</h1><%= yield %>" }
+        end
+
+        def expand_path(relative_path)
+          Rails.root.join("app/views", relative_path)
+        end
+
+        it "includes relative paths to the ActionView templates", focus: true do
+
+          if defined?(ActionView::CacheExpiry)
+            allow_any_instance_of(ActionView::CacheExpiry).to receive(:dirs_to_watch) { [] }
+          end
+
+          status, headers, body = call_full MyApp, env("/users/template_index.html")
+
+          expect(status).to eq(200)
+
+          server.wait resource: "/report"
+
+          batch = server.reports[0]
+          expect(batch).not_to be nil
+          expect(batch.endpoints.count).to eq(1)
+          endpoint = batch.endpoints[0]
+
+          expect(endpoint.name).to eq("UsersController#template_index<sk-segment>html</sk-segment>")
+
+          *spans, layout_span, template_span = endpoint.traces[0].filter_spans.map { |span| [span.event.category, span.event.title] }
+          expect(layout_span).to eq(["view.render.template", "layouts/app.html.erb"])
+          expect(template_span).to eq(["view.render.template", "users/index.html.erb"])
+        end
       end
 
       it "successfully names requests handled by middleware", :middleware_probe do
