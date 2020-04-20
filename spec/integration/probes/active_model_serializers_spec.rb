@@ -1,5 +1,10 @@
 require "spec_helper"
 
+begin
+  require "active_model/serializer"
+rescue LoadError
+end
+
 if defined?(ActiveModel::Serializer)
   describe "ActiveModel::Serializer", :active_model_serializers_probe, :agent, :instrumenter do
     require "action_controller"

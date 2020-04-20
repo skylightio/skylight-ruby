@@ -2,10 +2,11 @@ if !ENV['SKIP_EXTERNAL']
   version = ENV['AMS_VERSION']
 
   if version == 'edge'
-    version = { git: 'https://github.com/rails-api/active_model_serializers' }
+    version = { git: 'https://github.com/rails-api/active_model_serializers', branch: "0-10-stable" }
   end
 
   gem 'active_model_serializers', version
+  gem 'thread_safe' # required (but not declared) by active_model_serializers
 
   # there is currently no Rails 6.1 branch for delayed_job_active_record
   unless ENV['DELAYED_JOB_VERSION'] == 'none'
