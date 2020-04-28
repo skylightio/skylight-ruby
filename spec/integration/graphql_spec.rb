@@ -316,18 +316,22 @@ if enable
 
           params = request.params.with_indifferent_access
           variables = params[:variables]
+
           context = {
+            skylight_endpoint: params[:manual_operation_name]
             # Query context goes here, for example:
             # current_user: current_user,
           }
 
           result =
             if params[:queries]
-              formatted_queries = params[:queries].map do |q|
+              formatted_queries = params[:queries].map.with_index do |q, i|
                 {
                   query:     q,
                   variables: variables,
-                  context:   context
+                  context:   context.merge({}.tap do |h|
+                    h[:skylight_endpoint] = "query-#{i}" if params[:manual_operation_name] == "indexed"
+                  end),
                 }
               end
 
@@ -371,8 +375,8 @@ if enable
           stub_session_request
         end
 
-        def make_graphql_request(query:, variables: {})
-          call env("/", method: :POST, params: { query: query, variables: variables })
+        def make_graphql_request(query:, variables: {}, **params)
+          call env("/", method: :POST, params: { query: query, variables: variables, **params })
         end
 
         # Handles expected analysis events for legacy style (GraphQL 1.7.0-1.9.x)
@@ -422,6 +426,37 @@ if enable
               ["app.graphql", "graphql.execute_multiplex"],
               *expected_analysis_events,
               ["app.graphql", "graphql.execute_query: #{query_name}"],
+              ["app.graphql", "graphql.execute_query_lazy: #{query_name}"]
+            ])
+          end
+
+          it "successfully calls into graphql with manually-named anonymous queries" do
+            query_name = "FauxNamedQuery"
+            make_graphql_request(
+              query: "query { #{query_inner} }",
+              manual_operation_name: query_name
+            )
+
+            server.wait resource: "/report"
+
+            batch = server.reports[0]
+            expect(batch).to_not be nil
+            expect(batch.endpoints.count).to eq(1)
+            endpoint = batch.endpoints[0]
+
+            expect(endpoint.name).to eq("graphql:FauxNamedQuery<sk-segment>json</sk-segment>")
+            expect(endpoint.traces.count).to eq(1)
+            trace = endpoint.traces[0]
+
+            data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
+
+            expect(data).to eq([
+              ["app.rack.request", nil],
+              ["app.graphql", "graphql.execute_multiplex"],
+              *expected_analysis_events,
+              ["app.graphql", "graphql.execute_query: #{query_name}"],
+              ["db.sql.query", "SELECT FROM species"],
+              ["db.active_record.instantiation", "Species Instantiation"],
               ["app.graphql", "graphql.execute_query_lazy: #{query_name}"]
             ])
           end
@@ -489,7 +524,46 @@ if enable
             ])
           end
 
-          it "successfully calls into graphql with name and anonymous queries" do
+          it "successfully calls into graphql with manually-named anonymous queries" do
+            queries = ["query { #{query_inner} }"].cycle.take(3)
+
+            call env("/test",
+                     method: :POST,
+                     params: {
+                       queries: queries,
+                       manual_operation_name: :indexed
+                     })
+
+            server.wait resource: "/report"
+
+            batch = server.reports[0]
+            expect(batch).to_not be nil
+            expect(batch.endpoints.count).to eq(1)
+            endpoint = batch.endpoints[0]
+
+            expect(endpoint.name).to eq("graphql:query-0+query-1+query-2<sk-segment>json</sk-segment>")
+            expect(endpoint.traces.count).to eq(1)
+            trace = endpoint.traces[0]
+
+            data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
+
+            expect(data).to eq([
+              ["app.rack.request", nil],
+              ["app.graphql", "graphql.execute_multiplex"],
+              *expected_analysis_events(3),
+
+              *["query-0", "query-1", "query-2"].map do |qn|
+                [
+                  ["app.graphql", "graphql.execute_query: #{qn}"],
+                  ["db.sql.query", "SELECT FROM species"],
+                  ["db.active_record.instantiation", "Species Instantiation"]
+                ]
+              end.flatten(1),
+              ["app.graphql", "graphql.execute_query_lazy.multiplex"]
+            ])
+          end
+
+          it "successfully calls into graphql with named and anonymous queries" do
             queries = ["query { #{query_inner} }"].cycle.take(3)
             queries.push("query myFavoriteDragonflies { #{query_inner} }")
 
