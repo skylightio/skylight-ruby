@@ -14,7 +14,7 @@ module Skylight
 
         if (opts = @__sk_instrument_next_method)
           @__sk_instrument_next_method = nil
-          instrument_method(name, opts)
+          instrument_method(name, **opts)
         end
       end
 
@@ -24,7 +24,7 @@ module Skylight
 
         if (opts = @__sk_instrument_next_method)
           @__sk_instrument_next_method = nil
-          instrument_class_method(name, opts)
+          instrument_class_method(name, **opts)
         end
       end
 
@@ -77,14 +77,12 @@ module Skylight
       #         do_expensive_stuff
       #       end
       #     end
-      def instrument_method(*args)
-        opts = args.pop if args.last.is_a?(Hash)
-
+      def instrument_method(*args, **opts)
         if (name = args.pop)
           title = "#{self}##{name}"
-          __sk_instrument_method_on(self, name, title, opts || {})
+          __sk_instrument_method_on(self, name, title, **opts)
         else
-          @__sk_instrument_next_method = opts || {}
+          @__sk_instrument_next_method = opts
         end
       end
 
@@ -123,16 +121,16 @@ module Skylight
       #
       #       instrument_class_method :my_method, title: 'Expensive work'
       #     end
-      def instrument_class_method(name, opts = {})
+      def instrument_class_method(name, **opts)
         # NOTE: If the class is defined anonymously and then assigned to a variable this code
         #   will not be aware of the updated name.
         title = "#{self}.#{name}"
-        __sk_instrument_method_on(__sk_singleton_class, name, title, opts || {})
+        __sk_instrument_method_on(__sk_singleton_class, name, title, **opts)
       end
 
       private
 
-        def __sk_instrument_method_on(klass, name, title, opts)
+        def __sk_instrument_method_on(klass, name, title, **opts)
           category = (opts[:category] || "app.method").to_s
           title    = (opts[:title] || title).to_s
           desc     = opts[:description].to_s if opts[:description]
@@ -148,7 +146,7 @@ module Skylight
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
             alias_method :"before_instrument_#{name}", :"#{name}"       # alias_method :"before_instrument_process", :"process"
                                                                         #
-            def #{name}(*args, &blk)                                    # def process(*args, &blk)
+            def #{name}(*args, **opts, &blk)                            # def process(*args, **opts, &blk)
               span = Skylight.instrument(                               #   span = Skylight.instrument(
                 category:    :"#{category}",                            #     category:    :"app.method",
                 title:       #{title.inspect},                          #     title:       "process",
@@ -158,7 +156,7 @@ module Skylight
                                                                         #
               meta = {}                                                 #   meta = {}
               begin                                                     #   begin
-                send(:before_instrument_#{name}, *args, &blk)           #     send(:before_instrument_process)
+                send(:before_instrument_#{name}, *args, **opts, &blk)   #     send(:before_instrument_process, *args, **opts, &blk)
               rescue Exception => e                                     #   rescue Exception => e
                 meta[:exception_object] = e                             #     meta[:exception_object] = e
                 raise e                                                 #     raise e
