@@ -9,6 +9,8 @@ module Skylight
             super
 
             # NOTE: Caching here leads to better performance, but will not notice if the method is overridden
+            # We don't have access to the config here so we can't check whether source locations are enabled.
+            # However, this only happens once per middleware so it should be minimal impact.
             @payload[:source_location] =
               begin
                 if middleware.is_a?(Proc)

@@ -131,13 +131,13 @@ if defined?(Graphiti)
       results = GraphitiTests::PostResource.all
 
       expect(trace).to receive(:instrument).
-        with("app.resolve.graphiti", "Resolve Primary GraphitiTests::PostResource", nil, an_instance_of(Hash))
+        with("app.resolve.graphiti", "Resolve Primary GraphitiTests::PostResource", nil, nil)
 
       # Force a resolve
       results.to_a
 
       expect(trace).to receive(:instrument).
-        with("view.render.graphiti", "Render GraphitiTests::PostResource", nil, an_instance_of(Hash))
+        with("view.render.graphiti", "Render GraphitiTests::PostResource", nil, nil)
 
       # Now render
       results.to_jsonapi
@@ -145,11 +145,11 @@ if defined?(Graphiti)
 
     it "instruments sideloading" do
       expect(trace).to receive(:instrument).
-        with("app.resolve.graphiti", "Resolve Primary GraphitiTests::PostResource", nil, an_instance_of(Hash))
+        with("app.resolve.graphiti", "Resolve Primary GraphitiTests::PostResource", nil, nil)
       expect(trace).to receive(:instrument).
-        with("app.resolve.graphiti", "Resolve Belongs To GraphitiTests::AuthorResource", nil, an_instance_of(Hash))
+        with("app.resolve.graphiti", "Resolve Belongs To GraphitiTests::AuthorResource", nil, nil)
       expect(trace).to receive(:instrument).
-        with("view.render.graphiti", "Render GraphitiTests::PostResource", nil, an_instance_of(Hash))
+        with("view.render.graphiti", "Render GraphitiTests::PostResource", nil, nil)
 
       GraphitiTests::PostResource.all(include: :author).to_jsonapi
     end
@@ -168,9 +168,9 @@ if defined?(Graphiti)
       end
 
       expect(trace).to receive(:instrument).
-        with("app.resolve.graphiti", "Resolve Primary <Anonymous Resource>", nil, an_instance_of(Hash))
+        with("app.resolve.graphiti", "Resolve Primary <Anonymous Resource>", nil, nil)
       expect(trace).to receive(:instrument).
-        with("view.render.graphiti", "Render <Anonymous Resource>", nil, an_instance_of(Hash))
+        with("view.render.graphiti", "Render <Anonymous Resource>", nil, nil)
 
       resource.all.to_jsonapi
     end

@@ -5,6 +5,8 @@ module Skylight
         module RouteSet
           class Probe
             def install
+              # We don't have access to the config here so we can't check whether source locations are enabled.
+              # However, this only happens once per middleware so it should be minimal impact.
               source_file, source_line = ::ActionDispatch::Routing::RouteSet.instance_method(:call).source_location
 
               ::ActionDispatch::Routing::RouteSet.class_eval <<-RUBY, __FILE__, __LINE__ + 1
