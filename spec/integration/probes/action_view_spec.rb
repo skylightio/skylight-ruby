@@ -78,13 +78,21 @@ if defined?(ActionView)
       path.sub(/^\//, '')
     end
 
+    let(:layout_event) do
+      # The probe should not be installed for rails versions >= 6.1,
+      # so only expect this layout event when necessary.
+      if ActionView.gem_version < Gem::Version.new("6.1.0.alpha")
+        ["render_template.action_view", "our-layout.erb"]
+      end
+    end
+
     it "instruments layouts when :text is used with a layout" do
       expect(render_plain(renderer, context, plain: "Hello World", layout: "our-layout")).to eq("<Hello World>")
 
       expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
         ["render_template.action_view", "text template"],
-        ["render_template.action_view", "our-layout.erb"]
-      ])
+        layout_event
+      ].compact)
     end
 
     it "does not instrument layouts when :text is used without a layout" do
@@ -100,8 +108,8 @@ if defined?(ActionView)
 
       expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
         ["render_template.action_view", "inline template"],
-        ["render_template.action_view", "our-layout.erb"]
-      ])
+        layout_event
+      ].compact)
     end
 
     it "does not instrument layouts when :inline is used without a layout" do
@@ -117,8 +125,8 @@ if defined?(ActionView)
 
       expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
         ["render_template.action_view", "our-template.erb"],
-        ["render_template.action_view", "our-layout.erb"]
-      ])
+        layout_event
+      ].compact)
     end
 
     it "does not instrument layouts when :template is used without a layout" do

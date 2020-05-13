@@ -646,7 +646,7 @@ if enable
           Rails.root.join("app/views", relative_path)
         end
 
-        it "includes relative paths to the ActionView templates", focus: true do
+        it "includes relative paths to the ActionView templates" do
 
           if defined?(ActionView::CacheExpiry)
             allow_any_instance_of(ActionView::CacheExpiry).to receive(:dirs_to_watch) { [] }
@@ -666,8 +666,14 @@ if enable
           expect(endpoint.name).to eq("UsersController#template_index<sk-segment>html</sk-segment>")
 
           *spans, layout_span, template_span = endpoint.traces[0].filter_spans.map { |span| [span.event.category, span.event.title] }
-          expect(layout_span).to eq(["view.render.template", "layouts/app.html.erb"])
+
           expect(template_span).to eq(["view.render.template", "users/index.html.erb"])
+
+          if ::ActionView.gem_version >= Gem::Version.new("6.1.0.alpha")
+            expect(layout_span).to eq(["view.render.layout", "layouts/app.html.erb"])
+          else
+            expect(layout_span).to eq(["view.render.template", "layouts/app.html.erb"])
+          end
         end
       end
 

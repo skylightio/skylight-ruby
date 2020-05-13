@@ -13,7 +13,7 @@ module Skylight
 
     shared_examples_for "template normalizer" do
       it "normalizes the notification name" do
-        complete_payload = { identifier: "foo/bar" }.merge(group_payload)
+        complete_payload = { identifier: "foo/bar" }
         name, title, desc = normalize(complete_payload)
         expect(name).to eq(group_name)
         expect(title).to eq("foo/bar")
@@ -24,7 +24,7 @@ module Skylight
         complete_payload = {
           identifier: "#{project_root}/app/views/foo/bar",
           count:      10
-        }.merge(group_payload)
+        }
         name, title, desc = normalize(complete_payload)
         expect(name).to eq(group_name)
         expect(title).to eq("foo/bar")
@@ -32,7 +32,7 @@ module Skylight
       end
 
       it "normalizes the title to a path relative to rails root" do
-        complete_payload = { identifier: "#{project_root}/other/path" }.merge(group_payload)
+        complete_payload = { identifier: "#{project_root}/other/path" }
         name, title, desc = normalize(complete_payload)
         expect(name).to eq(group_name)
         expect(title).to eq("other/path")
@@ -45,7 +45,7 @@ module Skylight
 
         complete_payload = {
           identifier: "#{path}/bundler/gems/blorgh-gem-19a101f550c9/app/views/monster/blorgh/posts/index.html.erb"
-        }.merge(group_payload)
+        }
         name, title, desc = normalize(complete_payload)
         expect(name).to eq(group_name)
         expect(title).to eq("blorgh-gem: monster/blorgh/posts/index.html.erb")
@@ -58,7 +58,7 @@ module Skylight
 
         complete_payload = {
           identifier: "#{path}/gems/blorgh-gem-1.0.0/app/views/monster/blorgh/posts/index.html.erb"
-        }.merge(group_payload)
+        }
         name, title, desc = normalize(complete_payload)
         expect(name).to eq(group_name)
         expect(title).to eq("blorgh-gem: monster/blorgh/posts/index.html.erb")
@@ -71,7 +71,7 @@ module Skylight
 
         complete_payload = {
           identifier: "#{path}/gems/blorgh-gem-1.0.0/path/to/views/monster/blorgh/posts/index.html.erb"
-        }.merge(group_payload)
+        }
         name, title, desc = normalize(complete_payload)
         expect(name).to eq(group_name)
         expect(title).to eq("blorgh-gem: path/to/views/monster/blorgh/posts/index.html.erb")
@@ -81,7 +81,7 @@ module Skylight
       it "prints Absolute Path if it's outside the root" do
         complete_payload = {
           identifier: "/other#{project_root}/stuff"
-        }.merge(group_payload)
+        }
         name, title, desc = normalize(complete_payload)
         expect(name).to eq(group_name)
         expect(title).to eq("Absolute Path")
@@ -92,10 +92,6 @@ module Skylight
     describe "render_collection.action_view" do
       it_should_behave_like "template normalizer"
 
-      def group_payload
-        { count: 10 }
-      end
-
       def group_name
         "view.render.collection"
       end
@@ -103,10 +99,6 @@ module Skylight
 
     describe "render_template.action_view" do
       it_should_behave_like "template normalizer"
-
-      def group_payload
-        { partial: 0 }
-      end
 
       def group_name
         "view.render.template"
@@ -116,12 +108,16 @@ module Skylight
     describe "render_partial.action_view" do
       it_should_behave_like "template normalizer"
 
-      def group_payload
-        { partial: 1 }
-      end
-
       def group_name
         "view.render.template"
+      end
+    end
+
+    describe "render_layout.action_view" do
+      it_should_behave_like "template normalizer"
+
+      def group_name
+        "view.render.layout"
       end
     end
   end

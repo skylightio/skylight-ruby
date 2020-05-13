@@ -125,6 +125,7 @@ module Skylight
         action_view/render_collection
         action_view/render_partial
         action_view/render_template
+        action_view/render_layout
         active_job/perform
         active_model_serializers/render
         active_record/instantiation
