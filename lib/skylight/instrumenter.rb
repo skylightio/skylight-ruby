@@ -361,6 +361,8 @@ module Skylight
     end
 
     def find_caller(cache_key: nil)
+      return unless config.enable_source_locations?
+
       if cache_key && @caller_cache.key?(cache_key)
         return @caller_cache[cache_key]
       end
@@ -372,6 +374,8 @@ module Skylight
     end
 
     def find_source_gem(path)
+      return unless config.enable_source_locations?
+
       _, name = gem_require_paths.find do |rpath, name|
         path.start_with?(rpath) && !config.source_location_ignored_gems.include?(name)
       end
@@ -391,6 +395,8 @@ module Skylight
     end
 
     def instance_method_source_location(constant_name, method_name)
+      return unless config.enable_source_locations?
+
       @instance_method_source_location_cache[[constant_name, method_name]] ||=
         if (constant = ::ActiveSupport::Dependencies.safe_constantize(constant_name))
           if constant.instance_methods.include?(:"before_instrument_#{method_name}")
