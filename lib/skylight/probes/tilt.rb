@@ -2,22 +2,22 @@
 module Skylight
   module Probes
     module Tilt
+      module Instrumentation
+        def render(*args, &block)
+          opts = {
+            category: "view.render.template",
+            title:    options[:sky_virtual_path] || basename || "Unknown template name"
+          }
+
+          Skylight.instrument(opts) do
+            super(*args, &block)
+          end
+        end
+      end
+
       class Probe
         def install
-          ::Tilt::Template.class_eval do
-            alias_method :render_without_sk, :render
-
-            def render(*args, &block)
-              opts = {
-                category: "view.render.template",
-                title:    options[:sky_virtual_path] || basename || "Unknown template name"
-              }
-
-              Skylight.instrument(opts) do
-                render_without_sk(*args, &block)
-              end
-            end
-          end
+          ::Tilt::Template.prepend(Instrumentation)
         end
       end
     end

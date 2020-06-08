@@ -87,6 +87,8 @@ module Skylight
         config ||= {}
         config = Config.load(config) unless config.is_a?(Config)
 
+        Probes.install!
+
         @instrumenter = Instrumenter.new(config).start!
       end
     rescue => e

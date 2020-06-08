@@ -3,6 +3,7 @@ module Skylight
     module Elasticsearch
       class Probe
         def install
+          # Prepending doesn't work here since this a module that's already been included
           ::Elasticsearch::Transport::Transport::Base.class_eval do
             alias_method :perform_request_without_sk, :perform_request
             def perform_request(method, path, *args, &block)
@@ -23,9 +24,9 @@ module Skylight
               end
             end
 
-            def disable_skylight_probe(class_name, &block)
-              klass = Probes.const_get(class_name).const_get(:Probe) rescue nil
-              klass ? klass.disable(&block) : yield
+            def disable_skylight_probe(class_name)
+              klass = ::ActiveSupport::Inflector.safe_constantize("Skylight::Probes::#{class_name}::Probe")
+              (klass ? klass.disable { yield } : yield).tap { puts "re-enabling: #{klass}" }
             end
           end
         end

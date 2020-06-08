@@ -8,6 +8,10 @@ module SpecHelper
       repeated :annotations, Annotation, 3
       required :started_at,  :uint32,    4
       optional :duration,    :uint32,    5
+
+      def inspect
+        super.gsub("SpecHelper::Messages::", "")
+      end
     end
   end
 end

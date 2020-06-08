@@ -1,6 +1,13 @@
 module Skylight
   module Probes
     module ActiveModelSerializers
+      module Instrumentation
+        def as_json(*)
+          payload = { serializer: self.class }
+          ActiveSupport::Notifications.instrument("render.active_model_serializers", payload) { super }
+        end
+      end
+
       class Probe
         def install
           version = nil
@@ -35,15 +42,7 @@ module Skylight
           # than overriding serializable_array/hash/object.
 
           [::ActiveModel::Serializer, ::ActiveModel::ArraySerializer].each do |klass|
-            klass.class_eval do
-              alias_method :as_json_without_sk, :as_json
-              def as_json(*args)
-                payload = { serializer: self.class }
-                ActiveSupport::Notifications.instrument("render.active_model_serializers", payload) do
-                  as_json_without_sk(*args)
-                end
-              end
-            end
+            klass.prepend(Instrumentation)
           end
         end
       end

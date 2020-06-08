@@ -115,7 +115,7 @@ if enable
       InvalidMiddleware ||= Class.new(SkTestMiddleware) do
         def call(env)
           if env["PATH_INFO"] == "/invalid"
-            return "Hello"
+            return "InvalidMiddlewareResponse"
           end
 
           super
@@ -565,27 +565,29 @@ if enable
           )
         )
 
-        # But the middlewares will be variable, depending on the Rails version
-        middleware_count = 0
-        loop do
-          break if app_and_rack_spans[middleware_count + 1].event.category != "rack.middleware"
-
-          middleware_count += 1
+        router_index = app_and_rack_spans.index do |span|
+          span.event.title == "ActionDispatch::Routing::RouteSet"
         end
 
-        # We should have at least 2, but in reality a lot more
-        expect(middleware_count).to be > 2
+        # We should have at least 2 middlewares in addition
+        # to the root request span, but in reality should be a lot more
+        expect(router_index).to be > 3
 
         source_file = Pathname.new(__FILE__).relative_path_from(spec_root).to_s
 
+        middleware_spans = app_and_rack_spans[0...router_index]
+
         # These ones should be in all versions
-        expect(app_and_rack_spans[0..middleware_count]).to include(
+        expect(middleware_spans).to include(
           a_span_including(
             event:       an_exact_event(category: "rack.middleware", title: "Anonymous Middleware"),
             annotations: include(
               an_annotation(:SourceLocation, "#{source_file}:#{::MyApp::ANONYMOUS_MIDDLEWARE_LINE}")
             )
-          ),
+          )
+        )
+
+        expect(middleware_spans).to include(
           a_span_including(
             event:       an_exact_event(category: "rack.middleware", title: "CustomMiddleware"),
             annotations: include(
@@ -595,7 +597,8 @@ if enable
         )
 
         # Check the rest
-        expect(app_and_rack_spans[(middleware_count + 1)..-1]).to match([
+        post_middleware_spans = app_and_rack_spans[router_index..-1]
+        expect(post_middleware_spans).to match([
           a_span_including(
             event:       an_exact_event(category: "rack.app", title: router_name),
             annotations: include(

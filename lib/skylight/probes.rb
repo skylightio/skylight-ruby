@@ -1,14 +1,15 @@
 require "pathname"
+require "active_support/inflector"
 
 module Skylight
   # @api private
   module Probes
     class ProbeRegistration
-      attr_reader :name, :klass_name, :require_paths, :probe
+      attr_reader :name, :const_name, :require_paths, :probe
 
-      def initialize(name, klass_name, require_paths, probe)
+      def initialize(name, const_name, require_paths, probe)
         @name = name
-        @klass_name = klass_name
+        @const_name = const_name
         @require_paths = Array(require_paths)
         @probe = probe
       end
@@ -16,11 +17,34 @@ module Skylight
       def install
         probe.install
       end
+
+      def constant_available?
+        Skylight::Probes.constant_available?(const_name)
+      end
     end
 
     class << self
-      def paths
-        @paths ||= []
+      def constant_available?(const_name)
+        ::ActiveSupport::Inflector.safe_constantize(const_name).present?
+      end
+
+      def install!
+        pending = registered.values - installed.values
+
+        pending.each do |registration|
+          if registration.constant_available?
+            install_probe(registration)
+          else
+            register_require_hook(registration)
+          end
+        end
+      end
+
+      def install_probe(registration)
+        return if installed.key?(registration.name)
+
+        installed[registration.name] = registration
+        registration.install
       end
 
       def add_path(path)
@@ -50,6 +74,10 @@ module Skylight
         end
       end
 
+      def registered
+        @registered ||= {}
+      end
+
       def require_hooks
         @require_hooks ||= {}
       end
@@ -58,19 +86,14 @@ module Skylight
         @installed ||= {}
       end
 
-      def available?(klass_name)
-        !!::ActiveSupport::Inflector.safe_constantize(klass_name)
-      end
-
       def register(name, *args)
-        registration = ProbeRegistration.new(name, *args)
-
-        if available?(registration.klass_name)
-          installed[registration.klass_name] = registration
-          registration.install
-        else
-          register_require_hook(registration)
+        if registered.key?(name)
+          raise "already registered: #{name}"
         end
+
+        registered[name] = ProbeRegistration.new(name, *args)
+
+        true
       end
 
       def require_hook(require_path)
@@ -78,9 +101,8 @@ module Skylight
         return unless registration
 
         # Double check constant is available
-        if available?(registration.klass_name)
-          installed[registration.klass_name] = registration
-          registration.install
+        if registration.constant_available?
+          install_probe(registration)
 
           # Don't need this to be called again
           unregister_require_hook(registration)
@@ -108,22 +130,18 @@ module Skylight
   end
 end
 
-# Allow hooking require
 # @api private
-module ::Kernel
-  private
+module Kernel
+  # Unfortunately, we can't use prepend here, in part because RubyGems changes require with an alias
+  alias require_without_sk require
 
-    alias require_without_sk require
-
-    def require(name)
-      ret = require_without_sk(name)
-
+  def require(name)
+    require_without_sk(name).tap do
       begin
         Skylight::Probes.require_hook(name)
       rescue Exception # rubocop:disable Lint/SuppressedException
         # FIXME: Log these errors
       end
-
-      ret
     end
+  end
 end

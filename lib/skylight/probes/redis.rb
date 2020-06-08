@@ -1,20 +1,45 @@
 module Skylight
   module Probes
     module Redis
+      # Unfortunately, because of the nature of pipelining, there's no way for us to
+      # give a time breakdown on the individual items.
+
+      PIPELINED_OPTS = {
+        category: "db.redis.pipelined".freeze,
+        title:    "PIPELINE".freeze
+      }.freeze
+
+      MULTI_OPTS = {
+        category: "db.redis.multi".freeze,
+        title:    "MULTI".freeze
+      }.freeze
+
+      module ClientInstrumentation
+        def call(command, *)
+          command_name = command[0]
+
+          return super if command_name == :auth
+
+          opts = {
+            category: "db.redis.command",
+            title:    command_name.upcase.to_s
+          }
+
+          Skylight.instrument(opts) { super }
+        end
+      end
+
+      module Instrumentation
+        def pipelined(*)
+          Skylight.instrument(PIPELINED_OPTS) { super }
+        end
+
+        def multi(*)
+          Skylight.instrument(MULTI_OPTS) { super }
+        end
+      end
+
       class Probe
-        # Unfortunately, because of the nature of pipelining, there's no way for us to
-        # give a time breakdown on the individual items.
-
-        PIPELINED_OPTS = {
-          category: "db.redis.pipelined".freeze,
-          title:    "PIPELINE".freeze
-        }.freeze
-
-        MULTI_OPTS = {
-          category: "db.redis.multi".freeze,
-          title:    "MULTI".freeze
-        }.freeze
-
         def install
           version = defined?(::Redis::VERSION) ? Gem::Version.new(::Redis::VERSION) : nil
 
@@ -24,42 +49,8 @@ module Skylight
             return
           end
 
-          ::Redis::Client.class_eval do
-            alias_method :call_without_sk, :call
-
-            def call(command, &block)
-              command_name = command[0]
-
-              return call_without_sk(command, &block) if command_name == :auth
-
-              opts = {
-                category: "db.redis.command",
-                title:    command_name.upcase.to_s
-              }
-
-              Skylight.instrument(opts) do
-                call_without_sk(command, &block)
-              end
-            end
-          end
-
-          ::Redis.class_eval do
-            alias_method :pipelined_without_sk, :pipelined
-
-            def pipelined(&block)
-              Skylight.instrument(PIPELINED_OPTS) do
-                pipelined_without_sk(&block)
-              end
-            end
-
-            alias_method :multi_without_sk, :multi
-
-            def multi(&block)
-              Skylight.instrument(MULTI_OPTS) do
-                multi_without_sk(&block)
-              end
-            end
-          end
+          ::Redis::Client.prepend(ClientInstrumentation)
+          ::Redis.prepend(Instrumentation)
         end
       end
     end

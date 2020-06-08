@@ -3,12 +3,17 @@ require "spec_helper"
 # Tested here because we need native
 module Skylight
   describe "Probes", :probes, :agent do
-    before :all do
+    before :each do
+      @registered       = Probes.registered.dup
       @require_hooks    = Probes.require_hooks.dup
       @installed_probes = Probes.installed.dup
+      Probes.registered.clear
+      Probes.require_hooks.clear
+      Probes.installed.clear
     end
 
     after :each do
+      Probes.registered.replace(@registered)
       Probes.require_hooks.replace(@require_hooks)
       Probes.installed.replace(@installed_probes)
     end
@@ -18,22 +23,24 @@ module Skylight
     subject { Probes }
 
     it "can determine const availability" do
-      expect(subject.available?("Skylight")).to be_truthy
-      expect(subject.available?("Skylight::Probes")).to be_truthy
-      expect(subject.available?("Nonexistent")).to be_falsey
+      expect(subject.constant_available?("Skylight")).to be_truthy
+      expect(subject.constant_available?("Skylight::Probes")).to be_truthy
+      expect(subject.constant_available?("Nonexistent")).to be_falsey
 
-      expect(subject.available?("Skylight::Nonexistent")).to be_falsey
-      expect(subject.available?("Skylight::Fail")).to be_falsey
+      expect(subject.constant_available?("Skylight::Nonexistent")).to be_falsey
+      expect(subject.constant_available?("Skylight::Fail")).to be_falsey
     end
 
     it "installs probe if constant is available" do
       register(:skylight, "Skylight", "skylight", probe)
+      Probes.install!
 
       expect(probe.install_count).to eq(1)
     end
 
     it "installs probe on first require" do
       register(:probe_test, "SpecHelper::ProbeTestClass", "skylight", probe)
+      Probes.install!
 
       expect(probe.install_count).to eq(0)
 
@@ -52,12 +59,14 @@ module Skylight
 
     it "does not install probes that are not required or available" do
       register(:probe_test, "SpecHelper::ProbeTestClass", "skylight", probe)
+      Probes.install!
 
       expect(probe.install_count).to eq(0)
     end
 
     it "does not install probes that are required but remain unavailable" do
       register(:probe_test, "SpecHelper::ProbeTestClass", "skylight", probe)
+      Probes.install!
 
       # Require, but don't create TestClass
       require "skylight"
