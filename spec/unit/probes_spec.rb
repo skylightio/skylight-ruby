@@ -57,6 +57,27 @@ module Skylight
       expect(probe.install_count).to eq(1)
     end
 
+    it "installs all probes registered on the same path" do
+      register(:probe_test, "SpecHelper::ProbeTestClass", "skylight", probe)
+      register(:probe_test_aux, "SpecHelper::ProbeTestAuxClass", "skylight", probe)
+      Probes.install!
+
+      expect(probe.install_count).to eq(0)
+
+      # HAX: We trick it into thinking that the require 'skylight' loaded ProbeTestClass
+      # NOTE: ProbeTestClass is a special class that is automatically removed after specs
+      SpecHelper.module_eval "class ProbeTestClass; end", __FILE__, __LINE__
+      SpecHelper.module_eval "class ProbeTestAuxClass; end", __FILE__, __LINE__
+      require "skylight"
+
+      expect(probe.install_count).to eq(2)
+
+      # Make sure a second require doesn't install again
+      require "skylight"
+
+      expect(probe.install_count).to eq(2)
+    end
+
     it "does not install probes that are not required or available" do
       register(:probe_test, "SpecHelper::ProbeTestClass", "skylight", probe)
       Probes.install!

@@ -97,32 +97,38 @@ module Skylight
       end
 
       def require_hook(require_path)
-        registration = lookup_by_require_path(require_path)
-        return unless registration
+        each_by_require_path(require_path) do |registration|
+          # Double check constant is available
+          if registration.constant_available?
+            install_probe(registration)
 
-        # Double check constant is available
-        if registration.constant_available?
-          install_probe(registration)
-
-          # Don't need this to be called again
-          unregister_require_hook(registration)
+            # Don't need this to be called again
+            unregister_require_hook(registration)
+          end
         end
       end
 
       def register_require_hook(registration)
         registration.require_paths.each do |p|
-          require_hooks[p] = registration
+          require_hooks[p] ||= []
+          require_hooks[p] << registration
         end
       end
 
       def unregister_require_hook(registration)
         registration.require_paths.each do |p|
-          require_hooks.delete(p)
+          require_hooks[p].delete(registration)
+          require_hooks.delete(p) if require_hooks[p].empty?
         end
       end
 
-      def lookup_by_require_path(require_path)
-        require_hooks[require_path]
+      def each_by_require_path(require_path)
+        return unless require_hooks.key?(require_path)
+
+        # dup because we may be mutating the array
+        require_hooks[require_path].dup.each do |registration|
+          yield registration
+        end
       end
     end
 
