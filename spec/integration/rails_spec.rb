@@ -503,6 +503,10 @@ if enable
           expect(Skylight.instrumenter.config["log_file"]).to eq(MyApp.root.join("log/skylight.log").to_s)
         end
 
+        it "sets native log file" do
+          expect(Skylight.instrumenter.config.native_log_file).to eq(MyApp.root.join("log/skylight.native.log").to_s)
+        end
+
         context "on heroku" do
           def pre_boot
             ENV["SKYLIGHT_HEROKU_DYNO_INFO_PATH"] = File.expand_path("../support/heroku_dyno_info_sample", __dir__)
@@ -514,6 +518,10 @@ if enable
 
           it "leaves log file as STDOUT" do
             expect(Skylight.instrumenter.config["log_file"]).to eq("-")
+          end
+
+          it "sets native log file as STDOUT" do
+            expect(Skylight.instrumenter.config.native_log_file).to eq("-")
           end
         end
       end

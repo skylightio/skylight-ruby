@@ -43,6 +43,7 @@ module Skylight
       -"LOG_FILE"                     => :log_file,
       -"LOG_LEVEL"                    => :log_level,
       -"ALERT_LOG_FILE"               => :alert_log_file,
+      -"NATIVE_LOG_FILE"              => :native_log_file,
       -"LOG_SQL_PARSE_ERRORS"         => :log_sql_parse_errors,
 
       # == Proxy ==
@@ -111,6 +112,11 @@ module Skylight
       # == Source Location ==
       -"SOURCE_LOCATION_IGNORED_GEMS" => :source_location_ignored_gems
     }.freeze
+
+    KEY_TO_NATIVE_ENV = {
+      # We use different log files for native and Ruby, but the native code doesn't know this
+      native_log_file: "LOG_FILE"
+    }
 
     SERVER_VALIDATE = %i[
       enable_source_locations
@@ -181,6 +187,8 @@ module Skylight
 
     def self.native_env_keys
       @native_env_keys ||= %i[
+        log_level
+        native_log_file
         version
         root
         proxy_url
@@ -342,9 +350,12 @@ module Skylight
 
       log_file = self[:log_file]
       alert_log_file = self[:alert_log_file]
+      native_log_file = self.native_log_file
 
       check_logfile_permissions(log_file, "log_file")
       check_logfile_permissions(alert_log_file, "alert_log_file")
+      # TODO: Support rotation interpolation in this check
+      check_logfile_permissions(native_log_file, "native_log_file")
 
       # TODO: Move this out of the validate! method: https://github.com/tildeio/direwolf-agent/issues/273
       # FIXME: Why not set the sockdir_path and pidfile_path explicitly?
@@ -464,7 +475,7 @@ module Skylight
       self.class.native_env_keys.each do |key|
         value = send_or_get(key)
         unless value.nil?
-          env_key = ENV_TO_KEY.key(key) || key.upcase
+          env_key = KEY_TO_NATIVE_ENV[key] || ENV_TO_KEY.key(key) || key.upcase
           ret << "SKYLIGHT_#{env_key}" << cast_for_env(value)
         end
       end
@@ -530,6 +541,17 @@ module Skylight
         MUTEX.synchronize do
           load_logger
         end
+    end
+
+    def native_log_file
+      @native_log_file ||= get("native_log_file") do
+        log_file = self["log_file"]
+        return "-" if log_file == "-"
+
+        parts = log_file.split(".")
+        parts.insert(-2, "native")
+        parts.join(".")
+      end
     end
 
     attr_writer :logger
