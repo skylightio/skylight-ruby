@@ -86,7 +86,7 @@ module Skylight
       -"BATCH_SAMPLE_SIZE"            => :'daemon.batch_sample_size',
       -"BATCH_FLUSH_INTERVAL"         => :'daemon.batch_flush_interval',
       -"DAEMON_TICK_INTERVAL"         => :'daemon.tick_interval',
-      -"DAEMON_SANITY_CHECK_INTERVAL" => :'daemon.sanity_check_interval',
+      -"DAEMON_LOCK_CHECK_INTERVAL"   => :'daemon.lock_check_interval',
       -"DAEMON_INACTIVITY_TIMEOUT"    => :'daemon.inactivity_timeout',
       -"CLIENT_MAX_TRIES"             => :'daemon.max_connect_tries',
       -"CLIENT_CONN_TRY_WIN"          => :'daemon.connect_try_window',
@@ -212,7 +212,7 @@ module Skylight
         daemon.batch_sample_size
         daemon.batch_flush_interval
         daemon.tick_interval
-        daemon.sanity_check_interval
+        daemon.lock_check_interval
         daemon.inactivity_timeout
         daemon.max_connect_tries
         daemon.connect_try_window
