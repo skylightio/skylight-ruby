@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Skylight
   module Probes
     module ActionView
@@ -29,6 +31,8 @@ module Skylight
 
       class Probe
         def install
+          return if ::ActionView.gem_version >= Gem::Version.new("6.1.0.alpha")
+
           ::ActionView::TemplateRenderer.prepend(Instrumentation)
         end
       end
