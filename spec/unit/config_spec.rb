@@ -695,7 +695,9 @@ module Skylight
           "SKYLIGHT_HOSTNAME"                => "test.local",
           "SKYLIGHT_AUTH_URL"                => "https://auth.skylight.io/agent",
           "SKYLIGHT_LAZY_START"              => "false",
-          "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false"
+          "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false",
+          "SKYLIGHT_LOG_LEVEL"               => "INFO",
+          "SKYLIGHT_LOG_FILE"                => "-"
         )
       end
 
@@ -731,6 +733,19 @@ module Skylight
           eq("abc123|reporting_env=true")
 
         expect(config.components[:worker].to_s).to eq("sidekiq:production")
+      end
+
+      it "sends agent_log_file if specified" do
+        config[:log_file] = "/tmp/standard.log",
+        config[:native_log_file] = "/tmp/native.log"
+
+        expect(get_env["SKYLIGHT_LOG_FILE"]).to eq("/tmp/native.log")
+      end
+
+      it "modifies log_file if agent_log_file isn't specified" do
+        config[:log_file] = "/tmp/agent.log"
+
+        expect(get_env["SKYLIGHT_LOG_FILE"]).to eq("/tmp/agent.native.log")
       end
     end
 

@@ -122,7 +122,13 @@ module Skylight
           # Configure the log file destination
           if (log_file = sk_rails_config(app).log_file)
             config["log_file"] = log_file
-          elsif !config.key?("log_file") && !config.on_heroku?
+          end
+
+          if (native_log_file = sk_rails_config(app).native_log_file)
+            config["native_log_file"] = native_log_file
+          end
+
+          if !config.key?("log_file") && !config.on_heroku?
             config["log_file"] = File.join(Rails.root, "log/skylight.log")
           end
 
