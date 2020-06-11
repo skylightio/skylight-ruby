@@ -115,8 +115,9 @@ module Skylight
 
     KEY_TO_NATIVE_ENV = {
       # We use different log files for native and Ruby, but the native code doesn't know this
-      native_log_file: "LOG_FILE"
-    }
+      native_log_file:  "LOG_FILE",
+      native_log_level: "LOG_LEVEL"
+    }.freeze
 
     SERVER_VALIDATE = %i[
       enable_source_locations
@@ -187,7 +188,7 @@ module Skylight
 
     def self.native_env_keys
       @native_env_keys ||= %i[
-        log_level
+        native_log_level
         native_log_file
         version
         root
@@ -536,6 +537,36 @@ module Skylight
       @root ||= Pathname.new(self[:root] || Dir.pwd).realpath
     end
 
+    def log_level
+      @log_level ||=
+        if trace?
+          Logger::DEBUG
+        else
+          case get(:log_level)
+          when /^debug$/i then Logger::DEBUG
+          when /^info$/i  then Logger::INFO
+          when /^warn$/i  then Logger::WARN
+          when /^error$/i then Logger::ERROR
+          when /^fatal$/i then Logger::FATAL
+          else Logger::ERROR
+          end
+        end
+    end
+
+    def native_log_level
+      @native_log_level ||=
+        if trace?
+          "trace"
+        else
+          case log_level
+          when Logger::DEBUG then "debug"
+          when Logger::INFO  then "info"
+          when Logger::WARN  then "warn"
+          else "error"
+          end
+        end
+    end
+
     def logger
       @logger ||=
         MUTEX.synchronize do
@@ -613,21 +644,7 @@ module Skylight
         unless (l = @logger)
           out = get(:log_file)
           out = STDOUT if out == "-"
-          level =
-            if trace?
-              Logger::DEBUG
-            else
-              case get(:log_level)
-              when /^debug$/i then Logger::DEBUG
-              when /^info$/i  then Logger::INFO
-              when /^warn$/i  then Logger::WARN
-              when /^error$/i then Logger::ERROR
-              when /^fatal$/i then Logger::FATAL
-              else Logger::ERROR
-              end
-            end
-
-          l = create_logger(out, level: level)
+          l = create_logger(out, level: log_level)
         end
 
         l
