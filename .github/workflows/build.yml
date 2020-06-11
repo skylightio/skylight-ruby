@@ -7,7 +7,6 @@ env:
   BUNDLE_PATH: "${{ github.workspace }}/vendor/bundle"
   SKYLIGHT_EXT_STRICT: 'false'
   SKYLIGHT_REQUIRED: 'true'
-  SKYLIGHT_ENABLE_TRACE_LOGS: 'true'
   SKYLIGHT_TEST_DIR: "/tmp"
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
@@ -15,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 9ca6b1bf1fd269f5fa837b84d21d8dd5e6fa78bb3a5e1e97f023caac310b7b6a
+  CONFIG_DIGEST: d9d11ede97ad26d007dd3d300dd36ef09cbaff15396ff51b585ee5a285474642
 'on':
   pull_request: {}
   push:

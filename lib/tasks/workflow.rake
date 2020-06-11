@@ -272,7 +272,6 @@ module WorkflowConfigGenerator
     "BUNDLE_PATH" => "${{ github.workspace }}/vendor/bundle",
     "SKYLIGHT_EXT_STRICT" => "false",
     "SKYLIGHT_REQUIRED" => "true",
-    "SKYLIGHT_ENABLE_TRACE_LOGS" => "true",
     "SKYLIGHT_TEST_DIR" => "/tmp",
     "RAILS_ENV" => "development",
     "EMBEDDED_HTTP_SERVER_TIMEOUT" =>  "30",
