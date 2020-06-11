@@ -349,7 +349,7 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: sudo apt-get update && sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
