@@ -2,7 +2,7 @@ require "spec_helper"
 require "tmpdir"
 require "fileutils"
 
-describe "Initialization integration" do
+describe "Initialization integration", :http do
   let(:rails_env) { "development" }
 
   before :all do
@@ -15,6 +15,18 @@ describe "Initialization integration" do
 
   after :all do
     FileUtils.remove_entry_secure @tmpdir
+  end
+
+  before :each do
+    @expect_success = true
+    stub_config_validation
+
+    # Make sure logs don't persist between tests
+    Dir["#{@tmpdir}/dummy/log/*"].each {|l| FileUtils.rm(l) }
+  end
+
+  before :each, expect_success: false do
+    @expect_success = false
   end
 
   around :each do |example|
@@ -45,13 +57,14 @@ describe "Initialization integration" do
       env["SKYLIGHT_ENABLE_TRACE_LOGS"] = "1"
       env["DEBUG"] = "1"
     end
-    cmd = "ruby bin/rails runner '#noop'"
+    cmd = "ruby bin/rails runner 'exit(1) if Skylight.native? && !Skylight.started?'"
     cmd_pid = Process.spawn(env, cmd, out: pipe_cmd_out, err: pipe_cmd_out)
 
     ENV["SKYLIGHT_ENABLE_TRACE_LOGS"] = original_trace
 
     Timeout.timeout(10) do
       Process.wait(cmd_pid)
+      expect($CHILD_STATUS.success?).to eq(@expect_success)
     end
 
     pipe_cmd_out.close
@@ -92,7 +105,7 @@ describe "Initialization integration" do
   if Skylight.native?
 
     context "native" do
-      context "development" do
+      context "development", expect_success: false do
         it "warns development mode" do
           expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data " \
                                   "will be reported until you deploy your app."
@@ -122,7 +135,7 @@ describe "Initialization integration" do
         end
       end
 
-      context "test" do
+      context "test", expect_success: false do
         let(:rails_env) { "test" }
 
         it "doesn't boot or warn" do
@@ -138,7 +151,7 @@ describe "Initialization integration" do
           expect(File.read("log/production.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] Skylight agent enabled"
         end
 
-        it "warns about validation errors" do
+        it "warns about validation errors", expect_success: false do
           ENV["SKYLIGHT_AUTHENTICATION"] = nil
 
           boot
@@ -158,7 +171,7 @@ describe "Initialization integration" do
         end
       end
 
-      context "custom disabled environment (other)" do
+      context "custom disabled environment (other)", expect_success: false do
         let(:rails_env) { "other" }
 
         it "warns that it is disabled" do
@@ -168,7 +181,7 @@ describe "Initialization integration" do
         end
       end
 
-      context "invalid environment name" do
+      context "invalid environment name", expect_success: false do
         let(:rails_env) { "production" }
 
         it "warns that it is disabled" do
