@@ -366,7 +366,10 @@ module WorkflowConfigGenerator
     def install_apt_dependencies_step
       {
         name: "Install APT dependencies",
-        run: "sudo apt-get install -yq sqlite libsqlite3-dev"
+        run: <<~RUN
+          sudo apt-get update
+          sudo apt-get install -yq sqlite libsqlite3-dev
+        RUN
       }
     end
 
