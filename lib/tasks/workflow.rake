@@ -216,7 +216,7 @@ module WorkflowConfigGenerator
       end
     end
 
-    primary = jobs.filter(&:primary?)
+    primary = jobs.select(&:primary?)
     raise "should only have one primary job" if primary.length != 1
     primary = primary.first
 
