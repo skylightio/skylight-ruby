@@ -15,7 +15,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: d14fb8bb9657fa1c5307511e51e997c95adc044c082a9e4c9b9a27bf36c2e6d1
+  CONFIG_DIGEST: 9ca6b1bf1fd269f5fa837b84d21d8dd5e6fa78bb3a5e1e97f023caac310b7b6a
 'on':
   pull_request: {}
   push:
@@ -42,7 +42,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -98,7 +100,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -153,7 +157,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -203,7 +209,9 @@ jobs:
       with:
         ruby-version: '2.4'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -252,7 +260,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -301,7 +311,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -349,7 +361,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get update && sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -396,7 +410,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -444,7 +460,9 @@ jobs:
       with:
         ruby-version: '2.4'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -492,7 +510,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -540,7 +560,9 @@ jobs:
       with:
         ruby-version: '2.4'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -588,7 +610,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -636,7 +660,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -685,7 +711,9 @@ jobs:
       with:
         ruby-version: '2.4'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -733,7 +761,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -783,7 +813,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -833,7 +865,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -883,7 +917,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -932,7 +968,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -981,7 +1019,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -1030,7 +1070,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -1079,7 +1121,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -1129,7 +1173,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -1178,7 +1224,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
@@ -1227,7 +1275,9 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
-      run: sudo apt-get install -yq sqlite libsqlite3-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
