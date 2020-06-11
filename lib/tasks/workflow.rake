@@ -71,6 +71,7 @@ module WorkflowConfigGenerator
     },
 
     {
+      primary: true,
       ruby_version: "2.7",
       gemfile: "rails-6.0.x"
     },
@@ -215,6 +216,15 @@ module WorkflowConfigGenerator
       end
     end
 
+    primary = jobs.filter(&:primary?)
+    raise "should only have one primary job" if primary.length != 1
+    primary = primary.first
+
+    (jobs - [primary]).each do |j|
+      needs = (j.config[:needs] || []).concat([primary.id])
+      j.update(needs: needs)
+    end
+
     ids = jobs.map(&:id).each_with_object(Hash.new(0)) { |id, r| r[id] += 1 }
     repeated = ids.select { |_, v| v > 1 }
 
@@ -277,6 +287,14 @@ module WorkflowConfigGenerator
 
     def initialize(config)
       @config = config
+    end
+
+    def update(config)
+      @config.merge!(config)
+    end
+
+    def primary?
+      @config[:primary]
     end
 
     def to_template
