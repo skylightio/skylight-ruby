@@ -95,7 +95,7 @@ module Skylight
       @trace_info.current = trace
     end
 
-    def check_install!
+    def validate_installation
       # Warn if there was an error installing Skylight.
 
       if defined?(Skylight.check_install_errors)
@@ -104,8 +104,10 @@ module Skylight
 
       if !Skylight.native? && defined?(Skylight.warn_skylight_native_missing)
         Skylight.warn_skylight_native_missing(config)
-        return # rubocop:disable Style/RedundantReturn
+        return false
       end
+
+      true
     end
 
     def muted=(val)
@@ -149,7 +151,7 @@ module Skylight
 
     def start!
       # We do this here since we can't report these issues via Gem install without stopping install entirely.
-      check_install!
+      return unless validate_installation
 
       t { "starting instrumenter" }
 

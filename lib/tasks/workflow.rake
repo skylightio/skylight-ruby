@@ -216,7 +216,7 @@ module WorkflowConfigGenerator
       end
     end
 
-    primary = jobs.filter(&:primary?)
+    primary = jobs.select(&:primary?)
     raise "should only have one primary job" if primary.length != 1
     primary = primary.first
 
@@ -272,7 +272,6 @@ module WorkflowConfigGenerator
     "BUNDLE_PATH" => "${{ github.workspace }}/vendor/bundle",
     "SKYLIGHT_EXT_STRICT" => "false",
     "SKYLIGHT_REQUIRED" => "true",
-    "SKYLIGHT_ENABLE_TRACE_LOGS" => "true",
     "SKYLIGHT_TEST_DIR" => "/tmp",
     "RAILS_ENV" => "development",
     "EMBEDDED_HTTP_SERVER_TIMEOUT" =>  "30",
@@ -421,9 +420,9 @@ module WorkflowConfigGenerator
       {
         name: "Prepare coverage files for upload",
         run: <<~RUN
-          mkdir -p coverage-sync/${{ github.run_id }}
-          cp coverage/.resultset.json coverage-sync/${{ github.run_id }}/coverage.$(uuidgen).json
-          cp coverage-disabled/.resultset.json coverage-sync/${{ github.run_id }}/coverage.disabled.$(uuidgen).json
+          mkdir -p coverage-sync
+          cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
+          cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
         RUN
       }
     end
@@ -431,13 +430,11 @@ module WorkflowConfigGenerator
     def upload_coverage_step
       {
         name: "Upload coverage files",
-        uses: "jakejarvis/s3-sync-action@v0.5.1",
         if: "success()",
-        env: {
-          AWS_S3_BUCKET: "direwolf-agent-github",
-          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}",
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}",
-          SOURCE_DIR: "coverage-sync"
+        uses: "actions/upload-artifact@v2",
+        with: {
+          name: "coverage",
+          path: "coverage-sync"
         }
       }
     end
@@ -564,15 +561,12 @@ module WorkflowConfigGenerator
     def download_coverage_data_step
       {
         name: "Download coverage data",
-        env: {
-          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}",
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-        },
-        run: <<~RUN
-          mkdir -p coverage
-          mkdir -p formatted_coverage
-          aws s3 sync s3://direwolf-agent-github/${{ github.run_id }} coverage
-        RUN
+        uses: "actions/download-artifact@v2",
+        with: {
+          name: "coverage",
+          path: "coverage"
+        }
+
       }
     end
 
@@ -581,6 +575,7 @@ module WorkflowConfigGenerator
         name: "Prepare and upload coverage",
         env: { CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}" },
         run: <<~RUN
+          mkdir -p formatted_coverage
           find coverage -name '*.json' | xargs -I % ./cc-test-reporter format-coverage -t simplecov -o formatted_coverage/% %
           ./cc-test-reporter sum-coverage formatted_coverage/**/*.json
           ./cc-test-reporter upload-coverage
