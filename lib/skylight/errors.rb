@@ -44,7 +44,7 @@ module Skylight
 
     def initialize(method_name)
       @method_name = method_name
-      super(format("[E%<code>04d] %<message>s [%<meth>s]", code: code, message: message, meth: method_name))
+      super(format("[E%<code>04d] %<message>s [%<meth>s]", code: code, message: self.class.message, meth: method_name))
     end
 
     def code
