@@ -1,3 +1,29 @@
+## 5.0.0.beta
+* [BREAKING] Merge skylight-core into skylight. All classes previously namespaced under `Skylight::Core` have been moved to `Skylight`.
+* [BREAKING] Remove `Skylight::Util::Inflector`
+* [BREAKING] Drop support for Rails 4
+* [BREAKING] Drop support for Rails 2.3
+* [IMPROVEMENT] Maintain method visibility when instrumenting with `instrument_method`
+* [IMPROVEMENT] Update probes to use `Module#prepend` where possible
+* [IMPROVEMENT] New tokio-based skylightd
+* [IMPROVEMENT] Support `render_layout` notifications in Rails 6.1
+* [IMPROVEMENT] Support `ActionMailer::MailDeliveryJob` in Rails 6.1
+* [IMPROVEMENT] Better logging config
+* [BUGFIX] Allow multiple probes to be registered under the same key
+* [BUGFIX] Do not refer to Redis constant until the probe is installed
+* [BUGFIX] Fix nested calls to `Normalizers::Faraday::Request.disable`
+
+## 4.3.1 (June 24, 2020)
+* [BUGFIX] Fix an issue in which `Mime::NullType` would result in an exception
+
+## 4.3.0 (March 18, 2020)
+* [IMPROVEMENT] Fix Ruby 2.7 warnings
+* [IMPROVEMENT] Update Grape normalizer for version 1.3.1
+* [BUGFIX] Fix an issue where GraphQL normalizers could fail to load in non-Rails contexts
+
+## 4.2.2 (February 25, 2020)
+* Support graphql-ruby version 1.10
+
 ## 4.2.1 (January 14, 2020)
 * [IMPROVEMENT] Enable instrumentation for ActionMailer::MailDeliveryJob
 * [BUGFIX] Improved handling for non-SPEC compliant Rack middleware
