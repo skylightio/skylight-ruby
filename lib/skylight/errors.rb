@@ -34,6 +34,10 @@ module Skylight
       9999
     end
 
+    def self.formatted_code
+      format("%<code>04d", code: code)
+    end
+
     def self.message
       "Encountered an unknown internal error"
     end
@@ -48,14 +52,14 @@ module Skylight
     end
 
     def formatted_code
-      format("%<code>04d", code: code)
+      self.class.formatted_code
     end
 
     # E0003
     register(3, "MaximumTraceSpans", "Exceeded maximum number of spans in a trace.")
 
     # E0004
-    # Sql lexing error - See daemon
+    register(4, "SqlLex", "Failed to lex SQL query.")
 
     # E0005
     register(5, "InstrumenterUnrecoverable", "Instrumenter is not running.")

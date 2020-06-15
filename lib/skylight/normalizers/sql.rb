@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require "json"
 
 module Skylight
   module Normalizers
     # Normalizer for SQL requests
     class SQL < Normalizer
-      CAT = "db.sql.query".freeze
+      CAT = "db.sql.query"
 
       # @param trace [Skylight::Messages::Trace::Builder] ignored, only present to match API
       # @param name [String] ignored, only present to match API
@@ -14,17 +16,27 @@ module Skylight
       # @return [Array]
       def normalize(trace, name, payload)
         case payload[:name]
-        when "SCHEMA".freeze, "CACHE".freeze
+        when "SCHEMA", "CACHE"
           return :skip
         else
           name  = CAT
-          title = payload[:name] || "SQL".freeze
+          title = payload[:name] || "SQL"
         end
 
-        # Encode since we could have SQL with binary data
-        sql = payload[:sql].encode('UTF-8', invalid: :replace, undef: :replace, replace: '�')
+        # We can only handle UTF-8 encoded strings
+        sql = "<sk-sql>#{payload[:sql]}</sk-sql>".dup.force_encoding("UTF-8")
 
-        [name, title, "<sk-sql>#{sql}</sk-sql>"]
+        unless sql.valid_encoding?
+          if config[:log_sql_parse_errors]
+            config.logger.error "[#{Skylight::SqlLexError.formatted_code}] Unable to extract binds from non-UTF-8 query. " \
+                                "encoding=#{payload[:sql].encoding.name} " \
+                                "sql=#{payload[:sql].inspect} "
+          end
+
+          sql = nil
+        end
+
+        [name, title, sql]
       end
     end
   end
