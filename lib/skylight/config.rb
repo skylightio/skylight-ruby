@@ -579,7 +579,7 @@ module Skylight
         log_file = self["log_file"]
         return "-" if log_file == "-"
 
-        parts = log_file.split(".")
+        parts = log_file.to_s.split(".")
         parts.insert(-2, "native")
         parts.join(".")
       end

@@ -40,7 +40,7 @@ module SpecHelper
   def test_config_values
     @test_config_values ||= {
       authentication:              SecureRandom.uuid,
-      log:                         log_path,
+      log_file:                    log_path,
       log_level:                   ENV["DEBUG"] ? :debug : :fatal,
       user_config_path:            tmp("user_config.yml"),
       report_url:                  "http://127.0.0.1:#{port}/report",
