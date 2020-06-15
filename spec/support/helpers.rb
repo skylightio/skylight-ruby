@@ -96,7 +96,6 @@ module SpecHelper
     if ENV["DEBUG"]
       ENV["SKYLIGHT_ENABLE_TRACE_LOGS"]    = "true"
       ENV["SKYLIGHT_LOG_FILE"]             = "-"
-      ENV["RUST_LOG"] = "skylight=debug"
     else
       ENV["SKYLIGHT_DISABLE_DEV_WARNING"] = "true"
     end

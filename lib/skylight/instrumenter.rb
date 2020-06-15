@@ -320,18 +320,6 @@ module Skylight
       config.ignored_endpoints.include?(trace.endpoint)
     end
 
-    # Return [title, sql]
-    def process_sql(sql)
-      Skylight.lex_sql(sql)
-    rescue SqlLexError => e
-      if config[:log_sql_parse_errors]
-        config.logger.error "[#{e.formatted_code}] Failed to extract binds from SQL query. " \
-                            "It's likely that this query uses more advanced syntax than we currently support. " \
-                            "sql=#{sql.inspect}"
-      end
-      nil
-    end
-
     # Because GraphQL can return multiple results, each of which
     # may have their own success/error states, we need to set the
     # skylight segment as follows:

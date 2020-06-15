@@ -190,6 +190,7 @@ module Skylight
       @native_env_keys ||= %i[
         native_log_level
         native_log_file
+        log_sql_parse_errors
         version
         root
         proxy_url

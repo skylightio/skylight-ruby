@@ -697,7 +697,8 @@ module Skylight
           "SKYLIGHT_LAZY_START"              => "false",
           "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false",
           "SKYLIGHT_LOG_LEVEL"               => "info",
-          "SKYLIGHT_LOG_FILE"                => "-"
+          "SKYLIGHT_LOG_FILE"                => "-",
+          "SKYLIGHT_LOG_SQL_PARSE_ERRORS"    => "true"
         )
       end
 

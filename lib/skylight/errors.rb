@@ -55,9 +55,12 @@ module Skylight
     register(3, "MaximumTraceSpans", "Exceeded maximum number of spans in a trace.")
 
     # E0004
-    register(4, "SqlLex", "Failed to lex SQL query.")
+    # Sql lexing error - See daemon
 
     # E0005
     register(5, "InstrumenterUnrecoverable", "Instrumenter is not running.")
+
+    # E0006
+    register(6, "InvalidUtf8", "Invalid UTF-8")
   end
 end

@@ -21,26 +21,11 @@ module Skylight
           title = payload[:name] || "SQL".freeze
         end
 
-        binds = payload[:binds]
+        # Encode since we could have SQL with binary data
+        sql = payload[:sql].encode('UTF-8', invalid: :replace, undef: :replace, replace: '�')
 
-        if binds && !binds.empty?
-          binds = binds.map { |_col, val| val.inspect }
-        end
-
-        begin
-          extracted_title, sql = extract_binds(trace.instrumenter, payload, binds)
-          [name, extracted_title || title, sql]
-        rescue => e
-          config.logger.error "Failed to extract binds in SQL; sql=#{payload[:sql].inspect}; exception=#{e.inspect}"
-          [name, title, nil]
-        end
+        [name, title, "<sk-sql>#{sql}</sk-sql>"]
       end
-
-      private
-
-        def extract_binds(instrumenter, payload, _precalculated)
-          instrumenter.process_sql(payload[:sql])
-        end
     end
   end
 end
