@@ -190,6 +190,7 @@ module Skylight
       @native_env_keys ||= %i[
         native_log_level
         native_log_file
+        log_sql_parse_errors
         version
         root
         proxy_url
@@ -579,7 +580,7 @@ module Skylight
         log_file = self["log_file"]
         return "-" if log_file == "-"
 
-        parts = log_file.split(".")
+        parts = log_file.to_s.split(".")
         parts.insert(-2, "native")
         parts.join(".")
       end

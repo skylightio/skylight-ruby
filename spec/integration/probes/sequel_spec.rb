@@ -39,10 +39,11 @@ describe "Sequel integration", :sequel_probe, :agent do
 
     db[:items].count
 
+    # SQL parsing happens in the daemon
     expect(trace).to receive(:instrument).with(
       "db.sql.query",
-      "SELECT FROM items",
-      RegexMatcher.new(/^SELECT count\(\*\) AS \? FROM `items` LIMIT \?$/i),
+      "SQL",
+      "<sk-sql>SELECT count(*) AS 'count' FROM `items` LIMIT 1</sk-sql>",
       nil
     ).and_call_original
 

@@ -34,13 +34,17 @@ module Skylight
       9999
     end
 
+    def self.formatted_code
+      format("%<code>04d", code: code)
+    end
+
     def self.message
       "Encountered an unknown internal error"
     end
 
     def initialize(method_name)
       @method_name = method_name
-      super(format("[E%<code>04d] %<message>s [%<meth>s]", code: code, message: message, meth: method_name))
+      super(format("[E%<code>04d] %<message>s [%<meth>s]", code: code, message: self.class.message, meth: method_name))
     end
 
     def code
@@ -48,7 +52,7 @@ module Skylight
     end
 
     def formatted_code
-      format("%<code>04d", code: code)
+      self.class.formatted_code
     end
 
     # E0003
@@ -59,5 +63,8 @@ module Skylight
 
     # E0005
     register(5, "InstrumenterUnrecoverable", "Instrumenter is not running.")
+
+    # E0006
+    register(6, "InvalidUtf8", "Invalid UTF-8")
   end
 end

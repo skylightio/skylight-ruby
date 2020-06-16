@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require "json"
 
 module Skylight
   module Normalizers
     # Normalizer for SQL requests
     class SQL < Normalizer
-      CAT = "db.sql.query".freeze
+      CAT = "db.sql.query"
 
       # @param trace [Skylight::Messages::Trace::Builder] ignored, only present to match API
       # @param name [String] ignored, only present to match API
@@ -14,33 +16,29 @@ module Skylight
       # @return [Array]
       def normalize(trace, name, payload)
         case payload[:name]
-        when "SCHEMA".freeze, "CACHE".freeze
+        when "SCHEMA", "CACHE"
           return :skip
         else
           name  = CAT
-          title = payload[:name] || "SQL".freeze
+          title = payload[:name] || "SQL"
         end
 
-        binds = payload[:binds]
+        # We can only handle UTF-8 encoded strings.
+        # (Construction method here avoids extra allocations)
+        sql = String.new.concat("<sk-sql>", payload[:sql], "</sk-sql>").force_encoding(Encoding::UTF_8)
 
-        if binds && !binds.empty?
-          binds = binds.map { |_col, val| val.inspect }
+        unless sql.valid_encoding?
+          if config[:log_sql_parse_errors]
+            config.logger.error "[#{Skylight::SqlLexError.formatted_code}] Unable to extract binds from non-UTF-8 query. " \
+                                "encoding=#{payload[:sql].encoding.name} " \
+                                "sql=#{payload[:sql].inspect} "
+          end
+
+          sql = nil
         end
 
-        begin
-          extracted_title, sql = extract_binds(trace.instrumenter, payload, binds)
-          [name, extracted_title || title, sql]
-        rescue => e
-          config.logger.error "Failed to extract binds in SQL; sql=#{payload[:sql].inspect}; exception=#{e.inspect}"
-          [name, title, nil]
-        end
+        [name, title, sql]
       end
-
-      private
-
-        def extract_binds(instrumenter, payload, _precalculated)
-          instrumenter.process_sql(payload[:sql])
-        end
     end
   end
 end

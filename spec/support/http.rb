@@ -50,7 +50,7 @@ module SpecHelper
                      "#{!!filter.call(request)}"
               end
               puts "*************"
-              raise "Server.wait timeout: got #{filter_requests(opts).count(&filter)} not #{opts[:count]}"
+              raise "Server.wait timeout: got #{filter_requests(opts).count(&filter)} not #{count}"
             end
 
             COND.wait(LOCK, ttl)
