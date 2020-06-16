@@ -23,8 +23,9 @@ module Skylight
           title = payload[:name] || "SQL"
         end
 
-        # We can only handle UTF-8 encoded strings
-        sql = "<sk-sql>#{payload[:sql]}</sk-sql>".dup.force_encoding("UTF-8")
+        # We can only handle UTF-8 encoded strings.
+        # (Construction method here avoids extra allocations)
+        sql = String.new.concat("<sk-sql>", payload[:sql], "</sk-sql>").force_encoding(Encoding::UTF_8)
 
         unless sql.valid_encoding?
           if config[:log_sql_parse_errors]
