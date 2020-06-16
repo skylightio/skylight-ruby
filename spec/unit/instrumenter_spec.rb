@@ -1,6 +1,5 @@
 require "spec_helper"
 require "securerandom"
-require "base64"
 require "stringio"
 
 # FIXME: Move some of these tests to core with mocking
@@ -54,25 +53,22 @@ describe "Skylight::Instrumenter", :http, :agent do
       expect(logger_out.string).to include(msg)
     end
 
-    # We don't currently have any server validated config values,
-    # but we should bring this test back if we add some again.
-    #
-    #   it "doesn't keep invalid config values" do
-    #     config.set('test.enable_segments', true)
-    #     stub_config_validation(422, { corrected: { enable_segments: false },
-    #                                   errors: { enable_segments: "not allowed to be set" } })
-    #
-    #     expect(Skylight.start!(config)).to be_truthy
-    #
-    #     logger_out.rewind
-    #     out = logger_out.read
-    #     expect(out).to include("Invalid configuration")
-    #     expect(out).to include("enable_segments not allowed to be set")
-    #     expect(out).to include("Updating config values:")
-    #     expect(out).to include("setting enable_segments to false")
+    it "doesn't keep invalid config values" do
+      config.set('test.enable_source_locations', true)
+      stub_config_validation(422, { corrected: { enable_source_locations: false },
+                                    errors: { enable_source_locations: "not allowed to be set" } })
 
-    #     expect(config.enable_segments?).to be_falsey
-    #   end
+      expect(Skylight.start!(config)).to be_truthy
+
+      logger_out.rewind
+      out = logger_out.read
+      expect(out).to include("Invalid configuration")
+      expect(out).to include("enable_source_locations: not allowed to be set")
+      expect(out).to include("Updating config values:")
+      expect(out).to include("setting enable_source_locations to false")
+
+      expect(config.enable_source_locations?).to be_falsey
+    end
 
     context "when server not reachable" do
       before(:each) do
@@ -84,35 +80,32 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(logger_out.string).to include("Unable to reach server for config validation")
       end
 
-      # We don't currently have any server validated config values,
-      # but we should bring this test back if we add some again.
-      #
-      #   it "resets validated values to default" do
-      #     config.set('test.enable_segments', true)
-      #
-      #     expect(Skylight.start!(config)).to be_truthy
-      #
-      #     logger_out.rewind
-      #     out = logger_out.read
-      #     puts out
-      #     expect(out).to include('Unable to reach server for config validation')
-      #     expect(out).to include("Updating config values:")
-      #     expect(out).to include('setting enable_segments to false')
-      #
-      #     expect(config.enable_segments?).to be_falsey
-      #   end
-      #
-      #   it "doesn't notify about values already at default" do
-      #     expect(Skylight.start!(config)).to be_truthy
-      #
-      #     logger_out.rewind
-      #     out = logger_out.read
-      #     expect(out).to include('Unable to reach server for config validation')
-      #     expect(out).to_not include("Updating config values:")
-      #     expect(out).to_not include('setting enable_segments to false')
-      #
-      #     expect(config.enable_segments?).to be_falsey
-      #   end
+      it "resets validated values to default" do
+        config.set('test.enable_source_locations', true)
+
+        expect(Skylight.start!(config)).to be_truthy
+
+        logger_out.rewind
+        out = logger_out.read
+        puts out
+        expect(out).to include('Unable to reach server for config validation')
+        expect(out).to include("Updating config values:")
+        expect(out).to include('setting enable_source_locations to false')
+
+        expect(config.enable_source_locations?).to be_falsey
+      end
+
+      it "doesn't notify about values already at default" do
+        expect(Skylight.start!(config)).to be_truthy
+
+        logger_out.rewind
+        out = logger_out.read
+        expect(out).to include('Unable to reach server for config validation')
+        expect(out).to_not include("Updating config values:")
+        expect(out).to_not include('setting enable_source_locations to false')
+
+        expect(config.enable_source_locations?).to be_falsey
+      end
 
       context "with an exception" do
         before :each do
@@ -555,28 +548,6 @@ describe "Skylight::Instrumenter", :http, :agent do
             Skylight.instance_variable_get(:@shutdown_thread).join
           end.to change(&has_subscribers).from(true).to(false)
         end
-      end
-    end
-
-    def with_endpoint(endpoint)
-      config[:trace_info].current = Struct.new(:endpoint).new(endpoint)
-      yield
-    ensure
-      config[:trace_info] = nil
-    end
-
-    it "limits unique descriptions to 100" do
-      config[:trace_info] = Struct.new(:current).new
-      instrumenter = Skylight::Instrumenter.new(config)
-
-      with_endpoint("foo#bar") do
-        100.times do
-          description = SecureRandom.hex
-          expect(instrumenter.limited_description(description)).to eq(description)
-        end
-
-        description = SecureRandom.hex
-        expect(instrumenter.limited_description(description)).to eq(Skylight::Instrumenter::TOO_MANY_UNIQUES)
       end
     end
   end

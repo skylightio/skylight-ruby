@@ -234,30 +234,6 @@ instrumenter_submit_trace(VALUE self, VALUE rb_trace) {
   return Qnil;
 }
 
-static VALUE
-instrumenter_track_desc(VALUE self, VALUE rb_endpoint, VALUE rb_desc) {
-  int tracked;
-  sky_instrumenter_t* instrumenter;
-
-  CHECK_TYPE(rb_endpoint, T_STRING);
-  CHECK_TYPE(rb_desc, T_STRING);
-
-  tracked = 0;
-
-  My_Struct(instrumenter, sky_instrumenter_t, no_instrumenter_msg);
-
-  CHECK_FFI(
-      sky_instrumenter_track_desc(instrumenter, STR2BUF(rb_endpoint), STR2BUF(rb_desc), &tracked),
-      "Instrumenter#native_track_desc");
-
-  if (tracked) {
-    return Qtrue;
-  }
-  else {
-    return Qfalse;
-  }
-}
-
 /*
  *
  * class Skylight::Trace
@@ -567,5 +543,4 @@ void Init_skylight_native() {
   rb_define_method(rb_cInstrumenter, "native_start", instrumenter_start, 0);
   rb_define_method(rb_cInstrumenter, "native_stop", instrumenter_stop, 0);
   rb_define_method(rb_cInstrumenter, "native_submit_trace", instrumenter_submit_trace, 1);
-  rb_define_method(rb_cInstrumenter, "native_track_desc", instrumenter_track_desc, 2);
 }

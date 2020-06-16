@@ -122,16 +122,7 @@ module Skylight
       title.freeze if title.is_a?(String)
       desc.freeze  if desc.is_a?(String)
 
-      original_desc = desc
-      now           = Skylight::Util::Clock.nanos
-      desc          = @instrumenter.limited_description(desc)
-
-      if desc == Skylight::Instrumenter::TOO_MANY_UNIQUES
-        error "[E0002] The number of unique span descriptions allowed per-request has been exceeded " \
-                  "for endpoint: #{endpoint}."
-        debug "original desc=%s", original_desc
-        debug "cat=%s, title=%s, desc=%s", cat, title, desc
-      end
+      now = Skylight::Util::Clock.nanos
 
       preprocess_meta(meta) if meta
 

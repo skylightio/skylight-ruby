@@ -55,6 +55,9 @@ module Skylight
       self.class.formatted_code
     end
 
+    # E0002
+    # Too many unique descriptions - daemon only
+
     # E0003
     register(3, "MaximumTraceSpans", "Exceeded maximum number of spans in a trace.")
 

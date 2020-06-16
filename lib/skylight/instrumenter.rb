@@ -8,8 +8,6 @@ module Skylight
   class Instrumenter
     KEY = :__skylight_current_trace
 
-    TOO_MANY_UNIQUES = "<too many unique descriptions>".freeze
-
     include Util::Logging
 
     class TraceInfo
@@ -276,18 +274,6 @@ module Skylight
       return unless (trace = @trace_info.current)
 
       trace.done(span, meta)
-    end
-
-    def limited_description(description)
-      endpoint = @trace_info.current.endpoint
-
-      if description
-        if native_track_desc(endpoint, description)
-          description
-        else
-          TOO_MANY_UNIQUES
-        end
-      end
     end
 
     def process(trace)
