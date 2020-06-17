@@ -44,7 +44,7 @@ describe "Sequel integration", :sequel_probe, :agent do
       "db.sql.query",
       "SQL",
       "<sk-sql>SELECT count(*) AS 'count' FROM `items` LIMIT 1</sk-sql>",
-      nil
+      {}
     ).and_call_original
 
     db[:items].count

@@ -8,6 +8,6 @@ gem "sinatra", "~> 2.0.0"
 
 group :development do
   gem "pry"
-  gem "pry-byebug"
   gem "yard", "~> 0.9.11"
+  gem 'pry-byebug'
 end

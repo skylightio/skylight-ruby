@@ -186,32 +186,17 @@ module Skylight
         title       = opts[:title]
         desc        = opts[:description]
         meta        = opts[:meta]
-        source_location = opts[:source_location] || opts[:meta]&.[](:source_location)
-        source_file = opts[:source_file] || opts[:meta]&.[](:source_file)
-        source_line = opts[:source_line] || opts[:meta]&.[](:source_line)
       else
         category    = DEFAULT_CATEGORY
         title       = opts.to_s
         desc        = nil
         meta        = nil
-        source_location = nil
-        source_file = nil
-        source_line = nil
+        opts        = {}
       end
 
       meta ||= {}
-      if source_location
-        meta[:source_location] = source_location
-      elsif source_file
-        meta[:source_file] = source_file
-        meta[:source_line] = source_line
-      else
-        warn "Ignoring source_line without source_file" if source_line
-        if (location = instrumenter.find_caller(cache_key: opts.hash))
-          meta[:source_file] = location.absolute_path
-          meta[:source_line] = location.lineno
-        end
-      end
+
+      instrumenter.extensions.process_instrument_options(opts, meta)
 
       instrumenter.instrument(category, title, desc, meta, &block)
     end

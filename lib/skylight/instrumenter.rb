@@ -36,7 +36,7 @@ module Skylight
       end
     end
 
-    attr_reader :uuid, :config, :gc
+    attr_reader :uuid, :config, :gc, :extensions
 
     def self.native_new(_uuid, _config_env)
       raise "not implemented"
@@ -60,8 +60,23 @@ module Skylight
       @trace_info = @config[:trace_info] || TraceInfo.new(KEY)
       @mutex = Mutex.new
 
-      @caller_cache = Util::LruCache.new(100)
-      @instance_method_source_location_cache = Util::LruCache.new(100)
+      # FIXME: cleanup
+      require 'skylight/extensions'
+      @extensions = Skylight::Extensions::Collection.new(@config).tap do |exts|
+        exts.enable!(:source_location) if @config.enable_source_locations?
+      end
+    end
+
+    def enable_extension!(name)
+      extensions.enable!(name)
+    end
+
+    def disable_extension!(name)
+      extensions.disable!(name)
+    end
+
+    def extension_enabled?(name)
+      extensions.enabled?(name)
     end
 
     def log_context
@@ -329,66 +344,6 @@ module Skylight
                 end
 
       trace.endpoint += "<sk-segment>#{segment}</sk-segment>"
-    end
-
-    def gem_require_paths
-      @gem_require_paths ||=
-        Hash[*Bundler.load.specs.to_a.map { |s| s.full_require_paths.map { |p| [p, s.name] } }.flatten]
-    end
-
-    def find_caller(cache_key: nil)
-      return unless config.enable_source_locations?
-
-      if cache_key
-        @caller_cache.fetch(cache_key) { find_caller_inner }
-      else
-        find_caller_inner
-      end
-    end
-
-    def find_caller_inner
-      # Start at file before this one
-      caller_locations(1).find do |l|
-        find_source_gem(l.absolute_path) || project_path?(l.absolute_path)
-      end
-    end
-
-    def find_source_gem(path)
-      return unless config.enable_source_locations?
-
-      _, name = gem_require_paths.find do |rpath, name|
-        path.start_with?(rpath) && !config.source_location_ignored_gems.include?(name)
-      end
-      name
-    end
-
-    def project_path?(path)
-      # Must be in the project root
-      return false unless path.start_with?(config.root.to_s)
-      # Must not be Bundler's vendor location
-      return false if path.start_with?(Bundler.bundle_path.to_s)
-      # Must not be Ruby files
-      return false if path.include?("/ruby-#{RUBY_VERSION}/lib/ruby/")
-
-      # So it must be a project file
-      true
-    end
-
-    def instance_method_source_location(constant_name, method_name)
-      return unless config.enable_source_locations?
-
-      @instance_method_source_location_cache.fetch([constant_name, method_name]) do
-        if (constant = ::ActiveSupport::Dependencies.safe_constantize(constant_name))
-          if constant.instance_methods.include?(:"before_instrument_#{method_name}")
-            method_name = :"before_instrument_#{method_name}"
-          end
-          begin
-            constant.instance_method(method_name).source_location
-          rescue NameError
-            nil
-          end
-        end
-      end
     end
   end
 end

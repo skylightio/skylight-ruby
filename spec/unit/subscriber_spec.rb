@@ -10,7 +10,7 @@ module Skylight
 
     before do
       allow(subscriber).to receive(:raise_on_error?) { false }
-      allow(trace.instrumenter).to receive(:find_caller) { caller_location }
+      allow_any_instance_of(Skylight::Extensions::SourceLocation).to receive(:find_caller) { caller_location }
     end
 
     class Skylight::Normalizers::SubscriberTestNormalizer < Skylight::Normalizers::Normalizer
@@ -24,8 +24,8 @@ module Skylight
     class Skylight::Normalizers::CustomSourceLocationNormalizer < Skylight::Normalizers::Normalizer
       register "subscriber_test_source_location.spec.skylight"
 
-      def normalize(*)
-        ["spec_source_location.skylight", "normalized", nil]
+      def normalize(trace, *)
+        ["spec_source_location.skylight", "normalized", nil, { source_location: source_location(trace) }]
       end
 
       def source_location(trace, *, **)
@@ -81,6 +81,8 @@ module Skylight
     end
 
     it "instruments" do
+      trace.instrumenter.extensions.enable!(:source_location)
+
       ActiveSupport::Notifications.instrument("subscriber_test.spec.skylight") do
         ActiveSupport::Notifications.instrument("subscriber_test_source_location.spec.skylight") do
           # empty

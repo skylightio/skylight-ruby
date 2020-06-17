@@ -16,12 +16,6 @@ module Skylight
           trace.endpoint = name
           [CAT, name, nil]
         end
-
-        def source_location(trace, _name, payload, cache_key: nil)
-          return unless trace.config.enable_source_locations?
-
-          payload[:sk_source_location]
-        end
       end
     end
   end

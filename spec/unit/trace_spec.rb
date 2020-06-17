@@ -267,6 +267,10 @@ module Skylight
     end
 
     context "source location" do
+      before do
+        Skylight.instrumenter.disable_extension!(:source_location)
+      end
+
       it "is not tracked by default" do
         trace = Skylight.trace "Rack", "app.rack.request"
         span = trace.instrument("app.block", nil, nil, source_location: "foo/bar.rb:1")
@@ -281,7 +285,13 @@ module Skylight
 
       context "with tracking enabled" do
         before do
-          Skylight.config.set(:enable_source_locations, true)
+          Skylight.instrumenter.enable_extension!(:source_location)
+        end
+
+        let(:extension) do
+          Skylight.instrumenter.extensions.instance_exec do
+            @extensions.detect { |x| x.is_a?(Skylight::Extensions::SourceLocation) }
+          end
         end
 
         it "allows only source_file to be set" do
@@ -315,7 +325,7 @@ module Skylight
         it "ignores source_line without source_file" do
           trace = Skylight.trace "Rack", "app.rack.request"
 
-          expect(trace).to receive(:warn).with("Ignoring source_line without source_file; source_line=123")
+          expect(extension).to receive(:warn).with("Ignoring source_line without source_file; source_line=123")
 
           span = trace.instrument("app.block", nil, nil, source_line: 123)
           trace.done(span)
@@ -330,7 +340,7 @@ module Skylight
         it "gives priority to source_location" do
           trace = Skylight.trace "Rack", "app.rack.request"
 
-          expect(trace).to receive(:warn).with(
+          expect(extension).to receive(:warn).with(
             "Found both source_location and source_file or source_line, using source_location\n" \
             "  location=foo/bar.rb:1; file=foo.rb; line=123"
           )
