@@ -11,6 +11,7 @@ module Skylight
         end
 
         config = config_class.load(config_opts)
+        config[:authentication] ||= "zomg"
 
         class_eval do
           unless const_defined?(:OriginalInstrumenter)

@@ -83,7 +83,7 @@ module SpecHelper
     @_original_env = ENV.to_hash
 
     ENV["SKYLIGHT_AUTHENTICATION"]       = test_config_values[:authentication]
-    ENV["SKYLIGHT_BATCH_FLUSH_INTERVAL"] = "1"
+    ENV["SKYLIGHT_BATCH_FLUSH_INTERVAL"] = "10ms"
     ENV["SKYLIGHT_REPORT_URL"]           = "http://127.0.0.1:#{port}/report"
     ENV["SKYLIGHT_REPORT_HTTP_DEFLATE"]  = "false"
     ENV["SKYLIGHT_AUTH_URL"]             = "http://127.0.0.1:#{port}/agent"
