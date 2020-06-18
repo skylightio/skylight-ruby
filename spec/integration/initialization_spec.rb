@@ -41,7 +41,6 @@ describe "Initialization integration", :http do
     end
   end
 
-  # FIXME: Sometimes this can hang for no apparent reason
   def boot(debug: true)
     pipe_cmd_in, pipe_cmd_out = IO.pipe
 

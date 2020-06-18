@@ -1,7 +1,6 @@
 require "spec_helper"
 
 # This is here because we need the native agent to test
-# FIXME: Move at least some specs to core with mocking
 module Skylight
   describe Middleware, :http, :agent do
     before :each do

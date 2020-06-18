@@ -79,7 +79,6 @@ module Skylight
                   Skylight.done(spans)
                 end
             rescue Exception => e
-              # FIXME: Log this?
               Skylight.done(spans, exception_object: e)
               raise
             ensure

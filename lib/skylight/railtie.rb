@@ -65,7 +65,6 @@ module Skylight
             end
           end
         elsif Rails.env.development?
-          # FIXME: The CLI isn't part of core so we should change this message
           unless config.user_config.disable_dev_warning?
             log_warning config, development_warning
           end

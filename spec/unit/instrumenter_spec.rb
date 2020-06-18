@@ -2,7 +2,6 @@ require "spec_helper"
 require "securerandom"
 require "stringio"
 
-# FIXME: Move some of these tests to core with mocking
 describe "Skylight::Instrumenter", :http, :agent do
   before :each do
     @old_logger = config.logger

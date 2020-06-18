@@ -258,13 +258,3 @@ RSpec.configure do |config|
     end
   end
 end
-
-# FIXME: Review this
-if defined?(Axiom::Types::Infinity)
-  # Old versions of axiom-types don't play well with newer RSpec
-  class Axiom::Types::Infinity
-    def self.<(_other)
-      false
-    end
-  end
-end

@@ -11,8 +11,6 @@ module Skylight
         end
 
         config = config_class.load(config_opts)
-
-        # FIXME: Revisit this
         config[:authentication] ||= "zomg"
 
         class_eval do

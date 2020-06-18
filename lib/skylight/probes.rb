@@ -145,8 +145,8 @@ module Kernel
     require_without_sk(name).tap do
       begin
         Skylight::Probes.require_hook(name)
-      rescue Exception # rubocop:disable Lint/SuppressedException
-        # FIXME: Log these errors
+      rescue Exception => e # rubocop:disable Lint/SuppressedException
+        warn("[SKYLIGHT] Rescued exception in require hook", e)
       end
     end
   end
