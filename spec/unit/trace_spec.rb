@@ -235,30 +235,26 @@ module Skylight
     end
 
     it "limits unique descriptions" do
-      original_raise_on_error = ENV["SKYLIGHT_RAISE_ON_ERROR"]
-      ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
-      begin
-        trace = Skylight.trace "Rack", "app.rack.request"
+      trace = Skylight.trace "Rack", "app.rack.request"
 
-        expect(Skylight.instrumenter).to receive(:limited_description).
-          at_least(:once).
-          with(any_args).
-          and_return(Instrumenter::TOO_MANY_UNIQUES)
+      a = trace.instrument "foo", "FOO", "How a foo is formed?"
 
-        a = trace.instrument "foo", "FOO", "How a foo is formed?"
-        record trace, :bar, "BAR", "How a bar is formed?"
-        trace.done(a)
-        trace.submit
-
-        server.wait resource: "/report"
-
-        expect(spans[1].event.title).to       eq("FOO")
-        expect(spans[1].event.description).to eq(Instrumenter::TOO_MANY_UNIQUES)
-        expect(spans[2].event.title).to       eq("BAR")
-        expect(spans[2].event.description).to eq(Instrumenter::TOO_MANY_UNIQUES)
-      ensure
-        ENV["SKYLIGHT_RAISE_ON_ERROR"] = original_raise_on_error
+      100.times do |i|
+        record trace, :bar, "BAR", "How a bar is formed? #{i}"
       end
+
+      trace.done(a)
+      trace.submit
+
+      server.wait resource: "/report"
+
+      filtered_spans = spans.select { |s| s.event.category == "bar" }
+
+      99.times do |i|
+        expect(filtered_spans[i].event.description).to eq("How a bar is formed? #{i}")
+      end
+
+      expect(filtered_spans[99].event.description).to eq("<too many unique descriptions>")
     end
 
     it "warns about unknown meta keys" do

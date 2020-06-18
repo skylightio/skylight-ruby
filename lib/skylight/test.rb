@@ -37,10 +37,6 @@ module Skylight
               end
 
               def native_stop; end
-
-              def limited_description(description)
-                description
-              end
             end)
 
             const_set :OriginalTrace, Trace
