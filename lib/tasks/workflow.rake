@@ -50,6 +50,7 @@ module WorkflowConfigGenerator
     },
 
     {
+      always_run: true,
       ruby_version: "2.4",
       gemfile: "rails-5.2.x",
       env: {
@@ -99,6 +100,7 @@ module WorkflowConfigGenerator
     },
 
     {
+      always_run: true,
       ruby_version: "2.7",
       gemfile: "sinatra-2.0.x"
     },
@@ -116,6 +118,7 @@ module WorkflowConfigGenerator
     },
 
     {
+      always_run: true,
       ruby_version: "2.7",
       gemfile: "grape"
     },
@@ -296,17 +299,30 @@ module WorkflowConfigGenerator
       @config[:primary]
     end
 
-    def to_template
+    def always_run?
+      primary? || @config[:always_run]
+    end
+
+    def to_template_hash
       h = {
         name: decorated_name,
         "runs-on" => "ubuntu-latest",
       }
 
+      h["continue-on-error"] = true unless required?
+
+      unless always_run?
+        h[:if] = "github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'full-ci')"
+      end
       h[:services] = config[:services] if config[:services]
       h[:env] = env if env
       h[:steps] = steps
       h[:needs] = config[:needs] if config[:needs]
-      JSON.parse(JSON.generate({ id => h })) # ensure all keys stringified
+      h
+    end
+
+    def to_template
+      JSON.parse(JSON.generate({ id => to_template_hash })) # ensure all keys stringified
     end
 
     def id
@@ -343,6 +359,14 @@ module WorkflowConfigGenerator
       [].tap do |ary|
         ary << "[allowed to fail]" if allow_failure?
       end
+    end
+
+    def cleanup_step
+      return unless primary?
+
+      {
+        uses: "technote-space/auto-cancel-redundant-job@v1"
+      }
     end
 
     def checkout_step
@@ -467,6 +491,7 @@ module WorkflowConfigGenerator
   class TestJob < BaseJob
     def steps
       [
+        cleanup_step,
         checkout_step,
         setup_ruby_step,
         install_apt_dependencies_step,
@@ -483,12 +508,13 @@ module WorkflowConfigGenerator
   class ContainerTestJob < TestJob
     def steps
       [
+        cleanup_step,
         checkout_step,
         setup_cache_step,
         install_bundler_dependencies_step,
         run_tests_step,
         run_tests_disabled_agent_step
-      ]
+      ].compact
     end
   end
 
@@ -497,15 +523,24 @@ module WorkflowConfigGenerator
       "upload-coverage"
     end
 
+    def always_run?
+      true
+    end
+
+    def to_template_hash
+      super.merge(if: "always()")
+    end
+
     def steps
       [
+        cleanup_step,
         checkout_step,
         *setup_commit_metadata_steps,
         install_aws_cli_step,
         install_codeclimate_step,
         download_coverage_data_step,
         prepare_and_upload_coverage_data_step
-      ]
+      ].compact
     end
 
     def setup_commit_metadata_steps
@@ -591,13 +626,22 @@ module WorkflowConfigGenerator
       raise "FinalizeJob must have `:needs`" unless config[:needs]
     end
 
+    def always_run?
+      true
+    end
+
+    def to_template_hash
+      super.merge(if: "always()")
+    end
+
     def name
       "Required Tests Passed"
     end
 
     def steps
       [
-        { name: "Mark tests passed", run: "true" }
+        { name: "Mark tests failed", run: "false", if: "contains(needs.*.result, 'failure')" },
+        { name: "Mark tests passed", run: "true", if: "!contains(needs.*.result, 'failure')" }
       ]
     end
   end
