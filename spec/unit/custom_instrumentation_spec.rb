@@ -121,11 +121,16 @@ describe Skylight::Instrumenter, :http, :agent do
         clock.unfreeze
         server.wait resource: "/report"
 
-        span = server.reports[0].endpoints[0].traces[0].spans[1]
+        report = server.reports[0]
+
+        source_file = Pathname.new(__FILE__).relative_path_from(spec_root)
+        source_file_index = report.source_locations.find { |e| e.name == source_file.to_s }.index
+
+        span = report.endpoints[0].traces[0].spans[1]
         expect(span).to match(
           a_span_including(
             annotations: array_including(
-              an_annotation(:SourceLocation, "#{Pathname.new(__FILE__).relative_path_from(spec_root)}:#{line}")
+              an_annotation(:SourceLocation, "#{source_file_index}:#{line}")
             )
           )
         )
@@ -138,11 +143,15 @@ describe Skylight::Instrumenter, :http, :agent do
 
         server.wait resource: "/report"
 
-        span = server.reports[0].endpoints[0].traces[0].spans[1]
+        report = server.reports[0]
+
+        source_file_index = report.source_locations.find { |e| e.name == "foo.rb" }.index
+
+        span = report.endpoints[0].traces[0].spans[1]
         expect(span).to match(
           a_span_including(
             annotations: array_including(
-              an_annotation(:SourceLocation, "foo.rb:10")
+              an_annotation(:SourceLocation, "#{source_file_index}:10")
             )
           )
         )
@@ -155,11 +164,16 @@ describe Skylight::Instrumenter, :http, :agent do
 
         server.wait resource: "/report"
 
-        span = server.reports[0].endpoints[0].traces[0].spans[1]
+
+        report = server.reports[0]
+
+        source_file_index = report.source_locations.find { |e| e.name == "foo.rb" }.index
+
+        span = report.endpoints[0].traces[0].spans[1]
         expect(span).to match(
           a_span_including(
             annotations: array_including(
-              an_annotation(:SourceLocation, "foo.rb:10")
+              an_annotation(:SourceLocation, "#{source_file_index}:10")
             )
           )
         )
@@ -262,11 +276,14 @@ describe Skylight::Instrumenter, :http, :agent do
 
       expect(server.reports[0].endpoints.count).to eq(1)
 
-      ep = server.reports[0].endpoints[0]
+      report = server.reports.first
+
+      ep = report.endpoints[0]
       expect(ep.name).to eq("Testin")
       expect(ep.traces.count).to eq(1)
 
       source_file = Pathname.new(__FILE__).relative_path_from(spec_root)
+      source_file_index = report.source_locations.find { |e| e.name == source_file.to_s }.index
 
       t = ep.traces[0]
       expect(t.spans).to match([
@@ -281,7 +298,7 @@ describe Skylight::Instrumenter, :http, :agent do
           started_at:  1_000,
           duration:    1_000,
           annotations: array_including(
-            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::ONE_LINE}")
+            an_annotation(:SourceLocation, "#{source_file_index}:#{MyClass::ONE_LINE}")
           )
         ),
         a_span_including(
@@ -290,7 +307,7 @@ describe Skylight::Instrumenter, :http, :agent do
           started_at:  5_000,
           duration:    1_000,
           annotations: array_including(
-            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::THREE_LINE}")
+            an_annotation(:SourceLocation, "#{source_file_index}:#{MyClass::THREE_LINE}")
           )
         ),
         a_span_including(
@@ -299,7 +316,7 @@ describe Skylight::Instrumenter, :http, :agent do
           started_at:  7_000,
           duration:    1_000,
           annotations: array_including(
-            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::CUSTOM_LINE}")
+            an_annotation(:SourceLocation, "#{source_file_index}:#{MyClass::CUSTOM_LINE}")
           )
         ),
         a_span_including(
@@ -308,7 +325,7 @@ describe Skylight::Instrumenter, :http, :agent do
           started_at:  9_000,
           duration:    1_000,
           annotations: array_including(
-            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::SINGLETON_LINE}")
+            an_annotation(:SourceLocation, "#{source_file_index}:#{MyClass::SINGLETON_LINE}")
           )
         ),
         a_span_including(
@@ -317,7 +334,7 @@ describe Skylight::Instrumenter, :http, :agent do
           started_at:  11_000,
           duration:    1_000,
           annotations: array_including(
-            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::SINGLETON_WITHOUT_OPTIONS_LINE}")
+            an_annotation(:SourceLocation, "#{source_file_index}:#{MyClass::SINGLETON_WITHOUT_OPTIONS_LINE}")
           )
         ),
         a_span_including(
@@ -326,7 +343,7 @@ describe Skylight::Instrumenter, :http, :agent do
           started_at:  13_000,
           duration:    1_000,
           annotations: array_including(
-            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::SINGLETON_WITH_OPTIONS_LINE}")
+            an_annotation(:SourceLocation, "#{source_file_index}:#{MyClass::SINGLETON_WITH_OPTIONS_LINE}")
           )
         ),
         a_span_including(
@@ -335,7 +352,7 @@ describe Skylight::Instrumenter, :http, :agent do
           started_at:  15_000,
           duration:    0,
           annotations: array_including(
-            an_annotation(:SourceLocation, "#{source_file}:#{MyClass::ATTR_WRITER_LINE}")
+            an_annotation(:SourceLocation, "#{source_file_index}:#{MyClass::ATTR_WRITER_LINE}")
           )
         )
       ])

@@ -560,7 +560,10 @@ if enable
         call MyApp, env("/users")
         server.wait resource: "/report"
 
-        trace = server.reports.dig(0, :endpoints, 0, :traces, 0)
+        report = server.reports.first
+
+        source_locations = report.source_locations
+        trace = report.dig(:endpoints, 0, :traces, 0)
 
         app_and_rack_spans = trace.
                              spans.
@@ -582,6 +585,9 @@ if enable
         expect(router_index).to be > 3
 
         source_file = Pathname.new(__FILE__).relative_path_from(spec_root).to_s
+        source_file_index = source_locations.find {|e| e.name === source_file }.index
+
+        action_pack_source_location_index = source_locations.find { |e| e.name === "actionpack" }.index
 
         middleware_spans = app_and_rack_spans[0...router_index]
 
@@ -590,7 +596,7 @@ if enable
           a_span_including(
             event:       an_exact_event(category: "rack.middleware", title: "Anonymous Middleware"),
             annotations: include(
-              an_annotation(:SourceLocation, "#{source_file}:#{::MyApp::ANONYMOUS_MIDDLEWARE_LINE}")
+              an_annotation(:SourceLocation, "#{source_file_index}:#{::MyApp::ANONYMOUS_MIDDLEWARE_LINE}")
             )
           )
         )
@@ -599,7 +605,7 @@ if enable
           a_span_including(
             event:       an_exact_event(category: "rack.middleware", title: "CustomMiddleware"),
             annotations: include(
-              an_annotation(:SourceLocation, "#{source_file}:#{@custom_middleware_line}")
+              an_annotation(:SourceLocation, "#{source_file_index}:#{@custom_middleware_line}")
             )
           )
         )
@@ -610,25 +616,25 @@ if enable
           a_span_including(
             event:       an_exact_event(category: "rack.app", title: router_name),
             annotations: include(
-              an_annotation(:SourceLocation, "actionpack")
+              an_annotation(:SourceLocation, action_pack_source_location_index.to_s)
             )
           ),
           a_span_including(
             event:       an_exact_event(category: "app.controller.request", title: "UsersController#index"),
             annotations: include(
-              an_annotation(:SourceLocation, "#{source_file}:#{::UsersController::INDEX_LINE}")
+              an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}")
             )
           ),
           a_span_including(
             event:       an_exact_event(category: "app.method", title: "Check authorization"),
             annotations: include(
-              an_annotation(:SourceLocation, "#{source_file}:#{::UsersController::AUTHORIZED_LINE}")
+              an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::AUTHORIZED_LINE}")
             )
           ),
           a_span_including(
             event:       an_exact_event(category: "app.method", title: "UsersController#index"),
             annotations: include(
-              an_annotation(:SourceLocation, "#{source_file}:#{::UsersController::INDEX_LINE}")
+              an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}")
             )
           ),
           a_span_including(
@@ -1418,13 +1424,19 @@ if enable
 
           server.wait(resource: "/report")
 
-          source_location = "#{Pathname.new(__FILE__).relative_path_from(spec_root)}:#{::UsersController::INDEX_LINE}"
+          report = server.reports.first
 
-          expect(server.reports[0].endpoints[0].traces[0].spans).to include(
+          source_locations = report.source_locations
+          trace = report.dig(:endpoints, 0, :traces, 0)
+
+          source_file = Pathname.new(__FILE__).relative_path_from(spec_root).to_s
+          source_file_index = source_locations.find { |e| e.name == source_file }.index
+
+          expect(trace.spans).to include(
             a_span_including(
               event:       an_exact_event(category: "app.controller.request", title: "UsersController#index"),
               annotations: array_including(
-                an_annotation(:SourceLocation, source_location)
+                an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}")
               )
             )
           )
