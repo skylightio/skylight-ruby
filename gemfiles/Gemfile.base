@@ -16,9 +16,6 @@ end
 gem 'rake'
 gem 'timecop'
 
-# See https://github.com/halostatue/diff-lcs/issues/57
-gem 'diff-lcs', '< 1.4'
-
 if ENV['RAILS_EDGE']
   gem 'rack', git: 'https://github.com/rack/rack', branch: 'master'
 else
