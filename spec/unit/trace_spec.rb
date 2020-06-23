@@ -292,8 +292,10 @@ module Skylight
 
           server.wait resource: "/report"
 
+
           annotation = get_annotation_val(spans[1], :SourceLocation)
-          expect(annotation&.string_val).to eq("foo/bar.rb")
+          source_location = server.reports[0].source_locations.find { |e| e.name == "foo/bar.rb" }.index
+          expect(annotation&.string_val).to eq(source_location.to_s)
         end
 
         it "allows only source_file and source_line to be set" do
@@ -306,7 +308,8 @@ module Skylight
           server.wait resource: "/report"
 
           annotation = get_annotation_val(spans[1], :SourceLocation)
-          expect(annotation&.string_val).to eq("foo/bar.rb:123")
+          source_location_index = server.reports[0].source_locations.find { |e| e.name == "foo/bar.rb" }.index
+          expect(annotation&.string_val).to eq("#{source_location_index}:123")
         end
 
         it "ignores source_line without source_file" do
@@ -340,7 +343,8 @@ module Skylight
           server.wait resource: "/report"
 
           annotation = get_annotation_val(spans[1], :SourceLocation)
-          expect(annotation&.string_val).to eq("foo/bar.rb:1")
+          source_location_index = server.reports[0].source_locations.find { |e| e.name == "foo/bar.rb" }.index
+          expect(annotation&.string_val).to eq("#{source_location_index}:1")
         end
 
         context "sanitization" do
@@ -356,7 +360,8 @@ module Skylight
             server.wait resource: "/report"
 
             annotation = get_annotation_val(spans[1], :SourceLocation)
-            expect(annotation&.string_val).to eq("rake")
+            source_location = server.reports[0].source_locations.find { |e| e.name == "rake" }.index
+            expect(annotation&.string_val).to eq(source_location.to_s)
           end
 
           it "ignores ignored gems" do
