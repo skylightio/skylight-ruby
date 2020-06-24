@@ -1,3 +1,6 @@
+## 4.3.1 (June 24, 2020)
+* [BUGFIX] Fix an issue in which `Mime::NullType` would result in an exception
+
 ## 4.3.0 (March 18, 2020)
 * [IMPROVEMENT] Fix Ruby 2.7 warnings
 * [IMPROVEMENT] Update Grape normalizer for version 1.3.1
