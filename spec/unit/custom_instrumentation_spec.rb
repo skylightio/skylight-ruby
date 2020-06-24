@@ -124,7 +124,7 @@ describe Skylight::Instrumenter, :http, :agent do
         report = server.reports[0]
 
         source_file = Pathname.new(__FILE__).relative_path_from(spec_root)
-        source_file_index = report.source_locations.find { |e| e.name == source_file.to_s }.index
+        source_file_index = report.source_locations.index(source_file.to_s)
 
         span = report.endpoints[0].traces[0].spans[1]
         expect(span).to match(
@@ -145,7 +145,7 @@ describe Skylight::Instrumenter, :http, :agent do
 
         report = server.reports[0]
 
-        source_file_index = report.source_locations.find { |e| e.name == "foo.rb" }.index
+        source_file_index = report.source_locations.index("foo.rb")
 
         span = report.endpoints[0].traces[0].spans[1]
         expect(span).to match(
@@ -167,7 +167,7 @@ describe Skylight::Instrumenter, :http, :agent do
 
         report = server.reports[0]
 
-        source_file_index = report.source_locations.find { |e| e.name == "foo.rb" }.index
+        source_file_index = report.source_locations.index("foo.rb")
 
         span = report.endpoints[0].traces[0].spans[1]
         expect(span).to match(
@@ -283,7 +283,7 @@ describe Skylight::Instrumenter, :http, :agent do
       expect(ep.traces.count).to eq(1)
 
       source_file = Pathname.new(__FILE__).relative_path_from(spec_root)
-      source_file_index = report.source_locations.find { |e| e.name == source_file.to_s }.index
+      source_file_index = report.source_locations.index(source_file.to_s)
 
       t = ep.traces[0]
       expect(t.spans).to match([

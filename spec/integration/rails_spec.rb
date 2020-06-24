@@ -585,9 +585,9 @@ if enable
         expect(router_index).to be > 3
 
         source_file = Pathname.new(__FILE__).relative_path_from(spec_root).to_s
-        source_file_index = source_locations.find {|e| e.name === source_file }.index
+        source_file_index = source_locations.index(source_file)
 
-        action_pack_source_location_index = source_locations.find { |e| e.name === "actionpack" }.index
+        action_pack_source_location_index = source_locations.index("actionpack")
 
         middleware_spans = app_and_rack_spans[0...router_index]
 
@@ -1430,7 +1430,7 @@ if enable
           trace = report.dig(:endpoints, 0, :traces, 0)
 
           source_file = Pathname.new(__FILE__).relative_path_from(spec_root).to_s
-          source_file_index = source_locations.find { |e| e.name == source_file }.index
+          source_file_index = source_locations.index(source_file)
 
           expect(trace.spans).to include(
             a_span_including(

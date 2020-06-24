@@ -6,7 +6,7 @@ module SpecHelper
       required :timestamp, :uint32,  1
       repeated :endpoints, Endpoint, 2
       optional :hostname,  :string,  3
-      repeated :source_locations, SourceLocationEntry, 4
+      repeated :source_locations, :string, 4
     end
   end
 end
