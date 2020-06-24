@@ -29,6 +29,13 @@ module Skylight
                 elsif respond_to?(:rendered_format) && rendered_format
                   rendered_format
                 end
+              rescue
+                # There are cases in which actionpack can return
+                # a stringified representation of a Mime::NullType instance,
+                # which is invalid for a number of reasons. This string raises
+                # errors when piped through Mime::Type.lookup, so it's probably
+                # best to just return nil in those cases.
+                nil
               end
           end
         end
