@@ -294,7 +294,7 @@ module Skylight
 
 
           annotation = get_annotation_val(spans[1], :SourceLocation)
-          source_location = server.reports[0].source_locations.find { |e| e.name == "foo/bar.rb" }.index
+          source_location = server.reports[0].source_locations.index("foo/bar.rb")
           expect(annotation&.string_val).to eq(source_location.to_s)
         end
 
@@ -308,7 +308,7 @@ module Skylight
           server.wait resource: "/report"
 
           annotation = get_annotation_val(spans[1], :SourceLocation)
-          source_location_index = server.reports[0].source_locations.find { |e| e.name == "foo/bar.rb" }.index
+          source_location_index = server.reports[0].source_locations.index("foo/bar.rb")
           expect(annotation&.string_val).to eq("#{source_location_index}:123")
         end
 
@@ -343,7 +343,7 @@ module Skylight
           server.wait resource: "/report"
 
           annotation = get_annotation_val(spans[1], :SourceLocation)
-          source_location_index = server.reports[0].source_locations.find { |e| e.name == "foo/bar.rb" }.index
+          source_location_index = server.reports[0].source_locations.index("foo/bar.rb")
           expect(annotation&.string_val).to eq("#{source_location_index}:1")
         end
 
@@ -360,7 +360,7 @@ module Skylight
             server.wait resource: "/report"
 
             annotation = get_annotation_val(spans[1], :SourceLocation)
-            source_location = server.reports[0].source_locations.find { |e| e.name == "rake" }.index
+            source_location = server.reports[0].source_locations.index("rake")
             expect(annotation&.string_val).to eq(source_location.to_s)
           end
 

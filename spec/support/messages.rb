@@ -15,7 +15,7 @@ module SpecHelper
   end
 end
 
-%w[annotation event source_location_entry span trace endpoint batch].each do |message|
+%w[annotation event span trace endpoint batch].each do |message|
   require(File.expand_path("../messages/#{message}", __FILE__))
 
   SpecHelper::Messages.const_get(message.camelize).instance_exec do
