@@ -15,6 +15,7 @@ module Skylight
         super
         @caller_cache = Util::LruCache.new(100)
         @instance_method_source_location_cache = Util::LruCache.new(100)
+        gem_require_trie # memoize this at startup
       end
 
       def process_instrument_options(opts, meta)
@@ -109,14 +110,6 @@ module Skylight
         end
       end
 
-      def gem_require_paths
-        # FIXME threadsafe memoize
-        @gem_require_paths ||=
-          # FIXME: is it our responsibility or right to call Bundler.load?
-          # FIXME: bundler is not a runtime dependency
-          Hash[*Bundler.load.specs.to_a.map { |s| s.full_require_paths.map { |p| [p, s.name] } }.flatten]
-      end
-
       def find_caller(cache_key: nil)
         if cache_key
           @caller_cache.fetch(cache_key) { find_caller_inner }
@@ -125,19 +118,11 @@ module Skylight
         end
       end
 
-      def find_source_gem(path)
-        # FIXME: remove ignored gems from require paths permanently
-        _, name = gem_require_paths.find do |rpath, name|
-          path.start_with?(rpath) && !config.source_location_ignored_gems.include?(name)
-        end
-        name
-      end
-
       def project_path?(path)
         # Must be in the project root
         return false unless path.start_with?(config.root.to_s)
         # Must not be Bundler's vendor location
-        return false if path.start_with?(Bundler.bundle_path.to_s)
+        return false if defined?(Bundler) && path.start_with?(Bundler.bundle_path.to_s)
         # Must not be Ruby files
         return false if path.include?("/ruby-#{RUBY_VERSION}/lib/ruby/")
 
@@ -164,6 +149,7 @@ module Skylight
         # Do this first since gems may be vendored in the app repo. However, it might be slower.
         # Should we cache matches?
         if (gem_name = find_source_gem(path))
+          find_source_gem(path)
           path = gem_name
           line = nil
         elsif project_path?(path)
@@ -177,6 +163,41 @@ module Skylight
       end
 
       private
+
+      def gem_require_trie
+        @gem_require_trie ||= begin
+          trie = {}
+
+          Gem.loaded_specs.each do |name, spec|
+            next if config.source_location_ignored_gems.include?(name)
+
+            spec.full_require_paths.each do |path|
+              t1 = trie
+
+              path.split(File::SEPARATOR).each do |segment|
+                t1[segment] ||= {}
+                t1 = t1[segment]
+              end
+
+              t1[:name] = name
+            end
+          end
+
+          trie
+        end
+      end
+
+      def find_source_gem(path)
+        trie = gem_require_trie
+
+        path.split(File::SEPARATOR).each do |segment|
+          trie = trie[segment]
+          return unless trie
+          return trie[:name] if trie[:name]
+        end
+
+        nil
+      end
 
       def find_caller_inner
         # Start at file before this one

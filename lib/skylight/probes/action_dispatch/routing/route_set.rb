@@ -9,7 +9,7 @@ module Skylight
                 trace.endpoint = self.class.name
               end
 
-              # FIXME: source_locations
+              # FIXME: move source_location logic to extension
               if Skylight.config&.enable_source_locations?
                 source_file, source_line = method(__method__).super_method.source_location
               end
