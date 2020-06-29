@@ -339,13 +339,17 @@ module Skylight
     def find_caller(cache_key: nil)
       return unless config.enable_source_locations?
 
-      if cache_key && @caller_cache.key?(cache_key)
-        return @caller_cache[cache_key]
+      if cache_key
+        @caller_cache.fetch(cache_key) { find_caller_inner }
+      else
+        find_caller_inner
       end
+    end
 
+    def find_caller_inner
       # Start at file before this one
-      caller_locations(1).find { |l| find_source_gem(l.absolute_path) || project_path?(l.absolute_path) }.tap do |loc|
-        @caller_cache[cache_key] = loc if cache_key
+      caller_locations(1).find do |l|
+        find_source_gem(l.absolute_path) || project_path?(l.absolute_path)
       end
     end
 
@@ -373,7 +377,7 @@ module Skylight
     def instance_method_source_location(constant_name, method_name)
       return unless config.enable_source_locations?
 
-      @instance_method_source_location_cache[[constant_name, method_name]] ||=
+      @instance_method_source_location_cache.fetch([constant_name, method_name]) do
         if (constant = ::ActiveSupport::Dependencies.safe_constantize(constant_name))
           if constant.instance_methods.include?(:"before_instrument_#{method_name}")
             method_name = :"before_instrument_#{method_name}"
@@ -384,6 +388,7 @@ module Skylight
             nil
           end
         end
+      end
     end
   end
 end
