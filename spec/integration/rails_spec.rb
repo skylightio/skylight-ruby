@@ -497,7 +497,38 @@ if enable
 
     let(:router_name) { "ActionDispatch::Routing::RouteSet" }
 
+    shared_examples "with agent [minimal]" do
+      it "successfully calls into rails" do
+        res = call MyApp, env("/users")
+        expect(res).to eq(["Hello"])
+
+        server.wait resource: "/report"
+
+        batch = server.reports[0]
+        expect(batch).not_to be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+
+        segment = Rails.version =~ /^4\./ ? "html" : "text"
+        expect(endpoint.name).to eq("UsersController#index<sk-segment>#{segment}</sk-segment>")
+        expect(endpoint.traces.count).to eq(1)
+        trace = endpoint.traces[0]
+
+        app_spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
+        expect(app_spans).to eq([
+          ["app.rack.request", nil],
+          ["app.controller.request", "UsersController#index"],
+          ["app.method", "Check authorization"],
+          ["app.method", "UsersController#index"],
+          ["app.inside", nil],
+          ["app.zomg", nil]
+        ])
+      end
+    end
+
     shared_examples "with agent" do
+      it_behaves_like "with agent [minimal]"
+
       context "configuration" do
         it "sets log file" do
           expect(Skylight.instrumenter.config["log_file"]).to eq(MyApp.root.join("log/skylight.log").to_s)
@@ -524,33 +555,6 @@ if enable
             expect(Skylight.instrumenter.config.native_log_file).to eq("-")
           end
         end
-      end
-
-      it "successfully calls into rails" do
-        res = call MyApp, env("/users")
-        expect(res).to eq(["Hello"])
-
-        server.wait resource: "/report"
-
-        batch = server.reports[0]
-        expect(batch).not_to be nil
-        expect(batch.endpoints.count).to eq(1)
-        endpoint = batch.endpoints[0]
-
-        segment = Rails.version =~ /^4\./ ? "html" : "text"
-        expect(endpoint.name).to eq("UsersController#index<sk-segment>#{segment}</sk-segment>")
-        expect(endpoint.traces.count).to eq(1)
-        trace = endpoint.traces[0]
-
-        app_spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
-        expect(app_spans).to eq([
-          ["app.rack.request", nil],
-          ["app.controller.request", "UsersController#index"],
-          ["app.method", "Check authorization"],
-          ["app.method", "UsersController#index"],
-          ["app.inside", nil],
-          ["app.zomg", nil]
-        ])
       end
 
       it "successfully instruments middleware", :middleware_probe do
@@ -1478,7 +1482,7 @@ if enable
         boot
       end
 
-      it_behaves_like "with agent"
+      it_behaves_like "with agent [minimal]"
     end
 
     shared_examples "without agent" do
