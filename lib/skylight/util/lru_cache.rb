@@ -11,53 +11,31 @@ module Skylight
         raise ArgumentError, :max_size if @max_size < 1
 
         @max_size = size
-        if @max_size < @data.size
-          @data.keys[0..(@max_size - @data.size)].each do |k|
-            @data.delete(k)
-          end
+        while @data.size > @max_size
+          @data.shift
         end
       end
 
-      def [](key)
+      # Individual hash operations here are atomic in MRI.
+      def fetch(key)
         found = true
         value = @data.delete(key) { found = false }
-        if found
-          @data[key] = value
+
+        if !found && block_given?
+          value = yield
         end
-      end
 
-      def []=(key, val)
-        @data.delete(key)
-        @data[key] = val
-        if @data.length > @max_size
-          @data.delete(@data.first[0])
+        @data[key] = value if value
+
+        if !found && value && @data.length > @max_size
+          @data.shift
         end
-      end
 
-      def each
-        @data.reverse.each do |pair|
-          yield pair
-        end
-      end
-
-      def to_a
-        @data.to_a.reverse
-      end
-
-      def delete(key)
-        @data.delete(key)
+        value
       end
 
       def clear
         @data.clear
-      end
-
-      def count
-        @data.count
-      end
-
-      def key?(key)
-        @data.key?(key)
       end
     end
   end
