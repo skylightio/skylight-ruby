@@ -11,10 +11,8 @@ module Skylight
         raise ArgumentError, :max_size if @max_size < 1
 
         @max_size = size
-        if @max_size < @data.size
-          @data.keys[0..(@max_size - @data.size)].each do |k|
-            @data.delete(k)
-          end
+        while @data.size > @max_size
+          @data.shift
         end
       end
 
@@ -30,7 +28,7 @@ module Skylight
         @data[key] = value if value
 
         if !found && value && @data.length > @max_size
-          @data.delete(@data.first[0])
+          @data.shift
         end
 
         value
