@@ -11,18 +11,19 @@ module Skylight
       end
 
       def enable!(ext_name)
-        # FIXME: make threadsafe
         return if enabled?(ext_name)
-        return unless (ext_class = find_by_name(ext_name))
 
-        extensions << ext_class.new(config)
+        find_by_name(ext_name) do |ext_class|
+          extensions << ext_class.new(config)
+          rememoize!
+        end
       end
 
       def disable!(ext_name)
-        # FIXME: make threadsafe
-        return unless (ext_class = find_by_name(ext_name))
-
-        extensions.reject! { |x| x.is_a?(ext_class) }
+        find_by_name(ext_name) do |ext_class|
+          extensions.reject! { |x| x.is_a?(ext_class) }
+          rememoize!
+        end
       end
 
       def enabled?(ext_name)
@@ -39,9 +40,9 @@ module Skylight
         end
       end
 
-      def process_normalizer_meta(trace, name, payload, meta, **opts)
+      def process_normalizer_meta(payload, meta, **opts)
         extensions.each do |ext|
-          ext.process_normalizer_meta(trace, name, payload, meta, **opts)
+          ext.process_normalizer_meta(payload, meta, **opts)
         end
       end
 
@@ -51,45 +52,47 @@ module Skylight
         end
       end
 
-      # FIXME: cache?
       def allowed_meta_keys
-        extensions.flat_map(&:allowed_meta_keys)
+        @allowed_meta_keys ||= extensions.flat_map(&:allowed_meta_keys).uniq
       end
 
       private
 
-      attr_reader :extensions, :config
+        attr_reader :extensions, :config
 
-      def find_by_name(ext_name)
-        Skylight::Extensions.const_get(
-          ActiveSupport::Inflector.classify(ext_name)
-        )
-      rescue NameError
-      end
+        def find_by_name(ext_name)
+          begin
+            Skylight::Extensions.const_get(
+              ActiveSupport::Inflector.classify(ext_name)
+            )
+          rescue NameError
+            return nil
+          end.tap do |const|
+            yield const if block_given?
+          end
+        end
+
+        def rememoize!
+          @allowed_meta_keys = nil
+          allowed_meta_keys
+        end
     end
 
     class Extension
       def initialize(config)
-        # FIXME: is it ok to share the config here, or does that create a circular reference?
         @config = config
       end
 
-      def process_instrument_options(_, meta)
-        meta
-      end
+      def process_instrument_options(_opts, _meta); end
 
-      def process_normalizer_meta(trace, name, payload, meta, **opts)
-        meta
-      end
+      def process_normalizer_meta(_payload, _meta, **opts); end
 
-      def trace_preprocess_meta(_)
-      end
+      def trace_preprocess_meta(_meta); end
 
       def allowed_meta_keys
         []
       end
     end
-
   end
 end
 

@@ -63,12 +63,17 @@ describe "Initialization integration", :http do
 
     Timeout.timeout(10) do
       Process.wait(cmd_pid)
-      expect($CHILD_STATUS.success?).to eq(@expect_success)
     end
 
     pipe_cmd_out.close
 
     output = pipe_cmd_in.read.strip.split("\n")
+
+    unless $CHILD_STATUS.success? == @expect_success
+      Kernel.warn(output)
+    end
+
+    expect($CHILD_STATUS.success?).to eq(@expect_success)
 
     # Rails 4 has a deprecation under Ruby 2.6 which isn't likely to be fixed and isn't our fault.
     if Rails::VERSION::MAJOR == 4

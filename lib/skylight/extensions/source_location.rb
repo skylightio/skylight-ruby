@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "skylight/util/lru_cache"
+require "active_support/dependencies"
 
 module Skylight
   module Extensions
@@ -39,20 +40,17 @@ module Skylight
         meta
       end
 
-      # FIXME: why are we switching back and forth btw source_location and source_file/line?
-      def process_normalizer_meta(trace, name, payload, meta, **opts)
+      def process_normalizer_meta(payload, meta, **opts)
         sl = if ((source_name, *args) = opts[:source_location])
                dispatch_hinted_source_location(
                  source_name,
-                 trace,
-                 name,
                  payload,
                  meta,
                  args: args, **opts
                )
              end
 
-        sl ||= source_location(trace, name, payload, meta, cache_key: opts[:cache_key])
+        sl ||= source_location(payload, meta, cache_key: opts[:cache_key])
 
         if sl
           debug("normalizer source_location=#{sl}")
@@ -71,6 +69,11 @@ module Skylight
             warn "Found both source_location and source_file or source_line, using source_location\n" \
                  "  location=#{meta[:source_location]}; file=#{source_file}; line=#{source_line}"
           end
+
+          unless meta[:source_location].is_a?(String)
+            warn "Found non-string value for source_location; skipping"
+            meta.delete(:source_location)
+          end
         elsif source_file
           meta[:source_location] = sanitize_source_location(source_file, source_line)
         elsif source_line
@@ -88,7 +91,7 @@ module Skylight
 
       protected
 
-      def dispatch_hinted_source_location(source_name, trace, name, payload, meta, args:, **opts)
+      def dispatch_hinted_source_location(source_name, payload, meta, args:, **opts)
         if source_name == :instance_method
           const_name, method_name = args
           if const_name && method_name
@@ -99,7 +102,7 @@ module Skylight
 
       # from normalizers.rb
       # Returns an array of file and line
-      def source_location(trace, _name, payload, meta, cache_key: nil)
+      def source_location(payload, meta, cache_key: nil)
         # FIXME: what should precedence be?
         if meta.is_a?(Hash) && meta[:source_location]
           meta.delete(:source_location)
@@ -164,47 +167,47 @@ module Skylight
 
       private
 
-      def gem_require_trie
-        @gem_require_trie ||= begin
-          trie = {}
+        def gem_require_trie
+          @gem_require_trie ||= begin
+            trie = {}
 
-          Gem.loaded_specs.each do |name, spec|
-            next if config.source_location_ignored_gems.include?(name)
+            Gem.loaded_specs.each do |name, spec|
+              next if config.source_location_ignored_gems&.include?(name)
 
-            spec.full_require_paths.each do |path|
-              t1 = trie
+              spec.full_require_paths.each do |path|
+                t1 = trie
 
-              path.split(File::SEPARATOR).each do |segment|
-                t1[segment] ||= {}
-                t1 = t1[segment]
+                path.split(File::SEPARATOR).each do |segment|
+                  t1[segment] ||= {}
+                  t1 = t1[segment]
+                end
+
+                t1[:name] = name
               end
-
-              t1[:name] = name
             end
+
+            trie
+          end
+        end
+
+        def find_source_gem(path)
+          trie = gem_require_trie
+
+          path.split(File::SEPARATOR).each do |segment|
+            trie = trie[segment]
+            return unless trie
+            return trie[:name] if trie[:name]
           end
 
-          trie
-        end
-      end
-
-      def find_source_gem(path)
-        trie = gem_require_trie
-
-        path.split(File::SEPARATOR).each do |segment|
-          trie = trie[segment]
-          return unless trie
-          return trie[:name] if trie[:name]
+          nil
         end
 
-        nil
-      end
-
-      def find_caller_inner
-        # Start at file before this one
-        caller_locations(1).find do |l|
-          find_source_gem(l.absolute_path) || project_path?(l.absolute_path)
+        def find_caller_inner
+          # Start at file before this one
+          caller_locations(1).find do |l|
+            find_source_gem(l.absolute_path) || project_path?(l.absolute_path)
+          end
         end
-      end
     end
   end
 end

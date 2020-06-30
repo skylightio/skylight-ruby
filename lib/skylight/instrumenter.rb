@@ -1,7 +1,7 @@
 require "strscan"
 require "securerandom"
 require "skylight/util/logging"
-require "skylight/util/lru_cache"
+require "skylight/extensions"
 
 module Skylight
   # @api private
@@ -59,20 +59,17 @@ module Skylight
 
       @trace_info = @config[:trace_info] || TraceInfo.new(KEY)
       @mutex = Mutex.new
+      @extensions = Skylight::Extensions::Collection.new(@config)
 
-      # FIXME: cleanup
-      require 'skylight/extensions'
-      @extensions = Skylight::Extensions::Collection.new(@config).tap do |exts|
-        exts.enable!(:source_location) if @config.enable_source_locations?
-      end
+      enable_extension!(:source_location) if @config.enable_source_locations?
     end
 
     def enable_extension!(name)
-      extensions.enable!(name)
+      @mutex.synchronize { extensions.enable!(name) }
     end
 
     def disable_extension!(name)
-      extensions.disable!(name)
+      @mutex.synchronize { extensions.disable!(name) }
     end
 
     def extension_enabled?(name)

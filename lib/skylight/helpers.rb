@@ -137,7 +137,7 @@ module Skylight
 
           # This happens before we have have a config so we can't check if source locations are enabled.
           # However, it only happens once so the potential impact should be minimal.
-          # FIXME: possible to move to extension
+          # FIXME: possible to move to extension?
           source_file, source_line = klass.instance_method(name).source_location
 
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1

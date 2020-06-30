@@ -14,16 +14,6 @@ module SpecHelper
       false
     end
 
-    # FIXME: move to extension
-    def instance_method_source_location(*)
-      nil
-    end
-
-    # FIXME: move to extension
-    def find_caller(*)
-      nil
-    end
-
     def extensions
       @extensions ||= Skylight::Extensions::Collection.new(@config)
     end

@@ -80,8 +80,6 @@ module Skylight
 
         def process_meta(trace, name, payload, meta, cache_key: nil)
           trace.instrumenter.extensions.process_normalizer_meta(
-            trace,
-            name,
             payload,
             meta,
             cache_key: cache_key,
