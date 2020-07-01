@@ -123,6 +123,7 @@ module Skylight
     %w[ action_controller/process_action
         action_controller/send_file
         action_dispatch/process_middleware
+        action_dispatch/route_set
         action_view/render_collection
         action_view/render_partial
         action_view/render_template

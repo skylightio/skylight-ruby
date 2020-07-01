@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Skylight
   module Probes
     module ActionDispatch
@@ -5,21 +7,7 @@ module Skylight
         module RouteSet
           module Instrumentation
             def call(env)
-              if (trace = Skylight.instrumenter&.current_trace)
-                trace.endpoint = self.class.name
-              end
-
-              # FIXME: move source_location logic to extension
-              if Skylight.config&.enable_source_locations?
-                source_file, source_line = method(__method__).super_method.source_location
-              end
-
-              Skylight.instrument(
-                title: self.class.name,
-                category: "rack.app",
-                source_file: source_file&.to_s,
-                source_line: source_line&.to_s
-              ) do
+              ActiveSupport::Notifications.instrument("route_set.action_dispatch") do
                 super
               end
             end

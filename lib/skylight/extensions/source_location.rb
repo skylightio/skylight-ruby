@@ -92,12 +92,10 @@ module Skylight
       protected
 
       def dispatch_hinted_source_location(source_name, payload, meta, args:, **opts)
-        if source_name == :instance_method
-          const_name, method_name = args
-          if const_name && method_name
-            instance_method_source_location(const_name, method_name)
-          end
-        end
+        const_name, method_name = args
+        return unless const_name && method_name
+
+        instance_method_source_location(const_name, method_name, source_name: source_name)
       end
 
       # from normalizers.rb
@@ -133,14 +131,23 @@ module Skylight
         true
       end
 
-      def instance_method_source_location(constant_name, method_name)
-        @instance_method_source_location_cache.fetch([constant_name, method_name]) do
+      def instance_method_source_location(constant_name, method_name, source_name: :instance_method)
+        @instance_method_source_location_cache.fetch([constant_name, method_name, source_name]) do
           if (constant = ::ActiveSupport::Dependencies.safe_constantize(constant_name))
             if constant.instance_methods.include?(:"before_instrument_#{method_name}")
               method_name = :"before_instrument_#{method_name}"
             end
             begin
-              constant.instance_method(method_name).source_location
+              unbound_method = case source_name
+                               when :instance_method
+                                 find_instance_method(constant, method_name)
+                               when :own_instance_method
+                                 find_own_instance_method(constant, method_name)
+                               when :instance_method_super
+                                 find_instance_method_super(constant, method_name)
+                               end
+
+              unbound_method&.source_location
             rescue NameError
               nil
             end
@@ -208,6 +215,35 @@ module Skylight
             find_source_gem(l.absolute_path) || project_path?(l.absolute_path)
           end
         end
+
+        # walks up the inheritance tree until it finds the last method
+        # without a super_method definition.
+        def find_instance_method_super(constant, method_name)
+          return unless (unbound_method = find_instance_method(constant, method_name))
+
+          while unbound_method.super_method
+            unbound_method = unbound_method.super_method
+          end
+
+          unbound_method
+        end
+
+        # walks up the inheritance tree until it finds the instance method
+        # belonging to the constant given (skip prepended modules)
+        def find_own_instance_method(constant, method_name)
+          return unless (unbound_method = find_instance_method(constant, method_name))
+
+          while unbound_method.owner != constant && unbound_method.super_method
+            unbound_method = unbound_method.super_method
+          end
+
+          unbound_method if unbound_method.owner == constant
+        end
+
+        def find_instance_method(constant, method_name)
+          constant.instance_method(method_name)
+        end
+
     end
   end
 end
