@@ -5,7 +5,7 @@ module Skylight
   class Trace
     GC_CAT = "noise.gc".freeze
 
-    META_KEYS = %i[source_location source_file source_line mute_children].freeze
+    META_KEYS = %i[mute_children].freeze
 
     include Util::Logging
 
@@ -330,58 +330,19 @@ module Skylight
 
       def preprocess_meta(meta)
         validate_meta(meta)
-        preprocess_source_location(meta)
+        instrumenter.extensions.trace_preprocess_meta(meta)
       end
 
       def validate_meta(meta)
-        unknown_keys = meta.keys - META_KEYS
+        unknown_keys = meta.keys - allowed_meta_keys
         if unknown_keys.any?
           warn "Unknown meta keys will be ignored; keys=#{unknown_keys.inspect}"
           unknown_keys.each { |key| meta.delete(key) }
         end
       end
 
-      def preprocess_source_location(meta)
-        unless config.enable_source_locations?
-          meta.delete(:source_location)
-          meta.delete(:source_file)
-          meta.delete(:source_line)
-          return
-        end
-
-        source_line = meta.delete(:source_line)
-        source_file = meta.delete(:source_file)
-
-        if meta[:source_location]
-          if source_file || source_line
-            warn "Found both source_location and source_file or source_line, using source_location\n" \
-                 "  location=#{meta[:source_location]}; file=#{source_file}; line=#{source_line}"
-          end
-        elsif source_file
-          meta[:source_location] = sanitize_source_location(source_file, source_line)
-        elsif source_line
-          warn "Ignoring source_line without source_file; source_line=#{source_line}"
-        end
-
-        if meta[:source_location]
-          debug("source_location=#{meta[:source_location]}")
-        end
-      end
-
-      def sanitize_source_location(path, line)
-        # Do this first since gems may be vendored in the app repo. However, it might be slower.
-        # Should we cache matches?
-        if (gem_name = instrumenter.find_source_gem(path))
-          path = gem_name
-          line = nil
-        elsif instrumenter.project_path?(path)
-          # Get relative path to root
-          path = Pathname.new(path).relative_path_from(config.root).to_s
-        else
-          return
-        end
-
-        line ? "#{path}:#{line}" : path
+      def allowed_meta_keys
+        META_KEYS | instrumenter.extensions.allowed_meta_keys
       end
 
       def maybe_warn(context, msg)

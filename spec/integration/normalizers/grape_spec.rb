@@ -86,7 +86,7 @@ if defined?(Grape)
       allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
-        with("app.grape.endpoint", title, nil, nil).
+        with("app.grape.endpoint", title, nil, {}).
         once
     end
 
@@ -136,7 +136,7 @@ if defined?(Grape)
       allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
-        with("app.grape.endpoint", "#{wildcard} *path", nil, nil).
+        with("app.grape.endpoint", "#{wildcard} *path", nil, {}).
         once
 
       delete "/app/missing"
@@ -148,7 +148,7 @@ if defined?(Grape)
       allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
-        with("app.grape.endpoint", "GET... data", nil, nil).
+        with("app.grape.endpoint", "GET... data", nil, {}).
         once
 
       get "/data"
@@ -160,7 +160,7 @@ if defined?(Grape)
       allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
-        with("app.grape.endpoint", "GET raise", nil, nil).
+        with("app.grape.endpoint", "GET raise", nil, {}).
         once
 
       expect do
@@ -175,7 +175,7 @@ if defined?(Grape)
 
       # TODO: Attempt to verify order
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
-        with("app.grape.filters", "Before Filters", nil, nil).
+        with("app.grape.filters", "Before Filters", nil, {}).
         once
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
@@ -183,7 +183,7 @@ if defined?(Grape)
         once
 
       expect_any_instance_of(Skylight::Trace).to receive(:instrument).
-        with("app.grape.endpoint", "GET admin secret", nil, nil).
+        with("app.grape.endpoint", "GET admin secret", nil, {}).
         once
 
       get "/app/admin/secret"

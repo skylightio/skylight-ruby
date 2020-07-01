@@ -36,8 +36,9 @@ module Skylight
             "#{payload[:controller]}##{payload[:action]}"
           end
 
-          def source_location(trace, _name, payload, cache_key: nil)
-            trace.instrumenter.instance_method_source_location(payload[:controller], payload[:action])
+          def process_meta_options(payload)
+            # provide hints to override default source_location behavior
+            super.merge(source_location: [:instance_method, payload[:controller], payload[:action]])
           end
 
           def segment_from_payload(payload)

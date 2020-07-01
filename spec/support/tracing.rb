@@ -1,3 +1,5 @@
+require "skylight/extensions"
+
 module SpecHelper
   class MockInstrumenter
     attr_accessor :current_trace
@@ -12,12 +14,8 @@ module SpecHelper
       false
     end
 
-    def instance_method_source_location(*)
-      nil
-    end
-
-    def find_caller(*)
-      nil
+    def extensions
+      @extensions ||= Skylight::Extensions::Collection.new(@config)
     end
   end
 

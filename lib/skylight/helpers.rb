@@ -135,8 +135,12 @@ module Skylight
           title    = (opts[:title] || title).to_s
           desc     = opts[:description].to_s if opts[:description]
 
-          # This happens before we have have a config so we can't check if source locations are enabled.
-          # However, it only happens once so the potential impact should be minimal.
+          # NOTE: The source location logic happens before we have have a config so we can'
+          # check if source locations are enabled. However, it only happens once so the potential impact
+          # should be minimal. This would more appropriately belong to Extensions::SourceLocation,
+          # but as that is a runtime concern, and this happens at compile time, there isn't currently
+          # a clean way to turn this on and off. The absence of the extension will cause the
+          # source_file and source_line to be removed from the trace span before it is submitted.
           source_file, source_line = klass.instance_method(name).source_location
 
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
