@@ -404,6 +404,39 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(server.reports[0].endpoints.map(&:name)).to eq(["foo#bar"])
       end
 
+      describe "#throttling" do
+        it "ignores throttled traces" do
+          config[:throttle_rate] = 0.5
+
+          allow(Random).to receive(:rand).with(any_args).and_return(0.6)
+
+          Skylight.trace 'foo#bar', 'app.rack' do |t|
+            clock.skip 1
+          end
+
+          clock.unfreeze
+          server.wait
+
+          server.should have(0).reports
+        end
+
+        it "permits non-throttled traces" do
+          config[:throttle_rate] = 0.5
+
+          allow(Random).to receive(:rand).with(any_args).and_return(0.4)
+
+          Skylight.trace 'baz#qux', 'app.rack' do |t|
+            clock.skip 1
+          end
+
+          clock.unfreeze
+          server.wait(count: 3)
+
+          server.reports[0].should have(1).endpoints
+          server.reports[0].endpoints.map(&:name).should == ["baz#qux"]
+        end
+      end
+
       describe "#mute" do
         def spans
           server.reports[0].endpoints[0].traces[0].spans

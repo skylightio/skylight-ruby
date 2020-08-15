@@ -56,6 +56,7 @@ module Skylight
       -"IGNORED_ENDPOINTS"            => :ignored_endpoints,
       -"SINATRA_ROUTE_PREFIXES"       => :sinatra_route_prefixes,
       -"ENABLE_SOURCE_LOCATIONS"      => :enable_source_locations,
+      -"THROTTLE_RATE"                => :throttle_rate,
 
       # == Max Span Handling ==
       -"REPORT_MAX_SPANS_EXCEEDED"    => :report_max_spans_exceeded,
@@ -519,6 +520,14 @@ module Skylight
           val.concat(Array(ignored_endpoints))
           val
         end
+    end
+
+    # @api private
+    def throttle_rate
+      @throttle_rate ||=
+        begin
+          get(:throttle_rate)
+        end || 1
     end
 
     # @api private

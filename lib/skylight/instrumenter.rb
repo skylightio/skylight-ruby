@@ -296,6 +296,11 @@ module Skylight
         return false
       end
 
+      if throttle?
+        t { fmt "throttling trace=#{trace.uuid}" }
+        return false
+      end
+
       begin
         finalize_endpoint_segment(trace)
         native_submit_trace(trace)
@@ -341,6 +346,10 @@ module Skylight
                 end
 
       trace.endpoint += "<sk-segment>#{segment}</sk-segment>"
+    end
+
+    def throttle?
+      @config.throttle_rate < 1 && Random.rand >= @config.throttle_rate
     end
   end
 end
