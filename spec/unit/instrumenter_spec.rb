@@ -410,12 +410,12 @@ describe "Skylight::Instrumenter", :http, :agent do
 
           allow(Random).to receive(:rand).with(any_args).and_return(0.6)
 
-          Skylight.trace 'foo#bar', 'app.rack' do |t|
+          Skylight.trace 'foo#bar', 'app.rack' do
             clock.skip 1
           end
 
           clock.unfreeze
-          server.wait
+          server.wait resource: "/report"
 
           server.should have(0).reports
         end
@@ -425,12 +425,12 @@ describe "Skylight::Instrumenter", :http, :agent do
 
           allow(Random).to receive(:rand).with(any_args).and_return(0.4)
 
-          Skylight.trace 'baz#qux', 'app.rack' do |t|
+          Skylight.trace 'baz#qux', 'app.rack' do
             clock.skip 1
           end
 
           clock.unfreeze
-          server.wait(count: 3)
+          server.wait count: 3, resource: "/report"
 
           server.reports[0].should have(1).endpoints
           server.reports[0].endpoints.map(&:name).should == ["baz#qux"]
