@@ -16,11 +16,40 @@ module Skylight
 
       def install
         probe.install
+      rescue StandardError, LoadError => e
+        log_install_exception(e)
       end
 
       def constant_available?
         Skylight::Probes.constant_available?(const_name)
       end
+
+      private
+
+        def log_install_exception(e)
+          description = e.class.to_s
+          description << ": #{e.message}" unless e.message.empty?
+
+          backtrace = e.backtrace.map{|l| "  #{l}" }.join("\n")
+
+          gems = begin
+            Bundler.locked_gems.dependencies.map{|d| [d.name, d.requirement.to_s] }
+          rescue
+          end
+
+          error = "[SKYLIGHT] [#{Skylight::VERSION}] Encountered an error while installing the " \
+                          "probe for #{const_name}. Please notify support@skylight.io with the debugging " \
+                          "information below. It's recommended that you disable this probe until the " \
+                          "issue is resolved." \
+                          "\n\nERROR: #{description}\n\n#{backtrace}\n\n"
+
+          if gems
+            gems_string = gems.map{|g| "  #{g[0]}   #{g[1]}" }.join("\n")
+            error << "GEMS:\n\n#{gems_string}\n\n"
+          end
+
+          $stderr.puts(error)
+        end
     end
 
     class << self
