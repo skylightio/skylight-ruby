@@ -23,12 +23,10 @@ module Skylight
         t { "Sidekiq middleware beginning trace" }
         title = job["wrapped"] || job["class"]
         Skylight.trace(title, "app.sidekiq.worker", title, segment: queue, component: :worker) do |trace|
-          begin
-            yield
-          rescue Exception # includes Sidekiq::Shutdown
-            trace.segment = "error" if trace
-            raise
-          end
+          yield
+        rescue Exception # includes Sidekiq::Shutdown
+          trace.segment = "error" if trace
+          raise
         end
       end
     end

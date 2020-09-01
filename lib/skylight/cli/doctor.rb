@@ -85,20 +85,18 @@ module Skylight
         say "Checking for valid configuration"
 
         indent do
-          begin
-            config.validate!
-            say "Configuration is valid", :green
-          rescue ConfigError => e
-            encountered_error!
+          config.validate!
+          say "Configuration is valid", :green
+        rescue ConfigError => e
+          encountered_error!
 
-            say "Configuration is invalid", :red
-            indent do
-              say e.message, :red
-              say "This may occur if you are configuring with ENV variables and didn't set them in this shell."
-            end
-
-            done!
+          say "Configuration is invalid", :red
+          indent do
+            say e.message, :red
+            say "This may occur if you are configuring with ENV variables and didn't set them in this shell."
           end
+
+          done!
         end
 
         puts "\n"

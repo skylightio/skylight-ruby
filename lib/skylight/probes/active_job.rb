@@ -6,13 +6,11 @@ module Skylight
       module Instrumentation
         def execute(*)
           Skylight.trace(TITLE, "app.job.execute", component: :worker) do |trace|
-            # See normalizers/active_job/perform for endpoint/segment assignment
-            begin
-              super
-            rescue Exception
-              trace.segment = "error" if trace
-              raise
-            end
+          # See normalizers/active_job/perform for endpoint/segment assignment
+            super
+          rescue Exception
+            trace.segment = "error" if trace
+            raise
           end
         end
       end
