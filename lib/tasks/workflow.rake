@@ -51,7 +51,7 @@ module WorkflowConfigGenerator
 
     {
       always_run: true,
-      ruby_version: "2.4",
+      ruby_version: "2.5",
       gemfile: "rails-5.2.x",
       env: {
         SIDEKIQ_VERSION: "~> 4",
@@ -85,7 +85,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.4",
+      ruby_version: "2.5",
       gemfile: "sinatra-1.4.x"
     },
 
@@ -95,7 +95,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.4",
+      ruby_version: "2.5",
       gemfile: "sinatra-2.0.x"
     },
 
@@ -112,7 +112,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.4",
+      ruby_version: "2.5",
       gemfile: "grape",
       env: { RACK_VERSION: "~> 2.0.8" }
     },

@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 7db433b9f0c547a80c732d7973d6667dd824be84485c49d150a0b9f857399030
+  CONFIG_DIGEST: 122b7c904f98d1c9d3619de0e7c663685e14ac62e0ef1900e8464d6cfc7029a6
 'on':
   pull_request: {}
   push:
@@ -193,8 +193,8 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-2-7-rails-6-0-x
-  ruby-2-4-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0:
-    name: ruby 2.4, rails-5.2.x, SIDEKIQ_VERSION=~> 4 GRAPHQL_VERSION=~> 1.7.0
+  ruby-2-5-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0:
+    name: ruby 2.5, rails-5.2.x, SIDEKIQ_VERSION=~> 4 GRAPHQL_VERSION=~> 1.7.0
     runs-on: ubuntu-latest
     env:
       BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
@@ -206,7 +206,7 @@ jobs:
     - name: Setup ruby
       uses: actions/setup-ruby@v1
       with:
-        ruby-version: '2.4'
+        ruby-version: '2.5'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -215,8 +215,8 @@ jobs:
       uses: actions/cache@v1
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.4-rails-5.2.x"
-        restore-keys: "${{ runner.os }}-gems-2.4-"
+        key: "${{ runner.os }}-gems-2.5-rails-5.2.x"
+        restore-keys: "${{ runner.os }}-gems-2.5-"
     - name: bundle install
       run: |
         gem install bundler
@@ -444,8 +444,8 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-2-7-rails-6-0-x
-  ruby-2-4-sinatra-1-4-x:
-    name: ruby 2.4, sinatra-1.4.x
+  ruby-2-5-sinatra-1-4-x:
+    name: ruby 2.5, sinatra-1.4.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
@@ -457,7 +457,7 @@ jobs:
     - name: Setup ruby
       uses: actions/setup-ruby@v1
       with:
-        ruby-version: '2.4'
+        ruby-version: '2.5'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -466,8 +466,8 @@ jobs:
       uses: actions/cache@v1
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.4-sinatra-1.4.x"
-        restore-keys: "${{ runner.os }}-gems-2.4-"
+        key: "${{ runner.os }}-gems-2.5-sinatra-1.4.x"
+        restore-keys: "${{ runner.os }}-gems-2.5-"
     - name: bundle install
       run: |
         gem install bundler
@@ -544,8 +544,8 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-2-7-rails-6-0-x
-  ruby-2-4-sinatra-2-0-x:
-    name: ruby 2.4, sinatra-2.0.x
+  ruby-2-5-sinatra-2-0-x:
+    name: ruby 2.5, sinatra-2.0.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
@@ -557,7 +557,7 @@ jobs:
     - name: Setup ruby
       uses: actions/setup-ruby@v1
       with:
-        ruby-version: '2.4'
+        ruby-version: '2.5'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -566,8 +566,8 @@ jobs:
       uses: actions/cache@v1
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.4-sinatra-2.0.x"
-        restore-keys: "${{ runner.os }}-gems-2.4-"
+        key: "${{ runner.os }}-gems-2.5-sinatra-2.0.x"
+        restore-keys: "${{ runner.os }}-gems-2.5-"
     - name: bundle install
       run: |
         gem install bundler
@@ -693,8 +693,8 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-2-7-rails-6-0-x
-  ruby-2-4-grape-rack_version-2-0-8:
-    name: ruby 2.4, grape, RACK_VERSION=~> 2.0.8
+  ruby-2-5-grape-rack_version-2-0-8:
+    name: ruby 2.5, grape, RACK_VERSION=~> 2.0.8
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
@@ -707,7 +707,7 @@ jobs:
     - name: Setup ruby
       uses: actions/setup-ruby@v1
       with:
-        ruby-version: '2.4'
+        ruby-version: '2.5'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -716,8 +716,8 @@ jobs:
       uses: actions/cache@v1
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.4-grape"
-        restore-keys: "${{ runner.os }}-gems-2.4-"
+        key: "${{ runner.os }}-gems-2.5-grape"
+        restore-keys: "${{ runner.os }}-gems-2.5-"
     - name: bundle install
       run: |
         gem install bundler
@@ -1389,15 +1389,15 @@ jobs:
     - ruby-2-7-rails-5-2-x-mongo
     - ruby-2-7-rails-5-2-x-mongoid-6-mongoid_version-6-0
     - ruby-2-7-rails-5-2-x-elasticsearch
-    - ruby-2-4-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0
+    - ruby-2-5-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0
     - ruby-2-7-rails-5-2-x-graphql_version-1-9-0
     - ruby-2-7-rails-5-2-x-graphql_version-1-8-0
     - ruby-2-7-rails-6-0-x
-    - ruby-2-4-sinatra-1-4-x
+    - ruby-2-5-sinatra-1-4-x
     - ruby-2-7-sinatra-1-4-x
-    - ruby-2-4-sinatra-2-0-x
+    - ruby-2-5-sinatra-2-0-x
     - ruby-2-7-sinatra-2-0-x
-    - ruby-2-4-grape-rack_version-2-0-8
+    - ruby-2-5-grape-rack_version-2-0-8
     - ruby-2-7-grape
     - ruby-2-7-grape-grape_version-0-13-0-rack_version-2-0-8
     - ruby-2-7-grape-grape_version-1-1-0-rack_version-2-0-8
@@ -1422,15 +1422,15 @@ jobs:
     - ruby-2-7-rails-5-2-x-mongo
     - ruby-2-7-rails-5-2-x-mongoid-6-mongoid_version-6-0
     - ruby-2-7-rails-5-2-x-elasticsearch
-    - ruby-2-4-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0
+    - ruby-2-5-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0
     - ruby-2-7-rails-5-2-x-graphql_version-1-9-0
     - ruby-2-7-rails-5-2-x-graphql_version-1-8-0
     - ruby-2-7-rails-6-0-x
-    - ruby-2-4-sinatra-1-4-x
+    - ruby-2-5-sinatra-1-4-x
     - ruby-2-7-sinatra-1-4-x
-    - ruby-2-4-sinatra-2-0-x
+    - ruby-2-5-sinatra-2-0-x
     - ruby-2-7-sinatra-2-0-x
-    - ruby-2-4-grape-rack_version-2-0-8
+    - ruby-2-5-grape-rack_version-2-0-8
     - ruby-2-7-grape
     - ruby-2-7-grape-grape_version-0-13-0-rack_version-2-0-8
     - ruby-2-7-grape-grape_version-1-1-0-rack_version-2-0-8

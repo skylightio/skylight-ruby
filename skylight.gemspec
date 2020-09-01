@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.homepage    = "https://www.skylight.io"
   spec.license     = "Nonstandard"
 
-  spec.required_ruby_version = ">= 2.4"
+  spec.required_ruby_version = ">= 2.5"
 
   files = `git ls-files`.split("\n") rescue []
   files &= (
