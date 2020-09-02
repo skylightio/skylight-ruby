@@ -244,7 +244,14 @@ module WorkflowConfigGenerator
     template = {
       name: "Skylight Agent",
       env: DEFAULT_ENV,
-      on: { pull_request: {}, push: { branches: ["master"] } },
+      on: {
+        push: {
+          branches: ["master"]
+        },
+        pull_request: {
+          types: ["labeled", "opened", "reopened", "synchronize"]
+        }
+      },
       jobs: job_defs
     }
 

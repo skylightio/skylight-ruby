@@ -14,12 +14,17 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 122b7c904f98d1c9d3619de0e7c663685e14ac62e0ef1900e8464d6cfc7029a6
+  CONFIG_DIGEST: bb09957da8d8f1ccbad5d94e611b80856e9e515f1798a154bc1c37bfb54aad36
 'on':
-  pull_request: {}
   push:
     branches:
     - master
+  pull_request:
+    types:
+    - labeled
+    - opened
+    - reopened
+    - synchronize
 jobs:
   ruby-2-7-rails-5-2-x-mongo:
     name: ruby 2.7, rails-5.2.x, mongo
