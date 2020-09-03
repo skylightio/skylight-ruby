@@ -12,10 +12,8 @@ if defined?(ActiveModel::Serializer)
 
     # File changed name between versions
     %w[serializer serializers].each do |dir|
-      begin
-        require "active_model/#{dir}/version"
-      rescue LoadError
-      end
+      require "active_model/#{dir}/version"
+    rescue LoadError
     end
 
     version = Gem::Version.new(::ActiveModel::Serializer::VERSION)

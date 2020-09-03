@@ -51,7 +51,7 @@ module WorkflowConfigGenerator
 
     {
       always_run: true,
-      ruby_version: "2.4",
+      ruby_version: "2.5",
       gemfile: "rails-5.2.x",
       env: {
         SIDEKIQ_VERSION: "~> 4",
@@ -85,7 +85,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.4",
+      ruby_version: "2.5",
       gemfile: "sinatra-1.4.x"
     },
 
@@ -95,7 +95,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.4",
+      ruby_version: "2.5",
       gemfile: "sinatra-2.0.x"
     },
 
@@ -112,7 +112,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.4",
+      ruby_version: "2.5",
       gemfile: "grape",
       env: { RACK_VERSION: "~> 2.0.8" }
     },
@@ -244,7 +244,14 @@ module WorkflowConfigGenerator
     template = {
       name: "Skylight Agent",
       env: DEFAULT_ENV,
-      on: { pull_request: {}, push: { branches: ["master"] } },
+      on: {
+        push: {
+          branches: ["master"]
+        },
+        pull_request: {
+          types: ["labeled", "opened", "reopened", "synchronize"]
+        }
+      },
       jobs: job_defs
     }
 
