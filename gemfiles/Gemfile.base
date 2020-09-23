@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gemspec path: File.expand_path('../..', __FILE__)
+gemspec path: ".."
 
 ruby_version = Gem::Version.new(RUBY_VERSION)
 
