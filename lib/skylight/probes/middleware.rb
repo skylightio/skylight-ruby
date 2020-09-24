@@ -72,7 +72,8 @@ module Skylight
 
               source_file, source_line = method(__method__).super_method.source_location
 
-              spans = Skylight.instrument(title: name, category: __sk_category, source_file: source_file, source_line: source_line)
+              spans = Skylight.instrument(title: name, category: __sk_category,
+                                          source_file: source_file, source_line: source_line)
 
               proxied_response =
                 Skylight::Middleware.with_after_close(super(*args), debug_identifier: "Middleware: #{name}") do
