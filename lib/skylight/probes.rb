@@ -30,11 +30,11 @@ module Skylight
           description = e.class.to_s
           description << ": #{e.message}" unless e.message.empty?
 
-          backtrace = e.backtrace.map{|l| "  #{l}" }.join("\n")
+          backtrace = e.backtrace.map { |l| "  #{l}" }.join("\n")
 
           gems = begin
-            Bundler.locked_gems.dependencies.map{|d| [d.name, d.requirement.to_s] }
-          rescue
+            Bundler.locked_gems.dependencies.map { |d| [d.name, d.requirement.to_s] }
+          rescue # rubocop:disable Lint/SuppressedException
           end
 
           error = "[SKYLIGHT] [#{Skylight::VERSION}] Encountered an error while installing the " \
@@ -44,7 +44,7 @@ module Skylight
                           "\n\nERROR: #{description}\n\n#{backtrace}\n\n"
 
           if gems
-            gems_string = gems.map{|g| "  #{g[0]}   #{g[1]}" }.join("\n")
+            gems_string = gems.map { |g| "  #{g[0]}   #{g[1]}" }.join("\n")
             error << "GEMS:\n\n#{gems_string}\n\n"
           end
 
