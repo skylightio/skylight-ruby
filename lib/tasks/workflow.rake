@@ -666,7 +666,7 @@ namespace :workflow do
   end
 
   desc "verify the config digest"
-  task :verify, [:digest] do |t, args|
+  task :verify, [:digest] do |_t, args|
     WorkflowConfigGenerator.verify!(args.digest)
   end
 end

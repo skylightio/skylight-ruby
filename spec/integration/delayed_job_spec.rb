@@ -129,7 +129,7 @@ if enable
         expect(meta[3][0]).to eq("db.sql.query")
 
         # column order can differ between ActiveRecord versions
-        r = /UPDATE "delayed_jobs" SET (?<columns>((\"\w+\") = \?,?\s?)+) WHERE "delayed_jobs"\."id" = \?/
+        r = /UPDATE "delayed_jobs" SET (?<columns>(?:\"\w+\" = \?,?\s?)+) WHERE "delayed_jobs"\."id" = \?/
         columns = meta[3][1].match(r)[:columns].split(", ")
         expect(columns).to match_array([
           "\"attempts\" = ?",
@@ -214,7 +214,7 @@ if enable
           expect(meta[4][0]).to eq("db.sql.query")
 
           # column order can differ between ActiveRecord versions
-          r = /UPDATE "delayed_jobs" SET (?<columns>((\"\w+\") = \?,?\s?)+) WHERE "delayed_jobs"\."id" = \?/
+          r = /UPDATE "delayed_jobs" SET (?<columns>(?:\"\w+\" = \?,?\s?)+) WHERE "delayed_jobs"\."id" = \?/
           columns = meta[4][1].match(r)[:columns].split(", ")
           expect(columns).to match_array([
             "\"attempts\" = ?",

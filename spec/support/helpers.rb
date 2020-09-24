@@ -75,8 +75,7 @@ module SpecHelper
   end
 
   def current_trace
-    inst = Skylight.instrumenter || Skylight.instrumenter
-    inst ? inst.current_trace : nil
+    Skylight.instrumenter&.current_trace
   end
 
   def set_agent_env

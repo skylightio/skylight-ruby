@@ -52,7 +52,7 @@ module Skylight
       expect(probe.install_count).to eq(1)
 
       # Make sure a second require doesn't install again
-      require "skylight"
+      require "skylight" # rubocop:disable Lint/DuplicateRequire
 
       expect(probe.install_count).to eq(1)
     end
@@ -73,7 +73,7 @@ module Skylight
       expect(probe.install_count).to eq(2)
 
       # Make sure a second require doesn't install again
-      require "skylight"
+      require "skylight" # rubocop:disable Lint/DuplicateRequire
 
       expect(probe.install_count).to eq(2)
     end

@@ -78,7 +78,7 @@ module Skylight
 
       private
 
-        def process_meta(trace, name, payload, meta, cache_key: nil)
+        def process_meta(trace, _name, payload, meta, cache_key: nil)
           trace.instrumenter.extensions.process_normalizer_meta(
             payload,
             meta,

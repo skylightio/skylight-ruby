@@ -101,7 +101,7 @@ module Skylight
             { source_file: source_file, source_line: 1 }
           ]
         },
-        { # rubocop:disable Style/BracesAroundHashParameters
+        {
           id:        2,
           done:      true,
           done_meta: {},

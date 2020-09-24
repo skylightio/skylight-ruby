@@ -268,7 +268,7 @@ if enable
         # This class has no name
         ANONYMOUS_MIDDLEWARE_LINE = __LINE__ + 6
         config.middleware.use(Class.new do
-          def initialize(app)
+          def initialize(app) # rubocop:disable Lint/MissingSuper
             @app = app
           end
 
@@ -670,7 +670,7 @@ if enable
             allow_any_instance_of(ActionView::CacheExpiry).to receive(:dirs_to_watch) { [] }
           end
 
-          status, headers, body = call_full MyApp, env("/users/template_index.html")
+          status, _headers, _body = call_full MyApp, env("/users/template_index.html")
 
           expect(status).to eq(200)
 
@@ -683,7 +683,7 @@ if enable
 
           expect(endpoint.name).to eq("UsersController#template_index<sk-segment>html</sk-segment>")
 
-          *spans, layout_span, template_span = endpoint.traces[0].filter_spans.map do |span|
+          *_spans, layout_span, template_span = endpoint.traces[0].filter_spans.map do |span|
             [span.event.category, span.event.title]
           end
 

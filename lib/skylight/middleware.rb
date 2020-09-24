@@ -10,7 +10,7 @@ module Skylight
         @closed = false
       end
 
-      def respond_to_missing?(*args)
+      def respond_to_missing?(*args) # rubocop:disable Lint/MissingSuper
         return false if args.first.to_s !~ /^to_ary$/
 
         @body.respond_to?(*args)

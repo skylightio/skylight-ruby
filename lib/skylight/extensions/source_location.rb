@@ -91,7 +91,7 @@ module Skylight
 
       protected
 
-      def dispatch_hinted_source_location(source_name, payload, meta, args:, **opts)
+      def dispatch_hinted_source_location(source_name, _payload, _meta, args:, **_opts)
         const_name, method_name = args
         return unless const_name && method_name
 
@@ -202,7 +202,7 @@ module Skylight
 
           path.split(File::SEPARATOR).each do |segment|
             trie = trie[segment]
-            return unless trie
+            break unless trie
             return trie[:name] if trie[:name]
           end
 
