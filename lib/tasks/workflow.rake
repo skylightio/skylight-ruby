@@ -249,7 +249,7 @@ module WorkflowConfigGenerator
           branches: ["master"]
         },
         pull_request: {
-          types: ["labeled", "opened", "reopened", "synchronize"]
+          types: %w[labeled opened reopened synchronize]
         }
       },
       jobs: job_defs
@@ -313,7 +313,7 @@ module WorkflowConfigGenerator
     def to_template_hash
       h = {
         name: decorated_name,
-        "runs-on" => "ubuntu-latest",
+        "runs-on" => "ubuntu-latest"
       }
 
       h["continue-on-error"] = true unless required?

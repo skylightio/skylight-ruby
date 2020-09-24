@@ -128,12 +128,12 @@ module Skylight
       def require_hook(require_path)
         each_by_require_path(require_path) do |registration|
           # Double check constant is available
-          if registration.constant_available?
-            install_probe(registration)
+          next unless registration.constant_available?
 
-            # Don't need this to be called again
-            unregister_require_hook(registration)
-          end
+          install_probe(registration)
+
+          # Don't need this to be called again
+          unregister_require_hook(registration)
         end
       end
 

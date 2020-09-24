@@ -13,8 +13,7 @@ module Skylight
       end
 
       class EmptyDeploy
-        attr_reader :config
-        attr_reader :timestamp
+        attr_reader :config, :timestamp
 
         def initialize(config)
           @config = config

@@ -9,12 +9,12 @@ module Skylight
       end
 
       def write(*args)
-        STDERR.write(*args)
+        $stderr.write(*args)
 
         # Try to avoid writing to STDOUT/STDERR twice
         logger_logdev = @logger.instance_variable_get(:@logdev)
         logger_out = logger_logdev&.respond_to?(:dev) ? logger_logdev.dev : nil
-        if logger_out != STDOUT && logger_out != STDERR
+        if logger_out != $stdout && logger_out != $stderr
           @logger.<<(*args)
         end
       end

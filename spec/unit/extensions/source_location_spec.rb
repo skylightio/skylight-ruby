@@ -2,8 +2,7 @@ require "spec_helper"
 
 describe Skylight::Extensions::SourceLocation do
   class MyConstant
-    def an_instance_method
-    end
+    def an_instance_method; end
   end
 
   def project_root

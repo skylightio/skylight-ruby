@@ -40,7 +40,7 @@ module Skylight
             # Matches a Gem Version or 12-digit hex (sha)
             # that is preceeded by a `-` and followed by `/`
             # Also matches 'app/views/' if it exists
-            %r{-(?:#{Gem::Version::VERSION_PATTERN}|[0-9a-f]{12})\/(?:app\/views\/)*},
+            %r{-(?:#{Gem::Version::VERSION_PATTERN}|[0-9a-f]{12})/(?:app/views/)*},
             ": ".freeze
           )
         else

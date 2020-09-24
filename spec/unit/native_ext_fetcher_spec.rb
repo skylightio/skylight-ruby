@@ -30,19 +30,17 @@ module Skylight
       end
 
       it "works with a proxy" do
-        begin
-          original_proxy = ENV["HTTP_PROXY"]
-          ENV["HTTP_PROXY"] = "foo:bar@127.0.0.1:123"
+        original_proxy = ENV["HTTP_PROXY"]
+        ENV["HTTP_PROXY"] = "foo:bar@127.0.0.1:123"
 
-          expect(Net::HTTP).to receive(:start).
-            with("s3.amazonaws.com", 443, "127.0.0.1", 123, "foo", "bar", use_ssl: true).
-            and_return([:success, checksum])
+        expect(Net::HTTP).to receive(:start).
+          with("s3.amazonaws.com", 443, "127.0.0.1", 123, "foo", "bar", use_ssl: true).
+          and_return([:success, checksum])
 
-          ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
-          expect(ret).to eq(true)
-        ensure
-          ENV["HTTP_PROXY"] = original_proxy
-        end
+        ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
+        expect(ret).to eq(true)
+      ensure
+        ENV["HTTP_PROXY"] = original_proxy
       end
 
       it "follows redirects" do
@@ -87,7 +85,7 @@ module Skylight
     end
 
     def fetch(**opts)
-      opts[:logger] ||= Logger.new(STDOUT).tap do |l|
+      opts[:logger] ||= Logger.new($stdout).tap do |l|
         l.level = ENV["DEBUG"] ? Logger::DEBUG : Logger::FATAL
       end
       NativeExtFetcher.fetch(**opts)

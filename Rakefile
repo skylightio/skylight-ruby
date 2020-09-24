@@ -71,6 +71,6 @@ if defined?(YARD)
   YARD::Rake::YardocTask.new
 end
 
-Rake.add_rakelib 'lib/tasks'
+Rake.add_rakelib "lib/tasks"
 
 task default: %i[spec]

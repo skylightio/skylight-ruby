@@ -42,7 +42,7 @@ SKYLIGHT_CHECKSUM = ENV["SKYLIGHT_CHECKSUM"]
 SKYLIGHT_EXT_STRICT = ENV.key?("SKYLIGHT_EXT_STRICT") && ENV["SKYLIGHT_EXT_STRICT"] =~ /^true$/i
 
 # Setup logger
-LOG = Logger.new(MultiIO.new(STDOUT, File.open(SKYLIGHT_INSTALL_LOG, "a")))
+LOG = Logger.new(MultiIO.new($stdout, File.open(SKYLIGHT_INSTALL_LOG, "a")))
 
 # Handles terminating in the case of a failure. If we have a bug, we do not
 # want to break our customer's deploy, but extconf.rb requires a Makefile to be

@@ -246,7 +246,7 @@ if enable
 
         config.active_support.deprecation = :stderr
 
-        config.logger = Logger.new(STDOUT)
+        config.logger = Logger.new($stdout)
         config.log_level = ENV["DEBUG"] ? :debug : :unknown
         config.logger.progname = "Rails"
 

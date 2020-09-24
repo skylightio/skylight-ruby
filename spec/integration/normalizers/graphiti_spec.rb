@@ -107,14 +107,12 @@ if defined?(Graphiti)
     end
 
     around do |example|
-      begin
-        Skylight.mock!
-        Skylight.trace do
-          example.run
-        end
-      ensure
-        Skylight.stop!
+      Skylight.mock!
+      Skylight.trace do
+        example.run
       end
+    ensure
+      Skylight.stop!
     end
 
     before do

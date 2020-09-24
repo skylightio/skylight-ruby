@@ -331,7 +331,7 @@ if enable
                   variables: variables,
                   context:   context.merge({}.tap do |h|
                     h[:skylight_endpoint] = "query-#{i}" if params[:manual_operation_name] == "indexed"
-                  end),
+                  end)
                 }
               end
 
@@ -552,7 +552,7 @@ if enable
               ["app.graphql", "graphql.execute_multiplex"],
               *expected_analysis_events(3),
 
-              *["query-0", "query-1", "query-2"].map do |qn|
+              *%w[query-0 query-1 query-2].map do |qn|
                 [
                   ["app.graphql", "graphql.execute_query: #{qn}"],
                   ["db.sql.query", "SELECT FROM species"],

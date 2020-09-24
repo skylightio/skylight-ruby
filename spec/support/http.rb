@@ -18,7 +18,7 @@ module SpecHelper
 
         LOCK.synchronize do
           @started = true
-          @server = Puma::Server.new(self, Puma::Events.new(STDOUT, STDERR))
+          @server = Puma::Server.new(self, Puma::Events.new($stdout, $stderr))
           @server.add_tcp_listener("127.0.0.1", opts.fetch(:Port))
           @server_thread = @server.run
         end

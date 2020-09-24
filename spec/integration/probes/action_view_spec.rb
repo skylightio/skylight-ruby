@@ -75,7 +75,7 @@ if defined?(ActionView)
 
     # On Rails >= 6.1, the FixtureResolver prepends a "/" to the path.
     def normalize_template_path(path)
-      path.sub(/^\//, '')
+      path.sub(%r{^/}, "")
     end
 
     let(:layout_event) do
