@@ -651,7 +651,6 @@ if enable
       end
 
       context "with template rendering" do
-
         def pre_boot
           super
           FileUtils.mkdir_p(expand_path("users"))
@@ -665,7 +664,6 @@ if enable
         end
 
         it "includes relative paths to the ActionView templates" do
-
           if defined?(ActionView::CacheExpiry)
             allow_any_instance_of(ActionView::CacheExpiry).to receive(:dirs_to_watch) { [] }
           end

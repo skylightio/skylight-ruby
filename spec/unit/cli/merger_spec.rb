@@ -4,6 +4,7 @@ require "securerandom"
 describe Skylight::CLI::Merger do
   class TestStdout
     attr_reader :queue
+
     def initialize(shell)
       @shell = shell
     end

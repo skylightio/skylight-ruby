@@ -32,10 +32,11 @@ module Skylight
 
           backtrace = err.backtrace.map { |l| "  #{l}" }.join("\n")
 
-          gems = begin
-            Bundler.locked_gems.dependencies.map { |d| [d.name, d.requirement.to_s] }
-          rescue # rubocop:disable Lint/SuppressedException
-          end
+          gems =
+            begin
+              Bundler.locked_gems.dependencies.map { |d| [d.name, d.requirement.to_s] }
+            rescue # rubocop:disable Lint/SuppressedException
+            end
 
           error = "[SKYLIGHT] [#{Skylight::VERSION}] Encountered an error while installing the " \
                           "probe for #{const_name}. Please notify support@skylight.io with the debugging " \

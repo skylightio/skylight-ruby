@@ -737,7 +737,7 @@ module Skylight
       end
 
       it "sends agent_log_file if specified" do
-        config[:log_file] = "/tmp/standard.log",
+        config[:log_file] = "/tmp/standard.log"
         config[:native_log_file] = "/tmp/native.log"
 
         expect(get_env["SKYLIGHT_LOG_FILE"]).to eq("/tmp/native.log")

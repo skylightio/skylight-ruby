@@ -434,7 +434,7 @@ if enable
           it "successfully calls into graphql with manually-named anonymous queries" do
             query_name = "FauxNamedQuery"
             make_graphql_request(
-              query: "query { #{query_inner} }",
+              query:                 "query { #{query_inner} }",
               manual_operation_name: query_name
             )
 
@@ -531,7 +531,7 @@ if enable
             call env("/test",
                      method: :POST,
                      params: {
-                       queries: queries,
+                       queries:               queries,
                        manual_operation_name: :indexed
                      })
 

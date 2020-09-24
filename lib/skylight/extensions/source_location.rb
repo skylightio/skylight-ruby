@@ -91,86 +91,86 @@ module Skylight
 
       protected
 
-      def dispatch_hinted_source_location(source_name, _payload, _meta, args:, **_opts)
-        const_name, method_name = args
-        return unless const_name && method_name
+        def dispatch_hinted_source_location(source_name, _payload, _meta, args:, **_opts)
+          const_name, method_name = args
+          return unless const_name && method_name
 
-        instance_method_source_location(const_name, method_name, source_name: source_name)
-      end
-
-      # from normalizers.rb
-      # Returns an array of file and line
-      def source_location(payload, meta, cache_key: nil)
-        # FIXME: what should precedence be?
-        if meta.is_a?(Hash) && meta[:source_location]
-          meta.delete(:source_location)
-        elsif payload.is_a?(Hash) && payload[:sk_source_location]
-          payload[:sk_source_location]
-        elsif (location = find_caller(cache_key: cache_key))
-          [location.absolute_path, location.lineno]
+          instance_method_source_location(const_name, method_name, source_name: source_name)
         end
-      end
 
-      def find_caller(cache_key: nil)
-        if cache_key
-          @caller_cache.fetch(cache_key) { find_caller_inner }
-        else
-          find_caller_inner
+        # from normalizers.rb
+        # Returns an array of file and line
+        def source_location(payload, meta, cache_key: nil)
+          # FIXME: what should precedence be?
+          if meta.is_a?(Hash) && meta[:source_location]
+            meta.delete(:source_location)
+          elsif payload.is_a?(Hash) && payload[:sk_source_location]
+            payload[:sk_source_location]
+          elsif (location = find_caller(cache_key: cache_key))
+            [location.absolute_path, location.lineno]
+          end
         end
-      end
 
-      def project_path?(path)
-        # Must be in the project root
-        return false unless path.start_with?(config.root.to_s)
-        # Must not be Bundler's vendor location
-        return false if defined?(Bundler) && path.start_with?(Bundler.bundle_path.to_s)
-        # Must not be Ruby files
-        return false if path.include?("/ruby-#{RUBY_VERSION}/lib/ruby/")
+        def find_caller(cache_key: nil)
+          if cache_key
+            @caller_cache.fetch(cache_key) { find_caller_inner }
+          else
+            find_caller_inner
+          end
+        end
 
-        # So it must be a project file
-        true
-      end
+        def project_path?(path)
+          # Must be in the project root
+          return false unless path.start_with?(config.root.to_s)
+          # Must not be Bundler's vendor location
+          return false if defined?(Bundler) && path.start_with?(Bundler.bundle_path.to_s)
+          # Must not be Ruby files
+          return false if path.include?("/ruby-#{RUBY_VERSION}/lib/ruby/")
 
-      def instance_method_source_location(constant_name, method_name, source_name: :instance_method)
-        @instance_method_source_location_cache.fetch([constant_name, method_name, source_name]) do
-          if (constant = ::ActiveSupport::Dependencies.safe_constantize(constant_name))
-            if constant.instance_methods.include?(:"before_instrument_#{method_name}")
-              method_name = :"before_instrument_#{method_name}"
-            end
-            begin
-              unbound_method = case source_name
-                               when :instance_method
-                                 find_instance_method(constant, method_name)
-                               when :own_instance_method
-                                 find_own_instance_method(constant, method_name)
-                               when :instance_method_super
-                                 find_instance_method_super(constant, method_name)
-                               end
+          # So it must be a project file
+          true
+        end
 
-              unbound_method&.source_location
-            rescue NameError
-              nil
+        def instance_method_source_location(constant_name, method_name, source_name: :instance_method)
+          @instance_method_source_location_cache.fetch([constant_name, method_name, source_name]) do
+            if (constant = ::ActiveSupport::Dependencies.safe_constantize(constant_name))
+              if constant.instance_methods.include?(:"before_instrument_#{method_name}")
+                method_name = :"before_instrument_#{method_name}"
+              end
+              begin
+                unbound_method = case source_name
+                                 when :instance_method
+                                   find_instance_method(constant, method_name)
+                                 when :own_instance_method
+                                   find_own_instance_method(constant, method_name)
+                                 when :instance_method_super
+                                   find_instance_method_super(constant, method_name)
+                                 end
+
+                unbound_method&.source_location
+              rescue NameError
+                nil
+              end
             end
           end
         end
-      end
 
-      def sanitize_source_location(path, line)
-        # Do this first since gems may be vendored in the app repo. However, it might be slower.
-        # Should we cache matches?
-        if (gem_name = find_source_gem(path))
-          find_source_gem(path)
-          path = gem_name
-          line = nil
-        elsif project_path?(path)
-          # Get relative path to root
-          path = Pathname.new(path).relative_path_from(config.root).to_s
-        else
-          return
+        def sanitize_source_location(path, line)
+          # Do this first since gems may be vendored in the app repo. However, it might be slower.
+          # Should we cache matches?
+          if (gem_name = find_source_gem(path))
+            find_source_gem(path)
+            path = gem_name
+            line = nil
+          elsif project_path?(path)
+            # Get relative path to root
+            path = Pathname.new(path).relative_path_from(config.root).to_s
+          else
+            return
+          end
+
+          line ? "#{path}:#{line}" : path
         end
-
-        line ? "#{path}:#{line}" : path
-      end
 
       private
 
@@ -241,7 +241,6 @@ module Skylight
         def find_instance_method(constant, method_name)
           constant.instance_method(method_name)
         end
-
     end
   end
 end

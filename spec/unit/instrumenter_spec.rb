@@ -55,7 +55,7 @@ describe "Skylight::Instrumenter", :http, :agent do
     it "doesn't keep invalid config values" do
       config.set("test.enable_source_locations", true)
       stub_config_validation(422, { corrected: { enable_source_locations: false },
-                                    errors: { enable_source_locations: "not allowed to be set" } })
+                                    errors:    { enable_source_locations: "not allowed to be set" } })
 
       expect(Skylight.start!(config)).to be_truthy
 

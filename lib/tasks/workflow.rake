@@ -221,6 +221,7 @@ module WorkflowConfigGenerator
 
     primary = jobs.select(&:primary?)
     raise "should only have one primary job" if primary.length != 1
+
     primary = primary.first
 
     (jobs - [primary]).each do |j|
@@ -339,9 +340,9 @@ module WorkflowConfigGenerator
     def name
       if env
         env_key = env.select { |k, _| k.to_s =~ /VERSION/ }.
-                      map { |k, v| "#{k}=#{v}" }.
-                      compact.
-                      join(" ")
+                  map { |k, v| "#{k}=#{v}" }.
+                  compact.
+                  join(" ")
       end
 
       [
@@ -362,137 +363,137 @@ module WorkflowConfigGenerator
 
     private
 
-    def decorations
-      [].tap do |ary|
-        ary << "[allowed to fail]" if allow_failure?
+      def decorations
+        [].tap do |ary|
+          ary << "[allowed to fail]" if allow_failure?
+        end
       end
-    end
 
-    def cleanup_step
-      return unless primary?
+      def cleanup_step
+        return unless primary?
 
-      {
-        uses: "technote-space/auto-cancel-redundant-job@v1"
-      }
-    end
-
-    def checkout_step
-      {
-        name: "Checkout",
-        uses: "actions/checkout@v2"
-      }
-    end
-
-    def setup_ruby_step
-      {
-        name: "Setup ruby",
-        uses: "actions/setup-ruby@v1",
-        with: {
-          "ruby-version": ruby_version
+        {
+          uses: "technote-space/auto-cancel-redundant-job@v1"
         }
-      }
-    end
-
-    def install_apt_dependencies_step
-      {
-        name: "Install APT dependencies",
-        run: <<~RUN
-          sudo apt-get update
-          sudo apt-get install -yq sqlite libsqlite3-dev
-        RUN
-      }
-    end
-
-    def setup_cache_step
-      {
-        name: "Setup cache",
-        uses: "actions/cache@v1",
-        with: {
-          path: "${{ github.workspace }}/vendor/bundle",
-          key: "${{ runner.os }}-gems-#{ruby_version}-#{gemfile}",
-          "restore-keys" => "${{ runner.os }}-gems-#{ruby_version}-"
-        }
-      }
-    end
-
-    def install_bundler_dependencies_step
-      {
-        name: "bundle install",
-        run: <<~RUN
-          gem install bundler
-          bundle install
-        RUN
-      }
-    end
-
-    def run_tests_step
-      {
-        name: "Run tests",
-        run: <<~RUN
-          bundle exec rake workflow:verify[$CONFIG_DIGEST]
-          bundle exec rake
-        RUN
-      }
-    end
-
-    def run_tests_disabled_agent_step
-      {
-        name: "Run tests (agent disabled)",
-        env: {
-          "COVERAGE_DIR" => DEFAULT_ENV.fetch("DISABLED_COVERAGE_DIR"),
-          "SKYLIGHT_DISABLE_AGENT" => "true"
-        },
-        run: "bundle exec rake"
-      }
-    end
-
-    def prepare_coverage_step
-      # FIXME: replace uuidgen with static job id?
-      {
-        name: "Prepare coverage files for upload",
-        run: <<~RUN
-          mkdir -p coverage-sync
-          cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-          cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
-        RUN
-      }
-    end
-
-    def upload_coverage_step
-      {
-        name: "Upload coverage files",
-        if: "success()",
-        uses: "actions/upload-artifact@v2",
-        with: {
-          name: "coverage",
-          path: "coverage-sync"
-        }
-      }
-    end
-
-    def ruby_version
-      config.fetch(:ruby_version)
-    end
-
-    def gemfile
-      config.fetch(:gemfile)
-    end
-
-    def gemfile_path
-      "gemfiles/Gemfile.#{gemfile}"
-    end
-
-    def allow_failure?
-      config.fetch(:allow_failure, false)
-    end
-
-    def env
-      if config[:gemfile]
-        { BUNDLE_GEMFILE: gemfile_path }.merge(config[:env] || {})
-      else
-        config[:env]
       end
-    end
+
+      def checkout_step
+        {
+          name: "Checkout",
+          uses: "actions/checkout@v2"
+        }
+      end
+
+      def setup_ruby_step
+        {
+          name: "Setup ruby",
+          uses: "actions/setup-ruby@v1",
+          with: {
+            "ruby-version": ruby_version
+          }
+        }
+      end
+
+      def install_apt_dependencies_step
+        {
+          name: "Install APT dependencies",
+          run: <<~RUN
+            sudo apt-get update
+            sudo apt-get install -yq sqlite libsqlite3-dev
+          RUN
+        }
+      end
+
+      def setup_cache_step
+        {
+          name: "Setup cache",
+          uses: "actions/cache@v1",
+          with: {
+            path: "${{ github.workspace }}/vendor/bundle",
+            key: "${{ runner.os }}-gems-#{ruby_version}-#{gemfile}",
+            "restore-keys" => "${{ runner.os }}-gems-#{ruby_version}-"
+          }
+        }
+      end
+
+      def install_bundler_dependencies_step
+        {
+          name: "bundle install",
+          run: <<~RUN
+            gem install bundler
+            bundle install
+          RUN
+        }
+      end
+
+      def run_tests_step
+        {
+          name: "Run tests",
+          run: <<~RUN
+            bundle exec rake workflow:verify[$CONFIG_DIGEST]
+            bundle exec rake
+          RUN
+        }
+      end
+
+      def run_tests_disabled_agent_step
+        {
+          name: "Run tests (agent disabled)",
+          env: {
+            "COVERAGE_DIR" => DEFAULT_ENV.fetch("DISABLED_COVERAGE_DIR"),
+            "SKYLIGHT_DISABLE_AGENT" => "true"
+          },
+          run: "bundle exec rake"
+        }
+      end
+
+      def prepare_coverage_step
+        # FIXME: replace uuidgen with static job id?
+        {
+          name: "Prepare coverage files for upload",
+          run: <<~RUN
+            mkdir -p coverage-sync
+            cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
+            cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+          RUN
+        }
+      end
+
+      def upload_coverage_step
+        {
+          name: "Upload coverage files",
+          if: "success()",
+          uses: "actions/upload-artifact@v2",
+          with: {
+            name: "coverage",
+            path: "coverage-sync"
+          }
+        }
+      end
+
+      def ruby_version
+        config.fetch(:ruby_version)
+      end
+
+      def gemfile
+        config.fetch(:gemfile)
+      end
+
+      def gemfile_path
+        "gemfiles/Gemfile.#{gemfile}"
+      end
+
+      def allow_failure?
+        config.fetch(:allow_failure, false)
+      end
+
+      def env
+        if config[:gemfile]
+          { BUNDLE_GEMFILE: gemfile_path }.merge(config[:env] || {})
+        else
+          config[:env]
+        end
+      end
   end
 
   class TestJob < BaseJob

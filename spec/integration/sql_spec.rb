@@ -97,8 +97,8 @@ if Skylight.native?
 
       def test_config_values
         super.merge(
-          log_level: "debug",
-          native_log_file: "#{tmpdir}/native.log",
+          log_level:            "debug",
+          native_log_file:      "#{tmpdir}/native.log",
           log_sql_parse_errors: log_sql_parse_errors
         )
       end
@@ -135,4 +135,3 @@ if Skylight.native?
     end
   end
 end
-
