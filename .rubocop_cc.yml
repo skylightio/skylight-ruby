@@ -60,10 +60,6 @@ Style/DoubleNegation:
 Style/Documentation:
   Enabled: false
 
-# We may want this, but since it could break stuff let's disable it for now.
-Style/FrozenStringLiteralComment:
-  Enabled: false
-
 Style/GlobalVars:
   Exclude:
     - 'ext/extconf.rb'
