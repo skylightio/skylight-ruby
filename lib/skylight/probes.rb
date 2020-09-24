@@ -26,11 +26,11 @@ module Skylight
 
       private
 
-        def log_install_exception(e)
-          description = e.class.to_s
-          description << ": #{e.message}" unless e.message.empty?
+        def log_install_exception(err)
+          description = err.class.to_s
+          description << ": #{err.message}" unless err.message.empty?
 
-          backtrace = e.backtrace.map { |l| "  #{l}" }.join("\n")
+          backtrace = err.backtrace.map { |l| "  #{l}" }.join("\n")
 
           gems = begin
             Bundler.locked_gems.dependencies.map { |d| [d.name, d.requirement.to_s] }
