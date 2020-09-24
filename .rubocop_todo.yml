@@ -111,3 +111,19 @@ Layout/TrailingEmptyLines:
   Exclude:
     - 'spec/integration/sql_spec.rb'
 
+# Offense count: 5
+# Cop supports --auto-correct.
+Style/ExplicitBlockArgument:
+  Exclude:
+    - 'lib/skylight.rb'
+    - 'lib/skylight/probes.rb'
+    - 'lib/skylight/probes/elasticsearch.rb'
+    - 'lib/skylight/test.rb'
+    - 'spec/support/messages/trace.rb'
+
+# Offense count: 219
+# Cop supports --auto-correct.
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: always, always_true, never
+Style/FrozenStringLiteralComment:
+  Enabled: false

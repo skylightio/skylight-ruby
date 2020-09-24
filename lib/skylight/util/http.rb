@@ -192,8 +192,8 @@ module Skylight
             body.dig(*key.split(".")) if body.is_a?(Hash)
           end
 
-          def respond_to_missing?(name, include_all = false)
-            super || body.respond_to?(name, include_all)
+          def respond_to_missing?(*args)
+            super || body.respond_to?(*args)
           end
 
           def method_missing(name, *args, &blk)

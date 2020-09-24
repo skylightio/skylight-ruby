@@ -15,7 +15,7 @@ module SpecHelper
          @int_val,
          @double_val,
          @string_val,
-         @nested].select { |x| x.present? }.join("; ")
+         @nested].select(&:present?).join("; ")
       end
     end
 

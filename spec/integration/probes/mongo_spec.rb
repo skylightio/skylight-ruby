@@ -106,7 +106,7 @@ if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
     it "instruments delete_one" do
       client[:artists].find(name: "Bjork").delete_one
 
-      description = { deletes: [{ q: { name: "?" }, limit: 1}] }.to_json
+      description = { deletes: [{ q: { name: "?" }, limit: 1 }] }.to_json
       expected = { cat: "db.mongo.command", title: "echo_test.delete artists", desc: description }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
@@ -114,7 +114,7 @@ if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
     it "instruments delete_many" do
       client[:artists].find(name: "Bjork").delete_many
 
-      description = { deletes: [{q: { name: "?" }, limit: 0}] }.to_json
+      description = { deletes: [{ q: { name: "?" }, limit: 0 }] }.to_json
       expected = { cat: "db.mongo.command", title: "echo_test.delete artists", desc: description }
       expect(current_trace.mock_spans[1]).to include(expected)
     end

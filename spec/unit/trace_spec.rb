@@ -352,7 +352,7 @@ module Skylight
         context "sanitization" do
           it "shows gem name" do
             rake_spec = Bundler.load.specs.find { |s| s.name == "rake" }
-            path = rake_spec.full_require_paths.first + "/dummy.rb"
+            path = "#{rake_spec.full_require_paths.first}/dummy.rb"
 
             trace = Skylight.trace "Rack", "app.rack.request"
             span = trace.instrument("app.block", nil, nil, source_file: path, source_line: 123)
@@ -368,7 +368,7 @@ module Skylight
 
           it "ignores ignored gems" do
             rake_spec = Bundler.load.specs.find { |s| s.name == "activesupport" }
-            path = rake_spec.full_require_paths.first + "/dummy.rb"
+            path = "#{rake_spec.full_require_paths.first}/dummy.rb"
 
             trace = Skylight.trace "Rack", "app.rack.request"
             span = trace.instrument("app.block", nil, nil, source_file: path, source_line: 123)

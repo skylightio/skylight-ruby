@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require "active_support/deprecation"
 
 module Skylight
-  SKYLIGHT_GEM_ROOT = File.expand_path("../..", __dir__) + "/"
+  SKYLIGHT_GEM_ROOT = "#{File.expand_path('../..', __dir__)}/"
 
   class Deprecation < ActiveSupport::Deprecation
     private

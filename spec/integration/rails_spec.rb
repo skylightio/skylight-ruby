@@ -491,7 +491,7 @@ if enable
       Object.send(:remove_const, :EngineNamespace)
       Object.send(:remove_const, :UsersController)
       Object.send(:remove_const, :MetalController)
-      Rails::Railtie::Configuration.class_variable_set(:@@app_middleware, nil)
+      Rails::Railtie::Configuration.class_variable_set(:@@app_middleware, nil) # rubocop:disable Style/ClassVars
       Rails.application = nil
     end
 

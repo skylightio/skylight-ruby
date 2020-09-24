@@ -390,11 +390,12 @@ if enable
 
           analyze_event = ["app.graphql", "graphql.analyze_query"]
           event_style = TestApp.graphql17? ? :inline : expectation_event_style
-          if event_style == :grouped
+          case event_style
+          when :grouped
             events.cycle(query_count).to_a.tap do |a|
               a.concat([analyze_event].cycle(query_count).to_a)
             end
-          elsif event_style == :inline
+          when :inline
             [*events, analyze_event].cycle(query_count)
           else
             raise "Unexpected expectation_event_style: #{event_style}"

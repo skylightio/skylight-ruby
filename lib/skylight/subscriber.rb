@@ -14,7 +14,7 @@ module Skylight
 
     def register!
       unregister!
-      @normalizers.keys.each do |key|
+      @normalizers.keys.each do |key| # rubocop:disable Style/HashEachMethods
         @subscribers << ActiveSupport::Notifications.subscribe(key, self)
       end
     end

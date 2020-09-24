@@ -20,7 +20,7 @@ module Skylight
         matches = registry.select { |n, _| n =~ /(^|\.)#{name}$/ }
         raise ArgumentError, "no normalizers match #{name}" if matches.empty?
 
-        matches.values.each { |v| v[1] = enabled }
+        matches.each_value { |v| v[1] = enabled }
       end
     end
 
