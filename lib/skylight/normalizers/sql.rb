@@ -29,7 +29,8 @@ module Skylight
 
         unless sql.valid_encoding?
           if config[:log_sql_parse_errors]
-            config.logger.error "[#{Skylight::SqlLexError.formatted_code}] Unable to extract binds from non-UTF-8 query. " \
+            config.logger.error "[#{Skylight::SqlLexError.formatted_code}] Unable to extract binds from non-UTF-8 " \
+                                "query. " \
                                 "encoding=#{payload[:sql].encoding.name} " \
                                 "sql=#{payload[:sql].inspect} "
           end

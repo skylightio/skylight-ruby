@@ -22,7 +22,7 @@ describe "Initialization integration", :http do
     stub_config_validation
 
     # Make sure logs don't persist between tests
-    Dir["#{@tmpdir}/dummy/log/*"].each {|l| FileUtils.rm(l) }
+    Dir["#{@tmpdir}/dummy/log/*"].each { |l| FileUtils.rm(l) }
   end
 
   before :each, expect_success: false do

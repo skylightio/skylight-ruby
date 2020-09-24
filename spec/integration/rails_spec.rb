@@ -683,7 +683,9 @@ if enable
 
           expect(endpoint.name).to eq("UsersController#template_index<sk-segment>html</sk-segment>")
 
-          *spans, layout_span, template_span = endpoint.traces[0].filter_spans.map { |span| [span.event.category, span.event.title] }
+          *spans, layout_span, template_span = endpoint.traces[0].filter_spans.map do |span|
+            [span.event.category, span.event.title]
+          end
 
           expect(template_span).to eq(["view.render.template", "users/index.html.erb"])
 

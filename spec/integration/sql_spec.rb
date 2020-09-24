@@ -18,7 +18,7 @@ if Skylight.native?
       server.wait resource: "/report"
       trace = server.reports.dig(0, :endpoints, 0, :traces, 0)
 
-      span = trace.spans.find {|s| s.event.category == "db.sql.query" }
+      span = trace.spans.find { |s| s.event.category == "db.sql.query" }
       expect(span).to_not be_nil, "created a span"
 
       [span.event.category, span.event.title, span.event.description]
