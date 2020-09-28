@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: bb09957da8d8f1ccbad5d94e611b80856e9e515f1798a154bc1c37bfb54aad36
+  CONFIG_DIGEST: 800c81fdddb9f1d909dc5097e66498c22e6eaa5f9e8172dee5ff80647b9a8936
 'on':
   push:
     branches:
@@ -1346,6 +1346,33 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-2-7-rails-6-0-x
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.5'
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.5-base"
+        restore-keys: "${{ runner.os }}-gems-2.5-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Set up Rubocop problem matcher
+      run: echo "::add-matcher::${GITHUB_WORKSPACE}/.github/rubocop.json"
+    - name: Run lint
+      run: |
+        bundle exec rubocop -v
+        bundle exec rubocop
+    if: always()
   upload-coverage:
     name: upload-coverage
     runs-on: ubuntu-latest

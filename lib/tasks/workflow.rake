@@ -5,6 +5,9 @@ require "json"
 require "active_support/inflector"
 require "digest"
 
+OLDEST_RUBY = "2.5"
+NEWEST_RUBY = "2.7"
+
 # rubocop:disable Layout/HashAlignment
 module WorkflowConfigGenerator
   def self.mongo
@@ -15,7 +18,7 @@ module WorkflowConfigGenerator
   TEST_JOBS = [
     {
       name: "mongo",
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       services: mongo,
       env: {
@@ -26,7 +29,7 @@ module WorkflowConfigGenerator
 
     {
       name: "mongoid-6",
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       services: mongo,
       env: {
@@ -38,7 +41,7 @@ module WorkflowConfigGenerator
 
     {
       name: "elasticsearch",
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       services: {
         elasticsearch: {
@@ -51,7 +54,7 @@ module WorkflowConfigGenerator
 
     {
       always_run: true,
-      ruby_version: "2.5",
+      ruby_version: OLDEST_RUBY,
       gemfile: "rails-5.2.x",
       env: {
         SIDEKIQ_VERSION: "~> 4",
@@ -60,71 +63,71 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       env: { GRAPHQL_VERSION: "~> 1.9.0" }
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       env: { GRAPHQL_VERSION: "~> 1.8.0" }
     },
 
     {
       primary: true,
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-6.0.x"
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       allow_failure: true,
       gemfile: "rails-edge",
       env: { AMS_VERSION: "edge" }
     },
 
     {
-      ruby_version: "2.5",
+      ruby_version: OLDEST_RUBY,
       gemfile: "sinatra-1.4.x"
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "sinatra-1.4.x"
     },
 
     {
-      ruby_version: "2.5",
+      ruby_version: OLDEST_RUBY,
       gemfile: "sinatra-2.0.x"
     },
 
     {
       always_run: true,
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "sinatra-2.0.x"
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       allow_failure: true,
       gemfile: "sinatra-edge"
     },
 
     {
-      ruby_version: "2.5",
+      ruby_version: OLDEST_RUBY,
       gemfile: "grape",
       env: { RACK_VERSION: "~> 2.0.8" }
     },
 
     {
       always_run: true,
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "grape"
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "grape",
       env: {
         GRAPE_VERSION: "~> 0.13.0",
@@ -133,7 +136,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "grape",
       env: {
         GRAPE_VERSION: "~> 1.1.0",
@@ -142,7 +145,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "grape",
       env: {
         GRAPE_VERSION: "~> 1.2.0",
@@ -151,7 +154,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "grape",
       env: {
         GRAPE_VERSION: "~> 1.3.0"
@@ -159,26 +162,26 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       allow_failure: true,
       gemfile: "grape",
       env: { GRAPE_VERSION: "edge" }
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       env: { TILT_VERSION: "1.4.1" }
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "sinatra-1.4.x",
       env: { SEQUEL_VERSION: "4.34.0" }
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       env: {
         AMS_VERSION: "~> 0.8.3",
@@ -187,13 +190,13 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       env: { AMS_VERSION: "~> 0.9.5" }
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       allow_failure: true,
       gemfile: "rails-5.2.x",
       env: { AMS_VERSION: "edge" }
@@ -239,6 +242,7 @@ module WorkflowConfigGenerator
     job_defs = jobs.map(&:to_template).inject(:merge)
     required = jobs.select(&:required?).map(&:id)
 
+    job_defs.merge!(LintJob.new.to_template)
     job_defs.merge!(UploadCoverageJob.new({ needs: required }).to_template)
     job_defs.merge!(FinalizeJob.new({ needs: required }).to_template)
 
@@ -295,7 +299,7 @@ module WorkflowConfigGenerator
   class BaseJob
     attr_reader :config
 
-    def initialize(config)
+    def initialize(config = {})
       @config = config
     end
 
@@ -476,7 +480,7 @@ module WorkflowConfigGenerator
       end
 
       def gemfile
-        config.fetch(:gemfile)
+        config.fetch(:gemfile, "base")
       end
 
       def gemfile_path
@@ -524,6 +528,58 @@ module WorkflowConfigGenerator
         run_tests_disabled_agent_step
       ].compact
     end
+  end
+
+  class LintJob < BaseJob
+    def name
+      "lint"
+    end
+
+    def always_run?
+      true
+    end
+
+    def ruby_version
+      # Use oldest version to make sure our lints aren't too new
+      OLDEST_RUBY
+    end
+
+    def to_template_hash
+      super.merge(if: "always()")
+    end
+
+    def steps
+      [
+        cleanup_step,
+        checkout_step,
+        setup_ruby_step,
+        setup_cache_step,
+        install_bundler_dependencies_step,
+        setup_lint_matchers,
+        run_lint_step
+      ].compact
+    end
+
+    private
+
+      def setup_lint_matchers
+        # ::add-matcher is documented here:
+        # https://github.com/actions/toolkit/blob/master/docs/commands.md#problem-matchers
+        {
+          name: "Set up Rubocop problem matcher",
+          run: 'echo "::add-matcher::${GITHUB_WORKSPACE}/.github/rubocop.json"'
+        }
+      end
+
+      def run_lint_step
+        {
+          name: "Run lint",
+          run: <<~RUN
+            bundle exec rubocop -v
+            bundle exec rubocop
+          RUN
+        }
+      end
   end
 
   class UploadCoverageJob < BaseJob
