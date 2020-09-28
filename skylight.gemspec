@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "puma"
   spec.add_development_dependency "rack-test"
   spec.add_development_dependency "rake", "~> 13.0.1"
-  spec.add_development_dependency "rake-compiler", "~> 1.0.4"
+  spec.add_development_dependency "rake-compiler", "~> 1.1.1"
   spec.add_development_dependency "rspec", "~> 3.7"
   spec.add_development_dependency "rspec-collection_matchers", "~> 1.1"
   spec.add_development_dependency "rubocop", "~> 0.79.0"
