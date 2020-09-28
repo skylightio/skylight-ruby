@@ -221,7 +221,9 @@ module Skylight
         def find_instance_method_super(constant, method_name)
           return unless (unbound_method = find_instance_method(constant, method_name))
 
-          unbound_method = unbound_method.super_method while unbound_method.super_method
+          while unbound_method.super_method
+            unbound_method = unbound_method.super_method
+          end
 
           unbound_method
         end

@@ -111,3 +111,7 @@ Style/StringLiterals:
 # We don't want to use warn because we want to treat these like errors.
 Style/StderrPuts:
   Enabled: false
+
+# Peter and Zach don't like one line whiles
+Style/WhileUntilModifier:
+  Enabled: false
