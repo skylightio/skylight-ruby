@@ -20,6 +20,11 @@ Layout/DotPosition:
 
 Layout/IndentationConsistency:
   EnforcedStyle: indented_internal_methods
+  # For these files, the check fails on CI yet passes locally
+  Exclude:
+    - lib/skylight/probes/action_controller.rb
+    - spec/integration/rails_spec.rb
+
 
 Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
