@@ -19,6 +19,16 @@ module Skylight
         gem_require_trie # memoize this at startup
       end
 
+      def process_trace_meta(meta)
+        unless meta[:source_location] || meta[:source_file]
+          warn "Ignoring source_line without source_file" if meta[:source_line]
+          if (location = find_caller)
+            meta[:source_file] = location.absolute_path
+            meta[:source_line] = location.lineno
+          end
+        end
+      end
+
       def process_instrument_options(opts, meta)
         source_location = opts[:source_location] || opts[:meta]&.[](:source_location)
         source_file = opts[:source_file] || opts[:meta]&.[](:source_file)
@@ -41,14 +51,22 @@ module Skylight
       end
 
       def process_normalizer_meta(payload, meta, **opts)
-        sl = if ((source_name, *args) = opts[:source_location])
-               dispatch_hinted_source_location(
-                 source_name,
-                 payload,
-                 meta,
-                 args: args, **opts
-               )
-             end
+        if opts[:source_location] && (opts[:source_file] || opts[:source_line])
+          warn "Found both source_location and source_file or source_line in normalizer\n" \
+              "  location=#{opts[:source_location]}; file=#{opts[:source_file]}; line=#{opts[:source_line]}"
+        end
+
+        sl =
+          if ((source_name, *args) = opts[:source_location])
+            dispatch_hinted_source_location(
+              source_name,
+              payload,
+              meta,
+              args: args, **opts
+            )
+          elsif opts[:source_file]
+            [opts[:source_file], opts[:source_line]]
+          end
 
         sl ||= source_location(payload, meta, cache_key: opts[:cache_key])
 
@@ -211,6 +229,7 @@ module Skylight
 
         def find_caller_inner
           # Start at file before this one
+          # NOTE: We could start farther back now to avoid more Skylight files
           caller_locations(1).find do |l|
             find_source_gem(l.absolute_path) || project_path?(l.absolute_path)
           end

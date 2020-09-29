@@ -117,7 +117,7 @@ module Skylight
       end
 
       def endpoint_meta(_env)
-        nil
+        { source_location: Trace::SYNTHETIC }
       end
 
       # Request ID code based on ActionDispatch::RequestId

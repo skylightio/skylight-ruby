@@ -271,7 +271,7 @@ module Skylight
 
         server.wait resource: "/report"
 
-        annotation = get_annotation_val(spans[1], :SourceLocation)
+        annotation = spans[1].annotation_val(:SourceLocation)
         expect(annotation).to be_nil
       end
 
@@ -294,7 +294,7 @@ module Skylight
 
           server.wait resource: "/report"
 
-          annotation = get_annotation_val(spans[1], :SourceLocation)
+          annotation = spans[1].annotation_val(:SourceLocation)
           source_location = server.reports[0].source_locations.index("foo/bar.rb")
           expect(annotation&.string_val).to eq(source_location.to_s)
         end
@@ -308,7 +308,7 @@ module Skylight
 
           server.wait resource: "/report"
 
-          annotation = get_annotation_val(spans[1], :SourceLocation)
+          annotation = spans[1].annotation_val(:SourceLocation)
           source_location_index = server.reports[0].source_locations.index("foo/bar.rb")
           expect(annotation&.string_val).to eq("#{source_location_index}:123")
         end
@@ -324,7 +324,7 @@ module Skylight
 
           server.wait resource: "/report"
 
-          annotation = get_annotation_val(spans[1], :SourceLocation)
+          annotation = spans[1].annotation_val(:SourceLocation)
           expect(annotation).to be_nil
         end
 
@@ -343,7 +343,7 @@ module Skylight
 
           server.wait resource: "/report"
 
-          annotation = get_annotation_val(spans[1], :SourceLocation)
+          annotation = spans[1].annotation_val(:SourceLocation)
           source_location_index = server.reports[0].source_locations.index("foo/bar.rb")
           expect(annotation&.string_val).to eq("#{source_location_index}:1")
         end
@@ -360,7 +360,7 @@ module Skylight
 
             server.wait resource: "/report"
 
-            annotation = get_annotation_val(spans[1], :SourceLocation)
+            annotation = spans[1].annotation_val(:SourceLocation)
             source_location = server.reports[0].source_locations.index("rake")
             expect(annotation&.string_val).to eq(source_location.to_s)
           end
@@ -376,7 +376,7 @@ module Skylight
 
             server.wait resource: "/report"
 
-            annotation = get_annotation_val(spans[1], :SourceLocation)
+            annotation = spans[1].annotation_val(:SourceLocation)
             expect(annotation).to be_nil
           end
 
@@ -389,7 +389,7 @@ module Skylight
 
             server.wait resource: "/report"
 
-            annotation = get_annotation_val(spans[1], :SourceLocation)
+            annotation = spans[1].annotation_val(:SourceLocation)
             expect(annotation).to be_nil
           end
         end
@@ -404,12 +404,6 @@ module Skylight
       if (span = trace.instrument(*args))
         trace.done(span)
       end
-    end
-
-    def get_annotation_val(span, key)
-      key = SpecHelper::Messages::Annotation::AnnotationKey.const_get(key)
-      annotation = span.annotations.find { |a| a.key == key }
-      annotation&.val
     end
   end
 end

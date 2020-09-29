@@ -4,6 +4,7 @@ require "skylight/util/logging"
 module Skylight
   class Trace
     GC_CAT = "noise.gc".freeze
+    SYNTHETIC = "<synthetic>".freeze
 
     META_KEYS = %i[mute_children].freeze
 
@@ -38,6 +39,8 @@ module Skylight
       @notifications = []
 
       @spans = []
+
+      preprocess_meta(meta) if meta
 
       # create the root node
       @root = start(native_get_started_at, cat, title, desc, meta, normalize: false)
@@ -217,7 +220,8 @@ module Skylight
 
         if time > 0
           t { fmt "tracking GC time; duration=%d", time }
-          stop(start(now - time, GC_CAT, nil, nil, nil), now)
+          meta = { source_location: SYNTHETIC }
+          stop(start(now - time, GC_CAT, nil, nil, meta), now)
         end
       end
 

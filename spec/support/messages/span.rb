@@ -12,6 +12,12 @@ module SpecHelper
       def inspect
         super.gsub("SpecHelper::Messages::", "")
       end
+
+      def annotation_val(key)
+        key = SpecHelper::Messages::Annotation::AnnotationKey.const_get(key)
+        annotation = annotations.find { |a| a.key == key }
+        annotation&.val
+      end
     end
   end
 end

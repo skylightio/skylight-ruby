@@ -40,7 +40,8 @@ if defined?(Sinatra)
     end
 
     it "creates a Trace for a Sinatra app" do
-      expect(Skylight).to receive(:trace).with("Rack", "app.rack.request", nil, meta: nil, component: :web).
+      expect(Skylight).to receive(:trace).
+        with("Rack", "app.rack.request", nil, meta: { source_location: Skylight::Trace::SYNTHETIC }, component: :web).
         and_call_original
 
       get "/named-template"

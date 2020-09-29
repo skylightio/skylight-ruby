@@ -202,6 +202,8 @@ module Skylight
       end
 
       begin
+        meta ||= {}
+        extensions.process_trace_meta(meta)
         trace = Trace.new(self, endpoint, Skylight::Util::Clock.nanos, cat, title, desc,
                           meta: meta, segment: segment, component: component)
       rescue Exception => e
