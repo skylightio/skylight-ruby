@@ -33,7 +33,6 @@ module Skylight
     end
 
     it "tracks traces" do
-      expect(Skylight).to receive("trace").and_call_original
       expect(env).to receive(:hello)
 
       _, _, body = app.call(env)
