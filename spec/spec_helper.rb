@@ -46,12 +46,10 @@ end
 
 %w[excon tilt sinatra sequel faraday mongo mongoid active_model_serializers
    httpclient elasticsearch].each do |library|
-  begin
-    require library
-    Skylight::Probes.probe(library)
-  rescue LoadError
-    puts "Unable to load #{library}"
-  end
+  require library
+  Skylight::Probes.probe(library)
+rescue LoadError
+  puts "Unable to load #{library}"
 end
 
 begin
@@ -184,7 +182,7 @@ RSpec.configure do |config|
   end
 
   config.before do
-    Skylight::Config::ENV_TO_KEY.keys.each do |key|
+    Skylight::Config::ENV_TO_KEY.each_key do |key|
       # TODO: It would be good to test other prefixes as well
       key = "SKYLIGHT_#{key}"
       ENV[key] = e[key]
@@ -239,14 +237,12 @@ RSpec.configure do |config|
   end
 
   config.around :each, instrumenter: true do |example|
-    begin
-      mock_clock! # This happens before the before(:each) below
-      clock.freeze
-      Skylight.mock!
-      Skylight.trace("Test") { example.run }
-    ensure
-      Skylight.stop!
-    end
+    mock_clock! # This happens before the before(:each) below
+    clock.freeze
+    Skylight.mock!
+    Skylight.trace("Test") { example.run }
+  ensure
+    Skylight.stop!
   end
 
   config.around :each, http: true do |ex|

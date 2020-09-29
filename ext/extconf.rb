@@ -42,7 +42,7 @@ SKYLIGHT_CHECKSUM = ENV["SKYLIGHT_CHECKSUM"]
 SKYLIGHT_EXT_STRICT = ENV.key?("SKYLIGHT_EXT_STRICT") && ENV["SKYLIGHT_EXT_STRICT"] =~ /^true$/i
 
 # Setup logger
-LOG = Logger.new(MultiIO.new(STDOUT, File.open(SKYLIGHT_INSTALL_LOG, "a")))
+LOG = Logger.new(MultiIO.new($stdout, File.open(SKYLIGHT_INSTALL_LOG, "a")))
 
 # Handles terminating in the case of a failure. If we have a bug, we do not
 # want to break our customer's deploy, but extconf.rb requires a Makefile to be
@@ -69,7 +69,7 @@ end
 if Platform::OS == "darwin"
   # If the user installs Xcode-only, they have to approve the
   # license or no "xc*" tool will work.
-  if `/usr/bin/xcrun clang 2>&1` =~ /license/ && !$CHILD_STATUS.success?
+  if `/usr/bin/xcrun clang 2>&1` =~ /license/ && !$CHILD_STATUS.success? # rubocop:disable Style/SoleNestedConditional
     fail <<~MESSAGE
       You have not agreed to the Xcode license and so we are unable to build the native agent.
       To resolve this, you can agree to the license by opening Xcode.app or running:

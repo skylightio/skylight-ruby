@@ -26,16 +26,17 @@ module Skylight
 
       private
 
-        def log_install_exception(e)
-          description = e.class.to_s
-          description << ": #{e.message}" unless e.message.empty?
+        def log_install_exception(err)
+          description = err.class.to_s
+          description << ": #{err.message}" unless err.message.empty?
 
-          backtrace = e.backtrace.map { |l| "  #{l}" }.join("\n")
+          backtrace = err.backtrace.map { |l| "  #{l}" }.join("\n")
 
-          gems = begin
-            Bundler.locked_gems.dependencies.map { |d| [d.name, d.requirement.to_s] }
-          rescue # rubocop:disable Lint/SuppressedException
-          end
+          gems =
+            begin
+              Bundler.locked_gems.dependencies.map { |d| [d.name, d.requirement.to_s] }
+            rescue # rubocop:disable Lint/SuppressedException
+            end
 
           error = "[SKYLIGHT] [#{Skylight::VERSION}] Encountered an error while installing the " \
                           "probe for #{const_name}. Please notify support@skylight.io with the debugging " \
@@ -128,12 +129,12 @@ module Skylight
       def require_hook(require_path)
         each_by_require_path(require_path) do |registration|
           # Double check constant is available
-          if registration.constant_available?
-            install_probe(registration)
+          next unless registration.constant_available?
 
-            # Don't need this to be called again
-            unregister_require_hook(registration)
-          end
+          install_probe(registration)
+
+          # Don't need this to be called again
+          unregister_require_hook(registration)
         end
       end
 
@@ -173,7 +174,7 @@ module Kernel
   def require(name)
     require_without_sk(name).tap do
       Skylight::Probes.require_hook(name)
-    rescue Exception => e # rubocop:disable Lint/SuppressedException
+    rescue Exception => e
       warn("[SKYLIGHT] Rescued exception in require hook", e)
     end
   end

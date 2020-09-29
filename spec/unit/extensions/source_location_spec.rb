@@ -2,8 +2,7 @@ require "spec_helper"
 
 describe Skylight::Extensions::SourceLocation do
   class MyConstant
-    def an_instance_method
-    end
+    def an_instance_method; end
   end
 
   def project_root
@@ -18,7 +17,7 @@ describe Skylight::Extensions::SourceLocation do
   let(:config) do
     OpenStruct.new(
       source_location_ignored_gems: %w[skylight],
-      root: Pathname.new(project_root)
+      root:                         Pathname.new(project_root)
     )
   end
 
@@ -71,7 +70,7 @@ describe Skylight::Extensions::SourceLocation do
       end
 
       context "with sk_source_location in payload" do
-       let(:payload) { { sk_source_location: ["/path/to/file.rb", 10] } }
+        let(:payload) { { sk_source_location: ["/path/to/file.rb", 10] } }
 
         specify do
           extension.process_normalizer_meta(payload, meta)
@@ -81,7 +80,7 @@ describe Skylight::Extensions::SourceLocation do
       end
 
       context "with source_location in meta" do
-       let(:meta) { { source_location: ["/path/to/file.rb", 10] } }
+        let(:meta) { { source_location: ["/path/to/file.rb", 10] } }
 
         specify do
           extension.process_normalizer_meta(payload, meta)

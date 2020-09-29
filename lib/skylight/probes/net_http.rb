@@ -14,7 +14,6 @@ module Skylight
 
           # If we're connected with a persistent socket
           host ||= address
-          port ||= port
 
           path   = req.path
           scheme = use_ssl? ? "https" : "http"

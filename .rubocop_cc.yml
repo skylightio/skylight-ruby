@@ -20,6 +20,11 @@ Layout/DotPosition:
 
 Layout/IndentationConsistency:
   EnforcedStyle: indented_internal_methods
+  # For these files, the check fails on CI yet passes locally
+  Exclude:
+    - lib/skylight/probes/action_controller.rb
+    - spec/integration/rails_spec.rb
+
 
 Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
@@ -48,6 +53,15 @@ Metrics/BlockLength:
   Exclude:
     - '**/*_spec.rb'
 
+# In some cases `get_*` or `set_*` seems more appropriate than without.
+Naming/AccessorMethodName:
+  Enabled: false
+
+Naming/PredicateName:
+  AllowedMethods:
+    - is_a?       # Default
+    - has_errors? # Seems clearer than suggested `errors?`
+
 # This is a bit too strict for us
 Style/ClassAndModuleChildren:
   Enabled: false
@@ -58,10 +72,6 @@ Style/DoubleNegation:
 
 # We don't necessarily need to document every module, but maybe we can remove this later.
 Style/Documentation:
-  Enabled: false
-
-# We may want this, but since it could break stuff let's disable it for now.
-Style/FrozenStringLiteralComment:
   Enabled: false
 
 Style/GlobalVars:
@@ -80,6 +90,10 @@ Style/MixinUsage:
   Exclude:
     - 'ext/extconf.rb'
 
+# We use timestamps in some tests and this doesn't play nice
+Style/NumericLiterals:
+  Enabled: false
+
 Style/NumericPredicate:
   Enabled: false
 
@@ -91,27 +105,18 @@ Style/PerlBackrefs:
 Style/RescueStandardError:
   EnforcedStyle: implicit
 
-# We use timestamps in some tests and this doesn't play nice
-Style/NumericLiterals:
+# This may not be a great idea but we do it frequently. We should revisit.
+Style/RescueModifier:
   Enabled: false
 
 # No performance penalty for double quotes and easier to be consistent
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
-# This may not be a great idea but we do it frequently. We should revisit.
-Style/RescueModifier:
-  Enabled: false
-
 # We don't want to use warn because we want to treat these like errors.
 Style/StderrPuts:
   Enabled: false
 
-# In some cases `get_*` or `set_*` seems more appropriate than without.
-Naming/AccessorMethodName:
+# Peter and Zach don't like one line whiles
+Style/WhileUntilModifier:
   Enabled: false
-
-Naming/PredicateName:
-  AllowedMethods:
-    - is_a?       # Default
-    - has_errors? # Seems clearer than suggested `errors?`

@@ -23,7 +23,7 @@ module Skylight
     # @param opts [Hash]
     def self.fetch(**args)
       args[:source] ||= BASE_URL
-      args[:logger] ||= Logger.new(STDOUT)
+      args[:logger] ||= Logger.new($stdout)
       new(**args).fetch
     end
 
@@ -35,7 +35,7 @@ module Skylight
     # @param required [Boolean] whether the download is required to be successful
     # @param platform
     # @param log [Logger]
-    def initialize(source:, target:, version:, checksum:, arch:, required: false, platform: nil, logger:)
+    def initialize(source:, target:, version:, checksum:, arch:, logger:, required: false, platform: nil)
       raise "source required" unless source
       raise "target required" unless target
       raise "checksum required" unless checksum

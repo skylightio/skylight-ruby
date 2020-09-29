@@ -331,7 +331,7 @@ if enable
                   variables: variables,
                   context:   context.merge({}.tap do |h|
                     h[:skylight_endpoint] = "query-#{i}" if params[:manual_operation_name] == "indexed"
-                  end),
+                  end)
                 }
               end
 
@@ -390,11 +390,12 @@ if enable
 
           analyze_event = ["app.graphql", "graphql.analyze_query"]
           event_style = TestApp.graphql17? ? :inline : expectation_event_style
-          if event_style == :grouped
+          case event_style
+          when :grouped
             events.cycle(query_count).to_a.tap do |a|
               a.concat([analyze_event].cycle(query_count).to_a)
             end
-          elsif event_style == :inline
+          when :inline
             [*events, analyze_event].cycle(query_count)
           else
             raise "Unexpected expectation_event_style: #{event_style}"
@@ -433,7 +434,7 @@ if enable
           it "successfully calls into graphql with manually-named anonymous queries" do
             query_name = "FauxNamedQuery"
             make_graphql_request(
-              query: "query { #{query_inner} }",
+              query:                 "query { #{query_inner} }",
               manual_operation_name: query_name
             )
 
@@ -530,7 +531,7 @@ if enable
             call env("/test",
                      method: :POST,
                      params: {
-                       queries: queries,
+                       queries:               queries,
                        manual_operation_name: :indexed
                      })
 
@@ -552,7 +553,7 @@ if enable
               ["app.graphql", "graphql.execute_multiplex"],
               *expected_analysis_events(3),
 
-              *["query-0", "query-1", "query-2"].map do |qn|
+              *%w[query-0 query-1 query-2].map do |qn|
                 [
                   ["app.graphql", "graphql.execute_query: #{qn}"],
                   ["db.sql.query", "SELECT FROM species"],

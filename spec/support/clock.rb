@@ -2,7 +2,7 @@ module SpecHelper
   class TestClock < Skylight::Util::Clock
     alias __tick tick
 
-    def initialize
+    def initialize # rubocop:disable Lint/MissingSuper
       @absolute_secs = nil
       @tick = nil
       @skew = 0

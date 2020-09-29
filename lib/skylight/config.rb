@@ -586,7 +586,7 @@ module Skylight
       end
     end
 
-    attr_writer :logger
+    attr_writer :logger, :alert_logger
 
     def alert_logger
       @alert_logger ||= MUTEX.synchronize do
@@ -600,8 +600,6 @@ module Skylight
         l
       end
     end
-
-    attr_writer :alert_logger
 
     def enable_segments?
       !!get(:enable_segments)
@@ -638,13 +636,13 @@ module Skylight
 
         Logger.new(out, progname: "Skylight", level: level)
       rescue
-        Logger.new(STDOUT, progname: "Skylight", level: level)
+        Logger.new($stdout, progname: "Skylight", level: level)
       end
 
       def load_logger
         unless (l = @logger)
           out = get(:log_file)
-          out = STDOUT if out == "-"
+          out = $stdout if out == "-"
           l = create_logger(out, level: log_level)
         end
 

@@ -24,6 +24,7 @@ module Skylight::Normalizers::GraphQL
     end
 
     def self.inherited(klass)
+      super
       klass.const_set(
         :KEY,
         ActiveSupport::Inflector.underscore(

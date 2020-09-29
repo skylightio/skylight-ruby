@@ -246,7 +246,7 @@ if enable
 
         config.active_support.deprecation = :stderr
 
-        config.logger = Logger.new(STDOUT)
+        config.logger = Logger.new($stdout)
         config.log_level = ENV["DEBUG"] ? :debug : :unknown
         config.logger.progname = "Rails"
 
@@ -268,7 +268,7 @@ if enable
         # This class has no name
         ANONYMOUS_MIDDLEWARE_LINE = __LINE__ + 6
         config.middleware.use(Class.new do
-          def initialize(app)
+          def initialize(app) # rubocop:disable Lint/MissingSuper
             @app = app
           end
 
@@ -491,7 +491,7 @@ if enable
       Object.send(:remove_const, :EngineNamespace)
       Object.send(:remove_const, :UsersController)
       Object.send(:remove_const, :MetalController)
-      Rails::Railtie::Configuration.class_variable_set(:@@app_middleware, nil)
+      Rails::Railtie::Configuration.class_variable_set(:@@app_middleware, nil) # rubocop:disable Style/ClassVars
       Rails.application = nil
     end
 
@@ -651,7 +651,6 @@ if enable
       end
 
       context "with template rendering" do
-
         def pre_boot
           super
           FileUtils.mkdir_p(expand_path("users"))
@@ -665,12 +664,11 @@ if enable
         end
 
         it "includes relative paths to the ActionView templates" do
-
           if defined?(ActionView::CacheExpiry)
             allow_any_instance_of(ActionView::CacheExpiry).to receive(:dirs_to_watch) { [] }
           end
 
-          status, headers, body = call_full MyApp, env("/users/template_index.html")
+          status, _headers, _body = call_full MyApp, env("/users/template_index.html")
 
           expect(status).to eq(200)
 
@@ -683,7 +681,7 @@ if enable
 
           expect(endpoint.name).to eq("UsersController#template_index<sk-segment>html</sk-segment>")
 
-          *spans, layout_span, template_span = endpoint.traces[0].filter_spans.map do |span|
+          *_spans, layout_span, template_span = endpoint.traces[0].filter_spans.map do |span|
             [span.event.category, span.event.title]
           end
 

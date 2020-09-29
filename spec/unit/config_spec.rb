@@ -329,7 +329,7 @@ module Skylight
 
       it "creates a logger" do
         c = Config.new(log_file: "-")
-        expect(log_out(c.logger)).to eq(STDOUT)
+        expect(log_out(c.logger)).to eq($stdout)
 
         with_file do |f|
           c = Config.new(log_file: f.path)
@@ -341,7 +341,7 @@ module Skylight
         c = Config.new(alert_log_file: "-")
         out = log_out(c.alert_logger)
         expect(out).to be_a(Util::AlertLogger)
-        expect(log_out(out.instance_variable_get(:@logger))).to eq(STDOUT)
+        expect(log_out(out.instance_variable_get(:@logger))).to eq($stdout)
 
         with_file do |f|
           c = Config.new(alert_log_file: f.path)
@@ -737,7 +737,7 @@ module Skylight
       end
 
       it "sends agent_log_file if specified" do
-        config[:log_file] = "/tmp/standard.log",
+        config[:log_file] = "/tmp/standard.log"
         config[:native_log_file] = "/tmp/native.log"
 
         expect(get_env["SKYLIGHT_LOG_FILE"]).to eq("/tmp/native.log")

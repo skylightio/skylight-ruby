@@ -8,8 +8,8 @@ gem "rails", "~> 6.0.0"
 gem "sinatra", "~> 2.0.0"
 
 group :development do
-  gem "rubocop", "~> 0.90.0"
   gem "pry"
   gem "pry-byebug"
+  gem "rubocop", "~> 0.90.0"
   gem "yard", "~> 0.9.11"
 end

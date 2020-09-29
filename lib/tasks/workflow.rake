@@ -5,6 +5,9 @@ require "json"
 require "active_support/inflector"
 require "digest"
 
+OLDEST_RUBY = "2.5"
+NEWEST_RUBY = "2.7"
+
 # rubocop:disable Layout/HashAlignment
 module WorkflowConfigGenerator
   def self.mongo
@@ -15,7 +18,7 @@ module WorkflowConfigGenerator
   TEST_JOBS = [
     {
       name: "mongo",
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       services: mongo,
       env: {
@@ -26,7 +29,7 @@ module WorkflowConfigGenerator
 
     {
       name: "mongoid-6",
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       services: mongo,
       env: {
@@ -38,7 +41,7 @@ module WorkflowConfigGenerator
 
     {
       name: "elasticsearch",
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       services: {
         elasticsearch: {
@@ -51,7 +54,7 @@ module WorkflowConfigGenerator
 
     {
       always_run: true,
-      ruby_version: "2.5",
+      ruby_version: OLDEST_RUBY,
       gemfile: "rails-5.2.x",
       env: {
         SIDEKIQ_VERSION: "~> 4",
@@ -60,71 +63,71 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       env: { GRAPHQL_VERSION: "~> 1.9.0" }
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       env: { GRAPHQL_VERSION: "~> 1.8.0" }
     },
 
     {
       primary: true,
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-6.0.x"
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       allow_failure: true,
       gemfile: "rails-edge",
       env: { AMS_VERSION: "edge" }
     },
 
     {
-      ruby_version: "2.5",
+      ruby_version: OLDEST_RUBY,
       gemfile: "sinatra-1.4.x"
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "sinatra-1.4.x"
     },
 
     {
-      ruby_version: "2.5",
+      ruby_version: OLDEST_RUBY,
       gemfile: "sinatra-2.0.x"
     },
 
     {
       always_run: true,
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "sinatra-2.0.x"
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       allow_failure: true,
       gemfile: "sinatra-edge"
     },
 
     {
-      ruby_version: "2.5",
+      ruby_version: OLDEST_RUBY,
       gemfile: "grape",
       env: { RACK_VERSION: "~> 2.0.8" }
     },
 
     {
       always_run: true,
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "grape"
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "grape",
       env: {
         GRAPE_VERSION: "~> 0.13.0",
@@ -133,7 +136,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "grape",
       env: {
         GRAPE_VERSION: "~> 1.1.0",
@@ -142,7 +145,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "grape",
       env: {
         GRAPE_VERSION: "~> 1.2.0",
@@ -151,7 +154,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "grape",
       env: {
         GRAPE_VERSION: "~> 1.3.0"
@@ -159,26 +162,26 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       allow_failure: true,
       gemfile: "grape",
       env: { GRAPE_VERSION: "edge" }
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       env: { TILT_VERSION: "1.4.1" }
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "sinatra-1.4.x",
       env: { SEQUEL_VERSION: "4.34.0" }
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       env: {
         AMS_VERSION: "~> 0.8.3",
@@ -187,13 +190,13 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "rails-5.2.x",
       env: { AMS_VERSION: "~> 0.9.5" }
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       allow_failure: true,
       gemfile: "rails-5.2.x",
       env: { AMS_VERSION: "edge" }
@@ -221,6 +224,7 @@ module WorkflowConfigGenerator
 
     primary = jobs.select(&:primary?)
     raise "should only have one primary job" if primary.length != 1
+
     primary = primary.first
 
     (jobs - [primary]).each do |j|
@@ -238,6 +242,7 @@ module WorkflowConfigGenerator
     job_defs = jobs.map(&:to_template).inject(:merge)
     required = jobs.select(&:required?).map(&:id)
 
+    job_defs.merge!(LintJob.new.to_template)
     job_defs.merge!(UploadCoverageJob.new({ needs: required }).to_template)
     job_defs.merge!(FinalizeJob.new({ needs: required }).to_template)
 
@@ -249,7 +254,7 @@ module WorkflowConfigGenerator
           branches: ["master"]
         },
         pull_request: {
-          types: ["labeled", "opened", "reopened", "synchronize"]
+          types: %w[labeled opened reopened synchronize]
         }
       },
       jobs: job_defs
@@ -294,7 +299,7 @@ module WorkflowConfigGenerator
   class BaseJob
     attr_reader :config
 
-    def initialize(config)
+    def initialize(config = {})
       @config = config
     end
 
@@ -313,7 +318,7 @@ module WorkflowConfigGenerator
     def to_template_hash
       h = {
         name: decorated_name,
-        "runs-on" => "ubuntu-latest",
+        "runs-on" => "ubuntu-latest"
       }
 
       h["continue-on-error"] = true unless required?
@@ -339,9 +344,9 @@ module WorkflowConfigGenerator
     def name
       if env
         env_key = env.select { |k, _| k.to_s =~ /VERSION/ }.
-                      map { |k, v| "#{k}=#{v}" }.
-                      compact.
-                      join(" ")
+                  map { |k, v| "#{k}=#{v}" }.
+                  compact.
+                  join(" ")
       end
 
       [
@@ -362,137 +367,137 @@ module WorkflowConfigGenerator
 
     private
 
-    def decorations
-      [].tap do |ary|
-        ary << "[allowed to fail]" if allow_failure?
+      def decorations
+        [].tap do |ary|
+          ary << "[allowed to fail]" if allow_failure?
+        end
       end
-    end
 
-    def cleanup_step
-      return unless primary?
+      def cleanup_step
+        return unless primary?
 
-      {
-        uses: "technote-space/auto-cancel-redundant-job@v1"
-      }
-    end
-
-    def checkout_step
-      {
-        name: "Checkout",
-        uses: "actions/checkout@v2"
-      }
-    end
-
-    def setup_ruby_step
-      {
-        name: "Setup ruby",
-        uses: "actions/setup-ruby@v1",
-        with: {
-          "ruby-version": ruby_version
+        {
+          uses: "technote-space/auto-cancel-redundant-job@v1"
         }
-      }
-    end
-
-    def install_apt_dependencies_step
-      {
-        name: "Install APT dependencies",
-        run: <<~RUN
-          sudo apt-get update
-          sudo apt-get install -yq sqlite libsqlite3-dev
-        RUN
-      }
-    end
-
-    def setup_cache_step
-      {
-        name: "Setup cache",
-        uses: "actions/cache@v1",
-        with: {
-          path: "${{ github.workspace }}/vendor/bundle",
-          key: "${{ runner.os }}-gems-#{ruby_version}-#{gemfile}",
-          "restore-keys" => "${{ runner.os }}-gems-#{ruby_version}-"
-        }
-      }
-    end
-
-    def install_bundler_dependencies_step
-      {
-        name: "bundle install",
-        run: <<~RUN
-          gem install bundler
-          bundle install
-        RUN
-      }
-    end
-
-    def run_tests_step
-      {
-        name: "Run tests",
-        run: <<~RUN
-          bundle exec rake workflow:verify[$CONFIG_DIGEST]
-          bundle exec rake
-        RUN
-      }
-    end
-
-    def run_tests_disabled_agent_step
-      {
-        name: "Run tests (agent disabled)",
-        env: {
-          "COVERAGE_DIR" => DEFAULT_ENV.fetch("DISABLED_COVERAGE_DIR"),
-          "SKYLIGHT_DISABLE_AGENT" => "true"
-        },
-        run: "bundle exec rake"
-      }
-    end
-
-    def prepare_coverage_step
-      # FIXME: replace uuidgen with static job id?
-      {
-        name: "Prepare coverage files for upload",
-        run: <<~RUN
-          mkdir -p coverage-sync
-          cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-          cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
-        RUN
-      }
-    end
-
-    def upload_coverage_step
-      {
-        name: "Upload coverage files",
-        if: "success()",
-        uses: "actions/upload-artifact@v2",
-        with: {
-          name: "coverage",
-          path: "coverage-sync"
-        }
-      }
-    end
-
-    def ruby_version
-      config.fetch(:ruby_version)
-    end
-
-    def gemfile
-      config.fetch(:gemfile)
-    end
-
-    def gemfile_path
-      "gemfiles/Gemfile.#{gemfile}"
-    end
-
-    def allow_failure?
-      config.fetch(:allow_failure, false)
-    end
-
-    def env
-      if config[:gemfile]
-        { BUNDLE_GEMFILE: gemfile_path }.merge(config[:env] || {})
-      else
-        config[:env]
       end
-    end
+
+      def checkout_step
+        {
+          name: "Checkout",
+          uses: "actions/checkout@v2"
+        }
+      end
+
+      def setup_ruby_step
+        {
+          name: "Setup ruby",
+          uses: "actions/setup-ruby@v1",
+          with: {
+            "ruby-version": ruby_version
+          }
+        }
+      end
+
+      def install_apt_dependencies_step
+        {
+          name: "Install APT dependencies",
+          run: <<~RUN
+            sudo apt-get update
+            sudo apt-get install -yq sqlite libsqlite3-dev
+          RUN
+        }
+      end
+
+      def setup_cache_step
+        {
+          name: "Setup cache",
+          uses: "actions/cache@v1",
+          with: {
+            path: "${{ github.workspace }}/vendor/bundle",
+            key: "${{ runner.os }}-gems-#{ruby_version}-#{gemfile}",
+            "restore-keys" => "${{ runner.os }}-gems-#{ruby_version}-"
+          }
+        }
+      end
+
+      def install_bundler_dependencies_step
+        {
+          name: "bundle install",
+          run: <<~RUN
+            gem install bundler
+            bundle install
+          RUN
+        }
+      end
+
+      def run_tests_step
+        {
+          name: "Run tests",
+          run: <<~RUN
+            bundle exec rake workflow:verify[$CONFIG_DIGEST]
+            bundle exec rake
+          RUN
+        }
+      end
+
+      def run_tests_disabled_agent_step
+        {
+          name: "Run tests (agent disabled)",
+          env: {
+            "COVERAGE_DIR" => DEFAULT_ENV.fetch("DISABLED_COVERAGE_DIR"),
+            "SKYLIGHT_DISABLE_AGENT" => "true"
+          },
+          run: "bundle exec rake"
+        }
+      end
+
+      def prepare_coverage_step
+        # FIXME: replace uuidgen with static job id?
+        {
+          name: "Prepare coverage files for upload",
+          run: <<~RUN
+            mkdir -p coverage-sync
+            cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
+            cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+          RUN
+        }
+      end
+
+      def upload_coverage_step
+        {
+          name: "Upload coverage files",
+          if: "success()",
+          uses: "actions/upload-artifact@v2",
+          with: {
+            name: "coverage",
+            path: "coverage-sync"
+          }
+        }
+      end
+
+      def ruby_version
+        config.fetch(:ruby_version)
+      end
+
+      def gemfile
+        config.fetch(:gemfile, "base")
+      end
+
+      def gemfile_path
+        "gemfiles/Gemfile.#{gemfile}"
+      end
+
+      def allow_failure?
+        config.fetch(:allow_failure, false)
+      end
+
+      def env
+        if config[:gemfile]
+          { BUNDLE_GEMFILE: gemfile_path }.merge(config[:env] || {})
+        else
+          config[:env]
+        end
+      end
   end
 
   class TestJob < BaseJob
@@ -523,6 +528,58 @@ module WorkflowConfigGenerator
         run_tests_disabled_agent_step
       ].compact
     end
+  end
+
+  class LintJob < BaseJob
+    def name
+      "lint"
+    end
+
+    def always_run?
+      true
+    end
+
+    def ruby_version
+      # Use oldest version to make sure our lints aren't too new
+      OLDEST_RUBY
+    end
+
+    def to_template_hash
+      super.merge(if: "always()")
+    end
+
+    def steps
+      [
+        cleanup_step,
+        checkout_step,
+        setup_ruby_step,
+        setup_cache_step,
+        install_bundler_dependencies_step,
+        setup_lint_matchers,
+        run_lint_step
+      ].compact
+    end
+
+    private
+
+      def setup_lint_matchers
+        # ::add-matcher is documented here:
+        # https://github.com/actions/toolkit/blob/master/docs/commands.md#problem-matchers
+        {
+          name: "Set up Rubocop problem matcher",
+          run: 'echo "::add-matcher::${GITHUB_WORKSPACE}/.github/rubocop.json"'
+        }
+      end
+
+      def run_lint_step
+        {
+          name: "Run lint",
+          run: <<~RUN
+            bundle exec rubocop -v
+            bundle exec rubocop
+          RUN
+        }
+      end
   end
 
   class UploadCoverageJob < BaseJob
@@ -666,7 +723,7 @@ namespace :workflow do
   end
 
   desc "verify the config digest"
-  task :verify, [:digest] do |t, args|
+  task :verify, [:digest] do |_t, args|
     WorkflowConfigGenerator.verify!(args.digest)
   end
 end

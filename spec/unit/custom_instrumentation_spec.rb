@@ -164,7 +164,6 @@ describe Skylight::Instrumenter, :http, :agent do
 
         server.wait resource: "/report"
 
-
         report = server.reports[0]
 
         source_file_index = report.source_locations.index("foo.rb")
@@ -229,6 +228,7 @@ describe Skylight::Instrumenter, :http, :agent do
 
       ATTR_WRITER_LINE = __LINE__ + 1
       attr_accessor :myvar
+
       instrument_method :myvar=
     end
 

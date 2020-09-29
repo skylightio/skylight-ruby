@@ -11,9 +11,7 @@ module Skylight
         raise ArgumentError, :max_size if @max_size < 1
 
         @max_size = size
-        while @data.size > @max_size
-          @data.shift
-        end
+        @data.shift while @data.size > @max_size
       end
 
       # Individual hash operations here are atomic in MRI.

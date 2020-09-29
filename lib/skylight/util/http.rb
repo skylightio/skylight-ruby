@@ -192,7 +192,7 @@ module Skylight
             body.dig(*key.split(".")) if body.is_a?(Hash)
           end
 
-          def respond_to_missing?(name, include_all = false)
+          def respond_to_missing?(name, include_all = false) # rubocop:disable Style/OptionalBooleanParameter
             super || body.respond_to?(name, include_all)
           end
 
