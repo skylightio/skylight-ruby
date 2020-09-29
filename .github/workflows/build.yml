@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 800c81fdddb9f1d909dc5097e66498c22e6eaa5f9e8172dee5ff80647b9a8936
+  CONFIG_DIGEST: 48a6d910452ef10995ef4db4b38670211bf9df59e4fb87aa8712b210cbfc8013
 'on':
   push:
     branches:
@@ -44,7 +44,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -102,7 +102,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -159,7 +159,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -209,7 +209,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.5'
     - name: Install APT dependencies
@@ -260,7 +260,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -311,7 +311,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -360,7 +360,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -410,7 +410,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -460,7 +460,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.5'
     - name: Install APT dependencies
@@ -510,7 +510,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -560,7 +560,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.5'
     - name: Install APT dependencies
@@ -608,7 +608,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -659,7 +659,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -710,7 +710,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.5'
     - name: Install APT dependencies
@@ -758,7 +758,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -810,7 +810,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -862,7 +862,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -914,7 +914,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -965,7 +965,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -1017,7 +1017,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -1068,7 +1068,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -1119,7 +1119,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -1171,7 +1171,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -1222,7 +1222,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -1274,7 +1274,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
     - name: Install APT dependencies
@@ -1313,24 +1313,33 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-2-7-rails-6-0-x
-  ruby-2-8-rails-edge-ruby_version-2-8-0-dev:
-    name: "[allowed to fail] ruby 2.8, rails-edge, RUBY_VERSION=2.8.0-dev"
+  ruby-3-0-rails-6-0-x:
+    name: "[allowed to fail] ruby 3.0, rails-6.0.x"
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-edge
-      RUBY_VERSION: 2.8.0-dev
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-6.0.x
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: head
+    - name: Check ruby
+      run: ruby -v | grep "3.0" -q
+    - name: Install APT dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache
       uses: actions/cache@v1
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.8-rails-edge"
-        restore-keys: "${{ runner.os }}-gems-2.8-"
+        key: "${{ runner.os }}-gems-3.0-rails-6.0.x"
+        restore-keys: "${{ runner.os }}-gems-3.0-"
     - name: bundle install
       run: |
         gem install bundler
@@ -1344,6 +1353,70 @@ jobs:
         COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync
+        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      if: success()
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage
+        path: coverage-sync
+    needs:
+    - ruby-2-7-rails-6-0-x
+  ruby-3-0-rails-edge:
+    name: "[allowed to fail] ruby 3.0, rails-edge"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci')
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-edge
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: head
+    - name: Check ruby
+      run: ruby -v | grep "3.0" -q
+    - name: Install APT dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v1
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-3.0-rails-edge"
+        restore-keys: "${{ runner.os }}-gems-3.0-"
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync
+        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      if: success()
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage
+        path: coverage-sync
     needs:
     - ruby-2-7-rails-6-0-x
   lint:
@@ -1353,7 +1426,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
-      uses: actions/setup-ruby@v1
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.5'
     - name: Setup cache
