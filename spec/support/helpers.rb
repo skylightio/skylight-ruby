@@ -130,14 +130,25 @@ module SpecHelper
     result
   end
 
-  def with_sqlite(migration: nil)
-    ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
-    verbose_was = ActiveRecord::Migration.verbose
-    ActiveRecord::Migration.verbose = false
-    ActiveRecord::Schema.define { migration.up } if migration
+  def with_sqlite_connection(database: nil)
+    ActiveRecord::Base.establish_connection(
+      adapter: "sqlite3",
+      database: database || "file::memory:?cache=shared"
+    )
+
     yield
-    ActiveRecord::Base.remove_connection
   ensure
-    ActiveRecord::Migration.verbose = verbose_was
+    ActiveRecord::Base.remove_connection
+  end
+
+  def with_sqlite(migration: nil, database: nil)
+    with_sqlite_connection(database: database) do
+      verbose_was = ActiveRecord::Migration.verbose
+      ActiveRecord::Migration.verbose = false
+      ActiveRecord::Schema.define { migration.up } if migration
+      yield
+    ensure
+      ActiveRecord::Migration.verbose = verbose_was
+    end
   end
 end

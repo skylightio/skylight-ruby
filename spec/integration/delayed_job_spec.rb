@@ -1,13 +1,15 @@
 require "spec_helper"
 require "skylight/instrumenter"
 
+require 'pry-byebug' # FIXME
+
 enable = false
 begin
   require "delayed_job"
   require "delayed_job_active_record"
   enable = true
-rescue LoadError
-  puts "[INFO] Skipping Delayed::Job integration specs"
+rescue LoadError => e
+  Kernel.warn "[WARN] Skipping Delayed::Job integration specs; error=#{e}"
 end
 
 enable_active_job = false
@@ -22,30 +24,45 @@ if enable
   describe "Delayed::Job integration" do
     let(:report_environment) { "production" }
     let(:report_component) { "worker" }
-
-    around do |example|
-      with_sqlite(migration: dj_migration, &example)
+    let(:worker) do
+      Delayed::Worker.new.tap do |w|
+        w.logger = Logger.new($stdout)
+      end
     end
 
-    let(:probes) { %w[delayed_job] }
+    SkDelayedWorker = Struct.new(:args) do
+      def perform
+        Skylight.instrument(category: "app.zomg") do
+          SpecHelper.clock.skip 1
+          raise "bad_method" if args.include?("bad_method")
 
-    before do
-      @original_env = ENV.to_hash
-      set_agent_env
-      Skylight.probe(*probes)
-      # Set root so we'll get source locations from this file
-      Skylight.start!(root: __dir__)
+          p args
+        end
+      end
+    end
+
+    around do |example|
+      with_sqlite(migration: dj_migration) do
+        @original_env = ENV.to_hash
+        set_agent_env
+        Skylight.probe(*probes)
+        Skylight.start!
+        example.call
+      ensure
+        Skylight.stop!
+      end
+    end
+
+    def probes
+      %w[delayed_job]
     end
 
     after do
       Skylight.stop!
       ENV.replace(@original_env)
-      if @original_queue_adapter
-        DelayedWorker.queue_adapter = @original_queue_adapter
-      end
     end
 
-    class DelayedObject
+    class SkDelayedObject
       def bad_method
         good_method { raise }
       end
@@ -96,14 +113,14 @@ if enable
       end
 
       specify do
-        run_job(:good_method)
+        enqueue_and_process_job(:good_method)
 
         server.wait resource: "/report"
         endpoint = server.reports[0].endpoints[0]
         trace = endpoint.traces[0]
         spans = trace.filter_spans
 
-        expect(endpoint.name).to eq("DelayedObject#good_method<sk-segment>queue-name</sk-segment>")
+        expect(endpoint.name).to eq("SkDelayedObject#good_method<sk-segment>queue-name</sk-segment>")
         expect(spans.map { |s| [s.event.category, s.event.description] }).to eq([
           ["app.delayed_job.worker", nil],
           ["app.zomg", nil],
@@ -114,14 +131,14 @@ if enable
       end
 
       it "reports problems to the error segment" do
-        run_job(:bad_method)
+        enqueue_and_process_job(:bad_method)
 
         server.wait resource: "/report"
         endpoint = server.reports[0].endpoints[0]
         trace = endpoint.traces[0]
         spans = trace.filter_spans
 
-        expect(endpoint.name).to eq("DelayedObject#bad_method<sk-segment>error</sk-segment>")
+        expect(endpoint.name).to eq("SkDelayedObject#bad_method<sk-segment>error</sk-segment>")
         meta = spans.map { |s| [s.event.category, s.event.description] }
         expect(meta[0]).to eq(["app.delayed_job.worker", nil])
         expect(meta[1]).to eq(["app.zomg", nil])
@@ -136,21 +153,53 @@ if enable
           "\"attempts\" = ?",
           "\"last_error\" = ?",
           "\"run_at\" = ?",
-          "\"updated_at\" = ?"
+          "\"updated_at\" = ?",
+          "\"locked_at\" = ?",
+          "\"locked_by\" = ?"
         ])
         expect(meta[4]).to eq(["db.sql.query", "commit transaction"])
       end
+
+      context "with a job class" do
+        def enqueue_job(*args)
+          Delayed::Job.enqueue(SkDelayedWorker.new(args), queue: "my-queue")
+        end
+
+        specify do
+          enqueue_and_process_job(:good_method)
+
+          server.wait resource: "/report"
+          endpoint = server.reports[0].endpoints[0]
+          trace = endpoint.traces[0]
+          spans = trace.filter_spans
+
+          expect(endpoint.name).to eq("SkDelayedWorker<sk-segment>my-queue</sk-segment>")
+          expect(spans.map { |s| [s.event.category, s.event.description] }).to eq([
+            ["app.delayed_job.worker", nil],
+            ["app.zomg", nil],
+            ["db.sql.query", "begin transaction"],
+            ["db.sql.query", "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?"],
+            ["db.sql.query", "commit transaction"]
+          ])
+        end
+      end
     end
 
-    def run_job(method_name, *)
-      job = instance_eval("DelayedObject.new.delay(queue: 'queue-name').#{method_name}", __FILE__, __LINE__)
-      Delayed::Worker.new.run(job)
+    def enqueue_job(method_name, *)
+      instance_eval("SkDelayedObject.new.delay(queue: 'queue-name').#{method_name}", __FILE__, __LINE__)
+    end
+
+    def enqueue_and_process_job(*args)
+      enqueue_job(*args)
+      worker.work_off
     end
 
     enable_active_job && describe("active_job integration") do
-      let(:probes) { %w[active_job delayed_job] }
+      def probes
+        %w[active_job delayed_job]
+      end
 
-      class DelayedWorker < ActiveJob::Base
+      class SkDelayedActiveJobWorker < ActiveJob::Base
         self.queue_adapter = :delayed_job
         self.queue_name = "my-queue"
 
@@ -164,12 +213,8 @@ if enable
         end
       end
 
-      def run_job(*args)
-        @original_queue_adapter = DelayedWorker.queue_adapter
-        DelayedWorker.queue_adapter = :delayed_job # Rails 4 :(
-        DelayedWorker.perform_later(*args.map(&:to_s))
-        job = Delayed::Job.last
-        Delayed::Worker.new.run(job)
+      def enqueue_job(*args)
+        SkDelayedActiveJobWorker.perform_later(*args.map(&:to_s))
       end
 
       context "with agent", :http, :agent do
@@ -179,7 +224,7 @@ if enable
         end
 
         specify do
-          run_job(:good_method)
+          enqueue_and_process_job(:good_method)
 
           server.wait resource: "/report"
           report = server.reports[0]
@@ -187,7 +232,7 @@ if enable
           trace = endpoint.traces[0]
           spans = trace.filter_spans
 
-          expect(endpoint.name).to eq("DelayedWorker<sk-segment>my-queue</sk-segment>")
+          expect(endpoint.name).to eq("SkDelayedActiveJobWorker<sk-segment>my-queue</sk-segment>")
           expect(spans.map { |s| [s.event.category, s.event.description] }).to eq([
             ["app.delayed_job.worker", nil],
             ["app.job.perform", "{ adapter: 'delayed_job', queue: 'my-queue' }"],
@@ -202,7 +247,7 @@ if enable
         end
 
         it "reports problems to the error segment" do
-          run_job(:bad_method)
+          enqueue_and_process_job(:bad_method)
 
           server.wait resource: "/report"
           report = server.reports[0]
@@ -210,7 +255,7 @@ if enable
           trace = endpoint.traces[0]
           spans = trace.filter_spans
 
-          expect(endpoint.name).to eq("DelayedWorker<sk-segment>error</sk-segment>")
+          expect(endpoint.name).to eq("SkDelayedActiveJobWorker<sk-segment>error</sk-segment>")
           meta = spans.map { |s| [s.event.category, s.event.description] }
           expect(meta[0]).to eq(["app.delayed_job.worker", nil])
           expect(meta[1]).to eq(["app.job.perform", "{ adapter: 'delayed_job', queue: 'my-queue' }"])
@@ -226,7 +271,9 @@ if enable
             "\"attempts\" = ?",
             "\"last_error\" = ?",
             "\"run_at\" = ?",
-            "\"updated_at\" = ?"
+            "\"updated_at\" = ?",
+            "\"locked_at\" = ?",
+            "\"locked_by\" = ?"
           ])
           expect(meta[5]).to eq(["db.sql.query", "commit transaction"])
 
