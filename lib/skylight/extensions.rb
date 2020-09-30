@@ -32,6 +32,12 @@ module Skylight
         !!extensions.detect { |x| x.is_a?(ext_class) }
       end
 
+      def process_trace_meta(meta)
+        extensions.each do |ext|
+          ext.process_trace_meta(meta)
+        end
+      end
+
       # meta is a mutable hash that will be passed to the instrumenter.
       # This method bridges Skylight.instrument and instrumenter.instrument.
       def process_instrument_options(opts, meta)
@@ -82,6 +88,8 @@ module Skylight
       def initialize(config)
         @config = config
       end
+
+      def process_trace_meta(_meta); end
 
       def process_instrument_options(_opts, _meta); end
 

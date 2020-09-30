@@ -33,7 +33,8 @@ if enable
       @original_env = ENV.to_hash
       set_agent_env
       Skylight.probe(*probes)
-      Skylight.start!
+      # Set root so we'll get source locations from this file
+      Skylight.start!(root: __dir__)
     end
 
     after do
@@ -181,7 +182,8 @@ if enable
           run_job(:good_method)
 
           server.wait resource: "/report"
-          endpoint = server.reports[0].endpoints[0]
+          report = server.reports[0]
+          endpoint = report.endpoints[0]
           trace = endpoint.traces[0]
           spans = trace.filter_spans
 
@@ -194,13 +196,17 @@ if enable
             ["db.sql.query", "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?"],
             ["db.sql.query", "commit transaction"]
           ])
+
+          perform_line = method(:run_job).source_location[1] + 5
+          expect(report.source_location(spans[0])).to end_with("delayed_job_spec.rb:#{perform_line}")
         end
 
         it "reports problems to the error segment" do
           run_job(:bad_method)
 
           server.wait resource: "/report"
-          endpoint = server.reports[0].endpoints[0]
+          report = server.reports[0]
+          endpoint = report.endpoints[0]
           trace = endpoint.traces[0]
           spans = trace.filter_spans
 
@@ -223,6 +229,9 @@ if enable
             "\"updated_at\" = ?"
           ])
           expect(meta[5]).to eq(["db.sql.query", "commit transaction"])
+
+          perform_line = method(:run_job).source_location[1] + 5
+          expect(report.source_location(spans[0])).to end_with("delayed_job_spec.rb:#{perform_line}")
         end
       end
     end
