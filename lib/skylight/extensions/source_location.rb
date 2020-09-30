@@ -138,6 +138,8 @@ module Skylight
         end
 
         def project_path?(path)
+          return false unless path
+
           # Must be in the project root
           return false unless path.start_with?(config.root.to_s)
           # Must not be Bundler's vendor location
@@ -216,6 +218,8 @@ module Skylight
         end
 
         def find_source_gem(path)
+          return nil unless path
+
           trie = gem_require_trie
 
           path.split(File::SEPARATOR).each do |segment|

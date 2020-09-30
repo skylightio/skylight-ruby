@@ -33,8 +33,9 @@ unless ENV['SKIP_EXTERNAL']
   gem 'httpclient'
   gem 'mongo'
   gem 'faraday'
-  gem 'graphiti'
+  gem 'graphiti' if RUBY_VERSION.to_i < 3
   gem 'graphql', ENV['GRAPHQL_VERSION'] || '~> 1.11.0'
+  gem 'rexml'
 
   unless ENV['MONGOID_VERSION'] == 'skip'
     gem 'mongoid', (ENV['MONGOID_VERSION'] || '>= 7.0.0')

@@ -10,7 +10,7 @@ if defined?(Sinatra)
     end
 
     before do
-      Skylight.mock! do |trace|
+      Skylight.mock!(enable_source_locations: true) do |trace|
         @current_trace = trace
       end
     end
@@ -40,12 +40,11 @@ if defined?(Sinatra)
     end
 
     it "creates a Trace for a Sinatra app" do
-      expect(Skylight).to receive(:trace).
-        with("Rack", "app.rack.request", nil, meta: { source_location: Skylight::Trace::SYNTHETIC }, component: :web).
-        and_call_original
-
       get "/named-template"
       expect(@current_trace.endpoint).to eq("GET /named-template")
+      expect(@current_trace.component).to eq(URI.encode_www_form_component("web:production"))
+      expect(@current_trace.mock_spans[0][:cat]).to eq("app.rack.request")
+      expect(@current_trace.mock_spans[0][:meta]).to eq({ source_location: Skylight::Trace::SYNTHETIC })
       expect(last_response.body).to eq("Hello from named template")
     end
 

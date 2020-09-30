@@ -7,6 +7,7 @@ require "digest"
 
 OLDEST_RUBY = "2.5"
 NEWEST_RUBY = "2.7"
+HEAD_RUBY = "3.0"
 
 # rubocop:disable Layout/HashAlignment
 module WorkflowConfigGenerator
@@ -203,13 +204,17 @@ module WorkflowConfigGenerator
     },
 
     {
+      gemfile: "rails-6.0.x",
+      ruby_version: HEAD_RUBY,
+      ruby_install_version: "head",
+      allow_failure: true
+    },
+
+    {
       gemfile: "rails-edge",
-      ruby_version: "2.8",
-      allow_failure: true,
-      container: {
-        image: "rubocophq/ruby-snapshot:latest"
-      },
-      env: { RUBY_VERSION: "2.8.0-dev" }
+      ruby_version: HEAD_RUBY,
+      ruby_install_version: "head",
+      allow_failure: true
     }
   ].freeze
 
@@ -391,10 +396,19 @@ module WorkflowConfigGenerator
       def setup_ruby_step
         {
           name: "Setup ruby",
-          uses: "actions/setup-ruby@v1",
+          uses: "ruby/setup-ruby@v1",
           with: {
-            "ruby-version": ruby_version
+            "ruby-version": ruby_install_version
           }
+        }
+      end
+
+      def check_ruby_step
+        return if ruby_version == ruby_install_version
+
+        {
+          name: "Check ruby",
+          run: "ruby -v | grep \"#{ruby_version}\" -q"
         }
       end
 
@@ -479,6 +493,10 @@ module WorkflowConfigGenerator
         config.fetch(:ruby_version)
       end
 
+      def ruby_install_version
+        config.fetch(:ruby_install_version) { ruby_version }
+      end
+
       def gemfile
         config.fetch(:gemfile, "base")
       end
@@ -506,6 +524,7 @@ module WorkflowConfigGenerator
         cleanup_step,
         checkout_step,
         setup_ruby_step,
+        check_ruby_step,
         install_apt_dependencies_step,
         setup_cache_step,
         install_bundler_dependencies_step,
@@ -517,11 +536,13 @@ module WorkflowConfigGenerator
     end
   end
 
+  # We don't use this right now
   class ContainerTestJob < TestJob
     def steps
       [
         cleanup_step,
         checkout_step,
+        check_ruby_step,
         setup_cache_step,
         install_bundler_dependencies_step,
         run_tests_step,
