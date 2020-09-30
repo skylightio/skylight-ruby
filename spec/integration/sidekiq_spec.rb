@@ -31,7 +31,8 @@ if enable
         block.call(Sidekiq::Testing)
       end
 
-      Skylight.start!
+      # Allow source locations to point to this directory
+      Skylight.start!(root: __dir__)
 
       class ::MyWorker
         include Sidekiq::Worker
@@ -95,6 +96,9 @@ if enable
         names = trace.filter_spans.map { |s| s.event.category }
 
         expect(names).to eq(["app.sidekiq.worker", "app.inside", "app.zomg", "app.after_zomg"])
+
+        perform_line = MyWorker.instance_method(:perform).source_location[1]
+        expect(batch.source_location(trace.spans[0])).to end_with("sidekiq_spec.rb:#{perform_line}")
       end
 
       it "records failed jobs in the error queue" do
@@ -116,6 +120,9 @@ if enable
         names = trace.filter_spans.map { |s| s.event.category }
 
         expect(names).to eq(["app.sidekiq.worker", "app.inside", "app.zomg"])
+
+        perform_line = MyWorker.instance_method(:perform).source_location[1]
+        expect(batch.source_location(trace.spans[0])).to end_with("sidekiq_spec.rb:#{perform_line}")
       end
 
       it "records killed jobs in the error queue" do
@@ -137,6 +144,9 @@ if enable
         names = trace.filter_spans.map { |s| s.event.category }
 
         expect(names).to eq(["app.sidekiq.worker", "app.inside", "app.zomg"])
+
+        perform_line = MyWorker.instance_method(:perform).source_location[1]
+        expect(batch.source_location(trace.spans[0])).to end_with("sidekiq_spec.rb:#{perform_line}")
       end
     end
   end

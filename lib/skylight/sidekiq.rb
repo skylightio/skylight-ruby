@@ -19,10 +19,17 @@ module Skylight
     class ServerMiddleware
       include Util::Logging
 
-      def call(_worker, job, queue)
+      def call(worker, job, queue)
         t { "Sidekiq middleware beginning trace" }
         title = job["wrapped"] || job["class"]
-        Skylight.trace(title, "app.sidekiq.worker", title, segment: queue, component: :worker) do |trace|
+
+        # TODO: Using hints here would be ideal but requires further refactoring
+        meta =
+          if (source_location = worker.method(:perform).source_location)
+            { source_file: source_location[0], source_line: source_location[1] }
+          end
+
+        Skylight.trace(title, "app.sidekiq.worker", title, meta: meta, segment: queue, component: :worker) do |trace|
           yield
         rescue Exception # includes Sidekiq::Shutdown
           trace.segment = "error" if trace
