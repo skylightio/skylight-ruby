@@ -36,6 +36,11 @@ module Skylight
 
         private
 
+          def process_meta_options(payload)
+            # provide hints to override default source_location behavior
+            super.merge(source_location: [:instance_method, payload[:job].class.to_s, "perform"])
+          end
+
           def normalize_adapter_name(adapter)
             adapter_string = adapter.is_a?(Class) ? adapter.to_s : adapter.class.to_s
             adapter_string[/ActiveJob::QueueAdapters::(\w+)Adapter/, 1].underscore
