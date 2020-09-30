@@ -80,6 +80,11 @@ module Skylight
             title, * = self.class.normalize_title(job_instance)
             title
           end
+
+          def process_meta_options(payload)
+            # provide hints to override default source_location behavior
+            super.merge(source_location_hint: [:instance_method, payload[:job].class.to_s, "perform"])
+          end
       end
     end
   end
