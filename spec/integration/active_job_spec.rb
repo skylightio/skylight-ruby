@@ -60,7 +60,8 @@ if enable
       ActiveJob::Base.queue_adapter = :inline if ActiveJob::VERSION::MAJOR < 5
 
       set_agent_env do
-        Skylight.start!
+        # Allow source locations to point to this directory
+        Skylight.start!(root: __dir__)
         ex.call
         Skylight.stop!
       end
@@ -75,7 +76,8 @@ if enable
 
       server.wait(count: 1)
       expect(server.reports).to be_present
-      endpoint = server.reports[0].endpoints[0]
+      report = server.reports[0]
+      endpoint = report.endpoints[0]
       traces = endpoint.traces
       uniq_spans = traces.map { |trace| trace.filter_spans.map { |span| span.event.category } }.uniq
       expect(traces.count).to eq(4)
@@ -83,6 +85,12 @@ if enable
         [["app.job.execute", "app.job.perform", "app.inside", "app.zomg", "app.after_zomg"]]
       )
       expect(endpoint.name).to eq("SkTestJob<sk-segment>default</sk-segment>")
+
+      perform_line = SkTestJob.instance_method(:perform).source_location[1]
+      traces.each do |trace|
+        expect(report.source_location(trace.spans[0])).to eq("activejob")
+        expect(report.source_location(trace.spans[1])).to end_with("active_job_spec.rb:#{perform_line}")
+      end
     end
 
     context "action mailer jobs" do
@@ -103,8 +111,12 @@ if enable
 
         server.wait(count: 1)
 
+        report = server.reports[0]
+
         expected_endpoint = "TestMailer#test_mail<sk-segment>mailers</sk-segment>"
-        expect(server.reports[0].endpoints[0].name).to eq(expected_endpoint)
+        expect(report.endpoints[0].name).to eq(expected_endpoint)
+
+        expect(report.source_location(report.endpoints[0].traces[0].spans[1])).to eq("actionmailer")
       end
     end
 
@@ -135,7 +147,8 @@ if enable
 
         server.wait(count: 1)
         expect(server.reports).to be_present
-        endpoint = server.reports[0].endpoints[0]
+        report = server.reports[0]
+        endpoint = report.endpoints[0]
         traces = endpoint.traces
         uniq_spans = traces.map { |trace| trace.filter_spans.map { |span| span.event.category } }.uniq
         expect(traces.count).to eq(1)
@@ -143,6 +156,10 @@ if enable
           [["app.job.execute", "app.job.perform", "app.inside", "app.zomg"]]
         )
         expect(endpoint.name).to eq("SkTestJob<sk-segment>error</sk-segment>")
+
+        perform_line = SkTestJob.instance_method(:perform).source_location[1]
+        expect(report.source_location(traces[0].spans[0])).to eq("activejob")
+        expect(report.source_location(traces[0].spans[1])).to end_with("active_job_spec.rb:#{perform_line}")
       end
     end
   end
