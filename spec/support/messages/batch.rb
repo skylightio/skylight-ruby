@@ -20,7 +20,8 @@ module SpecHelper
         trace_count = endpoints.map { |endpoint| endpoint.traces.count }.sum
 
         if endpoints_count != 1 || trace_count != 1
-          raise "`SimpleReport` should only be used on a batch size of 1; found #{endpoints_count} endpoints and #{trace_count} traces."
+          raise "`SimpleReport` should only be used on a batch size of 1; " \
+            "found #{endpoints_count} endpoints and #{trace_count} traces."
         end
 
         SimpleReport.new(self)

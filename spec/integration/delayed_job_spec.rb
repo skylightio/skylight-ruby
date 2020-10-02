@@ -175,7 +175,7 @@ if enable
         report = server.reports[0].to_simple_report
 
         expect(report.endpoint.name).to eq("SkDelayedObject#good_method<sk-segment>queue-name</sk-segment>")
-        expect(report.mapped_spans).to eq([ # rubocop:disable Layout/LineLength
+        expect(report.mapped_spans).to eq([
           ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
           ["app.delayed_job.job", "SkDelayedObject#good_method", nil, sl_good_method],
           ["app.zomg", nil, nil, sl_good_method_inner],
@@ -191,7 +191,7 @@ if enable
         server.wait resource: "/report"
         report = server.reports[0].to_simple_report
         expect(report.endpoint.name).to eq("SkDelayedObject.good_method<sk-segment>queue-name</sk-segment>")
-        expect(report.mapped_spans).to eq([ # rubocop:disable Layout/LineLength
+        expect(report.mapped_spans).to eq([
           ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
           ["app.delayed_job.job", "SkDelayedObject.good_method", nil, sl_good_class_method],
           ["app.zomg", nil, nil, sl_good_method_inner],
@@ -242,7 +242,7 @@ if enable
           server.wait resource: "/report"
           report = server.reports[0].to_simple_report
           expect(report.endpoint.name).to eq("SkDelayedWorker<sk-segment>my-queue</sk-segment>")
-          expect(report.mapped_spans).to eq([ # rubocop:disable Layout/LineLength
+          expect(report.mapped_spans).to eq([
             ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
             ["app.delayed_job.job", "SkDelayedWorker#perform", nil, sl_worker_perform],
             ["app.zomg", nil, nil, sl_worker_perform_inner],
