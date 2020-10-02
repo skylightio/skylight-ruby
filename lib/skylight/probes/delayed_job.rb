@@ -53,21 +53,13 @@ module Skylight
         payload_object_name(payload_object)
       end
 
-      def self.format_handler_source(method_type, constant_name, method_name)
-        case method_type
-        when :instance_method
-          "#{constant_name}##{method_name}"
-        else
-          "#{constant_name}.#{method_name}"
-        end
-      end
-
       def self.payload_object_name(payload_object)
         if payload_object.is_a?(::Delayed::PerformableMethod)
           payload_object.display_name
         else
           # In the case of ActiveJob-wrapped jobs, there is quite a bit of job-specific metadata
-          # in `job.name`, which would break aggregation.
+          # in `job.name`, which would break aggregation and potentially leak private data in job args.
+          # Use class name instead to avoid this.
           payload_object.class.name
         end
       rescue
@@ -106,13 +98,8 @@ module Skylight
 
         private
 
-          def sk_span_title
-            Skylight::Probes::DelayedJob.payload_object_name(__getobj__)
-          end
-
           def format_source(method_type, constant_name, method_name)
-            case method_type
-            when :instance_method
+            if method_type == :instance_method
               "#{constant_name}##{method_name}"
             else
               "#{constant_name}.#{method_name}"
