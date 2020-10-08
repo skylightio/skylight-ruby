@@ -638,8 +638,8 @@ module WorkflowConfigGenerator
             GIT_BRANCH: "${{ github.ref }}"
           },
           run: <<~RUN
-            echo "::set-env name=GIT_COMMIT_SHA::${GIT_COMMIT_SHA}"
-            echo "::set-env name=GIT_BRANCH::${GIT_BRANCH/refs\/heads\//}"
+            echo "GIT_COMMIT_SHA=${GIT_COMMIT_SHA}" >> $GITHUB_ENV
+            echo "GIT_BRANCH=${GIT_BRANCH/refs\/heads\//}" >> $GITHUB_ENV
           RUN
         },
         {
@@ -650,8 +650,8 @@ module WorkflowConfigGenerator
             GIT_BRANCH: "${{ github.event.pull_request.head.ref }}"
           },
           run: <<~RUN
-            echo "::set-env name=GIT_COMMIT_SHA::${GIT_COMMIT_SHA}"
-            echo "::set-env name=GIT_BRANCH::${GIT_BRANCH}"
+            echo "GIT_COMMIT_SHA=${GIT_COMMIT_SHA}" >> $GITHUB_ENV
+            echo "GIT_BRANCH=${GIT_BRANCH}" >> $GITHUB_ENV
           RUN
         }
       ]
