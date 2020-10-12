@@ -103,10 +103,10 @@ module Skylight
       end
     end
 
-    context "environment scopes" do
+    context "priority scopes" do
       let :config do
         Config.new(
-          "production",
+          "production", # priority_key
           foo:        "bar",
           one:        1,
           zomg:       "YAY",
@@ -124,7 +124,7 @@ module Skylight
         )
       end
 
-      it "prioritizes the environment config over the default" do
+      it "prioritizes the specified config over the default" do
         expect(config[:foo]).to eq("baz")
         expect(config[:two]).to eq(2)
       end
@@ -146,7 +146,7 @@ module Skylight
         expect(config["production.foo"]).to eq("baz")
       end
 
-      it "can still access other environment configs explicitly" do
+      it "can still access other nested configs explicitly" do
         expect(config["staging.foo"]).to eq("no")
       end
     end
@@ -227,61 +227,101 @@ module Skylight
         tmp("skylight.yml")
       end
 
-      let :config do
-        Config.load({ file: file, environment: "production" },
-                    "foo"                     => "fail",
-                    "SKYLIGHT_LOG_FILE"       => "production.log",
-                    "SKYLIGHT_ALERT_LOG_FILE" => "alert.log")
-      end
-
       context "valid" do
         before :each do
-          file.write <<-YML
-  authentication: invalid.log
-  zomg: hello
-  foo: bar
-  stuff: nope
-  proxy_url: 127.0.0.1
-  report:
-    ssl: true
+          file.write <<~YML
+            authentication: invalid.log
+            zomg: hello
+            foo: bar
+            stuff: nope
+            proxy_url: 127.0.0.1
+            report:
+              ssl: true
 
-  production:
-    stuff: waaa
+            production:
+              stuff: waaa
 
-  erb: <%= 'interpolated' %>
+            production_variant:
+              env: production
+              stuff: waaa
+
+            erb: <%= 'interpolated' %>
           YML
         end
 
-        it "sets the configuration" do
-          expect(config["zomg"]).to eq("hello")
+        let(:environment) do
+          {
+            "foo"                     => "fail",
+            "SKYLIGHT_LOG_FILE"       => "production.log",
+            "SKYLIGHT_ALERT_LOG_FILE" => "alert.log"
+          }
         end
 
-        it "can load the token from an environment variable" do
-          expect(config["log_file"]).to eq("production.log")
+        let :config do
+          Config.load({ file: file, **config_attrs }, environment)
         end
 
-        it "ignores unknown env keys" do
-          expect(config["foo"]).to eq("bar")
+        shared_examples_for :loaded_config do
+          it "sets the configuration" do
+            expect(config["zomg"]).to eq("hello")
+          end
+
+          it "can load the token from an environment variable" do
+            expect(config["log_file"]).to eq("production.log")
+          end
+
+          it "ignores unknown env keys" do
+            expect(config["foo"]).to eq("bar")
+          end
+
+          it "loads nested config variables" do
+            expect(config["production.stuff"]).to eq("waaa")
+          end
+
+          it "still overrides" do
+            expect(config["stuff"]).to eq("waaa")
+          end
+
+          it "interpolates ERB" do
+            expect(config["erb"]).to eq("interpolated")
+          end
+
+          it "sets proxy_url" do
+            expect(config["proxy_url"]).to eq("127.0.0.1")
+          end
         end
 
-        it "loads nested config variables" do
-          expect(config["production.stuff"]).to eq("waaa")
+        context "with priority_key" do
+          let(:config_attrs) { { priority_key: "production" } }
+          it_behaves_like :loaded_config
+
+          it "does not set env implicitly" do
+            expect(config["env"]).to be_nil
+          end
         end
 
-        it "still overrides" do
-          expect(config["stuff"]).to eq("waaa")
+        context "with priority_key (variant)" do
+          let(:config_attrs) { { priority_key: "production_variant" } }
+          it_behaves_like :loaded_config
+
+          it "sets env from the nested YAML config" do
+            expect(config["env"]).to eq("production")
+          end
         end
 
-        it "interpolates ERB" do
-          expect(config["erb"]).to eq("interpolated")
-        end
+        context "with env key" do
+          let(:config_attrs) { { env: "production" } }
+          it_behaves_like :loaded_config
 
-        it "sets proxy_url" do
-          expect(config["proxy_url"]).to eq("127.0.0.1")
+          it "sets env from the :env option" do
+            expect(config["env"]).to eq("production")
+          end
         end
       end
 
       context "invalid" do
+        let(:config) { Config.load({ file: file }) }
+
         it "has useable error for empty files" do
           file.write ""
           expect { config }.to raise_error(ConfigError, "could not load config file; msg=empty file")
@@ -311,7 +351,7 @@ module Skylight
       end
 
       let :config do
-        Config.load({ file: file, environment: "production" },
+        Config.load({ file: file, priority_key: "production" },
                     "foo"         => "fail",
                     "SK_LOG_FILE" => "test.log")
       end
@@ -415,36 +455,36 @@ module Skylight
 
     context "loading" do
       it "uses convential proxy env vars" do
-        c = Config.load({ environment: :production }, "HTTP_PROXY" => "http://foo.com:9872")
+        c = Config.load({ priority_key: :production }, "HTTP_PROXY" => "http://foo.com:9872")
         expect(c[:proxy_url]).to eq("http://foo.com:9872")
 
-        c = Config.load({ environment: :production }, "http_proxy" => "http://bar.com:9872")
+        c = Config.load({ priority_key: :production }, "http_proxy" => "http://bar.com:9872")
         expect(c[:proxy_url]).to eq("http://bar.com:9872")
       end
 
       it "uses unconvential proxy env vars" do
-        c = Config.load({ environment: :production }, "HTTP_PROXY" => "xyz://foo.com:9872")
+        c = Config.load({ priority_key: :production }, "HTTP_PROXY" => "xyz://foo.com:9872")
         expect(c[:proxy_url]).to eq("xyz://foo.com:9872")
       end
 
       it "normalizes convential proxy env vars" do
         # Curl doesn't require http:// prefix
-        c = Config.load({ environment: :production }, "HTTP_PROXY" => "foo.com:9872")
+        c = Config.load({ priority_key: :production }, "HTTP_PROXY" => "foo.com:9872")
         expect(c[:proxy_url]).to eq("http://foo.com:9872")
       end
 
       it "skips empty proxy env vars" do
-        c = Config.load({ environment: :production }, "HTTP_PROXY" => "")
+        c = Config.load({ priority_key: :production }, "HTTP_PROXY" => "")
         expect(c[:proxy_url]).to be_nil
       end
 
       it "skips nil proxy env vars" do
-        c = Config.load(environment: :production)
+        c = Config.load(priority_key: :production)
         expect(c[:proxy_url]).to be_nil
       end
 
       it "prioritizes skylight's proxy env var" do
-        c = Config.load({ environment: :production },
+        c = Config.load({ priority_key: :production },
                         "SKYLIGHT_PROXY_URL" => "http://foo.com",
                         "HTTP_PROXY"         => "http://bar.com")
 
