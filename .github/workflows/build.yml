@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 48a6d910452ef10995ef4db4b38670211bf9df59e4fb87aa8712b210cbfc8013
+  CONFIG_DIGEST: 025b90e31ec9ddc622cbe5c8f069918348a8b38221f090543dbafb350c7991e1
 'on':
   push:
     branches:
@@ -1458,16 +1458,16 @@ jobs:
         GIT_COMMIT_SHA: "${{ github.sha }}"
         GIT_BRANCH: "${{ github.ref }}"
       run: |
-        echo "::set-env name=GIT_COMMIT_SHA::${GIT_COMMIT_SHA}"
-        echo "::set-env name=GIT_BRANCH::${GIT_BRANCH/refs/heads//}"
+        echo "GIT_COMMIT_SHA=${GIT_COMMIT_SHA}" >> $GITHUB_ENV
+        echo "GIT_BRANCH=${GIT_BRANCH/refs/heads//}" >> $GITHUB_ENV
     - name: Set up commit metadata (pull_request)
       if: github.event_name == 'pull_request'
       env:
         GIT_COMMIT_SHA: "${{ github.event.pull_request.head.sha }}"
         GIT_BRANCH: "${{ github.event.pull_request.head.ref }}"
       run: |
-        echo "::set-env name=GIT_COMMIT_SHA::${GIT_COMMIT_SHA}"
-        echo "::set-env name=GIT_BRANCH::${GIT_BRANCH}"
+        echo "GIT_COMMIT_SHA=${GIT_COMMIT_SHA}" >> $GITHUB_ENV
+        echo "GIT_BRANCH=${GIT_BRANCH}" >> $GITHUB_ENV
     - name: Install AWS CLI
       run: |
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
