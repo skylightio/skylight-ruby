@@ -38,7 +38,7 @@ module Skylight
 
           def process_meta_options(payload)
             # provide hints to override default source_location behavior
-            super.merge(source_location: [:instance_method, payload[:job].class.to_s, "perform"])
+            super.merge(source_location_hint: [:instance_method, payload[:job].class.to_s, "perform"])
           end
 
           def normalize_adapter_name(adapter)

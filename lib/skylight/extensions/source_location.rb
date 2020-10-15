@@ -33,9 +33,15 @@ module Skylight
         source_location = opts[:source_location] || opts[:meta]&.[](:source_location)
         source_file = opts[:source_file] || opts[:meta]&.[](:source_file)
         source_line = opts[:source_line] || opts[:meta]&.[](:source_line)
+        source_name_hint, const_name, method_name = opts[:source_location_hint] ||
+                                                    opts[:meta]&.[](:source_location_hint)
 
         if source_location
           meta[:source_location] = source_location
+        elsif source_name_hint
+          source_location = dispatch_hinted_source_location(source_name_hint, const_name, method_name)
+          meta[:source_file], meta[:source_line] = source_location
+          meta.delete(:source_location_hint) if source_location
         elsif source_file
           meta[:source_file] = source_file
           meta[:source_line] = source_line
@@ -57,12 +63,11 @@ module Skylight
         end
 
         sl =
-          if ((source_name, *args) = opts[:source_location])
+          if (source_name, constant_name, method_name = opts[:source_location_hint])
             dispatch_hinted_source_location(
               source_name,
-              payload,
-              meta,
-              args: args, **opts
+              constant_name,
+              method_name
             )
           elsif opts[:source_file]
             [opts[:source_file], opts[:source_line]]
@@ -109,8 +114,7 @@ module Skylight
 
       protected
 
-        def dispatch_hinted_source_location(source_name, _payload, _meta, args:, **_opts)
-          const_name, method_name = args
+        def dispatch_hinted_source_location(source_name, const_name, method_name)
           return unless const_name && method_name
 
           instance_method_source_location(const_name, method_name, source_name: source_name)
@@ -165,6 +169,8 @@ module Skylight
                                    find_own_instance_method(constant, method_name)
                                  when :instance_method_super
                                    find_instance_method_super(constant, method_name)
+                                 when :class_method
+                                   find_class_method(constant, method_name)
                                  end
 
                 unbound_method&.source_location
@@ -265,6 +271,10 @@ module Skylight
 
         def find_instance_method(constant, method_name)
           constant.instance_method(method_name)
+        end
+
+        def find_class_method(constant, method_name)
+          constant.method(method_name)
         end
     end
   end

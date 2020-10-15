@@ -1,45 +1,131 @@
+# frozen_string_literal: true
+
+require "delegate"
+
 module Skylight
   module Probes
     module DelayedJob
-      module Instrumentation
-        include Skylight::Util::Logging
+      begin
+        require "delayed/plugin"
 
-        def run(job, *)
-          t { "Delayed::Job beginning trace" }
-
-          handler_name =
-            begin
-              if defined?(::Delayed::PerformableMethod) && job.payload_object.is_a?(::Delayed::PerformableMethod)
-                job.name
-              else
-                job.payload_object.class.name
-              end
-            rescue
-              UNKNOWN
+        class Plugin < ::Delayed::Plugin
+          callbacks do |lifecycle|
+            lifecycle.around(:perform) do |worker, job, &block|
+              sk_instrument(worker, job, &block)
             end
 
-          Skylight.trace(handler_name, "app.delayed_job.worker", "Delayed::Worker#run",
-                         component: :worker, segment: job.queue) { super }
+            lifecycle.after(:error) do |_worker, _job|
+              Skylight.trace&.segment = "error"
+            end
+          end
+
+          class << self
+            include Skylight::Util::Logging
+
+            def sk_instrument(_worker, job)
+              endpoint = Skylight::Probes::DelayedJob.handler_name(job)
+
+              Skylight.trace(endpoint,
+                             "app.delayed_job.worker",
+                             "Delayed::Worker#run",
+                             component: :worker,
+                             segment:   job.queue,
+                             meta:      { source_location: "delayed_job" }) do
+                               t { "Delayed::Job beginning trace" }
+                               yield
+                             end
+            end
+          end
         end
+      rescue LoadError
+        $stderr.puts "[SKYLIGHT] The delayed_job probe was requested, but Delayed::Plugin was not defined."
+      end
 
-        def handle_failed_job(*)
-          super
-          return unless Skylight.trace
+      UNKNOWN = "<Delayed::Job Unknown>"
 
-          Skylight.trace.segment = "error"
+      def self.handler_name(job)
+        payload_object = if job.respond_to?(:payload_object_without_sk)
+                           job.payload_object_without_sk
+                         else
+                           job.payload_object
+                         end
+
+        payload_object_name(payload_object)
+      end
+
+      def self.payload_object_name(payload_object)
+        if payload_object.is_a?(::Delayed::PerformableMethod)
+          payload_object.display_name
+        else
+          # In the case of ActiveJob-wrapped jobs, there is quite a bit of job-specific metadata
+          # in `job.name`, which would break aggregation and potentially leak private data in job args.
+          # Use class name instead to avoid this.
+          payload_object.class.name
+        end
+      rescue
+        UNKNOWN
+      end
+
+      def self.payload_object_source_meta(payload_object)
+        if payload_object.is_a?(::Delayed::PerformableMethod)
+          if payload_object.object.is_a?(Module)
+            [:class_method, payload_object.object.name, payload_object.method_name.to_s]
+          else
+            [:instance_method, payload_object.object.class.name, payload_object.method_name.to_s]
+          end
+        else
+          [:instance_method, payload_object.class.name, "perform"]
         end
       end
 
-      class Probe
-        UNKNOWN = "<Delayed::Job Unknown>".freeze
+      class InstrumentationProxy < SimpleDelegator
+        def perform
+          source_meta = Skylight::Probes::DelayedJob.payload_object_source_meta(__getobj__)
 
-        def install
-          return unless validate_version
+          opts = {
+            category: "app.delayed_job.job",
+            title:    format_source(*source_meta),
+            meta:     { source_location_hint: source_meta }
+          }
 
-          ::Delayed::Worker.prepend(Instrumentation)
+          Skylight.instrument(opts) { __getobj__.perform }
+        end
+
+        # Used by Delayed::Backend::Base to determine Job#name
+        def display_name
+          __getobj__.respond_to?(:display_name) ? __getobj__.display_name : __getobj__.class.name
         end
 
         private
+
+          def format_source(method_type, constant_name, method_name)
+            if method_type == :instance_method
+              "#{constant_name}##{method_name}"
+            else
+              "#{constant_name}.#{method_name}"
+            end
+          end
+      end
+
+      class Probe
+        def install
+          return unless validate_version && plugin_defined?
+
+          ::Delayed::Worker.plugins = [Skylight::Probes::DelayedJob::Plugin] | ::Delayed::Worker.plugins
+          ::Delayed::Backend::Base.class_eval do
+            alias_method :payload_object_without_sk, :payload_object
+
+            def payload_object
+              Skylight::Probes::DelayedJob::InstrumentationProxy.new(payload_object_without_sk)
+            end
+          end
+        end
+
+        private
+
+          def plugin_defined?
+            defined?(::Skylight::Probes::DelayedJob::Plugin)
+          end
 
           def validate_version
             spec = Gem.loaded_specs["delayed_job"]

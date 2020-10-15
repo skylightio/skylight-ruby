@@ -19,7 +19,7 @@ module Skylight
 
           def process_meta_options(_payload)
             # provide hints to override default source_location behavior
-            super.merge(source_location: [:own_instance_method, router_class_name, "call"])
+            super.merge(source_location_hint: [:own_instance_method, router_class_name, "call"])
           end
       end
     end

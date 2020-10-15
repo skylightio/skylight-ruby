@@ -94,7 +94,7 @@ describe Skylight::Extensions::SourceLocation do
           extension.process_normalizer_meta(
             payload,
             meta,
-            source_location: [:instance_method, "MyConstant", "an_instance_method"]
+            source_location_hint: [:instance_method, "MyConstant", "an_instance_method"]
           )
 
           expect(meta[:source_file]).to eq(__FILE__)
