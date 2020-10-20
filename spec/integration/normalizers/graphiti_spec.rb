@@ -129,13 +129,13 @@ if defined?(Graphiti)
       results = GraphitiTests::PostResource.all
 
       expect(trace).to receive(:instrument).
-        with("app.resolve.graphiti", "Resolve Primary GraphitiTests::PostResource", nil, {})
+        with("app.resolve.graphiti", "Resolve Primary GraphitiTests::PostResource", nil, hash_including({}))
 
       # Force a resolve
       results.to_a
 
       expect(trace).to receive(:instrument).
-        with("view.render.graphiti", "Render GraphitiTests::PostResource", nil, {})
+        with("view.render.graphiti", "Render GraphitiTests::PostResource", nil, hash_including({}))
 
       # Now render
       results.to_jsonapi
@@ -143,11 +143,11 @@ if defined?(Graphiti)
 
     it "instruments sideloading" do
       expect(trace).to receive(:instrument).
-        with("app.resolve.graphiti", "Resolve Primary GraphitiTests::PostResource", nil, {})
+        with("app.resolve.graphiti", "Resolve Primary GraphitiTests::PostResource", nil, hash_including({}))
       expect(trace).to receive(:instrument).
-        with("app.resolve.graphiti", "Resolve Belongs To GraphitiTests::AuthorResource", nil, {})
+        with("app.resolve.graphiti", "Resolve Belongs To GraphitiTests::AuthorResource", nil, hash_including({}))
       expect(trace).to receive(:instrument).
-        with("view.render.graphiti", "Render GraphitiTests::PostResource", nil, {})
+        with("view.render.graphiti", "Render GraphitiTests::PostResource", nil, hash_including({}))
 
       GraphitiTests::PostResource.all(include: :author).to_jsonapi
     end
@@ -166,9 +166,9 @@ if defined?(Graphiti)
       end
 
       expect(trace).to receive(:instrument).
-        with("app.resolve.graphiti", "Resolve Primary <Anonymous Resource>", nil, {})
+        with("app.resolve.graphiti", "Resolve Primary <Anonymous Resource>", nil, hash_including({}))
       expect(trace).to receive(:instrument).
-        with("view.render.graphiti", "Render <Anonymous Resource>", nil, {})
+        with("view.render.graphiti", "Render <Anonymous Resource>", nil, hash_including({}))
 
       resource.all.to_jsonapi
     end

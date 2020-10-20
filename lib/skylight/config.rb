@@ -119,9 +119,7 @@ module Skylight
       native_log_level: "LOG_LEVEL"
     }.freeze
 
-    SERVER_VALIDATE = %i[
-      enable_source_locations
-    ].freeze
+    SERVER_VALIDATE = %i[].freeze
 
     DEFAULT_IGNORED_SOURCE_LOCATION_GEMS = [
       -"skylight",
@@ -150,7 +148,7 @@ module Skylight
             enable_segments:           true,
             enable_sidekiq:            false,
             sinatra_route_prefixes:    false,
-            enable_source_locations:   false,
+            enable_source_locations:   true,
 
             # Deploys
             'heroku.dyno_info_path':   -"/etc/heroku/dyno",

@@ -60,8 +60,6 @@ module Skylight
       @trace_info = @config[:trace_info] || TraceInfo.new(KEY)
       @mutex = Mutex.new
       @extensions = Skylight::Extensions::Collection.new(@config)
-
-      enable_extension!(:source_location) if @config.enable_source_locations?
     end
 
     def enable_extension!(name)
@@ -176,6 +174,7 @@ module Skylight
         return
       end
 
+      enable_extension!(:source_location) if @config.enable_source_locations?
       config.gc.enable
       @subscriber.register!
 
