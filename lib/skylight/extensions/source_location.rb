@@ -185,7 +185,6 @@ module Skylight
           # Do this first since gems may be vendored in the app repo. However, it might be slower.
           # Should we cache matches?
           if (gem_name = find_source_gem(path))
-            find_source_gem(path)
             path = gem_name
             line = nil
           elsif project_path?(path)
