@@ -79,8 +79,8 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(logger_out.string).to include("Unable to reach server for config validation")
       end
 
-      it "resets validated values to default" do
-        config.set("test.enable_source_locations", true)
+      it "does not reset source_locations to true" do
+        config.set("test.enable_source_locations", false)
 
         expect(Skylight.start!(config)).to be_truthy
 
@@ -88,22 +88,37 @@ describe "Skylight::Instrumenter", :http, :agent do
         out = logger_out.read
         puts out
         expect(out).to include("Unable to reach server for config validation")
-        expect(out).to include("Updating config values:")
-        expect(out).to include("setting enable_source_locations to false")
-
         expect(config.enable_source_locations?).to be_falsey
       end
 
-      it "doesn't notify about values already at default" do
-        expect(Skylight.start!(config)).to be_truthy
+      # NOTE: These tests are only applicable when Config::SERVER_VALIDATE is populated
+      if Skylight::Config::SERVER_VALIDATE.any?
+        let(:key) { Skylight::Config::SERVER_VALIDATE.first }
+        let(:default_value) { Skylight::Config.default_values[key] }
 
-        logger_out.rewind
-        out = logger_out.read
-        expect(out).to include("Unable to reach server for config validation")
-        expect(out).to_not include("Updating config values:")
-        expect(out).to_not include("setting enable_source_locations to false")
+        it "resets to the default value" do
+          config.set("test.#{key}", SecureRandom.hex)
 
-        expect(config.enable_source_locations?).to be_falsey
+          expect(Skylight.start!(config)).to be_truthy
+
+          logger_out.rewind
+          out = logger_out.read
+          puts out
+          expect(out).to include("Unable to reach server for config validation")
+          expect(config[key]).to eq(default_value)
+        end
+
+        it "doesn't notify about values already at default" do
+          expect(Skylight.start!(config)).to be_truthy
+
+          logger_out.rewind
+          out = logger_out.read
+          expect(out).to include("Unable to reach server for config validation")
+          expect(out).to_not include("Updating config values:")
+          expect(out).to_not include("setting #{key} to false")
+
+          expect(config[key]).to eq(default_value)
+        end
       end
 
       context "with an exception" do
