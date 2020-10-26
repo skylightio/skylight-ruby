@@ -15,6 +15,17 @@ rescue LoadError
   puts "Skipping CodeClimate coverage reporting"
 end
 
+# Sidekiq 4 added a `Delay` extension to `Module` by default;
+# depending on load order, this could conflict with/override Delayed::Job's
+# `delay` method. It is disabled by default in Sidekiq 5 and higher.
+#
+# If Sidekiq.remove_delay! exists, call it, but otherwise don't worry too much about it.
+begin
+  require "sidekiq/rails"
+  Sidekiq.remove_delay!
+rescue # rubocop:disable Lint/SuppressedException
+end
+
 require "yaml"
 require "beefcake"
 require "rspec"
