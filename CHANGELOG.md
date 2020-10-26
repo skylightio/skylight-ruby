@@ -1,8 +1,14 @@
+## 5.0.0.beta2
+* [FEATURE] Source Locations detection and reporting is now enabled by default (can be disabled with `SKYLIGHT_ENABLE_SOURCE_LOCATIONS=false`)
+* [BREAKING] Rename `environment` keyword argument to `priority_key`. Note `env` has not changed.
+* [BREAKING] Drop support for Ruby 2.4
+* [IMPROVEMENT] Improved Delayed::Job probe
+
 ## 5.0.0.beta
 * [BREAKING] Merge skylight-core into skylight. All classes previously namespaced under `Skylight::Core` have been moved to `Skylight`.
 * [BREAKING] Remove `Skylight::Util::Inflector`
 * [BREAKING] Drop support for Rails 4
-* [BREAKING] Drop support for Rails 2.3
+* [BREAKING] Drop support for Ruby 2.3
 * [IMPROVEMENT] Maintain method visibility when instrumenting with `instrument_method`
 * [IMPROVEMENT] Update probes to use `Module#prepend` where possible
 * [IMPROVEMENT] New tokio-based skylightd
