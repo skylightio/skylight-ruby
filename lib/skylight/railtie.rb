@@ -99,7 +99,7 @@ module Skylight
           return nil
         end
 
-        config = Config.load(file: path, environment: Rails.env.to_s)
+        config = Config.load(file: path, priority_key: Rails.env.to_s)
         config[:root] = Rails.root
 
         configure_logging(config, app)
