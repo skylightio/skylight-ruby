@@ -6,7 +6,7 @@ module Skylight
     GC_CAT = "noise.gc".freeze
     SYNTHETIC = "<synthetic>".freeze
 
-    META_KEYS = %i[mute_children].freeze
+    META_KEYS = %i[mute_children database].freeze
 
     include Util::Logging
 
