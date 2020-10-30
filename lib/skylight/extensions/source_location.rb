@@ -14,8 +14,9 @@ module Skylight
 
       def initialize(*)
         super
-        @caller_cache = Util::LruCache.new(100)
-        @instance_method_source_location_cache = Util::LruCache.new(100)
+        cache_size = (config[:source_location_cache_size] || 1000).to_i
+        @caller_cache = Util::LruCache.new(cache_size)
+        @instance_method_source_location_cache = Util::LruCache.new(cache_size)
         gem_require_trie # memoize this at startup
       end
 
@@ -134,10 +135,12 @@ module Skylight
         end
 
         def find_caller(cache_key: nil)
+          locations = ::Kernel.caller_locations(4..50)
           if cache_key
-            @caller_cache.fetch(cache_key) { find_caller_inner }
+            localized_cache_key = [cache_key, locations.inspect].hash # FIXME: this inspect/hash is potentially expensive
+            @caller_cache.fetch(localized_cache_key) { find_caller_inner(locations) }
           else
-            find_caller_inner
+            find_caller_inner(locations)
           end
         end
 
@@ -236,11 +239,13 @@ module Skylight
           nil
         end
 
-        def find_caller_inner
+        def find_caller_inner(locations)
           # Start at file before this one
           # NOTE: We could start farther back now to avoid more Skylight files
-          caller_locations(1).find do |l|
-            find_source_gem(l.absolute_path) || project_path?(l.absolute_path)
+          locations.find do |l|
+            absolute_path = l.absolute_path
+            # FIXME: what's the fastest way to do this?
+            find_source_gem(absolute_path) || project_path?(absolute_path)
           end
         end
 

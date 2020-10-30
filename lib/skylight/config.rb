@@ -110,7 +110,8 @@ module Skylight
       -"HEROKU_DYNO_INFO_PATH"        => :'heroku.dyno_info_path',
 
       # == Source Location ==
-      -"SOURCE_LOCATION_IGNORED_GEMS" => :source_location_ignored_gems
+      -"SOURCE_LOCATION_IGNORED_GEMS" => :source_location_ignored_gems,
+      -"SOURCE_LOCATION_CACHE_SIZE"   => :source_location_cache_size
     }.freeze
 
     KEY_TO_NATIVE_ENV = {

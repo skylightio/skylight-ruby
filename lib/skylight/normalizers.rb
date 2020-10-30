@@ -69,7 +69,8 @@ module Skylight
         return cat if cat == :skip
 
         meta ||= {}
-        process_meta(trace, name, payload, meta, cache_key: ret.hash)
+        cache_key = ret.hash
+        process_meta(trace, name, payload, meta, cache_key: cache_key)
 
         [cat, title, desc, meta]
       end
