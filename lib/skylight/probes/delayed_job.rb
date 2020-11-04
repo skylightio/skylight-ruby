@@ -85,7 +85,8 @@ module Skylight
           opts = {
             category: "app.delayed_job.job",
             title:    format_source(*source_meta),
-            meta:     { source_location_hint: source_meta }
+            meta:     { source_location_hint: source_meta },
+            internal: true
           }
 
           Skylight.instrument(opts) { __getobj__.perform }

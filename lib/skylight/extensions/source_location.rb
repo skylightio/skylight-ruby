@@ -11,6 +11,7 @@ module Skylight
       include Util::Logging
 
       META_KEYS = %i[source_location source_file source_line].freeze
+      MAX_CALLER_DEPTH = 75
 
       def initialize(*)
         super
@@ -36,6 +37,7 @@ module Skylight
         source_line = opts[:source_line] || opts[:meta]&.[](:source_line)
         source_name_hint, const_name, method_name = opts[:source_location_hint] ||
                                                     opts[:meta]&.[](:source_location_hint)
+        instrument_location = opts[:sk_instrument_location]
 
         if source_location
           meta[:source_location] = source_location
@@ -46,6 +48,9 @@ module Skylight
         elsif source_file
           meta[:source_file] = source_file
           meta[:source_line] = source_line
+        elsif instrument_location && project_path?(instrument_location.absolute_path)
+          meta[:source_file] = instrument_location.absolute_path
+          meta[:source_line] = instrument_location.lineno
         else
           warn "Ignoring source_line without source_file" if source_line
           if (location = find_caller(cache_key: opts.hash))
@@ -135,7 +140,8 @@ module Skylight
         end
 
         def find_caller(cache_key: nil)
-          locations = ::Kernel.caller_locations(4..50)
+          locations = ::Kernel.caller_locations(4..MAX_CALLER_DEPTH)
+
           if cache_key
             localized_cache_key = [cache_key, locations.inspect].hash # FIXME: this inspect/hash is potentially expensive
             @caller_cache.fetch(localized_cache_key) { find_caller_inner(locations) }
@@ -244,7 +250,6 @@ module Skylight
           # NOTE: We could start farther back now to avoid more Skylight files
           locations.find do |l|
             absolute_path = l.absolute_path
-            # FIXME: what's the fastest way to do this?
             find_source_gem(absolute_path) || project_path?(absolute_path)
           end
         end

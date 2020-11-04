@@ -6,12 +6,14 @@ module Skylight
 
       PIPELINED_OPTS = {
         category: "db.redis.pipelined".freeze,
-        title:    "PIPELINE".freeze
+        title:    "PIPELINE".freeze,
+        internal: true
       }.freeze
 
       MULTI_OPTS = {
         category: "db.redis.multi".freeze,
-        title:    "MULTI".freeze
+        title:    "MULTI".freeze,
+        internal: true
       }.freeze
 
       module ClientInstrumentation
@@ -22,7 +24,8 @@ module Skylight
 
           opts = {
             category: "db.redis.command",
-            title:    command_name.upcase.to_s
+            title:    command_name.upcase.to_s,
+            internal: true
           }
 
           Skylight.instrument(opts) { super }

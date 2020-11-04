@@ -21,7 +21,8 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   it "instruments get requests" do
     expected = {
       category: "api.http.get",
-      title:    "GET 127.0.0.1"
+      title:    "GET 127.0.0.1",
+      internal: true
     }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
@@ -36,7 +37,8 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   it "instruments post requests" do
     expected = {
       category: "api.http.post",
-      title:    "POST 127.0.0.1"
+      title:    "POST 127.0.0.1",
+      internal: true
     }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
@@ -51,7 +53,8 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   it "instruments multipart post requests" do
     expected = {
       category: "api.http.post",
-      title:    "POST 127.0.0.1"
+      title:    "POST 127.0.0.1",
+      internal: true
     }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
@@ -74,7 +77,8 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   it "instruments head requests" do
     expected = {
       category: "api.http.head",
-      title:    "HEAD 127.0.0.1"
+      title:    "HEAD 127.0.0.1",
+      internal: true
     }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
@@ -89,7 +93,8 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   it "instruments custom method requests" do
     expected = {
       category: "api.http.custom",
-      title:    "CUSTOM 127.0.0.1"
+      title:    "CUSTOM 127.0.0.1",
+      internal: true
     }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
@@ -104,7 +109,8 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   it "instruments HTTPClient.methodname static methods" do
     expected = {
       category: "api.http.get",
-      title:    "GET 127.0.0.1"
+      title:    "GET 127.0.0.1",
+      internal: true
     }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
