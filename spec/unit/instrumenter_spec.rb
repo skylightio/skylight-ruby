@@ -555,8 +555,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
           expect do
             # First trace on a poisoned instrumenter kicks off the shutdown thread
-            Skylight.trace("Rack", "app.rack.request") do
-            end
+            Skylight.trace("Rack", "app.rack.request") {}
 
             # wait for unsubscribe
             Skylight.instance_variable_get(:@shutdown_thread).join

@@ -119,11 +119,11 @@ module SpecHelper
     # rubocop:disable Security/Eval
     begin
       stream = stream.to_s
-      eval "$#{stream} = StringIO.new", nil, __FILE__, __LINE__
+      eval "$#{stream} = StringIO.new", nil, __FILE__, __LINE__      # $stdout = StringIO.new
       yield
-      result = eval("$#{stream}", nil, __FILE__, __LINE__).string
+      result = eval("$#{stream}", nil, __FILE__, __LINE__).string    # $stdout.string
     ensure
-      eval("$#{stream} = #{stream.upcase}", nil, __FILE__, __LINE__)
+      eval("$#{stream} = #{stream.upcase}", nil, __FILE__, __LINE__) # $stdout = STDOUT;
     end
     # rubocop:enable Security/Eval
 

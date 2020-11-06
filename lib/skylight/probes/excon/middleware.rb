@@ -6,7 +6,7 @@ module Skylight
       # Middleware for Excon that instruments requests
       class Middleware < ::Excon::Middleware::Base
         def initialize(*)
-          @requests = {}
+          @requests = {}.compare_by_identity
           super
         end
 
@@ -44,13 +44,13 @@ module Skylight
 
             opts = Formatters::HTTP.build_opts(method, scheme, host, port, path, query)
 
-            @requests[datum.object_id] = Skylight.instrument(opts)
+            @requests[datum] = Skylight.instrument(opts)
           rescue Exception => e
             Skylight.error "failed to begin instrumentation for Excon; msg=%s", e.message
           end
 
           def end_instrumentation(datum)
-            if (request = @requests.delete(datum.object_id))
+            if (request = @requests.delete(datum))
               meta = {}
               if datum[:error].is_a?(Exception)
                 meta[:exception_object] = datum[:error]
