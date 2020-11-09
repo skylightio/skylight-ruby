@@ -124,6 +124,3 @@ Style/StderrPuts:
 # Peter and Zach don't like one line whiles
 Style/WhileUntilModifier:
   Enabled: false
-
-Lint/ConstantDefinitionInBlock:
-  Enabled: false

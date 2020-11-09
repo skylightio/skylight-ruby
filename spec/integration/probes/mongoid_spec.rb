@@ -3,10 +3,15 @@ require "spec_helper"
 # Requires mongodb instance to be running
 if ENV["TEST_MONGO_INTEGRATION"] && !ENV["SKYLIGHT_DISABLE_AGENT"]
   describe "Mongo integration with Mongoid", :mongoid_probe, :instrumenter do
-    class Artist
-      include ::Mongoid::Document
-      field :name, type: String
-      field :signed_at, type: Time
+    before do
+      stub_const(
+        "Artist",
+        Class.new do
+          include ::Mongoid::Document
+          field :name, type: String
+          field :signed_at, type: Time
+        end
+      )
     end
 
     let :config do

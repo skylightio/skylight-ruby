@@ -124,6 +124,8 @@ module Skylight
       #       instrument_class_method :my_method, title: 'Expensive work'
       #     end
       def instrument_class_method(name, opts = {})
+        # NOTE: If the class is defined anonymously and then assigned to a variable this code
+        #   will not be aware of the updated name.
         title = "#{self}.#{name}"
         __sk_instrument_method_on(__sk_singleton_class, name, title, opts || {})
       end

@@ -18,6 +18,68 @@ describe Skylight::Instrumenter, :http, :agent do
       start!
       clock.freeze
       use_spec_root!
+
+      my_class = Class.new do
+        include Skylight::Helpers
+
+        const_set(:ONE_LINE, __LINE__ + 2)
+        instrument_method
+        def one(arg)
+          yield if block_given?
+          arg
+        end
+
+        def two
+          yield if block_given?
+        end
+
+        const_set(:THREE_LINE, __LINE__ + 1)
+        def three
+          yield if block_given?
+        end
+
+        const_set(:CUSTOM_LINE, __LINE__ + 2)
+        instrument_method category: "app.winning", title: "Win"
+        def custom
+          yield if block_given?
+        end
+
+        instrument_method :three
+
+        const_set(:SINGLETON_LINE, __LINE__ + 2)
+        instrument_method
+        def self.singleton_method
+          yield if block_given?
+        end
+
+        const_set(:SINGLETON_WITHOUT_OPTIONS_LINE, __LINE__ + 1)
+        def self.singleton_method_without_options
+          yield if block_given?
+        end
+        instrument_class_method :singleton_method_without_options
+
+        const_set(:SINGLETON_WITH_OPTIONS_LINE, __LINE__ + 1)
+        def self.singleton_method_with_options
+          yield if block_given?
+        end
+        instrument_class_method :singleton_method_with_options,
+                                category: "app.singleton",
+                                title:    "Singleton Method"
+
+        const_set(:ATTR_WRITER_LINE, __LINE__ + 1)
+        attr_accessor :myvar
+
+        instrument_method :myvar=
+      end
+
+      # The original name has to be used because that's what gets cached by the instrumentation code since it isn't
+      # yet assigned to a constant when we define the class.
+      my_class.const_set(:ORIGINAL_NAME, my_class.to_s)
+
+      stub_const(
+        "MyClass",
+        my_class
+      )
     end
 
     after :each do
@@ -179,59 +241,6 @@ describe Skylight::Instrumenter, :http, :agent do
       end
     end
 
-    class MyClass
-      include Skylight::Helpers
-
-      ONE_LINE = __LINE__ + 2
-      instrument_method
-      def one(arg)
-        yield if block_given?
-        arg
-      end
-
-      def two
-        yield if block_given?
-      end
-
-      THREE_LINE = __LINE__ + 1
-      def three
-        yield if block_given?
-      end
-
-      CUSTOM_LINE = __LINE__ + 2
-      instrument_method category: "app.winning", title: "Win"
-      def custom
-        yield if block_given?
-      end
-
-      instrument_method :three
-
-      SINGLETON_LINE = __LINE__ + 2
-      instrument_method
-      def self.singleton_method
-        yield if block_given?
-      end
-
-      SINGLETON_WITHOUT_OPTIONS_LINE = __LINE__ + 1
-      def self.singleton_method_without_options
-        yield if block_given?
-      end
-      instrument_class_method :singleton_method_without_options
-
-      SINGLETON_WITH_OPTIONS_LINE = __LINE__ + 1
-      def self.singleton_method_with_options
-        yield if block_given?
-      end
-      instrument_class_method :singleton_method_with_options,
-                              category: "app.singleton",
-                              title:    "Singleton Method"
-
-      ATTR_WRITER_LINE = __LINE__ + 1
-      attr_accessor :myvar
-
-      instrument_method :myvar=
-    end
-
     it "tracks instrumented methods using the helper" do
       Skylight.trace "Testin", "app.rack.request" do
         inst = MyClass.new
@@ -294,7 +303,7 @@ describe Skylight::Instrumenter, :http, :agent do
         ),
         a_span_including(
           parent:      0,
-          event:       an_exact_event(category: "app.method", title: "MyClass#one"),
+          event:       an_exact_event(category: "app.method", title: "#{MyClass::ORIGINAL_NAME}#one"),
           started_at:  1_000,
           duration:    1_000,
           annotations: array_including(
@@ -303,7 +312,7 @@ describe Skylight::Instrumenter, :http, :agent do
         ),
         a_span_including(
           parent:      0,
-          event:       an_exact_event(category: "app.method", title: "MyClass#three"),
+          event:       an_exact_event(category: "app.method", title: "#{MyClass::ORIGINAL_NAME}#three"),
           started_at:  5_000,
           duration:    1_000,
           annotations: array_including(
@@ -321,7 +330,7 @@ describe Skylight::Instrumenter, :http, :agent do
         ),
         a_span_including(
           parent:      0,
-          event:       an_exact_event(category: "app.method", title: "MyClass.singleton_method"),
+          event:       an_exact_event(category: "app.method", title: "#{MyClass::ORIGINAL_NAME}.singleton_method"),
           started_at:  9_000,
           duration:    1_000,
           annotations: array_including(
@@ -330,7 +339,10 @@ describe Skylight::Instrumenter, :http, :agent do
         ),
         a_span_including(
           parent:      0,
-          event:       an_exact_event(category: "app.method", title: "MyClass.singleton_method_without_options"),
+          event:       an_exact_event(
+            category: "app.method",
+            title:    "#{MyClass::ORIGINAL_NAME}.singleton_method_without_options"
+          ),
           started_at:  11_000,
           duration:    1_000,
           annotations: array_including(
@@ -348,7 +360,7 @@ describe Skylight::Instrumenter, :http, :agent do
         ),
         a_span_including(
           parent:      0,
-          event:       an_exact_event(category: "app.method", title: "MyClass#myvar="),
+          event:       an_exact_event(category: "app.method", title: "#{MyClass::ORIGINAL_NAME}#myvar="),
           started_at:  15_000,
           duration:    0,
           annotations: array_including(

@@ -18,25 +18,25 @@ if enable
 
       Skylight.start!
 
-      class ::MyApp < ::Sinatra::Base
-        get "/test" do
-          Skylight.instrument category: "app.inside" do
-            Skylight.instrument category: "app.zomg" do
-              # nothing
+      stub_const(
+        "MyApp",
+        Class.new(::Sinatra::Base) do
+          get "/test" do
+            Skylight.instrument category: "app.inside" do
+              Skylight.instrument category: "app.zomg" do
+                # nothing
+              end
+              erb "Hello"
             end
-            erb "Hello"
           end
         end
-      end
+      )
     end
 
     after :each do
       ENV.replace(@original_env)
 
       Skylight.stop!
-
-      # Clean slate
-      Object.send(:remove_const, :MyApp)
     end
 
     let :app do

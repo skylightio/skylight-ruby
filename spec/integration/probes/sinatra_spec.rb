@@ -13,26 +13,29 @@ if defined?(Sinatra)
       Skylight.mock!(enable_source_locations: true) do |trace|
         @current_trace = trace
       end
+
+      stub_const(
+        "SinatraTest",
+        Class.new(::Sinatra::Base) do
+          disable :show_exceptions
+
+          template :hello do
+            "Hello from named template"
+          end
+
+          get "/named-template" do
+            erb :hello
+          end
+
+          get "/inline-template" do
+            erb "Hello from inline template"
+          end
+        end
+      )
     end
 
     after do
       Skylight.stop!
-    end
-
-    class SinatraTest < ::Sinatra::Base
-      disable :show_exceptions
-
-      template :hello do
-        "Hello from named template"
-      end
-
-      get "/named-template" do
-        erb :hello
-      end
-
-      get "/inline-template" do
-        erb "Hello from inline template"
-      end
     end
 
     def app

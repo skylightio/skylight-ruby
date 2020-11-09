@@ -87,7 +87,9 @@ if enable
     end
 
     before :each do
-      module TestApp
+      stub_const("TestApp", Module.new {})
+
+      TestApp.module_eval <<~RUBY, __FILE__, __LINE__ + 1
         mattr_accessor :current_schema
 
         def self.graphql17?
@@ -276,7 +278,7 @@ if enable
             end
           end
         end
-      end
+      RUBY
 
       TestApp.current_schema = TestApp.const_get(schema_locator)
 
@@ -285,80 +287,91 @@ if enable
       Skylight.probe("graphql")
       Skylight.start!
 
-      class ApplicationRecord < ActiveRecord::Base
-        self.abstract_class = true
-      end
-
-      class Family < ApplicationRecord
-        has_many :genera
-        has_many :species, through: :genera
-      end
-
-      class Genus < ApplicationRecord
-        has_many :species
-        belongs_to :family
-      end
-
-      class Species < ApplicationRecord
-        belongs_to :genus
-        has_one :family, through: :genus
-
-        def scientific_name
-          "#{genus.name} #{name}"
+      stub_const(
+        "ApplicationRecord",
+        Class.new(ActiveRecord::Base) do
+          self.abstract_class = true
         end
-      end
+      )
+
+      stub_const(
+        "Family",
+        Class.new(ApplicationRecord) do
+          has_many :genera
+          has_many :species, through: :genera
+        end
+      )
+
+      stub_const(
+        "Genus",
+        Class.new(ApplicationRecord) do
+          has_many :species
+          belongs_to :family
+        end
+      )
+
+      stub_const(
+        "Species",
+        Class.new(ApplicationRecord) do
+          belongs_to :genus
+          has_one :family, through: :genus
+
+          def scientific_name
+            "#{genus.name} #{name}"
+          end
+        end
+      )
 
       seed_db
 
-      class ::MyApp
-        def call(env)
-          request = Rack::Request.new(env)
+      stub_const(
+        "MyApp",
+        Class.new do
+          def call(env)
+            request = Rack::Request.new(env)
 
-          params = request.params.with_indifferent_access
-          variables = params[:variables]
+            params = request.params.with_indifferent_access
+            variables = params[:variables]
 
-          context = {
-            skylight_endpoint: params[:manual_operation_name]
-            # Query context goes here, for example:
-            # current_user: current_user,
-          }
+            context = {
+              skylight_endpoint: params[:manual_operation_name]
+              # Query context goes here, for example:
+              # current_user: current_user,
+            }
 
-          result =
-            if params[:queries]
-              formatted_queries = params[:queries].map.with_index do |q, i|
-                {
-                  query:     q,
-                  variables: variables,
-                  context:   context.merge({}.tap do |h|
-                    h[:skylight_endpoint] = "query-#{i}" if params[:manual_operation_name] == "indexed"
-                  end)
-                }
+            result =
+              if params[:queries]
+                formatted_queries = params[:queries].map.with_index do |q, i|
+                  {
+                    query:     q,
+                    variables: variables,
+                    context:   context.merge({}.tap do |h|
+                      h[:skylight_endpoint] = "query-#{i}" if params[:manual_operation_name] == "indexed"
+                    end)
+                  }
+                end
+
+                TestApp.current_schema.multiplex(formatted_queries)
+              else
+                TestApp.current_schema.execute(params[:query],
+                                               variables:      variables,
+                                               context:        context,
+                                               operation_name: params[:operation_name])
               end
 
-              TestApp.current_schema.multiplex(formatted_queries)
-            else
-              TestApp.current_schema.execute(params[:query],
-                                             variables:      variables,
-                                             context:        context,
-                                             operation_name: params[:operation_name])
-            end
-
-          # Normally Rails would set this as content_type, but this app doesn't
-          # use Rails controllers.
-          Skylight.trace.segment = "json"
-          [200, {}, result]
+            # Normally Rails would set this as content_type, but this app doesn't
+            # use Rails controllers.
+            Skylight.trace.segment = "json"
+            [200, {}, result]
+          end
         end
-      end
+      )
     end
 
     after :each do
       ENV.replace(@original_env)
 
       Skylight.stop!
-
-      # Clean slate
-      Object.send(:remove_const, :MyApp)
-      Object.send(:remove_const, :TestApp)
     end
 
     let :app do

@@ -23,66 +23,78 @@ if enable
 
       Skylight.start!
 
-      ::DUMMY_ROUTE = lambda do |path: :test|
-        get path do
-          Skylight.instrument category: category do
-            Skylight.instrument category: "app.zomg" do
-              # nothing
+      stub_const(
+        "DUMMY_ROUTE",
+        lambda do |path: :test|
+          get path do
+            Skylight.instrument category: category do
+              Skylight.instrument category: "app.zomg" do
+                # nothing
+              end
             end
-          end
 
-          { hello: true }
-        end
-      end
-
-      class ::MySubApp < Grape::API
-        helpers do
-          def category
-            "app.sub"
+            { hello: true }
           end
         end
+      )
 
-        namespace :sub_ns do
-          instance_exec(&::DUMMY_ROUTE)
-        end
-
-        # intentional path conflict. Overloads 'test' in the main app
-        instance_exec(&::DUMMY_ROUTE)
-      end
-
-      class ::MyInheritedApp < ::MySubApp
-        namespace :inherited_ns do
-          instance_exec(&::DUMMY_ROUTE)
-        end
-      end
-
-      class ::MyApp < Grape::API
-        use Skylight::Middleware
-
-        helpers do
-          def category
-            "app.inside"
-          end
-        end
-
-        instance_exec(&::DUMMY_ROUTE)
-
-        namespace :ns do
-          instance_exec(&::DUMMY_ROUTE)
-        end
-
-        mount ::MySubApp
-
-        namespace :inherited do
+      stub_const(
+        "MySubApp",
+        Class.new(Grape::API) do
           helpers do
             def category
-              super << ".inherited"
+              "app.sub"
             end
           end
 
-          mount ::MyInheritedApp
+          namespace :sub_ns do
+            instance_exec(&::DUMMY_ROUTE)
+          end
+
+          # intentional path conflict. Overloads 'test' in the main app
+          instance_exec(&::DUMMY_ROUTE)
         end
-      end
+      )
+
+      stub_const(
+        "MyInheritedApp",
+        Class.new(::MySubApp) do
+          namespace :inherited_ns do
+            instance_exec(&::DUMMY_ROUTE)
+          end
+        end
+      )
+
+      stub_const(
+        "MyApp",
+        Class.new(Grape::API) do
+          use Skylight::Middleware
+
+          helpers do
+            def category
+              "app.inside"
+            end
+          end
+
+          instance_exec(&::DUMMY_ROUTE)
+
+          namespace :ns do
+            instance_exec(&::DUMMY_ROUTE)
+          end
+
+          mount ::MySubApp
+
+          namespace :inherited do
+            helpers do
+              def category
+                super << ".inherited"
+              end
+            end
+
+            mount ::MyInheritedApp
+          end
+        end
+      )
 
       paths =
         if Gem.loaded_specs["grape"].version <= Gem::Version.new("1.0.0")
@@ -113,12 +125,6 @@ if enable
       ENV["SKYLIGHT_AUTH_HTTP_DEFLATE"]    = nil
 
       Skylight.stop!
-
-      # Clean slate
-      Object.send(:remove_const, :MyApp)
-      Object.send(:remove_const, :MySubApp)
-      Object.send(:remove_const, :MyInheritedApp)
-      Object.send(:remove_const, :DUMMY_ROUTE)
     end
 
     let :app do

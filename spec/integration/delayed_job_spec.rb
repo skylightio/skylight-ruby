@@ -27,16 +27,6 @@ if enable
       end
     end
 
-    # Tests Delayed::Job 'job' class without ActiveJob
-    SkDelayedWorker = Struct.new(:args) do
-      def perform
-        Skylight.instrument(category: "app.zomg") do
-          SpecHelper.clock.skip 1
-          raise "bad_method" if args.include?("bad_method")
-        end
-      end
-    end
-
     around do |example|
       with_sqlite(migration: dj_migration) do
         @original_env = ENV.to_hash
@@ -49,6 +39,44 @@ if enable
       end
     end
 
+    before do
+      stub_const("SOURCE_LOCATION_KEY", SpecHelper::Messages::Annotation::AnnotationKey.const_get(:SourceLocation))
+
+      # Tests Delayed::Job 'job' class without ActiveJob
+      stub_const(
+        "SkDelayedWorker",
+        Struct.new(:args) do
+          def perform
+            Skylight.instrument(category: "app.zomg") do
+              SpecHelper.clock.skip 1
+              raise "bad_method" if args.include?("bad_method")
+            end
+          end
+        end
+      )
+
+      # Tests Delayed::Job "PerformableMethod"
+      stub_const(
+        "SkDelayedObject",
+        Class.new do
+          def bad_method
+            good_method { raise }
+          end
+
+          def good_method
+            Skylight.instrument(category: "app.zomg") do
+              SpecHelper.clock.skip 1
+              yield if block_given?
+            end
+          end
+
+          def self.good_method
+            new.good_method
+          end
+        end
+      )
+    end
+
     def probes
       %w[delayed_job]
     end
@@ -57,26 +85,6 @@ if enable
       Skylight.stop!
       ENV.replace(@original_env)
     end
-
-    # Tests Delayed::Job "PerformableMethod"
-    class SkDelayedObject
-      def bad_method
-        good_method { raise }
-      end
-
-      def good_method
-        Skylight.instrument(category: "app.zomg") do
-          SpecHelper.clock.skip 1
-          yield if block_given?
-        end
-      end
-
-      def self.good_method
-        new.good_method
-      end
-    end
-
-    SOURCE_LOCATION_KEY = SpecHelper::Messages::Annotation::AnnotationKey.const_get(:SourceLocation)
 
     def span_source_location(span, report)
       return unless (sl = span.annotations.detect { |annotation| annotation[:key] == SOURCE_LOCATION_KEY })
@@ -265,19 +273,23 @@ if enable
 
     enable_active_job && describe("ActiveJob", :http, :agent) do
       # Tests Delayed::Job via ActiveJob
-      class SkDelayedActiveJobWorker < ActiveJob::Base
-        self.queue_adapter = :delayed_job
-        self.queue_name = "my-queue"
-
-        def perform(*args)
-          Skylight.instrument(category: "app.zomg") do
-            SpecHelper.clock.skip 1
-            raise "bad_method" if args.include?("bad_method")
-          end
-        end
-      end
 
       before do
+        stub_const(
+          "SkDelayedActiveJobWorker",
+          Class.new(ActiveJob::Base) do
+            self.queue_adapter = :delayed_job
+            self.queue_name = "my-queue"
+
+            def perform(*args)
+              Skylight.instrument(category: "app.zomg") do
+                SpecHelper.clock.skip 1
+                raise "bad_method" if args.include?("bad_method")
+              end
+            end
+          end
+        )
+
         stub_config_validation
         stub_session_request
       end

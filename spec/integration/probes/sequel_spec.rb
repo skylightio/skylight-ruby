@@ -1,20 +1,25 @@
 require "spec_helper"
 
 describe "Sequel integration", :sequel_probe, :agent do
-  class RegexMatcher
-    def initialize(regex)
-      @regex = regex
-    end
+  before do
+    stub_const(
+      "RegexMatcher",
+      Class.new do
+        def initialize(regex)
+          @regex = regex
+        end
 
-    def ==(other)
-      # rubocop:disable Style/CaseEquality
-      @regex === other
-      # rubocop:enable Style/CaseEquality
-    end
+        def ==(other)
+          # rubocop:disable Style/CaseEquality
+          @regex === other
+          # rubocop:enable Style/CaseEquality
+        end
 
-    def description
-      "like #{@regex.inspect}"
-    end
+        def description
+          "like #{@regex.inspect}"
+        end
+      end
+    )
   end
 
   around do |example|

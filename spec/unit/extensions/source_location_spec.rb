@@ -1,16 +1,22 @@
 require "spec_helper"
 
 describe Skylight::Extensions::SourceLocation do
-  class MyConstant
-    def an_instance_method; end
-  end
-
   def project_root
     File.expand_path(
       File.join(
         Gem.loaded_specs["skylight"].full_require_paths[0],
         ".."
       )
+    )
+  end
+
+  before do
+    @instance_method_line = __LINE__ + 4
+    stub_const(
+      "MyConstant",
+      Class.new do
+        def an_instance_method; end
+      end
     )
   end
 
@@ -98,7 +104,7 @@ describe Skylight::Extensions::SourceLocation do
           )
 
           expect(meta[:source_file]).to eq(__FILE__)
-          expect(meta[:source_line]).to eq(5)
+          expect(meta[:source_line]).to eq(@instance_method_line)
         end
       end
     end

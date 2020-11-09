@@ -53,7 +53,7 @@ if enable
             block.call(::Sidekiq::Testing)
           end
 
-          class ::MyWorker
+          my_worker = Class.new do
             include ::Sidekiq::Worker
 
             def perform
@@ -67,6 +67,8 @@ if enable
             end
           end
 
+          stub_const("MyWorker", my_worker)
+
           @trace = nil
           Skylight.mock!(enable_sidekiq: true) do |trace|
             @trace = trace
@@ -78,9 +80,6 @@ if enable
 
           ::Sidekiq::Testing.disable!
           ::Sidekiq.server_middleware.clear
-
-          # Clean slate
-          Object.send(:remove_const, :MyWorker)
         end
 
         it "works" do
