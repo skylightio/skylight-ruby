@@ -10,7 +10,9 @@ begin
      (spec = Gem.loaded_specs["sidekiq"]) &&
      Gem::Dependency.new("sidekiq", "~> 4.2").match?(spec)
     def Rails.env
+      # rubocop:disable Naming/MemoizedInstanceVariableName
       @_env ||= ActiveSupport::StringInquirer.new("")
+      # rubocop:enable Naming/MemoizedInstanceVariableName
     end
   end
 

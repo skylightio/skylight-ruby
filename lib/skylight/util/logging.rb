@@ -114,10 +114,10 @@ module Skylight
 
         if logger
           if logger.respond_to?(level)
-            if !args.empty?
-              logger.send level, format(msg, *args)
-            else
+            if args.empty?
               logger.send level, msg
+            else
+              logger.send level, format(msg, *args)
             end
             return # rubocop:disable Style/RedundantReturn
           else

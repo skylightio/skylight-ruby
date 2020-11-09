@@ -38,7 +38,7 @@ module Skylight
             scheme = datum[:scheme]
             host   = datum[:host]
             # TODO: Maybe don't show other default ports like 443
-            port   = datum[:port] != 80 ? datum[:port] : nil
+            port   = datum[:port] == 80 ? nil : datum[:port]
             path   = datum[:path]
             query  = datum[:query]
 
