@@ -94,7 +94,7 @@ if defined?(ActiveModel::Serializer)
     end
 
     after do
-      if instance_variable_set(:@original_adapter)
+      if instance_variable_defined?(:@original_adapter)
         ActiveModelSerializers.config.adapter = @original_adapter
       end
     end
