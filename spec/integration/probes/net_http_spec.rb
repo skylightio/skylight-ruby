@@ -1,17 +1,20 @@
 require "spec_helper"
 
 describe "Net::HTTP integration", :net_http_probe, :http, :agent do
-  class CustomType < Net::HTTPRequest
-    METHOD = "CUSTOM".freeze
-    REQUEST_HAS_BODY = false
-    RESPONSE_HAS_BODY = false
-  end
-
   before(:each) do
     server.mock "/test.html" do
       ret = "Testing"
       [200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret]]
     end
+
+    stub_const(
+      "CustomType",
+      Class.new(Net::HTTPRequest) do
+        const_set(:METHOD, "CUSTOM".freeze)
+        const_set(:REQUEST_HAS_BODY, false)
+        const_set(:RESPONSE_HAS_BODY, false)
+      end
+    )
   end
 
   def server_uri

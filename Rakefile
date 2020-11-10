@@ -16,7 +16,7 @@ class ExtensionTask < Rake::ExtensionTask
   def sh(*cmd)
     original_env = ENV.to_hash
     ENV["SKYLIGHT_REQUIRED"] = "true"
-    ENV["SKYLIGHT_EXT_STRICT"] = ENV["SKYLIGHT_EXT_STRICT"] !~ /^false$/i ? "true" : nil
+    ENV["SKYLIGHT_EXT_STRICT"] = ENV["SKYLIGHT_EXT_STRICT"] =~ /^false$/i ? nil : "true"
     super
   ensure
     ENV.replace(original_env)

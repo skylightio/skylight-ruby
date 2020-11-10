@@ -34,44 +34,44 @@ if enable
       # Allow source locations to point to this directory
       Skylight.start!(root: __dir__)
 
-      class ::MyWorker
-        include Sidekiq::Worker
+      stub_const(
+        "MyWorker",
+        Class.new do
+          include Sidekiq::Worker
 
-        def perform(error_key = nil)
-          Skylight.instrument category: "app.inside" do
-            Skylight.instrument category: "app.zomg" do
-              # nothing
-              SpecHelper.clock.skip 1
+          def perform(error_key = nil)
+            Skylight.instrument category: "app.inside" do
+              Skylight.instrument category: "app.zomg" do
+                # nothing
+                SpecHelper.clock.skip 1
 
-              maybe_raise(error_key)
+                maybe_raise(error_key)
+              end
+
+              Skylight.instrument(category: "app.after_zomg") { SpecHelper.clock.skip 1 }
             end
-
-            Skylight.instrument(category: "app.after_zomg") { SpecHelper.clock.skip 1 }
           end
+
+          private
+
+            def maybe_raise(key)
+              return unless key
+
+              err = {
+                "runtime_error" => RuntimeError,
+                "shutdown"      => Sidekiq::Shutdown
+              }.fetch(key)
+
+              raise err
+            end
         end
-
-        private
-
-          def maybe_raise(key)
-            return unless key
-
-            err = {
-              "runtime_error" => RuntimeError,
-              "shutdown"      => Sidekiq::Shutdown
-            }.fetch(key)
-
-            raise err
-          end
-      end
+      )
     end
 
     after :each do
       ENV.replace(@original_env)
       Skylight.stop!
       Sidekiq::Testing.disable!
-
-      # Clean slate
-      Object.send(:remove_const, :MyWorker)
     end
 
     context "with agent", :http, :agent do

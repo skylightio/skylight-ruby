@@ -13,10 +13,10 @@ module Skylight
       end
 
       Skylight.module_eval <<-RUBY, __FILE__, __LINE__ + 1
-        class #{name}Error < NativeError
-          def self.code; #{code}; end
-          def self.message; #{message.to_json}; end
-        end
+        class #{name}Error < NativeError            # class SqlLexError < NativeError
+          def self.code; #{code}; end               #   def self.code; 4; end
+          def self.message; #{message.to_json}; end #   def self.message; "Failed to lex SQL query."; end
+        end                                         # end
       RUBY
 
       klass = Skylight.const_get("#{name}Error")

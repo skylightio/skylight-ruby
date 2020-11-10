@@ -9,7 +9,8 @@ engines:
     enabled: true
   rubocop:
     enabled: true
-    channel: rubocop-0-90
+    # Should be changed to 1.0 when supported https://github.com/codeclimate/codeclimate-rubocop/issues/262
+    channel: rubocop-0-92
     config:
       file: .rubocop_cc.yml
 

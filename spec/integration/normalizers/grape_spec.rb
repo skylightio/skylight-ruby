@@ -16,63 +16,66 @@ if defined?(Grape)
       Skylight.mock! do |trace|
         @called_endpoint = trace.endpoint
       end
-    end
 
-    after do
-      Skylight.stop!
-    end
+      # Ideally, we'd not define this globally, but trying to use stub_const is causing issues for the specs.
+      class GrapeTest < Grape::API # rubocop:disable Lint/ConstantDefinitionInBlock
+        class App < Grape::API
+          get "test" do
+            { test: true }
+          end
 
-    class GrapeTest < Grape::API
-      class App < Grape::API
+          desc "Update item" do
+            detail "We take the id to update the item"
+            named "Update route"
+          end
+          post "update/:id" do
+            { update: true }
+          end
+
+          namespace :users do
+            get :list do
+              { users: [] }
+            end
+          end
+
+          namespace :admin do
+            before do
+              Skylight.instrument("verifying admin") { SpecHelper.clock.skip 1 }
+            end
+
+            get :secret do
+              { admin: true }
+            end
+          end
+
+          route :any, "*path" do
+            { path: params[:path] }
+          end
+        end
+
+        format :json
+
+        mount App => "/app"
+
+        desc "This is a test"
         get "test" do
           { test: true }
         end
 
-        desc "Update item" do
-          detail "We take the id to update the item"
-          named "Update route"
-        end
-        post "update/:id" do
-          { update: true }
+        get "raise" do
+          raise "Unexpected error"
         end
 
-        namespace :users do
-          get :list do
-            { users: [] }
-          end
-        end
-
-        namespace :admin do
-          before do
-            Skylight.instrument("verifying admin") { SpecHelper.clock.skip 1 }
-          end
-
-          get :secret do
-            { admin: true }
-          end
-        end
-
-        route :any, "*path" do
-          { path: params[:path] }
+        route ["GET", "POST"], "data" do
+          "data"
         end
       end
+    end
 
-      format :json
+    after do
+      Object.send(:remove_const, :GrapeTest)
 
-      mount App => "/app"
-
-      desc "This is a test"
-      get "test" do
-        { test: true }
-      end
-
-      get "raise" do
-        raise "Unexpected error"
-      end
-
-      route ["GET", "POST"], "data" do
-        "data"
-      end
+      Skylight.stop!
     end
 
     def app

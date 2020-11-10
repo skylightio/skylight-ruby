@@ -10,7 +10,9 @@ if defined?(ActionDispatch)
       Skylight.stop!
     end
 
-    class CustomError < RuntimeError; end
+    before do
+      stub_const("CustomError", Class.new(RuntimeError) {})
+    end
 
     let(:route_set) do
       ActionDispatch::Routing::RouteSet.new.tap do |routes|

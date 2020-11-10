@@ -101,7 +101,7 @@ module Skylight
                           message: e.message, klass: e.class)]
         end
 
-      if config&.respond_to?("log_#{level}") && config&.respond_to?(:log_trace)
+      if config.respond_to?("log_#{level}") && config.respond_to?(:log_trace)
         config.send("log_#{level}", message)
         config.log_trace e.backtrace.join("\n")
       else

@@ -25,7 +25,6 @@ Layout/IndentationConsistency:
     - lib/skylight/probes/action_controller.rb
     - spec/integration/rails_spec.rb
 
-
 Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
@@ -35,6 +34,11 @@ Layout/FirstHashElementIndentation:
 # Longer lines can be ok at times
 Layout/LineLength:
   Max: 120
+
+# This is behaving strangely where, when we try to disable it one-off, the Lint/RedundantCopDisableDirective
+# says it was unnecessary to disable it.
+Lint/EmptyBlock:
+  Enabled: false
 
 # We shouldn't worry about this in specs
 Lint/SuppressedException:

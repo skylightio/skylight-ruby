@@ -124,6 +124,8 @@ module Skylight
       #       instrument_class_method :my_method, title: 'Expensive work'
       #     end
       def instrument_class_method(name, opts = {})
+        # NOTE: If the class is defined anonymously and then assigned to a variable this code
+        #   will not be aware of the updated name.
         title = "#{self}.#{name}"
         __sk_instrument_method_on(__sk_singleton_class, name, title, opts || {})
       end
@@ -144,32 +146,32 @@ module Skylight
           source_file, source_line = klass.instance_method(name).source_location
 
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
-            alias_method :"before_instrument_#{name}", :"#{name}"
-
-            def #{name}(*args, &blk)
-              span = Skylight.instrument(
-                category:    :"#{category}",
-                title:       #{title.inspect},
-                description: #{desc.inspect},
-                source_file: #{source_file.inspect},
-                source_line: #{source_line.inspect})
-
-              meta = {}
-              begin
-                send(:before_instrument_#{name}, *args, &blk)
-              rescue Exception => e
-                meta[:exception_object] = e
-                raise e
-              ensure
-                Skylight.done(span, meta) if span
-              end
-            end
-
-            if protected_method_defined?(:"before_instrument_#{name}")
-              protected :"#{name}"
-            elsif private_method_defined?(:"before_instrument_#{name}")
-              private :"#{name}"
-            end
+            alias_method :"before_instrument_#{name}", :"#{name}"       # alias_method :"before_instrument_process", :"process"
+                                                                        #
+            def #{name}(*args, &blk)                                    # def process(*args, &blk)
+              span = Skylight.instrument(                               #   span = Skylight.instrument(
+                category:    :"#{category}",                            #     category:    :"app.method",
+                title:       #{title.inspect},                          #     title:       "process",
+                description: #{desc.inspect},                           #     description: "Process data",
+                source_file: #{source_file.inspect},                    #     source_file: "myapp/lib/processor.rb",
+                source_line: #{source_line.inspect})                    #     source_line: 123)
+                                                                        #
+              meta = {}                                                 #   meta = {}
+              begin                                                     #   begin
+                send(:before_instrument_#{name}, *args, &blk)           #     send(:before_instrument_process)
+              rescue Exception => e                                     #   rescue Exception => e
+                meta[:exception_object] = e                             #     meta[:exception_object] = e
+                raise e                                                 #     raise e
+              ensure                                                    #   ensure
+                Skylight.done(span, meta) if span                       #     Skylight.done(span, meta) if span
+              end                                                       #   end
+            end                                                         # end
+                                                                        #
+            if protected_method_defined?(:"before_instrument_#{name}")  # if protected_method_defined?(:"before_instrument_process")
+              protected :"#{name}"                                      #   protected :"process"
+            elsif private_method_defined?(:"before_instrument_#{name}") # elsif private_method_defined?(:"before_instrument_process")
+              private :"#{name}"                                        #   private :"process"
+            end                                                         # end
           RUBY
         end
 

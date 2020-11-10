@@ -5,20 +5,17 @@ module Skylight
     before :each do
       @original_registry = Normalizers.instance_variable_get(:@registry)
 
-      class ::TestNormalizer < Normalizers::Normalizer
+      stub_const("TestNormalizer", Class.new(Normalizers::Normalizer) do
         register "basic.test"
-      end
+      end)
 
-      class ::DisabledNormalizer < Normalizers::Normalizer
+      stub_const("DisabledNormalizer", Class.new(Normalizers::Normalizer) do
         register "disabled.test", enabled: false
-      end
+      end)
     end
 
     after :each do
       Normalizers.instance_variable_set(:@registry, @original_registry)
-
-      Object.send(:remove_const, :TestNormalizer)
-      Object.send(:remove_const, :DisabledNormalizer)
     end
 
     it "registers normalizers" do

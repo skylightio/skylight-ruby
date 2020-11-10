@@ -18,64 +18,85 @@ if defined?(ActiveModel::Serializer)
 
     version = Gem::Version.new(::ActiveModel::Serializer::VERSION)
 
-    # We don't actually support the RCs correctly, requires
-    # a release after 0.10.0.rc3
-    if version >= Gem::Version.new("0.10.0.rc1")
-      class Item < ActiveModelSerializers::Model
-        attr_accessor :name, :value
+    before do
+      # We don't actually support the RCs correctly, requires
+      # a release after 0.10.0.rc3
+      if version >= Gem::Version.new("0.10.0.rc1")
+        stub_const(
+          "Item",
+          Class.new(ActiveModelSerializers::Model) do
+            attr_accessor :name, :value
+          end
+        )
+
+        @original_adapter = ActiveModelSerializers.config.adapter
+        ActiveModelSerializers.config.adapter = :json
+      else
+        stub_const(
+          "Item",
+          Class.new do
+            include ActiveModel::SerializerSupport
+
+            attr_accessor :name, :value
+
+            def initialize(attributes = {})
+              attributes.each do |key, val|
+                send("#{key}=", val)
+              end
+            end
+          end
+        )
       end
 
-      ActiveModelSerializers.config.adapter = :json
-    else
-      class Item
-        include ActiveModel::SerializerSupport
+      stub_const(
+        "ItemSerializer",
+        Class.new(ActiveModel::Serializer) do
+          attributes :name, :doubled_value
 
-        attr_accessor :name, :value
-
-        def initialize(attributes = {})
-          attributes.each do |key, val|
-            send("#{key}=", val)
+          def doubled_value
+            object.value * 2
           end
         end
-      end
-    end
+      )
 
-    class ItemSerializer < ActiveModel::Serializer
-      attributes :name, :doubled_value
+      stub_const(
+        "ItemController",
+        Class.new(ActionController::Base) do
+          # This usually happens in a Railtie
+          include ActionController::Serialization
 
-      def doubled_value
-        object.value * 2
-      end
-    end
+          layout nil
 
-    class ItemController < ActionController::Base
-      # This usually happens in a Railtie
-      include ActionController::Serialization
+          def list
+            render json: items, root: "items"
+          end
 
-      layout nil
+          def show
+            render json: items.first
+          end
 
-      def list
-        render json: items, root: "items"
-      end
+          def anonymous_show
+            render json: items.first, serializer: Class.new(ItemSerializer), root: "item"
+          end
 
-      def show
-        render json: items.first
-      end
+          # Used by AM::S (older only?)
+          def url_options
+            {}
+          end
 
-      def anonymous_show
-        render json: items.first, serializer: Class.new(ItemSerializer), root: "item"
-      end
+          private
 
-      # Used by AM::S (older only?)
-      def url_options
-        {}
-      end
-
-      private
-
-        def items
-          [Item.new(name: "Test", value: 2), Item.new(name: "Other", value: 5)]
+            def items
+              [Item.new(name: "Test", value: 2), Item.new(name: "Other", value: 5)]
+            end
         end
+      )
+    end
+
+    after do
+      if instance_variable_defined?(:@original_adapter)
+        ActiveModelSerializers.config.adapter = @original_adapter
+      end
     end
 
     let :request do

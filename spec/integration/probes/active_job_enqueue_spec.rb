@@ -3,21 +3,27 @@ require "spec_helper"
 defined?(ActiveJob) && describe("ActiveJob Enqueue integration", :active_job_enqueue_probe, :agent) do
   require "action_mailer"
 
-  class TestJob < ActiveJob::Base
-    self.queue_adapter = :inline
-
-    def perform; end
-  end
-
-  class TestMailer < ActionMailer::Base
-    default from: "test@example.com"
-
-    def test_mail(_arg)
-      mail(to: "test@example.com", body: "sk test")
-    end
-  end
-
   before do
+    stub_const(
+      "TestJob",
+      Class.new(ActiveJob::Base) do
+        self.queue_adapter = :inline
+
+        def perform; end
+      end
+    )
+
+    stub_const(
+      "TestMailer",
+      Class.new(ActionMailer::Base) do
+        default from: "test@example.com"
+
+        def test_mail(_arg)
+          mail(to: "test@example.com", body: "sk test")
+        end
+      end
+    )
+
     @job_class =
       if ActionMailer::Base.respond_to?(:delivery_job)
         ActionMailer::Base.delivery_job

@@ -13,6 +13,11 @@ module Skylight
       allow_any_instance_of(Skylight::Extensions::SourceLocation).to receive(:find_caller) { caller_location }
     end
 
+    # Ideally we wouldn't declare these universally, but there were some challenges around getting the tests
+    # to pass without this setup.
+
+    # rubocop:disable Lint/ConstantDefinitionInBlock
+
     class Skylight::Normalizers::SubscriberTestNormalizer < Skylight::Normalizers::Normalizer
       register "subscriber_test.spec.skylight"
 
@@ -40,6 +45,8 @@ module Skylight
         raise "something went wrong"
       end
     end
+
+    # rubocop:enable Lint/ConstantDefinitionInBlock
 
     around do |ex|
       subscriber.register!
