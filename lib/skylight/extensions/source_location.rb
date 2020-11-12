@@ -143,7 +143,7 @@ module Skylight
           locations = ::Kernel.caller_locations(4..MAX_CALLER_DEPTH)
 
           if cache_key
-            localized_cache_key = [cache_key, locations.inspect].hash # FIXME: this inspect/hash is potentially expensive
+            localized_cache_key = [cache_key, locations.map(&:lineno)].hash
             @caller_cache.fetch(localized_cache_key) { find_caller_inner(locations) }
           else
             find_caller_inner(locations)
