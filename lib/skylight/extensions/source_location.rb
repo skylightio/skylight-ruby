@@ -140,6 +140,7 @@ module Skylight
         end
 
         def find_caller(cache_key: nil)
+          # starting at 4 to skip Skylight extension processing logic
           locations = ::Kernel.caller_locations(4..MAX_CALLER_DEPTH)
 
           if cache_key

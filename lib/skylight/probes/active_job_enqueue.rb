@@ -19,10 +19,10 @@ module Skylight
             block.call
           else
             Skylight.instrument(
-              title: "Enqueue #{name}",
-              category: CAT,
+              title:       "Enqueue #{name}",
+              category:    CAT,
               description: desc,
-              internal: true,
+              internal:    true,
               &block
             )
           end

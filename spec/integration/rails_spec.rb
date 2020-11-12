@@ -337,7 +337,7 @@ if enable
         config.active_job.queue_adapter = (Rails::VERSION::MAJOR >= 5 ? :async : :inline)
       end
 
-      class User < ActiveRecord::Base
+      class User < ActiveRecord::Base # rubocop:disable Lint/ConstantDefinitionInBlock
       end
 
       # We include instrument_method in multiple places to ensure
@@ -555,7 +555,6 @@ if enable
       Object.send(:remove_const, :MyApp)
       Object.send(:remove_const, :UsersController)
       Object.send(:remove_const, :User)
-      Object.send(:remove_const, :MetalController)
       Rails::Railtie::Configuration.class_variable_set(:@@app_middleware, nil) # rubocop:disable Style/ClassVars
       Rails.application = nil
     end
@@ -1535,15 +1534,11 @@ if enable
           end
 
           it "finds multiple source_locations for repeated queries" do
-            ActiveRecord::Base.logger = Logger.new(STDOUT)
             call MyApp, env("/users?active_record=true")
 
             server.wait(resource: "/report")
 
             report = server.reports.first
-
-            source_locations = report.source_locations
-
             trace = report.dig(:endpoints, 0, :traces, 0)
 
             spans = trace.spans.select do |span|

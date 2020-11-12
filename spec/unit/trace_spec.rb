@@ -252,7 +252,7 @@ module Skylight
     it "warns about unknown meta keys" do
       trace = Skylight.trace "Rack", "app.rack.request"
 
-      expect(trace).to receive(:warn).with("Unknown meta keys will be ignored; keys=[:invalid]")
+      expect(trace).to receive(:warn).with("Unknown meta key will be ignored; key=:invalid")
 
       span = trace.instrument("app.block", nil, nil, invalid: 1)
       trace.done(span)
