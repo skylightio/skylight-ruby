@@ -425,7 +425,7 @@ module WorkflowConfigGenerator
       def setup_cache_step
         {
           name: "Setup cache",
-          uses: "actions/cache@v1",
+          uses: "actions/cache@v2.1.3",
           with: {
             path: "${{ github.workspace }}/vendor/bundle",
             key: "${{ runner.os }}-gems-#{ruby_version}-#{gemfile}",
