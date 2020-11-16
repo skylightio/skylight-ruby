@@ -56,7 +56,7 @@ module Skylight
           "so"
         when /windows|cygwin/
           "dll"
-        else
+        else # rubocop:disable Lint/DuplicateBranch
           "so"
         end
 

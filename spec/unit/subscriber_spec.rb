@@ -73,7 +73,7 @@ module Skylight
     specify("unsubscribing from a string does not unsub from everything") do
       original_count = count_sk_subscribers
 
-      # Note: do not want to rely on a specific count here (as of this writing,
+      # NOTE: do not want to rely on a specific count here (as of this writing,
       # actual count is 29); it should just be some number greater than 1
       # (ensure that we're not unsubscribing *all* skylight listeners)
       expect(original_count).to be > 1
