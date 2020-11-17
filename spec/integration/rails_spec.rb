@@ -5,6 +5,7 @@ begin
   require "rails"
   require "action_controller/railtie"
   require "active_job/railtie"
+  require "active_record"
   require "skylight/railtie"
   enable = true
 rescue LoadError
@@ -336,6 +337,9 @@ if enable
         config.active_job.queue_adapter = (Rails::VERSION::MAJOR >= 5 ? :async : :inline)
       end
 
+      class User < ActiveRecord::Base # rubocop:disable Lint/ConstantDefinitionInBlock
+      end
+
       # We include instrument_method in multiple places to ensure
       # that all of them work.
 
@@ -357,7 +361,27 @@ if enable
 
         const_set(:INDEX_LINE, __LINE__ + 1)
         def index
+          return index_with_db if params[:active_record]
+
+          index_inner
+        end
+        instrument_method :index
+
+        INDEX_DB_LINE = __LINE__ + 2
+        instrument_method
+        def index_with_db
+          users = User.where(username: "foo").limit(10).to_a
+
+          index_inner do
+            # purposefully repeat the same operation at a different location
+            users = User.where(username: "foo").limit(10).to_a
+          end
+        end
+
+        def index_inner
           Skylight.instrument category: "app.inside" do
+            yield if block_given?
+
             if Rails.version =~ /^4\./
               render text: "Hello"
             else
@@ -368,7 +392,6 @@ if enable
             end
           end
         end
-        instrument_method :index
 
         instrument_method
         def show
@@ -531,6 +554,7 @@ if enable
       # It's really too bad we can't run RSpec tests in a fork
       Object.send(:remove_const, :MyApp)
       Object.send(:remove_const, :UsersController)
+      Object.send(:remove_const, :User)
       Rails::Railtie::Configuration.class_variable_set(:@@app_middleware, nil) # rubocop:disable Style/ClassVars
       Rails.application = nil
     end
@@ -1484,6 +1508,52 @@ if enable
               )
             )
           )
+        end
+
+        context "with active_record" do
+          def user_migration
+            base = ActiveRecord::Migration
+            base = defined?(base::Current) ? base::Current : base
+
+            Class.new(base) do
+              def self.up
+                create_table :users, force: true do |table|
+                  table.string :username
+                  table.timestamps
+                end
+              end
+
+              def self.down
+                drop_table :users
+              end
+            end
+          end
+
+          around do |example|
+            with_sqlite(migration: user_migration, &example)
+          end
+
+          it "finds multiple source_locations for repeated queries" do
+            call MyApp, env("/users?active_record=true")
+
+            server.wait(resource: "/report")
+
+            report = server.reports.first
+            trace = report.dig(:endpoints, 0, :traces, 0)
+
+            spans = trace.spans.select do |span|
+              span.event.category == "db.sql.query"
+            end
+
+            source_locations = spans.map do |span|
+              report.source_location(span)
+            end
+
+            source_file = Pathname.new(__FILE__).relative_path_from(spec_root).to_s
+            base_line = ::UsersController::INDEX_DB_LINE
+            expect(source_locations[0]).to eq("#{source_file}:#{base_line + 1}")
+            expect(source_locations[1]).to eq("#{source_file}:#{base_line + 5}")
+          end
         end
       end
     end

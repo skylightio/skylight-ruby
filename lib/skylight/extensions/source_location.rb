@@ -11,11 +11,13 @@ module Skylight
       include Util::Logging
 
       META_KEYS = %i[source_location source_file source_line].freeze
+      MAX_CALLER_DEPTH = 75
 
       def initialize(*)
         super
-        @caller_cache = Util::LruCache.new(100)
-        @instance_method_source_location_cache = Util::LruCache.new(100)
+        cache_size = (config[:source_location_cache_size] || 1000).to_i
+        @caller_cache = Util::LruCache.new(cache_size)
+        @instance_method_source_location_cache = Util::LruCache.new(cache_size)
         gem_require_trie # memoize this at startup
       end
 
@@ -35,6 +37,7 @@ module Skylight
         source_line = opts[:source_line] || opts[:meta]&.[](:source_line)
         source_name_hint, const_name, method_name = opts[:source_location_hint] ||
                                                     opts[:meta]&.[](:source_location_hint)
+        instrument_location = opts[:sk_instrument_location]
 
         if source_location
           meta[:source_location] = source_location
@@ -45,6 +48,9 @@ module Skylight
         elsif source_file
           meta[:source_file] = source_file
           meta[:source_line] = source_line
+        elsif instrument_location && project_path?(instrument_location.absolute_path)
+          meta[:source_file] = instrument_location.absolute_path
+          meta[:source_line] = instrument_location.lineno
         else
           warn "Ignoring source_line without source_file" if source_line
           if (location = find_caller(cache_key: opts.hash))
@@ -134,10 +140,14 @@ module Skylight
         end
 
         def find_caller(cache_key: nil)
+          # starting at 4 to skip Skylight extension processing logic
+          locations = ::Kernel.caller_locations(4..MAX_CALLER_DEPTH)
+
           if cache_key
-            @caller_cache.fetch(cache_key) { find_caller_inner }
+            localized_cache_key = [cache_key, locations.map(&:lineno)].hash
+            @caller_cache.fetch(localized_cache_key) { find_caller_inner(locations) }
           else
-            find_caller_inner
+            find_caller_inner(locations)
           end
         end
 
@@ -236,11 +246,12 @@ module Skylight
           nil
         end
 
-        def find_caller_inner
+        def find_caller_inner(locations)
           # Start at file before this one
           # NOTE: We could start farther back now to avoid more Skylight files
-          caller_locations(1).find do |l|
-            find_source_gem(l.absolute_path) || project_path?(l.absolute_path)
+          locations.find do |l|
+            absolute_path = l.absolute_path
+            find_source_gem(absolute_path) || project_path?(absolute_path)
           end
         end
 

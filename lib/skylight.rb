@@ -194,10 +194,17 @@ module Skylight
         opts        = {}
       end
 
+      # NOTE: unless we have `:internal` (indicating a built-in Skylight instrument block),
+      # or we already have a `source_file` or `source_line` (probably set by `instrument_method`),
+      # we set the caller location to the second item on the stack
+      # (immediate caller of the `instrument` method).
+      unless opts[:source_file] || opts[:source_line] || opts[:internal]
+        opts = opts.merge(sk_instrument_location: caller_locations(1..1).first)
+      end
+
       meta ||= {}
 
       instrumenter.extensions.process_instrument_options(opts, meta)
-
       instrumenter.instrument(category, title, desc, meta, &block)
     end
 

@@ -113,7 +113,8 @@ module Skylight
               category:    CAT,
               title:       title,
               description: payload.empty? ? nil : payload.to_json,
-              meta:        { database: event.database_name }
+              meta:        { database: event.database_name },
+              internal:    true
             }
 
             @events[event.operation_id] = Skylight.instrument(opts)

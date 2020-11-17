@@ -340,8 +340,10 @@ module Skylight
       def validate_meta(meta)
         unknown_keys = meta.keys - allowed_meta_keys
         if unknown_keys.any?
-          warn "Unknown meta keys will be ignored; keys=#{unknown_keys.inspect}"
-          unknown_keys.each { |key| meta.delete(key) }
+          unknown_keys.each do |key|
+            maybe_warn("unknown_meta:#{key}", "Unknown meta key will be ignored; key=#{key.inspect}")
+            meta.delete(key)
+          end
         end
       end
 

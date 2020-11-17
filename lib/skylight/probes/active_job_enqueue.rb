@@ -18,7 +18,13 @@ module Skylight
           rescue
             block.call
           else
-            Skylight.instrument(title: "Enqueue #{name}", category: CAT, description: desc, &block)
+            Skylight.instrument(
+              title:       "Enqueue #{name}",
+              category:    CAT,
+              description: desc,
+              internal:    true,
+              &block
+            )
           end
 
           self.class.instance_eval do

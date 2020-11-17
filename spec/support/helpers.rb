@@ -131,6 +131,9 @@ module SpecHelper
   end
 
   def with_sqlite_connection(database: nil)
+    require "active_record"
+    require "sqlite3"
+
     ActiveRecord::Base.establish_connection(
       adapter:  "sqlite3",
       database: database || "file::memory:?cache=shared"
