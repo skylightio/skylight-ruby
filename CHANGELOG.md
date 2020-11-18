@@ -1,3 +1,8 @@
+## 5.0.0.beta3
+* [IMPROVEMENT] Optimizations for the Source Locations extension
+* [FEATURE] Configuration for the Source Locations caches via `SYLIGHT_SOURCE_LOCATION_CACHE_SIZE`
+* [BUGFIX] Fix issue with missing metadata in MongoDB probe
+
 ## 5.0.0.beta2
 * [FEATURE] Source Locations detection and reporting is now enabled by default (can be disabled with `SKYLIGHT_ENABLE_SOURCE_LOCATIONS=false`)
 * [BREAKING] Rename `environment` keyword argument to `priority_key`. Note `env` has not changed.
