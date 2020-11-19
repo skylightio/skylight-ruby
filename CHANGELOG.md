@@ -2,6 +2,7 @@
 * [IMPROVEMENT] Optimizations for the Source Locations extension
 * [FEATURE] Configuration for the Source Locations caches via `SYLIGHT_SOURCE_LOCATION_CACHE_SIZE`
 * [BUGFIX] Fix issue with missing metadata in MongoDB probe
+* [BUGFIX] Resolve an inability to parse certain SQL queries containing arrays
 
 ## 5.0.0.beta2
 * [FEATURE] Source Locations detection and reporting is now enabled by default (can be disabled with `SKYLIGHT_ENABLE_SOURCE_LOCATIONS=false`)
