@@ -9,8 +9,11 @@ module Skylight
     attr_reader :config
 
     class Error < StandardError; end
+
     class Unauthorized < Error; end
+
     class Conflict < Error; end
+
     class CreateFailed < Error
       attr_reader :res
 

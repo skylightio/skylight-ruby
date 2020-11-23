@@ -105,6 +105,10 @@ Style/NumericPredicate:
 Style/PerlBackrefs:
   Enabled: false
 
+# This isn't super helpful and has issues with multi-argument split
+Style/RedundantArgument:
+  Enabled: false
+
 # Overly verbose to have to declare rescue class
 Style/RescueStandardError:
   EnforcedStyle: implicit
