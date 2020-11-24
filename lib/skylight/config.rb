@@ -56,6 +56,7 @@ module Skylight
       -"IGNORED_ENDPOINTS"            => :ignored_endpoints,
       -"SINATRA_ROUTE_PREFIXES"       => :sinatra_route_prefixes,
       -"ENABLE_SOURCE_LOCATIONS"      => :enable_source_locations,
+      -"SAMPLE_RATE"                  => :sample_rate,
 
       # == Max Span Handling ==
       -"REPORT_MAX_SPANS_EXCEEDED"    => :report_max_spans_exceeded,
@@ -522,6 +523,14 @@ module Skylight
           val.concat(Array(ignored_endpoints))
           val
         end
+    end
+
+    # @api private
+    def sample_rate
+      @sample_rate ||=
+        begin
+          get(:sample_rate)
+        end || 1
     end
 
     # @api private

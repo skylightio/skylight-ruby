@@ -297,6 +297,11 @@ module Skylight
         return false
       end
 
+      unless sample?
+        t { fmt "non-sampled trace=#{trace.uuid}" }
+        return false
+      end
+
       begin
         finalize_endpoint_segment(trace)
         native_submit_trace(trace)
@@ -342,6 +347,10 @@ module Skylight
                 end
 
       trace.endpoint += "<sk-segment>#{segment}</sk-segment>"
+    end
+
+    def sample?
+      @config.sample_rate >= 1 || Random.rand <= @config.sample_rate
     end
   end
 end

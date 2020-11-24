@@ -419,6 +419,39 @@ describe "Skylight::Instrumenter", :http, :agent do
         expect(server.reports[0].endpoints.map(&:name)).to eq(["foo#bar"])
       end
 
+      describe "#sampling" do
+        it "ignores non-sampled traces" do
+          config[:sample_rate] = 0.5
+
+          allow(Random).to receive(:rand).with(any_args).and_return(0.6)
+
+          Skylight.trace 'foo#bar', 'app.rack' do
+            clock.skip 1
+          end
+
+          clock.unfreeze
+          server.wait resource: "/report"
+
+          server.should have(0).reports
+        end
+
+        it "permits sampled traces" do
+          config[:sample_rate] = 0.5
+
+          allow(Random).to receive(:rand).with(any_args).and_return(0.4)
+
+          Skylight.trace 'baz#qux', 'app.rack' do
+            clock.skip 1
+          end
+
+          clock.unfreeze
+          server.wait count: 3, resource: "/report"
+
+          server.reports[0].should have(1).endpoints
+          server.reports[0].endpoints.map(&:name).should == ["baz#qux"]
+        end
+      end
+
       describe "#mute" do
         def spans
           server.reports[0].endpoints[0].traces[0].spans
