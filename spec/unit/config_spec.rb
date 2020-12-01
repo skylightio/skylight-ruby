@@ -736,7 +736,7 @@ module Skylight
           "SKYLIGHT_AUTH_URL"                => "https://auth.skylight.io/agent",
           "SKYLIGHT_LAZY_START"              => "false",
           "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false",
-          "SKYLIGHT_LOG_LEVEL"               => "info",
+          "SKYLIGHT_LOG_LEVEL"               => "warn",
           "SKYLIGHT_LOG_FILE"                => "-",
           "SKYLIGHT_LOG_SQL_PARSE_ERRORS"    => "true"
         )

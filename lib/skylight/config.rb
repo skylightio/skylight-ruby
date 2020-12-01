@@ -44,6 +44,7 @@ module Skylight
       -"LOG_LEVEL"                    => :log_level,
       -"ALERT_LOG_FILE"               => :alert_log_file,
       -"NATIVE_LOG_FILE"              => :native_log_file,
+      -"NATIVE_LOG_LEVEL"             => :native_log_level,
       -"LOG_SQL_PARSE_ERRORS"         => :log_sql_parse_errors,
 
       # == Proxy ==
@@ -144,6 +145,7 @@ module Skylight
             log_level:                 -"INFO",
             alert_log_file:            -"-",
             log_sql_parse_errors:      true,
+            native_log_level:          -"warn",
 
             # Features
             enable_segments:           true,
@@ -558,17 +560,7 @@ module Skylight
     end
 
     def native_log_level
-      @native_log_level ||=
-        if trace?
-          "trace"
-        else
-          case log_level
-          when Logger::DEBUG then "debug"
-          when Logger::INFO  then "info"
-          when Logger::WARN  then "warn"
-          else "error"
-          end
-        end
+      get(:native_log_level).to_s.downcase
     end
 
     def logger
