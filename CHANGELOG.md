@@ -1,3 +1,6 @@
+## 5.0.0.beta4
+* [IMPROVEMENT] Reduce volume of log messages sent to the native logger in debug level
+
 ## 5.0.0.beta3
 * [IMPROVEMENT] Optimizations for the Source Locations extension
 * [FEATURE] Configuration for the Source Locations caches via `SYLIGHT_SOURCE_LOCATION_CACHE_SIZE`
