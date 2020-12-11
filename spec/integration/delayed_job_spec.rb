@@ -28,6 +28,10 @@ if enable
     end
 
     around do |example|
+      # In Rails 6.1 the Railtie may not be run, so we need to set this manually.
+      require "delayed/backend/active_record"
+      Delayed::Worker.backend = :active_record
+
       with_sqlite(migration: dj_migration) do
         @original_env = ENV.to_hash
         set_agent_env
@@ -187,9 +191,9 @@ if enable
           ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
           ["app.delayed_job.job", "SkDelayedObject#good_method", nil, sl_good_method],
           ["app.zomg", nil, nil, sl_good_method_inner],
-          ["db.sql.query", "SQL", "begin transaction", "delayed_job"],
+          ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
           ["db.sql.query", "DELETE FROM delayed_jobs", "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?", "delayed_job"], # rubocop:disable Layout/LineLength
-          ["db.sql.query", "SQL", "commit transaction", "delayed_job"]
+          ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
         ])
       end
 
@@ -203,9 +207,9 @@ if enable
           ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
           ["app.delayed_job.job", "SkDelayedObject.good_method", nil, sl_good_class_method],
           ["app.zomg", nil, nil, sl_good_method_inner],
-          ["db.sql.query", "SQL", "begin transaction", "delayed_job"],
+          ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
           ["db.sql.query", "DELETE FROM delayed_jobs", "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?", "delayed_job"], # rubocop:disable Layout/LineLength
-          ["db.sql.query", "SQL", "commit transaction", "delayed_job"]
+          ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
         ])
       end
 
@@ -220,7 +224,7 @@ if enable
           ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
           ["app.delayed_job.job", "SkDelayedObject#bad_method", nil, sl_bad_method],
           ["app.zomg", nil, nil, sl_good_method_inner],
-          ["db.sql.query", "SQL", "begin transaction", "delayed_job"]
+          ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"]
         ])
 
         expect(spans[4][0]).to eq("db.sql.query")
@@ -236,7 +240,7 @@ if enable
           "\"locked_at\" = ?",
           "\"locked_by\" = ?"
         ])
-        expect(spans[5]).to eq(["db.sql.query", "SQL", "commit transaction", "delayed_job"])
+        expect(spans[5]).to eq(["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"])
       end
 
       context "with a job class" do
@@ -254,9 +258,9 @@ if enable
             ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
             ["app.delayed_job.job", "SkDelayedWorker#perform", nil, sl_worker_perform],
             ["app.zomg", nil, nil, sl_worker_perform_inner],
-            ["db.sql.query", "SQL", "begin transaction", "delayed_job"],
+            ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
             ["db.sql.query", "DELETE FROM delayed_jobs", "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?", "delayed_job"], # rubocop:disable Layout/LineLength
-            ["db.sql.query", "SQL", "commit transaction", "delayed_job"]
+            ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
           ])
         end
       end
@@ -315,9 +319,9 @@ if enable
             ["app.delayed_job.job", "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform", nil, "activejob"], # rubocop:disable Layout/LineLength
             ["app.job.perform", "SkDelayedActiveJobWorker", "{ adapter: 'delayed_job', queue: 'my-queue' }", sl_aj_worker_perform], # rubocop:disable Layout/LineLength
             ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
-            ["db.sql.query", "SQL", "begin transaction", "delayed_job"],
+            ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
             ["db.sql.query", "DELETE FROM delayed_jobs", "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?", "delayed_job"], # rubocop:disable Layout/LineLength
-            ["db.sql.query", "SQL", "commit transaction", "delayed_job"]
+            ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
           ])
         end
 
@@ -334,7 +338,7 @@ if enable
             ["app.delayed_job.job", "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform", nil, "activejob"], # rubocop:disable Layout/LineLength
             ["app.job.perform", "SkDelayedActiveJobWorker", "{ adapter: 'delayed_job', queue: 'my-queue' }", sl_aj_worker_perform], # rubocop:disable Layout/LineLength
             ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
-            ["db.sql.query", "SQL", "begin transaction", "delayed_job"]
+            ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"]
           ])
 
           expect(spans[5][0]).to eq("db.sql.query")
@@ -350,7 +354,7 @@ if enable
             "\"locked_at\" = ?",
             "\"locked_by\" = ?"
           ])
-          expect(spans[6]).to eq(["db.sql.query", "SQL", "commit transaction", "delayed_job"])
+          expect(spans[6]).to eq(["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"])
         end
       end
     end

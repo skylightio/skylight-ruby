@@ -13,7 +13,9 @@ if defined?(ActionView)
               "our-layout.erb"   => "<<%= yield %>>",
               "our-template.erb" => "Hello World"
             )
-          ])
+          ]),
+          {}, # assigns
+          nil # controller
         )
       end
 
