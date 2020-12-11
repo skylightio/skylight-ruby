@@ -76,9 +76,15 @@ module WorkflowConfigGenerator
     },
 
     {
-      primary: true,
+      always_run: true,
       ruby_version: NEWEST_RUBY,
       gemfile: "rails-6.0.x"
+    },
+
+    {
+      primary: true,
+      ruby_version: NEWEST_RUBY,
+      gemfile: "rails-6.1.x"
     },
 
     {
@@ -204,7 +210,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      gemfile: "rails-6.0.x",
+      gemfile: "rails-6.1.x",
       ruby_version: HEAD_RUBY,
       ruby_install_version: "head",
       allow_failure: true
