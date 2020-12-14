@@ -154,4 +154,12 @@ module SpecHelper
       ActiveRecord::Migration.verbose = verbose_was
     end
   end
+
+  def active_record_gte_61?
+    defined?(ActiveRecord) && ActiveRecord.gem_version >= Gem::Version.new("6.1")
+  end
+
+  def active_record_transaction_title
+    active_record_gte_61? ? "TRANSACTION" : "SQL"
+  end
 end

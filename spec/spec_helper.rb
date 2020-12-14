@@ -23,7 +23,7 @@ end
 begin
   require "sidekiq/rails"
   Sidekiq.remove_delay!
-rescue # rubocop:disable Lint/SuppressedException
+rescue Exception # rubocop:disable Lint/SuppressedException
 end
 
 require "yaml"

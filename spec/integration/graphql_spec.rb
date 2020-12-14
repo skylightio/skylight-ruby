@@ -752,9 +752,9 @@ if enable
               ["app.graphql", "graphql.execute_query: #{mutation_name}"],
               ["db.sql.query", "SELECT FROM genera"],
               ["db.active_record.instantiation", "Genus Instantiation"],
-              ["db.sql.query", ENV["RAILS_EDGE"] ? "TRANSACTION" : "SQL"],
+              ["db.sql.query", active_record_transaction_title],
               ["db.sql.query", "INSERT INTO species"],
-              ["db.sql.query", ENV["RAILS_EDGE"] ? "TRANSACTION" : "SQL"],
+              ["db.sql.query", active_record_transaction_title],
               ["app.graphql", "graphql.execute_query_lazy: #{mutation_name}"]
             ])
           end
