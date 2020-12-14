@@ -370,15 +370,20 @@ module WorkflowConfigGenerator
     end
 
     def install_bundler_step
-      return unless needs_bundler_117?
-
-      {
-        name: "install bundler 1.17.3",
-        run: <<~RUN
-          gem uninstall bundler
-          gem install bundler:1.17.3
-        RUN
-      }
+      if needs_bundler_117?
+        {
+          name: "install bundler 1.17.3",
+          run: <<~RUN
+            gem uninstall bundler
+            gem install bundler:1.17.3
+          RUN
+        }
+      elsif ruby_24?
+        {
+          name: "install bundler",
+          run: "gem install bundler"
+        }
+      end
     end
 
     def install_bundler_dependencies_step
@@ -416,6 +421,10 @@ module WorkflowConfigGenerator
 
     def rails_51?
       gemfile == "rails-5.1.x"
+    end
+
+    def ruby_24?
+      ruby_version.to_s == "2.4"
     end
 
     def run_tests_disabled_agent_step
@@ -466,6 +475,10 @@ module WorkflowConfigGenerator
 
     def gemfile
       config.fetch(:gemfile)
+    end
+
+    def ruby_version
+      config.fetch(:ruby_version)
     end
 
     def gemfile_path

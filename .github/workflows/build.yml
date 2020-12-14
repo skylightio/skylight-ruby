@@ -15,7 +15,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   CORE_COVERAGE_DIR: "${{ github.workspace }}/skylight-core/coverage"
-  CONFIG_DIGEST: 49bcb4e8486dc4652bd3bbb353b6a28b612b9be900b1ffb522b61b73067bad1c
+  CONFIG_DIGEST: 31834b11c5a484cd81e6bcd88983b601979e92f6489e1f4aa2723e934948e35a
 'on':
   pull_request: {}
   push:
@@ -519,6 +519,8 @@ jobs:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-2.4-rails-5.2.x"
         restore-keys: "${{ runner.os }}-gems-2.4-"
+    - name: install bundler
+      run: gem install bundler
     - name: bundle install
       run: |
         bundle install
@@ -742,6 +744,8 @@ jobs:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-2.4-sinatra-1.4.x"
         restore-keys: "${{ runner.os }}-gems-2.4-"
+    - name: install bundler
+      run: gem install bundler
     - name: bundle install
       run: |
         bundle install
@@ -850,6 +854,8 @@ jobs:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-2.4-sinatra-2.0.x"
         restore-keys: "${{ runner.os }}-gems-2.4-"
+    - name: install bundler
+      run: gem install bundler
     - name: bundle install
       run: |
         bundle install
@@ -1013,6 +1019,8 @@ jobs:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-2.4-grape"
         restore-keys: "${{ runner.os }}-gems-2.4-"
+    - name: install bundler
+      run: gem install bundler
     - name: bundle install
       run: |
         bundle install
