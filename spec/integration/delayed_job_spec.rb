@@ -24,6 +24,10 @@ if enable
     let(:report_component) { "worker" }
 
     around do |example|
+      # In Rails 6.1 the Railtie may not be run, so we need to set this manually.
+      require "delayed/backend/active_record"
+      Delayed::Worker.backend = :active_record
+
       with_sqlite(migration: dj_migration, &example)
     end
 
