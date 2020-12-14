@@ -3,49 +3,58 @@ require "spec_helper"
 
 if defined?(ActionPack)
   describe "ActionView integration", :action_view_probe, :agent do
-    class Context < ActionView::Base
-      module CompiledTemplates
+    if ActionView::VERSION::MAJOR >= 6
+      require "action_view/testing/resolvers"
+
+      let(:context) do
+        ActionView::Base.with_empty_template_cache.new(
+          ActionView::LookupContext.new([
+            ActionView::FixtureResolver.new(
+              "our-layout.erb"   => "<<%= yield %>>",
+              "our-template.erb" => "Hello World"
+            )
+          ]),
+          {}, # assigns
+          nil # controller
+        )
       end
 
-      include CompiledTemplates
+      let(:renderer) { context.view_renderer }
+    else
+      # NOTE: It's possible this can be cleaned up some
+      class Context < ActionView::Base
+        module CompiledTemplates
+        end
 
-      def find_all(name, *_args)
-        handler = ::ActionView::Template.handler_for_extension("erb")
-        case name
-        when "our-layout"
-          [::ActionView::Template.new("<<%= yield %>>", "test layout", handler, {})]
-        when "our-template"
-          [::ActionView::Template.new("Hello World", "test template", handler, {})]
-        else
-          raise ArgumentError, "no template"
+        include CompiledTemplates
+
+        def find_all(name, *_args)
+          handler = ::ActionView::Template.handler_for_extension("erb")
+          case name
+          when "our-layout"
+            [::ActionView::Template.new("<<%= yield %>>", "our-layout.erb", handler, {})]
+          when "our-template"
+            [::ActionView::Template.new("Hello World", "our-template.erb", handler, {})]
+          else
+            raise ArgumentError, "no template"
+          end
+        end
+
+        def compiled_method_container
+          CompiledTemplates
         end
       end
 
-      def compiled_method_container
-        CompiledTemplates
+      let(:context) do
+        Context.new
       end
-    end
 
-    let(:context) do
-      Context.new
-    end
+      let(:lookup_context) do
+        ::ActionView::LookupContext.new(context)
+      end
 
-    let(:lookup_context) do
-      ::ActionView::LookupContext.new(context)
-    end
-
-    let(:renderer_inner) do
-      ::ActionView::TemplateRenderer.new(lookup_context)
-    end
-
-    let(:renderer) { Renderer.new(renderer_inner) }
-
-
-    class Renderer < SimpleDelegator
-      def render(*args, &block)
-        __getobj__.render(*args, &block).tap do |result|
-          return result.body if ActionView::VERSION::MAJOR >= 6
-        end
+      let(:renderer) do
+        ::ActionView::TemplateRenderer.new(lookup_context)
       end
     end
 
@@ -66,19 +75,33 @@ if defined?(ActionPack)
       renderer.render(context, opts)
     end
 
+    # On Rails >= 6.1, the FixtureResolver prepends a "/" to the path.
+    def normalize_template_path(path)
+      path.sub(%r{^/}, "")
+    end
+
+
+    let(:layout_event) do
+      # The probe should not be installed for rails versions >= 6.1,
+      # so only expect this layout event when necessary.
+      if ActionView.gem_version < Gem::Version.new("6.1.0.alpha")
+        ["render_template.action_view", "our-layout.erb"]
+      end
+    end
+
     it "instruments layouts when :text is used with a layout" do
       expect(render_plain(renderer, context, plain: "Hello World", layout: "our-layout")).to eq("<Hello World>")
 
-      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
         ["render_template.action_view", "text template"],
-        ["render_template.action_view", "test layout"]
-      ])
+        layout_event
+      ].compact)
     end
 
     it "does not instrument layouts when :text is used without a layout" do
       expect(render_plain(renderer, context, plain: "Hello World")).to eq("Hello World")
 
-      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
         ["render_template.action_view", "text template"]
       ])
     end
@@ -86,16 +109,16 @@ if defined?(ActionPack)
     it "instruments layouts when :inline is used with a layout" do
       expect(renderer.render(context, inline: "Hello World", layout: "our-layout")).to eq("<Hello World>")
 
-      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
         ["render_template.action_view", "inline template"],
-        ["render_template.action_view", "test layout"]
-      ])
+        layout_event
+      ].compact)
     end
 
     it "does not instrument layouts when :inline is used without a layout" do
       expect(renderer.render(context, inline: "Hello World")).to eq("Hello World")
 
-      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
         ["render_template.action_view", "inline template"]
       ])
     end
@@ -103,17 +126,17 @@ if defined?(ActionPack)
     it "instruments layouts when :template is used with a layout" do
       expect(renderer.render(context, template: "our-template", layout: "our-layout")).to eq("<Hello World>")
 
-      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
-        ["render_template.action_view", "test template"],
-        ["render_template.action_view", "test layout"]
-      ])
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
+        ["render_template.action_view", "our-template.erb"],
+        layout_event
+      ].compact)
     end
 
     it "does not instrument layouts when :template is used without a layout" do
       expect(renderer.render(context, template: "our-template")).to eq("Hello World")
 
-      expect(events.map { |e| [e[0], e[4][:identifier]] }).to eq([
-        ["render_template.action_view", "test template"]
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
+        ["render_template.action_view", "our-template.erb"]
       ])
     end
   end

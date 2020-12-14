@@ -56,6 +56,9 @@ module WorkflowConfigGenerator
     - ruby_version: 2.7
       gemfile: rails-6.0.x
 
+    - ruby_version: 2.7
+      gemfile: rails-6.1.x
+
     - ruby_version: 2.4
       gemfile: rails-4.2.x
       env:
