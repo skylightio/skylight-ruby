@@ -1,3 +1,6 @@
+## 4.3.2 (December 14, 2020)
+* [BUGFIX] Backport an ActionView fix from Skylight 5 (makes Skylight 4 compatible with Rails 6.1)
+
 ## 4.3.1 (June 24, 2020)
 * [BUGFIX] Fix an issue in which `Mime::NullType` would result in an exception
 

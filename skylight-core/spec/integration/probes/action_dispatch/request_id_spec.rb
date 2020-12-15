@@ -3,6 +3,14 @@ require "spec_helper"
 if defined?(ActionDispatch)
 
   describe "ActionDispatch::RequestId integration", :'action_dispatch/request_id_probe', :agent do
+    use_request_id = lambda do
+      if ActionPack.version >= Gem::Version.new("6.1")
+        use ActionDispatch::RequestId, header: "X-Request-Id"
+      else
+        use ActionDispatch::RequestId
+      end
+    end
+
     before do
       TestNamespace.mock!
     end
@@ -25,7 +33,7 @@ if defined?(ActionDispatch)
 
       app = Rack::Builder.new do
         use middleware
-        use ActionDispatch::RequestId
+        instance_exec(&use_request_id)
         run(lambda do |env|
           final_env = env
           [200, {}, ["OK"]]
@@ -43,7 +51,7 @@ if defined?(ActionDispatch)
       final_env = nil
 
       app = Rack::Builder.new do
-        use ActionDispatch::RequestId
+        instance_exec(&use_request_id)
         run(lambda do |env|
           final_env = env
           [200, {}, ["OK"]]

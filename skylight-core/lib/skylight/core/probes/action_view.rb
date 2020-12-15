@@ -1,8 +1,12 @@
+# frozen_string_literal: true
+
 module Skylight::Core
   module Probes
     module ActionView
       class Probe
         def install
+          return if ::ActionView.gem_version >= Gem::Version.new("6.1.0.alpha")
+
           ::ActionView::TemplateRenderer.class_eval do
             alias_method :render_with_layout_without_sk, :render_with_layout
 
