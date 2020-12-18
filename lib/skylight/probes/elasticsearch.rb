@@ -26,7 +26,7 @@ module Skylight
 
             def disable_skylight_probe(class_name)
               klass = ::ActiveSupport::Inflector.safe_constantize("Skylight::Probes::#{class_name}::Probe")
-              (klass ? klass.disable { yield } : yield).tap { puts "re-enabling: #{klass}" }
+              (klass ? klass.disable { yield } : yield).tap { Skylight.log(:debug, "re-enabling: #{klass}") }
             end
           end
         end
