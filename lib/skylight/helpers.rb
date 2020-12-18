@@ -156,7 +156,13 @@ module Skylight
                                                                         #
               meta = {}                                                 #   meta = {}
               begin                                                     #   begin
-                send(:before_instrument_#{name}, *args, **opts, &blk)   #     send(:before_instrument_process, *args, **opts, &blk)
+                # In Ruby <2.7 sending empty kwargs to a method that    #
+                # doesn't take them will error                          #
+                if opts.empty?                                          #     if opts.empty?
+                  send(:before_instrument_#{name}, *args, &blk)         #       send(:before_instrument_process, *args, &blk)
+                else                                                    #     else
+                  send(:before_instrument_#{name}, *args, **opts, &blk) #       send(:before_instrument_process, *args, **opts, &blk)
+                end                                                     #     end
               rescue Exception => e                                     #   rescue Exception => e
                 meta[:exception_object] = e                             #     meta[:exception_object] = e
                 raise e                                                 #     raise e
