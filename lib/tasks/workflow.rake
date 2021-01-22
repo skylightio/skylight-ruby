@@ -6,7 +6,7 @@ require "active_support/inflector"
 require "digest"
 
 OLDEST_RUBY = "2.5"
-NEWEST_RUBY = "2.7"
+NEWEST_RUBY = "3.0"
 HEAD_RUBY = "3.0"
 
 # rubocop:disable Layout/HashAlignment
@@ -176,7 +176,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7",
       gemfile: "rails-5.2.x",
       env: { TILT_VERSION: "1.4.1" }
     },
@@ -361,7 +361,7 @@ module WorkflowConfigGenerator
       end
 
       [
-        "ruby #{ruby_version}",
+        "ruby #{ruby_install_version}",
         gemfile,
         config[:name],
         env_key && env_key.empty? ? nil : env_key
