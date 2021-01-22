@@ -70,6 +70,13 @@ describe Skylight::Instrumenter, :http, :agent do
         attr_accessor :myvar
 
         instrument_method :myvar=
+
+        instrument_method
+        def method_with_mixed_args(arg1, opt1:, opt2: nil, &block)
+          if opt2
+            block.call(arg1)
+          end
+        end
       end
 
       # The original name has to be used because that's what gets cached by the instrumentation code since it isn't
@@ -238,6 +245,16 @@ describe Skylight::Instrumenter, :http, :agent do
             )
           )
         )
+      end
+    end
+
+    it "works with ruby 3 args" do
+      arg1 = Object.new
+      expect(arg1).to receive(:foo)
+
+      Skylight.trace "Testing", "app.rack.request" do
+        inst = MyClass.new
+        inst.method_with_mixed_args(arg1, opt1: :one, opt2: true, &:foo)
       end
     end
 
