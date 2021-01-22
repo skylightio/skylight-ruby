@@ -1,3 +1,8 @@
+## 5.0.0.beta5
+* [IMPROVEMENT] Improve keyword argument handling in Skylight::Helpers (thanks @lukebooth!)
+* [IMPROVEMENT] Replace a Kernel.puts with Skylight.log (thanks @johnnyshields!)
+* [FEATURE] Add normalizer for Shrine events (thanks @janko!)
+
 ## 5.0.0.beta4
 * [IMPROVEMENT] Reduce volume of log messages sent to the native logger in debug level
 
