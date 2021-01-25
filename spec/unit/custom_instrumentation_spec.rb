@@ -7,6 +7,8 @@ describe Skylight::Instrumenter, :http, :agent do
     double("hello")
   end
 
+  ruby_gte_27 = Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7")
+
   context "when the instrumenter is running" do
     def test_config_values
       # rubocop:disable Naming/MemoizedInstanceVariableName
@@ -77,7 +79,75 @@ describe Skylight::Instrumenter, :http, :agent do
             block.call(arg1)
           end
         end
+
+        if ruby_gte_27
+          # use class_eval to avoid syntax error on older rubies
+          class_eval <<~RUBY
+            instrument_method
+            def method_with_ellipsis(...)
+              ellipsis_receiver(...)
+            end
+
+            def method_with_ellipsis_control(...)
+              ellipsis_receiver(...)
+            end
+
+            def ellipsis_receiver(arg1, opt1:, opt2:, **kw)
+              [arg1, opt1, opt2, kw]
+            end
+          RUBY
+        end
+
+        # below:
+        #   `receiver` means a method we are delegating to; not instrumented
+        #   `control` is a copy of the instrumented method
+
+        # ruby2_keywords
+        def self.ruby2_keywords(*)
+        end unless ruby_gte_27
+
+        ruby2_keywords def ruby2_keywords_method(*args, &block)
+          delegated_splat_receiver(*args, &block)
+        end
+
+        instrument_method :ruby2_keywords_method
+
+        ruby2_keywords def ruby2_keywords_control(*args, &block)
+          delegated_splat_receiver(*args, &block)
+        end
+
+        instrument_method
+        ruby2_keywords def ruby2_keywords_method_with_deferred_instrumentation(*args, &block)
+          delegated_splat_receiver(*args, &block)
+        end
+
+        instrument_method
+        def delegated_splat(*args, **kwargs, &block)
+          delegated_splat_receiver(*args, **kwargs)
+        end
+
+        instrument_method
+        def delegated_single_splat(*args, &block)
+          delegated_single_splat_receiver(*args, &block)
+        end
+
+        def delegated_splat_control(*args, **kwargs, &block)
+          delegated_splat_receiver(*args, **kwargs, &block)
+        end
+
+        def delegated_single_splat_control(*args, &block)
+          delegated_single_splat_receiver(*args, &block)
+        end
+
+        def delegated_splat_receiver(*args, **kwargs)
+          { args: args, kwargs: kwargs }
+        end
+
+        def delegated_single_splat_receiver(*args)
+          args
+        end
       end
+
 
       # The original name has to be used because that's what gets cached by the instrumentation code since it isn't
       # yet assigned to a constant when we define the class.
@@ -386,6 +456,67 @@ describe Skylight::Instrumenter, :http, :agent do
         )
       ])
     end
+
+    context "method delegation" do
+      if ruby_gte_27
+        it "works with ellipsis delegation" do
+          obj = MyClass.new
+          control = obj.method_with_ellipsis_control(:foo, opt1: 1, opt2: 2, opt3: 3)
+          result = obj.method_with_ellipsis(:foo, opt1: 1, opt2: 2, opt3: 3)
+
+          expect(control).to eq([:foo, 1, 2, { opt3: 3 }])
+          expect(result).to eq(control)
+        end
+      end
+
+      it "works with ruby2_keywords (explicit instrument_method)" do
+        obj = MyClass.new
+        control = obj.ruby2_keywords_control(:positional, kw1: 1, kw2: 2)
+        result = obj.ruby2_keywords_method(:positional, kw1: 1, kw2: 2)
+
+        expect(control).to eq({ args: [:positional], kwargs: {kw1: 1, kw2: 2}})
+        expect(result).to eq(control)
+      end
+
+      # NOTE: There is an issue in Ruby 3 with a bare call to instrument_method and ruby2_keywords.
+      # This can be avoided by defining the method first, then adding the instrumentation.
+      #
+      # Bad:
+      #   instrument_method
+      #   ruby2_keywords def my_method(...)
+      #
+      # Good:
+      #   ruby2_keywords def my_method(...) end
+      #   instrument_method :my_method
+      send(RUBY_VERSION.start_with?("3") ? :pending : :it, "works with ruby2_keywords (deferred instrument_method)") do
+        obj = MyClass.new
+        control = obj.ruby2_keywords_control(:positional, kw1: 1, kw2: 2)
+        result = obj.ruby2_keywords_method_with_deferred_instrumentation(:positional, kw1: 1, kw2: 2)
+
+        # ensure that this behaves as it would without delegation
+        expect(control).to eq({ args: [:positional], kwargs: { kw1: 1, kw2: 2 } })
+        expect(result).to eq(control)
+      end
+
+      it "works with delegated splats" do
+        obj = MyClass.new
+        control = obj.delegated_splat_control(:positional, kw1: 1, kw2: 2)
+        result = obj.delegated_splat(:positional, kw1: 1, kw2: 2)
+
+        expect(control).to eq({ args: [:positional], kwargs: { kw1: 1, kw2: 2 } })
+        expect(result).to eq(control)
+      end
+
+      it "works with single splats" do
+        obj = MyClass.new
+        control = obj.delegated_single_splat_control(:positional, kw1: 1, kw2: 2)
+        result = obj.delegated_single_splat(:positional, kw1: 1, kw2: 2)
+
+        # all args in one array, options grouped as hash
+        expect(control).to eq([:positional, { kw1: 1, kw2: 2 }])
+        expect(result).to eq(control)
+      end
+    end
   end
 
   context "when the instrumenter is not running" do
@@ -406,5 +537,6 @@ describe Skylight::Instrumenter, :http, :agent do
 
       expect(Skylight.instrumenter).to be_nil
     end
+
   end
 end
