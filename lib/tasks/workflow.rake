@@ -129,12 +129,12 @@ module WorkflowConfigGenerator
 
     {
       always_run: true,
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7", # NOTE: this should work on Ruby 3 when Grape 1.5.2 is released.
       gemfile: "grape"
     },
 
     {
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7",
       gemfile: "grape",
       env: {
         GRAPE_VERSION: "~> 0.13.0",
@@ -143,7 +143,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7",
       gemfile: "grape",
       env: {
         GRAPE_VERSION: "~> 1.1.0",
@@ -152,7 +152,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7",
       gemfile: "grape",
       env: {
         GRAPE_VERSION: "~> 1.2.0",
@@ -161,7 +161,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7",
       gemfile: "grape",
       env: {
         GRAPE_VERSION: "~> 1.3.0"
