@@ -19,7 +19,7 @@ module WorkflowConfigGenerator
   TEST_JOBS = [
     {
       name: "mongo",
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7",
       gemfile: "rails-5.2.x",
       services: mongo,
       env: {
@@ -30,7 +30,7 @@ module WorkflowConfigGenerator
 
     {
       name: "mongoid-6",
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7",
       gemfile: "rails-5.2.x",
       services: mongo,
       env: {
@@ -42,7 +42,7 @@ module WorkflowConfigGenerator
 
     {
       name: "elasticsearch",
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7",
       gemfile: "rails-5.2.x",
       services: {
         elasticsearch: {
@@ -64,13 +64,13 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7",
       gemfile: "rails-5.2.x",
       env: { GRAPHQL_VERSION: "~> 1.9.0" }
     },
 
     {
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7",
       gemfile: "rails-5.2.x",
       env: { GRAPHQL_VERSION: "~> 1.8.0" }
     },
@@ -188,7 +188,7 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7",
       gemfile: "rails-5.2.x",
       env: {
         AMS_VERSION: "~> 0.8.3",
@@ -197,13 +197,13 @@ module WorkflowConfigGenerator
     },
 
     {
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7",
       gemfile: "rails-5.2.x",
       env: { AMS_VERSION: "~> 0.9.5" }
     },
 
     {
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "2.7",
       allow_failure: true,
       gemfile: "rails-5.2.x",
       env: { AMS_VERSION: "edge" }
