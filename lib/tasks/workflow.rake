@@ -7,7 +7,7 @@ require "digest"
 
 OLDEST_RUBY = "2.5"
 NEWEST_RUBY = "3.0"
-HEAD_RUBY = "3.0"
+HEAD_RUBY = "3.1"
 
 # rubocop:disable Layout/HashAlignment
 module WorkflowConfigGenerator
