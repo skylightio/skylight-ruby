@@ -82,7 +82,7 @@ describe Skylight::Instrumenter, :http, :agent do
 
         if ruby_gte_27
           # use class_eval to avoid syntax error on older rubies
-          class_eval <<~RUBY
+          class_eval <<~RUBY, __FILE__, __LINE__ + 1
             instrument_method
             def method_with_ellipsis(...)
               ellipsis_receiver(...)
@@ -103,8 +103,7 @@ describe Skylight::Instrumenter, :http, :agent do
         #   `control` is a copy of the instrumented method
 
         # ruby2_keywords
-        def self.ruby2_keywords(*)
-        end unless ruby_gte_27
+        def self.ruby2_keywords(*); end unless ruby_gte_27
 
         ruby2_keywords def ruby2_keywords_method(*args, &block)
           delegated_splat_receiver(*args, &block)
@@ -123,7 +122,7 @@ describe Skylight::Instrumenter, :http, :agent do
 
         instrument_method
         def delegated_splat(*args, **kwargs, &block)
-          delegated_splat_receiver(*args, **kwargs)
+          delegated_splat_receiver(*args, **kwargs, &block)
         end
 
         instrument_method
@@ -474,7 +473,7 @@ describe Skylight::Instrumenter, :http, :agent do
         control = obj.ruby2_keywords_control(:positional, kw1: 1, kw2: 2)
         result = obj.ruby2_keywords_method(:positional, kw1: 1, kw2: 2)
 
-        expect(control).to eq({ args: [:positional], kwargs: {kw1: 1, kw2: 2}})
+        expect(control).to eq({ args: [:positional], kwargs: { kw1: 1, kw2: 2 } })
         expect(result).to eq(control)
       end
 
@@ -537,6 +536,5 @@ describe Skylight::Instrumenter, :http, :agent do
 
       expect(Skylight.instrumenter).to be_nil
     end
-
   end
 end

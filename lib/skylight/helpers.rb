@@ -145,22 +145,16 @@ module Skylight
           # source_file and source_line to be removed from the trace span before it is submitted.
           source_file, source_line = klass.instance_method(name).source_location
 
-          def_line, delegation_line =
+          arg_string =
             if HAS_KW_ARGUMENT_FORWARDING
-              [
-                "def #{name}(*args, **kwargs, &blk)                            # def process(*args, **kwargs, &blk)",
-                "send(:before_instrument_#{name}, *args, **kwargs, &blk)       # before_instrument_process(...)"
-              ]
+              "*args, **kwargs, &blk"
             else
-              [
-                "def #{name}(*args, &blk)                            # def process(*args, &blk)",
-                "send(:before_instrument_#{name}, *args, &blk)       #       send(:before_instrument_process, *args, &blk)"
-              ]
+              "*args, &blk"
             end
 
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
             alias_method :"before_instrument_#{name}", :"#{name}"       # alias_method :"before_instrument_process", :"process"
-            #{def_line}
+            def #{name}(#{arg_string})                                  # def process(*args, **kwargs, &blk)
               span = Skylight.instrument(                               #   span = Skylight.instrument(
                 category:    :"#{category}",                            #     category:    :"app.method",
                 title:       #{title.inspect},                          #     title:       "process",
@@ -169,8 +163,9 @@ module Skylight
                 source_line: #{source_line.inspect})                    #     source_line: 123)
                                                                         #
               meta = {}                                                 #   meta = {}
+                                                                        #
               begin                                                     #   begin
-                #{delegation_line}
+                send(:before_instrument_#{name}, #{arg_string})         #     send(:before_instrument_process, *args, **kwargs, &blk)
               rescue Exception => e                                     #   rescue Exception => e
                 meta[:exception_object] = e                             #     meta[:exception_object] = e
                 raise e                                                 #     raise e
