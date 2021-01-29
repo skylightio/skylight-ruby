@@ -7,7 +7,7 @@ describe Skylight::Instrumenter, :http, :agent do
     double("hello")
   end
 
-  ruby_gte_27 = Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7")
+  ruby_gte27 = Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7")
 
   context "when the instrumenter is running" do
     def test_config_values
@@ -80,7 +80,7 @@ describe Skylight::Instrumenter, :http, :agent do
           end
         end
 
-        if ruby_gte_27
+        if ruby_gte27
           # use class_eval to avoid syntax error on older rubies
           class_eval <<~RUBY, __FILE__, __LINE__ + 1
             instrument_method
@@ -103,7 +103,7 @@ describe Skylight::Instrumenter, :http, :agent do
         #   `control` is a copy of the instrumented method
 
         # ruby2_keywords
-        def self.ruby2_keywords(*); end unless ruby_gte_27
+        def self.ruby2_keywords(*); end unless ruby_gte27
 
         ruby2_keywords def ruby2_keywords_method(*args, &block)
           delegated_splat_receiver(*args, &block)
@@ -146,7 +146,6 @@ describe Skylight::Instrumenter, :http, :agent do
           args
         end
       end
-
 
       # The original name has to be used because that's what gets cached by the instrumentation code since it isn't
       # yet assigned to a constant when we define the class.
@@ -457,7 +456,7 @@ describe Skylight::Instrumenter, :http, :agent do
     end
 
     context "method delegation" do
-      if ruby_gte_27
+      if ruby_gte27
         it "works with ellipsis delegation" do
           obj = MyClass.new
           control = obj.method_with_ellipsis_control(:foo, opt1: 1, opt2: 2, opt3: 3)
