@@ -10,6 +10,6 @@ gem "sinatra", "~> 2.1.0"
 group :development do
   gem "pry"
   gem "pry-byebug"
-  gem "rubocop", "~> 1.8.1"
+  gem "rubocop", "~> 1.9.1"
   gem "yard", "~> 0.9.11"
 end
