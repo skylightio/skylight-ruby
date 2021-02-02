@@ -1,6 +1,7 @@
 ## 5.0.0.beta5
 * [IMPROVEMENT] Improve keyword argument handling in Skylight::Helpers (thanks @lukebooth!)
 * [IMPROVEMENT] Replace a Kernel.puts with Skylight.log (thanks @johnnyshields!)
+* [IMPROVEMENT] Various updates to the SQL lexer
 * [FEATURE] Add normalizer for Shrine events (thanks @janko!)
 
 ## 5.0.0.beta4
