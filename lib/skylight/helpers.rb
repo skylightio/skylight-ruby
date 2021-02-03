@@ -130,6 +130,8 @@ module Skylight
 
       private
 
+        HAS_KW_ARGUMENT_FORWARDING = Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7.0")
+
         def __sk_instrument_method_on(klass, name, title, **opts)
           category = (opts[:category] || "app.method").to_s
           title    = (opts[:title] || title).to_s
@@ -143,10 +145,16 @@ module Skylight
           # source_file and source_line to be removed from the trace span before it is submitted.
           source_file, source_line = klass.instance_method(name).source_location
 
+          arg_string =
+            if HAS_KW_ARGUMENT_FORWARDING
+              "*args, **kwargs, &blk"
+            else
+              "*args, &blk"
+            end
+
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
             alias_method :"before_instrument_#{name}", :"#{name}"       # alias_method :"before_instrument_process", :"process"
-                                                                        #
-            def #{name}(*args, **opts, &blk)                            # def process(*args, **opts, &blk)
+            def #{name}(#{arg_string})                                  # def process(*args, **kwargs, &blk)
               span = Skylight.instrument(                               #   span = Skylight.instrument(
                 category:    :"#{category}",                            #     category:    :"app.method",
                 title:       #{title.inspect},                          #     title:       "process",
@@ -155,14 +163,9 @@ module Skylight
                 source_line: #{source_line.inspect})                    #     source_line: 123)
                                                                         #
               meta = {}                                                 #   meta = {}
+                                                                        #
               begin                                                     #   begin
-                # In Ruby <2.7 sending empty kwargs to a method that    #
-                # doesn't take them will error                          #
-                if opts.empty?                                          #     if opts.empty?
-                  send(:before_instrument_#{name}, *args, &blk)         #       send(:before_instrument_process, *args, &blk)
-                else                                                    #     else
-                  send(:before_instrument_#{name}, *args, **opts, &blk) #       send(:before_instrument_process, *args, **opts, &blk)
-                end                                                     #     end
+                send(:before_instrument_#{name}, #{arg_string})         #     send(:before_instrument_process, *args, **kwargs, &blk)
               rescue Exception => e                                     #   rescue Exception => e
                 meta[:exception_object] = e                             #     meta[:exception_object] = e
                 raise e                                                 #     raise e

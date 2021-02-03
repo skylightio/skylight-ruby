@@ -1,6 +1,8 @@
-version: "5.0.0-8db9566"
+# commit: ea59cc7bdbbee0f69d1cf7e69827974a9ea67645
+---
+version: "5.0.0-488d432"
 checksums:
-  x86-linux:         "15321a6defe4a376cdae77c2e2c41cf9d048dd0a0ee0aa5acd62a6c0047d731e"
-  x86_64-linux:      "ebc784098e5c12b6f86c7daa6c8d162dd7d1e14e2aab2cbdf2bdd2d57b511f8e"
-  x86_64-linux-musl: "dd5a2cf8248e0af9b59d3a4bcb75b0af5757afd24546b9aa670cb19ea66bda16"
-  x86_64-darwin:     "591d56927e82f720aed39d5782756e676c4bca652e71ef2b0c4041ad3c6343d0"
+  x86-linux:         "3c16b6db1508f35720258551783fbcd30fd231638bad316ea76748d659838399"
+  x86_64-linux:      "94383aa3359c3f2e9c0e3c16ee263d46c5673dd255f8842e6acadf5ec3131c06"
+  x86_64-linux-musl: "d2e2e2e61c321315f9bcaa157426f33aef8ffc2330ba46b2cdcbd9442e65f728"
+  x86_64-darwin:     "bcc925d0bcbae83a484f35dbc9729dcf262e1f3a8c29b8d387d0f58ad8f3afa3"

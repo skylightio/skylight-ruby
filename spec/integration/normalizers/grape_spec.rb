@@ -96,7 +96,12 @@ if defined?(Grape)
     it "creates a Trace for a Grape app" do
       expect(Skylight).to receive(:trace).
         with("Rack", "app.rack.request", nil, meta: { source_location: Skylight::Trace::SYNTHETIC }, component: :web).
-        and_call_original
+        and_wrap_original do |method, *args|
+          # NOTE: rspec-mocks 3.10 is not fully compatible with Ruby 3. This `and_wrap_original` should
+          # be replaced by `and_call_original` in future versions.
+          *positional, kwargs = args
+          method.call(*positional, **kwargs)
+        end
 
       get "/test"
 
