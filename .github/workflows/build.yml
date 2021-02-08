@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 0305d84b111ada5469ee45c68add3aaad28986058a11d3a0c39f3d0bdbd6e029
+  CONFIG_DIGEST: 6b320f848c87a96c6c222e9aa341fbe320380ca841d6558353c8b78f02ff7f6b
 'on':
   push:
     branches:
