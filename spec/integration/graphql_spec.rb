@@ -729,7 +729,7 @@ if enable
           it "successfully calls into graphql with anonymous mutations" do
             make_graphql_request(
               query:     "mutation #{mutation_name}($genus: String!, $species: String!) { #{mutation_inner} }",
-              variables: { "genus": "Ischnura", "species": "damula" }
+              variables: { genus: "Ischnura", species: "damula" }
             )
 
             server.wait resource: "/report"
