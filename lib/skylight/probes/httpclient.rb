@@ -22,15 +22,15 @@ module Skylight
         DISABLED_KEY = :__skylight_httpclient_disabled
 
         def self.disable
-          old_value = Thread.current[DISABLED_KEY]
-          Thread.current[DISABLED_KEY] = true
+          old_value = Thread.current.thread_variable_get(DISABLED_KEY)
+          Thread.current.thread_variable_set(DISABLED_KEY, true)
           yield
         ensure
-          Thread.current[DISABLED_KEY] = old_value
+          Thread.current.thread_variable_set(DISABLED_KEY, old_value)
         end
 
         def self.disabled?
-          !!Thread.current[DISABLED_KEY]
+          !!Thread.current.thread_variable_get(DISABLED_KEY)
         end
 
         def install

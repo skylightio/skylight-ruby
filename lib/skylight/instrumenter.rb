@@ -17,22 +17,22 @@ module Skylight
       end
 
       def current
-        Thread.current[@key]
+        Thread.current.thread_variable_get(@key)
       end
 
       def current=(trace)
-        Thread.current[@key] = trace
+        Thread.current.thread_variable_set(@key, trace)
       end
 
       # NOTE: This should only be set by the instrumenter, and only
       # in the context of a `mute` block. Do not try to turn this
       # flag on and off directly.
       def muted=(val)
-        Thread.current[@muted_key] = val
+        Thread.current.thread_variable_set(@muted_key, val)
       end
 
       def muted?
-        !!Thread.current[@muted_key]
+        !!Thread.current.thread_variable_get(@muted_key)
       end
     end
 
