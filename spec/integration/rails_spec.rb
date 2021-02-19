@@ -1659,7 +1659,7 @@ if enable
     end
 
     def env(path = "/", opts = {})
-      Rack::MockRequest.env_for(path, opts)
+      Rack::MockRequest.env_for(path, { "HTTP_HOST" => "localhost" }.merge(opts))
     end
 
     def consume(resp)
