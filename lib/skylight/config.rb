@@ -691,7 +691,7 @@ module Skylight
         corrected_config = res.corrected_config
 
         # Use defaults if no corrected config is available. This will happen if the request failed.
-        corrected_config ||= Hash[SERVER_VALIDATE.map { |k| [k, self.class.default_values.fetch(k)] }]
+        corrected_config ||= SERVER_VALIDATE.map { |k| [k, self.class.default_values.fetch(k)] }.to_h
 
         config_to_update = corrected_config.reject { |k, v| get(k) == v }
         unless config_to_update.empty?
