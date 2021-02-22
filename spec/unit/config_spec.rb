@@ -498,7 +498,7 @@ module Skylight
       end
 
       def get_env
-        Hash[*config.to_native_env]
+        Hash[*config.to_native_env] # rubocop:disable Style/HashConversion
       end
 
       it "converts to env" do
@@ -723,7 +723,7 @@ module Skylight
       end
 
       def get_env
-        Hash[*config.to_native_env]
+        Hash[*config.to_native_env] # rubocop:disable Style/HashConversion
       end
 
       it "converts to env" do
@@ -796,7 +796,7 @@ module Skylight
         expect(c[:'agent.sockfile_path']).to eq("/foo/bar")
         expect(c[:'daemon.sockdir_path']).to eq("/foo/bar")
 
-        env = Hash[*c.to_native_env]
+        env = Hash[*c.to_native_env] # rubocop:disable Style/HashConversion
         expect(env["SKYLIGHT_AGENT_SOCKFILE_PATH"]).to be_nil
         expect(env["SKYLIGHT_SOCKDIR_PATH"]).to eq("/foo/bar")
       end
