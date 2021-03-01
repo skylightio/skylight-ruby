@@ -20,31 +20,55 @@ updates:
   directory: gemfiles/rails-5.2.x
   schedule: *1
   open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - rails-5.2.x
 - package-ecosystem: bundler
   directory: gemfiles/rails-6.0.x
   schedule: *1
   open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - rails-6.0.x
 - package-ecosystem: bundler
   directory: gemfiles/rails-6.1.x
   schedule: *1
   open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - rails-6.1.x
 - package-ecosystem: bundler
   directory: gemfiles/rails-edge
   schedule: *1
   open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - rails-edge
 - package-ecosystem: bundler
   directory: gemfiles/sinatra-1.4.x
   schedule: *1
   open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - sinatra-1.4.x
 - package-ecosystem: bundler
   directory: gemfiles/sinatra-2.0.x
   schedule: *1
   open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - sinatra-2.0.x
 - package-ecosystem: bundler
   directory: gemfiles/sinatra-edge
   schedule: *1
   open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - sinatra-edge
 - package-ecosystem: bundler
   directory: gemfiles/grape
   schedule: *1
   open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - grape

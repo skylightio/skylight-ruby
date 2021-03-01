@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 9000e017202a8adce0e8552047f0cd7b425df6cbec772b10931ed9fe61c0a95a
+  CONFIG_DIGEST: 2e21efa8b81bf5f38477e4fd1af697877ded2bc77bf9a20b2f6a9eb233984a63
 'on':
   push:
     branches:
@@ -30,7 +30,7 @@ jobs:
     name: ruby 2.7, rails-5.2.x, mongo
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
     services:
       mongo:
         image: mongo:4.0
@@ -87,7 +87,7 @@ jobs:
     name: ruby 2.7, rails-5.2.x, mongoid-6, MONGOID_VERSION=~> 6.0
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
     services:
       mongo:
         image: mongo:4.0
@@ -145,7 +145,7 @@ jobs:
     name: ruby 2.7, rails-5.2.x, elasticsearch
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
     services:
       elasticsearch:
         image: elasticsearch:6.8.6
@@ -252,7 +252,7 @@ jobs:
     name: ruby 2.7, rails-5.2.x, GRAPHQL_VERSION=~> 1.9.0
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       GRAPHQL_VERSION: "~> 1.9.0"
@@ -303,7 +303,7 @@ jobs:
     name: ruby 2.7, rails-5.2.x, GRAPHQL_VERSION=~> 1.8.0
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       GRAPHQL_VERSION: "~> 1.8.0"
@@ -450,7 +450,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
       AMS_VERSION: edge
@@ -501,7 +501,7 @@ jobs:
     name: ruby 2.5, sinatra-1.4.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-1.4.x')
     env:
       BUNDLE_GEMFILE: gemfiles/sinatra-1.4.x/Gemfile
     steps:
@@ -551,7 +551,7 @@ jobs:
     name: ruby 3.0, sinatra-1.4.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-1.4.x')
     env:
       BUNDLE_GEMFILE: gemfiles/sinatra-1.4.x/Gemfile
     steps:
@@ -601,7 +601,7 @@ jobs:
     name: ruby 2.5, sinatra-2.0.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-2.0.x')
     env:
       BUNDLE_GEMFILE: gemfiles/sinatra-2.0.x/Gemfile
     steps:
@@ -700,7 +700,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-edge')
     env:
       BUNDLE_GEMFILE: gemfiles/sinatra-edge/Gemfile
     steps:
@@ -750,7 +750,7 @@ jobs:
     name: ruby 2.5, grape, RACK_VERSION=~> 2.0.8
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape')
     env:
       BUNDLE_GEMFILE: gemfiles/grape/Gemfile
       RACK_VERSION: "~> 2.0.8"
@@ -849,7 +849,7 @@ jobs:
     name: ruby 2.7, grape, GRAPE_VERSION=~> 0.13.0 RACK_VERSION=~> 2.0.8
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape')
     env:
       BUNDLE_GEMFILE: gemfiles/grape/Gemfile
       GRAPE_VERSION: "~> 0.13.0"
@@ -901,7 +901,7 @@ jobs:
     name: ruby 2.7, grape, GRAPE_VERSION=~> 1.1.0 RACK_VERSION=~> 2.0.8
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape')
     env:
       BUNDLE_GEMFILE: gemfiles/grape/Gemfile
       GRAPE_VERSION: "~> 1.1.0"
@@ -953,7 +953,7 @@ jobs:
     name: ruby 2.7, grape, GRAPE_VERSION=~> 1.2.0 RACK_VERSION=~> 2.0.8
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape')
     env:
       BUNDLE_GEMFILE: gemfiles/grape/Gemfile
       GRAPE_VERSION: "~> 1.2.0"
@@ -1005,7 +1005,7 @@ jobs:
     name: ruby 2.7, grape, GRAPE_VERSION=~> 1.3.0
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape')
     env:
       BUNDLE_GEMFILE: gemfiles/grape/Gemfile
       GRAPE_VERSION: "~> 1.3.0"
@@ -1057,7 +1057,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape')
     env:
       BUNDLE_GEMFILE: gemfiles/grape/Gemfile
       GRAPE_VERSION: edge
@@ -1108,7 +1108,7 @@ jobs:
     name: ruby 2.7, rails-5.2.x, TILT_VERSION=1.4.1
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       TILT_VERSION: 1.4.1
@@ -1159,7 +1159,7 @@ jobs:
     name: ruby 3.0, sinatra-1.4.x, SEQUEL_VERSION=4.34.0
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-1.4.x')
     env:
       BUNDLE_GEMFILE: gemfiles/sinatra-1.4.x/Gemfile
       SEQUEL_VERSION: 4.34.0
@@ -1210,7 +1210,7 @@ jobs:
     name: ruby 2.7, rails-5.2.x, AMS_VERSION=~> 0.8.3 SIDEKIQ_VERSION=none
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       AMS_VERSION: "~> 0.8.3"
@@ -1262,7 +1262,7 @@ jobs:
     name: ruby 2.7, rails-5.2.x, AMS_VERSION=~> 0.9.5
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       AMS_VERSION: "~> 0.9.5"
@@ -1314,7 +1314,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       AMS_VERSION: edge
@@ -1366,7 +1366,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
@@ -1419,7 +1419,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
     steps:

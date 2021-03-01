@@ -336,7 +336,16 @@ module CITasks
         h["continue-on-error"] = true unless required?
 
         unless always_run?
-          h[:if] = "github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'full-ci')"
+          conditions = [
+            "github.ref == 'refs/heads/master'",
+            "contains(github.event.pull_request.labels.*.name, 'full-ci')"
+          ]
+
+          if (gemfile = config[:gemfile])
+            conditions << "contains(github.event.pull_request.labels.*.name, '#{gemfile}')"
+          end
+
+          h[:if] = conditions.join(" || ")
         end
         h[:services] = config[:services] if config[:services]
         h[:env] = env if env
@@ -771,7 +780,12 @@ module CITasks
         ]
       }
 
-      gemfile_configs = gemfiles.map { |g| bundler_config.merge("directory" => "gemfiles/#{g}") }
+      gemfile_configs = gemfiles.map do |g|
+        bundler_config.merge(
+          "directory" => "gemfiles/#{g}",
+          "labels" => ["dependencies", g]
+        )
+      end
 
       config["updates"].concat(gemfile_configs)
 
