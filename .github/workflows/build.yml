@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 3ad247f5556005b885b8802fdc4db035730df8853ea5a0e6adb82e3700284189
+  CONFIG_DIGEST: 1c0a2c97cf481d15d1d4ee7ccbe713679cf68c0e63839d27ea16365d4f4cc0db
 'on':
   push:
     branches:
@@ -423,9 +423,6 @@ jobs:
   ruby-3-0-rails-6-1-x:
     name: ruby 3.0, rails-6.1.x
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
-      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
