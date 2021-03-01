@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: '09e2b14a1b5ac96d0d1032824b6518259dcde88bdff6c1cf0770554c001380cf'
+  CONFIG_DIGEST: 3ad247f5556005b885b8802fdc4db035730df8853ea5a0e6adb82e3700284189
 'on':
   push:
     branches:
@@ -767,6 +767,56 @@ jobs:
           }}"
         restore-keys: |-
           ${{ runner.os }}-gems-3.0-sinatra-edge-
+          ${{ runner.os }}-gems-3.0-
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync
+        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      if: success()
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage
+        path: coverage-sync
+    needs:
+    - ruby-3-0-rails-6-1-x
+  ruby-3-0-default:
+    name: ruby 3.0, default
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'default-Gemfile')
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.0'
+    - name: Install APT dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v2.1.4
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-3.0-default-${{ hashFiles('Gemfile.lock') }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.0-default-
           ${{ runner.os }}-gems-3.0-
     - name: bundle install
       run: |
@@ -1561,10 +1611,9 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.5-base-${{ hashFiles('gemfiles/base/Gemfile.lock')
-          }}"
+        key: "${{ runner.os }}-gems-2.5-default-${{ hashFiles('Gemfile.lock') }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.5-base-
+          ${{ runner.os }}-gems-2.5-default-
           ${{ runner.os }}-gems-2.5-
     - name: bundle install
       run: |
@@ -1634,6 +1683,7 @@ jobs:
     - ruby-3-0-sinatra-1-4-x
     - ruby-2-5-sinatra-2-0-x
     - ruby-3-0-sinatra-2-0-x
+    - ruby-3-0-default
     - ruby-2-5-grape-1-x
     - ruby-2-7-grape-1-x
     - ruby-2-7-grape-0-13-x
@@ -1668,6 +1718,7 @@ jobs:
     - ruby-3-0-sinatra-1-4-x
     - ruby-2-5-sinatra-2-0-x
     - ruby-3-0-sinatra-2-0-x
+    - ruby-3-0-default
     - ruby-2-5-grape-1-x
     - ruby-2-7-grape-1-x
     - ruby-2-7-grape-0-13-x

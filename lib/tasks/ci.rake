@@ -115,6 +115,11 @@ module CITasks
     },
 
     {
+      ruby_version: NEWEST_RUBY
+      # This will use the default Gemfile with Rails and Sinatra
+    },
+
+    {
       ruby_version: OLDEST_RUBY,
       gemfile: "grape-1.x"
     },
@@ -305,8 +310,6 @@ module CITasks
 
         h["continue-on-error"] = true unless required?
 
-        gemfile_label = config.fetch(:gemfile, "default-Gemfile")
-
         conditions = [
           # On master
           "github.ref == 'refs/heads/master'",
@@ -491,11 +494,19 @@ module CITasks
         end
 
         def gemfile
-          config.fetch(:gemfile, "base")
+          config.fetch(:gemfile, "default")
+        end
+
+        def gemfile_label
+          config.fetch(:gemfile, "default-Gemfile")
         end
 
         def gemfile_path
-          "gemfiles/#{gemfile}/Gemfile"
+          if gemfile == "default"
+            "Gemfile"
+          else
+            "gemfiles/#{gemfile}/Gemfile"
+          end
         end
 
         def allow_failure?
