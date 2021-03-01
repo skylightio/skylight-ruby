@@ -264,7 +264,7 @@ GEM
     websocket-driver (0.7.3)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    yard (0.9.25)
+    yard (0.9.26)
     zeitwerk (2.4.2)
 
 PLATFORMS
@@ -302,7 +302,7 @@ DEPENDENCIES
   tilt (~> 2.0)
   timecop
   webmock
-  yard (~> 0.9.11)
+  yard (~> 0.9.26)
 
 BUNDLED WITH
    2.2.11
