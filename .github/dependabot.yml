@@ -107,3 +107,10 @@ updates:
   labels:
   - dependencies
   - grape-edge
+- package-ecosystem: bundler
+  directory: gemfiles/sequel-4.34.0
+  schedule: *1
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - sequel-4.34.0

@@ -166,8 +166,7 @@ module CITasks
 
     {
       ruby_version: NEWEST_RUBY,
-      gemfile: "sinatra-1.4.x",
-      env: { SEQUEL_VERSION: "4.34.0" }
+      gemfile: "sequel-4.34.0"
     },
 
     {
