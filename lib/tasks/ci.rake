@@ -313,7 +313,7 @@ module CITasks
           # Labeled with 'full-ci'
           "contains(github.event.pull_request.labels.*.name, 'full-ci')",
           # Labeled for dependency updates
-          "contains(github.event.pull_request.labels.*.name, '#{gemfile_label}')",
+          "contains(github.event.pull_request.labels.*.name, '#{gemfile_label}')"
         ]
 
         # Always run unless we're labeled with dependencies
@@ -736,7 +736,7 @@ module CITasks
           "interval" => "weekly",
           "time" => "13:00"
         },
-        "labels" => ["dependencies", "default-Gemfile"],
+        "labels" => %w[dependencies default-Gemfile],
         "open-pull-requests-limit" => 10
       }
 
