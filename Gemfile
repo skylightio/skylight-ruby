@@ -11,5 +11,5 @@ group :development do
   gem "pry"
   gem "pry-byebug"
   gem "rubocop", "~> 1.11.0"
-  gem "yard", "~> 0.9.11"
+  gem "yard", "~> 0.9.26"
 end
