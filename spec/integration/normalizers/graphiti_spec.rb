@@ -4,6 +4,7 @@ require "spec_helper"
 require "skylight/instrumenter"
 
 begin
+  require "active_model" # FIXME: Graphiti should require this
   require "graphiti"
 rescue LoadError
   warn "Skipping Graphiti tests since it isn't installed."
