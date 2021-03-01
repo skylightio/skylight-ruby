@@ -106,7 +106,7 @@ GEM
       faraday (~> 1)
       multi_json
     erubi (1.10.0)
-    excon (0.78.1)
+    excon (0.79.0)
     fakeredis (0.8.0)
       redis (~> 4.1)
     faraday (1.1.0)
