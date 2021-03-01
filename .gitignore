@@ -23,11 +23,6 @@ skylight_dlopen.c
 /lib/skylight/native
 /target
 
-# Ignore lockfiles from travis Gemfiles
-/gemfiles/*.lock
-/gemfiles/vendor
-Gemfile.lock
-
 # Ignore developer specific configuration
 .rspec
 
