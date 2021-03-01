@@ -1,6 +1,6 @@
-ENV['MONGOID_VERSION'] = 'skip'
-ENV['TILT_VERSION'] = '~> 2.0'
+ENV["MONGOID_VERSION"] = "skip"
+ENV["TILT_VERSION"] = "~> 2.0"
 
-eval_gemfile File.expand_path('../Gemfile.base', __dir__)
+eval_gemfile File.expand_path("../Gemfile.base", __dir__)
 
-gem 'sinatra', git: 'https://github.com/sinatra/sinatra'
+gem "sinatra", git: "https://github.com/sinatra/sinatra"
