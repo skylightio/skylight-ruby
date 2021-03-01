@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: e2a836d85f25ca9effcc0f712d20e7b56ba839cfdce07df24d9a9daa5f9fde4b
+  CONFIG_DIGEST: 04fbab6a8c3b1ef24c57c93ca77c6f6909bfe9bc2f6b6837692127608ad45062
 'on':
   push:
     branches:
@@ -26,6 +26,53 @@ env:
     - reopened
     - synchronize
 jobs:
+  ruby-3-0-default:
+    name: ruby 3.0, default
+    runs-on: ubuntu-latest
+    steps:
+    - uses: technote-space/auto-cancel-redundant-job@v1
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.0'
+    - name: Install APT dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v2.1.4
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-3.0-default-${{ hashFiles('Gemfile.lock') }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.0-default-
+          ${{ runner.os }}-gems-3.0-
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      if: success()
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage
+        path: coverage-sync
   ruby-3-0-rails-6-1-x-mongo:
     name: ruby 3.0, rails-6.1.x, mongo
     runs-on: ubuntu-latest
@@ -85,7 +132,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-2-7-mongoid-6-x-mongoid-6:
     name: ruby 2.7, mongoid-6.x, mongoid-6
     runs-on: ubuntu-latest
@@ -145,7 +192,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-3-0-elasticsearch-elasticsearch:
     name: ruby 3.0, elasticsearch, elasticsearch
     runs-on: ubuntu-latest
@@ -206,7 +253,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-2-5-sidekiq-4-x-graphql-1-7-x:
     name: ruby 2.5, sidekiq-4.x-graphql-1.7.x
     runs-on: ubuntu-latest
@@ -259,7 +306,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-2-7-graphql-1-9-x:
     name: ruby 2.7, graphql-1.9.x
     runs-on: ubuntu-latest
@@ -312,7 +359,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-2-5-rails-5-2-x:
     name: ruby 2.5, rails-5.2.x
     runs-on: ubuntu-latest
@@ -366,7 +413,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-3-0-rails-6-0-x:
     name: ruby 3.0, rails-6.0.x
     runs-on: ubuntu-latest
@@ -420,14 +467,16 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-3-0-rails-6-1-x:
     name: ruby 3.0, rails-6.1.x
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
+      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
-    - uses: technote-space/auto-cancel-redundant-job@v1
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
@@ -471,6 +520,8 @@ jobs:
       with:
         name: coverage
         path: coverage-sync
+    needs:
+    - ruby-3-0-default
   ruby-3-0-rails-edge:
     name: "[allowed to fail] ruby 3.0, rails-edge"
     runs-on: ubuntu-latest
@@ -525,7 +576,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-2-5-sinatra-1-x:
     name: ruby 2.5, sinatra-1.x
     runs-on: ubuntu-latest
@@ -578,7 +629,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-3-0-sinatra-2-x:
     name: ruby 3.0, sinatra-2.x
     runs-on: ubuntu-latest
@@ -632,7 +683,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-3-0-sinatra-edge:
     name: "[allowed to fail] ruby 3.0, sinatra-edge"
     runs-on: ubuntu-latest
@@ -686,57 +737,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
-  ruby-3-0-default:
-    name: ruby 3.0, default
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'default-Gemfile')
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.0'
-    - name: Install APT dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
-      uses: actions/cache@v2.1.4
-      with:
-        path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.0-default-${{ hashFiles('Gemfile.lock') }}"
-        restore-keys: |-
-          ${{ runner.os }}-gems-3.0-default-
-          ${{ runner.os }}-gems-3.0-
-    - name: bundle install
-      run: |
-        gem install bundler
-        bundle install
-    - name: Run tests
-      run: |
-        bundle exec rake workflow:verify[$CONFIG_DIGEST]
-        bundle exec rake
-    - name: Run tests (agent disabled)
-      env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-        SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
-    needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-2-5-grape-1-x:
     name: ruby 2.5, grape-1.x
     runs-on: ubuntu-latest
@@ -789,7 +790,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-3-0-grape-1-x:
     name: ruby 3.0, grape-1.x
     runs-on: ubuntu-latest
@@ -843,7 +844,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-2-7-grape-1-2-x:
     name: ruby 2.7, grape-1.2.x
     runs-on: ubuntu-latest
@@ -896,7 +897,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-3-0-grape-edge:
     name: "[allowed to fail] ruby 3.0, grape-edge"
     runs-on: ubuntu-latest
@@ -950,7 +951,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-3-0-sequel-4-34-0:
     name: ruby 3.0, sequel-4.34.0
     runs-on: ubuntu-latest
@@ -1003,7 +1004,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-2-7-ams-0-8-x:
     name: ruby 2.7, ams-0.8.x
     runs-on: ubuntu-latest
@@ -1056,7 +1057,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-2-7-ams-0-9-x:
     name: ruby 2.7, ams-0.9.x
     runs-on: ubuntu-latest
@@ -1109,7 +1110,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-3-0-ams-0-10-x:
     name: ruby 3.0, ams-0.10.x
     runs-on: ubuntu-latest
@@ -1162,7 +1163,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-head-rails-6-1-x:
     name: "[allowed to fail] ruby head, rails-6.1.x"
     runs-on: ubuntu-latest
@@ -1218,7 +1219,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   ruby-head-rails-edge:
     name: "[allowed to fail] ruby head, rails-edge"
     runs-on: ubuntu-latest
@@ -1275,7 +1276,7 @@ jobs:
         name: coverage
         path: coverage-sync
     needs:
-    - ruby-3-0-rails-6-1-x
+    - ruby-3-0-default
   lint:
     name: lint
     runs-on: ubuntu-latest
@@ -1351,6 +1352,7 @@ jobs:
         ./cc-test-reporter sum-coverage formatted_coverage/**/*.json
         ./cc-test-reporter upload-coverage
     needs:
+    - ruby-3-0-default
     - ruby-3-0-rails-6-1-x-mongo
     - ruby-2-7-mongoid-6-x-mongoid-6
     - ruby-3-0-elasticsearch-elasticsearch
@@ -1361,7 +1363,6 @@ jobs:
     - ruby-3-0-rails-6-1-x
     - ruby-2-5-sinatra-1-x
     - ruby-3-0-sinatra-2-x
-    - ruby-3-0-default
     - ruby-2-5-grape-1-x
     - ruby-3-0-grape-1-x
     - ruby-2-7-grape-1-2-x
@@ -1381,6 +1382,7 @@ jobs:
       run: 'true'
       if: "!contains(needs.*.result, 'failure')"
     needs:
+    - ruby-3-0-default
     - ruby-3-0-rails-6-1-x-mongo
     - ruby-2-7-mongoid-6-x-mongoid-6
     - ruby-3-0-elasticsearch-elasticsearch
@@ -1391,7 +1393,6 @@ jobs:
     - ruby-3-0-rails-6-1-x
     - ruby-2-5-sinatra-1-x
     - ruby-3-0-sinatra-2-x
-    - ruby-3-0-default
     - ruby-2-5-grape-1-x
     - ruby-3-0-grape-1-x
     - ruby-2-7-grape-1-2-x
