@@ -31,12 +31,11 @@ module CITasks
     {
       name: "mongoid-6",
       ruby_version: "2.7",
-      gemfile: "rails-5.2.x",
+      gemfile: "mongoid-6.x",
       services: mongo,
       env: {
         TEST_MONGO_INTEGRATION: "true",
-        MONGO_HOST: "localhost",
-        MONGOID_VERSION: "~> 6.0"
+        MONGO_HOST: "localhost"
       }
     },
 

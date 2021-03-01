@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: c1b90013045fbbe57c70152ae863c432a5d7987852d97e2c8bdb79738ed03b38
+  CONFIG_DIGEST: f1d4c340fc8428a9ed1298a6cd3c6daebbaf146f9443db838e4cd505ddd55d76
 'on':
   push:
     branches:
@@ -83,21 +83,20 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-mongoid-6-mongoid_version-6-0:
-    name: ruby 2.7, rails-5.2.x, mongoid-6, MONGOID_VERSION=~> 6.0
+  ruby-2-7-mongoid-6-x-mongoid-6:
+    name: ruby 2.7, mongoid-6.x, mongoid-6
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'mongoid-6.x')
     services:
       mongo:
         image: mongo:4.0
         ports:
         - 27017:27017
     env:
-      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
+      BUNDLE_GEMFILE: gemfiles/mongoid-6.x/Gemfile
       TEST_MONGO_INTEGRATION: 'true'
       MONGO_HOST: localhost
-      MONGOID_VERSION: "~> 6.0"
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -113,7 +112,7 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        key: "${{ runner.os }}-gems-2.7-mongoid-6.x"
         restore-keys: "${{ runner.os }}-gems-2.7-"
     - name: bundle install
       run: |
@@ -1526,7 +1525,7 @@ jobs:
         ./cc-test-reporter upload-coverage
     needs:
     - ruby-2-7-rails-5-2-x-mongo
-    - ruby-2-7-rails-5-2-x-mongoid-6-mongoid_version-6-0
+    - ruby-2-7-mongoid-6-x-mongoid-6
     - ruby-2-7-rails-5-2-x-elasticsearch
     - ruby-2-5-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0
     - ruby-2-7-rails-5-2-x-graphql_version-1-9-0
@@ -1560,7 +1559,7 @@ jobs:
       if: "!contains(needs.*.result, 'failure')"
     needs:
     - ruby-2-7-rails-5-2-x-mongo
-    - ruby-2-7-rails-5-2-x-mongoid-6-mongoid_version-6-0
+    - ruby-2-7-mongoid-6-x-mongoid-6
     - ruby-2-7-rails-5-2-x-elasticsearch
     - ruby-2-5-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0
     - ruby-2-7-rails-5-2-x-graphql_version-1-9-0

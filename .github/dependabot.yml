@@ -24,6 +24,13 @@ updates:
   - dependencies
   - rails-5.2.x
 - package-ecosystem: bundler
+  directory: gemfiles/mongoid-6.x
+  schedule: *1
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - mongoid-6.x
+- package-ecosystem: bundler
   directory: gemfiles/rails-6.0.x
   schedule: *1
   open-pull-requests-limit: 10
