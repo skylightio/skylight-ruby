@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: '082222a4bc1efab0660f4c09e24cf1ba03103f3ecb9f3bceb8f1f9329b92b224'
+  CONFIG_DIGEST: '09e2b14a1b5ac96d0d1032824b6518259dcde88bdff6c1cf0770554c001380cf'
 'on':
   push:
     branches:
@@ -209,6 +209,9 @@ jobs:
   ruby-2-5-sidekiq-4-x-graphql-1-7-x:
     name: ruby 2.5, sidekiq-4.x-graphql-1.7.x
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sidekiq-4.x-graphql-1.7.x')
+      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     env:
       BUNDLE_GEMFILE: gemfiles/sidekiq-4.x-graphql-1.7.x/Gemfile
     steps:
@@ -366,6 +369,9 @@ jobs:
   ruby-3-0-rails-6-0-x:
     name: ruby 3.0, rails-6.0.x
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.0.x')
+      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-6.0.x/Gemfile
     steps:
@@ -417,6 +423,9 @@ jobs:
   ruby-3-0-rails-6-1-x:
     name: ruby 3.0, rails-6.1.x
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
+      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
@@ -680,6 +689,9 @@ jobs:
   ruby-3-0-sinatra-2-0-x:
     name: ruby 3.0, sinatra-2.0.x
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-2.0.x')
+      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     env:
       BUNDLE_GEMFILE: gemfiles/sinatra-2.0.x/Gemfile
     steps:
@@ -838,6 +850,9 @@ jobs:
   ruby-2-7-grape-1-x:
     name: ruby 2.7, grape-1.x
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.x')
+      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     env:
       BUNDLE_GEMFILE: gemfiles/grape-1.x/Gemfile
     steps:
@@ -1534,6 +1549,7 @@ jobs:
   lint:
     name: lint
     runs-on: ubuntu-latest
+    if: always()
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1560,10 +1576,10 @@ jobs:
       run: |
         bundle exec rubocop -v
         bundle exec rubocop
-    if: always()
   upload-coverage:
     name: upload-coverage
     runs-on: ubuntu-latest
+    if: always()
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1628,10 +1644,10 @@ jobs:
     - ruby-3-0-sequel-4-34-0
     - ruby-2-7-ams-0-8-x
     - ruby-2-7-ams-0-9-5
-    if: always()
   required-tests-passed:
     name: Required Tests Passed
     runs-on: ubuntu-latest
+    if: always()
     steps:
     - name: Mark tests failed
       run: 'false'
@@ -1662,4 +1678,3 @@ jobs:
     - ruby-3-0-sequel-4-34-0
     - ruby-2-7-ams-0-8-x
     - ruby-2-7-ams-0-9-5
-    if: always()

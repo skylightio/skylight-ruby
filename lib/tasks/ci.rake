@@ -305,18 +305,24 @@ module CITasks
 
         h["continue-on-error"] = true unless required?
 
-        unless always_run?
-          conditions = [
-            "github.ref == 'refs/heads/master'",
-            "contains(github.event.pull_request.labels.*.name, 'full-ci')"
-          ]
+        gemfile_label = config.fetch(:gemfile, "default-Gemfile")
 
-          if (gemfile = config[:gemfile])
-            conditions << "contains(github.event.pull_request.labels.*.name, '#{gemfile}')"
-          end
+        conditions = [
+          # On master
+          "github.ref == 'refs/heads/master'",
+          # Labeled with 'full-ci'
+          "contains(github.event.pull_request.labels.*.name, 'full-ci')",
+          # Labeled for dependency updates
+          "contains(github.event.pull_request.labels.*.name, '#{gemfile_label}')",
+        ]
 
-          h[:if] = conditions.join(" || ")
+        # Always run unless we're labeled with dependencies
+        if always_run?
+          conditions << "!contains(github.event.pull_request.labels.*.name, 'dependencies')"
         end
+
+        h[:if] = conditions.join(" || ")
+
         h[:services] = config[:services] if config[:services]
         h[:env] = env if env
         h[:steps] = steps
@@ -730,6 +736,7 @@ module CITasks
           "interval" => "weekly",
           "time" => "13:00"
         },
+        "labels" => ["dependencies", "default-Gemfile"],
         "open-pull-requests-limit" => 10
       }
 

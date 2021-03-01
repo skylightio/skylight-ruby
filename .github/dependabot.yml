@@ -9,6 +9,9 @@ updates:
   schedule: &1
     interval: weekly
     time: '13:00'
+  labels:
+  - dependencies
+  - default-Gemfile
   open-pull-requests-limit: 10
 - package-ecosystem: github-actions
   directory: "/"
@@ -19,154 +22,154 @@ updates:
 - package-ecosystem: bundler
   directory: gemfiles/rails-5.2.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - rails-5.2.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/mongoid-6.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - mongoid-6.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/sidekiq-4.x-graphql-1.7.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - sidekiq-4.x-graphql-1.7.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/graphql-1.9.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - graphql-1.9.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/graphql-1.8.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - graphql-1.8.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/rails-6.0.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - rails-6.0.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/rails-6.1.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - rails-6.1.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/rails-edge
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - rails-edge
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/sinatra-1.4.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - sinatra-1.4.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/sinatra-2.0.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - sinatra-2.0.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/sinatra-edge
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - sinatra-edge
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/grape-1.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - grape-1.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/grape-0.13.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - grape-0.13.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/grape-1.1.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - grape-1.1.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/grape-1.2.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - grape-1.2.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/grape-1.3.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - grape-1.3.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/grape-edge
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - grape-edge
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/tilt-1.4.1
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - tilt-1.4.1
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/sequel-4.34.0
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - sequel-4.34.0
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/ams-0.8.x
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - ams-0.8.x
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/ams-0.9.5
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - ams-0.9.5
+  open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/ams-edge
   schedule: *1
-  open-pull-requests-limit: 10
   labels:
   - dependencies
   - ams-edge
+  open-pull-requests-limit: 10
