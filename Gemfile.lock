@@ -124,7 +124,7 @@ GEM
       jsonapi-serializable (~> 0.3.0)
     graphiti_errors (1.1.2)
       jsonapi-serializable (~> 0.1)
-    graphql (1.11.6)
+    graphql (1.11.8)
     hashdiff (1.0.1)
     httpclient (2.8.3)
     i18n (1.8.5)
