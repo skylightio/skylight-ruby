@@ -173,7 +173,7 @@ module CITasks
 
     {
       ruby_version: "2.7",
-      gemfile: "ams-0.9.5"
+      gemfile: "ams-0.9.x"
     },
 
     {

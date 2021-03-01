@@ -200,13 +200,13 @@ updates:
   - ams-0.8.x
   open-pull-requests-limit: 10
 - package-ecosystem: bundler
-  directory: gemfiles/ams-0.9.5
+  directory: gemfiles/ams-0.9.x
   schedule:
     interval: weekly
     time: '13:00'
   labels:
   - dependencies
-  - ams-0.9.5
+  - ams-0.9.x
   open-pull-requests-limit: 10
 - package-ecosystem: bundler
   directory: gemfiles/ams-edge

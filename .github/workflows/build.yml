@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 1c0a2c97cf481d15d1d4ee7ccbe713679cf68c0e63839d27ea16365d4f4cc0db
+  CONFIG_DIGEST: 5e0b12a8698e502c0f67ff25d210219bc35b926b93c35e0cf05b358480966eb0
 'on':
   push:
     branches:
@@ -1373,13 +1373,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-ams-0-9-5:
-    name: ruby 2.7, ams-0.9.5
+  ruby-2-7-ams-0-9-x:
+    name: ruby 2.7, ams-0.9.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.9.5')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.9.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/ams-0.9.5/Gemfile
+      BUNDLE_GEMFILE: gemfiles/ams-0.9.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1395,10 +1395,10 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-ams-0.9.5-${{ hashFiles('gemfiles/ams-0.9.5/Gemfile.lock')
+        key: "${{ runner.os }}-gems-2.7-ams-0.9.x-${{ hashFiles('gemfiles/ams-0.9.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.7-ams-0.9.5-
+          ${{ runner.os }}-gems-2.7-ams-0.9.x-
           ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
@@ -1690,7 +1690,7 @@ jobs:
     - ruby-2-7-tilt-1-4-1
     - ruby-3-0-sequel-4-34-0
     - ruby-2-7-ams-0-8-x
-    - ruby-2-7-ams-0-9-5
+    - ruby-2-7-ams-0-9-x
   required-tests-passed:
     name: Required Tests Passed
     runs-on: ubuntu-latest
@@ -1725,4 +1725,4 @@ jobs:
     - ruby-2-7-tilt-1-4-1
     - ruby-3-0-sequel-4-34-0
     - ruby-2-7-ams-0-8-x
-    - ruby-2-7-ams-0-9-5
+    - ruby-2-7-ams-0-9-x
