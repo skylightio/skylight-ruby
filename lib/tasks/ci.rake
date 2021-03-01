@@ -767,7 +767,8 @@ module CITasks
 
       config["updates"].concat(gemfile_configs)
 
-      config.to_yaml
+      # HACK: Converting to json prevents YAML aliases which Github doesn't like
+      YAML.safe_load(config.to_json).to_yaml
     end
   end
 end
