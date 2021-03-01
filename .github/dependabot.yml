@@ -1,14 +1,50 @@
+# WARNING: this file is written by a script. To make changes,
+# alter the config in lib/tasks/ci.rake and
+# run `bundle exec rake dependabot`.
+---
 version: 2
 updates:
 - package-ecosystem: bundler
   directory: "/"
-  schedule:
+  schedule: &1
     interval: weekly
-    time: "13:00"
+    time: '13:00'
   open-pull-requests-limit: 10
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
     interval: weekly
-    time: "13:00"
+    time: '13:00'
+  open-pull-requests-limit: 10
+- package-ecosystem: bundler
+  directory: gemfiles/rails-5.2.x
+  schedule: *1
+  open-pull-requests-limit: 10
+- package-ecosystem: bundler
+  directory: gemfiles/rails-6.0.x
+  schedule: *1
+  open-pull-requests-limit: 10
+- package-ecosystem: bundler
+  directory: gemfiles/rails-6.1.x
+  schedule: *1
+  open-pull-requests-limit: 10
+- package-ecosystem: bundler
+  directory: gemfiles/rails-edge
+  schedule: *1
+  open-pull-requests-limit: 10
+- package-ecosystem: bundler
+  directory: gemfiles/sinatra-1.4.x
+  schedule: *1
+  open-pull-requests-limit: 10
+- package-ecosystem: bundler
+  directory: gemfiles/sinatra-2.0.x
+  schedule: *1
+  open-pull-requests-limit: 10
+- package-ecosystem: bundler
+  directory: gemfiles/sinatra-edge
+  schedule: *1
+  open-pull-requests-limit: 10
+- package-ecosystem: bundler
+  directory: gemfiles/grape
+  schedule: *1
   open-pull-requests-limit: 10

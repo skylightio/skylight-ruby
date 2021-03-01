@@ -1,5 +1,5 @@
 # WARNING: this file is written by a script. To make changes,
-# alter the config in lib/tasks/workflow.rake and 
+# alter the config in lib/tasks/ci.rake and
 # run `bundle exec rake workflow`.
 ---
 name: Skylight Agent
@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 6b320f848c87a96c6c222e9aa341fbe320380ca841d6558353c8b78f02ff7f6b
+  CONFIG_DIGEST: 9000e017202a8adce0e8552047f0cd7b425df6cbec772b10931ed9fe61c0a95a
 'on':
   push:
     branches:
@@ -37,7 +37,7 @@ jobs:
         ports:
         - 27017:27017
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       TEST_MONGO_INTEGRATION: 'true'
       MONGO_HOST: localhost
     steps:
@@ -94,7 +94,7 @@ jobs:
         ports:
         - 27017:27017
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       TEST_MONGO_INTEGRATION: 'true'
       MONGO_HOST: localhost
       MONGOID_VERSION: "~> 6.0"
@@ -154,7 +154,7 @@ jobs:
         - 9300:9300
         options: -e "discovery.type=single-node"
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -202,7 +202,7 @@ jobs:
     name: ruby 2.5, rails-5.2.x, SIDEKIQ_VERSION=~> 4 GRAPHQL_VERSION=~> 1.7.0
     runs-on: ubuntu-latest
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       SIDEKIQ_VERSION: "~> 4"
       GRAPHQL_VERSION: "~> 1.7.0"
     steps:
@@ -254,7 +254,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       GRAPHQL_VERSION: "~> 1.9.0"
     steps:
     - name: Checkout
@@ -305,7 +305,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       GRAPHQL_VERSION: "~> 1.8.0"
     steps:
     - name: Checkout
@@ -354,7 +354,7 @@ jobs:
     name: ruby 3.0, rails-6.0.x
     runs-on: ubuntu-latest
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-6.0.x
+      BUNDLE_GEMFILE: gemfiles/rails-6.0.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -402,7 +402,7 @@ jobs:
     name: ruby 3.0, rails-6.1.x
     runs-on: ubuntu-latest
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-6.1.x
+      BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
     - uses: technote-space/auto-cancel-redundant-job@v1
     - name: Checkout
@@ -452,7 +452,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-edge
+      BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
       AMS_VERSION: edge
     steps:
     - name: Checkout
@@ -503,7 +503,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-1.4.x
+      BUNDLE_GEMFILE: gemfiles/sinatra-1.4.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -553,7 +553,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-1.4.x
+      BUNDLE_GEMFILE: gemfiles/sinatra-1.4.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -603,7 +603,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-2.0.x
+      BUNDLE_GEMFILE: gemfiles/sinatra-2.0.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -651,7 +651,7 @@ jobs:
     name: ruby 3.0, sinatra-2.0.x
     runs-on: ubuntu-latest
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-2.0.x
+      BUNDLE_GEMFILE: gemfiles/sinatra-2.0.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -702,7 +702,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-edge
+      BUNDLE_GEMFILE: gemfiles/sinatra-edge/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -752,7 +752,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+      BUNDLE_GEMFILE: gemfiles/grape/Gemfile
       RACK_VERSION: "~> 2.0.8"
     steps:
     - name: Checkout
@@ -801,7 +801,7 @@ jobs:
     name: ruby 2.7, grape
     runs-on: ubuntu-latest
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+      BUNDLE_GEMFILE: gemfiles/grape/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -851,7 +851,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+      BUNDLE_GEMFILE: gemfiles/grape/Gemfile
       GRAPE_VERSION: "~> 0.13.0"
       RACK_VERSION: "~> 2.0.8"
     steps:
@@ -903,7 +903,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+      BUNDLE_GEMFILE: gemfiles/grape/Gemfile
       GRAPE_VERSION: "~> 1.1.0"
       RACK_VERSION: "~> 2.0.8"
     steps:
@@ -955,7 +955,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+      BUNDLE_GEMFILE: gemfiles/grape/Gemfile
       GRAPE_VERSION: "~> 1.2.0"
       RACK_VERSION: "~> 2.0.8"
     steps:
@@ -1007,7 +1007,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+      BUNDLE_GEMFILE: gemfiles/grape/Gemfile
       GRAPE_VERSION: "~> 1.3.0"
     steps:
     - name: Checkout
@@ -1059,7 +1059,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
+      BUNDLE_GEMFILE: gemfiles/grape/Gemfile
       GRAPE_VERSION: edge
     steps:
     - name: Checkout
@@ -1110,7 +1110,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       TILT_VERSION: 1.4.1
     steps:
     - name: Checkout
@@ -1161,7 +1161,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-1.4.x
+      BUNDLE_GEMFILE: gemfiles/sinatra-1.4.x/Gemfile
       SEQUEL_VERSION: 4.34.0
     steps:
     - name: Checkout
@@ -1212,7 +1212,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       AMS_VERSION: "~> 0.8.3"
       SIDEKIQ_VERSION: none
     steps:
@@ -1264,7 +1264,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       AMS_VERSION: "~> 0.9.5"
     steps:
     - name: Checkout
@@ -1316,7 +1316,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       AMS_VERSION: edge
     steps:
     - name: Checkout
@@ -1368,7 +1368,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-6.1.x
+      BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1421,7 +1421,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-edge
+      BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
