@@ -414,8 +414,9 @@ module CITasks
             uses: "actions/cache@v2.1.4",
             with: {
               path: "${{ github.workspace }}/vendor/bundle",
-              key: "${{ runner.os }}-gems-#{ruby_version}-#{gemfile}",
-              "restore-keys" => "${{ runner.os }}-gems-#{ruby_version}-"
+              key: "${{ runner.os }}-gems-#{ruby_version}-#{gemfile}-${{ hashFiles('#{gemfile_path}.lock') }}",
+              "restore-keys" => "${{ runner.os }}-gems-#{ruby_version}-#{gemfile}-\n" \
+                                "${{ runner.os }}-gems-#{ruby_version}-"
             }
           }
         end
