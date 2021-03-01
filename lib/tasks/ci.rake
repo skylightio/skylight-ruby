@@ -39,6 +39,7 @@ module CITasks
       }
     },
 
+    # TODO: This doesn't set any ENV vars. Does it actually test anything different?
     {
       name: "elasticsearch",
       ruby_version: "2.7",
@@ -55,23 +56,17 @@ module CITasks
     {
       always_run: true,
       ruby_version: OLDEST_RUBY,
-      gemfile: "rails-5.2.x",
-      env: {
-        SIDEKIQ_VERSION: "~> 4",
-        GRAPHQL_VERSION: "~> 1.7.0"
-      }
+      gemfile: "sidekiq-4.x-graphql-1.7.x"
     },
 
     {
       ruby_version: "2.7",
-      gemfile: "rails-5.2.x",
-      env: { GRAPHQL_VERSION: "~> 1.9.0" }
+      gemfile: "graphql-1.9.x"
     },
 
     {
       ruby_version: "2.7",
-      gemfile: "rails-5.2.x",
-      env: { GRAPHQL_VERSION: "~> 1.8.0" }
+      gemfile: "graphql-1.8.x"
     },
 
     {

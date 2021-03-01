@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: f1d4c340fc8428a9ed1298a6cd3c6daebbaf146f9443db838e4cd505ddd55d76
+  CONFIG_DIGEST: '09128c59556622aa8fb21187eb3521b10bb2e225eb29a3a7f0a3f8829fe57d48'
 'on':
   push:
     branches:
@@ -197,13 +197,11 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-5-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0:
-    name: ruby 2.5, rails-5.2.x, SIDEKIQ_VERSION=~> 4 GRAPHQL_VERSION=~> 1.7.0
+  ruby-2-5-sidekiq-4-x-graphql-1-7-x:
+    name: ruby 2.5, sidekiq-4.x-graphql-1.7.x
     runs-on: ubuntu-latest
     env:
-      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
-      SIDEKIQ_VERSION: "~> 4"
-      GRAPHQL_VERSION: "~> 1.7.0"
+      BUNDLE_GEMFILE: gemfiles/sidekiq-4.x-graphql-1.7.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -219,7 +217,7 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.5-rails-5.2.x"
+        key: "${{ runner.os }}-gems-2.5-sidekiq-4.x-graphql-1.7.x"
         restore-keys: "${{ runner.os }}-gems-2.5-"
     - name: bundle install
       run: |
@@ -247,14 +245,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-graphql_version-1-9-0:
-    name: ruby 2.7, rails-5.2.x, GRAPHQL_VERSION=~> 1.9.0
+  ruby-2-7-graphql-1-9-x:
+    name: ruby 2.7, graphql-1.9.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'graphql-1.9.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
-      GRAPHQL_VERSION: "~> 1.9.0"
+      BUNDLE_GEMFILE: gemfiles/graphql-1.9.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -270,7 +267,7 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        key: "${{ runner.os }}-gems-2.7-graphql-1.9.x"
         restore-keys: "${{ runner.os }}-gems-2.7-"
     - name: bundle install
       run: |
@@ -298,14 +295,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-graphql_version-1-8-0:
-    name: ruby 2.7, rails-5.2.x, GRAPHQL_VERSION=~> 1.8.0
+  ruby-2-7-graphql-1-8-x:
+    name: ruby 2.7, graphql-1.8.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'graphql-1.8.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
-      GRAPHQL_VERSION: "~> 1.8.0"
+      BUNDLE_GEMFILE: gemfiles/graphql-1.8.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -321,7 +317,7 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        key: "${{ runner.os }}-gems-2.7-graphql-1.8.x"
         restore-keys: "${{ runner.os }}-gems-2.7-"
     - name: bundle install
       run: |
@@ -1527,9 +1523,9 @@ jobs:
     - ruby-2-7-rails-5-2-x-mongo
     - ruby-2-7-mongoid-6-x-mongoid-6
     - ruby-2-7-rails-5-2-x-elasticsearch
-    - ruby-2-5-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0
-    - ruby-2-7-rails-5-2-x-graphql_version-1-9-0
-    - ruby-2-7-rails-5-2-x-graphql_version-1-8-0
+    - ruby-2-5-sidekiq-4-x-graphql-1-7-x
+    - ruby-2-7-graphql-1-9-x
+    - ruby-2-7-graphql-1-8-x
     - ruby-3-0-rails-6-0-x
     - ruby-3-0-rails-6-1-x
     - ruby-2-5-sinatra-1-4-x
@@ -1561,9 +1557,9 @@ jobs:
     - ruby-2-7-rails-5-2-x-mongo
     - ruby-2-7-mongoid-6-x-mongoid-6
     - ruby-2-7-rails-5-2-x-elasticsearch
-    - ruby-2-5-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0
-    - ruby-2-7-rails-5-2-x-graphql_version-1-9-0
-    - ruby-2-7-rails-5-2-x-graphql_version-1-8-0
+    - ruby-2-5-sidekiq-4-x-graphql-1-7-x
+    - ruby-2-7-graphql-1-9-x
+    - ruby-2-7-graphql-1-8-x
     - ruby-3-0-rails-6-0-x
     - ruby-3-0-rails-6-1-x
     - ruby-2-5-sinatra-1-4-x
