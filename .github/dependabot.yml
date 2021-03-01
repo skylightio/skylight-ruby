@@ -121,3 +121,24 @@ updates:
   labels:
   - dependencies
   - sequel-4.34.0
+- package-ecosystem: bundler
+  directory: gemfiles/ams-0.8.x
+  schedule: *1
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - ams-0.8.x
+- package-ecosystem: bundler
+  directory: gemfiles/ams-0.9.5
+  schedule: *1
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - ams-0.9.5
+- package-ecosystem: bundler
+  directory: gemfiles/ams-edge
+  schedule: *1
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - ams-edge

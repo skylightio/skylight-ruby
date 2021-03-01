@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 646d5900bb593936e61f0e7da9d58fbff6d870405e7eb78d20f78076a129ea7b
+  CONFIG_DIGEST: c1b90013045fbbe57c70152ae863c432a5d7987852d97e2c8bdb79738ed03b38
 'on':
   push:
     branches:
@@ -1195,15 +1195,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-ams_version-0-8-3-sidekiq_version-none:
-    name: ruby 2.7, rails-5.2.x, AMS_VERSION=~> 0.8.3 SIDEKIQ_VERSION=none
+  ruby-2-7-ams-0-8-x:
+    name: ruby 2.7, ams-0.8.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.8.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
-      AMS_VERSION: "~> 0.8.3"
-      SIDEKIQ_VERSION: none
+      BUNDLE_GEMFILE: gemfiles/ams-0.8.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1219,7 +1217,7 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        key: "${{ runner.os }}-gems-2.7-ams-0.8.x"
         restore-keys: "${{ runner.os }}-gems-2.7-"
     - name: bundle install
       run: |
@@ -1247,14 +1245,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-ams_version-0-9-5:
-    name: ruby 2.7, rails-5.2.x, AMS_VERSION=~> 0.9.5
+  ruby-2-7-ams-0-9-5:
+    name: ruby 2.7, ams-0.9.5
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.9.5')
     env:
-      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
-      AMS_VERSION: "~> 0.9.5"
+      BUNDLE_GEMFILE: gemfiles/ams-0.9.5/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1270,7 +1267,7 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        key: "${{ runner.os }}-gems-2.7-ams-0.9.5"
         restore-keys: "${{ runner.os }}-gems-2.7-"
     - name: bundle install
       run: |
@@ -1298,14 +1295,14 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-ams_version-edge:
-    name: "[allowed to fail] ruby 2.7, rails-5.2.x, AMS_VERSION=edge"
+  ruby-2-7-ams-edge-ams_version-edge:
+    name: "[allowed to fail] ruby 2.7, ams-edge, AMS_VERSION=edge"
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-edge')
     env:
-      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
+      BUNDLE_GEMFILE: gemfiles/ams-edge/Gemfile
       AMS_VERSION: edge
     steps:
     - name: Checkout
@@ -1322,7 +1319,7 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
+        key: "${{ runner.os }}-gems-2.7-ams-edge"
         restore-keys: "${{ runner.os }}-gems-2.7-"
     - name: bundle install
       run: |
@@ -1548,8 +1545,8 @@ jobs:
     - ruby-2-7-grape-1-3-x
     - ruby-2-7-tilt-1-4-1
     - ruby-3-0-sequel-4-34-0
-    - ruby-2-7-rails-5-2-x-ams_version-0-8-3-sidekiq_version-none
-    - ruby-2-7-rails-5-2-x-ams_version-0-9-5
+    - ruby-2-7-ams-0-8-x
+    - ruby-2-7-ams-0-9-5
     if: always()
   required-tests-passed:
     name: Required Tests Passed
@@ -1582,6 +1579,6 @@ jobs:
     - ruby-2-7-grape-1-3-x
     - ruby-2-7-tilt-1-4-1
     - ruby-3-0-sequel-4-34-0
-    - ruby-2-7-rails-5-2-x-ams_version-0-8-3-sidekiq_version-none
-    - ruby-2-7-rails-5-2-x-ams_version-0-9-5
+    - ruby-2-7-ams-0-8-x
+    - ruby-2-7-ams-0-9-5
     if: always()

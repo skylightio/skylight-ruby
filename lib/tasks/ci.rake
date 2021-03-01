@@ -170,23 +170,19 @@ module CITasks
 
     {
       ruby_version: "2.7",
-      gemfile: "rails-5.2.x",
-      env: {
-        AMS_VERSION: "~> 0.8.3",
-        SIDEKIQ_VERSION: "none"
-      }
+      gemfile: "ams-0.8.x"
     },
 
     {
       ruby_version: "2.7",
-      gemfile: "rails-5.2.x",
-      env: { AMS_VERSION: "~> 0.9.5" }
+      gemfile: "ams-0.9.5"
     },
 
     {
       ruby_version: "2.7",
       allow_failure: true,
-      gemfile: "rails-5.2.x",
+      gemfile: "ams-edge",
+      # We need to keep this since we actually check it in the specs
       env: { AMS_VERSION: "edge" }
     },
 
