@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: '09128c59556622aa8fb21187eb3521b10bb2e225eb29a3a7f0a3f8829fe57d48'
+  CONFIG_DIGEST: bc68721f63e19d383ced16f92e64832ce8667d23e2fc29181aff1ca1b62b860c
 'on':
   push:
     branches:
@@ -440,15 +440,14 @@ jobs:
       with:
         name: coverage
         path: coverage-sync
-  ruby-3-0-rails-edge-ams_version-edge:
-    name: "[allowed to fail] ruby 3.0, rails-edge, AMS_VERSION=edge"
+  ruby-3-0-rails-edge:
+    name: "[allowed to fail] ruby 3.0, rails-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
-      AMS_VERSION: edge
     steps:
     - name: Checkout
       uses: actions/checkout@v2

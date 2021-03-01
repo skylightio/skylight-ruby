@@ -84,8 +84,7 @@ module CITasks
     {
       ruby_version: NEWEST_RUBY,
       allow_failure: true,
-      gemfile: "rails-edge",
-      env: { AMS_VERSION: "edge" }
+      gemfile: "rails-edge"
     },
 
     {
