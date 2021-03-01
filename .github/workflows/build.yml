@@ -1,5 +1,5 @@
 # WARNING: this file is written by a script. To make changes,
-# alter the config in lib/tasks/workflow.rake and 
+# alter the config in lib/tasks/ci.rake and
 # run `bundle exec rake workflow`.
 ---
 name: Skylight Agent
@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 6b320f848c87a96c6c222e9aa341fbe320380ca841d6558353c8b78f02ff7f6b
+  CONFIG_DIGEST: '09e2b14a1b5ac96d0d1032824b6518259dcde88bdff6c1cf0770554c001380cf'
 'on':
   push:
     branches:
@@ -30,14 +30,14 @@ jobs:
     name: ruby 2.7, rails-5.2.x, mongo
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
     services:
       mongo:
         image: mongo:4.0
         ports:
         - 27017:27017
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
       TEST_MONGO_INTEGRATION: 'true'
       MONGO_HOST: localhost
     steps:
@@ -55,8 +55,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
+        key: "${{ runner.os }}-gems-2.7-rails-5.2.x-${{ hashFiles('gemfiles/rails-5.2.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-rails-5.2.x-
+          ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
         gem install bundler
@@ -83,21 +86,20 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-mongoid-6-mongoid_version-6-0:
-    name: ruby 2.7, rails-5.2.x, mongoid-6, MONGOID_VERSION=~> 6.0
+  ruby-2-7-mongoid-6-x-mongoid-6:
+    name: ruby 2.7, mongoid-6.x, mongoid-6
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'mongoid-6.x')
     services:
       mongo:
         image: mongo:4.0
         ports:
         - 27017:27017
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/mongoid-6.x/Gemfile
       TEST_MONGO_INTEGRATION: 'true'
       MONGO_HOST: localhost
-      MONGOID_VERSION: "~> 6.0"
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -113,8 +115,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
+        key: "${{ runner.os }}-gems-2.7-mongoid-6.x-${{ hashFiles('gemfiles/mongoid-6.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-mongoid-6.x-
+          ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
         gem install bundler
@@ -145,7 +150,7 @@ jobs:
     name: ruby 2.7, rails-5.2.x, elasticsearch
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
     services:
       elasticsearch:
         image: elasticsearch:6.8.6
@@ -154,7 +159,7 @@ jobs:
         - 9300:9300
         options: -e "discovery.type=single-node"
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -170,8 +175,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
+        key: "${{ runner.os }}-gems-2.7-rails-5.2.x-${{ hashFiles('gemfiles/rails-5.2.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-rails-5.2.x-
+          ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
         gem install bundler
@@ -198,13 +206,14 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-5-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0:
-    name: ruby 2.5, rails-5.2.x, SIDEKIQ_VERSION=~> 4 GRAPHQL_VERSION=~> 1.7.0
+  ruby-2-5-sidekiq-4-x-graphql-1-7-x:
+    name: ruby 2.5, sidekiq-4.x-graphql-1.7.x
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sidekiq-4.x-graphql-1.7.x')
+      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
-      SIDEKIQ_VERSION: "~> 4"
-      GRAPHQL_VERSION: "~> 1.7.0"
+      BUNDLE_GEMFILE: gemfiles/sidekiq-4.x-graphql-1.7.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -220,8 +229,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.5-rails-5.2.x"
-        restore-keys: "${{ runner.os }}-gems-2.5-"
+        key: "${{ runner.os }}-gems-2.5-sidekiq-4.x-graphql-1.7.x-${{ hashFiles('gemfiles/sidekiq-4.x-graphql-1.7.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.5-sidekiq-4.x-graphql-1.7.x-
+          ${{ runner.os }}-gems-2.5-
     - name: bundle install
       run: |
         gem install bundler
@@ -248,14 +260,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-graphql_version-1-9-0:
-    name: ruby 2.7, rails-5.2.x, GRAPHQL_VERSION=~> 1.9.0
+  ruby-2-7-graphql-1-9-x:
+    name: ruby 2.7, graphql-1.9.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'graphql-1.9.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
-      GRAPHQL_VERSION: "~> 1.9.0"
+      BUNDLE_GEMFILE: gemfiles/graphql-1.9.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -271,8 +282,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
+        key: "${{ runner.os }}-gems-2.7-graphql-1.9.x-${{ hashFiles('gemfiles/graphql-1.9.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-graphql-1.9.x-
+          ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
         gem install bundler
@@ -299,14 +313,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-graphql_version-1-8-0:
-    name: ruby 2.7, rails-5.2.x, GRAPHQL_VERSION=~> 1.8.0
+  ruby-2-7-graphql-1-8-x:
+    name: ruby 2.7, graphql-1.8.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'graphql-1.8.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
-      GRAPHQL_VERSION: "~> 1.8.0"
+      BUNDLE_GEMFILE: gemfiles/graphql-1.8.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -322,8 +335,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
+        key: "${{ runner.os }}-gems-2.7-graphql-1.8.x-${{ hashFiles('gemfiles/graphql-1.8.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-graphql-1.8.x-
+          ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
         gem install bundler
@@ -353,8 +369,11 @@ jobs:
   ruby-3-0-rails-6-0-x:
     name: ruby 3.0, rails-6.0.x
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.0.x')
+      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-6.0.x
+      BUNDLE_GEMFILE: gemfiles/rails-6.0.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -370,8 +389,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.0-rails-6.0.x"
-        restore-keys: "${{ runner.os }}-gems-3.0-"
+        key: "${{ runner.os }}-gems-3.0-rails-6.0.x-${{ hashFiles('gemfiles/rails-6.0.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.0-rails-6.0.x-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
       run: |
         gem install bundler
@@ -401,8 +423,11 @@ jobs:
   ruby-3-0-rails-6-1-x:
     name: ruby 3.0, rails-6.1.x
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
+      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-6.1.x
+      BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
     - uses: technote-space/auto-cancel-redundant-job@v1
     - name: Checkout
@@ -419,8 +444,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.0-rails-6.1.x"
-        restore-keys: "${{ runner.os }}-gems-3.0-"
+        key: "${{ runner.os }}-gems-3.0-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.0-rails-6.1.x-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
       run: |
         gem install bundler
@@ -445,15 +473,14 @@ jobs:
       with:
         name: coverage
         path: coverage-sync
-  ruby-3-0-rails-edge-ams_version-edge:
-    name: "[allowed to fail] ruby 3.0, rails-edge, AMS_VERSION=edge"
+  ruby-3-0-rails-edge:
+    name: "[allowed to fail] ruby 3.0, rails-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-edge
-      AMS_VERSION: edge
+      BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -469,8 +496,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.0-rails-edge"
-        restore-keys: "${{ runner.os }}-gems-3.0-"
+        key: "${{ runner.os }}-gems-3.0-rails-edge-${{ hashFiles('gemfiles/rails-edge/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.0-rails-edge-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
       run: |
         gem install bundler
@@ -501,9 +531,9 @@ jobs:
     name: ruby 2.5, sinatra-1.4.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-1.4.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-1.4.x
+      BUNDLE_GEMFILE: gemfiles/sinatra-1.4.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -519,8 +549,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.5-sinatra-1.4.x"
-        restore-keys: "${{ runner.os }}-gems-2.5-"
+        key: "${{ runner.os }}-gems-2.5-sinatra-1.4.x-${{ hashFiles('gemfiles/sinatra-1.4.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.5-sinatra-1.4.x-
+          ${{ runner.os }}-gems-2.5-
     - name: bundle install
       run: |
         gem install bundler
@@ -551,9 +584,9 @@ jobs:
     name: ruby 3.0, sinatra-1.4.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-1.4.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-1.4.x
+      BUNDLE_GEMFILE: gemfiles/sinatra-1.4.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -569,8 +602,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.0-sinatra-1.4.x"
-        restore-keys: "${{ runner.os }}-gems-3.0-"
+        key: "${{ runner.os }}-gems-3.0-sinatra-1.4.x-${{ hashFiles('gemfiles/sinatra-1.4.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.0-sinatra-1.4.x-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
       run: |
         gem install bundler
@@ -601,9 +637,9 @@ jobs:
     name: ruby 2.5, sinatra-2.0.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-2.0.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-2.0.x
+      BUNDLE_GEMFILE: gemfiles/sinatra-2.0.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -619,8 +655,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.5-sinatra-2.0.x"
-        restore-keys: "${{ runner.os }}-gems-2.5-"
+        key: "${{ runner.os }}-gems-2.5-sinatra-2.0.x-${{ hashFiles('gemfiles/sinatra-2.0.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.5-sinatra-2.0.x-
+          ${{ runner.os }}-gems-2.5-
     - name: bundle install
       run: |
         gem install bundler
@@ -650,8 +689,11 @@ jobs:
   ruby-3-0-sinatra-2-0-x:
     name: ruby 3.0, sinatra-2.0.x
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-2.0.x')
+      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-2.0.x
+      BUNDLE_GEMFILE: gemfiles/sinatra-2.0.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -667,8 +709,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.0-sinatra-2.0.x"
-        restore-keys: "${{ runner.os }}-gems-3.0-"
+        key: "${{ runner.os }}-gems-3.0-sinatra-2.0.x-${{ hashFiles('gemfiles/sinatra-2.0.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.0-sinatra-2.0.x-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
       run: |
         gem install bundler
@@ -700,9 +745,9 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-edge')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-edge
+      BUNDLE_GEMFILE: gemfiles/sinatra-edge/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -718,8 +763,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.0-sinatra-edge"
-        restore-keys: "${{ runner.os }}-gems-3.0-"
+        key: "${{ runner.os }}-gems-3.0-sinatra-edge-${{ hashFiles('gemfiles/sinatra-edge/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.0-sinatra-edge-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
       run: |
         gem install bundler
@@ -746,14 +794,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-5-grape-rack_version-2-0-8:
-    name: ruby 2.5, grape, RACK_VERSION=~> 2.0.8
+  ruby-2-5-grape-1-x:
+    name: ruby 2.5, grape-1.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
-      RACK_VERSION: "~> 2.0.8"
+      BUNDLE_GEMFILE: gemfiles/grape-1.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -769,8 +816,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.5-grape"
-        restore-keys: "${{ runner.os }}-gems-2.5-"
+        key: "${{ runner.os }}-gems-2.5-grape-1.x-${{ hashFiles('gemfiles/grape-1.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.5-grape-1.x-
+          ${{ runner.os }}-gems-2.5-
     - name: bundle install
       run: |
         gem install bundler
@@ -797,63 +847,14 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-grape:
-    name: ruby 2.7, grape
-    runs-on: ubuntu-latest
-    env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '2.7'
-    - name: Install APT dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
-      uses: actions/cache@v2.1.4
-      with:
-        path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-grape"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
-    - name: bundle install
-      run: |
-        gem install bundler
-        bundle install
-    - name: Run tests
-      run: |
-        bundle exec rake workflow:verify[$CONFIG_DIGEST]
-        bundle exec rake
-    - name: Run tests (agent disabled)
-      env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-        SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
-    needs:
-    - ruby-3-0-rails-6-1-x
-  ruby-2-7-grape-grape_version-0-13-0-rack_version-2-0-8:
-    name: ruby 2.7, grape, GRAPE_VERSION=~> 0.13.0 RACK_VERSION=~> 2.0.8
+  ruby-2-7-grape-1-x:
+    name: ruby 2.7, grape-1.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.x')
+      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
-      GRAPE_VERSION: "~> 0.13.0"
-      RACK_VERSION: "~> 2.0.8"
+      BUNDLE_GEMFILE: gemfiles/grape-1.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -869,8 +870,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-grape"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
+        key: "${{ runner.os }}-gems-2.7-grape-1.x-${{ hashFiles('gemfiles/grape-1.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-grape-1.x-
+          ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
         gem install bundler
@@ -897,15 +901,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-grape-grape_version-1-1-0-rack_version-2-0-8:
-    name: ruby 2.7, grape, GRAPE_VERSION=~> 1.1.0 RACK_VERSION=~> 2.0.8
+  ruby-2-7-grape-0-13-x:
+    name: ruby 2.7, grape-0.13.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-0.13.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
-      GRAPE_VERSION: "~> 1.1.0"
-      RACK_VERSION: "~> 2.0.8"
+      BUNDLE_GEMFILE: gemfiles/grape-0.13.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -921,8 +923,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-grape"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
+        key: "${{ runner.os }}-gems-2.7-grape-0.13.x-${{ hashFiles('gemfiles/grape-0.13.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-grape-0.13.x-
+          ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
         gem install bundler
@@ -949,15 +954,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-grape-grape_version-1-2-0-rack_version-2-0-8:
-    name: ruby 2.7, grape, GRAPE_VERSION=~> 1.2.0 RACK_VERSION=~> 2.0.8
+  ruby-2-7-grape-1-1-x:
+    name: ruby 2.7, grape-1.1.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.1.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
-      GRAPE_VERSION: "~> 1.2.0"
-      RACK_VERSION: "~> 2.0.8"
+      BUNDLE_GEMFILE: gemfiles/grape-1.1.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -973,8 +976,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-grape"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
+        key: "${{ runner.os }}-gems-2.7-grape-1.1.x-${{ hashFiles('gemfiles/grape-1.1.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-grape-1.1.x-
+          ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
         gem install bundler
@@ -1001,14 +1007,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-grape-grape_version-1-3-0:
-    name: ruby 2.7, grape, GRAPE_VERSION=~> 1.3.0
+  ruby-2-7-grape-1-2-x:
+    name: ruby 2.7, grape-1.2.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.2.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
-      GRAPE_VERSION: "~> 1.3.0"
+      BUNDLE_GEMFILE: gemfiles/grape-1.2.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1024,8 +1029,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-grape"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
+        key: "${{ runner.os }}-gems-2.7-grape-1.2.x-${{ hashFiles('gemfiles/grape-1.2.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-grape-1.2.x-
+          ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
         gem install bundler
@@ -1052,15 +1060,67 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-3-0-grape-grape_version-edge:
-    name: "[allowed to fail] ruby 3.0, grape, GRAPE_VERSION=edge"
+  ruby-2-7-grape-1-3-x:
+    name: ruby 2.7, grape-1.3.x
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.3.x')
+    env:
+      BUNDLE_GEMFILE: gemfiles/grape-1.3.x/Gemfile
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install APT dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v2.1.4
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.7-grape-1.3.x-${{ hashFiles('gemfiles/grape-1.3.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-grape-1.3.x-
+          ${{ runner.os }}-gems-2.7-
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync
+        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      if: success()
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage
+        path: coverage-sync
+    needs:
+    - ruby-3-0-rails-6-1-x
+  ruby-3-0-grape-edge:
+    name: "[allowed to fail] ruby 3.0, grape-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-edge')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.grape
-      GRAPE_VERSION: edge
+      BUNDLE_GEMFILE: gemfiles/grape-edge/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1076,8 +1136,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.0-grape"
-        restore-keys: "${{ runner.os }}-gems-3.0-"
+        key: "${{ runner.os }}-gems-3.0-grape-edge-${{ hashFiles('gemfiles/grape-edge/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.0-grape-edge-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
       run: |
         gem install bundler
@@ -1104,14 +1167,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-tilt_version-1-4-1:
-    name: ruby 2.7, rails-5.2.x, TILT_VERSION=1.4.1
+  ruby-2-7-tilt-1-4-1:
+    name: ruby 2.7, tilt-1.4.1
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'tilt-1.4.1')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
-      TILT_VERSION: 1.4.1
+      BUNDLE_GEMFILE: gemfiles/tilt-1.4.1/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1127,8 +1189,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
+        key: "${{ runner.os }}-gems-2.7-tilt-1.4.1-${{ hashFiles('gemfiles/tilt-1.4.1/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-tilt-1.4.1-
+          ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
         gem install bundler
@@ -1155,14 +1220,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-3-0-sinatra-1-4-x-sequel_version-4-34-0:
-    name: ruby 3.0, sinatra-1.4.x, SEQUEL_VERSION=4.34.0
+  ruby-3-0-sequel-4-34-0:
+    name: ruby 3.0, sequel-4.34.0
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sequel-4.34.0')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.sinatra-1.4.x
-      SEQUEL_VERSION: 4.34.0
+      BUNDLE_GEMFILE: gemfiles/sequel-4.34.0/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1178,8 +1242,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.0-sinatra-1.4.x"
-        restore-keys: "${{ runner.os }}-gems-3.0-"
+        key: "${{ runner.os }}-gems-3.0-sequel-4.34.0-${{ hashFiles('gemfiles/sequel-4.34.0/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.0-sequel-4.34.0-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
       run: |
         gem install bundler
@@ -1206,15 +1273,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-ams_version-0-8-3-sidekiq_version-none:
-    name: ruby 2.7, rails-5.2.x, AMS_VERSION=~> 0.8.3 SIDEKIQ_VERSION=none
+  ruby-2-7-ams-0-8-x:
+    name: ruby 2.7, ams-0.8.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.8.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
-      AMS_VERSION: "~> 0.8.3"
-      SIDEKIQ_VERSION: none
+      BUNDLE_GEMFILE: gemfiles/ams-0.8.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1230,8 +1295,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
+        key: "${{ runner.os }}-gems-2.7-ams-0.8.x-${{ hashFiles('gemfiles/ams-0.8.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-ams-0.8.x-
+          ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
         gem install bundler
@@ -1258,14 +1326,13 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-ams_version-0-9-5:
-    name: ruby 2.7, rails-5.2.x, AMS_VERSION=~> 0.9.5
+  ruby-2-7-ams-0-9-5:
+    name: ruby 2.7, ams-0.9.5
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.9.5')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
-      AMS_VERSION: "~> 0.9.5"
+      BUNDLE_GEMFILE: gemfiles/ams-0.9.5/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1281,8 +1348,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
+        key: "${{ runner.os }}-gems-2.7-ams-0.9.5-${{ hashFiles('gemfiles/ams-0.9.5/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-ams-0.9.5-
+          ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
         gem install bundler
@@ -1309,14 +1379,14 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-ams_version-edge:
-    name: "[allowed to fail] ruby 2.7, rails-5.2.x, AMS_VERSION=edge"
+  ruby-2-7-ams-edge-ams_version-edge:
+    name: "[allowed to fail] ruby 2.7, ams-edge, AMS_VERSION=edge"
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-edge')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-5.2.x
+      BUNDLE_GEMFILE: gemfiles/ams-edge/Gemfile
       AMS_VERSION: edge
     steps:
     - name: Checkout
@@ -1333,8 +1403,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x"
-        restore-keys: "${{ runner.os }}-gems-2.7-"
+        key: "${{ runner.os }}-gems-2.7-ams-edge-${{ hashFiles('gemfiles/ams-edge/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.7-ams-edge-
+          ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
         gem install bundler
@@ -1366,9 +1439,9 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-6.1.x
+      BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1386,8 +1459,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.1-rails-6.1.x"
-        restore-keys: "${{ runner.os }}-gems-3.1-"
+        key: "${{ runner.os }}-gems-3.1-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.1-rails-6.1.x-
+          ${{ runner.os }}-gems-3.1-
     - name: bundle install
       run: |
         gem install bundler
@@ -1419,9 +1495,9 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge')
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile.rails-edge
+      BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1439,8 +1515,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.1-rails-edge"
-        restore-keys: "${{ runner.os }}-gems-3.1-"
+        key: "${{ runner.os }}-gems-3.1-rails-edge-${{ hashFiles('gemfiles/rails-edge/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.1-rails-edge-
+          ${{ runner.os }}-gems-3.1-
     - name: bundle install
       run: |
         gem install bundler
@@ -1470,6 +1549,7 @@ jobs:
   lint:
     name: lint
     runs-on: ubuntu-latest
+    if: always()
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1481,8 +1561,11 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.5-base"
-        restore-keys: "${{ runner.os }}-gems-2.5-"
+        key: "${{ runner.os }}-gems-2.5-base-${{ hashFiles('gemfiles/base/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.5-base-
+          ${{ runner.os }}-gems-2.5-
     - name: bundle install
       run: |
         gem install bundler
@@ -1493,10 +1576,10 @@ jobs:
       run: |
         bundle exec rubocop -v
         bundle exec rubocop
-    if: always()
   upload-coverage:
     name: upload-coverage
     runs-on: ubuntu-latest
+    if: always()
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1540,31 +1623,31 @@ jobs:
         ./cc-test-reporter upload-coverage
     needs:
     - ruby-2-7-rails-5-2-x-mongo
-    - ruby-2-7-rails-5-2-x-mongoid-6-mongoid_version-6-0
+    - ruby-2-7-mongoid-6-x-mongoid-6
     - ruby-2-7-rails-5-2-x-elasticsearch
-    - ruby-2-5-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0
-    - ruby-2-7-rails-5-2-x-graphql_version-1-9-0
-    - ruby-2-7-rails-5-2-x-graphql_version-1-8-0
+    - ruby-2-5-sidekiq-4-x-graphql-1-7-x
+    - ruby-2-7-graphql-1-9-x
+    - ruby-2-7-graphql-1-8-x
     - ruby-3-0-rails-6-0-x
     - ruby-3-0-rails-6-1-x
     - ruby-2-5-sinatra-1-4-x
     - ruby-3-0-sinatra-1-4-x
     - ruby-2-5-sinatra-2-0-x
     - ruby-3-0-sinatra-2-0-x
-    - ruby-2-5-grape-rack_version-2-0-8
-    - ruby-2-7-grape
-    - ruby-2-7-grape-grape_version-0-13-0-rack_version-2-0-8
-    - ruby-2-7-grape-grape_version-1-1-0-rack_version-2-0-8
-    - ruby-2-7-grape-grape_version-1-2-0-rack_version-2-0-8
-    - ruby-2-7-grape-grape_version-1-3-0
-    - ruby-2-7-rails-5-2-x-tilt_version-1-4-1
-    - ruby-3-0-sinatra-1-4-x-sequel_version-4-34-0
-    - ruby-2-7-rails-5-2-x-ams_version-0-8-3-sidekiq_version-none
-    - ruby-2-7-rails-5-2-x-ams_version-0-9-5
-    if: always()
+    - ruby-2-5-grape-1-x
+    - ruby-2-7-grape-1-x
+    - ruby-2-7-grape-0-13-x
+    - ruby-2-7-grape-1-1-x
+    - ruby-2-7-grape-1-2-x
+    - ruby-2-7-grape-1-3-x
+    - ruby-2-7-tilt-1-4-1
+    - ruby-3-0-sequel-4-34-0
+    - ruby-2-7-ams-0-8-x
+    - ruby-2-7-ams-0-9-5
   required-tests-passed:
     name: Required Tests Passed
     runs-on: ubuntu-latest
+    if: always()
     steps:
     - name: Mark tests failed
       run: 'false'
@@ -1574,25 +1657,24 @@ jobs:
       if: "!contains(needs.*.result, 'failure')"
     needs:
     - ruby-2-7-rails-5-2-x-mongo
-    - ruby-2-7-rails-5-2-x-mongoid-6-mongoid_version-6-0
+    - ruby-2-7-mongoid-6-x-mongoid-6
     - ruby-2-7-rails-5-2-x-elasticsearch
-    - ruby-2-5-rails-5-2-x-sidekiq_version-4-graphql_version-1-7-0
-    - ruby-2-7-rails-5-2-x-graphql_version-1-9-0
-    - ruby-2-7-rails-5-2-x-graphql_version-1-8-0
+    - ruby-2-5-sidekiq-4-x-graphql-1-7-x
+    - ruby-2-7-graphql-1-9-x
+    - ruby-2-7-graphql-1-8-x
     - ruby-3-0-rails-6-0-x
     - ruby-3-0-rails-6-1-x
     - ruby-2-5-sinatra-1-4-x
     - ruby-3-0-sinatra-1-4-x
     - ruby-2-5-sinatra-2-0-x
     - ruby-3-0-sinatra-2-0-x
-    - ruby-2-5-grape-rack_version-2-0-8
-    - ruby-2-7-grape
-    - ruby-2-7-grape-grape_version-0-13-0-rack_version-2-0-8
-    - ruby-2-7-grape-grape_version-1-1-0-rack_version-2-0-8
-    - ruby-2-7-grape-grape_version-1-2-0-rack_version-2-0-8
-    - ruby-2-7-grape-grape_version-1-3-0
-    - ruby-2-7-rails-5-2-x-tilt_version-1-4-1
-    - ruby-3-0-sinatra-1-4-x-sequel_version-4-34-0
-    - ruby-2-7-rails-5-2-x-ams_version-0-8-3-sidekiq_version-none
-    - ruby-2-7-rails-5-2-x-ams_version-0-9-5
-    if: always()
+    - ruby-2-5-grape-1-x
+    - ruby-2-7-grape-1-x
+    - ruby-2-7-grape-0-13-x
+    - ruby-2-7-grape-1-1-x
+    - ruby-2-7-grape-1-2-x
+    - ruby-2-7-grape-1-3-x
+    - ruby-2-7-tilt-1-4-1
+    - ruby-3-0-sequel-4-34-0
+    - ruby-2-7-ams-0-8-x
+    - ruby-2-7-ams-0-9-5

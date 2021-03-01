@@ -1,0 +1,5 @@
+ENV["MONGOID_VERSION"] = "skip"
+
+eval_gemfile File.expand_path("../Gemfile.base", __dir__)
+
+gem "grape", "~> 1"

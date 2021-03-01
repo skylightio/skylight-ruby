@@ -1,0 +1,6 @@
+ENV["MONGOID_VERSION"] = "skip"
+ENV["RACK_VERSION"] = "~> 2.0.8"
+
+eval_gemfile File.expand_path("../Gemfile.base", __dir__)
+
+gem "grape", "~> 0.13.0"

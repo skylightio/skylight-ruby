@@ -1,0 +1,6 @@
+ENV["MONGOID_VERSION"] = "skip"
+
+eval_gemfile File.expand_path("../Gemfile.base", __dir__)
+eval_gemfile File.expand_path("../Gemfile.rails-common", __dir__)
+
+gem "rails", "~> 6.1.0"
