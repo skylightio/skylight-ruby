@@ -165,7 +165,7 @@ DEPENDENCIES
   excon
   fakeredis
   faraday
-  grape
+  grape (~> 1)
   graphiti
   graphql (~> 1.11.0)
   httpclient

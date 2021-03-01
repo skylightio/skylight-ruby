@@ -66,9 +66,44 @@ updates:
   - dependencies
   - sinatra-edge
 - package-ecosystem: bundler
-  directory: gemfiles/grape
+  directory: gemfiles/grape-1.x
   schedule: *1
   open-pull-requests-limit: 10
   labels:
   - dependencies
-  - grape
+  - grape-1.x
+- package-ecosystem: bundler
+  directory: gemfiles/grape-0.13.x
+  schedule: *1
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - grape-0.13.x
+- package-ecosystem: bundler
+  directory: gemfiles/grape-1.1.x
+  schedule: *1
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - grape-1.1.x
+- package-ecosystem: bundler
+  directory: gemfiles/grape-1.2.x
+  schedule: *1
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - grape-1.2.x
+- package-ecosystem: bundler
+  directory: gemfiles/grape-1.3.x
+  schedule: *1
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - grape-1.3.x
+- package-ecosystem: bundler
+  directory: gemfiles/grape-edge
+  schedule: *1
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - grape-edge
