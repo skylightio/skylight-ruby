@@ -108,6 +108,13 @@ updates:
   - dependencies
   - grape-edge
 - package-ecosystem: bundler
+  directory: gemfiles/tilt-1.4.1
+  schedule: *1
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - tilt-1.4.1
+- package-ecosystem: bundler
   directory: gemfiles/sequel-4.34.0
   schedule: *1
   open-pull-requests-limit: 10

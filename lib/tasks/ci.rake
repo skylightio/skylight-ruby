@@ -160,8 +160,7 @@ module CITasks
 
     {
       ruby_version: "2.7",
-      gemfile: "rails-5.2.x",
-      env: { TILT_VERSION: "1.4.1" }
+      gemfile: "tilt-1.4.1"
     },
 
     {
