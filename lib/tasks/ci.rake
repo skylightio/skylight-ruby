@@ -15,6 +15,236 @@ module CITasks
     { mongo: { image: "mongo:4.0", ports: ["27017:27017"] } }
   end
 
+  GEMFILES_UPDATES = {
+    "ams-0.8.x" => {
+      allow: [
+        { "dependency-name": "active_model_serializers" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "active_model_serializers",
+          versions: [">= 0.9"]
+        }
+      ]
+    },
+    "ams-0.9.x" => {
+      allow: [
+        { "dependency-name": "active_model_serializers" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "active_model_serializers",
+          versions: [">= 0.10"]
+        }
+      ]
+    },
+    "ams-edge" => {
+      allow: [
+        { "dependency-name": "active_model_serializers" }
+      ]
+    },
+    "grape-0.13.x" => {
+      allow: [
+        { "dependency-name": "grape" },
+        { "dependency-name": "rack" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "grape",
+          versions: [">= 0.14"]
+        },
+        {
+          "dependency-name": "rack",
+          versions: [">= 2.1"]
+        }
+      ]
+    },
+    "grape-1.1.x" => {
+      allow: [
+        { "dependency-name": "grape" },
+        { "dependency-name": "rack" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "grape",
+          versions: [">= 1.2"]
+        },
+        {
+          "dependency-name": "rack",
+          versions: [">= 2.1"]
+        }
+      ]
+    },
+    "grape-1.2.x" => {
+      allow: [
+        { "dependency-name": "grape" },
+        { "dependency-name": "rack" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "grape",
+          versions: [">= 1.3"]
+        },
+        {
+          "dependency-name": "rack",
+          versions: [">= 2.1"]
+        }
+      ]
+    },
+    "grape-1.3.x" => {
+      allow: [
+        { "dependency-name": "grape" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "grape",
+          versions: [">= 1.4"]
+        }
+      ]
+    },
+    "grape-1.x" => {
+      allow: [
+        { "dependency-name": "grape" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "grape",
+          versions: [">= 2"]
+        }
+      ]
+    },
+    "grape-edge" => {
+      allow: [
+        { "dependency-name": "grape" }
+      ]
+    },
+    "graphql-1.8.x" => {
+      allow: [
+        { "dependency-name": "graphql" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "graphql",
+          versions: [">= 1.9"]
+        }
+      ]
+    },
+    "graphql-1.9.x" => {
+      allow: [
+        { "dependency-name": "graphql" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "graphql",
+          versions: [">= 1.10"]
+        }
+      ]
+    },
+    "mongoid-6.x" => {
+      allow: [
+        { "dependency-name": "mongoid" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "mongoid",
+          versions: [">= 7"]
+        }
+      ]
+    },
+    "rails-5.2.x" => {
+      allow: [
+        { "dependency-name": "rails" },
+        { "dependency-name": "sqlite" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "rails",
+          versions: [">= 5.3"]
+        },
+        {
+          "dependency-name": "sqlite",
+          versions: [">= 1.5"]
+        }
+      ]
+    },
+    "rails-6.0.x" => {
+      allow: [
+        { "dependency-name": "rails" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "rails",
+          versions: [">= 6.1"]
+        }
+      ]
+    },
+    "rails-6.1.x" => {
+      allow: [
+        { "dependency-name": "rails" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "rails",
+          versions: [">= 6.2"]
+        }
+      ]
+    },
+    "rails-edge" => {
+      allow: [
+        { "dependency-name": "rails" }
+      ]
+    },
+    "sequel-4.34.0" => {
+      ignore: ["*"]
+    },
+    "sidekiq-4.x-graphql-1.7.x" => {
+      allow: [
+        { "dependency-name": "sidekiq" },
+        { "dependency-name": "graphql" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "sidekiq",
+          versions: [">= 5"]
+        },
+        {
+          "dependency-name": "graphql",
+          versions: [">= 1.8"]
+        }
+      ]
+    },
+    "sinatra-1.4.x" => {
+      allow: [
+        { "dependency-name": "sinatra" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "sinatra",
+          versions: [">= 1.5"]
+        }
+      ]
+    },
+    "sinatra-2.0.x" => {
+      allow: [
+        { "dependency-name": "sinatra" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "sinatra",
+          versions: [">= 2.1"]
+        }
+      ]
+    },
+    "sinatra-edge" => {
+      allow: [
+        { "dependency-name": "sinatra" }
+      ]
+    },
+    "tilt-1.4.1" => {
+      ignore: ["*"]
+    }
+  }.freeze
+
   # FIXME: hash this config and compare in the job
   TEST_JOBS = [
     {
@@ -773,10 +1003,16 @@ module CITasks
       }
 
       gemfile_configs = gemfiles.map do |g|
-        bundler_config.merge(
+        gc = bundler_config.merge(
           "directory" => "gemfiles/#{g}",
           "labels" => ["dependencies", g]
         )
+
+        if (gemfile_updates = GEMFILES_UPDATES[g])
+          gc.merge!(gemfile_updates)
+        end
+
+        gc
       end
 
       config["updates"].concat(gemfile_configs)
