@@ -1,6 +1,6 @@
 ENV["SQLITE_VERSION"] = "~> 1.4.0"
 
-eval_gemfile File.expand_path("../Gemfile.base", __dir__)
-eval_gemfile File.expand_path("../Gemfile.rails-common", __dir__)
+eval_gemfile "../Gemfile.base"
+eval_gemfile "../Gemfile.rails-common"
 
 gem "rails", "~> 5.2.0"

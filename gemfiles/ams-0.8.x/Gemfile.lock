@@ -200,7 +200,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.2)
-    rubocop (1.10.0)
+    rubocop (1.11.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -265,7 +265,7 @@ DEPENDENCIES
   rexml
   rspec (~> 3.7)
   rspec-collection_matchers (~> 1.1)
-  rubocop (~> 1.10.0)
+  rubocop (~> 1.11.0)
   sequel (> 0)
   skylight!
   sqlite3 (~> 1.4.0)

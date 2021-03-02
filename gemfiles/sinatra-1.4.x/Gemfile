@@ -1,5 +1,5 @@
 ENV["MONGOID_VERSION"] = "skip"
 
-eval_gemfile File.expand_path("../Gemfile.base", __dir__)
+eval_gemfile "../Gemfile.base"
 
 gem "sinatra", "~> 1.4.7"
