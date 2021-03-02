@@ -273,7 +273,6 @@ module CITasks
       }
     },
 
-    # TODO: This doesn't set any ENV vars. Does it actually test anything different?
     {
       name: "elasticsearch",
       ruby_version: "2.7",
@@ -284,6 +283,9 @@ module CITasks
           ports: %w[9200:9200 9300:9300],
           options: '-e "discovery.type=single-node"'
         }
+      },
+      env: {
+        TEST_ELASTICSEARCH_INTEGRATION: "true"
       }
     },
 
