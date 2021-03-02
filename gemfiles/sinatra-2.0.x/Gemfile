@@ -2,4 +2,4 @@ ENV["MONGOID_VERSION"] = "skip"
 
 eval_gemfile "../Gemfile.base"
 
-gem "sinatra", "~> 2.0.0"
+gem "sinatra", "~> 2.1.0"
