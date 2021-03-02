@@ -45,49 +45,34 @@ module CITasks
     },
     "grape-0.13.x" => {
       allow: [
-        { "dependency-name": "grape" },
-        { "dependency-name": "rack" }
+        { "dependency-name": "grape" }
       ],
       ignore: [
         {
           "dependency-name": "grape",
           versions: [">= 0.14"]
-        },
-        {
-          "dependency-name": "rack",
-          versions: [">= 2.1"]
         }
       ]
     },
     "grape-1.1.x" => {
       allow: [
-        { "dependency-name": "grape" },
-        { "dependency-name": "rack" }
+        { "dependency-name": "grape" }
       ],
       ignore: [
         {
           "dependency-name": "grape",
           versions: [">= 1.2"]
-        },
-        {
-          "dependency-name": "rack",
-          versions: [">= 2.1"]
         }
       ]
     },
     "grape-1.2.x" => {
       allow: [
-        { "dependency-name": "grape" },
-        { "dependency-name": "rack" }
+        { "dependency-name": "grape" }
       ],
       ignore: [
         {
           "dependency-name": "grape",
           versions: [">= 1.3"]
-        },
-        {
-          "dependency-name": "rack",
-          versions: [">= 2.1"]
         }
       ]
     },
