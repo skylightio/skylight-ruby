@@ -292,7 +292,7 @@ updates:
   - tilt-1.4.1
   open-pull-requests-limit: 10
   ignore:
-  - "*"
+  - dependency-name: "*"
 - package-ecosystem: bundler
   directory: gemfiles/sequel-4.34.0
   schedule:
@@ -303,7 +303,7 @@ updates:
   - sequel-4.34.0
   open-pull-requests-limit: 10
   ignore:
-  - "*"
+  - dependency-name: "*"
 - package-ecosystem: bundler
   directory: gemfiles/ams-0.8.x
   schedule:
