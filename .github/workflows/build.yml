@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 5e0b12a8698e502c0f67ff25d210219bc35b926b93c35e0cf05b358480966eb0
+  CONFIG_DIGEST: c36a03769e80e7b63735a206e40ba53ec2053c76d1b24d7c15375f3f53529312
 'on':
   push:
     branches:
@@ -478,6 +478,7 @@ jobs:
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
+      RAILS_EDGE: true
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1545,6 +1546,7 @@ jobs:
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
+      RAILS_EDGE: true
     steps:
     - name: Checkout
       uses: actions/checkout@v2

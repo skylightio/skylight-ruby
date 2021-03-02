@@ -1,6 +1,6 @@
-ENV["MONGOID_VERSION"] = "skip"
+source "https://rubygems.org"
 
-eval_gemfile "../Gemfile.base"
-eval_gemfile "../Gemfile.rails-common"
+gemspec path: "../.."
 
 gem "rails", "~> 6.0.0"
+gem "sqlite3"

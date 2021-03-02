@@ -318,7 +318,11 @@ module CITasks
     {
       ruby_version: NEWEST_RUBY,
       allow_failure: true,
-      gemfile: "rails-edge"
+      gemfile: "rails-edge",
+      env: {
+        # This is used in a spec
+        RAILS_EDGE: true
+      }
     },
 
     {
@@ -429,7 +433,11 @@ module CITasks
       gemfile: "rails-edge",
       ruby_version: HEAD_RUBY,
       ruby_install_version: "head",
-      allow_failure: true
+      allow_failure: true,
+      env: {
+        # This is used in a spec
+        RAILS_EDGE: true
+      }
     }
   ].freeze
 
