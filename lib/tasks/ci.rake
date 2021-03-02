@@ -195,7 +195,9 @@ module CITasks
       ]
     },
     "sequel-4.34.0" => {
-      ignore: ["*"]
+      ignore: [
+        { "dependency-name": "*" }
+      ]
     },
     "sidekiq-4.x-graphql-1.7.x" => {
       allow: [
@@ -241,7 +243,9 @@ module CITasks
       ]
     },
     "tilt-1.4.1" => {
-      ignore: ["*"]
+      ignore: [
+        { "dependency-name": "*" }
+      ]
     }
   }.freeze
 
