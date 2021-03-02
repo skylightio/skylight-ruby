@@ -1,4 +1,4 @@
 ENV["SIDEKIQ_VERSION"] = "~> 4"
 ENV["GRAPHQL_VERSION"] = "~> 1.7.0"
 
-eval_gemfile File.expand_path("../rails-5.2.x/Gemfile", __dir__)
+eval_gemfile "../rails-5.2.x/Gemfile"
