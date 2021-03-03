@@ -199,36 +199,6 @@ updates:
   allow:
   - dependency-name: grape
 - package-ecosystem: bundler
-  directory: gemfiles/grape-0.13.x
-  schedule:
-    interval: weekly
-    time: '13:00'
-  labels:
-  - dependencies
-  - grape-0.13.x
-  open-pull-requests-limit: 10
-  allow:
-  - dependency-name: grape
-  ignore:
-  - dependency-name: grape
-    versions:
-    - ">= 0.14"
-- package-ecosystem: bundler
-  directory: gemfiles/grape-1.1.x
-  schedule:
-    interval: weekly
-    time: '13:00'
-  labels:
-  - dependencies
-  - grape-1.1.x
-  open-pull-requests-limit: 10
-  allow:
-  - dependency-name: grape
-  ignore:
-  - dependency-name: grape
-    versions:
-    - ">= 1.2"
-- package-ecosystem: bundler
   directory: gemfiles/grape-1.2.x
   schedule:
     interval: weekly

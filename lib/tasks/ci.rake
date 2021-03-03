@@ -50,28 +50,6 @@ module CITasks
       ]
       # We don't limit this so that we're aware when new versions are released
     },
-    "grape-0.13.x" => {
-      allow: [
-        { "dependency-name": "grape" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "grape",
-          versions: [">= 0.14"]
-        }
-      ]
-    },
-    "grape-1.1.x" => {
-      allow: [
-        { "dependency-name": "grape" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "grape",
-          versions: [">= 1.2"]
-        }
-      ]
-    },
     "grape-1.2.x" => {
       allow: [
         { "dependency-name": "grape" }
@@ -351,16 +329,6 @@ module CITasks
       always_run: true,
       ruby_version: "2.7", # NOTE: this should work on Ruby 3 when Grape 1.5.2 is released.
       gemfile: "grape-1.x"
-    },
-
-    {
-      ruby_version: "2.7",
-      gemfile: "grape-0.13.x"
-    },
-
-    {
-      ruby_version: "2.7",
-      gemfile: "grape-1.1.x"
     },
 
     {
