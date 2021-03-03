@@ -192,11 +192,6 @@ module CITasks
       allow: [
         { "dependency-name": "sinatra" }
       ]
-    },
-    "tilt-1.4.1" => {
-      ignore: [
-        { "dependency-name": "*" }
-      ]
     }
   }.freeze
 
@@ -335,11 +330,6 @@ module CITasks
       ruby_version: NEWEST_RUBY,
       allow_failure: true,
       gemfile: "grape-edge"
-    },
-
-    {
-      ruby_version: "2.7",
-      gemfile: "tilt-1.4.1"
     },
 
     {

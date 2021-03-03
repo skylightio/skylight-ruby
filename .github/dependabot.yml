@@ -191,17 +191,6 @@ updates:
   allow:
   - dependency-name: grape
 - package-ecosystem: bundler
-  directory: gemfiles/tilt-1.4.1
-  schedule:
-    interval: weekly
-    time: '13:00'
-  labels:
-  - dependencies
-  - tilt-1.4.1
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: "*"
-- package-ecosystem: bundler
   directory: gemfiles/sequel-4.34.0
   schedule:
     interval: weekly

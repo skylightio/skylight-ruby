@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 0d2ecc84fedaa22e6a8d5e0678ac8ee234c4d13172eb32268c9f4d0ed148a823
+  CONFIG_DIGEST: e92f9bfd8ca1d84ca27882fd376416c682214b78089b67aebf694e1936156b0c
 'on':
   push:
     branches:
@@ -1004,59 +1004,6 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-tilt-1-4-1:
-    name: ruby 2.7, tilt-1.4.1
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'tilt-1.4.1')
-    env:
-      BUNDLE_GEMFILE: gemfiles/tilt-1.4.1/Gemfile
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '2.7'
-    - name: Install APT dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
-      uses: actions/cache@v2.1.4
-      with:
-        path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-tilt-1.4.1-${{ hashFiles('gemfiles/tilt-1.4.1/Gemfile.lock')
-          }}"
-        restore-keys: |-
-          ${{ runner.os }}-gems-2.7-tilt-1.4.1-
-          ${{ runner.os }}-gems-2.7-
-    - name: bundle install
-      run: |
-        gem install bundler
-        bundle install
-    - name: Run tests
-      run: |
-        bundle exec rake workflow:verify[$CONFIG_DIGEST]
-        bundle exec rake
-    - name: Run tests (agent disabled)
-      env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-        SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
-    needs:
-    - ruby-3-0-rails-6-1-x
   ruby-3-0-sequel-4-34-0:
     name: ruby 3.0, sequel-4.34.0
     runs-on: ubuntu-latest
@@ -1473,7 +1420,6 @@ jobs:
     - ruby-2-5-grape-1-x
     - ruby-3-0-grape-1-x
     - ruby-2-7-grape-1-2-x
-    - ruby-2-7-tilt-1-4-1
     - ruby-3-0-sequel-4-34-0
     - ruby-2-7-ams-0-8-x
     - ruby-2-7-ams-0-9-x
@@ -1504,7 +1450,6 @@ jobs:
     - ruby-2-5-grape-1-x
     - ruby-3-0-grape-1-x
     - ruby-2-7-grape-1-2-x
-    - ruby-2-7-tilt-1-4-1
     - ruby-3-0-sequel-4-34-0
     - ruby-2-7-ams-0-8-x
     - ruby-2-7-ams-0-9-x
