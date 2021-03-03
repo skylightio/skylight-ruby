@@ -42,7 +42,7 @@ Gem::Specification.new do |spec|
   # SimpleCov version to 0.17.1 or below.
   #
   # See: https://github.com/codeclimate/test-reporter/issues/413
-  spec.add_development_dependency "simplecov", "~> 0.17.1"
+  spec.add_development_dependency "simplecov", "~> 0.21.2"
 
   # Executables
   spec.executables = %w[skylight]
