@@ -1,10 +1,7 @@
 source "http://rubygems.org"
 
-# Hacks for unreleased versions
 if ENV["RAILS_EDGE"]
-  gem "arel", git: "https://github.com/rails/arel", branch: "master"
-  gem "rack", git: "https://github.com/rack/rack", branch: "master"
-  gem "rails", git: "https://github.com/rails/rails", branch: "master"
+  gem "rails", git: "https://github.com/rails/rails", branch: "main"
 else
   gem "rails", ENV["RAILS_VERSION"]
 end
