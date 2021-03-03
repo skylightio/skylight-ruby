@@ -20,24 +20,16 @@ updates:
     time: '13:00'
   open-pull-requests-limit: 10
 - package-ecosystem: bundler
-  directory: gemfiles/rails-5.2.x
+  directory: gemfiles/rails-6.1.x
   schedule:
     interval: weekly
     time: '13:00'
   labels:
   - dependencies
-  - rails-5.2.x
+  - rails-6.1.x
   open-pull-requests-limit: 10
   allow:
   - dependency-name: rails
-  - dependency-name: sqlite
-  ignore:
-  - dependency-name: rails
-    versions:
-    - ">= 5.3"
-  - dependency-name: sqlite
-    versions:
-    - ">= 1.5"
 - package-ecosystem: bundler
   directory: gemfiles/mongoid-6.x
   schedule:
@@ -128,17 +120,6 @@ updates:
   - dependency-name: rails
     versions:
     - ">= 6.1"
-- package-ecosystem: bundler
-  directory: gemfiles/rails-6.1.x
-  schedule:
-    interval: weekly
-    time: '13:00'
-  labels:
-  - dependencies
-  - rails-6.1.x
-  open-pull-requests-limit: 10
-  allow:
-  - dependency-name: rails
 - package-ecosystem: bundler
   directory: gemfiles/rails-edge
   schedule:

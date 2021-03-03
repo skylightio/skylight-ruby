@@ -203,8 +203,8 @@ module CITasks
   TEST_JOBS = [
     {
       name: "mongoid-7",
-      ruby_version: "2.7",
-      gemfile: "rails-5.2.x",
+      ruby_version: NEWEST_RUBY,
+      gemfile: "rails-6.1.x",
       services: mongo,
       env: {
         TEST_MONGO_INTEGRATION: "true",
@@ -225,7 +225,7 @@ module CITasks
 
     {
       name: "elasticsearch",
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       gemfile: "elasticsearch",
       services: {
         elasticsearch: {
@@ -316,13 +316,14 @@ module CITasks
 
     {
       always_run: true,
-      ruby_version: "2.7", # NOTE: this should work on Ruby 3 when Grape 1.5.2 is released.
+      ruby_version: NEWEST_RUBY,
       gemfile: "grape-1.x"
     },
 
+    # Oldest supported grape version. Doesn't support 3.0.
     {
       ruby_version: "2.7",
-      gemfile: "grape-1.2.x" # Oldest supported version
+      gemfile: "grape-1.2.x"
     },
 
     {
@@ -352,7 +353,7 @@ module CITasks
     },
 
     {
-      ruby_version: "2.7",
+      ruby_version: NEWEST_RUBY,
       allow_failure: true,
       gemfile: "ams-0.10.x"
     },
