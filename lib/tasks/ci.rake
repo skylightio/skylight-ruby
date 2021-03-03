@@ -637,8 +637,8 @@ module CITasks
             name: "Prepare coverage files for upload",
             run: <<~RUN
               mkdir -p coverage-sync
-              cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-              cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+              cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+              cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
             RUN
           }
         end
