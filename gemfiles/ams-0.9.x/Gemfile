@@ -1,3 +1,9 @@
-ENV["AMS_VERSION"] = "~> 0.9.5"
+source "https://rubygems.org"
 
-eval_gemfile "../rails-5.2.x/Gemfile"
+gemspec path: "../.."
+
+# TODO: Check if we need Rails
+gem "rails", "~> 5.2.0"
+gem "sqlite3"
+
+gem "active_model_serializers", "~> 0.9.5"

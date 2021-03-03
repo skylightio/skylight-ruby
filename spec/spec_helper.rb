@@ -53,43 +53,30 @@ if ENV["AMS_VERSION"] == "edge"
   require "active_support/inflector"
 end
 
-# rubocop:disable Lint/SuppressedException
-
-%w[excon tilt sinatra sequel faraday mongo mongoid active_model_serializers
-   httpclient elasticsearch].each do |library|
-  require library
-  Skylight::Probes.probe(library)
-rescue LoadError
-  puts "Unable to load #{library}"
+def enable_probe(probes, library = probes)
+  Array(library).each do |l|
+    require l
+  end
+  Skylight::Probes.probe(*probes)
+rescue LoadError => e
+  puts "Unable to enable #{probes}: #{e}"
 end
 
-begin
-  require "redis"
-  require "fakeredis/rspec"
-  Skylight::Probes.probe(:redis)
-rescue LoadError
+%w[excon tilt sinatra sequel faraday active_model_serializers httpclient].each { |probe| enable_probe(probe) }
+
+enable_probe(:redis, ["redis", "fakeredis/rspec"])
+enable_probe(:action_view, %w[action_dispatch action_view])
+enable_probe(:"action_dispatch/request_id", "action_dispach/middleware/request_id")
+enable_probe(%i[active_job active_job_enqueue], "active_job")
+
+if ENV["TEST_MONGO_INTEGRATION"]
+  enable_probe("mongo")
+  enable_probe("mongoid")
 end
 
-begin
-  require "action_dispatch"
-  require "action_view"
-  Skylight::Probes.probe(:action_view)
-rescue LoadError
+if ENV["TEST_ELASTICSEARCH_INTEGRATION"]
+  enable_probe("elasticsearch")
 end
-
-begin
-  require "action_dispatch/middleware/request_id"
-  Skylight::Probes.probe(:'action_dispatch/request_id')
-rescue LoadError
-end
-
-begin
-  require "active_job"
-  Skylight::Probes.probe(:active_job, :active_job_enqueue)
-rescue LoadError
-end
-
-# rubocop:enable Lint/SuppressedException
 
 require "net/http"
 Skylight::Probes.probe(:net_http)
@@ -98,8 +85,9 @@ Skylight::Probes.probe(:middleware)
 
 # End Probed Libraries
 
-all_probes = %i[excon tilt sinatra sequel faraday mongo httpclient elasticsearch redis
-                action_view action_dispatch active_job_enqueue net_http middleware active_job]
+all_probes = %i[excon tilt sinatra sequel faraday mongo mongoid httpclient elasticsearch redis
+                action_view action_dispatch action_dispatch/request_id active_job_enqueue
+                net_http middleware active_job]
 
 # Check probes that could be installed but don't actually install them
 installable_probes = Skylight::Probes.registered.

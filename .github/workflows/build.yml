@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 5e0b12a8698e502c0f67ff25d210219bc35b926b93c35e0cf05b358480966eb0
+  CONFIG_DIGEST: dc250a24b60b899e29dc2a6855c84f4ed98fcfb3e546c35358ad52dfbc6b7926
 'on':
   push:
     branches:
@@ -160,6 +160,7 @@ jobs:
         options: -e "discovery.type=single-node"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
+      TEST_ELASTICSEARCH_INTEGRATION: 'true'
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -478,6 +479,7 @@ jobs:
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
+      RAILS_EDGE: true
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1545,6 +1547,7 @@ jobs:
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge')
     env:
       BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
+      RAILS_EDGE: true
     steps:
     - name: Checkout
       uses: actions/checkout@v2

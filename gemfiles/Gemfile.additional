@@ -1,0 +1,23 @@
+# TODO: We should revisit whether we want to test all these libraries
+gem "active_model_serializers"
+gem "delayed_job", require: false
+gem "delayed_job_active_record", require: false
+gem "excon"
+gem "faraday"
+gem "graphiti"
+gem "graphql", "~> 1.11.0"
+gem "httpclient"
+gem "rexml"
+gem "sequel", "> 0"
+gem "sidekiq"
+gem "sqlite3", "~> 1.4.1"
+gem "tilt"
+
+gem "fakeredis"
+gem "redis"
+
+# TODO: Only install when testing
+gem "elasticsearch"
+
+# TODO: Only install when testing
+gem "mongo"

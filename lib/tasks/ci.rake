@@ -45,49 +45,34 @@ module CITasks
     },
     "grape-0.13.x" => {
       allow: [
-        { "dependency-name": "grape" },
-        { "dependency-name": "rack" }
+        { "dependency-name": "grape" }
       ],
       ignore: [
         {
           "dependency-name": "grape",
           versions: [">= 0.14"]
-        },
-        {
-          "dependency-name": "rack",
-          versions: [">= 2.1"]
         }
       ]
     },
     "grape-1.1.x" => {
       allow: [
-        { "dependency-name": "grape" },
-        { "dependency-name": "rack" }
+        { "dependency-name": "grape" }
       ],
       ignore: [
         {
           "dependency-name": "grape",
           versions: [">= 1.2"]
-        },
-        {
-          "dependency-name": "rack",
-          versions: [">= 2.1"]
         }
       ]
     },
     "grape-1.2.x" => {
       allow: [
-        { "dependency-name": "grape" },
-        { "dependency-name": "rack" }
+        { "dependency-name": "grape" }
       ],
       ignore: [
         {
           "dependency-name": "grape",
           versions: [">= 1.3"]
-        },
-        {
-          "dependency-name": "rack",
-          versions: [">= 2.1"]
         }
       ]
     },
@@ -273,7 +258,6 @@ module CITasks
       }
     },
 
-    # TODO: This doesn't set any ENV vars. Does it actually test anything different?
     {
       name: "elasticsearch",
       ruby_version: "2.7",
@@ -284,6 +268,9 @@ module CITasks
           ports: %w[9200:9200 9300:9300],
           options: '-e "discovery.type=single-node"'
         }
+      },
+      env: {
+        TEST_ELASTICSEARCH_INTEGRATION: "true"
       }
     },
 
@@ -318,7 +305,11 @@ module CITasks
     {
       ruby_version: NEWEST_RUBY,
       allow_failure: true,
-      gemfile: "rails-edge"
+      gemfile: "rails-edge",
+      env: {
+        # This is used in a spec
+        RAILS_EDGE: true
+      }
     },
 
     {
@@ -429,7 +420,11 @@ module CITasks
       gemfile: "rails-edge",
       ruby_version: HEAD_RUBY,
       ruby_install_version: "head",
-      allow_failure: true
+      allow_failure: true,
+      env: {
+        # This is used in a spec
+        RAILS_EDGE: true
+      }
     }
   ].freeze
 

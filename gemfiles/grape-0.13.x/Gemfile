@@ -1,6 +1,11 @@
-ENV["MONGOID_VERSION"] = "skip"
-ENV["RACK_VERSION"] = "~> 2.0.8"
+source "https://rubygems.org"
 
-eval_gemfile "../Gemfile.base"
+gemspec path: "../.."
 
 gem "grape", "~> 0.13.0"
+
+# Not compatible with Rack 2.1
+gem "rack", "~> 2.0.8"
+
+# Test additional libraries with oldest and newest versions of Grape
+eval_gemfile "../Gemfile.additional"

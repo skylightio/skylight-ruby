@@ -1,3 +1,8 @@
-ENV["SEQUEL_VERSION"] = "4.34.0"
+source "https://rubygems.org"
 
-eval_gemfile "../sinatra-1.4.x/Gemfile"
+gemspec path: "../.."
+
+gem "sinatra", "~> 1.4.0"
+gem "sqlite3"
+
+gem "sequel", "4.34.0"

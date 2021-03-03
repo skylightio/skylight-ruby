@@ -1,5 +1,8 @@
-ENV["MONGOID_VERSION"] = "skip"
+source "https://rubygems.org"
 
-eval_gemfile "../Gemfile.base"
+gemspec path: "../.."
 
 gem "grape", "~> 1"
+
+# Test additional libraries with oldest and newest versions of Grape
+eval_gemfile "../Gemfile.additional"

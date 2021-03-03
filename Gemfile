@@ -1,15 +1,15 @@
-ENV["MONGOID_VERSION"] = "skip"
-ENV["TILT_VERSION"] = "~> 2.0"
+source "https://rubygems.org"
 
-# Dependabot doesn't like interpolation here
-eval_gemfile "./gemfiles/Gemfile.base"
+gemspec
 
+gem "grape", "~> 1.5.0"
 gem "rails", "~> 6.1.3"
 gem "sinatra", "~> 2.1.0"
+
+eval_gemfile "./gemfiles/Gemfile.additional"
 
 group :development do
   gem "pry"
   gem "pry-byebug"
-  gem "rubocop", "~> 1.11.0"
   gem "yard", "~> 0.9.26"
 end

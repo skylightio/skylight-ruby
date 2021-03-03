@@ -7,6 +7,29 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    actionpack (6.1.3)
+      actionview (= 6.1.3)
+      activesupport (= 6.1.3)
+      rack (~> 2.0, >= 2.0.9)
+      rack-test (>= 0.6.3)
+      rails-dom-testing (~> 2.0)
+      rails-html-sanitizer (~> 1.0, >= 1.2.0)
+    actionview (6.1.3)
+      activesupport (= 6.1.3)
+      builder (~> 3.1)
+      erubi (~> 1.4)
+      rails-dom-testing (~> 2.0)
+      rails-html-sanitizer (~> 1.1, >= 1.2.0)
+    active_model_serializers (0.10.12)
+      actionpack (>= 4.1, < 6.2)
+      activemodel (>= 4.1, < 6.2)
+      case_transform (>= 0.2)
+      jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
+    activemodel (6.1.3)
+      activesupport (= 6.1.3)
+    activerecord (6.1.3)
+      activemodel (= 6.1.3)
+      activesupport (= 6.1.3)
     activesupport (6.1.3)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
@@ -19,11 +42,20 @@ GEM
     beefcake (1.2.0)
     bson (4.12.0)
     builder (3.2.4)
+    case_transform (0.2)
+      activesupport
     concurrent-ruby (1.1.8)
     connection_pool (2.2.3)
     crack (0.4.5)
       rexml
+    crass (1.0.6)
+    delayed_job (4.1.9)
+      activesupport (>= 3.0, < 6.2)
+    delayed_job_active_record (4.1.5)
+      activerecord (>= 3.0, < 6.2)
+      delayed_job (>= 3.0, < 5)
     diff-lcs (1.4.4)
+    docile (1.3.5)
     dry-configurable (0.12.1)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.5, >= 0.5.0)
@@ -50,6 +82,7 @@ GEM
     elasticsearch-transport (7.11.2)
       faraday (~> 1)
       multi_json
+    erubi (1.10.0)
     excon (0.79.0)
     fakeredis (0.8.0)
       redis (~> 4.1)
@@ -79,9 +112,14 @@ GEM
     httpclient (2.8.3)
     i18n (1.8.9)
       concurrent-ruby (~> 1.0)
+    json (2.5.1)
     jsonapi-renderer (0.2.2)
     jsonapi-serializable (0.3.1)
       jsonapi-renderer (~> 0.2.0)
+    loofah (2.9.0)
+      crass (~> 1.0.2)
+      nokogiri (>= 1.5.9)
+    mini_portile2 (2.5.0)
     minitest (5.14.4)
     mongo (2.14.0)
       bson (>= 4.8.2, < 5.0.0)
@@ -92,17 +130,26 @@ GEM
     mustermann-grape (1.0.1)
       mustermann (>= 1.0.0)
     nio4r (2.5.5)
+    nokogiri (1.11.1)
+      mini_portile2 (~> 2.5.0)
+      racc (~> 1.4)
     parallel (1.20.1)
     parser (3.0.0.0)
       ast (~> 2.4.1)
     public_suffix (4.0.6)
-    puma (5.2.1)
+    puma (5.2.2)
       nio4r (~> 2.0)
+    racc (1.5.2)
     rack (2.2.3)
     rack-accept (0.4.5)
       rack (>= 0.4)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
+    rails-dom-testing (2.0.3)
+      activesupport (>= 4.2.0)
+      nokogiri (>= 1.6)
+    rails-html-sanitizer (1.3.0)
+      loofah (~> 2.3)
     rainbow (3.0.0)
     rake (13.0.3)
     rake-compiler (1.1.1)
@@ -125,7 +172,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.2)
-    rubocop (1.10.0)
+    rubocop (1.11.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -143,6 +190,11 @@ GEM
       connection_pool (>= 2.2.2)
       rack (~> 2.0)
       redis (>= 4.2.0)
+    simplecov (0.17.1)
+      docile (~> 1.1)
+      json (>= 1.8, < 3)
+      simplecov-html (~> 0.10.0)
+    simplecov-html (0.10.2)
     sqlite3 (1.4.2)
     tilt (2.0.10)
     timecop (0.9.4)
@@ -159,9 +211,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  active_model_serializers
   beefcake (~> 1.0)
   bundler (>= 1.17.3)
-  elasticsearch (>= 2.0.0)
+  delayed_job
+  delayed_job_active_record
+  elasticsearch
   excon
   fakeredis
   faraday
@@ -171,21 +226,21 @@ DEPENDENCIES
   httpclient
   mongo
   puma
-  rack
   rack-test
-  rake
+  rake (~> 13.0.1)
   rake-compiler (~> 1.1.1)
   redis
   rexml
   rspec (~> 3.7)
   rspec-collection_matchers (~> 1.1)
-  rubocop (~> 1.10.0)
+  rubocop (~> 1.11.0)
   sequel (> 0)
-  sidekiq (> 0)
+  sidekiq
+  simplecov (~> 0.17.1)
   skylight!
   sqlite3 (~> 1.4.1)
   tilt
-  timecop
+  timecop (~> 0.9)
   webmock
 
 BUNDLED WITH

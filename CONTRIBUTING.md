@@ -16,7 +16,7 @@ If you prefer to run tests in your own environment, you may do so as follows:
 
 ```shell
 # Select a gemfile and bundle install
-export BUNDLE_GEMFILE=$PWD/gemfiles/Gemfile.rails-5.2.x
+export BUNDLE_GEMFILE=$PWD/gemfiles/rails-5.2.x/Gemfile
 bundle install
 # Run the test suite (takes 5-10 minutes)
 bundle exec rspec

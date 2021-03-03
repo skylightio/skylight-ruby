@@ -1,6 +1,5 @@
-ENV["MONGOID_VERSION"] = "skip"
-ENV["TILT_VERSION"] = "~> 2.0"
+source "https://rubygems.org"
 
-eval_gemfile "../Gemfile.base"
+gemspec path: "../.."
 
 gem "sinatra", git: "https://github.com/sinatra/sinatra"
