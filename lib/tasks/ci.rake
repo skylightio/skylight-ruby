@@ -107,7 +107,8 @@ module CITasks
     },
     "mongoid-7.x" => {
       allow: [
-        { "dependency-name": "mongoid" }
+        { "dependency-name": "mongoid" },
+        { "dependency-name": "mongo" }
       ]
       # We don't limit this so that we're aware when new versions are released
     },
@@ -201,8 +202,9 @@ module CITasks
 
   # FIXME: hash this config and compare in the job
   TEST_JOBS = [
+    # Mongo gem with latest mongoid
     {
-      name: "mongoid-7",
+      name: "mongo",
       ruby_version: NEWEST_RUBY,
       gemfile: "rails-6.1.x",
       services: mongo,
@@ -212,6 +214,7 @@ module CITasks
       }
     },
 
+    # Oldest mongoid we support
     {
       name: "mongoid-6",
       ruby_version: "2.7",
