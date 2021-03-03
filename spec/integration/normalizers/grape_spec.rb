@@ -140,12 +140,11 @@ if defined?(Grape)
     end
 
     it "instruments wildcard routes" do
-      wildcard = Gem::Version.new(Grape::VERSION) >= Gem::Version.new("0.19") ? "*" : "any"
-      expect_endpoint_instrument("#{wildcard} *path")
+      expect_endpoint_instrument("* *path")
 
       delete "/app/missing"
 
-      expect(@called_endpoint).to eq("GrapeTest::App [#{wildcard}] *path")
+      expect(@called_endpoint).to eq("GrapeTest::App [*] *path")
     end
 
     it "instruments multi method routes" do

@@ -49,10 +49,6 @@ end
 
 # Begin Probed libraries
 
-if ENV["AMS_VERSION"] == "edge"
-  require "active_support/inflector"
-end
-
 def enable_probe(probes, library = probes)
   Array(library).each do |l|
     require l

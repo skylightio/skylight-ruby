@@ -2,7 +2,9 @@ source "https://rubygems.org"
 
 gemspec path: "../.."
 
+# TODO: Check if we need Rails
 gem "rails", "~> 5.2.0"
 gem "sqlite3"
 
-gem "tilt", "1.4.1"
+gem "mongo"
+gem "mongoid", "~> 7"

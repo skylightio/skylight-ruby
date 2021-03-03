@@ -3,7 +3,7 @@ source "https://rubygems.org"
 gemspec path: "../.."
 
 # TODO: Check if we need Rails
-gem "rails", "~> 5.2.0"
+gem "rails", "~> 6.1.0"
 gem "sqlite3"
 
-gem "graphql", "~> 1.8.0"
+gem "active_model_serializers", "~> 0.10.12"

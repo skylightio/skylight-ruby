@@ -38,32 +38,17 @@ module CITasks
         }
       ]
     },
-    "ams-edge" => {
+    "ams-0.10.x" => {
       allow: [
         { "dependency-name": "active_model_serializers" }
       ]
+      # We don't limit this so that we're aware when new versions are released
     },
-    "grape-0.13.x" => {
+    "elasticsearch" => {
       allow: [
-        { "dependency-name": "grape" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "grape",
-          versions: [">= 0.14"]
-        }
+        { "dependency-name": "elasticsearch" }
       ]
-    },
-    "grape-1.1.x" => {
-      allow: [
-        { "dependency-name": "grape" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "grape",
-          versions: [">= 1.2"]
-        }
-      ]
+      # We don't limit this so that we're aware when new versions are released
     },
     "grape-1.2.x" => {
       allow: [
@@ -76,27 +61,11 @@ module CITasks
         }
       ]
     },
-    "grape-1.3.x" => {
-      allow: [
-        { "dependency-name": "grape" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "grape",
-          versions: [">= 1.4"]
-        }
-      ]
-    },
     "grape-1.x" => {
       allow: [
         { "dependency-name": "grape" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "grape",
-          versions: [">= 2"]
-        }
       ]
+      # We don't limit this so that we're aware when new versions are released
     },
     "grape-edge" => {
       allow: [
@@ -136,6 +105,13 @@ module CITasks
         }
       ]
     },
+    "mongoid-7.x" => {
+      allow: [
+        { "dependency-name": "mongoid" },
+        { "dependency-name": "mongo" }
+      ]
+      # We don't limit this so that we're aware when new versions are released
+    },
     "rails-5.2.x" => {
       allow: [
         { "dependency-name": "rails" },
@@ -166,13 +142,8 @@ module CITasks
     "rails-6.1.x" => {
       allow: [
         { "dependency-name": "rails" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "rails",
-          versions: [">= 6.2"]
-        }
       ]
+      # We don't limit this so that we're aware when new versions are released
     },
     "rails-edge" => {
       allow: [
@@ -200,7 +171,7 @@ module CITasks
         }
       ]
     },
-    "sinatra-1.4.x" => {
+    "sinatra-1.x" => {
       allow: [
         { "dependency-name": "sinatra" }
       ],
@@ -211,42 +182,34 @@ module CITasks
         }
       ]
     },
-    "sinatra-2.0.x" => {
+    "sinatra-2.x" => {
       allow: [
         { "dependency-name": "sinatra" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "sinatra",
-          versions: [">= 2.1"]
-        }
       ]
+      # We don't limit this so that we're aware when new versions are released
     },
     "sinatra-edge" => {
       allow: [
         { "dependency-name": "sinatra" }
-      ]
-    },
-    "tilt-1.4.1" => {
-      ignore: [
-        { "dependency-name": "*" }
       ]
     }
   }.freeze
 
   # FIXME: hash this config and compare in the job
   TEST_JOBS = [
+    # Mongo gem with latest mongoid
     {
       name: "mongo",
-      ruby_version: "2.7",
-      gemfile: "rails-5.2.x",
+      ruby_version: NEWEST_RUBY,
+      gemfile: "rails-6.1.x",
       services: mongo,
       env: {
         TEST_MONGO_INTEGRATION: "true",
-        MONGO_HOST:             "localhost"
+        MONGO_HOST: "localhost"
       }
     },
 
+    # Oldest mongoid we support
     {
       name: "mongoid-6",
       ruby_version: "2.7",
@@ -260,8 +223,8 @@ module CITasks
 
     {
       name: "elasticsearch",
-      ruby_version: "2.7",
-      gemfile: "rails-5.2.x",
+      ruby_version: NEWEST_RUBY,
+      gemfile: "elasticsearch",
       services: {
         elasticsearch: {
           image: "elasticsearch:6.8.6",
@@ -274,20 +237,27 @@ module CITasks
       }
     },
 
+    # GraphQL 1.7 is the oldest version that we support.
+    # We also have some special handling for it.
     {
-      always_run: true,
       ruby_version: OLDEST_RUBY,
       gemfile: "sidekiq-4.x-graphql-1.7.x"
     },
 
+    # We need to test either 1.8 or 1.9 since there are more changes in 1.10.
+    # We probably don't need to test both
     {
       ruby_version: "2.7",
       gemfile: "graphql-1.9.x"
     },
 
+    # GraphQL 1.11 is tested as part of our default additional gems
+    # TODO: We should test 1.12+
+
     {
-      ruby_version: "2.7",
-      gemfile: "graphql-1.8.x"
+      gemfile: "rails-5.2.x",
+      ruby_version: OLDEST_RUBY,
+      always_run: true
     },
 
     {
@@ -314,23 +284,13 @@ module CITasks
 
     {
       ruby_version: OLDEST_RUBY,
-      gemfile: "sinatra-1.4.x"
-    },
-
-    {
-      ruby_version: NEWEST_RUBY,
-      gemfile: "sinatra-1.4.x"
-    },
-
-    {
-      ruby_version: OLDEST_RUBY,
-      gemfile: "sinatra-2.0.x"
+      gemfile: "sinatra-1.x"
     },
 
     {
       always_run: true,
       ruby_version: NEWEST_RUBY,
-      gemfile: "sinatra-2.0.x"
+      gemfile: "sinatra-2.x"
     },
 
     {
@@ -351,39 +311,20 @@ module CITasks
 
     {
       always_run: true,
-      ruby_version: "2.7", # NOTE: this should work on Ruby 3 when Grape 1.5.2 is released.
+      ruby_version: NEWEST_RUBY,
       gemfile: "grape-1.x"
     },
 
-    {
-      ruby_version: "2.7",
-      gemfile: "grape-0.13.x"
-    },
-
-    {
-      ruby_version: "2.7",
-      gemfile: "grape-1.1.x"
-    },
-
+    # Oldest supported grape version. Doesn't support 3.0.
     {
       ruby_version: "2.7",
       gemfile: "grape-1.2.x"
     },
 
     {
-      ruby_version: "2.7",
-      gemfile: "grape-1.3.x"
-    },
-
-    {
       ruby_version: NEWEST_RUBY,
       allow_failure: true,
       gemfile: "grape-edge"
-    },
-
-    {
-      ruby_version: "2.7",
-      gemfile: "tilt-1.4.1"
     },
 
     {
@@ -402,11 +343,8 @@ module CITasks
     },
 
     {
-      ruby_version: "2.7",
-      allow_failure: true,
-      gemfile: "ams-edge",
-      # We need to keep this since we actually check it in the specs
-      env: { AMS_VERSION: "edge" }
+      ruby_version: NEWEST_RUBY,
+      gemfile: "ams-0.10.x"
     },
 
     {

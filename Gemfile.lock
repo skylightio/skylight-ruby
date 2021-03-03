@@ -75,7 +75,6 @@ GEM
       public_suffix (>= 2.0.2, < 5.0)
     ast (2.4.2)
     beefcake (1.2.0)
-    bson (4.11.1)
     builder (3.2.4)
     byebug (11.1.3)
     case_transform (0.2)
@@ -111,14 +110,6 @@ GEM
       dry-core (~> 0.5, >= 0.5)
       dry-inflector (~> 0.1, >= 0.1.2)
       dry-logic (~> 1.0, >= 1.0.2)
-    elasticsearch (7.11.2)
-      elasticsearch-api (= 7.11.2)
-      elasticsearch-transport (= 7.11.2)
-    elasticsearch-api (7.11.2)
-      multi_json
-    elasticsearch-transport (7.11.2)
-      faraday (~> 1)
-      multi_json
     erubi (1.10.0)
     excon (0.79.0)
     fakeredis (0.8.0)
@@ -167,9 +158,6 @@ GEM
     mini_mime (1.0.2)
     mini_portile2 (2.5.0)
     minitest (5.14.4)
-    mongo (2.14.0)
-      bson (>= 4.8.2, < 5.0.0)
-    multi_json (1.15.0)
     multipart-post (2.1.1)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
@@ -308,7 +296,6 @@ DEPENDENCIES
   bundler (>= 1.17.3)
   delayed_job
   delayed_job_active_record
-  elasticsearch
   excon
   fakeredis
   faraday
@@ -316,7 +303,6 @@ DEPENDENCIES
   graphiti
   graphql (~> 1.11.0)
   httpclient
-  mongo
   pry
   pry-byebug
   puma
