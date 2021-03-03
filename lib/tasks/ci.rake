@@ -44,6 +44,12 @@ module CITasks
       ]
       # We don't limit this so that we're aware when new versions are released
     },
+    "elasticsearch" => {
+      allow: [
+        { "dependency-name": "elasticsearch" }
+      ]
+      # We don't limit this so that we're aware when new versions are released
+    },
     "grape-0.13.x" => {
       allow: [
         { "dependency-name": "grape" }
@@ -253,7 +259,7 @@ module CITasks
     {
       name: "elasticsearch",
       ruby_version: "2.7",
-      gemfile: "rails-5.2.x",
+      gemfile: "elasticsearch",
       services: {
         elasticsearch: {
           image: "elasticsearch:6.8.6",

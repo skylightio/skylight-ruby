@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: bd6cda2315fac26a3bde046aeda70b2897c6b927370039e60f529aab64b381fc
+  CONFIG_DIGEST: bea15e6e354ab7241149ff398081296b190ff4111172cd664be93abd4817649b
 'on':
   push:
     branches:
@@ -146,11 +146,11 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-rails-5-2-x-elasticsearch:
-    name: ruby 2.7, rails-5.2.x, elasticsearch
+  ruby-2-7-elasticsearch-elasticsearch:
+    name: ruby 2.7, elasticsearch, elasticsearch
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'elasticsearch')
     services:
       elasticsearch:
         image: elasticsearch:6.8.6
@@ -159,7 +159,7 @@ jobs:
         - 9300:9300
         options: -e "discovery.type=single-node"
     env:
-      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
+      BUNDLE_GEMFILE: gemfiles/elasticsearch/Gemfile
       TEST_ELASTICSEARCH_INTEGRATION: 'true'
     steps:
     - name: Checkout
@@ -176,10 +176,10 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x-${{ hashFiles('gemfiles/rails-5.2.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-2.7-elasticsearch-${{ hashFiles('gemfiles/elasticsearch/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.7-rails-5.2.x-
+          ${{ runner.os }}-gems-2.7-elasticsearch-
           ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
@@ -1672,7 +1672,7 @@ jobs:
     needs:
     - ruby-2-7-rails-5-2-x-mongoid-7
     - ruby-2-7-mongoid-6-x-mongoid-6
-    - ruby-2-7-rails-5-2-x-elasticsearch
+    - ruby-2-7-elasticsearch-elasticsearch
     - ruby-2-5-sidekiq-4-x-graphql-1-7-x
     - ruby-2-7-graphql-1-9-x
     - ruby-2-7-graphql-1-8-x
@@ -1707,7 +1707,7 @@ jobs:
     needs:
     - ruby-2-7-rails-5-2-x-mongoid-7
     - ruby-2-7-mongoid-6-x-mongoid-6
-    - ruby-2-7-rails-5-2-x-elasticsearch
+    - ruby-2-7-elasticsearch-elasticsearch
     - ruby-2-5-sidekiq-4-x-graphql-1-7-x
     - ruby-2-7-graphql-1-9-x
     - ruby-2-7-graphql-1-8-x

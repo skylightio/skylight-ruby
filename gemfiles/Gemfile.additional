@@ -15,6 +15,3 @@ gem "tilt"
 
 gem "fakeredis"
 gem "redis"
-
-# TODO: Only install when testing
-gem "elasticsearch"

@@ -54,6 +54,17 @@ updates:
     versions:
     - ">= 7"
 - package-ecosystem: bundler
+  directory: gemfiles/elasticsearch
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - elasticsearch
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: elasticsearch
+- package-ecosystem: bundler
   directory: gemfiles/sidekiq-4.x-graphql-1.7.x
   schedule:
     interval: weekly
