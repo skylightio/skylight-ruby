@@ -128,10 +128,6 @@ updates:
   open-pull-requests-limit: 10
   allow:
   - dependency-name: rails
-  ignore:
-  - dependency-name: rails
-    versions:
-    - ">= 6.2"
 - package-ecosystem: bundler
   directory: gemfiles/rails-edge
   schedule:
@@ -169,10 +165,6 @@ updates:
   open-pull-requests-limit: 10
   allow:
   - dependency-name: sinatra
-  ignore:
-  - dependency-name: sinatra
-    versions:
-    - ">= 2.1"
 - package-ecosystem: bundler
   directory: gemfiles/sinatra-edge
   schedule:
@@ -195,10 +187,6 @@ updates:
   open-pull-requests-limit: 10
   allow:
   - dependency-name: grape
-  ignore:
-  - dependency-name: grape
-    versions:
-    - ">= 2"
 - package-ecosystem: bundler
   directory: gemfiles/grape-0.13.x
   schedule:
@@ -333,7 +321,3 @@ updates:
   open-pull-requests-limit: 10
   allow:
   - dependency-name: active_model_serializers
-  ignore:
-  - dependency-name: active_model_serializers
-    versions:
-    - ">= 0.11"

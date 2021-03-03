@@ -41,13 +41,8 @@ module CITasks
     "ams-0.10.x" => {
       allow: [
         { "dependency-name": "active_model_serializers" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "active_model_serializers",
-          versions: [">= 0.11"]
-        }
       ]
+      # We don't limit this so that we're aware when new versions are released
     },
     "grape-0.13.x" => {
       allow: [
@@ -96,13 +91,8 @@ module CITasks
     "grape-1.x" => {
       allow: [
         { "dependency-name": "grape" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "grape",
-          versions: [">= 2"]
-        }
       ]
+      # We don't limit this so that we're aware when new versions are released
     },
     "grape-edge" => {
       allow: [
@@ -178,13 +168,8 @@ module CITasks
     "rails-6.1.x" => {
       allow: [
         { "dependency-name": "rails" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "rails",
-          versions: [">= 6.2"]
-        }
       ]
+      # We don't limit this so that we're aware when new versions are released
     },
     "rails-edge" => {
       allow: [
@@ -226,13 +211,8 @@ module CITasks
     "sinatra-2.0.x" => {
       allow: [
         { "dependency-name": "sinatra" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "sinatra",
-          versions: [">= 2.1"]
-        }
       ]
+      # We don't limit this so that we're aware when new versions are released
     },
     "sinatra-edge" => {
       allow: [
