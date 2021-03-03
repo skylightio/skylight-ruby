@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: adaa5f37d68bf5e42cbceeb1ccae215966a31d771a5414fdad6bbd3dcb8e1fe3
+  CONFIG_DIGEST: 58a27d720e79054c0e66eb258718a42b703e319de68814f0f285dcd70c68a571
 'on':
   push:
     branches:
@@ -212,7 +212,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sidekiq-4.x-graphql-1.7.x')
-      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     env:
       BUNDLE_GEMFILE: gemfiles/sidekiq-4.x-graphql-1.7.x/Gemfile
     steps:
@@ -288,6 +287,60 @@ jobs:
         restore-keys: |-
           ${{ runner.os }}-gems-2.7-graphql-1.9.x-
           ${{ runner.os }}-gems-2.7-
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    - name: Prepare coverage files for upload
+      run: |
+        mkdir -p coverage-sync
+        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+    - name: Upload coverage files
+      if: success()
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage
+        path: coverage-sync
+    needs:
+    - ruby-3-0-rails-6-1-x
+  ruby-2-5-rails-5-2-x:
+    name: ruby 2.5, rails-5.2.x
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
+      || !contains(github.event.pull_request.labels.*.name, 'dependencies')
+    env:
+      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '2.5'
+    - name: Install APT dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache
+      uses: actions/cache@v2.1.4
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-2.5-rails-5.2.x-${{ hashFiles('gemfiles/rails-5.2.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-2.5-rails-5.2.x-
+          ${{ runner.os }}-gems-2.5-
     - name: bundle install
       run: |
         gem install bundler
@@ -1304,6 +1357,7 @@ jobs:
     - ruby-3-0-elasticsearch-elasticsearch
     - ruby-2-5-sidekiq-4-x-graphql-1-7-x
     - ruby-2-7-graphql-1-9-x
+    - ruby-2-5-rails-5-2-x
     - ruby-3-0-rails-6-0-x
     - ruby-3-0-rails-6-1-x
     - ruby-2-5-sinatra-1-x
@@ -1332,6 +1386,7 @@ jobs:
     - ruby-3-0-elasticsearch-elasticsearch
     - ruby-2-5-sidekiq-4-x-graphql-1-7-x
     - ruby-2-7-graphql-1-9-x
+    - ruby-2-5-rails-5-2-x
     - ruby-3-0-rails-6-0-x
     - ruby-3-0-rails-6-1-x
     - ruby-2-5-sinatra-1-x

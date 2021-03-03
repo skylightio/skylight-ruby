@@ -91,6 +91,25 @@ updates:
     versions:
     - ">= 1.10"
 - package-ecosystem: bundler
+  directory: gemfiles/rails-5.2.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - rails-5.2.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: rails
+  - dependency-name: sqlite
+  ignore:
+  - dependency-name: rails
+    versions:
+    - ">= 5.3"
+  - dependency-name: sqlite
+    versions:
+    - ">= 1.5"
+- package-ecosystem: bundler
   directory: gemfiles/rails-6.0.x
   schedule:
     interval: weekly
