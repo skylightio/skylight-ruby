@@ -5,7 +5,7 @@ gem "delayed_job_active_record", require: false
 gem "excon"
 gem "faraday"
 gem "graphiti"
-gem "graphql", "~> 1.11.0"
+gem "graphql", "~> 1.11.0" # TODO: We should test 1.12
 gem "httpclient"
 gem "rexml"
 gem "sequel", "> 0"

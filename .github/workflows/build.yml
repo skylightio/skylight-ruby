@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 94bfc67724f5532686d77ea1d890f5b55c464984d260b5318c119e4167e37458
+  CONFIG_DIGEST: b8732e770846be82ebf8e89b9d5f664bc1bb7cc2ef136582b9667e634d4fd12b
 'on':
   push:
     branches:
@@ -287,59 +287,6 @@ jobs:
           }}"
         restore-keys: |-
           ${{ runner.os }}-gems-2.7-graphql-1.9.x-
-          ${{ runner.os }}-gems-2.7-
-    - name: bundle install
-      run: |
-        gem install bundler
-        bundle install
-    - name: Run tests
-      run: |
-        bundle exec rake workflow:verify[$CONFIG_DIGEST]
-        bundle exec rake
-    - name: Run tests (agent disabled)
-      env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-        SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
-    needs:
-    - ruby-3-0-rails-6-1-x
-  ruby-2-7-graphql-1-8-x:
-    name: ruby 2.7, graphql-1.8.x
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'graphql-1.8.x')
-    env:
-      BUNDLE_GEMFILE: gemfiles/graphql-1.8.x/Gemfile
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '2.7'
-    - name: Install APT dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
-      uses: actions/cache@v2.1.4
-      with:
-        path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-graphql-1.8.x-${{ hashFiles('gemfiles/graphql-1.8.x/Gemfile.lock')
-          }}"
-        restore-keys: |-
-          ${{ runner.os }}-gems-2.7-graphql-1.8.x-
           ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
@@ -1516,7 +1463,6 @@ jobs:
     - ruby-3-0-elasticsearch-elasticsearch
     - ruby-2-5-sidekiq-4-x-graphql-1-7-x
     - ruby-2-7-graphql-1-9-x
-    - ruby-2-7-graphql-1-8-x
     - ruby-3-0-rails-6-0-x
     - ruby-3-0-rails-6-1-x
     - ruby-2-5-sinatra-1-4-x
@@ -1548,7 +1494,6 @@ jobs:
     - ruby-3-0-elasticsearch-elasticsearch
     - ruby-2-5-sidekiq-4-x-graphql-1-7-x
     - ruby-2-7-graphql-1-9-x
-    - ruby-2-7-graphql-1-8-x
     - ruby-3-0-rails-6-0-x
     - ruby-3-0-rails-6-1-x
     - ruby-2-5-sinatra-1-4-x

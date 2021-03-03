@@ -91,21 +91,6 @@ updates:
     versions:
     - ">= 1.10"
 - package-ecosystem: bundler
-  directory: gemfiles/graphql-1.8.x
-  schedule:
-    interval: weekly
-    time: '13:00'
-  labels:
-  - dependencies
-  - graphql-1.8.x
-  open-pull-requests-limit: 10
-  allow:
-  - dependency-name: graphql
-  ignore:
-  - dependency-name: graphql
-    versions:
-    - ">= 1.9"
-- package-ecosystem: bundler
   directory: gemfiles/rails-6.0.x
   schedule:
     interval: weekly

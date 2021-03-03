@@ -239,21 +239,23 @@ module CITasks
       }
     },
 
+    # GraphQL 1.7 is the oldest version that we support.
+    # We also have some special handling for it.
     {
       always_run: true,
       ruby_version: OLDEST_RUBY,
       gemfile: "sidekiq-4.x-graphql-1.7.x"
     },
 
+    # We need to test either 1.8 or 1.9 since there are more changes in 1.10.
+    # We probably don't need to test both
     {
       ruby_version: "2.7",
       gemfile: "graphql-1.9.x"
     },
 
-    {
-      ruby_version: "2.7",
-      gemfile: "graphql-1.8.x"
-    },
+    # GraphQL 1.11 is tested as part of our default additional gems
+    # TODO: We should test 1.12+
 
     {
       always_run: true,
