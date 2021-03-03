@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 381cdb3b01078019cf31d3b8832bbf4a9abde851d3904a9194e1012520825940
+  CONFIG_DIGEST: bd6cda2315fac26a3bde046aeda70b2897c6b927370039e60f529aab64b381fc
 'on':
   push:
     branches:
@@ -26,8 +26,8 @@ env:
     - reopened
     - synchronize
 jobs:
-  ruby-2-7-rails-5-2-x-mongo:
-    name: ruby 2.7, rails-5.2.x, mongo
+  ruby-2-7-rails-5-2-x-mongoid-7:
+    name: ruby 2.7, rails-5.2.x, mongoid-7
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
@@ -1670,7 +1670,7 @@ jobs:
         ./cc-test-reporter sum-coverage formatted_coverage/**/*.json
         ./cc-test-reporter upload-coverage
     needs:
-    - ruby-2-7-rails-5-2-x-mongo
+    - ruby-2-7-rails-5-2-x-mongoid-7
     - ruby-2-7-mongoid-6-x-mongoid-6
     - ruby-2-7-rails-5-2-x-elasticsearch
     - ruby-2-5-sidekiq-4-x-graphql-1-7-x
@@ -1705,7 +1705,7 @@ jobs:
       run: 'true'
       if: "!contains(needs.*.result, 'failure')"
     needs:
-    - ruby-2-7-rails-5-2-x-mongo
+    - ruby-2-7-rails-5-2-x-mongoid-7
     - ruby-2-7-mongoid-6-x-mongoid-6
     - ruby-2-7-rails-5-2-x-elasticsearch
     - ruby-2-5-sidekiq-4-x-graphql-1-7-x

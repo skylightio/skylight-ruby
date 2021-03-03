@@ -142,6 +142,12 @@ module CITasks
         }
       ]
     },
+    "mongoid-7.x" => {
+      allow: [
+        { "dependency-name": "mongoid" }
+      ]
+      # We don't limit this so that we're aware when new versions are released
+    },
     "rails-5.2.x" => {
       allow: [
         { "dependency-name": "rails" },
@@ -243,13 +249,13 @@ module CITasks
   # FIXME: hash this config and compare in the job
   TEST_JOBS = [
     {
-      name: "mongo",
+      name: "mongoid-7",
       ruby_version: "2.7",
       gemfile: "rails-5.2.x",
       services: mongo,
       env: {
         TEST_MONGO_INTEGRATION: "true",
-        MONGO_HOST:             "localhost"
+        MONGO_HOST: "localhost"
       }
     },
 

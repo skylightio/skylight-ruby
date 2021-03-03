@@ -18,6 +18,3 @@ gem "redis"
 
 # TODO: Only install when testing
 gem "elasticsearch"
-
-# TODO: Only install when testing
-gem "mongo"

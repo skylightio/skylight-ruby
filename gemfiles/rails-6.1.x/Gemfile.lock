@@ -75,7 +75,6 @@ GEM
       public_suffix (>= 2.0.2, < 5.0)
     ast (2.4.2)
     beefcake (1.2.0)
-    bson (4.12.0)
     builder (3.2.4)
     case_transform (0.2)
       activesupport
@@ -158,8 +157,6 @@ GEM
     mini_mime (1.0.2)
     mini_portile2 (2.5.0)
     minitest (5.14.4)
-    mongo (2.14.0)
-      bson (>= 4.8.2, < 5.0.0)
     multi_json (1.15.0)
     multipart-post (2.1.1)
     nio4r (2.5.5)
@@ -286,7 +283,6 @@ DEPENDENCIES
   graphiti
   graphql (~> 1.11.0)
   httpclient
-  mongo
   puma
   rack-test
   rails (~> 6.1.0)
