@@ -214,21 +214,6 @@ updates:
     versions:
     - ">= 1.3"
 - package-ecosystem: bundler
-  directory: gemfiles/grape-1.3.x
-  schedule:
-    interval: weekly
-    time: '13:00'
-  labels:
-  - dependencies
-  - grape-1.3.x
-  open-pull-requests-limit: 10
-  allow:
-  - dependency-name: grape
-  ignore:
-  - dependency-name: grape
-    versions:
-    - ">= 1.4"
-- package-ecosystem: bundler
   directory: gemfiles/grape-edge
   schedule:
     interval: weekly

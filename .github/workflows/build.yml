@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 0a39e116bdbc5f1d6c9147c78fe9f3dd5fd7b0e9ad92f7ca24056c3e26bfb351
+  CONFIG_DIGEST: a3bed8e22ecbe4b9ecdcb7bef6d1e73dd2f827a7395bd28e1daf512171ffa9f7
 'on':
   push:
     branches:
@@ -1003,59 +1003,6 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-grape-1-3-x:
-    name: ruby 2.7, grape-1.3.x
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.3.x')
-    env:
-      BUNDLE_GEMFILE: gemfiles/grape-1.3.x/Gemfile
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '2.7'
-    - name: Install APT dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
-      uses: actions/cache@v2.1.4
-      with:
-        path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-grape-1.3.x-${{ hashFiles('gemfiles/grape-1.3.x/Gemfile.lock')
-          }}"
-        restore-keys: |-
-          ${{ runner.os }}-gems-2.7-grape-1.3.x-
-          ${{ runner.os }}-gems-2.7-
-    - name: bundle install
-      run: |
-        gem install bundler
-        bundle install
-    - name: Run tests
-      run: |
-        bundle exec rake workflow:verify[$CONFIG_DIGEST]
-        bundle exec rake
-    - name: Run tests (agent disabled)
-      env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-        SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
-    needs:
-    - ruby-3-0-rails-6-1-x
   ruby-3-0-grape-edge:
     name: "[allowed to fail] ruby 3.0, grape-edge"
     runs-on: ubuntu-latest
@@ -1580,7 +1527,6 @@ jobs:
     - ruby-2-5-grape-1-x
     - ruby-2-7-grape-1-x
     - ruby-2-7-grape-1-2-x
-    - ruby-2-7-grape-1-3-x
     - ruby-2-7-tilt-1-4-1
     - ruby-3-0-sequel-4-34-0
     - ruby-2-7-ams-0-8-x
@@ -1613,7 +1559,6 @@ jobs:
     - ruby-2-5-grape-1-x
     - ruby-2-7-grape-1-x
     - ruby-2-7-grape-1-2-x
-    - ruby-2-7-grape-1-3-x
     - ruby-2-7-tilt-1-4-1
     - ruby-3-0-sequel-4-34-0
     - ruby-2-7-ams-0-8-x

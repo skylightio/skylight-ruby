@@ -61,17 +61,6 @@ module CITasks
         }
       ]
     },
-    "grape-1.3.x" => {
-      allow: [
-        { "dependency-name": "grape" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "grape",
-          versions: [">= 1.4"]
-        }
-      ]
-    },
     "grape-1.x" => {
       allow: [
         { "dependency-name": "grape" }
@@ -333,12 +322,7 @@ module CITasks
 
     {
       ruby_version: "2.7",
-      gemfile: "grape-1.2.x"
-    },
-
-    {
-      ruby_version: "2.7",
-      gemfile: "grape-1.3.x"
+      gemfile: "grape-1.2.x" # Oldest supported version
     },
 
     {
