@@ -761,10 +761,16 @@ if enable
         end
       end
 
-      configs = [{ schema: :TestAppSchema, expectation_event_style: :grouped }].tap do |ary|
-        if test_interpreter_schema?
-          ary << { schema: :InterpreterSchema, expectation_event_style: :inline }
-        end
+      configs = []
+
+      if test_interpreter_schema?
+        configs << { schema: :InterpreterSchema, expectation_event_style: :inline }
+      end
+
+      # GraphQL::Execution::Interpreter became the default as of 1.12, so we do not need to
+      # test an additional schema for versions >= 1.12.
+      if Gem::Version.new(GraphQL::VERSION) < Gem::Version.new("1.12")
+        configs << { schema: :TestAppSchema, expectation_event_style: :grouped }
       end
 
       configs.each do |config|
