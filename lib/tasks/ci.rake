@@ -344,7 +344,6 @@ module CITasks
 
     {
       ruby_version: NEWEST_RUBY,
-      allow_failure: true,
       gemfile: "ams-0.10.x"
     },
 

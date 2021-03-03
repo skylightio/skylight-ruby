@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 58a27d720e79054c0e66eb258718a42b703e319de68814f0f285dcd70c68a571
+  CONFIG_DIGEST: 55998fa8e7bf116a82d8ebbe95ade7c55d0f15fb9c92ae0f39da2e74948476a5
 'on':
   push:
     branches:
@@ -1111,9 +1111,8 @@ jobs:
     needs:
     - ruby-3-0-rails-6-1-x
   ruby-3-0-ams-0-10-x:
-    name: "[allowed to fail] ruby 3.0, ams-0.10.x"
+    name: ruby 3.0, ams-0.10.x
     runs-on: ubuntu-latest
-    continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.10.x')
     env:
@@ -1369,6 +1368,7 @@ jobs:
     - ruby-3-0-sequel-4-34-0
     - ruby-2-7-ams-0-8-x
     - ruby-2-7-ams-0-9-x
+    - ruby-3-0-ams-0-10-x
   required-tests-passed:
     name: Required Tests Passed
     runs-on: ubuntu-latest
@@ -1398,3 +1398,4 @@ jobs:
     - ruby-3-0-sequel-4-34-0
     - ruby-2-7-ams-0-8-x
     - ruby-2-7-ams-0-9-x
+    - ruby-3-0-ams-0-10-x
