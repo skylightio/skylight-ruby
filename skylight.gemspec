@@ -34,15 +34,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.7"
   spec.add_development_dependency "rspec-collection_matchers", "~> 1.1"
   spec.add_development_dependency "rubocop", "~> 1.11.0"
+  spec.add_development_dependency "simplecov", "~> 0.21.2"
   spec.add_development_dependency "timecop", "~> 0.9"
   spec.add_development_dependency "webmock"
-
-  # FIXME: There's currently an incompatibility between SimpleCov 0.18+ and
-  # CodeClimate's test reporter. The current workaround is to pin the
-  # SimpleCov version to 0.17.1 or below.
-  #
-  # See: https://github.com/codeclimate/test-reporter/issues/413
-  spec.add_development_dependency "simplecov", "~> 0.21.2"
 
   # Executables
   spec.executables = %w[skylight]

@@ -6,6 +6,8 @@ require "bundler/setup"
 # Do this at the start
 begin
   require "simplecov"
+  require "simplecov_json_formatter"
+  SimpleCov.formatter = SimpleCov::Formatter::JSONFormatter
   SimpleCov.start do
     coverage_dir(ENV["COVERAGE_DIR"] || "coverage")
     add_filter %r{/spec/}

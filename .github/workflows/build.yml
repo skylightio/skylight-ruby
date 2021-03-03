@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 55998fa8e7bf116a82d8ebbe95ade7c55d0f15fb9c92ae0f39da2e74948476a5
+  CONFIG_DIGEST: e2a836d85f25ca9effcc0f712d20e7b56ba839cfdce07df24d9a9daa5f9fde4b
 'on':
   push:
     branches:
@@ -76,8 +76,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -136,8 +136,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -197,8 +197,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -250,8 +250,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -303,8 +303,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -357,8 +357,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -411,8 +411,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -463,8 +463,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -516,8 +516,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -569,8 +569,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -623,8 +623,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -677,8 +677,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -727,8 +727,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -780,8 +780,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -834,8 +834,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -887,8 +887,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -941,8 +941,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -994,8 +994,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -1047,8 +1047,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -1100,8 +1100,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -1153,8 +1153,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -1209,8 +1209,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
@@ -1266,8 +1266,8 @@ jobs:
     - name: Prepare coverage files for upload
       run: |
         mkdir -p coverage-sync
-        cp coverage/.resultset.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/.resultset.json coverage-sync/coverage.disabled.$(uuidgen).json
+        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
+        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
     - name: Upload coverage files
       if: success()
       uses: actions/upload-artifact@v2
