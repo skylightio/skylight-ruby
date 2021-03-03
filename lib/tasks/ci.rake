@@ -38,9 +38,15 @@ module CITasks
         }
       ]
     },
-    "ams-edge" => {
+    "ams-0.10.x" => {
       allow: [
         { "dependency-name": "active_model_serializers" }
+      ],
+      ignore: [
+        {
+          "dependency-name": "active_model_serializers",
+          versions: [">= 0.11"]
+        }
       ]
     },
     "grape-0.13.x" => {
@@ -404,9 +410,7 @@ module CITasks
     {
       ruby_version: "2.7",
       allow_failure: true,
-      gemfile: "ams-edge",
-      # We need to keep this since we actually check it in the specs
-      env: { AMS_VERSION: "edge" }
+      gemfile: "ams-0.10.x"
     },
 
     {

@@ -1,0 +1,9 @@
+source "https://rubygems.org"
+
+gemspec path: "../.."
+
+# TODO: Check if we need Rails
+gem "rails", "~> 5.2.0"
+gem "sqlite3"
+
+gem "active_model_serializers", "~> 0.10.12"

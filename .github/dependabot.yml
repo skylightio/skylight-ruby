@@ -323,13 +323,17 @@ updates:
     versions:
     - ">= 0.10"
 - package-ecosystem: bundler
-  directory: gemfiles/ams-edge
+  directory: gemfiles/ams-0.10.x
   schedule:
     interval: weekly
     time: '13:00'
   labels:
   - dependencies
-  - ams-edge
+  - ams-0.10.x
   open-pull-requests-limit: 10
   allow:
   - dependency-name: active_model_serializers
+  ignore:
+  - dependency-name: active_model_serializers
+    versions:
+    - ">= 0.11"

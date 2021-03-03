@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: dc250a24b60b899e29dc2a6855c84f4ed98fcfb3e546c35358ad52dfbc6b7926
+  CONFIG_DIGEST: 381cdb3b01078019cf31d3b8832bbf4a9abde851d3904a9194e1012520825940
 'on':
   push:
     branches:
@@ -1428,15 +1428,14 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-rails-6-1-x
-  ruby-2-7-ams-edge-ams_version-edge:
-    name: "[allowed to fail] ruby 2.7, ams-edge, AMS_VERSION=edge"
+  ruby-2-7-ams-0-10-x:
+    name: "[allowed to fail] ruby 2.7, ams-0.10.x"
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-edge')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.10.x')
     env:
-      BUNDLE_GEMFILE: gemfiles/ams-edge/Gemfile
-      AMS_VERSION: edge
+      BUNDLE_GEMFILE: gemfiles/ams-0.10.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1452,10 +1451,10 @@ jobs:
       uses: actions/cache@v2.1.4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-ams-edge-${{ hashFiles('gemfiles/ams-edge/Gemfile.lock')
+        key: "${{ runner.os }}-gems-2.7-ams-0.10.x-${{ hashFiles('gemfiles/ams-0.10.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.7-ams-edge-
+          ${{ runner.os }}-gems-2.7-ams-0.10.x-
           ${{ runner.os }}-gems-2.7-
     - name: bundle install
       run: |
