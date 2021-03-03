@@ -171,7 +171,7 @@ module CITasks
         }
       ]
     },
-    "sinatra-1.4.x" => {
+    "sinatra-1.x" => {
       allow: [
         { "dependency-name": "sinatra" }
       ],
@@ -182,7 +182,7 @@ module CITasks
         }
       ]
     },
-    "sinatra-2.0.x" => {
+    "sinatra-2.x" => {
       allow: [
         { "dependency-name": "sinatra" }
       ]
@@ -279,23 +279,13 @@ module CITasks
 
     {
       ruby_version: OLDEST_RUBY,
-      gemfile: "sinatra-1.4.x"
-    },
-
-    {
-      ruby_version: NEWEST_RUBY,
-      gemfile: "sinatra-1.4.x"
-    },
-
-    {
-      ruby_version: OLDEST_RUBY,
-      gemfile: "sinatra-2.0.x"
+      gemfile: "sinatra-1.x"
     },
 
     {
       always_run: true,
       ruby_version: NEWEST_RUBY,
-      gemfile: "sinatra-2.0.x"
+      gemfile: "sinatra-2.x"
     },
 
     {

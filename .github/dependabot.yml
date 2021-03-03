@@ -117,13 +117,13 @@ updates:
   allow:
   - dependency-name: rails
 - package-ecosystem: bundler
-  directory: gemfiles/sinatra-1.4.x
+  directory: gemfiles/sinatra-1.x
   schedule:
     interval: weekly
     time: '13:00'
   labels:
   - dependencies
-  - sinatra-1.4.x
+  - sinatra-1.x
   open-pull-requests-limit: 10
   allow:
   - dependency-name: sinatra
@@ -132,13 +132,13 @@ updates:
     versions:
     - ">= 1.5"
 - package-ecosystem: bundler
-  directory: gemfiles/sinatra-2.0.x
+  directory: gemfiles/sinatra-2.x
   schedule:
     interval: weekly
     time: '13:00'
   labels:
   - dependencies
-  - sinatra-2.0.x
+  - sinatra-2.x
   open-pull-requests-limit: 10
   allow:
   - dependency-name: sinatra

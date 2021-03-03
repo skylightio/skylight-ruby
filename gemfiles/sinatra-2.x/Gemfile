@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 gemspec path: "../.."
 
-gem "sinatra", "~> 2.0.0"
+gem "sinatra", "~> 2"
 
 # Test additional libraries with oldest and newest versions of Sintra
 eval_gemfile "../Gemfile.additional"
