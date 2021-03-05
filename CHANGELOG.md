@@ -1,35 +1,31 @@
-## 5.0.0.beta5
+## 5.0.0 (March 5, 2021)
+
+* [FEATURE] Add normalizer for Shrine events (thanks @janko!)
+* [FEATURE] Source Locations detection and reporting is now enabled by default (can be disabled with `SKYLIGHT_ENABLE_SOURCE_LOCATIONS=false`)
+* [FEATURE] Configuration for the Source Locations caches via `SYLIGHT_SOURCE_LOCATION_CACHE_SIZE`
+
 * [IMPROVEMENT] Improve keyword argument handling in Skylight::Helpers (thanks @lukebooth!)
 * [IMPROVEMENT] Replace a Kernel.puts with Skylight.log (thanks @johnnyshields!)
 * [IMPROVEMENT] Various updates to the SQL lexer
-* [FEATURE] Add normalizer for Shrine events (thanks @janko!)
-
-## 5.0.0.beta4
 * [IMPROVEMENT] Reduce volume of log messages sent to the native logger in debug level
-
-## 5.0.0.beta3
 * [IMPROVEMENT] Optimizations for the Source Locations extension
-* [FEATURE] Configuration for the Source Locations caches via `SYLIGHT_SOURCE_LOCATION_CACHE_SIZE`
-* [BUGFIX] Fix issue with missing metadata in MongoDB probe
-* [BUGFIX] Resolve an inability to parse certain SQL queries containing arrays
-
-## 5.0.0.beta2
-* [FEATURE] Source Locations detection and reporting is now enabled by default (can be disabled with `SKYLIGHT_ENABLE_SOURCE_LOCATIONS=false`)
-* [BREAKING] Rename `environment` keyword argument to `priority_key`. Note `env` has not changed.
-* [BREAKING] Drop support for Ruby 2.4
 * [IMPROVEMENT] Improved Delayed::Job probe
-
-## 5.0.0.beta
-* [BREAKING] Merge skylight-core into skylight. All classes previously namespaced under `Skylight::Core` have been moved to `Skylight`.
-* [BREAKING] Remove `Skylight::Util::Inflector`
-* [BREAKING] Drop support for Rails 4
-* [BREAKING] Drop support for Ruby 2.3
 * [IMPROVEMENT] Maintain method visibility when instrumenting with `instrument_method`
 * [IMPROVEMENT] Update probes to use `Module#prepend` where possible
 * [IMPROVEMENT] New tokio-based skylightd
 * [IMPROVEMENT] Support `render_layout` notifications in Rails 6.1
 * [IMPROVEMENT] Support `ActionMailer::MailDeliveryJob` in Rails 6.1
-* [IMPROVEMENT] Better logging config
+* [IMPROVEMENT] Better logging config. `SKYLIGHT_NATIVE_LOG_LEVEL` now defaults to `warn`.
+
+* [BREAKING] Rename `environment` keyword argument to `priority_key`. Note `env` has not changed.
+* [BREAKING] Drop support for Ruby 2.4
+* [BREAKING] Merge skylight-core into skylight. All classes previously namespaced under `Skylight::Core` have been moved to `Skylight`.
+* [BREAKING] Remove `Skylight::Util::Inflector`
+* [BREAKING] Drop support for Rails 4
+* [BREAKING] Drop support for Ruby 2.3
+
+* [BUGFIX] Fix issue with missing metadata in MongoDB probe
+* [BUGFIX] Resolve an inability to parse certain SQL queries containing arrays
 * [BUGFIX] Allow multiple probes to be registered under the same key
 * [BUGFIX] Do not refer to Redis constant until the probe is installed
 * [BUGFIX] Fix nested calls to `Normalizers::Faraday::Request.disable`
