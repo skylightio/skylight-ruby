@@ -476,17 +476,7 @@ describe Skylight::Instrumenter, :http, :agent do
         expect(result).to eq(control)
       end
 
-      # NOTE: There is an issue in Ruby 3 with a bare call to instrument_method and ruby2_keywords.
-      # This can be avoided by defining the method first, then adding the instrumentation.
-      #
-      # Bad:
-      #   instrument_method
-      #   ruby2_keywords def my_method(...)
-      #
-      # Good:
-      #   ruby2_keywords def my_method(...) end
-      #   instrument_method :my_method
-      send(RUBY_VERSION.start_with?("3") ? :pending : :it, "works with ruby2_keywords (deferred instrument_method)") do
+      it "works with ruby2_keywords (deferred instrument_method)" do
         obj = MyClass.new
         control = obj.ruby2_keywords_control(:positional, kw1: 1, kw2: 2)
         result = obj.ruby2_keywords_method_with_deferred_instrumentation(:positional, kw1: 1, kw2: 2)

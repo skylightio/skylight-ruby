@@ -145,11 +145,29 @@ module Skylight
           # source_file and source_line to be removed from the trace span before it is submitted.
           source_file, source_line = klass.instance_method(name).source_location
 
+          # We should strongly prefer using the new argument-forwarding syntax (...) where available.
+          # In Ruby 2.7, the following are known to be syntax errors:
+          #
+          # - mixing positional arguments with argument forwarding (e.g., send(:method_name, ...))
+          # - calling a setter method with multiple arguments, unless dispatched via send or public_send.
+          #
+          # So it is possible, though not recommended, to define setter methods that take multiple arguments,
+          # keywords, and/or blocks. Unfortunately, this means that for setters, we still need to explicitly
+          # forward the different argument types.
+          is_setter_method = name.to_s.end_with?("=")
+
           arg_string =
             if HAS_KW_ARGUMENT_FORWARDING
-              "*args, **kwargs, &blk"
+              is_setter_method ? "*args, **kwargs, &blk" : "..."
             else
               "*args, &blk"
+            end
+
+          original_method_dispatch =
+            if is_setter_method
+              "self.send(:before_instrument_#{name}, #{arg_string})"
+            else
+              "self.before_instrument_#{name}(#{arg_string})"
             end
 
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
@@ -165,7 +183,7 @@ module Skylight
               meta = {}                                                 #   meta = {}
                                                                         #
               begin                                                     #   begin
-                send(:before_instrument_#{name}, #{arg_string})         #     send(:before_instrument_process, *args, **kwargs, &blk)
+                #{original_method_dispatch}                             #     self.before_instrument_process(...)
               rescue Exception => e                                     #   rescue Exception => e
                 meta[:exception_object] = e                             #     meta[:exception_object] = e
                 raise e                                                 #     raise e
