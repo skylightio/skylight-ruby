@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ruby-grape/grape
-  revision: 8996fb11f7a9b308d4ea6ac717fbaf18c9bfb7e0
+  revision: 7741f022b5928f0ddcee27de08555d95ea4556f8
   specs:
-    grape (1.5.3)
+    grape (1.5.4)
       activesupport
       builder
       dry-types (>= 1.1)
