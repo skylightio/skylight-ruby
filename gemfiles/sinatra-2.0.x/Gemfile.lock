@@ -57,7 +57,7 @@ GEM
       multipart-post (>= 1.2, < 3)
       ruby2_keywords
     faraday-net_http (1.0.1)
-    graphiti (1.2.32)
+    graphiti (1.2.33)
       activesupport (>= 4.1)
       concurrent-ruby (~> 1.0)
       dry-types (>= 0.15.0, < 2.0)
@@ -115,7 +115,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.2)
-    rubocop (1.10.0)
+    rubocop (1.11.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -173,7 +173,7 @@ DEPENDENCIES
   rexml
   rspec (~> 3.7)
   rspec-collection_matchers (~> 1.1)
-  rubocop (~> 1.10.0)
+  rubocop (~> 1.11.0)
   sequel (> 0)
   sidekiq (> 0)
   sinatra (~> 2.0.0)
