@@ -3,4 +3,4 @@ ENV["RACK_VERSION"] = "~> 2.0.8"
 
 eval_gemfile "../Gemfile.base"
 
-gem "grape", "~> 1.2.0"
+gem "grape", "~> 1.5.3"
