@@ -82,7 +82,7 @@ GEM
       multipart-post (>= 1.2, < 3)
       ruby2_keywords
     faraday-net_http (1.0.1)
-    grape (1.5.2)
+    grape (1.5.3)
       activesupport
       builder
       dry-types (>= 1.1)
@@ -98,7 +98,7 @@ GEM
       jsonapi-serializable (~> 0.3.0)
     graphiti_errors (1.1.2)
       jsonapi-serializable (~> 0.1)
-    graphql (1.11.8)
+    graphql (1.12.5)
     hashdiff (1.0.1)
     httpclient (2.8.3)
     i18n (1.8.9)
@@ -209,7 +209,7 @@ DEPENDENCIES
   faraday
   grape (~> 1)
   graphiti
-  graphql (~> 1.11.0)
+  graphql (~> 1.12.5)
   httpclient
   puma
   rack-test
