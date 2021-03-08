@@ -135,7 +135,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.2)
-    rubocop (1.10.0)
+    rubocop (1.11.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -165,7 +165,7 @@ GEM
       coercible (~> 1.0)
       descendants_tracker (~> 0.0, >= 0.0.3)
       equalizer (~> 0.0, >= 0.0.9)
-    webmock (3.12.0)
+    webmock (3.12.1)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -195,7 +195,7 @@ DEPENDENCIES
   rexml
   rspec (~> 3.7)
   rspec-collection_matchers (~> 1.1)
-  rubocop (~> 1.10.0)
+  rubocop (~> 1.11.0)
   sequel (> 0)
   sidekiq (> 0)
   skylight!
