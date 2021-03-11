@@ -130,7 +130,7 @@ module Skylight
 
       private
 
-        HAS_KW_ARGUMENT_FORWARDING = Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7.0")
+        HAS_ARGUMENT_FORWARDING = Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7.0")
 
         def __sk_instrument_method_on(klass, name, title, **opts)
           category = (opts[:category] || "app.method").to_s
@@ -157,7 +157,7 @@ module Skylight
           is_setter_method = name.to_s.end_with?("=")
 
           arg_string =
-            if HAS_KW_ARGUMENT_FORWARDING
+            if HAS_ARGUMENT_FORWARDING
               is_setter_method ? "*args, **kwargs, &blk" : "..."
             else
               "*args, &blk"
@@ -167,7 +167,7 @@ module Skylight
             if is_setter_method
               "self.send(:before_instrument_#{name}, #{arg_string})"
             else
-              "self.before_instrument_#{name}(#{arg_string})"
+              "before_instrument_#{name}(#{arg_string})"
             end
 
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
