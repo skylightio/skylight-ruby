@@ -1,3 +1,6 @@
+## 5.0.1 (March 11, 2021)
+* [IMPROVEMENT] Use argument-forwarding (...) where available in custom instrumentation
+
 ## 5.0.0 (March 5, 2021)
 
 * [FEATURE] Add normalizer for Shrine events (thanks @janko!)

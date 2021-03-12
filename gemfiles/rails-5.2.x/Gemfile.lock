@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    skylight (5.0.0.beta5)
+    skylight (5.0.1)
       activesupport (>= 5.2.0)
 
 GEM
@@ -111,7 +111,7 @@ GEM
       jsonapi-serializable (~> 0.3.0)
     graphiti_errors (1.1.2)
       jsonapi-serializable (~> 0.1)
-    graphql (1.11.8)
+    graphql (1.12.5)
     hashdiff (1.0.1)
     httpclient (2.8.3)
     i18n (1.8.9)
@@ -252,7 +252,7 @@ DEPENDENCIES
   fakeredis
   faraday
   graphiti
-  graphql (~> 1.11.0)
+  graphql (~> 1.12.5)
   httpclient
   puma
   rack-test
@@ -274,4 +274,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.1.4
+   2.2.12

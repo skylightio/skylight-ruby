@@ -145,6 +145,16 @@ describe Skylight::Instrumenter, :http, :agent do
         def delegated_single_splat_receiver(*args)
           args
         end
+
+        instrument_method
+        def optional_argument_default_hash(options = {})
+          options[:arg1]
+        end
+
+        instrument_method
+        def optional_argument_default_hash_kwargs(options = {}, **_kwargs)
+          options[:arg1]
+        end
       end
 
       # The original name has to be used because that's what gets cached by the instrumentation code since it isn't
@@ -476,17 +486,7 @@ describe Skylight::Instrumenter, :http, :agent do
         expect(result).to eq(control)
       end
 
-      # NOTE: There is an issue in Ruby 3 with a bare call to instrument_method and ruby2_keywords.
-      # This can be avoided by defining the method first, then adding the instrumentation.
-      #
-      # Bad:
-      #   instrument_method
-      #   ruby2_keywords def my_method(...)
-      #
-      # Good:
-      #   ruby2_keywords def my_method(...) end
-      #   instrument_method :my_method
-      send(RUBY_VERSION.start_with?("3") ? :pending : :it, "works with ruby2_keywords (deferred instrument_method)") do
+      it "works with ruby2_keywords (deferred instrument_method)" do
         obj = MyClass.new
         control = obj.ruby2_keywords_control(:positional, kw1: 1, kw2: 2)
         result = obj.ruby2_keywords_method_with_deferred_instrumentation(:positional, kw1: 1, kw2: 2)
@@ -513,6 +513,48 @@ describe Skylight::Instrumenter, :http, :agent do
         # all args in one array, options grouped as hash
         expect(control).to eq([:positional, { kw1: 1, kw2: 2 }])
         expect(result).to eq(control)
+      end
+
+      begin
+        require "action_controller"
+
+        it "works with hash-like objects, default arg" do
+          obj = MyClass.new
+          unpermitted_params = ActionController::Parameters.new(arg1: "foo")
+          expect(obj.optional_argument_default_hash).to eq(nil)
+          # unpermitted_params would raise an error on the implicit #to_hash
+          expect(obj.optional_argument_default_hash(unpermitted_params)).to eq("foo")
+        end
+
+        it "works with hash-like objects, default arg with kwargs" do
+          obj = MyClass.new
+          unpermitted_params = ActionController::Parameters.new(arg1: "foo")
+          expect(obj.optional_argument_default_hash_kwargs).to eq(nil)
+          # unpermitted_params would raise an error on the implicit #to_hash
+
+          if RUBY_VERSION.start_with?("2")
+            # This is here primarily to document the issues with automatic keyword argument conversion,
+            # and that the behavior is identical with or without Skylight's instrumentation.
+            #
+            expect { obj.before_instrument_optional_argument_default_hash_kwargs(unpermitted_params) }.to(
+              raise_error(ActionController::UnfilteredParameters)
+            )
+
+            expect { obj.optional_argument_default_hash_kwargs(unpermitted_params) }.to(
+              raise_error(ActionController::UnfilteredParameters)
+            )
+          else
+            expect(obj.before_instrument_optional_argument_default_hash_kwargs(unpermitted_params)).to(
+              eq("foo")
+            )
+
+            expect(obj.optional_argument_default_hash_kwargs(unpermitted_params)).to(
+              eq("foo")
+            )
+          end
+        end
+      rescue LoadError
+        puts "ActionController not present, skipping test"
       end
     end
   end
