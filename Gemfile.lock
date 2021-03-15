@@ -137,7 +137,7 @@ GEM
       jsonapi-serializable (~> 0.3.0)
     graphiti_errors (1.1.2)
       jsonapi-serializable (~> 0.1)
-    graphql (1.12.5)
+    graphql (1.12.6)
     hashdiff (1.0.1)
     httpclient (2.8.3)
     i18n (1.8.9)
@@ -301,7 +301,7 @@ DEPENDENCIES
   faraday
   grape (~> 1.5.3)
   graphiti
-  graphql (~> 1.12.5)
+  graphql (~> 1.12.6)
   httpclient
   pry
   pry-byebug
