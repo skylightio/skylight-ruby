@@ -494,7 +494,11 @@ module CITasks
             conditions << "!contains(github.event.pull_request.labels.*.name, 'dependencies')"
           end
 
-          h[:if] = conditions.join(" || ")
+          # Also, don't run jobs for dependabot that aren't tagged.
+          # Without this, checks are run when the PR is created and for each label.
+          # This eleminates one of the three runs.
+          h[:if] = "(#{conditions.join(' || ')}) && (github.actor != 'dependabot[bot]' || "\
+            "contains(github.event.pull_request.labels.*.name, 'dependencies'))"
         end
 
         h[:services] = config[:services] if config[:services]
