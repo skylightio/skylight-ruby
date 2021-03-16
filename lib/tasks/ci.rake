@@ -199,6 +199,12 @@ module CITasks
   TEST_JOBS = [
     # Mongo gem with latest mongoid
     {
+      primary: true,
+      ruby_version: NEWEST_RUBY,
+      gemfile: "default"
+    },
+
+    {
       name: "mongo",
       ruby_version: NEWEST_RUBY,
       gemfile: "rails-6.1.x",
@@ -267,7 +273,7 @@ module CITasks
     },
 
     {
-      primary: true,
+      always_run: true,
       ruby_version: NEWEST_RUBY,
       gemfile: "rails-6.1.x"
     },
@@ -297,11 +303,6 @@ module CITasks
       ruby_version: NEWEST_RUBY,
       allow_failure: true,
       gemfile: "sinatra-edge"
-    },
-
-    {
-      ruby_version: NEWEST_RUBY
-      # This will use the default Gemfile with Rails and Sinatra
     },
 
     {
@@ -684,10 +685,10 @@ module CITasks
         end
 
         def env
-          if config[:gemfile]
-            { BUNDLE_GEMFILE: gemfile_path }.merge(config[:env] || {})
-          else
+          if gemfile == "default"
             config[:env]
+          else
+            { BUNDLE_GEMFILE: gemfile_path }.merge(config[:env] || {})
           end
         end
     end
@@ -908,7 +909,7 @@ module CITasks
 
   class DependabotConfigGenerator
     def self.to_yaml
-      gemfiles = TEST_JOBS.map { |j| j[:gemfile] }.compact.uniq
+      gemfiles = TEST_JOBS.map { |j| j[:gemfile] }.compact.uniq.reject { |g| g == "default" }
 
       bundler_config = {
         "package-ecosystem" => "bundler",
