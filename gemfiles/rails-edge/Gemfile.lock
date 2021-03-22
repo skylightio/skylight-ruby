@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/rails/rails
-  revision: 92281b491135b23b001b8128143e261a85932292
+  revision: 1ef30c19b553b325b0e909364c458e118643be63
   branch: main
   specs:
     actioncable (7.0.0.alpha)
@@ -81,7 +81,7 @@ GIT
       actionpack (= 7.0.0.alpha)
       activesupport (= 7.0.0.alpha)
       method_source
-      rake (>= 0.8.7)
+      rake (>= 0.13)
       thor (~> 1.0)
 
 PATH
