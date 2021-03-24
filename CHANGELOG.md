@@ -1,3 +1,6 @@
+## 5.1.0-alpha (March 24, 2021)
+* [IMPROVEMENT] Support aarch64-apple-darwin (Apple M1) and aarch64-linux architectures
+
 ## 5.0.1 (March 11, 2021)
 * [IMPROVEMENT] Use argument-forwarding (...) where available in custom instrumentation
 
