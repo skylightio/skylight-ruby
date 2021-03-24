@@ -1,5 +1,6 @@
 # commit: b8e430781f51935db9864c9508b6e90f7feae7fc
-# version: "5.1.0-73d39df"
+---
+version: "5.1.0-73d39df"
 checksums:
   x86-linux:         "79296dc75448fc6240c0b7029ee6ee20c58b5ee45fe11b63886f6aae33d93a9f"
   x86_64-linux:      "32735aeeeada6e31ceba37b93e1148798010aa2de3c9872cd9b0f88051214276"
