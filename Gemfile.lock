@@ -128,7 +128,7 @@ GEM
       mustermann-grape (~> 1.0.0)
       rack (>= 1.3.0)
       rack-accept
-    graphiti (1.2.38)
+    graphiti (1.2.39)
       activesupport (>= 4.1)
       concurrent-ruby (~> 1.0)
       dry-types (>= 0.15.0, < 2.0)
@@ -153,7 +153,9 @@ GEM
     marcel (0.3.3)
       mimemagic (~> 0.3.2)
     method_source (1.0.0)
-    mimemagic (0.3.5)
+    mimemagic (0.3.10)
+      nokogiri (~> 1)
+      rake
     mini_mime (1.0.2)
     mini_portile2 (2.5.0)
     minitest (5.14.4)
