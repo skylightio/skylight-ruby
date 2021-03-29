@@ -1,7 +1,7 @@
 name: Cancelling Duplicates
 on:
   workflow_run:
-    workflows: ['Build']
+    workflows: ['Skylight Agent']
     types: ['requested']
 
 jobs:
