@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 gemspec path: "../.."
 
-gem "rails", "~> 5.2.0"
+gem "rails", "~> 5.2.5"
 
 # Test additional libraries with oldest and newest versions of Rails
 eval_gemfile "../Gemfile.additional"
