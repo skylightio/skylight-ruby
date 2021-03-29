@@ -493,6 +493,8 @@ module CITasks
           if always_run?
             conditions << "!contains(github.event.pull_request.labels.*.name, 'dependencies')"
           end
+
+          h[:if] = conditions.join(" || ")
         end
 
         h[:services] = config[:services] if config[:services]
