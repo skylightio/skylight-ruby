@@ -1,0 +1,55 @@
+name: Cancelling Duplicates
+on:
+  workflow_run:
+    workflows: ['Build']
+    types: ['requested']
+
+jobs:
+  cancel-duplicate-ci-runs:
+    name: 'Cancel duplicate CI runs'
+    runs-on: ubuntu-latest
+    outputs:
+      sourceHeadRepo: ${{ steps.cancel.outputs.sourceHeadRepo }}
+      sourceHeadBranch: ${{ steps.cancel.outputs.sourceHeadBranch }}
+      sourceHeadSha: ${{ steps.cancel.outputs.sourceHeadSha }}
+      sourceEvent: ${{ steps.cancel.outputs.sourceEvent }}
+    steps:
+      - uses: potiuk/cancel-workflow-runs@master
+        id: cancel
+        name: 'Cancel duplicate CI runs'
+        with:
+          cancelMode: duplicates
+          cancelFutureDuplicates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          notifyPRCancel: true
+      - uses: potiuk/cancel-workflow-runs@master
+        name: 'Cancel duplicate Cancelling runs'
+        with:
+          cancelMode: namedJobs
+          token: ${{ secrets.GITHUB_TOKEN }}
+          notifyPRCancel: true
+          jobNameRegexps: >
+            ["Build info
+            repo: ${{ steps.cancel.outputs.sourceHeadRepo }}
+            branch: ${{ steps.cancel.outputs.sourceHeadBranch }}.*"]
+
+  build-info:
+    name: >
+      Build info
+      repo: ${{ needs.cancel-workflow-runs.outputs.sourceHeadRepo }}
+      branch: ${{ needs.cancel-workflow-runs.outputs.sourceHeadBranch }}
+    runs-on: ubuntu-latest
+    needs: [cancel-duplicate-ci-runs]
+    env:
+      GITHUB_CONTEXT: ${{ toJson(github) }}
+    steps:
+      - name: >
+          [${{ needs.cancel-workflow-runs.outputs.sourceEvent }}] will checkout
+          Run id: ${{ github.run_id }}
+          Source Run id: ${{ github.event.workflow_run.id }}
+          Sha: ${{ needs.cancel-workflow-runs.outputs.sourceHeadSha }}
+          Repo: ${{ needs.cancel-workflow-runs.outputs.sourceHeadRepo }}
+          Branch: ${{ needs.cancel-workflow-runs.outputs.sourceHeadBranch }}
+        run: |
+          printenv

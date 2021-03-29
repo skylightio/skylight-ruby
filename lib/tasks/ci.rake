@@ -493,12 +493,6 @@ module CITasks
           if always_run?
             conditions << "!contains(github.event.pull_request.labels.*.name, 'dependencies')"
           end
-
-          # Also, don't run jobs for dependabot that aren't tagged.
-          # Without this, checks are run when the PR is created and for each label.
-          # This eleminates one of the three runs.
-          h[:if] = "(#{conditions.join(' || ')}) && (github.actor != 'dependabot[bot]' || "\
-            "contains(github.event.pull_request.labels.*.name, 'dependencies'))"
         end
 
         h[:services] = config[:services] if config[:services]
@@ -546,14 +540,6 @@ module CITasks
           [].tap do |ary|
             ary << "[allowed to fail]" if allow_failure?
           end
-        end
-
-        def cleanup_step
-          return unless primary?
-
-          {
-            uses: "technote-space/auto-cancel-redundant-job@v1"
-          }
         end
 
         def checkout_step
@@ -700,7 +686,6 @@ module CITasks
     class TestJob < BaseJob
       def steps
         [
-          cleanup_step,
           checkout_step,
           setup_ruby_step,
           check_ruby_step,
@@ -719,7 +704,6 @@ module CITasks
     class ContainerTestJob < TestJob
       def steps
         [
-          cleanup_step,
           checkout_step,
           check_ruby_step,
           setup_cache_step,
@@ -750,7 +734,6 @@ module CITasks
 
       def steps
         [
-          cleanup_step,
           checkout_step,
           setup_ruby_step,
           setup_cache_step,
@@ -797,7 +780,6 @@ module CITasks
 
       def steps
         [
-          cleanup_step,
           checkout_step,
           *setup_commit_metadata_steps,
           install_aws_cli_step,

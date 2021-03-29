@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 2d813a8e7429d11fc256595731f17f38bf6e9342e21a5024884190008a0ba9b8
+  CONFIG_DIGEST: db06cef33c208369aaa6fd2d63f865420ed13235091c0930f9861d1716c8f792
 'on':
   push:
     branches:
@@ -30,7 +30,6 @@ jobs:
     name: ruby 3.0, default
     runs-on: ubuntu-latest
     steps:
-    - uses: technote-space/auto-cancel-redundant-job@v1
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup ruby
@@ -76,10 +75,6 @@ jobs:
   ruby-3-0-rails-6-1-x-mongo:
     name: ruby 3.0, rails-6.1.x, mongo
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     services:
       mongo:
         image: mongo:4.0
@@ -138,10 +133,6 @@ jobs:
   ruby-2-7-mongoid-6-x-mongoid-6:
     name: ruby 2.7, mongoid-6.x, mongoid-6
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'mongoid-6.x'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     services:
       mongo:
         image: mongo:4.0
@@ -200,10 +191,6 @@ jobs:
   ruby-3-0-elasticsearch-elasticsearch:
     name: ruby 3.0, elasticsearch, elasticsearch
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'elasticsearch'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     services:
       elasticsearch:
         image: elasticsearch:6.8.6
@@ -263,10 +250,6 @@ jobs:
   ruby-2-5-sidekiq-4-x-graphql-1-7-x:
     name: ruby 2.5, sidekiq-4.x-graphql-1.7.x
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sidekiq-4.x-graphql-1.7.x'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/sidekiq-4.x-graphql-1.7.x/Gemfile
     steps:
@@ -318,10 +301,6 @@ jobs:
   ruby-2-7-graphql-1-9-x:
     name: ruby 2.7, graphql-1.9.x
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'graphql-1.9.x'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/graphql-1.9.x/Gemfile
     steps:
@@ -373,10 +352,6 @@ jobs:
   ruby-2-5-rails-5-2-x:
     name: ruby 2.5, rails-5.2.x
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
-      || !contains(github.event.pull_request.labels.*.name, 'dependencies')) && (github.actor
-      != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name, 'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
     steps:
@@ -428,10 +403,6 @@ jobs:
   ruby-3-0-rails-6-0-x:
     name: ruby 3.0, rails-6.0.x
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.0.x')
-      || !contains(github.event.pull_request.labels.*.name, 'dependencies')) && (github.actor
-      != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name, 'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-6.0.x/Gemfile
     steps:
@@ -483,10 +454,6 @@ jobs:
   ruby-3-0-rails-6-1-x:
     name: ruby 3.0, rails-6.1.x
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
-      || !contains(github.event.pull_request.labels.*.name, 'dependencies')) && (github.actor
-      != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name, 'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
@@ -539,10 +506,6 @@ jobs:
     name: "[allowed to fail] ruby 3.0, rails-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
       RAILS_EDGE: true
@@ -595,10 +558,6 @@ jobs:
   ruby-2-5-sinatra-1-x:
     name: ruby 2.5, sinatra-1.x
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-1.x'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/sinatra-1.x/Gemfile
     steps:
@@ -650,10 +609,6 @@ jobs:
   ruby-3-0-sinatra-2-x:
     name: ruby 3.0, sinatra-2.x
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-2.x')
-      || !contains(github.event.pull_request.labels.*.name, 'dependencies')) && (github.actor
-      != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name, 'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/sinatra-2.x/Gemfile
     steps:
@@ -706,10 +661,6 @@ jobs:
     name: "[allowed to fail] ruby 3.0, sinatra-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-edge'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/sinatra-edge/Gemfile
     steps:
@@ -761,10 +712,6 @@ jobs:
   ruby-2-5-grape-1-x:
     name: ruby 2.5, grape-1.x
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.x'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/grape-1.x/Gemfile
     steps:
@@ -816,10 +763,6 @@ jobs:
   ruby-3-0-grape-1-x:
     name: ruby 3.0, grape-1.x
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.x')
-      || !contains(github.event.pull_request.labels.*.name, 'dependencies')) && (github.actor
-      != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name, 'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/grape-1.x/Gemfile
     steps:
@@ -871,10 +814,6 @@ jobs:
   ruby-2-7-grape-1-2-x:
     name: ruby 2.7, grape-1.2.x
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.2.x'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/grape-1.2.x/Gemfile
     steps:
@@ -927,10 +866,6 @@ jobs:
     name: "[allowed to fail] ruby 3.0, grape-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-edge'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/grape-edge/Gemfile
     steps:
@@ -982,10 +917,6 @@ jobs:
   ruby-3-0-sequel-4-34-0:
     name: ruby 3.0, sequel-4.34.0
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sequel-4.34.0'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/sequel-4.34.0/Gemfile
     steps:
@@ -1037,10 +968,6 @@ jobs:
   ruby-2-7-ams-0-8-x:
     name: ruby 2.7, ams-0.8.x
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.8.x'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/ams-0.8.x/Gemfile
     steps:
@@ -1092,10 +1019,6 @@ jobs:
   ruby-2-7-ams-0-9-x:
     name: ruby 2.7, ams-0.9.x
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.9.x'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/ams-0.9.x/Gemfile
     steps:
@@ -1147,10 +1070,6 @@ jobs:
   ruby-3-0-ams-0-10-x:
     name: ruby 3.0, ams-0.10.x
     runs-on: ubuntu-latest
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.10.x'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/ams-0.10.x/Gemfile
     steps:
@@ -1203,10 +1122,6 @@ jobs:
     name: "[allowed to fail] ruby head, rails-6.1.x"
     runs-on: ubuntu-latest
     continue-on-error: true
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
@@ -1261,10 +1176,6 @@ jobs:
     name: "[allowed to fail] ruby head, rails-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
-    if: "(github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge'))
-      && (github.actor != 'dependabot[bot]' || contains(github.event.pull_request.labels.*.name,
-      'dependencies'))"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
       RAILS_EDGE: true
@@ -1319,7 +1230,6 @@ jobs:
   lint:
     name: lint
     runs-on: ubuntu-latest
-    if: always()
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1345,10 +1255,10 @@ jobs:
       run: |
         bundle exec rubocop -v
         bundle exec rubocop
+    if: always()
   upload-coverage:
     name: upload-coverage
     runs-on: ubuntu-latest
-    if: always()
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1409,10 +1319,10 @@ jobs:
     - ruby-2-7-ams-0-8-x
     - ruby-2-7-ams-0-9-x
     - ruby-3-0-ams-0-10-x
+    if: always()
   required-tests-passed:
     name: Required Tests Passed
     runs-on: ubuntu-latest
-    if: always()
     steps:
     - name: Mark tests failed
       run: 'false'
@@ -1439,3 +1349,4 @@ jobs:
     - ruby-2-7-ams-0-8-x
     - ruby-2-7-ams-0-9-x
     - ruby-3-0-ams-0-10-x
+    if: always()
