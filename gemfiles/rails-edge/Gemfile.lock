@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/rails/rails
-  revision: 1ef30c19b553b325b0e909364c458e118643be63
+  revision: bad93fe2a127fbc623c00fe52ca02638ba3e9b90
   branch: main
   specs:
     actioncable (7.0.0.alpha)
@@ -54,8 +54,8 @@ GIT
       activejob (= 7.0.0.alpha)
       activerecord (= 7.0.0.alpha)
       activesupport (= 7.0.0.alpha)
-      marcel (~> 0.3.1)
-      mimemagic (~> 0.3.2)
+      marcel (~> 1.0.0)
+      mini_mime (~> 1.0.2)
     activesupport (7.0.0.alpha)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
@@ -115,11 +115,9 @@ GEM
       nokogiri (>= 1.5.9)
     mail (2.7.1)
       mini_mime (>= 0.1.1)
-    marcel (0.3.3)
-      mimemagic (~> 0.3.2)
+    marcel (1.0.0)
     method_source (1.0.0)
-    mimemagic (0.3.5)
-    mini_mime (1.0.2)
+    mini_mime (1.0.3)
     mini_portile2 (2.5.0)
     minitest (5.14.4)
     nio4r (2.5.7)
