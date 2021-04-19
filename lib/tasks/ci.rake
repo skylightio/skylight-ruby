@@ -583,7 +583,7 @@ module CITasks
         def setup_cache_step
           {
             name: "Setup cache",
-            uses: "actions/cache@v2.1.4",
+            uses: "actions/cache@v2.1.5",
             with: {
               path: "${{ github.workspace }}/vendor/bundle",
               key: "${{ runner.os }}-gems-#{ruby_version}-#{gemfile}-${{ hashFiles('#{gemfile_path}.lock') }}",
