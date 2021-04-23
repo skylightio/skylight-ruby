@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    skylight (5.0.0.beta5)
+    skylight (5.0.1)
       activesupport (>= 5.2.0)
 
 GEM
@@ -76,7 +76,9 @@ GEM
     marcel (0.3.3)
       mimemagic (~> 0.3.2)
     method_source (1.0.0)
-    mimemagic (0.3.5)
+    mimemagic (0.3.10)
+      nokogiri (~> 1)
+      rake
     mini_mime (1.0.2)
     mini_portile2 (2.5.0)
     minitest (5.14.4)
@@ -85,7 +87,7 @@ GEM
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     parallel (1.20.1)
-    parser (3.0.0.0)
+    parser (3.0.1.0)
       ast (~> 2.4.1)
     public_suffix (4.0.6)
     puma (5.2.2)
@@ -142,7 +144,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.2)
-    rubocop (1.11.0)
+    rubocop (1.12.1)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -201,7 +203,7 @@ DEPENDENCIES
   rake-compiler (~> 1.1.1)
   rspec (~> 3.7)
   rspec-collection_matchers (~> 1.1)
-  rubocop (~> 1.11.0)
+  rubocop (~> 1.12.0)
   sidekiq (~> 4)
   simplecov (~> 0.21.2)
   skylight!
@@ -210,4 +212,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.1.4
+   2.2.15

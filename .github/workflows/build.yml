@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 8291b413169e4cab6f91992cc62b0f558e8d3d004b2745061fe378ae4f18c634
+  CONFIG_DIGEST: 5251efb3887a8f5fdd12ad6a041f65ab404ae776191249c6231bce269c595ed5
 'on':
   push:
     branches:
@@ -253,8 +253,8 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-default
-  ruby-2-5-sidekiq-4-x-graphql-1-7-x:
-    name: ruby 2.5, sidekiq-4.x-graphql-1.7.x
+  ruby-2-6-sidekiq-4-x-graphql-1-7-x:
+    name: ruby 2.6, sidekiq-4.x-graphql-1.7.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sidekiq-4.x-graphql-1.7.x')
@@ -266,7 +266,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.5'
+        ruby-version: '2.6'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -275,11 +275,11 @@ jobs:
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.5-sidekiq-4.x-graphql-1.7.x-${{ hashFiles('gemfiles/sidekiq-4.x-graphql-1.7.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-2.6-sidekiq-4.x-graphql-1.7.x-${{ hashFiles('gemfiles/sidekiq-4.x-graphql-1.7.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.5-sidekiq-4.x-graphql-1.7.x-
-          ${{ runner.os }}-gems-2.5-
+          ${{ runner.os }}-gems-2.6-sidekiq-4.x-graphql-1.7.x-
+          ${{ runner.os }}-gems-2.6-
     - name: bundle install
       run: |
         gem install bundler
@@ -359,8 +359,8 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-default
-  ruby-2-5-rails-5-2-x:
-    name: ruby 2.5, rails-5.2.x
+  ruby-2-6-rails-5-2-x:
+    name: ruby 2.6, rails-5.2.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
@@ -373,7 +373,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.5'
+        ruby-version: '2.6'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -382,11 +382,11 @@ jobs:
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.5-rails-5.2.x-${{ hashFiles('gemfiles/rails-5.2.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-2.6-rails-5.2.x-${{ hashFiles('gemfiles/rails-5.2.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.5-rails-5.2.x-
-          ${{ runner.os }}-gems-2.5-
+          ${{ runner.os }}-gems-2.6-rails-5.2.x-
+          ${{ runner.os }}-gems-2.6-
     - name: bundle install
       run: |
         gem install bundler
@@ -576,8 +576,8 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-default
-  ruby-2-5-sinatra-1-x:
-    name: ruby 2.5, sinatra-1.x
+  ruby-2-6-sinatra-1-x:
+    name: ruby 2.6, sinatra-1.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-1.x')
@@ -589,7 +589,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.5'
+        ruby-version: '2.6'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -598,11 +598,11 @@ jobs:
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.5-sinatra-1.x-${{ hashFiles('gemfiles/sinatra-1.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-2.6-sinatra-1.x-${{ hashFiles('gemfiles/sinatra-1.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.5-sinatra-1.x-
-          ${{ runner.os }}-gems-2.5-
+          ${{ runner.os }}-gems-2.6-sinatra-1.x-
+          ${{ runner.os }}-gems-2.6-
     - name: bundle install
       run: |
         gem install bundler
@@ -737,8 +737,8 @@ jobs:
         path: coverage-sync
     needs:
     - ruby-3-0-default
-  ruby-2-5-grape-1-x:
-    name: ruby 2.5, grape-1.x
+  ruby-2-6-grape-1-x:
+    name: ruby 2.6, grape-1.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.x')
@@ -750,7 +750,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.5'
+        ruby-version: '2.6'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -759,11 +759,11 @@ jobs:
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.5-grape-1.x-${{ hashFiles('gemfiles/grape-1.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-2.6-grape-1.x-${{ hashFiles('gemfiles/grape-1.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.5-grape-1.x-
-          ${{ runner.os }}-gems-2.5-
+          ${{ runner.os }}-gems-2.6-grape-1.x-
+          ${{ runner.os }}-gems-2.6-
     - name: bundle install
       run: |
         gem install bundler
@@ -1286,15 +1286,15 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.5'
+        ruby-version: '2.6'
     - name: Setup cache
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.5-default-${{ hashFiles('Gemfile.lock') }}"
+        key: "${{ runner.os }}-gems-2.6-default-${{ hashFiles('Gemfile.lock') }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.5-default-
-          ${{ runner.os }}-gems-2.5-
+          ${{ runner.os }}-gems-2.6-default-
+          ${{ runner.os }}-gems-2.6-
     - name: bundle install
       run: |
         gem install bundler
@@ -1355,14 +1355,14 @@ jobs:
     - ruby-3-0-rails-6-1-x-mongo
     - ruby-2-7-mongoid-6-x-mongoid-6
     - ruby-3-0-elasticsearch-elasticsearch
-    - ruby-2-5-sidekiq-4-x-graphql-1-7-x
+    - ruby-2-6-sidekiq-4-x-graphql-1-7-x
     - ruby-2-7-graphql-1-9-x
-    - ruby-2-5-rails-5-2-x
+    - ruby-2-6-rails-5-2-x
     - ruby-3-0-rails-6-0-x
     - ruby-3-0-rails-6-1-x
-    - ruby-2-5-sinatra-1-x
+    - ruby-2-6-sinatra-1-x
     - ruby-3-0-sinatra-2-x
-    - ruby-2-5-grape-1-x
+    - ruby-2-6-grape-1-x
     - ruby-3-0-grape-1-x
     - ruby-2-7-grape-1-2-x
     - ruby-3-0-sequel-4-34-0
@@ -1385,14 +1385,14 @@ jobs:
     - ruby-3-0-rails-6-1-x-mongo
     - ruby-2-7-mongoid-6-x-mongoid-6
     - ruby-3-0-elasticsearch-elasticsearch
-    - ruby-2-5-sidekiq-4-x-graphql-1-7-x
+    - ruby-2-6-sidekiq-4-x-graphql-1-7-x
     - ruby-2-7-graphql-1-9-x
-    - ruby-2-5-rails-5-2-x
+    - ruby-2-6-rails-5-2-x
     - ruby-3-0-rails-6-0-x
     - ruby-3-0-rails-6-1-x
-    - ruby-2-5-sinatra-1-x
+    - ruby-2-6-sinatra-1-x
     - ruby-3-0-sinatra-2-x
-    - ruby-2-5-grape-1-x
+    - ruby-2-6-grape-1-x
     - ruby-3-0-grape-1-x
     - ruby-2-7-grape-1-2-x
     - ruby-3-0-sequel-4-34-0
