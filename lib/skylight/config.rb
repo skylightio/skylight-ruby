@@ -285,9 +285,9 @@ module Skylight
         error = nil
         begin
           attrs = YAML.safe_load(ERB.new(File.read(path)).result,
-                                 [], # permitted_classes
-                                 [], # permitted_symbols
-                                 true) # aliases enabled
+                                 permitted_classes: [],
+                                 permitted_symbols: [],
+                                 aliases:           true)
           error = "empty file" unless attrs
           error = "invalid format" if attrs && !attrs.is_a?(Hash)
         rescue Exception => e
