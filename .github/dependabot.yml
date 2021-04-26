@@ -4,260 +4,260 @@
 ---
 version: 2
 updates:
-  - package-ecosystem: bundler
-    directory: "/"
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - default-Gemfile
-    open-pull-requests-limit: 10
-  - package-ecosystem: github-actions
-    directory: "/"
-    schedule:
-      interval: weekly
-      time: "13:00"
-    open-pull-requests-limit: 10
-  - package-ecosystem: bundler
-    directory: gemfiles/rails-6.1.x
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - rails-6.1.x
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: rails
-  - package-ecosystem: bundler
-    directory: gemfiles/mongoid-6.x
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - mongoid-6.x
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: mongoid
-    ignore:
-      - dependency-name: mongoid
-        versions:
-          - ">= 7"
-  - package-ecosystem: bundler
-    directory: gemfiles/elasticsearch
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - elasticsearch
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: elasticsearch
-  - package-ecosystem: bundler
-    directory: gemfiles/sidekiq-4.x-graphql-1.7.x
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - sidekiq-4.x-graphql-1.7.x
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: sidekiq
-      - dependency-name: graphql
-    ignore:
-      - dependency-name: sidekiq
-        versions:
-          - ">= 5"
-      - dependency-name: graphql
-        versions:
-          - ">= 1.8"
-  - package-ecosystem: bundler
-    directory: gemfiles/graphql-1.9.x
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - graphql-1.9.x
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: graphql
-    ignore:
-      - dependency-name: graphql
-        versions:
-          - ">= 1.10"
-  - package-ecosystem: bundler
-    directory: gemfiles/rails-5.2.x
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - rails-5.2.x
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: rails
-      - dependency-name: sqlite
-    ignore:
-      - dependency-name: rails
-        versions:
-          - ">= 5.3"
-      - dependency-name: sqlite
-        versions:
-          - ">= 1.5"
-  - package-ecosystem: bundler
-    directory: gemfiles/rails-6.0.x
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - rails-6.0.x
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: rails
-    ignore:
-      - dependency-name: rails
-        versions:
-          - ">= 6.1"
-  - package-ecosystem: bundler
-    directory: gemfiles/rails-edge
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - rails-edge
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: rails
-  - package-ecosystem: bundler
-    directory: gemfiles/sinatra-1.x
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - sinatra-1.x
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: sinatra
-    ignore:
-      - dependency-name: sinatra
-        versions:
-          - ">= 1.5"
-  - package-ecosystem: bundler
-    directory: gemfiles/sinatra-2.x
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - sinatra-2.x
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: sinatra
-  - package-ecosystem: bundler
-    directory: gemfiles/sinatra-edge
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - sinatra-edge
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: sinatra
-  - package-ecosystem: bundler
-    directory: gemfiles/grape-1.x
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - grape-1.x
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: grape
-  - package-ecosystem: bundler
-    directory: gemfiles/grape-1.2.x
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - grape-1.2.x
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: grape
-    ignore:
-      - dependency-name: grape
-        versions:
-          - ">= 1.3"
-  - package-ecosystem: bundler
-    directory: gemfiles/grape-edge
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - grape-edge
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: grape
-  - package-ecosystem: bundler
-    directory: gemfiles/sequel-4.34.0
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - sequel-4.34.0
-    open-pull-requests-limit: 10
-    ignore:
-      - dependency-name: "*"
-  - package-ecosystem: bundler
-    directory: gemfiles/ams-0.8.x
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - ams-0.8.x
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: active_model_serializers
-    ignore:
-      - dependency-name: active_model_serializers
-        versions:
-          - ">= 0.9"
-  - package-ecosystem: bundler
-    directory: gemfiles/ams-0.9.x
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - ams-0.9.x
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: active_model_serializers
-    ignore:
-      - dependency-name: active_model_serializers
-        versions:
-          - ">= 0.10"
-  - package-ecosystem: bundler
-    directory: gemfiles/ams-0.10.x
-    schedule:
-      interval: weekly
-      time: "13:00"
-    labels:
-      - dependencies
-      - ams-0.10.x
-    open-pull-requests-limit: 10
-    allow:
-      - dependency-name: active_model_serializers
+- package-ecosystem: bundler
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - default-Gemfile
+  open-pull-requests-limit: 10
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: '13:00'
+  open-pull-requests-limit: 10
+- package-ecosystem: bundler
+  directory: gemfiles/rails-6.1.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - rails-6.1.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: rails
+- package-ecosystem: bundler
+  directory: gemfiles/mongoid-6.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - mongoid-6.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: mongoid
+  ignore:
+  - dependency-name: mongoid
+    versions:
+    - ">= 7"
+- package-ecosystem: bundler
+  directory: gemfiles/elasticsearch
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - elasticsearch
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: elasticsearch
+- package-ecosystem: bundler
+  directory: gemfiles/sidekiq-4.x-graphql-1.7.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - sidekiq-4.x-graphql-1.7.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: sidekiq
+  - dependency-name: graphql
+  ignore:
+  - dependency-name: sidekiq
+    versions:
+    - ">= 5"
+  - dependency-name: graphql
+    versions:
+    - ">= 1.8"
+- package-ecosystem: bundler
+  directory: gemfiles/graphql-1.9.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - graphql-1.9.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: graphql
+  ignore:
+  - dependency-name: graphql
+    versions:
+    - ">= 1.10"
+- package-ecosystem: bundler
+  directory: gemfiles/rails-5.2.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - rails-5.2.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: rails
+  - dependency-name: sqlite
+  ignore:
+  - dependency-name: rails
+    versions:
+    - ">= 5.3"
+  - dependency-name: sqlite
+    versions:
+    - ">= 1.5"
+- package-ecosystem: bundler
+  directory: gemfiles/rails-6.0.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - rails-6.0.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: rails
+  ignore:
+  - dependency-name: rails
+    versions:
+    - ">= 6.1"
+- package-ecosystem: bundler
+  directory: gemfiles/rails-edge
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - rails-edge
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: rails
+- package-ecosystem: bundler
+  directory: gemfiles/sinatra-1.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - sinatra-1.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: sinatra
+  ignore:
+  - dependency-name: sinatra
+    versions:
+    - ">= 1.5"
+- package-ecosystem: bundler
+  directory: gemfiles/sinatra-2.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - sinatra-2.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: sinatra
+- package-ecosystem: bundler
+  directory: gemfiles/sinatra-edge
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - sinatra-edge
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: sinatra
+- package-ecosystem: bundler
+  directory: gemfiles/grape-1.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - grape-1.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: grape
+- package-ecosystem: bundler
+  directory: gemfiles/grape-1.2.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - grape-1.2.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: grape
+  ignore:
+  - dependency-name: grape
+    versions:
+    - ">= 1.3"
+- package-ecosystem: bundler
+  directory: gemfiles/grape-edge
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - grape-edge
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: grape
+- package-ecosystem: bundler
+  directory: gemfiles/sequel-4.34.0
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - sequel-4.34.0
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: "*"
+- package-ecosystem: bundler
+  directory: gemfiles/ams-0.8.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - ams-0.8.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: active_model_serializers
+  ignore:
+  - dependency-name: active_model_serializers
+    versions:
+    - ">= 0.9"
+- package-ecosystem: bundler
+  directory: gemfiles/ams-0.9.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - ams-0.9.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: active_model_serializers
+  ignore:
+  - dependency-name: active_model_serializers
+    versions:
+    - ">= 0.10"
+- package-ecosystem: bundler
+  directory: gemfiles/ams-0.10.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - ams-0.10.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: active_model_serializers

@@ -1,6 +1,7 @@
 # generated files
 /tmp/
 .rubocop_todo.yml
+.github/dependabot.yml
 .github/workflows/build.yml
 ext/libskylight.yml
 

@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 5251efb3887a8f5fdd12ad6a041f65ab404ae776191249c6231bce269c595ed5
+  CONFIG_DIGEST: 237cf3b925ffcce6170f8fdc9a9e8d77cc4b6cb1fd82b7fd4368c71a3eb74e5f
 'on':
   push:
     branches:
@@ -40,7 +40,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -97,7 +97,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -157,7 +157,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -218,7 +218,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -271,7 +271,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -324,7 +324,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -378,7 +378,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -432,7 +432,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -486,7 +486,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -541,7 +541,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -594,7 +594,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -648,7 +648,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -702,7 +702,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -755,7 +755,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -809,7 +809,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -862,7 +862,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -916,7 +916,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -969,7 +969,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -1022,7 +1022,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -1075,7 +1075,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -1128,7 +1128,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -1184,7 +1184,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -1241,7 +1241,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
-    - name: Setup cache
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -1287,7 +1287,9 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.6'
-    - name: Setup cache
+    - name: Setup volta
+      uses: volta-cli/action@v1
+    - name: Setup cache (bundler)
       uses: actions/cache@v2.1.5
       with:
         path: "${{ github.workspace }}/vendor/bundle"
@@ -1295,13 +1297,26 @@ jobs:
         restore-keys: |-
           ${{ runner.os }}-gems-2.6-default-
           ${{ runner.os }}-gems-2.6-
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+    - name: Setup cache (yarn)
+      uses: actions/cache@v2.1.5
+      with:
+        path: "${{ steps.yarn-cache-dir-path.outputs.dir }}"
+        key: "${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}"
+        restore-keys: "${{ runner.os }}-yarn-"
     - name: bundle install
       run: |
         gem install bundler
         bundle install
+    - name: yarn install
+      run: yarn install --frozen-lockfile
     - name: Set up Rubocop problem matcher
       run: echo "::add-matcher::${GITHUB_WORKSPACE}/.github/rubocop.json"
-    - name: Run lint
+    - name: Run Prettier
+      run: yarn lint:prettier
+    - name: Run Rubocop
       run: |
         bundle exec rubocop -v
         bundle exec rubocop

@@ -387,6 +387,10 @@ module CITasks
         { name: "Check ruby", run: "ruby -v | grep \"#{ruby_version}\" -q" }
       end
 
+      def setup_volta_step
+        { name: "Setup volta", uses: "volta-cli/action@v1" }
+      end
+
       def install_apt_dependencies_step
         { name: "Install APT dependencies", run: <<~RUN }
               sudo apt-get update
@@ -394,9 +398,9 @@ module CITasks
             RUN
       end
 
-      def setup_cache_step
+      def setup_bundle_cache_step
         {
-          name: "Setup cache",
+          name: "Setup cache (bundler)",
           uses: "actions/cache@v2.1.5",
           with: {
             :path => "${{ github.workspace }}/vendor/bundle",
@@ -409,11 +413,34 @@ module CITasks
         }
       end
 
+      def setup_yarn_cache_step
+        [
+          {
+            name: "Get yarn cache directory path",
+            id: "yarn-cache-dir-path",
+            run: "echo \"::set-output name=dir::$(yarn cache dir)\""
+          },
+          {
+            name: "Setup cache (yarn)",
+            uses: "actions/cache@v2.1.5",
+            with: {
+              path: "${{ steps.yarn-cache-dir-path.outputs.dir }}",
+              key: "${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}",
+              "restore-keys": "${{ runner.os }}-yarn-"
+            }
+          }
+        ]
+      end
+
       def install_bundler_dependencies_step
         { name: "bundle install", run: <<~RUN }
               gem install bundler
               bundle install
             RUN
+      end
+
+      def install_yarn_dependencies_step
+        { name: "yarn install", run: "yarn install --frozen-lockfile" }
       end
 
       def run_tests_step
@@ -495,13 +522,13 @@ module CITasks
           setup_ruby_step,
           check_ruby_step,
           install_apt_dependencies_step,
-          setup_cache_step,
+          setup_bundle_cache_step,
           install_bundler_dependencies_step,
           run_tests_step,
           run_tests_disabled_agent_step,
           prepare_coverage_step,
           upload_coverage_step
-        ].compact
+        ].flatten.compact
       end
     end
 
@@ -511,11 +538,11 @@ module CITasks
         [
           checkout_step,
           check_ruby_step,
-          setup_cache_step,
+          setup_bundle_cache_step,
           install_bundler_dependencies_step,
           run_tests_step,
           run_tests_disabled_agent_step
-        ].compact
+        ].flatten.compact
       end
     end
 
@@ -541,11 +568,15 @@ module CITasks
         [
           checkout_step,
           setup_ruby_step,
-          setup_cache_step,
+          setup_volta_step,
+          setup_bundle_cache_step,
+          setup_yarn_cache_step,
           install_bundler_dependencies_step,
+          install_yarn_dependencies_step,
           setup_lint_matchers,
-          run_lint_step
-        ].compact
+          run_prettier_step,
+          run_rubocop_step
+        ].flatten.compact
       end
 
       private
@@ -560,8 +591,12 @@ module CITasks
         }
       end
 
-      def run_lint_step
-        { name: "Run lint", run: <<~RUN }
+      def run_prettier_step
+        { name: "Run Prettier", run: "yarn lint:prettier" }
+      end
+
+      def run_rubocop_step
+        { name: "Run Rubocop", run: <<~RUN }
               bundle exec rubocop -v
               bundle exec rubocop
             RUN
@@ -589,7 +624,7 @@ module CITasks
           install_codeclimate_step,
           download_coverage_data_step,
           prepare_and_upload_coverage_data_step
-        ].compact
+        ].flatten.compact
       end
 
       def setup_commit_metadata_steps
