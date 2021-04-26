@@ -307,7 +307,7 @@ module Skylight
         finalize_endpoint_segment(trace)
         native_submit_trace(trace)
         true
-      rescue => e
+      rescue StandardError => e
         handle_instrumenter_error(trace, e)
       end
     end

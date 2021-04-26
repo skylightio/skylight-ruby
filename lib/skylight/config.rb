@@ -526,7 +526,7 @@ module Skylight
           when /^fatal$/i
             Logger::FATAL
           else
-            Logger::ERROR # rubocop:disable Lint/DuplicateBranch
+            Logger::ERROR
           end
         end
     end

@@ -103,7 +103,7 @@ module Skylight
       def do_request(http, req)
         begin
           client = http.start
-        rescue => e
+        rescue StandardError => e
           # TODO: Retry here
           raise StartError, e
         end

@@ -184,7 +184,7 @@ module Skylight
           component_guid: @child_app.guid,
           environment: @child_env
         )
-      rescue => e
+      rescue StandardError => e
         say("Something went wrong. Please contact support@skylight.io for more information.", :red)
         done!(message: e.message, success: false)
       end

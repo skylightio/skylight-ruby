@@ -66,17 +66,16 @@ end
 # Check that Xcode license has been approved
 # Based on Homebrew's implementation
 # https://github.com/Homebrew/homebrew/blob/03708b016755847facc4f19a43ee9f7a44141ed7/Library/Homebrew/cmd/doctor.rb#L1183
-if Platform::OS == "darwin"
-  # If the user installs Xcode-only, they have to approve the
-  # license or no "xc*" tool will work.
-  if `/usr/bin/xcrun clang 2>&1` =~ /license/ && !$CHILD_STATUS.success?
-    # rubocop:disable Style/SoleNestedConditional
-    fail <<~MESSAGE
-      You have not agreed to the Xcode license and so we are unable to build the native agent.
-      To resolve this, you can agree to the license by opening Xcode.app or running:
-          sudo xcodebuild -license
-    MESSAGE
-  end
+# If the user installs Xcode-only, they have to approve the
+# license or no "xc*" tool will work.
+
+# prettier-ignore
+if Platform::OS == "darwin" && (`/usr/bin/xcrun clang 2>&1` =~ /license/ && !$CHILD_STATUS.success?)
+  fail <<~MESSAGE
+    You have not agreed to the Xcode license and so we are unable to build the native agent.
+    To resolve this, you can agree to the license by opening Xcode.app or running:
+        sudo xcodebuild -license
+  MESSAGE
 end
 
 #
@@ -161,7 +160,7 @@ if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(
 
       FileUtils.mv "#{hdrpath}/skylightd", "#{libpath}/skylightd", force: true
     end
-  rescue => e
+  rescue StandardError => e
     fail "unable to fetch native extension; msg=#{e.message}\n#{e.backtrace.join("\n")}"
   end
 end

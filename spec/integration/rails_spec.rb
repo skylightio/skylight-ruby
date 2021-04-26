@@ -232,7 +232,7 @@ if enable
       stub_const("EngineNamespace", Module.new)
 
       # prettier-ignore
-      begin
+      begin # rubocop:disable Style/RedundantBegin
         EngineNamespace.module_eval <<~RUBY, __FILE__, __LINE__ + 1
           class MyEngine < ::Rails::Engine
             isolate_namespace EngineNamespace

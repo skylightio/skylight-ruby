@@ -130,7 +130,7 @@ module Skylight
       preprocess_meta(meta) if meta
 
       start(now - gc_time, cat, title, desc, meta)
-    rescue => e
+    rescue StandardError => e
       maybe_broken(e)
       nil
     end
@@ -151,7 +151,7 @@ module Skylight
       end
 
       stop(span, Skylight::Util::Clock.nanos - gc_time)
-    rescue => e
+    rescue StandardError => e
       error "failed to close span; msg=%s; endpoint=%s", e.message, endpoint
       log_trace "Original Backtrace:\n#{e.backtrace.join("\n")}"
       broken!

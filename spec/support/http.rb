@@ -120,7 +120,7 @@ module SpecHelper
             ret =
               begin
                 mock[:blk].call(env)
-              rescue => e
+              rescue StandardError => e
                 trace "#{e.inspect}\n#{e.backtrace.map { |l| "  #{l}" }.join("\n")}"
                 [500, { "content-type" => "text/plain", "content-length" => "4" }, ["Fail"]]
               end

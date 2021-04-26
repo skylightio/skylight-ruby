@@ -82,7 +82,7 @@ module Skylight
 
         @instrumenter = Instrumenter.new(config).start!
       end
-    rescue => e
+    rescue StandardError => e
       level, message =
         if e.is_a?(ConfigError)
           [:warn, format("Unable to start Instrumenter due to a configuration error: %<message>s", message: e.message)]

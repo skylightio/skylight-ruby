@@ -146,7 +146,6 @@ if enable
       Class.new(base) do
         # Copied from delayed_job_active_record's generator template
         def self.up
-          # rubocop:disable Layout/LineLength
           create_table :delayed_jobs, force: true do |table|
             table.integer :priority, default: 0, null: false # Allows some jobs to jump to the front of the queue
             table.integer :attempts, default: 0, null: false # Provides for retries, but still fail eventually.
@@ -159,8 +158,6 @@ if enable
             table.string :queue # The name of the queue this job is in
             table.timestamps null: true
           end
-
-          # rubocop:enable Layout/LineLength
 
           add_index :delayed_jobs, %i[priority run_at], name: "delayed_jobs_priority"
         end
@@ -195,7 +192,7 @@ if enable
               "DELETE FROM delayed_jobs",
               "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
               "delayed_job"
-            ], # rubocop:disable Layout/LineLength
+            ],
             ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
           ]
         )
@@ -218,7 +215,7 @@ if enable
               "DELETE FROM delayed_jobs",
               "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
               "delayed_job"
-            ], # rubocop:disable Layout/LineLength
+            ],
             ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
           ]
         )
@@ -280,7 +277,7 @@ if enable
                 "DELETE FROM delayed_jobs",
                 "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
                 "delayed_job"
-              ], # rubocop:disable Layout/LineLength
+              ],
               ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
             ]
           )
@@ -290,7 +287,7 @@ if enable
 
     def enqueue_job(method_name, *, class_method: false)
       instance_eval <<~RUBY, __FILE__, __LINE__ + 1
-        SkDelayedObject#{class_method ? "" : ".new"}.delay(queue: 'queue-name').#{method_name}
+        SkDelayedObject#{class_method ? "" : ".new"}.delay(queue: 'queue-name').#{method_name} # SkDelayedObject.new.delay(queue: 'queue-name').perform
       RUBY
     end
 
@@ -346,13 +343,13 @@ if enable
                 "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform",
                 nil,
                 "activejob"
-              ], # rubocop:disable Layout/LineLength
+              ],
               [
                 "app.job.perform",
                 "SkDelayedActiveJobWorker",
                 "{ adapter: 'delayed_job', queue: 'my-queue' }",
                 sl_aj_worker_perform
-              ], # rubocop:disable Layout/LineLength
+              ],
               ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
               ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
               [
@@ -360,7 +357,7 @@ if enable
                 "DELETE FROM delayed_jobs",
                 "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
                 "delayed_job"
-              ], # rubocop:disable Layout/LineLength
+              ],
               ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
             ]
           )
@@ -382,13 +379,13 @@ if enable
                 "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform",
                 nil,
                 "activejob"
-              ], # rubocop:disable Layout/LineLength
+              ],
               [
                 "app.job.perform",
                 "SkDelayedActiveJobWorker",
                 "{ adapter: 'delayed_job', queue: 'my-queue' }",
                 sl_aj_worker_perform
-              ], # rubocop:disable Layout/LineLength
+              ],
               ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
               ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"]
             ]

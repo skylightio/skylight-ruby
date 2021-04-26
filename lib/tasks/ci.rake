@@ -9,7 +9,6 @@ OLDEST_RUBY = "2.6"
 NEWEST_RUBY = "3.0"
 HEAD_RUBY = "3.1"
 
-# rubocop:disable Layout/HashAlignment
 module CITasks
   def self.mongo
     { mongo: { image: "mongo:4.0", ports: ["27017:27017"] } }
@@ -782,4 +781,3 @@ end
 
 desc "Generate the .github/workflow/build.yml config"
 task workflow: ["workflow:generate", :dependabot]
-# rubocop:enable Layout/HashAlignment

@@ -105,6 +105,10 @@ module Skylight
         @normalizers.keys
       end
 
+      def each_key(&block)
+        @normalizers.each_key(&block)
+      end
+
       def normalize(trace, name, payload)
         normalizer_for(name).normalize_with_meta(trace, name, payload)
       end

@@ -7,6 +7,7 @@ AllCops:
   NewCops: enable
   SuggestExtensions: false
   Exclude:
+    - "node_modules/**/*"
     - "**/vendor/**/*"
 
 Bundler/DuplicatedGem:
@@ -37,6 +38,10 @@ Layout/FirstHashElementIndentation:
 # Longer lines can be ok at times
 Layout/LineLength:
   Max: 120
+
+Lint/DuplicateBranch:
+  IgnoreConstantBranches: true
+  IgnoreLiteralBranches: true
 
 # This is behaving strangely where, when we try to disable it one-off, the Lint/RedundantCopDisableDirective
 # says it was unnecessary to disable it.
@@ -112,16 +117,16 @@ Style/PerlBackrefs:
 Style/RedundantArgument:
   Enabled: false
 
-# Overly verbose to have to declare rescue class
-Style/RescueStandardError:
-  EnforcedStyle: implicit
-
 # This may not be a great idea but we do it frequently. We should revisit.
 Style/RescueModifier:
   Enabled: false
 
 # No performance penalty for double quotes and easier to be consistent
 Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+# Prettier wants this to match the above
+Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
 
 # We don't want to use warn because we want to treat these like errors.

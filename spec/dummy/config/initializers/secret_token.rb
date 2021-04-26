@@ -10,4 +10,4 @@
 # Make sure your secret_key_base is kept private
 # if you're sharing your code publicly.
 Dummy::Application.config.secret_key_base =
-  "eca9e7e1511b6e9bcfea8d843a4bd7228b9c6c70246a4fb01e367b2e577f292b1fb5294bd06f6e6b8b2cf1d3c26c73b1ccb020d5c3bc96a0c33ee25992852739" # rubocop:disable Layout/LineLength
+  "eca9e7e1511b6e9bcfea8d843a4bd7228b9c6c70246a4fb01e367b2e577f292b1fb5294bd06f6e6b8b2cf1d3c26c73b1ccb020d5c3bc96a0c33ee25992852739"

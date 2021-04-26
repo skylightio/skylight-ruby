@@ -7,11 +7,9 @@ describe "Elasticsearch integration", :elasticsearch_probe, :instrumenter, :agen
   before do
     # Delete index if it exists
     Skylight.disable do
-      begin
-        client.indices.delete(index: "skylight-test")
-      rescue StandardError
-        nil
-      end
+      client.indices.delete(index: "skylight-test")
+    rescue StandardError
+      nil
     end
   end
 

@@ -110,7 +110,7 @@ module Skylight
               next
             end
           end
-        rescue => e
+        rescue StandardError => e
           remaining_attempts -= 1
 
           error "failed to fetch native extension; uri=#{uri}; msg=#{e.message}; " \

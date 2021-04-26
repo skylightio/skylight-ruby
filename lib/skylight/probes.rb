@@ -32,12 +32,14 @@ module Skylight
 
         backtrace = err.backtrace.map { |l| "  #{l}" }.join("\n")
 
+        # rubocop:disable Lint/SuppressedException
         gems =
           begin
             Bundler.locked_gems.dependencies.map { |d| [d.name, d.requirement.to_s] }
           rescue StandardError
-            # rubocop:disable Lint/SuppressedException
           end
+
+        # rubocop:enable Lint/SuppressedException
 
         error =
           "[SKYLIGHT] [#{Skylight::VERSION}] Encountered an error while installing the " \
