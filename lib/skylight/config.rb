@@ -98,6 +98,8 @@ module Skylight
       -"CLIENT_WRITE_TIMEOUT"         => :'daemon.client_write_timeout',
       -"SSL_CERT_PATH"                => :'daemon.ssl_cert_path',
       -"SSL_CERT_DIR"                 => :'daemon.ssl_cert_dir',
+      -"ENABLE_TCP"                   => :'daemon.enable_tcp',
+      -"TCP_PORT"                     => :'daemon.tcp_port',
 
       # == Legacy env vars ==
       #
@@ -226,6 +228,8 @@ module Skylight
         daemon.client_write_timeout
         daemon.ssl_cert_path
         daemon.ssl_cert_dir
+        daemon.enable_tcp
+        daemon.tcp_port
       ]
     end
 
