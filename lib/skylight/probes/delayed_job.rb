@@ -10,13 +10,9 @@ module Skylight
 
         class Plugin < ::Delayed::Plugin
           callbacks do |lifecycle|
-            lifecycle.around(:perform) do |worker, job, &block|
-              sk_instrument(worker, job, &block)
-            end
+            lifecycle.around(:perform) { |worker, job, &block| sk_instrument(worker, job, &block) }
 
-            lifecycle.after(:error) do |_worker, _job|
-              Skylight.trace&.segment = "error"
-            end
+            lifecycle.after(:error) { |_worker, _job| Skylight.trace&.segment = "error" }
           end
 
           class << self
@@ -25,15 +21,19 @@ module Skylight
             def sk_instrument(_worker, job)
               endpoint = Skylight::Probes::DelayedJob.handler_name(job)
 
-              Skylight.trace(endpoint,
-                             "app.delayed_job.worker",
-                             "Delayed::Worker#run",
-                             component: :worker,
-                             segment:   job.queue,
-                             meta:      { source_location: "delayed_job" }) do
-                               t { "Delayed::Job beginning trace" }
-                               yield
-                             end
+              Skylight.trace(
+                endpoint,
+                "app.delayed_job.worker",
+                "Delayed::Worker#run",
+                component: :worker,
+                segment: job.queue,
+                meta: {
+                  source_location: "delayed_job"
+                }
+              ) do
+                t { "Delayed::Job beginning trace" }
+                yield
+              end
             end
           end
         end
@@ -44,11 +44,8 @@ module Skylight
       UNKNOWN = "<Delayed::Job Unknown>"
 
       def self.handler_name(job)
-        payload_object = if job.respond_to?(:payload_object_without_sk)
-                           job.payload_object_without_sk
-                         else
-                           job.payload_object
-                         end
+        payload_object =
+          job.respond_to?(:payload_object_without_sk) ? job.payload_object_without_sk : job.payload_object
 
         payload_object_name(payload_object)
       end
@@ -62,7 +59,7 @@ module Skylight
           # Use class name instead to avoid this.
           payload_object.class.name
         end
-      rescue
+      rescue StandardError
         UNKNOWN
       end
 
@@ -84,8 +81,10 @@ module Skylight
 
           opts = {
             category: "app.delayed_job.job",
-            title:    format_source(*source_meta),
-            meta:     { source_location_hint: source_meta },
+            title: format_source(*source_meta),
+            meta: {
+              source_location_hint: source_meta
+            },
             internal: true
           }
 
@@ -99,13 +98,9 @@ module Skylight
 
         private
 
-          def format_source(method_type, constant_name, method_name)
-            if method_type == :instance_method
-              "#{constant_name}##{method_name}"
-            else
-              "#{constant_name}.#{method_name}"
-            end
-          end
+        def format_source(method_type, constant_name, method_name)
+          method_type == :instance_method ? "#{constant_name}##{method_name}" : "#{constant_name}.#{method_name}"
+        end
       end
 
       class Probe
@@ -124,23 +119,23 @@ module Skylight
 
         private
 
-          def plugin_defined?
-            defined?(::Skylight::Probes::DelayedJob::Plugin)
-          end
+        def plugin_defined?
+          defined?(::Skylight::Probes::DelayedJob::Plugin)
+        end
 
-          def validate_version
-            spec = Gem.loaded_specs["delayed_job"]
-            version = spec&.version
+        def validate_version
+          spec = Gem.loaded_specs["delayed_job"]
+          version = spec&.version
 
-            if !version || version < Gem::Version.new("4.0.0")
-              Skylight.error "The installed version of DelayedJob is not supported on Skylight. " \
+          if !version || version < Gem::Version.new("4.0.0")
+            Skylight.error "The installed version of DelayedJob is not supported on Skylight. " \
                              "Your jobs will not be tracked."
 
-              return false
-            end
-
-            true
+            return false
           end
+
+          true
+        end
       end
     end
 

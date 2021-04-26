@@ -17,22 +17,22 @@ module SpecHelper
 
   private
 
-    def process_normalize(meth, name, payload)
-      if name.is_a?(Hash)
-        payload = name
-        name = nil
-      end
-
-      group = self.class.metadata
-      group = group[:parent_example_group] if group[:description].start_with?(BEHAVE_LIKE)
-
-      description = group[:description_args]
-      name ||= description[1] || description[0]
-
-      if meth == :normalize_after
-        normalizers.normalize_after(trace, 0, name, payload)
-      else
-        normalizers.normalize(trace, name, payload)
-      end
+  def process_normalize(meth, name, payload)
+    if name.is_a?(Hash)
+      payload = name
+      name = nil
     end
+
+    group = self.class.metadata
+    group = group[:parent_example_group] if group[:description].start_with?(BEHAVE_LIKE)
+
+    description = group[:description_args]
+    name ||= description[1] || description[0]
+
+    if meth == :normalize_after
+      normalizers.normalize_after(trace, 0, name, payload)
+    else
+      normalizers.normalize(trace, name, payload)
+    end
+  end
 end

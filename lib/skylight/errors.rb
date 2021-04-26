@@ -2,15 +2,14 @@ require "json"
 
 module Skylight
   # @api private
-  class ConfigError < RuntimeError; end
+  class ConfigError < RuntimeError
+  end
 
   class NativeError < StandardError
     @classes = {}
 
     def self.register(code, name, message)
-      if @classes.key?(code)
-        raise "Duplicate error class code: #{code}; name=#{name}"
-      end
+      raise "Duplicate error class code: #{code}; name=#{name}" if @classes.key?(code)
 
       Skylight.module_eval <<-RUBY, __FILE__, __LINE__ + 1
         class #{name}Error < NativeError            # class SqlLexError < NativeError

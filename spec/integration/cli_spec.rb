@@ -45,7 +45,7 @@ describe "CLI integration", :http do
       run_command("setup invalidtoken") do |_stdin, stdout, _stderr|
         output = read(stdout)
         expect(output).to include("Could not create the application")
-        expect(output).to include('{"request"=>"invalid app create token"}')
+        expect(output).to include("{\"request\"=>\"invalid app create token\"}")
 
         expect(File.exist?("config/skylight.yml")).to be_falsey
       end

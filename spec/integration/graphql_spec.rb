@@ -11,16 +11,13 @@ rescue LoadError
 end
 
 if enable
-
   def test_interpreter_schema?
     defined?(GraphQL::Execution::Interpreter)
   end
 
   describe "graphql integration" do
     around do |example|
-      ActiveSupport::Inflector.inflections(:en) do |inflect|
-        inflect.irregular "genus", "genera"
-      end
+      ActiveSupport::Inflector.inflections(:en) { |inflect| inflect.irregular "genus", "genera" }
 
       with_sqlite(migration: migration, &example)
     end
@@ -86,6 +83,7 @@ if enable
       end
     end
 
+    # prettier-ignore
     before :each do
       stub_const("TestApp", Module.new {})
 
@@ -107,77 +105,82 @@ if enable
 
         if graphql17?
           module Types
-            SpeciesType = GraphQL::ObjectType.define do
-              name "Species"
-              field :name, !types.String
-              field :common_name, !types.String
-              field :scientific_name, !types.String
-            end
-
-            GenusType = GraphQL::ObjectType.define do
-              name "Genus"
-              field :species, !types[SpeciesType]
-            end
-
-            FamilyType = GraphQL::ObjectType.define do
-              name "Family"
-              field :genera, !types[GenusType]
-              field :species, !types[SpeciesType]
-            end
-
-            QueryType = GraphQL::ObjectType.define do
-              name "Query"
-              field :some_dragonflies, !types[Types::SpeciesType], description: "A list of some of the dragonflies" do
-                resolve lambda { |_obj, _args, _ctx|
-                  Species.all
-                }
+            SpeciesType =
+              GraphQL::ObjectType.define do
+                name "Species"
+                field :name, !types.String
+                field :common_name, !types.String
+                field :scientific_name, !types.String
               end
 
-              field :families, !types[Types::FamilyType],
-                    description: "A list of families"
-
-              field :family, Types::FamilyType, description: "A specific family" do
-                argument :name, !types.String
+            GenusType =
+              GraphQL::ObjectType.define do
+                name "Genus"
+                field :species, !types[SpeciesType]
               end
 
-              def family(name:)
-                ::Family.find_by!(name: name)
+            FamilyType =
+              GraphQL::ObjectType.define do
+                name "Family"
+                field :genera, !types[GenusType]
+                field :species, !types[SpeciesType]
               end
-            end
+
+            QueryType =
+              GraphQL::ObjectType.define do
+                name "Query"
+                field :some_dragonflies,
+                      !types[Types::SpeciesType],
+                      description: "A list of some of the dragonflies" do
+                  resolve lambda { |_obj, _args, _ctx| Species.all }
+                end
+
+                field :families, !types[Types::FamilyType], description: "A list of families"
+
+                field :family, Types::FamilyType, description: "A specific family" do
+                  argument :name, !types.String
+                end
+
+                def family(name:)
+                  ::Family.find_by!(name: name)
+                end
+              end
           end
 
           module Mutations
-            CreateSpeciesResult = GraphQL::ObjectType.define do
-              name "CreateSpeciesResult"
-              field :species, !Types::SpeciesType
-            end
-
-            MutationType = GraphQL::ObjectType.define do
-              name "Mutation"
-              field :createSpecies, CreateSpeciesResult do
-                argument :genus, !types.String
-                argument :species, !types.String
-
-                resolve lambda { |_, args, _|
-                  genus = Genus.find_by!(name: args[:genus])
-                  species = genus.species.new(name: args[:species])
-                  if species.save
-                    OpenStruct.new(species: species)
-                  end
-                }
+            CreateSpeciesResult =
+              GraphQL::ObjectType.define do
+                name "CreateSpeciesResult"
+                field :species, !Types::SpeciesType
               end
-            end
+
+            MutationType =
+              GraphQL::ObjectType.define do
+                name "Mutation"
+                field :createSpecies, CreateSpeciesResult do
+                  argument :genus, !types.String
+                  argument :species, !types.String
+
+                  resolve lambda { |_, args, _|
+                            genus = Genus.find_by!(name: args[:genus])
+                            species = genus.species.new(name: args[:species])
+                            OpenStruct.new(species: species) if species.save
+                          }
+                end
+              end
           end
 
-          TestAppSchema = GraphQL::Schema.define do
-            # This tracer should be added by the probe
-            # tracer(GraphQL::Tracing::ActiveSupportNotificationsTracing)
-            mutation(Mutations::MutationType)
-            query(Types::QueryType)
-          end
+          TestAppSchema =
+            GraphQL::Schema.define do
+              # This tracer should be added by the probe
+              # tracer(GraphQL::Tracing::ActiveSupportNotificationsTracing)
+              mutation(Mutations::MutationType)
+              query(Types::QueryType)
+            end
         else
           module Types
-            class BaseObject < GraphQL::Schema::Object; end
+            class BaseObject < GraphQL::Schema::Object
+            end
             class SpeciesType < BaseObject
               field :name, String, null: false
               field :common_name, String, null: false
@@ -194,11 +197,12 @@ if enable
             end
 
             class QueryType < BaseObject
-              field :some_dragonflies, [Types::SpeciesType], null:        false,
-                                                             description: "A list of some of the dragonflies"
+              field :some_dragonflies,
+                    [Types::SpeciesType],
+                    null: false,
+                    description: "A list of some of the dragonflies"
 
-              field :families, [Types::FamilyType], null:        false,
-                                                    description: "A list of families"
+              field :families, [Types::FamilyType], null: false, description: "A list of families"
 
               field :family, Types::FamilyType, null: false, description: "A specific family" do
                 argument :name, String, required: true
@@ -239,16 +243,10 @@ if enable
                 species = genus.species.new(name: species)
                 if species.save
                   # Successful creation, return the created object with no errors
-                  {
-                    species: species,
-                    errors:  []
-                  }
+                  { species: species, errors: [] }
                 else
                   # Failed save, return the errors to the client
-                  {
-                    species: nil,
-                    errors:  species.errors.full_messages
-                  }
+                  { species: nil, errors: species.errors.full_messages }
                 end
               end
             end
@@ -287,12 +285,7 @@ if enable
       Skylight.probe("graphql")
       Skylight.start!
 
-      stub_const(
-        "ApplicationRecord",
-        Class.new(ActiveRecord::Base) do
-          self.abstract_class = true
-        end
-      )
+      stub_const("ApplicationRecord", Class.new(ActiveRecord::Base) { self.abstract_class = true })
 
       stub_const(
         "Family",
@@ -341,22 +334,28 @@ if enable
 
             result =
               if params[:queries]
-                formatted_queries = params[:queries].map.with_index do |q, i|
-                  {
-                    query:     q,
-                    variables: variables,
-                    context:   context.merge({}.tap do |h|
-                      h[:skylight_endpoint] = "query-#{i}" if params[:manual_operation_name] == "indexed"
-                    end)
-                  }
-                end
+                formatted_queries =
+                  params[:queries].map.with_index do |q, i|
+                    {
+                      query: q,
+                      variables: variables,
+                      context:
+                        context.merge(
+                          {}.tap do |h|
+                            h[:skylight_endpoint] = "query-#{i}" if params[:manual_operation_name] == "indexed"
+                          end
+                        )
+                    }
+                  end
 
                 TestApp.current_schema.multiplex(formatted_queries)
               else
-                TestApp.current_schema.execute(params[:query],
-                                               variables:      variables,
-                                               context:        context,
-                                               operation_name: params[:operation_name])
+                TestApp.current_schema.execute(
+                  params[:query],
+                  variables: variables,
+                  context: context,
+                  operation_name: params[:operation_name]
+                )
               end
 
             # Normally Rails would set this as content_type, but this app doesn't
@@ -395,19 +394,13 @@ if enable
         # Handles expected analysis events for legacy style (GraphQL 1.7.0-1.9.x)
         # and new interpreter style (GraphQL >= 1.9.x when using GraphQL::Execution::Interpreter).
         def expected_analysis_events(query_count = 1)
-          events = [
-            ["app.graphql", "graphql.lex"],
-            ["app.graphql", "graphql.parse"],
-            ["app.graphql", "graphql.validate"]
-          ].freeze
+          events = [%w[app.graphql graphql.lex], %w[app.graphql graphql.parse], %w[app.graphql graphql.validate]].freeze
 
-          analyze_event = ["app.graphql", "graphql.analyze_query"]
+          analyze_event = %w[app.graphql graphql.analyze_query]
           event_style = TestApp.graphql17? ? :inline : expectation_event_style
           case event_style
           when :grouped
-            events.cycle(query_count).to_a.tap do |a|
-              a.concat([analyze_event].cycle(query_count).to_a)
-            end
+            events.cycle(query_count).to_a.tap { |a| a.concat([analyze_event].cycle(query_count).to_a) }
           when :inline
             [*events, analyze_event].cycle(query_count)
           else
@@ -415,7 +408,7 @@ if enable
           end.to_a
         end
 
-        let(:query_inner) { "#{TestApp.format_field_name('someDragonflies')} { name }" }
+        let(:query_inner) { "#{TestApp.format_field_name("someDragonflies")} { name }" }
 
         context "with single queries" do
           it "successfully calls into graphql with anonymous queries" do
@@ -435,21 +428,20 @@ if enable
             data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
             query_name = "[anonymous]"
-            expect(data).to eq([
-              ["app.rack.request", nil],
-              ["app.graphql", "graphql.execute_multiplex"],
-              *expected_analysis_events,
-              ["app.graphql", "graphql.execute_query: #{query_name}"],
-              ["app.graphql", "graphql.execute_query_lazy: #{query_name}"]
-            ])
+            expect(data).to eq(
+              [
+                ["app.rack.request", nil],
+                %w[app.graphql graphql.execute_multiplex],
+                *expected_analysis_events,
+                ["app.graphql", "graphql.execute_query: #{query_name}"],
+                ["app.graphql", "graphql.execute_query_lazy: #{query_name}"]
+              ]
+            )
           end
 
           it "successfully calls into graphql with manually-named anonymous queries" do
             query_name = "FauxNamedQuery"
-            make_graphql_request(
-              query:                 "query { #{query_inner} }",
-              manual_operation_name: query_name
-            )
+            make_graphql_request(query: "query { #{query_inner} }", manual_operation_name: query_name)
 
             server.wait resource: "/report"
 
@@ -464,22 +456,28 @@ if enable
 
             data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
-            expect(data).to eq([
-              ["app.rack.request", nil],
-              ["app.graphql", "graphql.execute_multiplex"],
-              *expected_analysis_events,
-              ["app.graphql", "graphql.execute_query: #{query_name}"],
-              ["db.sql.query", "SELECT FROM species"],
-              ["db.active_record.instantiation", "Species Instantiation"],
-              ["app.graphql", "graphql.execute_query_lazy: #{query_name}"]
-            ])
+            expect(data).to eq(
+              [
+                ["app.rack.request", nil],
+                %w[app.graphql graphql.execute_multiplex],
+                *expected_analysis_events,
+                ["app.graphql", "graphql.execute_query: #{query_name}"],
+                ["db.sql.query", "SELECT FROM species"],
+                ["db.active_record.instantiation", "Species Instantiation"],
+                ["app.graphql", "graphql.execute_query_lazy: #{query_name}"]
+              ]
+            )
           end
 
           it "successfully calls into graphql with named queries" do
-            call env("/test", method: :POST, params: {
-              operationName: "Anisoptera", # This is optional if there is only one query node
-              query:         "query Anisoptera { #{query_inner} }"
-            })
+            call env(
+                   "/test",
+                   method: :POST,
+                   params: {
+                     operationName: "Anisoptera", # This is optional if there is only one query node
+                     query: "query Anisoptera { #{query_inner} }"
+                   }
+                 )
 
             server.wait resource: "/report"
 
@@ -495,15 +493,17 @@ if enable
             data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
             query_name = "Anisoptera"
-            expect(data).to eq([
-              ["app.rack.request", nil],
-              ["app.graphql", "graphql.execute_multiplex"],
-              *expected_analysis_events,
-              ["app.graphql", "graphql.execute_query: #{query_name}"],
-              ["db.sql.query", "SELECT FROM species"],
-              ["db.active_record.instantiation", "Species Instantiation"],
-              ["app.graphql", "graphql.execute_query_lazy: #{query_name}"]
-            ])
+            expect(data).to eq(
+              [
+                ["app.rack.request", nil],
+                %w[app.graphql graphql.execute_multiplex],
+                *expected_analysis_events,
+                ["app.graphql", "graphql.execute_query: #{query_name}"],
+                ["db.sql.query", "SELECT FROM species"],
+                ["db.active_record.instantiation", "Species Instantiation"],
+                ["app.graphql", "graphql.execute_query_lazy: #{query_name}"]
+              ]
+            )
           end
         end
 
@@ -527,26 +527,23 @@ if enable
             data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
             query_name = "[anonymous]"
-            expect(data).to eq([
-              ["app.rack.request", nil],
-              ["app.graphql", "graphql.execute_multiplex"],
-              *expected_analysis_events(3),
-              ["app.graphql", "graphql.execute_query: #{query_name}"],
-              ["app.graphql", "graphql.execute_query: #{query_name}"],
-              ["app.graphql", "graphql.execute_query: #{query_name}"],
-              ["app.graphql", "graphql.execute_query_lazy.multiplex"]
-            ])
+            expect(data).to eq(
+              [
+                ["app.rack.request", nil],
+                %w[app.graphql graphql.execute_multiplex],
+                *expected_analysis_events(3),
+                ["app.graphql", "graphql.execute_query: #{query_name}"],
+                ["app.graphql", "graphql.execute_query: #{query_name}"],
+                ["app.graphql", "graphql.execute_query: #{query_name}"],
+                %w[app.graphql graphql.execute_query_lazy.multiplex]
+              ]
+            )
           end
 
           it "successfully calls into graphql with manually-named anonymous queries" do
             queries = ["query { #{query_inner} }"].cycle.take(3)
 
-            call env("/test",
-                     method: :POST,
-                     params: {
-                       queries:               queries,
-                       manual_operation_name: :indexed
-                     })
+            call env("/test", method: :POST, params: { queries: queries, manual_operation_name: :indexed })
 
             server.wait resource: "/report"
 
@@ -561,20 +558,21 @@ if enable
 
             data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
-            expect(data).to eq([
-              ["app.rack.request", nil],
-              ["app.graphql", "graphql.execute_multiplex"],
-              *expected_analysis_events(3),
-
-              *%w[query-0 query-1 query-2].map do |qn|
-                [
-                  ["app.graphql", "graphql.execute_query: #{qn}"],
-                  ["db.sql.query", "SELECT FROM species"],
-                  ["db.active_record.instantiation", "Species Instantiation"]
-                ]
-              end.flatten(1),
-              ["app.graphql", "graphql.execute_query_lazy.multiplex"]
-            ])
+            expect(data).to eq(
+              [
+                ["app.rack.request", nil],
+                %w[app.graphql graphql.execute_multiplex],
+                *expected_analysis_events(3),
+                *%w[query-0 query-1 query-2].map do |qn|
+                  [
+                    ["app.graphql", "graphql.execute_query: #{qn}"],
+                    ["db.sql.query", "SELECT FROM species"],
+                    ["db.active_record.instantiation", "Species Instantiation"]
+                  ]
+                end.flatten(1),
+                %w[app.graphql graphql.execute_query_lazy.multiplex]
+              ]
+            )
           end
 
           it "successfully calls into graphql with named and anonymous queries" do
@@ -597,18 +595,20 @@ if enable
             data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
             query_name = "[anonymous]"
-            expect(data).to eq([
-              ["app.rack.request", nil],
-              ["app.graphql", "graphql.execute_multiplex"],
-              *expected_analysis_events(4),
-              ["app.graphql", "graphql.execute_query: #{query_name}"],
-              ["app.graphql", "graphql.execute_query: #{query_name}"],
-              ["app.graphql", "graphql.execute_query: #{query_name}"],
-              ["app.graphql", "graphql.execute_query: myFavoriteDragonflies"],
-              ["db.sql.query", "SELECT FROM species"],
-              ["db.active_record.instantiation", "Species Instantiation"],
-              ["app.graphql", "graphql.execute_query_lazy.multiplex"]
-            ])
+            expect(data).to eq(
+              [
+                ["app.rack.request", nil],
+                %w[app.graphql graphql.execute_multiplex],
+                *expected_analysis_events(4),
+                ["app.graphql", "graphql.execute_query: #{query_name}"],
+                ["app.graphql", "graphql.execute_query: #{query_name}"],
+                ["app.graphql", "graphql.execute_query: #{query_name}"],
+                ["app.graphql", "graphql.execute_query: myFavoriteDragonflies"],
+                ["db.sql.query", "SELECT FROM species"],
+                ["db.active_record.instantiation", "Species Instantiation"],
+                %w[app.graphql graphql.execute_query_lazy.multiplex]
+              ]
+            )
           end
 
           it "successfully calls into graphql with named queries" do
@@ -626,32 +626,32 @@ if enable
             expect(batch.endpoints.count).to eq(1)
             endpoint = batch.endpoints[0]
 
-            expect(endpoint.name).to \
-              eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>json</sk-segment>")
+            expect(endpoint.name).to eq(
+              "graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>json</sk-segment>"
+            )
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
             data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
-            expect(data).to eq([
-              ["app.rack.request", nil],
-              ["app.graphql", "graphql.execute_multiplex"],
-              *expected_analysis_events(2),
-              ["app.graphql", "graphql.execute_query: myFavoriteDragonflies"],
-              ["db.sql.query", "SELECT FROM species"],
-              ["db.active_record.instantiation", "Species Instantiation"],
-              ["app.graphql", "graphql.execute_query: kindOfOkayDragonflies"],
-              ["db.sql.query", "SELECT FROM species"],
-              ["db.active_record.instantiation", "Species Instantiation"],
-              ["app.graphql", "graphql.execute_query_lazy.multiplex"]
-            ])
+            expect(data).to eq(
+              [
+                ["app.rack.request", nil],
+                %w[app.graphql graphql.execute_multiplex],
+                *expected_analysis_events(2),
+                ["app.graphql", "graphql.execute_query: myFavoriteDragonflies"],
+                ["db.sql.query", "SELECT FROM species"],
+                ["db.active_record.instantiation", "Species Instantiation"],
+                ["app.graphql", "graphql.execute_query: kindOfOkayDragonflies"],
+                ["db.sql.query", "SELECT FROM species"],
+                ["db.active_record.instantiation", "Species Instantiation"],
+                %w[app.graphql graphql.execute_query_lazy.multiplex]
+              ]
+            )
           end
 
           it "reports a compound segment" do
-            queries = [
-              "query myFavoriteDragonflies { #{query_inner} }",
-              "query kindOfOkayDragonflies { missingField }"
-            ]
+            queries = ["query myFavoriteDragonflies { #{query_inner} }", "query kindOfOkayDragonflies { missingField }"]
 
             res = call env("/test", method: :POST, params: { queries: queries })
 
@@ -664,29 +664,29 @@ if enable
             expect(batch.endpoints.count).to eq(1)
             endpoint = batch.endpoints[0]
 
-            expect(endpoint.name).to \
-              eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>json+error</sk-segment>")
+            expect(endpoint.name).to eq(
+              "graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>json+error</sk-segment>"
+            )
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
             data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
-            expect(data).to eq([
-              ["app.rack.request", nil],
-              ["app.graphql", "graphql.execute_multiplex"],
-              *expected_analysis_events(2)[0..-2],
-              ["app.graphql", "graphql.execute_query: myFavoriteDragonflies"],
-              ["db.sql.query", "SELECT FROM species"],
-              ["db.active_record.instantiation", "Species Instantiation"],
-              ["app.graphql", "graphql.execute_query_lazy.multiplex"]
-            ])
+            expect(data).to eq(
+              [
+                ["app.rack.request", nil],
+                %w[app.graphql graphql.execute_multiplex],
+                *expected_analysis_events(2)[0..-2],
+                ["app.graphql", "graphql.execute_query: myFavoriteDragonflies"],
+                ["db.sql.query", "SELECT FROM species"],
+                ["db.active_record.instantiation", "Species Instantiation"],
+                %w[app.graphql graphql.execute_query_lazy.multiplex]
+              ]
+            )
           end
 
           it "reports a compound error" do
-            queries = [
-              "query myFavoriteDragonflies { missingField }",
-              "query kindOfOkayDragonflies { missingField }"
-            ]
+            queries = ["query myFavoriteDragonflies { missingField }", "query kindOfOkayDragonflies { missingField }"]
 
             res = call env("/test", method: :POST, params: { queries: queries })
 
@@ -699,37 +699,41 @@ if enable
             expect(batch.endpoints.count).to eq(1)
             endpoint = batch.endpoints[0]
 
-            expect(endpoint.name).to \
-              eq("graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>error</sk-segment>")
+            expect(endpoint.name).to eq(
+              "graphql:kindOfOkayDragonflies+myFavoriteDragonflies<sk-segment>error</sk-segment>"
+            )
             expect(endpoint.traces.count).to eq(1)
             trace = endpoint.traces[0]
 
             data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
-            expect(data).to eq([
-              ["app.rack.request", nil],
-              ["app.graphql", "graphql.execute_multiplex"],
-              *expected_analysis_events(2).reject { |_, e| e["graphql.analyze"] },
-              ["app.graphql", "graphql.execute_query_lazy.multiplex"]
-            ])
+            expect(data).to eq(
+              [
+                ["app.rack.request", nil],
+                %w[app.graphql graphql.execute_multiplex],
+                *expected_analysis_events(2).reject { |_, e| e["graphql.analyze"] },
+                %w[app.graphql graphql.execute_query_lazy.multiplex]
+              ]
+            )
           end
         end
 
-        let(:mutation_inner) do
-          <<~GRAPHQL
+        let(:mutation_inner) { <<~GRAPHQL }
             createSpecies(genus: $genus, species: $species) {
-              species { #{TestApp.format_field_name('scientificName')} }
+              species { #{TestApp.format_field_name("scientificName")} }
             }
           GRAPHQL
-        end
 
         context "with single mutations" do
           let(:mutation_name) { "CreateSpeciesMutation" }
 
           it "successfully calls into graphql with anonymous mutations" do
             make_graphql_request(
-              query:     "mutation #{mutation_name}($genus: String!, $species: String!) { #{mutation_inner} }",
-              variables: { genus: "Ischnura", species: "damula" }
+              query: "mutation #{mutation_name}($genus: String!, $species: String!) { #{mutation_inner} }",
+              variables: {
+                genus: "Ischnura",
+                species: "damula"
+              }
             )
 
             server.wait resource: "/report"
@@ -745,27 +749,27 @@ if enable
 
             data = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
-            expect(data).to eq([
-              ["app.rack.request", nil],
-              ["app.graphql", "graphql.execute_multiplex"],
-              *expected_analysis_events,
-              ["app.graphql", "graphql.execute_query: #{mutation_name}"],
-              ["db.sql.query", "SELECT FROM genera"],
-              ["db.active_record.instantiation", "Genus Instantiation"],
-              ["db.sql.query", active_record_transaction_title],
-              ["db.sql.query", "INSERT INTO species"],
-              ["db.sql.query", active_record_transaction_title],
-              ["app.graphql", "graphql.execute_query_lazy: #{mutation_name}"]
-            ])
+            expect(data).to eq(
+              [
+                ["app.rack.request", nil],
+                %w[app.graphql graphql.execute_multiplex],
+                *expected_analysis_events,
+                ["app.graphql", "graphql.execute_query: #{mutation_name}"],
+                ["db.sql.query", "SELECT FROM genera"],
+                ["db.active_record.instantiation", "Genus Instantiation"],
+                ["db.sql.query", active_record_transaction_title],
+                ["db.sql.query", "INSERT INTO species"],
+                ["db.sql.query", active_record_transaction_title],
+                ["app.graphql", "graphql.execute_query_lazy: #{mutation_name}"]
+              ]
+            )
           end
         end
       end
 
       configs = []
 
-      if test_interpreter_schema?
-        configs << { schema: :InterpreterSchema, expectation_event_style: :inline }
-      end
+      configs << { schema: :InterpreterSchema, expectation_event_style: :inline } if test_interpreter_schema?
 
       # GraphQL::Execution::Interpreter became the default as of 1.12, so we do not need to
       # test an additional schema for versions >= 1.12.

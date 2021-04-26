@@ -8,7 +8,7 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
   def stub_request(opts = {})
     path = "/#{opts[:path]}"
     method = opts[:method] || :get
-    delay  = opts[:delay] || 1 # agent talks units of 100 microseconds (10,000ths of a second)
+    delay = opts[:delay] || 1 # agent talks units of 100 microseconds (10,000ths of a second)
 
     server.mock path, method do
       travel(delay)
@@ -21,11 +21,7 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
     stub_request
     Excon.get(server_uri)
 
-    expected = {
-      cat:      "api.http.get",
-      title:    "GET 127.0.0.1",
-      duration: 1
-    }
+    expected = { cat: "api.http.get", title: "GET 127.0.0.1", duration: 1 }
     expect(current_trace.mock_spans[1]).to include(expected)
   end
 
@@ -41,18 +37,21 @@ describe "Excon integration", :excon_probe, :http, :agent, :instrumenter do
     end
 
     it "logs errored requests" do
-      Excon.stub({}, lambda { |_request_params|
-        travel(2)
-        raise "bad response"
-      })
+      Excon.stub(
+        {},
+        lambda do |_request_params|
+          travel(2)
+          raise "bad response"
+        end
+      )
 
-      Excon.get("http://example.com") rescue nil
+      begin
+        Excon.get("http://example.com")
+      rescue StandardError
+        nil
+      end
 
-      expected = {
-        cat:      "api.http.get",
-        title:    "GET example.com",
-        duration: 2
-      }
+      expected = { cat: "api.http.get", title: "GET example.com", duration: 2 }
       expect(current_trace.mock_spans[1]).to include(expected)
     end
   end

@@ -2,9 +2,9 @@ module SpecHelper
   SPECIAL_HEADERS = %w[CONTENT_TYPE REQUEST_METHOD rack.input].freeze
 
   RSpec::Matchers.define :be_request do |*args|
-    hdrs  = {}
-    hdrs  = args.pop if args[-1].is_a?(Hash)
-    path  = args.shift
+    hdrs = {}
+    hdrs = args.pop if args[-1].is_a?(Hash)
+    path = args.shift
 
     match do |env|
       @fails = []
@@ -32,17 +32,13 @@ module SpecHelper
     def match_header(env, key, val)
       ret =
         case val
-        when Regexp then env[key] =~ val
-        else env[key] == val
+        when Regexp
+          env[key] =~ val
+        else
+          env[key] == val
         end
 
-      unless ret
-        @fails << {
-          key:      key,
-          actual:   env[key],
-          expected: val
-        }
-      end
+      @fails << { key: key, actual: env[key], expected: val } unless ret
 
       ret
     end
@@ -51,9 +47,10 @@ module SpecHelper
       if @env
         lines = []
         @fails.each do |f|
-          lines << "expected env[#{f[:key]}] " \
-            "=~ #{f[:expected].inspect}, " \
-            "but was #{f[:actual].inspect}"
+          lines <<
+            "expected env[#{f[:key]}] " \
+              "=~ #{f[:expected].inspect}, " \
+              "but was #{f[:actual].inspect}"
         end
 
         lines.join("\n")
@@ -64,59 +61,35 @@ module SpecHelper
   end
 
   RSpec::Matchers.define :a_span_including do |expected|
-    match do |actual|
-      expect(actual.to_hash).to match(a_hash_including(expected))
-    end
+    match { |actual| expect(actual.to_hash).to match(a_hash_including(expected)) }
 
-    failure_message do
-      "span match failed"
-    end
+    failure_message { "span match failed" }
 
-    failure_message_when_negated do
-      "span match negated failed"
-    end
+    failure_message_when_negated { "span match negated failed" }
   end
 
   RSpec::Matchers.define :an_exact_span do |expected|
-    match do |actual|
-      expect(actual.to_hash).to eq(expected)
-    end
+    match { |actual| expect(actual.to_hash).to eq(expected) }
 
-    failure_message do
-      "an exact span match failed"
-    end
+    failure_message { "an exact span match failed" }
 
-    failure_message_when_negated do
-      "an exact span match negated failed"
-    end
+    failure_message_when_negated { "an exact span match negated failed" }
   end
 
   RSpec::Matchers.define :an_event_including do |expected|
-    match do |actual|
-      expect(actual.to_hash).to match(a_hash_including(expected))
-    end
+    match { |actual| expect(actual.to_hash).to match(a_hash_including(expected)) }
 
-    failure_message do
-      "event match failed"
-    end
+    failure_message { "event match failed" }
 
-    failure_message_when_negated do
-      "event match negated failed"
-    end
+    failure_message_when_negated { "event match negated failed" }
   end
 
   RSpec::Matchers.define :an_exact_event do |expected|
-    match do |actual|
-      expect(actual.to_hash).to eq(expected)
-    end
+    match { |actual| expect(actual.to_hash).to eq(expected) }
 
-    failure_message do
-      "an exact event match failed"
-    end
+    failure_message { "an exact event match failed" }
 
-    failure_message_when_negated do
-      "an exact event match negated failed"
-    end
+    failure_message_when_negated { "an exact event match negated failed" }
   end
 
   RSpec::Matchers.define :an_annotation do |expected_type, expected_value|
@@ -139,13 +112,9 @@ module SpecHelper
       expect(actual_value).to eq(expected_value)
     end
 
-    failure_message do
-      "an annotation match failed"
-    end
+    failure_message { "an annotation match failed" }
 
-    failure_message_when_negated do
-      "an annotation match negated failed"
-    end
+    failure_message_when_negated { "an annotation match negated failed" }
   end
 
   def get_json(*args)

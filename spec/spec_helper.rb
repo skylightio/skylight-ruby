@@ -45,16 +45,12 @@ require "support/native"
 module SpecHelper
 end
 
-Dir[File.expand_path("support/*.rb", __dir__)].sort.each do |f|
-  require f
-end
+Dir[File.expand_path("support/*.rb", __dir__)].sort.each { |f| require f }
 
 # Begin Probed libraries
 
 def enable_probe(probes, library = probes)
-  Array(library).each do |l|
-    require l
-  end
+  Array(library).each { |l| require l }
   Skylight::Probes.probe(*probes)
 rescue LoadError => e
   puts "Unable to enable #{probes}: #{e}"
@@ -62,7 +58,7 @@ end
 
 %w[excon tilt sinatra sequel faraday active_model_serializers httpclient].each { |probe| enable_probe(probe) }
 
-enable_probe(:redis, ["redis", "fakeredis/rspec"])
+enable_probe(:redis, %w[redis fakeredis/rspec])
 enable_probe(:action_view, %w[action_dispatch action_view])
 enable_probe(:"action_dispatch/request_id", "action_dispach/middleware/request_id")
 enable_probe(%i[active_job active_job_enqueue], "active_job")
@@ -72,9 +68,7 @@ if ENV["TEST_MONGO_INTEGRATION"]
   enable_probe("mongoid")
 end
 
-if ENV["TEST_ELASTICSEARCH_INTEGRATION"]
-  enable_probe("elasticsearch")
-end
+enable_probe("elasticsearch") if ENV["TEST_ELASTICSEARCH_INTEGRATION"]
 
 require "net/http"
 Skylight::Probes.probe(:net_http)
@@ -83,18 +77,33 @@ Skylight::Probes.probe(:middleware)
 
 # End Probed Libraries
 
-all_probes = %i[excon tilt sinatra sequel faraday mongo mongoid httpclient elasticsearch redis
-                action_view action_dispatch action_dispatch/request_id active_job_enqueue
-                net_http middleware active_job]
+all_probes = %i[
+  excon
+  tilt
+  sinatra
+  sequel
+  faraday
+  mongo
+  mongoid
+  httpclient
+  elasticsearch
+  redis
+  action_view
+  action_dispatch
+  action_dispatch/request_id
+  active_job_enqueue
+  net_http
+  middleware
+  active_job
+]
 
 # Check probes that could be installed but don't actually install them
-installable_probes = Skylight::Probes.registered.
-                     select { |_, registration| registration.constant_available? }.
-                     map(&:first)
+installable_probes =
+  Skylight::Probes.registered.select { |_, registration| registration.constant_available? }.map(&:first)
 skipped_probes = all_probes - installable_probes
 
-puts "Testing probes: #{installable_probes.join(', ')}" unless installable_probes.empty?
-puts "Skipping probes: #{skipped_probes.join(', ')}" unless skipped_probes.empty?
+puts "Testing probes: #{installable_probes.join(", ")}" unless installable_probes.empty?
+puts "Skipping probes: #{skipped_probes.join(", ")}" unless skipped_probes.empty?
 
 ENV["SKYLIGHT_RAISE_ON_ERROR"] = "true"
 
@@ -138,9 +147,7 @@ RSpec.configure do |config|
   config.include WebMock::API
   config.include WebMock::Matchers
 
-  if ENV["SKYLIGHT_DISABLE_AGENT"]
-    config.filter_run_excluding agent: true
-  end
+  config.filter_run_excluding agent: true if ENV["SKYLIGHT_DISABLE_AGENT"]
 
   # Install probes if we're running their specs.
   #   This does limit our abilities to fully test the installation upon Instrumenter start, but we do need
@@ -155,9 +162,7 @@ RSpec.configure do |config|
   unless skipped_probes.empty?
     args = {}
 
-    skipped_probes.each do |p|
-      args["#{p}_probe".to_sym] = true
-    end
+    skipped_probes.each { |p| args["#{p}_probe".to_sym] = true }
 
     config.filter_run_excluding args
   end
@@ -168,9 +173,7 @@ RSpec.configure do |config|
     if defined?(ActiveJob)
       ActiveJob::Base.logger.level = ENV["DEBUG"] ? Logger::DEBUG : Logger::FATAL
 
-      if defined?(ActionMailer::MailDeliveryJob)
-        ActionMailer::Base.delivery_job = ActionMailer::MailDeliveryJob
-      end
+      ActionMailer::Base.delivery_job = ActionMailer::MailDeliveryJob if defined?(ActionMailer::MailDeliveryJob)
     end
 
     if defined?(Concurrent) && Concurrent.respond_to?(:global_logger) && !ENV["DEBUG"]
@@ -197,13 +200,9 @@ RSpec.configure do |config|
     Skylight::Probes.instance_variable_set(:@require_hooks, {})
 
     # Remove the ProbeTestClass if it exists so that the probe won't find it
-    if defined?(SpecHelper::ProbeTestClass)
-      SpecHelper.send(:remove_const, :ProbeTestClass)
-    end
+    SpecHelper.send(:remove_const, :ProbeTestClass) if defined?(SpecHelper::ProbeTestClass)
 
-    if defined?(SpecHelper::ProbeTestAuxClass)
-      SpecHelper.send(:remove_const, :ProbeTestAuxClass)
-    end
+    SpecHelper.send(:remove_const, :ProbeTestAuxClass) if defined?(SpecHelper::ProbeTestAuxClass)
 
     Skylight.unmock! if Skylight.respond_to?(:unmock!)
 
@@ -211,16 +210,15 @@ RSpec.configure do |config|
     `pkill -9 skylightd`
   end
 
-  original_wd   = Dir.pwd
+  original_wd = Dir.pwd
   original_home = ENV["HOME"]
 
   config.around :each do |example|
-    if File.exist?(tmp)
-      FileUtils.rm_rf tmp
-    end
+    FileUtils.rm_rf tmp if File.exist?(tmp)
 
     begin
       FileUtils.mkdir_p(tmp)
+
       # Sockfile goes into the "tmp" dir
       FileUtils.mkdir_p(tmp("tmp"))
       Dir.chdir(tmp)
@@ -250,8 +248,6 @@ RSpec.configure do |config|
   config.after :all do
     # In Rails 3.2 when ActionController::Base is loaded, Test::Unit is initialized.
     # This avoids it trying to auto-run tests in addition to RSpec.
-    if defined?(Test::Unit::AutoRunner)
-      Test::Unit::AutoRunner.need_auto_run = false
-    end
+    Test::Unit::AutoRunner.need_auto_run = false if defined?(Test::Unit::AutoRunner)
   end
 end

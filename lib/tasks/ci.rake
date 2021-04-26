@@ -17,143 +17,72 @@ module CITasks
 
   GEMFILES_UPDATES = {
     "ams-0.8.x" => {
-      allow: [
-        { "dependency-name": "active_model_serializers" }
-      ],
+      allow: [{ "dependency-name": "active_model_serializers" }],
       ignore: [
-        {
-          "dependency-name": "active_model_serializers",
-          versions: [">= 0.9"]
-        }
+        { "dependency-name": "active_model_serializers", versions: [">= 0.9"] }
       ]
     },
     "ams-0.9.x" => {
-      allow: [
-        { "dependency-name": "active_model_serializers" }
-      ],
+      allow: [{ "dependency-name": "active_model_serializers" }],
       ignore: [
-        {
-          "dependency-name": "active_model_serializers",
-          versions: [">= 0.10"]
-        }
+        { "dependency-name": "active_model_serializers", versions: [">= 0.10"] }
       ]
     },
     "ams-0.10.x" => {
-      allow: [
-        { "dependency-name": "active_model_serializers" }
-      ]
+      allow: [{ "dependency-name": "active_model_serializers" }]
       # We don't limit this so that we're aware when new versions are released
     },
     "elasticsearch" => {
-      allow: [
-        { "dependency-name": "elasticsearch" }
-      ]
+      allow: [{ "dependency-name": "elasticsearch" }]
       # We don't limit this so that we're aware when new versions are released
     },
     "grape-1.2.x" => {
-      allow: [
-        { "dependency-name": "grape" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "grape",
-          versions: [">= 1.3"]
-        }
-      ]
+      allow: [{ "dependency-name": "grape" }],
+      ignore: [{ "dependency-name": "grape", versions: [">= 1.3"] }]
     },
     "grape-1.x" => {
-      allow: [
-        { "dependency-name": "grape" }
-      ]
+      allow: [{ "dependency-name": "grape" }]
       # We don't limit this so that we're aware when new versions are released
     },
     "grape-edge" => {
-      allow: [
-        { "dependency-name": "grape" }
-      ]
+      allow: [{ "dependency-name": "grape" }]
     },
     "graphql-1.8.x" => {
-      allow: [
-        { "dependency-name": "graphql" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "graphql",
-          versions: [">= 1.9"]
-        }
-      ]
+      allow: [{ "dependency-name": "graphql" }],
+      ignore: [{ "dependency-name": "graphql", versions: [">= 1.9"] }]
     },
     "graphql-1.9.x" => {
-      allow: [
-        { "dependency-name": "graphql" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "graphql",
-          versions: [">= 1.10"]
-        }
-      ]
+      allow: [{ "dependency-name": "graphql" }],
+      ignore: [{ "dependency-name": "graphql", versions: [">= 1.10"] }]
     },
     "mongoid-6.x" => {
-      allow: [
-        { "dependency-name": "mongoid" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "mongoid",
-          versions: [">= 7"]
-        }
-      ]
+      allow: [{ "dependency-name": "mongoid" }],
+      ignore: [{ "dependency-name": "mongoid", versions: [">= 7"] }]
     },
     "mongoid-7.x" => {
-      allow: [
-        { "dependency-name": "mongoid" },
-        { "dependency-name": "mongo" }
-      ]
+      allow: [{ "dependency-name": "mongoid" }, { "dependency-name": "mongo" }]
       # We don't limit this so that we're aware when new versions are released
     },
     "rails-5.2.x" => {
-      allow: [
-        { "dependency-name": "rails" },
-        { "dependency-name": "sqlite" }
-      ],
+      allow: [{ "dependency-name": "rails" }, { "dependency-name": "sqlite" }],
       ignore: [
-        {
-          "dependency-name": "rails",
-          versions: [">= 5.3"]
-        },
-        {
-          "dependency-name": "sqlite",
-          versions: [">= 1.5"]
-        }
+        { "dependency-name": "rails", versions: [">= 5.3"] },
+        { "dependency-name": "sqlite", versions: [">= 1.5"] }
       ]
     },
     "rails-6.0.x" => {
-      allow: [
-        { "dependency-name": "rails" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "rails",
-          versions: [">= 6.1"]
-        }
-      ]
+      allow: [{ "dependency-name": "rails" }],
+      ignore: [{ "dependency-name": "rails", versions: [">= 6.1"] }]
     },
     "rails-6.1.x" => {
-      allow: [
-        { "dependency-name": "rails" }
-      ]
+      allow: [{ "dependency-name": "rails" }]
       # We don't limit this so that we're aware when new versions are released
     },
     "rails-edge" => {
-      allow: [
-        { "dependency-name": "rails" }
-      ]
+      allow: [{ "dependency-name": "rails" }]
     },
     "sequel-4.34.0" => {
-      ignore: [
-        { "dependency-name": "*" }
-      ]
+      ignore: [{ "dependency-name": "*" }]
     },
     "sidekiq-4.x-graphql-1.7.x" => {
       allow: [
@@ -161,49 +90,27 @@ module CITasks
         { "dependency-name": "graphql" }
       ],
       ignore: [
-        {
-          "dependency-name": "sidekiq",
-          versions: [">= 5"]
-        },
-        {
-          "dependency-name": "graphql",
-          versions: [">= 1.8"]
-        }
+        { "dependency-name": "sidekiq", versions: [">= 5"] },
+        { "dependency-name": "graphql", versions: [">= 1.8"] }
       ]
     },
     "sinatra-1.x" => {
-      allow: [
-        { "dependency-name": "sinatra" }
-      ],
-      ignore: [
-        {
-          "dependency-name": "sinatra",
-          versions: [">= 1.5"]
-        }
-      ]
+      allow: [{ "dependency-name": "sinatra" }],
+      ignore: [{ "dependency-name": "sinatra", versions: [">= 1.5"] }]
     },
     "sinatra-2.x" => {
-      allow: [
-        { "dependency-name": "sinatra" }
-      ]
+      allow: [{ "dependency-name": "sinatra" }]
       # We don't limit this so that we're aware when new versions are released
     },
     "sinatra-edge" => {
-      allow: [
-        { "dependency-name": "sinatra" }
-      ]
+      allow: [{ "dependency-name": "sinatra" }]
     }
   }.freeze
 
   # FIXME: hash this config and compare in the job
   TEST_JOBS = [
     # Mongo gem with latest mongoid
-    {
-      primary: true,
-      ruby_version: NEWEST_RUBY,
-      gemfile: "default"
-    },
-
+    { primary: true, ruby_version: NEWEST_RUBY, gemfile: "default" },
     {
       name: "mongo",
       ruby_version: NEWEST_RUBY,
@@ -214,7 +121,6 @@ module CITasks
         MONGO_HOST: "localhost"
       }
     },
-
     # Oldest mongoid we support
     {
       name: "mongoid-6",
@@ -226,7 +132,6 @@ module CITasks
         MONGO_HOST: "localhost"
       }
     },
-
     {
       name: "elasticsearch",
       ruby_version: NEWEST_RUBY,
@@ -235,49 +140,25 @@ module CITasks
         elasticsearch: {
           image: "elasticsearch:6.8.6",
           ports: %w[9200:9200 9300:9300],
-          options: '-e "discovery.type=single-node"'
+          options: "-e \"discovery.type=single-node\""
         }
       },
       env: {
         TEST_ELASTICSEARCH_INTEGRATION: "true"
       }
     },
-
     # GraphQL 1.7 is the oldest version that we support.
     # We also have some special handling for it.
-    {
-      ruby_version: OLDEST_RUBY,
-      gemfile: "sidekiq-4.x-graphql-1.7.x"
-    },
-
+    { ruby_version: OLDEST_RUBY, gemfile: "sidekiq-4.x-graphql-1.7.x" },
     # We need to test either 1.8 or 1.9 since there are more changes in 1.10.
     # We probably don't need to test both
-    {
-      ruby_version: "2.7",
-      gemfile: "graphql-1.9.x"
-    },
-
+    { ruby_version: "2.7", gemfile: "graphql-1.9.x" },
     # GraphQL 1.11 is tested as part of our default additional gems
     # TODO: We should test 1.12+
 
-    {
-      gemfile: "rails-5.2.x",
-      ruby_version: OLDEST_RUBY,
-      always_run: true
-    },
-
-    {
-      always_run: true,
-      ruby_version: NEWEST_RUBY,
-      gemfile: "rails-6.0.x"
-    },
-
-    {
-      always_run: true,
-      ruby_version: NEWEST_RUBY,
-      gemfile: "rails-6.1.x"
-    },
-
+    { gemfile: "rails-5.2.x", ruby_version: OLDEST_RUBY, always_run: true },
+    { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "rails-6.0.x" },
+    { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "rails-6.1.x" },
     {
       ruby_version: NEWEST_RUBY,
       allow_failure: true,
@@ -287,74 +168,24 @@ module CITasks
         RAILS_EDGE: true
       }
     },
-
-    {
-      ruby_version: OLDEST_RUBY,
-      gemfile: "sinatra-1.x"
-    },
-
-    {
-      always_run: true,
-      ruby_version: NEWEST_RUBY,
-      gemfile: "sinatra-2.x"
-    },
-
-    {
-      ruby_version: NEWEST_RUBY,
-      allow_failure: true,
-      gemfile: "sinatra-edge"
-    },
-
-    {
-      ruby_version: OLDEST_RUBY,
-      gemfile: "grape-1.x"
-    },
-
-    {
-      always_run: true,
-      ruby_version: NEWEST_RUBY,
-      gemfile: "grape-1.x"
-    },
-
+    { ruby_version: OLDEST_RUBY, gemfile: "sinatra-1.x" },
+    { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "sinatra-2.x" },
+    { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "sinatra-edge" },
+    { ruby_version: OLDEST_RUBY, gemfile: "grape-1.x" },
+    { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "grape-1.x" },
     # Oldest supported grape version. Doesn't support 3.0.
-    {
-      ruby_version: "2.7",
-      gemfile: "grape-1.2.x"
-    },
-
-    {
-      ruby_version: NEWEST_RUBY,
-      allow_failure: true,
-      gemfile: "grape-edge"
-    },
-
-    {
-      ruby_version: NEWEST_RUBY,
-      gemfile: "sequel-4.34.0"
-    },
-
-    {
-      ruby_version: "2.7",
-      gemfile: "ams-0.8.x"
-    },
-
-    {
-      ruby_version: "2.7",
-      gemfile: "ams-0.9.x"
-    },
-
-    {
-      ruby_version: NEWEST_RUBY,
-      gemfile: "ams-0.10.x"
-    },
-
+    { ruby_version: "2.7", gemfile: "grape-1.2.x" },
+    { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "grape-edge" },
+    { ruby_version: NEWEST_RUBY, gemfile: "sequel-4.34.0" },
+    { ruby_version: "2.7", gemfile: "ams-0.8.x" },
+    { ruby_version: "2.7", gemfile: "ams-0.9.x" },
+    { ruby_version: NEWEST_RUBY, gemfile: "ams-0.10.x" },
     {
       gemfile: "rails-6.1.x",
       ruby_version: HEAD_RUBY,
       ruby_install_version: "head",
       allow_failure: true
     },
-
     {
       gemfile: "rails-edge",
       ruby_version: HEAD_RUBY,
@@ -369,13 +200,10 @@ module CITasks
 
   module WorkflowConfigGenerator
     def self.to_json
-      jobs = TEST_JOBS.map do |j|
-        if j[:container]
-          ContainerTestJob.new(j)
-        else
-          TestJob.new(j)
+      jobs =
+        TEST_JOBS.map do |j|
+          j[:container] ? ContainerTestJob.new(j) : TestJob.new(j)
         end
-      end
 
       primary = jobs.select(&:primary?)
       raise "should only have one primary job" if primary.length != 1
@@ -391,7 +219,7 @@ module CITasks
       repeated = ids.select { |_, v| v > 1 }
 
       unless ids.values.all? { |x| x == 1 }
-        raise "jobs must have unique ids; #{repeated.keys.join(', ')} are repeated"
+        raise "jobs must have unique ids; #{repeated.keys.join(", ")} are repeated"
       end
 
       job_defs = jobs.map(&:to_template).inject(:merge)
@@ -434,7 +262,7 @@ module CITasks
     def self.verify!(str)
       unless digest == str
         raise "digest does not match #{str}; " \
-          "please run `rake workflow:generate` to update the config."
+                "please run `rake workflow:generate` to update the config."
       end
     end
 
@@ -444,7 +272,7 @@ module CITasks
       "SKYLIGHT_REQUIRED" => "true",
       "SKYLIGHT_TEST_DIR" => "/tmp",
       "RAILS_ENV" => "development",
-      "EMBEDDED_HTTP_SERVER_TIMEOUT" =>  "30",
+      "EMBEDDED_HTTP_SERVER_TIMEOUT" => "30",
       "WORKER_SPAWN_TIMEOUT" => "15",
       "COVERAGE" => "true",
       "COVERAGE_DIR" => "${{ github.workspace }}/coverage",
@@ -471,10 +299,7 @@ module CITasks
       end
 
       def to_template_hash
-        h = {
-          name: decorated_name,
-          "runs-on" => "ubuntu-latest"
-        }
+        h = { :name => decorated_name, "runs-on" => "ubuntu-latest" }
 
         h["continue-on-error"] = true unless required?
 
@@ -491,7 +316,8 @@ module CITasks
 
           # Always run unless we're labeled with dependencies
           if always_run?
-            conditions << "!contains(github.event.pull_request.labels.*.name, 'dependencies')"
+            conditions <<
+              "!contains(github.event.pull_request.labels.*.name, 'dependencies')"
           end
 
           h[:if] = conditions.join(" || ")
@@ -514,10 +340,10 @@ module CITasks
 
       def name
         if env
-          env_key = env.select { |k, _| k.to_s =~ /VERSION/ }.
-                    map { |k, v| "#{k}=#{v}" }.
-                    compact.
-                    join(" ")
+          env_key =
+            env.select { |k, _| k.to_s =~ /VERSION/ }.map do |k, v|
+              "#{k}=#{v}"
+            end.compact.join(" ")
         end
 
         [
@@ -538,151 +364,129 @@ module CITasks
 
       private
 
-        def decorations
-          [].tap do |ary|
-            ary << "[allowed to fail]" if allow_failure?
-          end
-        end
+      def decorations
+        [].tap { |ary| ary << "[allowed to fail]" if allow_failure? }
+      end
 
-        def checkout_step
-          {
-            name: "Checkout",
-            uses: "actions/checkout@v2"
+      def checkout_step
+        { name: "Checkout", uses: "actions/checkout@v2" }
+      end
+
+      def setup_ruby_step
+        {
+          name: "Setup ruby",
+          uses: "ruby/setup-ruby@v1",
+          with: {
+            "ruby-version": ruby_install_version
           }
-        end
+        }
+      end
 
-        def setup_ruby_step
-          {
-            name: "Setup ruby",
-            uses: "ruby/setup-ruby@v1",
-            with: {
-              "ruby-version": ruby_install_version
-            }
-          }
-        end
+      def check_ruby_step
+        return if ruby_version == ruby_install_version
 
-        def check_ruby_step
-          return if ruby_version == ruby_install_version
+        { name: "Check ruby", run: "ruby -v | grep \"#{ruby_version}\" -q" }
+      end
 
-          {
-            name: "Check ruby",
-            run: "ruby -v | grep \"#{ruby_version}\" -q"
-          }
-        end
-
-        def install_apt_dependencies_step
-          {
-            name: "Install APT dependencies",
-            run: <<~RUN
+      def install_apt_dependencies_step
+        { name: "Install APT dependencies", run: <<~RUN }
               sudo apt-get update
               sudo apt-get install -yq sqlite libsqlite3-dev
             RUN
-          }
-        end
+      end
 
-        def setup_cache_step
-          {
-            name: "Setup cache",
-            uses: "actions/cache@v2.1.5",
-            with: {
-              path: "${{ github.workspace }}/vendor/bundle",
-              key: "${{ runner.os }}-gems-#{ruby_version}-#{gemfile}-${{ hashFiles('#{gemfile_path}.lock') }}",
-              "restore-keys" => "${{ runner.os }}-gems-#{ruby_version}-#{gemfile}-\n" \
-                                "${{ runner.os }}-gems-#{ruby_version}-"
-            }
+      def setup_cache_step
+        {
+          name: "Setup cache",
+          uses: "actions/cache@v2.1.5",
+          with: {
+            :path => "${{ github.workspace }}/vendor/bundle",
+            :key =>
+              "${{ runner.os }}-gems-#{ruby_version}-#{gemfile}-${{ hashFiles('#{gemfile_path}.lock') }}",
+            "restore-keys" =>
+              "${{ runner.os }}-gems-#{ruby_version}-#{gemfile}-\n" \
+                "${{ runner.os }}-gems-#{ruby_version}-"
           }
-        end
+        }
+      end
 
-        def install_bundler_dependencies_step
-          {
-            name: "bundle install",
-            run: <<~RUN
+      def install_bundler_dependencies_step
+        { name: "bundle install", run: <<~RUN }
               gem install bundler
               bundle install
             RUN
-          }
-        end
+      end
 
-        def run_tests_step
-          {
-            name: "Run tests",
-            run: <<~RUN
+      def run_tests_step
+        { name: "Run tests", run: <<~RUN }
               bundle exec rake workflow:verify[$CONFIG_DIGEST]
               bundle exec rake
             RUN
-          }
-        end
+      end
 
-        def run_tests_disabled_agent_step
-          {
-            name: "Run tests (agent disabled)",
-            env: {
-              "COVERAGE_DIR" => DEFAULT_ENV.fetch("DISABLED_COVERAGE_DIR"),
-              "SKYLIGHT_DISABLE_AGENT" => "true"
-            },
-            run: "bundle exec rake"
-          }
-        end
+      def run_tests_disabled_agent_step
+        {
+          name: "Run tests (agent disabled)",
+          env: {
+            "COVERAGE_DIR" => DEFAULT_ENV.fetch("DISABLED_COVERAGE_DIR"),
+            "SKYLIGHT_DISABLE_AGENT" => "true"
+          },
+          run: "bundle exec rake"
+        }
+      end
 
-        def prepare_coverage_step
-          # FIXME: replace uuidgen with static job id?
-          {
-            name: "Prepare coverage files for upload",
-            run: <<~RUN
+      def prepare_coverage_step
+        # FIXME: replace uuidgen with static job id?
+        { name: "Prepare coverage files for upload", run: <<~RUN }
               mkdir -p coverage-sync
               cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
               cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
             RUN
+      end
+
+      def upload_coverage_step
+        {
+          name: "Upload coverage files",
+          if: "success()",
+          uses: "actions/upload-artifact@v2",
+          with: {
+            name: "coverage",
+            path: "coverage-sync"
           }
-        end
+        }
+      end
 
-        def upload_coverage_step
-          {
-            name: "Upload coverage files",
-            if: "success()",
-            uses: "actions/upload-artifact@v2",
-            with: {
-              name: "coverage",
-              path: "coverage-sync"
-            }
-          }
-        end
+      def ruby_version
+        config.fetch(:ruby_version)
+      end
 
-        def ruby_version
-          config.fetch(:ruby_version)
-        end
+      def ruby_install_version
+        config.fetch(:ruby_install_version) { ruby_version }
+      end
 
-        def ruby_install_version
-          config.fetch(:ruby_install_version) { ruby_version }
-        end
+      def gemfile
+        config.fetch(:gemfile, "default")
+      end
 
-        def gemfile
-          config.fetch(:gemfile, "default")
-        end
+      def gemfile_label
+        config.fetch(:gemfile, "default-Gemfile")
+      end
 
-        def gemfile_label
-          config.fetch(:gemfile, "default-Gemfile")
-        end
+      def gemfile_path
+        gemfile == "default" ? "Gemfile" : "gemfiles/#{gemfile}/Gemfile"
+      end
 
-        def gemfile_path
-          if gemfile == "default"
-            "Gemfile"
-          else
-            "gemfiles/#{gemfile}/Gemfile"
-          end
-        end
+      def allow_failure?
+        config.fetch(:allow_failure, false)
+      end
 
-        def allow_failure?
-          config.fetch(:allow_failure, false)
+      def env
+        if gemfile == "default"
+          config[:env]
+        else
+          { BUNDLE_GEMFILE: gemfile_path }.merge(config[:env] || {})
         end
-
-        def env
-          if gemfile == "default"
-            config[:env]
-          else
-            { BUNDLE_GEMFILE: gemfile_path }.merge(config[:env] || {})
-          end
-        end
+      end
     end
 
     class TestJob < BaseJob
@@ -747,24 +551,22 @@ module CITasks
 
       private
 
-        def setup_lint_matchers
-          # ::add-matcher is documented here:
-          # https://github.com/actions/toolkit/blob/master/docs/commands.md#problem-matchers
-          {
-            name: "Set up Rubocop problem matcher",
-            run: 'echo "::add-matcher::${GITHUB_WORKSPACE}/.github/rubocop.json"'
-          }
-        end
+      def setup_lint_matchers
+        # ::add-matcher is documented here:
+        # https://github.com/actions/toolkit/blob/master/docs/commands.md#problem-matchers
+        {
+          name: "Set up Rubocop problem matcher",
+          run:
+            "echo \"::add-matcher::${GITHUB_WORKSPACE}/.github/rubocop.json\""
+        }
+      end
 
-        def run_lint_step
-          {
-            name: "Run lint",
-            run: <<~RUN
+      def run_lint_step
+        { name: "Run lint", run: <<~RUN }
               bundle exec rubocop -v
               bundle exec rubocop
             RUN
-          }
-        end
+      end
     end
 
     class UploadCoverageJob < BaseJob
@@ -821,24 +623,18 @@ module CITasks
       end
 
       def install_aws_cli_step
-        {
-          name: "Install AWS CLI",
-          run: <<~RUN
+        { name: "Install AWS CLI", run: <<~RUN }
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
           RUN
-        }
       end
 
       def install_codeclimate_step
-        {
-          name: "Install Codeclimate test reporter",
-          run: <<~RUN
+        { name: "Install Codeclimate test reporter", run: <<~RUN }
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
           RUN
-        }
       end
 
       def download_coverage_data_step
@@ -849,14 +645,15 @@ module CITasks
             name: "coverage",
             path: "coverage"
           }
-
         }
       end
 
       def prepare_and_upload_coverage_data_step
         {
           name: "Prepare and upload coverage",
-          env: { CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}" },
+          env: {
+            CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"
+          },
           run: <<~RUN
             mkdir -p formatted_coverage
             find coverage -name '*.json' | xargs -I % ./cc-test-reporter format-coverage -t simplecov -o formatted_coverage/% %
@@ -888,8 +685,16 @@ module CITasks
 
       def steps
         [
-          { name: "Mark tests failed", run: "false", if: "contains(needs.*.result, 'failure')" },
-          { name: "Mark tests passed", run: "true", if: "!contains(needs.*.result, 'failure')" }
+          {
+            name: "Mark tests failed",
+            run: "false",
+            if: "contains(needs.*.result, 'failure')"
+          },
+          {
+            name: "Mark tests passed",
+            run: "true",
+            if: "!contains(needs.*.result, 'failure')"
+          }
         ]
       end
     end
@@ -897,7 +702,10 @@ module CITasks
 
   class DependabotConfigGenerator
     def self.to_yaml
-      gemfiles = TEST_JOBS.map { |j| j[:gemfile] }.compact.uniq.reject { |g| g == "default" }
+      gemfiles =
+        TEST_JOBS.map { |j| j[:gemfile] }.compact.uniq.reject do |g|
+          g == "default"
+        end
 
       bundler_config = {
         "package-ecosystem" => "bundler",
@@ -920,26 +728,22 @@ module CITasks
         "open-pull-requests-limit" => 10
       }
 
-      config = {
-        "version" => 2,
-        "updates" => [
-          bundler_config,
-          actions_config
-        ]
-      }
+      config = { "version" => 2, "updates" => [bundler_config, actions_config] }
 
-      gemfile_configs = gemfiles.map do |g|
-        gc = bundler_config.merge(
-          "directory" => "gemfiles/#{g}",
-          "labels" => ["dependencies", g]
-        )
+      gemfile_configs =
+        gemfiles.map do |g|
+          gc =
+            bundler_config.merge(
+              "directory" => "gemfiles/#{g}",
+              "labels" => ["dependencies", g]
+            )
 
-        if (gemfile_updates = GEMFILES_UPDATES[g])
-          gc.merge!(gemfile_updates)
+          if (gemfile_updates = GEMFILES_UPDATES[g])
+            gc.merge!(gemfile_updates)
+          end
+
+          gc
         end
-
-        gc
-      end
 
       config["updates"].concat(gemfile_configs)
 

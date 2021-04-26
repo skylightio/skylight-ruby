@@ -4,7 +4,7 @@ engines:
     enabled: true
     config:
       languages:
-      - ruby
+        - ruby
   fixme:
     enabled: true
   rubocop:
@@ -16,7 +16,7 @@ engines:
 
 ratings:
   paths:
-  - "**.rb"
+    - "**.rb"
 exclude_paths:
-- spec/
-- lib/skylight/vendor/
+  - spec/
+  - lib/skylight/vendor/

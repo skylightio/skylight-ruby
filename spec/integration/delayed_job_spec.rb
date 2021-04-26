@@ -21,11 +21,7 @@ if enable
   describe "Delayed::Job integration" do
     let(:report_environment) { "production" }
     let(:report_component) { "worker" }
-    let(:worker) do
-      Delayed::Worker.new.tap do |w|
-        w.logger = Logger.new($stdout)
-      end
-    end
+    let(:worker) { Delayed::Worker.new.tap { |w| w.logger = Logger.new($stdout) } }
 
     around do |example|
       # In Rails 6.1 the Railtie may not be run, so we need to set this manually.
@@ -154,15 +150,16 @@ if enable
           create_table :delayed_jobs, force: true do |table|
             table.integer :priority, default: 0, null: false # Allows some jobs to jump to the front of the queue
             table.integer :attempts, default: 0, null: false # Provides for retries, but still fail eventually.
-            table.text :handler,                 null: false # YAML-encoded string of the object that will do work
-            table.text :last_error                           # reason for last failure (See Note below)
-            table.datetime :run_at                           # When to run. Could be Time.zone.now for immediately, or sometime in the future.
-            table.datetime :locked_at                        # Set when a client is working on this object
-            table.datetime :failed_at                        # Set when all retries have failed (actually, by default, the record is deleted instead)
-            table.string :locked_by                          # Who is working on this object (if locked)
-            table.string :queue                              # The name of the queue this job is in
+            table.text :handler, null: false # YAML-encoded string of the object that will do work
+            table.text :last_error # reason for last failure (See Note below)
+            table.datetime :run_at # When to run. Could be Time.zone.now for immediately, or sometime in the future.
+            table.datetime :locked_at # Set when a client is working on this object
+            table.datetime :failed_at # Set when all retries have failed (actually, by default, the record is deleted instead)
+            table.string :locked_by # Who is working on this object (if locked)
+            table.string :queue # The name of the queue this job is in
             table.timestamps null: true
           end
+
           # rubocop:enable Layout/LineLength
 
           add_index :delayed_jobs, %i[priority run_at], name: "delayed_jobs_priority"
@@ -187,14 +184,21 @@ if enable
         report = server.reports[0].to_simple_report
 
         expect(report.endpoint.name).to eq("SkDelayedObject#good_method<sk-segment>queue-name</sk-segment>")
-        expect(report.mapped_spans).to eq([
-          ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
-          ["app.delayed_job.job", "SkDelayedObject#good_method", nil, sl_good_method],
-          ["app.zomg", nil, nil, sl_good_method_inner],
-          ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
-          ["db.sql.query", "DELETE FROM delayed_jobs", "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?", "delayed_job"], # rubocop:disable Layout/LineLength
-          ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
-        ])
+        expect(report.mapped_spans).to eq(
+          [
+            ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
+            ["app.delayed_job.job", "SkDelayedObject#good_method", nil, sl_good_method],
+            ["app.zomg", nil, nil, sl_good_method_inner],
+            ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
+            [
+              "db.sql.query",
+              "DELETE FROM delayed_jobs",
+              "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
+              "delayed_job"
+            ], # rubocop:disable Layout/LineLength
+            ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
+          ]
+        )
       end
 
       specify "with a delayed class method" do
@@ -203,14 +207,21 @@ if enable
         server.wait resource: "/report"
         report = server.reports[0].to_simple_report
         expect(report.endpoint.name).to eq("SkDelayedObject.good_method<sk-segment>queue-name</sk-segment>")
-        expect(report.mapped_spans).to eq([
-          ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
-          ["app.delayed_job.job", "SkDelayedObject.good_method", nil, sl_good_class_method],
-          ["app.zomg", nil, nil, sl_good_method_inner],
-          ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
-          ["db.sql.query", "DELETE FROM delayed_jobs", "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?", "delayed_job"], # rubocop:disable Layout/LineLength
-          ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
-        ])
+        expect(report.mapped_spans).to eq(
+          [
+            ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
+            ["app.delayed_job.job", "SkDelayedObject.good_method", nil, sl_good_class_method],
+            ["app.zomg", nil, nil, sl_good_method_inner],
+            ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
+            [
+              "db.sql.query",
+              "DELETE FROM delayed_jobs",
+              "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
+              "delayed_job"
+            ], # rubocop:disable Layout/LineLength
+            ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
+          ]
+        )
       end
 
       it "reports problems to the error segment" do
@@ -220,26 +231,30 @@ if enable
         report = server.reports[0].to_simple_report
         expect(report.endpoint.name).to eq("SkDelayedObject#bad_method<sk-segment>error</sk-segment>")
         spans = report.mapped_spans
-        expect(spans[0..3]).to eq([
-          ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
-          ["app.delayed_job.job", "SkDelayedObject#bad_method", nil, sl_bad_method],
-          ["app.zomg", nil, nil, sl_good_method_inner],
-          ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"]
-        ])
+        expect(spans[0..3]).to eq(
+          [
+            ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
+            ["app.delayed_job.job", "SkDelayedObject#bad_method", nil, sl_bad_method],
+            ["app.zomg", nil, nil, sl_good_method_inner],
+            ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"]
+          ]
+        )
 
         expect(spans[4][0]).to eq("db.sql.query")
 
         # column order can differ between ActiveRecord versions
         r = /UPDATE "delayed_jobs" SET (?<columns>(?:"\w+" = \?,?\s?)+) WHERE "delayed_jobs"\."id" = \?/
         columns = spans[4][2].match(r)[:columns].split(", ")
-        expect(columns).to match_array([
-          "\"attempts\" = ?",
-          "\"last_error\" = ?",
-          "\"run_at\" = ?",
-          "\"updated_at\" = ?",
-          "\"locked_at\" = ?",
-          "\"locked_by\" = ?"
-        ])
+        expect(columns).to match_array(
+          [
+            "\"attempts\" = ?",
+            "\"last_error\" = ?",
+            "\"run_at\" = ?",
+            "\"updated_at\" = ?",
+            "\"locked_at\" = ?",
+            "\"locked_by\" = ?"
+          ]
+        )
         expect(spans[5]).to eq(["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"])
       end
 
@@ -254,20 +269,29 @@ if enable
           server.wait resource: "/report"
           report = server.reports[0].to_simple_report
           expect(report.endpoint.name).to eq("SkDelayedWorker<sk-segment>my-queue</sk-segment>")
-          expect(report.mapped_spans).to eq([
-            ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
-            ["app.delayed_job.job", "SkDelayedWorker#perform", nil, sl_worker_perform],
-            ["app.zomg", nil, nil, sl_worker_perform_inner],
-            ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
-            ["db.sql.query", "DELETE FROM delayed_jobs", "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?", "delayed_job"], # rubocop:disable Layout/LineLength
-            ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
-          ])
+          expect(report.mapped_spans).to eq(
+            [
+              ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
+              ["app.delayed_job.job", "SkDelayedWorker#perform", nil, sl_worker_perform],
+              ["app.zomg", nil, nil, sl_worker_perform_inner],
+              ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
+              [
+                "db.sql.query",
+                "DELETE FROM delayed_jobs",
+                "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
+                "delayed_job"
+              ], # rubocop:disable Layout/LineLength
+              ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
+            ]
+          )
         end
       end
     end
 
     def enqueue_job(method_name, *, class_method: false)
-      instance_eval("SkDelayedObject#{class_method ? '' : '.new'}.delay(queue: 'queue-name').#{method_name}", __FILE__, __LINE__) # rubocop:disable Layout/LineLength
+      instance_eval <<~RUBY, __FILE__, __LINE__ + 1
+        SkDelayedObject#{class_method ? "" : ".new"}.delay(queue: 'queue-name').#{method_name}
+      RUBY
     end
 
     def enqueue_and_process_job(*args, class_method: false)
@@ -314,15 +338,32 @@ if enable
           report = server.reports[0].to_simple_report
 
           expect(report.endpoint.name).to eq("SkDelayedActiveJobWorker<sk-segment>my-queue</sk-segment>")
-          expect(report.mapped_spans).to eq([
-            ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
-            ["app.delayed_job.job", "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform", nil, "activejob"], # rubocop:disable Layout/LineLength
-            ["app.job.perform", "SkDelayedActiveJobWorker", "{ adapter: 'delayed_job', queue: 'my-queue' }", sl_aj_worker_perform], # rubocop:disable Layout/LineLength
-            ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
-            ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
-            ["db.sql.query", "DELETE FROM delayed_jobs", "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?", "delayed_job"], # rubocop:disable Layout/LineLength
-            ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
-          ])
+          expect(report.mapped_spans).to eq(
+            [
+              ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
+              [
+                "app.delayed_job.job",
+                "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform",
+                nil,
+                "activejob"
+              ], # rubocop:disable Layout/LineLength
+              [
+                "app.job.perform",
+                "SkDelayedActiveJobWorker",
+                "{ adapter: 'delayed_job', queue: 'my-queue' }",
+                sl_aj_worker_perform
+              ], # rubocop:disable Layout/LineLength
+              ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
+              ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
+              [
+                "db.sql.query",
+                "DELETE FROM delayed_jobs",
+                "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
+                "delayed_job"
+              ], # rubocop:disable Layout/LineLength
+              ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
+            ]
+          )
         end
 
         it "reports problems to the error segment" do
@@ -333,27 +374,41 @@ if enable
           spans = report.mapped_spans
 
           expect(report.endpoint.name).to eq("SkDelayedActiveJobWorker<sk-segment>error</sk-segment>")
-          expect(spans[0..4]).to eq([
-            ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
-            ["app.delayed_job.job", "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform", nil, "activejob"], # rubocop:disable Layout/LineLength
-            ["app.job.perform", "SkDelayedActiveJobWorker", "{ adapter: 'delayed_job', queue: 'my-queue' }", sl_aj_worker_perform], # rubocop:disable Layout/LineLength
-            ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
-            ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"]
-          ])
+          expect(spans[0..4]).to eq(
+            [
+              ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
+              [
+                "app.delayed_job.job",
+                "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform",
+                nil,
+                "activejob"
+              ], # rubocop:disable Layout/LineLength
+              [
+                "app.job.perform",
+                "SkDelayedActiveJobWorker",
+                "{ adapter: 'delayed_job', queue: 'my-queue' }",
+                sl_aj_worker_perform
+              ], # rubocop:disable Layout/LineLength
+              ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
+              ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"]
+            ]
+          )
 
           expect(spans[5][0]).to eq("db.sql.query")
 
           # column order can differ between ActiveRecord versions
           r = /UPDATE "delayed_jobs" SET (?<columns>(?:"\w+" = \?,?\s?)+) WHERE "delayed_jobs"\."id" = \?/
           columns = spans[5][2].match(r)[:columns].split(", ")
-          expect(columns).to match_array([
-            "\"attempts\" = ?",
-            "\"last_error\" = ?",
-            "\"run_at\" = ?",
-            "\"updated_at\" = ?",
-            "\"locked_at\" = ?",
-            "\"locked_by\" = ?"
-          ])
+          expect(columns).to match_array(
+            [
+              "\"attempts\" = ?",
+              "\"last_error\" = ?",
+              "\"run_at\" = ?",
+              "\"updated_at\" = ?",
+              "\"locked_at\" = ?",
+              "\"locked_by\" = ?"
+            ]
+          )
           expect(spans[6]).to eq(["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"])
         end
       end

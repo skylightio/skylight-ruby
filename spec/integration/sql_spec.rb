@@ -25,8 +25,7 @@ if Skylight.native?
     end
 
     it "Pulls out binds" do
-      cat, title, desc =
-        handle_query(name: "Foo Load", sql: "select * from foo where id = $1")
+      cat, title, desc = handle_query(name: "Foo Load", sql: "select * from foo where id = $1")
 
       expect(cat).to eq("db.sql.query")
       expect(title).to eq("SELECT FROM foo")
@@ -36,8 +35,7 @@ if Skylight.native?
     it "Handles queries without a title" do
       sql = "SELECT * from foo"
 
-      cat, title, desc =
-        handle_query(name: nil, sql: sql)
+      cat, title, desc = handle_query(name: nil, sql: sql)
 
       expect(cat).to eq("db.sql.query")
       expect(title).to eq("SELECT FROM foo")
@@ -50,8 +48,7 @@ if Skylight.native?
         RETURNING "id"
       SQL
 
-      cat, title, desc =
-        handle_query(name: "SQL", sql: sql)
+      cat, title, desc = handle_query(name: "SQL", sql: sql)
 
       expect(cat).to eq("db.sql.query")
       expect(title).to eq("INSERT INTO agent_errors")
@@ -62,8 +59,7 @@ if Skylight.native?
     end
 
     it "Determines embedded binds" do
-      cat, title, desc =
-        handle_query(name: "Foo Load", sql: "select * from foo where id = 1")
+      cat, title, desc = handle_query(name: "Foo Load", sql: "select * from foo where id = 1")
 
       expect(cat).to eq("db.sql.query")
       expect(title).to eq("SELECT FROM foo")
@@ -80,8 +76,7 @@ if Skylight.native?
         VALUES (?, ?, ?, ?, ?) RETURNING "id"
       SQL
 
-      cat, title, desc =
-        handle_query(name: "SQL", sql: sql)
+      cat, title, desc = handle_query(name: "SQL", sql: sql)
 
       expect(cat).to eq("db.sql.query")
       expect(title).to eq("INSERT INTO agent_errors")
@@ -97,8 +92,8 @@ if Skylight.native?
 
       def test_config_values
         super.merge(
-          log_level:            "debug",
-          native_log_file:      "#{tmpdir}/native.log",
+          log_level: "debug",
+          native_log_file: "#{tmpdir}/native.log",
           log_sql_parse_errors: log_sql_parse_errors
         )
       end
@@ -108,8 +103,7 @@ if Skylight.native?
       end
 
       it "Produces an error if the SQL isn't parsable" do
-        cat, title, desc =
-          handle_query(name: "Foo Load", sql: "!!!")
+        cat, title, desc = handle_query(name: "Foo Load", sql: "!!!")
 
         expect(cat).to eq("db.sql.query")
         expect(title).to eq("Foo Load")
@@ -122,8 +116,7 @@ if Skylight.native?
         let(:log_sql_parse_errors) { false }
 
         it "does not log" do
-          cat, title, desc =
-            handle_query(name: "Foo Load", sql: "!!!")
+          cat, title, desc = handle_query(name: "Foo Load", sql: "!!!")
 
           expect(cat).to eq("db.sql.query")
           expect(title).to eq("Foo Load")

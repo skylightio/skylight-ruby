@@ -9,16 +9,14 @@ module Skylight
             def perform_request(method, path, *args, &block)
               ActiveSupport::Notifications.instrument(
                 "request.elasticsearch",
-                name:   "Request",
+                name: "Request",
                 method: method,
-                path:   path
+                path: path
               ) do
                 # Prevent HTTP-related probes from firing
                 Skylight::Normalizers::Faraday::Request.disable do
                   disable_skylight_probe(:NetHTTP) do
-                    disable_skylight_probe(:HTTPClient) do
-                      perform_request_without_sk(method, path, *args, &block)
-                    end
+                    disable_skylight_probe(:HTTPClient) { perform_request_without_sk(method, path, *args, &block) }
                   end
                 end
               end

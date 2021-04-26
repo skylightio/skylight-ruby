@@ -51,34 +51,34 @@ module Skylight
       expect(spans.count).to eq(6)
 
       expect(spans[0].event.category).to eq("app.rack.request")
-      expect(spans[0].started_at).to     eq(0)
-      expect(spans[0].parent).to         eq(nil)
-      expect(spans[0].duration).to       eq(90)
+      expect(spans[0].started_at).to eq(0)
+      expect(spans[0].parent).to eq(nil)
+      expect(spans[0].duration).to eq(90)
 
       expect(spans[1].event.category).to eq("cat1")
-      expect(spans[1].started_at).to     eq(0)
-      expect(spans[1].parent).to         eq(0)
-      expect(spans[1].duration).to       eq(90)
+      expect(spans[1].started_at).to eq(0)
+      expect(spans[1].parent).to eq(0)
+      expect(spans[1].duration).to eq(90)
 
       expect(spans[2].event.category).to eq("cat2")
-      expect(spans[2].started_at).to     eq(10)
-      expect(spans[2].parent).to         eq(1)
-      expect(spans[2].duration).to       eq(60)
+      expect(spans[2].started_at).to eq(10)
+      expect(spans[2].parent).to eq(1)
+      expect(spans[2].duration).to eq(60)
 
       expect(spans[3].event.category).to eq("cat3")
-      expect(spans[3].started_at).to     eq(0)
-      expect(spans[3].parent).to         eq(2)
-      expect(spans[3].duration).to       eq(30)
+      expect(spans[3].started_at).to eq(0)
+      expect(spans[3].parent).to eq(2)
+      expect(spans[3].duration).to eq(30)
 
       expect(spans[4].event.category).to eq("cat4")
-      expect(spans[4].started_at).to     eq(10)
-      expect(spans[4].parent).to         eq(3)
-      expect(spans[4].duration).to       eq(0)
+      expect(spans[4].started_at).to eq(10)
+      expect(spans[4].parent).to eq(3)
+      expect(spans[4].duration).to eq(0)
 
       expect(spans[5].event.category).to eq("cat5")
-      expect(spans[5].started_at).to     eq(30)
-      expect(spans[5].parent).to         eq(3)
-      expect(spans[5].duration).to       eq(0)
+      expect(spans[5].started_at).to eq(30)
+      expect(spans[5].parent).to eq(3)
+      expect(spans[5].duration).to eq(0)
     end
 
     it "force closes any open span on build" do
@@ -138,16 +138,16 @@ module Skylight
       expect(spans.count).to eq(4)
 
       expect(spans[0].event.category).to eq("app.rack.request")
-      expect(spans[0].duration).to       eq(4000)
+      expect(spans[0].duration).to eq(4000)
 
       expect(spans[1].event.category).to eq("foo")
-      expect(spans[1].duration).to       eq(4000)
+      expect(spans[1].duration).to eq(4000)
 
       expect(spans[2].event.category).to eq("bar")
-      expect(spans[2].duration).to       eq(3000)
+      expect(spans[2].duration).to eq(3000)
 
       expect(spans[3].event.category).to eq("baz")
-      expect(spans[3].duration).to       eq(1000)
+      expect(spans[3].duration).to eq(1000)
     ensure
       ENV["SKYLIGHT_RAISE_ON_ERROR"] = original_raise_on_error
     end
@@ -174,7 +174,7 @@ module Skylight
       server.wait resource: "/report"
 
       expect(spans.count).to eq(5)
-      expect(spans.map { |x| x.event.category }).to eq(["app.rack.request", "foo", "wibble", "wobble", "wubble"])
+      expect(spans.map { |x| x.event.category }).to eq(%w[app.rack.request foo wibble wobble wubble])
       expect(b).to be_nil
       expect(c).to be_nil
     end
@@ -188,6 +188,7 @@ module Skylight
       clock.skip 0.1
       _b = trace.instrument "bar"
       clock.skip 0.1
+
       # Force out of order
       trace.done(a)
 
@@ -220,9 +221,9 @@ module Skylight
 
       server.wait resource: "/report"
 
-      expect(spans[1].event.title).to       eq("FOO")
+      expect(spans[1].event.title).to eq("FOO")
       expect(spans[1].event.description).to eq("How a foo is formed?")
-      expect(spans[2].event.title).to       eq("BAR")
+      expect(spans[2].event.title).to eq("BAR")
       expect(spans[2].event.description).to eq("How a bar is formed?")
     end
 
@@ -231,9 +232,7 @@ module Skylight
 
       a = trace.instrument "foo", "FOO", "How a foo is formed?"
 
-      100.times do |i|
-        record trace, :bar, "BAR", "How a bar is formed? #{i}"
-      end
+      100.times { |i| record trace, :bar, "BAR", "How a bar is formed? #{i}" }
 
       trace.done(a)
       trace.submit
@@ -242,9 +241,7 @@ module Skylight
 
       filtered_spans = spans.select { |s| s.event.category == "bar" }
 
-      99.times do |i|
-        expect(filtered_spans[i].event.description).to eq("How a bar is formed? #{i}")
-      end
+      99.times { |i| expect(filtered_spans[i].event.description).to eq("How a bar is formed? #{i}") }
 
       expect(filtered_spans[99].event.description).to eq("<too many unique descriptions>")
     end
@@ -259,9 +256,7 @@ module Skylight
     end
 
     context "source location" do
-      before do
-        Skylight.instrumenter.disable_extension!(:source_location)
-      end
+      before { Skylight.instrumenter.disable_extension!(:source_location) }
 
       it "is not tracked by default" do
         trace = Skylight.trace "Rack", "app.rack.request"
@@ -276,14 +271,13 @@ module Skylight
       end
 
       context "with tracking enabled" do
-        before do
-          Skylight.instrumenter.enable_extension!(:source_location)
-        end
+        before { Skylight.instrumenter.enable_extension!(:source_location) }
 
         let(:extension) do
-          Skylight.instrumenter.extensions.instance_exec do
-            @extensions.detect { |x| x.is_a?(Skylight::Extensions::SourceLocation) }
-          end
+          Skylight
+            .instrumenter
+            .extensions
+            .instance_exec { @extensions.detect { |x| x.is_a?(Skylight::Extensions::SourceLocation) } }
         end
 
         it "allows only source_file to be set" do
@@ -301,8 +295,14 @@ module Skylight
 
         it "allows only source_file and source_line to be set" do
           trace = Skylight.trace "Rack", "app.rack.request"
-          span = trace.instrument("app.block", nil, nil, source_file: trace.config.root.join("foo/bar.rb").to_s,
-                                                         source_line: 123)
+          span =
+            trace.instrument(
+              "app.block",
+              nil,
+              nil,
+              source_file: trace.config.root.join("foo/bar.rb").to_s,
+              source_line: 123
+            )
           trace.done(span)
           trace.submit
 
@@ -333,11 +333,18 @@ module Skylight
 
           expect(extension).to receive(:warn).with(
             "Found both source_location and source_file or source_line, using source_location\n" \
-            "  location=foo/bar.rb:1; file=foo.rb; line=123"
+              "  location=foo/bar.rb:1; file=foo.rb; line=123"
           )
 
-          span = trace.instrument("app.block", nil, nil,
-                                  source_location: "foo/bar.rb:1", source_file: "foo.rb", source_line: 123)
+          span =
+            trace.instrument(
+              "app.block",
+              nil,
+              nil,
+              source_location: "foo/bar.rb:1",
+              source_file: "foo.rb",
+              source_line: 123
+            )
           trace.done(span)
           trace.submit
 

@@ -61,24 +61,18 @@ describe "Initialization integration", :http do
 
     ENV["SKYLIGHT_ENABLE_TRACE_LOGS"] = original_trace
 
-    Timeout.timeout(10) do
-      Process.wait(cmd_pid)
-    end
+    Timeout.timeout(10) { Process.wait(cmd_pid) }
 
     pipe_cmd_out.close
 
     output = pipe_cmd_in.read.strip.split("\n")
 
-    unless $CHILD_STATUS.success? == @expect_success
-      Kernel.warn(output)
-    end
+    Kernel.warn(output) unless $CHILD_STATUS.success? == @expect_success
 
     expect($CHILD_STATUS.success?).to eq(@expect_success)
 
     # Rails 4 has a deprecation under Ruby 2.6 which isn't likely to be fixed and isn't our fault.
-    if Rails::VERSION::MAJOR == 4
-      output.reject! { |l| l =~ /BigDecimal.new is deprecated/ }
-    end
+    output.reject! { |l| l =~ /BigDecimal.new is deprecated/ } if Rails::VERSION::MAJOR == 4
 
     # This deprecation is not our fault
     output.reject! { |l| l.include?("Rack::File is deprecated") }
@@ -107,12 +101,11 @@ describe "Initialization integration", :http do
   end
 
   if Skylight.native?
-
     context "native" do
       context "development", expect_success: false do
         it "warns development mode" do
           expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data " \
-                                  "will be reported until you deploy your app."
+                    "will be reported until you deploy your app."
         end
 
         # FIXME: This is a very fragile test, due to the "to_not"
@@ -122,16 +115,14 @@ describe "Initialization integration", :http do
           boot
 
           expect(File.read("log/development.log")).to_not include "[SKYLIGHT] [#{Skylight::VERSION}] Unable to " \
-                                                                  "start, see the Skylight logs for more details"
+                                                                    "start, see the Skylight logs for more details"
           expect(File.read("log/skylight.log")).to_not include "Skylight: Unable to start Instrumenter due to a " \
-                                                               "configuration error: authentication token required"
+                                                                 "configuration error: authentication token required"
         end
 
         it "doesn't warn in development mode if disable_dev_warning has been set" do
           # `bundle exec skylight disable_dev_warning`
-          out = capture(:stdout) do
-            Skylight::CLI::Base.new.disable_dev_warning
-          end
+          out = capture(:stdout) { Skylight::CLI::Base.new.disable_dev_warning }
 
           expect(out.strip).to eq("Development mode warning disabled")
 
@@ -160,9 +151,9 @@ describe "Initialization integration", :http do
 
           boot
           expect(File.read("log/production.log")).to include "[SKYLIGHT] [#{Skylight::VERSION}] Unable to start, " \
-                                                             "see the Skylight logs for more details"
+                    "see the Skylight logs for more details"
           expect(File.read("log/skylight.log")).to include "Skylight: Unable to start Instrumenter due to a " \
-                                                           "configuration error: authentication token required"
+                    "configuration error: authentication token required"
         end
       end
 
@@ -180,8 +171,8 @@ describe "Initialization integration", :http do
 
         it "warns that it is disabled" do
           expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but " \
-                                  "haven't added it to config.skylight.environments, so no data will be sent to " \
-                                  "Skylight servers."
+                    "haven't added it to config.skylight.environments, so no data will be sent to " \
+                    "Skylight servers."
         end
       end
 
@@ -193,12 +184,12 @@ describe "Initialization integration", :http do
           boot
 
           log_lines = File.read("log/production.log").lines + File.read("log/skylight.log").lines
-          expect(log_lines).to \
-            include(a_string_matching(/environment can only contain lowercase letters, numbers, and dashes;/))
+          expect(log_lines).to include(
+            a_string_matching(/environment can only contain lowercase letters, numbers, and dashes;/)
+          )
         end
       end
     end
-
   end
 
   context "without native" do
@@ -209,7 +200,7 @@ describe "Initialization integration", :http do
     context "development" do
       it "warns development mode" do
         expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data " \
-                                "will be reported until you deploy your app."
+                  "will be reported until you deploy your app."
       end
     end
 
@@ -226,10 +217,10 @@ describe "Initialization integration", :http do
 
       it "warns not enabled verbose" do
         expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your " \
-                                "platform wasn't found. Supported operating systems are Linux 2.6.18+ and " \
-                                "Mac OS X 10.8+. The missing extension will not affect the functioning of your " \
-                                "application. If you are on a supported platform, please contact support at " \
-                                "support@skylight.io."
+                  "platform wasn't found. Supported operating systems are Linux 2.6.18+ and " \
+                  "Mac OS X 10.8+. The missing extension will not affect the functioning of your " \
+                  "application. If you are on a supported platform, please contact support at " \
+                  "support@skylight.io."
       end
     end
 
@@ -238,10 +229,10 @@ describe "Initialization integration", :http do
 
       it "warns not enabled verbose" do
         expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for your " \
-                                "platform wasn't found. Supported operating systems are Linux 2.6.18+ and " \
-                                "Mac OS X 10.8+. The missing extension will not affect the functioning of your " \
-                                "application. If you are on a supported platform, please contact support at " \
-                                "support@skylight.io."
+                  "platform wasn't found. Supported operating systems are Linux 2.6.18+ and " \
+                  "Mac OS X 10.8+. The missing extension will not affect the functioning of your " \
+                  "application. If you are on a supported platform, please contact support at " \
+                  "support@skylight.io."
       end
     end
 
@@ -250,8 +241,8 @@ describe "Initialization integration", :http do
 
       it "warns that it is disabled" do
         expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] You are running in the other environment but " \
-                                "haven't added it to config.skylight.environments, so no data will be sent to " \
-                                "Skylight servers."
+                  "haven't added it to config.skylight.environments, so no data will be sent to " \
+                  "Skylight servers."
       end
     end
   end

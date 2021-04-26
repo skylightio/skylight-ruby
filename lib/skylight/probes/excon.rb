@@ -14,7 +14,7 @@ module Skylight
             ::Excon.defaults[:middlewares].insert(idx, Probes::Excon::Middleware)
           else
             Skylight.error "The installed version of Excon doesn't support Middlewares. " \
-                           "The Excon probe will be disabled."
+                             "The Excon probe will be disabled."
           end
         end
       end

@@ -6,9 +6,8 @@ begin
   # `#env`. (This is fixed in Sidekiq 5+) When we use ActionView in the
   # ActionView Probe spec, it causes the Rails constant to be defined without the
   # `#env` method. This is a hack to make it not crash.
-  if defined?(Rails) && !Rails.respond_to?(:env) &&
-     (spec = Gem.loaded_specs["sidekiq"]) &&
-     Gem::Dependency.new("sidekiq", "~> 4.2").match?(spec)
+  if defined?(Rails) && !Rails.respond_to?(:env) && (spec = Gem.loaded_specs["sidekiq"]) &&
+       Gem::Dependency.new("sidekiq", "~> 4.2").match?(spec)
     def Rails.env
       # rubocop:disable Naming/MemoizedInstanceVariableName
       @_env ||= ActiveSupport::StringInquirer.new("")
@@ -36,8 +35,7 @@ if enable
         Skylight::Sidekiq.add_middleware
 
         middleware = double
-        expect(Skylight::Sidekiq::ServerMiddleware).to \
-          receive(:new).and_return(middleware)
+        expect(Skylight::Sidekiq::ServerMiddleware).to receive(:new).and_return(middleware)
 
         # Force the Sidekiq Middleware to get built
         ::Sidekiq.server_middleware.retrieve
@@ -55,26 +53,25 @@ if enable
             block.call(::Sidekiq::Testing)
           end
 
-          my_worker = Class.new do
-            include ::Sidekiq::Worker
+          my_worker =
+            Class.new do
+              include ::Sidekiq::Worker
 
-            def perform
-              Skylight.instrument category: "app.inside" do
-                Skylight.instrument category: "app.zomg" do
-                  # nothing
+              def perform
+                Skylight.instrument category: "app.inside" do
+                  Skylight.instrument category: "app.zomg" do
+                    # nothing
+                    SpecHelper.clock.skip 1
+                  end
                   SpecHelper.clock.skip 1
                 end
-                SpecHelper.clock.skip 1
               end
             end
-          end
 
           stub_const("MyWorker", my_worker)
 
           @trace = nil
-          Skylight.mock!(enable_sidekiq: true) do |trace|
-            @trace = trace
-          end
+          Skylight.mock!(enable_sidekiq: true) { |trace| @trace = trace }
         end
 
         after :each do
@@ -88,7 +85,7 @@ if enable
           MyWorker.perform_async
 
           expect(@trace.endpoint).to eq("MyWorker<sk-segment>default</sk-segment>")
-          expect(@trace.filter_spans.map { |s| s[:cat] }).to eq(["app.sidekiq.worker", "app.inside", "app.zomg"])
+          expect(@trace.filter_spans.map { |s| s[:cat] }).to eq(%w[app.sidekiq.worker app.inside app.zomg])
           expect(@trace.mock_spans[0][:title]).to eq("MyWorker")
         end
       end

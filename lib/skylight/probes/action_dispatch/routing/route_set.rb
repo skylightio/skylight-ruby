@@ -7,9 +7,7 @@ module Skylight
         module RouteSet
           module Instrumentation
             def call(env)
-              ActiveSupport::Notifications.instrument("route_set.action_dispatch") do
-                super
-              end
+              ActiveSupport::Notifications.instrument("route_set.action_dispatch") { super }
             end
           end
 
@@ -22,7 +20,11 @@ module Skylight
       end
     end
 
-    register(:rails_router, "ActionDispatch::Routing::RouteSet", "action_dispatch/routing/route_set",
-             ActionDispatch::Routing::RouteSet::Probe.new)
+    register(
+      :rails_router,
+      "ActionDispatch::Routing::RouteSet",
+      "action_dispatch/routing/route_set",
+      ActionDispatch::Routing::RouteSet::Probe.new
+    )
   end
 end

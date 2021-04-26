@@ -2,34 +2,17 @@ require "spec_helper"
 
 describe Skylight::Extensions::SourceLocation do
   def project_root
-    File.expand_path(
-      File.join(
-        Gem.loaded_specs["skylight"].full_require_paths[0],
-        ".."
-      )
-    )
+    File.expand_path(File.join(Gem.loaded_specs["skylight"].full_require_paths[0], ".."))
   end
 
   before do
-    @instance_method_line = __LINE__ + 4
-    stub_const(
-      "MyConstant",
-      Class.new do
-        def an_instance_method; end
-      end
-    )
+    @instance_method_line = __LINE__ + 1
+    stub_const("MyConstant", Class.new { def an_instance_method; end })
   end
 
-  let(:config) do
-    OpenStruct.new(
-      source_location_ignored_gems: %w[skylight],
-      root:                         Pathname.new(project_root)
-    )
-  end
+  let(:config) { OpenStruct.new(source_location_ignored_gems: %w[skylight], root: Pathname.new(project_root)) }
 
-  let(:extension) do
-    described_class.new(config)
-  end
+  let(:extension) { described_class.new(config) }
 
   describe "extension hooks" do
     describe "#process_instrument_options" do
@@ -110,18 +93,11 @@ describe Skylight::Extensions::SourceLocation do
     end
 
     describe "#trace_preprocess_meta" do
-      let(:meta) do
-        {
-          source_file: __FILE__,
-          source_line: 5
-        }
-      end
+      let(:meta) { { source_file: __FILE__, source_line: 5 } }
 
       specify do
         extension.trace_preprocess_meta(meta)
-        expect(meta).to eq({
-          source_location: "spec/unit/extensions/source_location_spec.rb:5"
-        })
+        expect(meta).to eq({ source_location: "spec/unit/extensions/source_location_spec.rb:5" })
       end
     end
   end

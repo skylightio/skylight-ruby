@@ -10,9 +10,7 @@ if defined?(Sinatra)
     end
 
     before do
-      Skylight.mock!(enable_source_locations: true) do |trace|
-        @current_trace = trace
-      end
+      Skylight.mock!(enable_source_locations: true) { |trace| @current_trace = trace }
 
       stub_const(
         "SinatraTest",
@@ -34,9 +32,7 @@ if defined?(Sinatra)
       )
     end
 
-    after do
-      Skylight.stop!
-    end
+    after { Skylight.stop! }
 
     def app
       SinatraTest
@@ -52,10 +48,7 @@ if defined?(Sinatra)
     end
 
     it "instruments named templates" do
-      expect(Skylight).to receive(:instrument).with(
-        category: "view.render.template",
-        title:    "hello"
-      ).and_call_original
+      expect(Skylight).to receive(:instrument).with(category: "view.render.template", title: "hello").and_call_original
 
       get "/named-template"
 
@@ -63,10 +56,9 @@ if defined?(Sinatra)
     end
 
     it "instruments inline templates" do
-      expect(Skylight).to receive(:instrument).with(
-        category: "view.render.template",
-        title:    "Inline template (erb)"
-      ).and_call_original
+      expect(Skylight).to receive(:instrument)
+        .with(category: "view.render.template", title: "Inline template (erb)")
+        .and_call_original
 
       get "/inline-template"
 

@@ -10,9 +10,7 @@ module Skylight
           filters = payload[:filters]
           type = payload[:type]
 
-          if (!filters || filters.empty?) || !type
-            return :skip
-          end
+          return :skip if (!filters || filters.empty?) || !type
 
           [CAT, "#{type.to_s.capitalize} Filters", nil]
         end

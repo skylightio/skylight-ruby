@@ -14,34 +14,28 @@ describe "skylight setup", :http, :agent do
   end
 
   def test_config_values
-    @test_config_values ||= begin
-      vals = super.dup
-      vals.delete(:authentication)
-      vals
-    end
+    @test_config_values ||=
+      begin
+        vals = super.dup
+        vals.delete(:authentication)
+        vals
+      end
   end
 
   def should_successfully_create_app(token = nil)
     server.mock "/apps", :post do
-      { app:
-             { id:    "my-app-id",
-               token: "my-app-token" } }
+      { app: { id: "my-app-id", token: "my-app-token" } }
     end
 
     unless token
-      expect(cli).to receive(:say).
-        with(/Please enter your email and password/, :cyan).ordered
+      expect(cli).to receive(:say).with(/Please enter your email and password/, :cyan).ordered
 
-      expect(cli).to receive(:say).
-        with(/congratulations/i, :green).ordered
+      expect(cli).to receive(:say).with(/congratulations/i, :green).ordered
 
-      expect(cli).to receive(:say).
-        with(%r{config/skylight\.yml})
+      expect(cli).to receive(:say).with(%r{config/skylight\.yml})
     end
 
-    capture(:stdout) do
-      cli.setup(token)
-    end
+    capture(:stdout) { cli.setup(token) }
 
     expect(tmp("config/skylight.yml")).to exist
 
@@ -69,11 +63,7 @@ describe "skylight setup", :http, :agent do
 
       expect(server.requests[0]).to post_json(
         "/apps",
-        hash_including(
-          input: hash_including(
-            app: { name: "My Cool Rails App" }
-          )
-        )
+        hash_including(input: hash_including(app: { name: "My Cool Rails App" }))
       )
     end
   end
@@ -83,9 +73,16 @@ describe "skylight setup", :http, :agent do
       should_successfully_create_app("foobar")
 
       # Name "Spec" comes from the default file location of tmp/spec
-      expect(server.requests[0]).to post_json("/apps",
-                                              authorization: nil,
-                                              input:         { "app" => { "name" => "Spec" }, "token" => "foobar" })
+      expect(server.requests[0]).to post_json(
+        "/apps",
+        authorization: nil,
+        input: {
+          "app" => {
+            "name" => "Spec"
+          },
+          "token" => "foobar"
+        }
+      )
     end
 
     it "handles server errors" do
@@ -93,9 +90,14 @@ describe "skylight setup", :http, :agent do
         [403, { errors: { request: "token is invalid" } }]
       end
 
-      expect(cli).to receive(:say).with("Could not create the application. Please run `bundle exec skylight doctor` " \
-                                        "for diagnostics.", :red).ordered
-      expect(cli).to receive(:say).with('{"request"=>"token is invalid"}', :yellow).ordered
+      expect(cli).to receive(:say)
+        .with(
+          "Could not create the application. Please run `bundle exec skylight doctor` " \
+            "for diagnostics.",
+          :red
+        )
+        .ordered
+      expect(cli).to receive(:say).with("{\"request\"=>\"token is invalid\"}", :yellow).ordered
 
       cli.setup("foobar")
     end
@@ -105,8 +107,13 @@ describe "skylight setup", :http, :agent do
         raise "http error"
       end
 
-      expect(cli).to receive(:say).with("Could not create the application. Please run `bundle exec skylight doctor` " \
-                                        "for diagnostics.", :red).ordered
+      expect(cli).to receive(:say)
+        .with(
+          "Could not create the application. Please run `bundle exec skylight doctor` " \
+            "for diagnostics.",
+          :red
+        )
+        .ordered
       expect(cli).to receive(:say).with("Skylight::Util::HTTP::Response: Fail", :yellow).ordered
 
       cli.setup("foobar")

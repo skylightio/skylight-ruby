@@ -36,11 +36,7 @@ module SpecHelper
 
   # `with_unbundled_env` is preferred, but not in older versions of Bundler
   UNBUNDLED_METHOD =
-    if Bundler.respond_to?(:with_unbundled_env)
-      Bundler.method(:with_unbundled_env)
-    else
-      Bundler.method(:with_clean_env)
-    end
+    Bundler.respond_to?(:with_unbundled_env) ? Bundler.method(:with_unbundled_env) : Bundler.method(:with_clean_env)
 
   def with_standalone(opts = {})
     # Make sure this is executed before we mess with the env, just in case

@@ -54,16 +54,13 @@ if enable
 
           private
 
-            def maybe_raise(key)
-              return unless key
+          def maybe_raise(key)
+            return unless key
 
-              err = {
-                "runtime_error" => RuntimeError,
-                "shutdown"      => Sidekiq::Shutdown
-              }.fetch(key)
+            err = { "runtime_error" => RuntimeError, "shutdown" => Sidekiq::Shutdown }.fetch(key)
 
-              raise err
-            end
+            raise err
+          end
         end
       )
     end
@@ -95,7 +92,7 @@ if enable
 
         names = trace.filter_spans.map { |s| s.event.category }
 
-        expect(names).to eq(["app.sidekiq.worker", "app.inside", "app.zomg", "app.after_zomg"])
+        expect(names).to eq(%w[app.sidekiq.worker app.inside app.zomg app.after_zomg])
 
         perform_line = MyWorker.instance_method(:perform).source_location[1]
         expect(batch.source_location(trace.spans[0])).to end_with("sidekiq_spec.rb:#{perform_line}")
@@ -119,7 +116,7 @@ if enable
 
         names = trace.filter_spans.map { |s| s.event.category }
 
-        expect(names).to eq(["app.sidekiq.worker", "app.inside", "app.zomg"])
+        expect(names).to eq(%w[app.sidekiq.worker app.inside app.zomg])
 
         perform_line = MyWorker.instance_method(:perform).source_location[1]
         expect(batch.source_location(trace.spans[0])).to end_with("sidekiq_spec.rb:#{perform_line}")
@@ -143,7 +140,7 @@ if enable
 
         names = trace.filter_spans.map { |s| s.event.category }
 
-        expect(names).to eq(["app.sidekiq.worker", "app.inside", "app.zomg"])
+        expect(names).to eq(%w[app.sidekiq.worker app.inside app.zomg])
 
         perform_line = MyWorker.instance_method(:perform).source_location[1]
         expect(batch.source_location(trace.spans[0])).to end_with("sidekiq_spec.rb:#{perform_line}")

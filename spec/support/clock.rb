@@ -34,9 +34,9 @@ module SpecHelper
 
     private
 
-      def __absolute_secs
-        Time.now.to_i
-      end
+    def __absolute_secs
+      Time.now.to_i
+    end
   end
 
   def mock_clock!

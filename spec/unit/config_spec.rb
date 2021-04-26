@@ -59,11 +59,7 @@ module Skylight
 
     context "2 level nested lookup" do
       let :config do
-        Config.new one: {
-          two: {
-            :foo => "hello", "bar" => "omg"
-          }
-        }
+        Config.new one: { two: { :foo => "hello", "bar" => "omg" } }
       end
 
       it "looks keys up with strings" do
@@ -107,18 +103,23 @@ module Skylight
       let :config do
         Config.new(
           "production", # priority_key
-          foo:        "bar",
-          one:        1,
-          zomg:       "YAY",
-          nested:     { "wat" => "w0t", "yes" => "no" },
-          production: {
-            foo:    "baz",
-            two:    2,
-            zomg:   nil,
-            nested: { "yes" => "YES" }
+          foo: "bar",
+          one: 1,
+          zomg: "YAY",
+          nested: {
+            "wat" => "w0t",
+            "yes" => "no"
           },
-          staging:    {
-            foo:   "no",
+          production: {
+            foo: "baz",
+            two: 2,
+            zomg: nil,
+            nested: {
+              "yes" => "YES"
+            }
+          },
+          staging: {
+            foo: "no",
             three: 3
           }
         )
@@ -155,14 +156,17 @@ module Skylight
       let :config do
         Config.new(
           "production",
-          foo:        "bar",
-          nested:     { foo: "bar", "baz" => "zomg" },
+          foo: "bar",
+          nested: {
+            :foo => "bar",
+            "baz" => "zomg"
+          },
           production: {
             foo: "baz"
           },
-          priority:   {
-            foo: "win",
-            one: "1",
+          priority: {
+            :foo => "win",
+            :one => "1",
             "nested.foo" => "p"
           }
         )
@@ -250,11 +254,7 @@ module Skylight
         end
 
         let(:environment) do
-          {
-            "foo"                     => "fail",
-            "SKYLIGHT_LOG_FILE"       => "production.log",
-            "SKYLIGHT_ALERT_LOG_FILE" => "alert.log"
-          }
+          { "foo" => "fail", "SKYLIGHT_LOG_FILE" => "production.log", "SKYLIGHT_ALERT_LOG_FILE" => "alert.log" }
         end
 
         let :config do
@@ -351,9 +351,7 @@ module Skylight
       end
 
       let :config do
-        Config.load({ file: file, priority_key: "production" },
-                    "foo"         => "fail",
-                    "SK_LOG_FILE" => "test.log")
+        Config.load({ file: file, priority_key: "production" }, "foo" => "fail", "SK_LOG_FILE" => "test.log")
       end
 
       it "loads the authentication key" do
@@ -411,10 +409,11 @@ module Skylight
           with_file(writable: false) do |f|
             config.set(:log_file, f.path)
 
-            expect do
-              config.validate!
-            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set log_file in your config " \
-                                            "to a writable path")
+            expect { config.validate! }.to raise_error(
+              ConfigError,
+              "File `#{f.path}` is not writable. Please set log_file in your config " \
+                "to a writable path"
+            )
           end
         end
 
@@ -422,10 +421,11 @@ module Skylight
           with_dir(writable: false) do |d|
             config.set(:log_file, "#{d}/bar")
 
-            expect do
-              config.validate!
-            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set log_file in your config " \
-                                            "to a writable path")
+            expect { config.validate! }.to raise_error(
+              ConfigError,
+              "Directory `#{d}` is not writable. Please set log_file in your config " \
+                "to a writable path"
+            )
           end
         end
 
@@ -433,10 +433,11 @@ module Skylight
           with_file(writable: false) do |f|
             config.set(:alert_log_file, f.path)
 
-            expect do
-              config.validate!
-            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set alert_log_file in your " \
-                                            "config to a writable path")
+            expect { config.validate! }.to raise_error(
+              ConfigError,
+              "File `#{f.path}` is not writable. Please set alert_log_file in your " \
+                "config to a writable path"
+            )
           end
         end
 
@@ -444,10 +445,11 @@ module Skylight
           with_dir(writable: false) do |d|
             config.set(:alert_log_file, "#{d}/bar")
 
-            expect do
-              config.validate!
-            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set alert_log_file in your " \
-                                            "config to a writable path")
+            expect { config.validate! }.to raise_error(
+              ConfigError,
+              "Directory `#{d}` is not writable. Please set alert_log_file in your " \
+                "config to a writable path"
+            )
           end
         end
       end
@@ -484,9 +486,12 @@ module Skylight
       end
 
       it "prioritizes skylight's proxy env var" do
-        c = Config.load({ priority_key: :production },
-                        "SKYLIGHT_PROXY_URL" => "http://foo.com",
-                        "HTTP_PROXY"         => "http://bar.com")
+        c =
+          Config.load(
+            { priority_key: :production },
+            "SKYLIGHT_PROXY_URL" => "http://foo.com",
+            "HTTP_PROXY" => "http://bar.com"
+          )
 
         expect(c[:proxy_url]).to eq("http://foo.com")
       end
@@ -502,10 +507,12 @@ module Skylight
       end
 
       it "converts to env" do
-        expect(get_env).to match(a_hash_including(
-                                   "SKYLIGHT_VERSION" => Skylight::VERSION,
-                                   "SKYLIGHT_ROOT"    => Pathname.new("/tmp").realpath.to_s
-                                 ))
+        expect(get_env).to match(
+          a_hash_including(
+            "SKYLIGHT_VERSION" => Skylight::VERSION,
+            "SKYLIGHT_ROOT" => Pathname.new("/tmp").realpath.to_s
+          )
+        )
       end
 
       it "includes keys only if value is set" do
@@ -531,8 +538,12 @@ module Skylight
 
     context "deploy" do
       it "uses provided deploy" do
-        config = Config.new deploy: { id: "12345", git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572d",
-                                      description: "Fix stuff" }
+        config =
+          Config.new deploy: {
+                       id: "12345",
+                       git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572d",
+                       description: "Fix stuff"
+                     }
         expect(config.deploy.id).to eq("12345")
         expect(config.deploy.git_sha).to eq("19a8cfc47c10d8069916ae8adba0c9cb4c6c572d")
         expect(config.deploy.description).to eq("Fix stuff")
@@ -544,42 +555,50 @@ module Skylight
       end
 
       it "converts to query string" do
-        Timecop.freeze Time.at(1452620644) do
-          config = Config.new deploy: {
-            id:          "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
-                "1234567890abcdefghijklmnopqrstuvwxyz",
-            git_sha:     "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dwhat?",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt " \
-                          "ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation " \
-                          "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " \
-                          "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur " \
-                          "sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id " \
-                          "est laborum."
-          }
+        Timecop.freeze Time.at(1_452_620_644) do
+          config =
+            Config.new deploy: {
+                         id:
+                           "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
+                             "1234567890abcdefghijklmnopqrstuvwxyz",
+                         git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dwhat?",
+                         description:
+                           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt " \
+                             "ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation " \
+                             "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " \
+                             "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur " \
+                             "sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id " \
+                             "est laborum."
+                       }
 
           expect(config.deploy.to_query_hash).to eq(
-            timestamp:   1452620644,
-            deploy_id:   "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
-                       "1234567890abcdefghijklmnopqrs",
-            git_sha:     "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dw",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt " \
-                          "ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation " \
-                          "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in"
+            timestamp: 1_452_620_644,
+            deploy_id:
+              "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
+                "1234567890abcdefghijklmnopqrs",
+            git_sha: "19a8cfc47c10d8069916ae8adba0c9cb4c6c572dw",
+            description:
+              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt " \
+                "ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation " \
+                "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in"
           )
         end
       end
 
       it "only requires the id" do
-        Timecop.freeze Time.at(1452620644) do
-          config = Config.new deploy: {
-            id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
-                "1234567890abcdefghijklmnopqrstuvwxyz"
-          }
+        Timecop.freeze Time.at(1_452_620_644) do
+          config =
+            Config.new deploy: {
+                         id:
+                           "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
+                             "1234567890abcdefghijklmnopqrstuvwxyz"
+                       }
 
           expect(config.deploy.to_query_hash).to eq(
-            timestamp: 1452620644,
-            deploy_id: "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
-                       "1234567890abcdefghijklmnopqrs"
+            timestamp: 1_452_620_644,
+            deploy_id:
+              "1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz" \
+                "1234567890abcdefghijklmnopqrs"
           )
         end
       end
@@ -597,8 +616,8 @@ module Skylight
             @dir = dir
             Dir.chdir(dir) do
               system("git init > /dev/null")
-              system('git config --global user.email "you@example.com" > /dev/null')
-              system('git config --global user.name "Your Name" > /dev/null')
+              system("git config --global user.email \"you@example.com\" > /dev/null")
+              system("git config --global user.name \"Your Name\" > /dev/null")
               system("git commit -m \"Initial Commit\n\nMore info\" --allow-empty > /dev/null")
               @sha = `git rev-parse HEAD`.strip
               example.run
@@ -622,11 +641,7 @@ module Skylight
 
       context "without a detectable deploy" do
         around :each do |example|
-          Dir.mktmpdir do |dir|
-            Dir.chdir(dir) do
-              example.run
-            end
-          end
+          Dir.mktmpdir { |dir| Dir.chdir(dir) { example.run } }
         end
 
         it "returns nil" do
@@ -643,8 +658,13 @@ module Skylight
 
       it "can add ignored gems" do
         config = Config.new(source_location_ignored_gems: %w[rails graphiti])
-        expect(config.source_location_ignored_gems).to \
-          contain_exactly("skylight", "activesupport", "activerecord", "rails", "graphiti")
+        expect(config.source_location_ignored_gems).to contain_exactly(
+          "skylight",
+          "activesupport",
+          "activerecord",
+          "rails",
+          "graphiti"
+        )
       end
     end
 
@@ -654,17 +674,17 @@ module Skylight
       end
 
       it "does not allow agent.interval to be a non-zero integer" do
-        expect do
-          config["agent.interval"] = "abc"
-        end.to raise_error(ConfigError, "invalid value for agent.interval (abc), must be an integer greater than 0")
+        expect { config["agent.interval"] = "abc" }.to raise_error(
+          ConfigError,
+          "invalid value for agent.interval (abc), must be an integer greater than 0"
+        )
 
-        expect do
-          config["agent.interval"] = -1
-        end.to raise_error(ConfigError, "invalid value for agent.interval (-1), must be an integer greater than 0")
+        expect { config["agent.interval"] = -1 }.to raise_error(
+          ConfigError,
+          "invalid value for agent.interval (-1), must be an integer greater than 0"
+        )
 
-        expect do
-          config["agent.interval"] = 5
-        end.to_not raise_error
+        expect { config["agent.interval"] = 5 }.to_not raise_error
       end
 
       context "permissions" do
@@ -672,10 +692,11 @@ module Skylight
           with_file(writable: false) do |f|
             config.set(:'daemon.pidfile_path', f.path)
 
-            expect do
-              config.validate!
-            end.to raise_error(ConfigError, "File `#{f.path}` is not writable. Please set daemon.pidfile_path or " \
-                                            "daemon.sockdir_path in your config to a writable path")
+            expect { config.validate! }.to raise_error(
+              ConfigError,
+              "File `#{f.path}` is not writable. Please set daemon.pidfile_path or " \
+                "daemon.sockdir_path in your config to a writable path"
+            )
           end
         end
 
@@ -683,10 +704,11 @@ module Skylight
           with_dir(writable: false) do |d|
             config.set(:'daemon.pidfile_path', "#{d}/bar")
 
-            expect do
-              config.validate!
-            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set daemon.pidfile_path or " \
-                                            "daemon.sockdir_path in your config to a writable path")
+            expect { config.validate! }.to raise_error(
+              ConfigError,
+              "Directory `#{d}` is not writable. Please set daemon.pidfile_path or " \
+                "daemon.sockdir_path in your config to a writable path"
+            )
           end
         end
 
@@ -695,10 +717,11 @@ module Skylight
             config.set(:'daemon.sockdir_path', d)
             config.set(:'daemon.pidfile_path', "~/skylight.pid") # Otherwise based on sockdir_path and will error first
 
-            expect do
-              config.validate!
-            end.to raise_error(ConfigError, "Directory `#{d}` is not writable. Please set daemon.sockdir_path in " \
-                                            "your config to a writable path")
+            expect { config.validate! }.to raise_error(
+              ConfigError,
+              "Directory `#{d}` is not writable. Please set daemon.sockdir_path in " \
+                "your config to a writable path"
+            )
           end
         end
       end
@@ -707,16 +730,14 @@ module Skylight
     context "#to_native_env" do
       let :config do
         Config.new(
-          authentication: "abc123",
-          hostname: "test.local",
-          root: "/tmp",
-
+          :authentication => "abc123",
+          :hostname => "test.local",
+          :root => "/tmp",
           # These are set in some envs and not others
           "daemon.ssl_cert_dir" => nil,
           "daemon.ssl_cert_path" => nil,
           "daemon.exec_path" => nil,
           "daemon.lib_path" => nil,
-
           # Make sure the false value gets passed to the native env (true is default)
           "daemon.lazy_start" => false
         )
@@ -729,16 +750,16 @@ module Skylight
       it "converts to env" do
         expect(get_env).to eq(
           # (Includes default component info)
-          "SKYLIGHT_AUTHENTICATION"          => "abc123|reporting_env=true",
-          "SKYLIGHT_VERSION"                 => Skylight::VERSION,
-          "SKYLIGHT_ROOT"                    => Pathname.new("/tmp").realpath.to_s,
-          "SKYLIGHT_HOSTNAME"                => "test.local",
-          "SKYLIGHT_AUTH_URL"                => "https://auth.skylight.io/agent",
-          "SKYLIGHT_LAZY_START"              => "false",
+          "SKYLIGHT_AUTHENTICATION" => "abc123|reporting_env=true",
+          "SKYLIGHT_VERSION" => Skylight::VERSION,
+          "SKYLIGHT_ROOT" => Pathname.new("/tmp").realpath.to_s,
+          "SKYLIGHT_HOSTNAME" => "test.local",
+          "SKYLIGHT_AUTH_URL" => "https://auth.skylight.io/agent",
+          "SKYLIGHT_LAZY_START" => "false",
           "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false",
-          "SKYLIGHT_LOG_LEVEL"               => "warn",
-          "SKYLIGHT_LOG_FILE"                => "-",
-          "SKYLIGHT_LOG_SQL_PARSE_ERRORS"    => "true"
+          "SKYLIGHT_LOG_LEVEL" => "warn",
+          "SKYLIGHT_LOG_FILE" => "-",
+          "SKYLIGHT_LOG_SQL_PARSE_ERRORS" => "true"
         )
       end
 
@@ -746,8 +767,9 @@ module Skylight
         config[:'deploy.id'] = "d456"
 
         Timecop.freeze do
-          expect(get_env["SKYLIGHT_AUTHENTICATION"]).to \
-            eq("abc123|timestamp=#{Time.now.to_i}&deploy_id=d456&reporting_env=true")
+          expect(get_env["SKYLIGHT_AUTHENTICATION"]).to eq(
+            "abc123|timestamp=#{Time.now.to_i}&deploy_id=d456&reporting_env=true"
+          )
         end
       end
 
@@ -762,16 +784,14 @@ module Skylight
       it "includes custom component settings" do
         config[:env] = "staging"
         config[:component] = "worker"
-        expect(get_env["SKYLIGHT_AUTHENTICATION"]).to \
-          eq("abc123|reporting_env=true")
+        expect(get_env["SKYLIGHT_AUTHENTICATION"]).to eq("abc123|reporting_env=true")
 
         expect(config.components[:worker].to_s).to eq("worker:staging")
       end
 
       it "includes custom worker_component settings" do
         config[:worker_component] = "sidekiq"
-        expect(get_env["SKYLIGHT_AUTHENTICATION"]).to \
-          eq("abc123|reporting_env=true")
+        expect(get_env["SKYLIGHT_AUTHENTICATION"]).to eq("abc123|reporting_env=true")
 
         expect(config.components[:worker].to_s).to eq("sidekiq:production")
       end
@@ -816,13 +836,9 @@ module Skylight
       it "includes inferred component metadata in the priority group" do
         config = Config.new.as_json
 
-        expect(config[:config][:priority][:component]).to(
-          eq(Skylight::Util::Component::DEFAULT_NAME)
-        )
+        expect(config[:config][:priority][:component]).to(eq(Skylight::Util::Component::DEFAULT_NAME))
 
-        expect(config[:config][:priority][:env]).to(
-          eq(Skylight::Util::Component::DEFAULT_ENVIRONMENT)
-        )
+        expect(config[:config][:priority][:env]).to(eq(Skylight::Util::Component::DEFAULT_ENVIRONMENT))
       end
     end
   end

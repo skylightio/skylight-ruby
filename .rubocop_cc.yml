@@ -7,11 +7,11 @@ AllCops:
   NewCops: enable
   SuggestExtensions: false
   Exclude:
-    - '**/vendor/**/*'
+    - "**/vendor/**/*"
 
 Bundler/DuplicatedGem:
   Exclude:
-    - 'spec/dummy/Gemfile'
+    - "spec/dummy/Gemfile"
 
 Layout/HashAlignment:
   EnforcedHashRocketStyle: table
@@ -46,7 +46,7 @@ Lint/EmptyBlock:
 # We shouldn't worry about this in specs
 Lint/SuppressedException:
   Exclude:
-    - '**/*_spec.rb'
+    - "**/*_spec.rb"
 
 # We do a lot of handling of all error classes. This seems probably ok for our case.
 Lint/RescueException:
@@ -58,7 +58,7 @@ Lint/UnusedMethodArgument:
 # Doesn't make sense to have to split up module and context blocks
 Metrics/BlockLength:
   Exclude:
-    - '**/*_spec.rb'
+    - "**/*_spec.rb"
 
 # In some cases `get_*` or `set_*` seems more appropriate than without.
 Naming/AccessorMethodName:
@@ -66,7 +66,7 @@ Naming/AccessorMethodName:
 
 Naming/PredicateName:
   AllowedMethods:
-    - is_a?       # Default
+    - is_a? # Default
     - has_errors? # Seems clearer than suggested `errors?`
 
 # This is a bit too strict for us
@@ -83,7 +83,7 @@ Style/Documentation:
 
 Style/GlobalVars:
   Exclude:
-    - 'ext/extconf.rb'
+    - "ext/extconf.rb"
 
 # Not convinced this makes things better
 Style/GuardClause:
@@ -95,7 +95,7 @@ Style/IfUnlessModifier:
 
 Style/MixinUsage:
   Exclude:
-    - 'ext/extconf.rb'
+    - "ext/extconf.rb"
 
 # We use timestamps in some tests and this doesn't play nice
 Style/NumericLiterals:

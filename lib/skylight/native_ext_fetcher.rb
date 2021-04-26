@@ -17,7 +17,8 @@ module Skylight
 
     include FileUtils
 
-    class FetchError < StandardError; end
+    class FetchError < StandardError
+    end
 
     # Creates a new fetcher and fetches
     # @param opts [Hash]
@@ -56,7 +57,7 @@ module Skylight
     # @return [String] the inflated archive
     def fetch
       log "fetching native ext; curr-platform=#{@platform}; " \
-        "requested-arch=#{@arch}; version=#{@version}"
+            "requested-arch=#{@arch}; version=#{@version}"
 
       tar_gz = "#{@target}/#{basename}"
 
@@ -113,7 +114,8 @@ module Skylight
           remaining_attempts -= 1
 
           error "failed to fetch native extension; uri=#{uri}; msg=#{e.message}; " \
-                "remaining-attempts=#{remaining_attempts}", e
+                  "remaining-attempts=#{remaining_attempts}",
+                e
 
           if remaining_attempts > 0
             sleep 2
@@ -149,9 +151,7 @@ module Skylight
       opts = {}
       opts[:use_ssl] = use_ssl
 
-      if use_ssl
-        opts[:ca_file] = Util::SSL.ca_cert_file_or_default
-      end
+      opts[:ca_file] = Util::SSL.ca_cert_file_or_default if use_ssl
 
       Net::HTTP.start(host, port, p_host, p_port, p_user, p_pass, use_ssl: use_ssl) do |http|
         http.request_get path do |resp|
@@ -164,13 +164,13 @@ module Skylight
               out.write chunk
             end
 
-            return [:success, digest.hexdigest]
+            return :success, digest.hexdigest
           when Net::HTTPRedirection
             unless (location = resp["location"])
               raise "received redirect but no location"
             end
 
-            return [:redirect, location]
+            return :redirect, location
           else
             raise "received HTTP status code #{resp.code}"
           end
@@ -221,9 +221,7 @@ module Skylight
     def maybe_raise(err)
       error err
 
-      if @required
-        raise err
-      end
+      raise err if @required
     end
 
     # Log an `info` to the `logger`

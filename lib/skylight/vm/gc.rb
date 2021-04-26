@@ -2,7 +2,6 @@ module Skylight
   # @api private
   module VM
     if defined?(JRUBY_VERSION)
-
       # This doesn't quite work as we would like it. I believe that the GC
       # statistics includes time that is not stop-the-world, this does not
       # necessarily take time away from the application.
@@ -26,9 +25,7 @@ module Skylight
       #     res
       #   end
       # end
-
     elsif defined?(::GC::Profiler)
-
       class GC
         def initialize
           @total = 0
@@ -42,19 +39,15 @@ module Skylight
           # Reported in seconds
           run = (::GC::Profiler.total_time * 1_000_000).to_i
 
-          if run > 0
-            ::GC::Profiler.clear
-          end
+          ::GC::Profiler.clear if run > 0
 
           @total += run
         end
       end
-
     end
 
     # Fallback
     unless defined?(VM::GC)
-
       class GC
         def enable; end
 
@@ -62,7 +55,6 @@ module Skylight
           0
         end
       end
-
     end
   end
 end

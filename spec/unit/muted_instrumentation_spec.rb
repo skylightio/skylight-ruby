@@ -17,13 +17,14 @@ module Skylight
 
           expect(Skylight).not_to be_muted
 
-          ret = Skylight.mute do |s|
-            # instrumenter is not running
-            expect(Skylight).not_to be_muted
-            expect(s).to be_nil
-            hello.hello
-            1
-          end
+          ret =
+            Skylight.mute do |s|
+              # instrumenter is not running
+              expect(Skylight).not_to be_muted
+              expect(s).to be_nil
+              hello.hello
+              1
+            end
 
           expect(ret).to eq(1)
         end

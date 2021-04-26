@@ -14,7 +14,7 @@ module Skylight
 
       def initialize(environment, name, force_worker: false)
         @environment = environment || DEFAULT_ENVIRONMENT
-        @name        = resolve_name(name, force_worker)
+        @name = resolve_name(name, force_worker)
 
         raise ArgumentError, "environment can't be blank" if @environment.empty?
 
@@ -40,35 +40,32 @@ module Skylight
 
       # keys here should match those from the main config
       def as_json(*)
-        {
-          component: name,
-          env:       environment
-        }
+        { component: name, env: environment }
       end
 
       private
 
-        def program_name
-          $PROGRAM_NAME
-        end
+      def program_name
+        $PROGRAM_NAME
+      end
 
-        def argv
-          ARGV
-        end
+      def argv
+        ARGV
+      end
 
-        def resolve_name(given_name, force_worker)
-          # don't allow workers to be called 'web'
-          return WORKER_NAME if force_worker && (given_name.nil? || given_name == DEFAULT_NAME)
-          return DEFAULT_NAME if given_name.nil?
+      def resolve_name(given_name, force_worker)
+        # don't allow workers to be called 'web'
+        return WORKER_NAME if force_worker && (given_name.nil? || given_name == DEFAULT_NAME)
+        return DEFAULT_NAME if given_name.nil?
 
-          given_name
-        end
+        given_name
+      end
 
-        def validate_string!(string, kind)
-          return true if string =~ NAME_FORMAT
+      def validate_string!(string, kind)
+        return true if string =~ NAME_FORMAT
 
-          raise ArgumentError, "#{kind} can only contain lowercase letters, numbers, and dashes"
-        end
+        raise ArgumentError, "#{kind} can only contain lowercase letters, numbers, and dashes"
+      end
     end
   end
 end

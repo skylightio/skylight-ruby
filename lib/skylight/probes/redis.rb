@@ -4,17 +4,9 @@ module Skylight
       # Unfortunately, because of the nature of pipelining, there's no way for us to
       # give a time breakdown on the individual items.
 
-      PIPELINED_OPTS = {
-        category: "db.redis.pipelined".freeze,
-        title:    "PIPELINE".freeze,
-        internal: true
-      }.freeze
+      PIPELINED_OPTS = { category: "db.redis.pipelined".freeze, title: "PIPELINE".freeze, internal: true }.freeze
 
-      MULTI_OPTS = {
-        category: "db.redis.multi".freeze,
-        title:    "MULTI".freeze,
-        internal: true
-      }.freeze
+      MULTI_OPTS = { category: "db.redis.multi".freeze, title: "MULTI".freeze, internal: true }.freeze
 
       module ClientInstrumentation
         def call(command, *)
@@ -22,11 +14,7 @@ module Skylight
 
           return super if command_name == :auth
 
-          opts = {
-            category: "db.redis.command",
-            title:    command_name.upcase.to_s,
-            internal: true
-          }
+          opts = { category: "db.redis.command", title: command_name.upcase.to_s, internal: true }
 
           Skylight.instrument(opts) { super }
         end
@@ -48,7 +36,7 @@ module Skylight
 
           if !version || version < Gem::Version.new("3.0.0")
             Skylight.error "The installed version of Redis doesn't support Middlewares. " \
-                           "At least version 3.0.0 is required."
+                             "At least version 3.0.0 is required."
             return
           end
 

@@ -14,17 +14,11 @@ module Skylight
             name, job_class_name = Normalizers::ActiveJob::Perform.normalize_title(job)
             descriptors = ["adapter: '#{adapter_name}'", "queue: '#{job.queue_name}'"]
             descriptors << "job: '#{job_class_name}'" if job_class_name
-            desc = "{ #{descriptors.join(', ')} }"
-          rescue
+            desc = "{ #{descriptors.join(", ")} }"
+          rescue StandardError
             block.call
           else
-            Skylight.instrument(
-              title:       "Enqueue #{name}",
-              category:    CAT,
-              description: desc,
-              internal:    true,
-              &block
-            )
+            Skylight.instrument(title: "Enqueue #{name}", category: CAT, description: desc, internal: true, &block)
           end
 
           self.class.instance_eval do

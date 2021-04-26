@@ -36,9 +36,7 @@ module Skylight
           response_status = payload.fetch(:response, {}).fetch(:status, "").to_s
           segments << "error" if response_status.start_with?("4", "5")
 
-          if segments.any?
-            trace.segment = segments.join("+")
-          end
+          trace.segment = segments.join("+") if segments.any?
         end
       end
     end

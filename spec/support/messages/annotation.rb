@@ -3,19 +3,15 @@ module SpecHelper
     class AnnotationVal
       include Beefcake::Message
 
-      optional :uint_val,   :uint64, 1
-      optional :int_val,    :int64,  2 # Currently unused
+      optional :uint_val, :uint64, 1
+      optional :int_val, :int64, 2 # Currently unused
       optional :double_val, :double, 3 # Currently unused
       optional :string_val, :string, 4
-      repeated :nested,     AnnotationVal, 5 # Currently unused
+      repeated :nested, AnnotationVal, 5 # Currently unused
 
       def to_s
         # only one of these should be present
-        [@uint_val,
-         @int_val,
-         @double_val,
-         @string_val,
-         @nested].select(&:present?).join("; ")
+        [@uint_val, @int_val, @double_val, @string_val, @nested].select(&:present?).join("; ")
       end
     end
 

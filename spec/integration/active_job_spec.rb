@@ -20,6 +20,7 @@ if enable
     # rubocop:disable Lint/InheritException
     class Exception < ::Exception
     end
+
     # rubocop:enable Lint/InheritException
 
     def perform(error_key = nil)
@@ -37,16 +38,13 @@ if enable
 
     private
 
-      def maybe_raise(key)
-        return unless key
+    def maybe_raise(key)
+      return unless key
 
-        err = {
-          "runtime_error" => RuntimeError,
-          "exception"     => Exception
-        }[key]
+      err = { "runtime_error" => RuntimeError, "exception" => Exception }[key]
 
-        raise err if err
-      end
+      raise err if err
+    end
   end
 
   describe "ActiveJob integration", :http, :agent do
@@ -74,9 +72,7 @@ if enable
     include ActiveJob::TestHelper
 
     specify do
-      4.times do |n|
-        SkTestJob.perform_later(n)
-      end
+      4.times { |n| SkTestJob.perform_later(n) }
 
       server.wait(count: 1)
       expect(server.reports).to be_present
@@ -85,9 +81,7 @@ if enable
       traces = endpoint.traces
       uniq_spans = traces.map { |trace| trace.filter_spans.map { |span| span.event.category } }.uniq
       expect(traces.count).to eq(4)
-      expect(uniq_spans).to eq(
-        [["app.job.execute", "app.job.perform", "app.inside", "app.zomg", "app.after_zomg"]]
-      )
+      expect(uniq_spans).to eq([%w[app.job.execute app.job.perform app.inside app.zomg app.after_zomg]])
       expect(endpoint.name).to eq("SkTestJob<sk-segment>default</sk-segment>")
 
       perform_line = SkTestJob.instance_method(:perform).source_location[1]
@@ -142,9 +136,7 @@ if enable
         traces = endpoint.traces
         uniq_spans = traces.map { |trace| trace.filter_spans.map { |span| span.event.category } }.uniq
         expect(traces.count).to eq(1)
-        expect(uniq_spans).to eq(
-          [["app.job.execute", "app.job.perform", "app.inside", "app.zomg"]]
-        )
+        expect(uniq_spans).to eq([%w[app.job.execute app.job.perform app.inside app.zomg]])
         expect(endpoint.name).to eq("SkTestJob<sk-segment>error</sk-segment>")
       end
 
@@ -161,9 +153,7 @@ if enable
         traces = endpoint.traces
         uniq_spans = traces.map { |trace| trace.filter_spans.map { |span| span.event.category } }.uniq
         expect(traces.count).to eq(1)
-        expect(uniq_spans).to eq(
-          [["app.job.execute", "app.job.perform", "app.inside", "app.zomg"]]
-        )
+        expect(uniq_spans).to eq([%w[app.job.execute app.job.perform app.inside app.zomg]])
         expect(endpoint.name).to eq("SkTestJob<sk-segment>error</sk-segment>")
 
         perform_line = SkTestJob.instance_method(:perform).source_location[1]

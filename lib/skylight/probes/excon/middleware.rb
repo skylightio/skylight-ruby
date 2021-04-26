@@ -33,33 +33,32 @@ module Skylight
 
         private
 
-          def begin_instrumentation(datum)
-            method = datum[:method].to_s
-            scheme = datum[:scheme]
-            host   = datum[:host]
-            # TODO: Maybe don't show other default ports like 443
-            port   = datum[:port] == 80 ? nil : datum[:port]
-            path   = datum[:path]
-            query  = datum[:query]
+        def begin_instrumentation(datum)
+          method = datum[:method].to_s
+          scheme = datum[:scheme]
+          host = datum[:host]
 
-            opts = Formatters::HTTP.build_opts(method, scheme, host, port, path, query)
+          # TODO: Maybe don't show other default ports like 443
+          port = datum[:port] == 80 ? nil : datum[:port]
+          path = datum[:path]
+          query = datum[:query]
 
-            @requests[datum] = Skylight.instrument(opts)
-          rescue Exception => e
-            Skylight.error "failed to begin instrumentation for Excon; msg=%s", e.message
+          opts = Formatters::HTTP.build_opts(method, scheme, host, port, path, query)
+
+          @requests[datum] = Skylight.instrument(opts)
+        rescue Exception => e
+          Skylight.error "failed to begin instrumentation for Excon; msg=%s", e.message
+        end
+
+        def end_instrumentation(datum)
+          if (request = @requests.delete(datum))
+            meta = {}
+            meta[:exception_object] = datum[:error] if datum[:error].is_a?(Exception)
+            Skylight.done(request, meta)
           end
-
-          def end_instrumentation(datum)
-            if (request = @requests.delete(datum))
-              meta = {}
-              if datum[:error].is_a?(Exception)
-                meta[:exception_object] = datum[:error]
-              end
-              Skylight.done(request, meta)
-            end
-          rescue Exception => e
-            Skylight.error "failed to end instrumentation for Excon; msg=%s", e.message
-          end
+        rescue Exception => e
+          Skylight.error "failed to end instrumentation for Excon; msg=%s", e.message
+        end
       end
     end
   end

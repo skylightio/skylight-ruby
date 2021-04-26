@@ -41,9 +41,7 @@ end
 # rubocop:enable Lint/SuppressedException
 
 require "rspec/core/rake_task"
-RSpec::Core::RakeTask.new(:spec) do |t|
-  t.rspec_opts = "--order random"
-end
+RSpec::Core::RakeTask.new(:spec) { |t| t.rspec_opts = "--order random" }
 task spec: :compile
 
 require "rubocop/rake_task"

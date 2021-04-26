@@ -14,27 +14,25 @@ module Skylight
 
         private
 
-          def get_endpoint_name(endpoint)
-            method = get_method(endpoint)
-            path = get_path(endpoint)
-            namespace = get_namespace(endpoint)
+        def get_endpoint_name(endpoint)
+          method = get_method(endpoint)
+          path = get_path(endpoint)
+          namespace = get_namespace(endpoint)
 
-            if namespace && !namespace.empty?
-              path = "/#{path}" if path[0] != "/"
-              path = "#{namespace}#{path}"
-            end
-
-            "#{base_app_name(endpoint)} [#{method}] #{path}".strip
+          if namespace && !namespace.empty?
+            path = "/#{path}" if path[0] != "/"
+            path = "#{namespace}#{path}"
           end
 
-          def base_app_name(endpoint)
-            ep = endpoint.options[:for]
-            return ep.name if ep.name
+          "#{base_app_name(endpoint)} [#{method}] #{path}".strip
+        end
 
-            if ep.respond_to?(:base) && ep.base.respond_to?(:name)
-              ep.base.name
-            end
-          end
+        def base_app_name(endpoint)
+          ep = endpoint.options[:for]
+          return ep.name if ep.name
+
+          ep.base.name if ep.respond_to?(:base) && ep.base.respond_to?(:name)
+        end
       end
     end
   end

@@ -19,11 +19,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   let(:probe) { Skylight::Probes::HTTPClient::Probe }
 
   it "instruments get requests" do
-    expected = {
-      category: "api.http.get",
-      title:    "GET 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.get", title: "GET 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
@@ -35,11 +31,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   end
 
   it "instruments post requests" do
-    expected = {
-      category: "api.http.post",
-      title:    "POST 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.post", title: "POST 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
@@ -51,35 +43,37 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   end
 
   it "instruments multipart post requests" do
-    expected = {
-      category: "api.http.post",
-      title:    "POST 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.post", title: "POST 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     client = HTTPClient.new
 
-    response = client.post(uri, header: { "Content-Type" => "multipart/form-data" }, body: [{
-      "Content-Type"        => "text/plain; charset=UTF-8",
-      "Content-Disposition" => 'form-data; name="name"',
-      :content              => "Barry"
-    }, {
-      "Content-Type"        => "text/plain; charset=UTF-8",
-      "Content-Disposition" => 'form-data; name="department"',
-      :content              => "Accounting"
-    }])
+    response =
+      client.post(
+        uri,
+        header: {
+          "Content-Type" => "multipart/form-data"
+        },
+        body: [
+          {
+            "Content-Type" => "text/plain; charset=UTF-8",
+            "Content-Disposition" => "form-data; name=\"name\"",
+            :content => "Barry"
+          },
+          {
+            "Content-Type" => "text/plain; charset=UTF-8",
+            "Content-Disposition" => "form-data; name=\"department\"",
+            :content => "Accounting"
+          }
+        ]
+      )
     expect(response).to be_a(HTTP::Message)
     expect(response).to be_ok
   end
 
   it "instruments head requests" do
-    expected = {
-      category: "api.http.head",
-      title:    "HEAD 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.head", title: "HEAD 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
@@ -91,11 +85,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   end
 
   it "instruments custom method requests" do
-    expected = {
-      category: "api.http.custom",
-      title:    "CUSTOM 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.custom", title: "CUSTOM 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
@@ -107,11 +97,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
   end
 
   it "instruments HTTPClient.methodname static methods" do
-    expected = {
-      category: "api.http.get",
-      title:    "GET 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.get", title: "GET 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
@@ -138,9 +124,7 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
     expect(Skylight).not_to receive(:instrument)
 
     Skylight::Probes::HTTPClient::Probe.disable do
-      Skylight::Probes::HTTPClient::Probe.disable do
-        expect(probe).to be_disabled
-      end
+      Skylight::Probes::HTTPClient::Probe.disable { expect(probe).to be_disabled }
 
       expect(probe).to be_disabled
 

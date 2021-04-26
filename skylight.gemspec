@@ -2,24 +2,28 @@ $LOAD_PATH.push(File.expand_path("lib", __dir__))
 require "skylight/version"
 
 Gem::Specification.new do |spec|
-  spec.name        = "skylight"
-  spec.version     = Skylight::VERSION.tr("-", ".")
-  spec.authors     = ["Tilde, Inc."]
-  spec.email       = ["engineering@tilde.io"]
+  spec.name = "skylight"
+  spec.version = Skylight::VERSION.tr("-", ".")
+  spec.authors = ["Tilde, Inc."]
+  spec.email = ["engineering@tilde.io"]
 
-  spec.summary     = "Skylight is a smart profiler for Rails, Sinatra, and other Ruby apps."
-  spec.homepage    = "https://www.skylight.io"
-  spec.license     = "Nonstandard"
+  spec.summary =
+    "Skylight is a smart profiler for Rails, Sinatra, and other Ruby apps."
+  spec.homepage = "https://www.skylight.io"
+  spec.license = "Nonstandard"
 
   spec.required_ruby_version = ">= 2.5"
 
-  files = `git ls-files`.split("\n") rescue []
-  files &= (
-    Dir["lib/**/*.{rb,pem}"] +
-    Dir["ext/**/*.{h,c,rb,yml}"] +
-    Dir["*.md"])
+  files =
+    begin
+      `git ls-files`.split("\n")
+    rescue StandardError
+      []
+    end
+  files &=
+    (Dir["lib/**/*.{rb,pem}"] + Dir["ext/**/*.{h,c,rb,yml}"] + Dir["*.md"])
 
-  spec.files         = files
+  spec.files = files
   spec.require_paths = ["lib"]
 
   # Dependencies

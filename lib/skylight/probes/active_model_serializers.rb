@@ -18,9 +18,7 @@ module Skylight
           rescue LoadError # rubocop:disable Lint/SuppressedException
           end
 
-          if Gem.loaded_specs["active_model_serializers"]
-            version = Gem.loaded_specs["active_model_serializers"].version
-          end
+          version = Gem.loaded_specs["active_model_serializers"].version if Gem.loaded_specs["active_model_serializers"]
 
           if !version || version < Gem::Version.new("0.5.0")
             Skylight.error "Instrumention is only available for ActiveModelSerializers version 0.5.0 and greater."
@@ -37,14 +35,16 @@ module Skylight
           # End users could override as_json without calling super, but it's likely safer
           # than overriding serializable_array/hash/object.
 
-          [::ActiveModel::Serializer, ::ActiveModel::ArraySerializer].each do |klass|
-            klass.prepend(Instrumentation)
-          end
+          [::ActiveModel::Serializer, ::ActiveModel::ArraySerializer].each { |klass| klass.prepend(Instrumentation) }
         end
       end
     end
 
-    register(:active_model_serializers, "ActiveModel::Serializer", "active_model/serializer",
-             ActiveModelSerializers::Probe.new)
+    register(
+      :active_model_serializers,
+      "ActiveModel::Serializer",
+      "active_model/serializer",
+      ActiveModelSerializers::Probe.new
+    )
   end
 end

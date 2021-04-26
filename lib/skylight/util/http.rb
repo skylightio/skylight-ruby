@@ -10,14 +10,14 @@ module Skylight
   module Util
     class HTTP
       CONTENT_ENCODING = "content-encoding".freeze
-      CONTENT_LENGTH   = "content-length".freeze
-      CONTENT_TYPE     = "content-type".freeze
-      ACCEPT           = "Accept".freeze
-      X_VERSION_HDR    = "x-skylight-agent-version".freeze
+      CONTENT_LENGTH = "content-length".freeze
+      CONTENT_TYPE = "content-type".freeze
+      ACCEPT = "Accept".freeze
+      X_VERSION_HDR = "x-skylight-agent-version".freeze
       APPLICATION_JSON = "application/json".freeze
-      AUTHORIZATION    = "authorization".freeze
-      DEFLATE          = "deflate".freeze
-      GZIP             = "gzip".freeze
+      AUTHORIZATION = "authorization".freeze
+      DEFLATE = "deflate".freeze
+      GZIP = "gzip".freeze
 
       include Logging
 
@@ -35,7 +35,8 @@ module Skylight
         end
       end
 
-      class ReadResponseError < StandardError; end
+      class ReadResponseError < StandardError
+      end
 
       def initialize(config, service = :auth, opts = {})
         @config = config
@@ -46,7 +47,7 @@ module Skylight
 
         url = URI.parse(url)
 
-        @ssl  = url.scheme == "https"
+        @ssl = url.scheme == "https"
         @host = url.host
         @port = url.port
 
@@ -81,131 +82,129 @@ module Skylight
 
       private
 
-        def get_timeout(type, config, service, opts)
-          config.duration_ms("#{service}_http_#{type}_timeout") ||
-            opts[:timeout] || 15
+      def get_timeout(type, config, service, opts)
+        config.duration_ms("#{service}_http_#{type}_timeout") || opts[:timeout] || 15
+      end
+
+      def build_request(type, endpoint, hdrs, length = nil)
+        headers = {}
+
+        headers[CONTENT_LENGTH] = length.to_s if length
+        headers[AUTHORIZATION] = authentication if authentication
+        headers[ACCEPT] = APPLICATION_JSON
+        headers[X_VERSION_HDR] = VERSION
+        headers[CONTENT_ENCODING] = GZIP if length && @deflate
+
+        hdrs.each { |k, v| headers[k] = v }
+
+        type.new(endpoint, headers)
+      end
+
+      def do_request(http, req)
+        begin
+          client = http.start
+        rescue => e
+          # TODO: Retry here
+          raise StartError, e
         end
 
-        def build_request(type, endpoint, hdrs, length = nil)
-          headers = {}
-
-          headers[CONTENT_LENGTH]   = length.to_s if length
-          headers[AUTHORIZATION]    = authentication if authentication
-          headers[ACCEPT]           = APPLICATION_JSON
-          headers[X_VERSION_HDR]    = VERSION
-          headers[CONTENT_ENCODING] = GZIP if length && @deflate
-
-          hdrs.each do |k, v|
-            headers[k] = v
-          end
-
-          type.new(endpoint, headers)
+        begin
+          res = client.request(req)
+        rescue *READ_EXCEPTIONS => e
+          raise ReadResponseError, e.inspect
         end
 
-        def do_request(http, req)
-          begin
-            client = http.start
-          rescue => e
-            # TODO: Retry here
-            raise StartError, e
-          end
+        yield res
+      ensure
+        client&.finish
+      end
 
-          begin
-            res = client.request(req)
-          rescue *READ_EXCEPTIONS => e
-            raise ReadResponseError, e.inspect
-          end
-
-          yield res
-        ensure
-          client&.finish
+      def execute(req, body = nil)
+        t do
+          fmt "executing HTTP request; host=%s; port=%s; path=%s, body=%s",
+              @host,
+              @port,
+              req.path,
+              body && body.bytesize
         end
 
-        def execute(req, body = nil)
-          t do
-            fmt "executing HTTP request; host=%s; port=%s; path=%s, body=%s",
-                @host, @port, req.path, body && body.bytesize
+        if body
+          body = Gzip.compress(body) if @deflate
+          req.body = body
+        end
+
+        http = Net::HTTP.new(@host, @port, @proxy_addr, @proxy_port, @proxy_user, @proxy_pass)
+
+        http.open_timeout = @open_timeout
+        http.read_timeout = @read_timeout
+
+        if @ssl
+          http.use_ssl = true
+
+          http.ca_file = SSL.ca_cert_file_or_default unless SSL.ca_cert_file?
+
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+        end
+
+        do_request(http, req) do |res|
+          unless res.code =~ /2\d\d/
+            debug "server responded with #{res.code}"
+            t { fmt "body=%s", res.body }
           end
 
-          if body
-            body = Gzip.compress(body) if @deflate
-            req.body = body
-          end
+          Response.new(res.code.to_i, res, res.body)
+        end
+      rescue Exception => e
+        error "http %s %s failed; error=%s; msg=%s", req.method, req.path, e.class, e.message
+        t { e.backtrace.join("\n") }
+        ErrorResponse.new(req, e)
+      end
 
-          http = Net::HTTP.new(@host, @port,
-                               @proxy_addr, @proxy_port, @proxy_user, @proxy_pass)
+      class Response
+        attr_reader :status, :headers, :body, :exception
 
-          http.open_timeout = @open_timeout
-          http.read_timeout = @read_timeout
+        def initialize(status, headers, body)
+          @status = status
+          @headers = headers
 
-          if @ssl
-            http.use_ssl = true
-
-            unless SSL.ca_cert_file?
-              http.ca_file = SSL.ca_cert_file_or_default
+          if (headers[CONTENT_TYPE] || "").include?(APPLICATION_JSON)
+            begin
+              @body = JSON.parse(body)
+            rescue JSON::ParserError
+              @body = body # not really JSON I guess
             end
-
-            http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-          end
-
-          do_request(http, req) do |res|
-            unless res.code =~ /2\d\d/
-              debug "server responded with #{res.code}"
-              t { fmt "body=%s", res.body }
-            end
-
-            Response.new(res.code.to_i, res, res.body)
-          end
-        rescue Exception => e
-          error "http %s %s failed; error=%s; msg=%s", req.method, req.path, e.class, e.message
-          t { e.backtrace.join("\n") }
-          ErrorResponse.new(req, e)
-        end
-
-        class Response
-          attr_reader :status, :headers, :body, :exception
-
-          def initialize(status, headers, body)
-            @status  = status
-            @headers = headers
-
-            if (headers[CONTENT_TYPE] || "").include?(APPLICATION_JSON)
-              begin
-                @body = JSON.parse(body)
-              rescue JSON::ParserError
-                @body = body # not really JSON I guess
-              end
-            else
-              @body = body
-            end
-          end
-
-          def success?
-            status >= 200 && status < 300
-          end
-
-          def to_s
-            body.to_s
-          end
-
-          def get(key)
-            body.dig(*key.split(".")) if body.is_a?(Hash)
-          end
-
-          def respond_to_missing?(name, include_all = false)
-            super || body.respond_to?(name, include_all)
-          end
-
-          def method_missing(name, *args, &blk)
-            if respond_to_missing?(name)
-              body.send(name, *args, &blk)
-            else
-              super
-            end
+          else
+            @body = body
           end
         end
 
-        ErrorResponse = Struct.new(:request, :exception) do
+        def success?
+          status >= 200 && status < 300
+        end
+
+        def to_s
+          body.to_s
+        end
+
+        def get(key)
+          body.dig(*key.split(".")) if body.is_a?(Hash)
+        end
+
+        def respond_to_missing?(name, include_all = false)
+          super || body.respond_to?(name, include_all)
+        end
+
+        def method_missing(name, *args, &blk)
+          if respond_to_missing?(name)
+            body.send(name, *args, &blk)
+          else
+            super
+          end
+        end
+      end
+
+      ErrorResponse =
+        Struct.new(:request, :exception) do
           def status
             nil
           end

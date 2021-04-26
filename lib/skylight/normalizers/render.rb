@@ -50,32 +50,30 @@ module Skylight
 
       private
 
-        def relative_path?(path)
-          !absolute_path?(path)
+      def relative_path?(path)
+        !absolute_path?(path)
+      end
+
+      SEPARATOR_BYTE = File::SEPARATOR.ord
+
+      if File.const_defined?(:NULL) ? File::NULL == "NUL" : RbConfig::CONFIG["host_os"] =~ /mingw|mswin32/
+        # This is a DOSish environment
+        ALT_SEPARATOR_BYTE = File::ALT_SEPARATOR&.ord
+        COLON_BYTE = ":".ord
+        SEPARATOR_BYTES = [SEPARATOR_BYTE, ALT_SEPARATOR_BYTE].freeze
+
+        def absolute_path?(path)
+          SEPARATOR_BYTES.include?(path.getbyte(2)) if alpha?(path.getbyte(0)) && path.getbyte(1) == COLON_BYTE
         end
 
-        SEPARATOR_BYTE = File::SEPARATOR.ord
-
-        if File.const_defined?(:NULL) ? File::NULL == "NUL" : RbConfig::CONFIG["host_os"] =~ /mingw|mswin32/
-          # This is a DOSish environment
-          ALT_SEPARATOR_BYTE = File::ALT_SEPARATOR&.ord
-          COLON_BYTE = ":".ord
-          SEPARATOR_BYTES = [SEPARATOR_BYTE, ALT_SEPARATOR_BYTE].freeze
-
-          def absolute_path?(path)
-            if alpha?(path.getbyte(0)) && path.getbyte(1) == COLON_BYTE
-              SEPARATOR_BYTES.include?(path.getbyte(2))
-            end
-          end
-
-          def alpha?(byte)
-            (byte >= 65 && byte <= 90) || (byte >= 97 && byte <= 122)
-          end
-        else
-          def absolute_path?(path)
-            path.getbyte(0) == SEPARATOR_BYTE
-          end
+        def alpha?(byte)
+          (byte >= 65 && byte <= 90) || (byte >= 97 && byte <= 122)
         end
+      else
+        def absolute_path?(path)
+          path.getbyte(0) == SEPARATOR_BYTE
+        end
+      end
     end
   end
 end

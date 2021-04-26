@@ -54,8 +54,10 @@ describe "Skylight::Instrumenter", :http, :agent do
 
     it "doesn't keep invalid config values" do
       config.set("test.enable_source_locations", true)
-      stub_config_validation(422, { corrected: { enable_source_locations: false },
-                                    errors:    { enable_source_locations: "not allowed to be set" } })
+      stub_config_validation(
+        422,
+        { corrected: { enable_source_locations: false }, errors: { enable_source_locations: "not allowed to be set" } }
+      )
 
       expect(Skylight.start!(config)).to be_truthy
 
@@ -70,9 +72,7 @@ describe "Skylight::Instrumenter", :http, :agent do
     end
 
     context "when server not reachable" do
-      before(:each) do
-        stub_config_validation(500)
-      end
+      before(:each) { stub_config_validation(500) }
 
       it "starts anyway" do
         expect(Skylight.start!(config)).to be_truthy
@@ -135,22 +135,18 @@ describe "Skylight::Instrumenter", :http, :agent do
 
     it "doesn't crash on failed config" do
       allow(config).to receive(:validate!).and_raise(Skylight::ConfigError.new("Test Failure"))
-      expect(config).to receive(:log_warn).
-        with("Unable to start Instrumenter due to a configuration error: Test Failure")
+      expect(config).to receive(:log_warn).with(
+        "Unable to start Instrumenter due to a configuration error: Test Failure"
+      )
 
-      expect do
-        expect(Skylight.start!(config)).to be_falsey
-      end.not_to raise_error
+      expect { expect(Skylight.start!(config)).to be_falsey }.not_to raise_error
     end
 
     it "doesn't crash on failed start" do
       allow(Skylight::Instrumenter).to receive(:new).and_raise("Test Failure")
-      expect(config).to receive(:log_error).
-        with("Unable to start Instrumenter; msg=Test Failure; class=RuntimeError")
+      expect(config).to receive(:log_error).with("Unable to start Instrumenter; msg=Test Failure; class=RuntimeError")
 
-      expect do
-        expect(Skylight.start!(config)).to be_falsey
-      end.not_to raise_error
+      expect { expect(Skylight.start!(config)).to be_falsey }.not_to raise_error
     end
   end
 
@@ -183,13 +179,9 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         t = ep.traces[0]
         expect(t.uuid).to eq("test-uuid")
-        expect(t.spans).to match([
-          a_span_including(
-            event:      an_exact_event(category: "app.rack"),
-            started_at: 0,
-            duration:   10_000
-          )
-        ])
+        expect(t.spans).to match(
+          [a_span_including(event: an_exact_event(category: "app.rack"), started_at: 0, duration: 10_000)]
+        )
       end
 
       it "ignores disabled parts of the trace" do
@@ -199,10 +191,10 @@ describe "Skylight::Instrumenter", :http, :agent do
           Skylight.disable do
             ActiveSupport::Notifications.instrument(
               "sql.active_record",
-              name: "Load User", sql: "SELECT * FROM posts", binds: []
-            ) do
-              clock.skip 1
-            end
+              name: "Load User",
+              sql: "SELECT * FROM posts",
+              binds: []
+            ) { clock.skip 1 }
           end
         end
 
@@ -217,13 +209,9 @@ describe "Skylight::Instrumenter", :http, :agent do
 
         t = ep.traces[0]
         expect(t.uuid).to eq("test-uuid")
-        expect(t.spans).to match([
-          a_span_including(
-            event:      an_exact_event(category: "app.rack"),
-            started_at: 0,
-            duration:   10_000
-          )
-        ])
+        expect(t.spans).to match(
+          [a_span_including(event: an_exact_event(category: "app.rack"), started_at: 0, duration: 10_000)]
+        )
       end
 
       it "handles un-lexable SQL" do
@@ -249,19 +237,17 @@ describe "Skylight::Instrumenter", :http, :agent do
         t = ep.traces[0]
         expect(t.uuid).to eq("test-uuid")
 
-        expect(t.spans).to match([
-          a_span_including(
-            event:      an_exact_event(category: "app.rack"),
-            started_at: 0,
-            duration:   10_000
-          ),
-          a_span_including(
-            parent:     0,
-            event:      an_exact_event(category: "db.sql.query", title: "Load User"),
-            started_at: 0,
-            duration:   10_000
-          )
-        ])
+        expect(t.spans).to match(
+          [
+            a_span_including(event: an_exact_event(category: "app.rack"), started_at: 0, duration: 10_000),
+            a_span_including(
+              parent: 0,
+              event: an_exact_event(category: "db.sql.query", title: "Load User"),
+              started_at: 0,
+              duration: 10_000
+            )
+          ]
+        )
       end
 
       it "handles SQL with binary data" do
@@ -287,19 +273,17 @@ describe "Skylight::Instrumenter", :http, :agent do
         t = ep.traces[0]
         expect(t.uuid).to eq("test-uuid")
 
-        expect(t.spans).to match([
-          a_span_including(
-            event:      an_exact_event(category: "app.rack"),
-            started_at: 0,
-            duration:   10_000
-          ),
-          a_span_including(
-            parent:     0,
-            event:      an_exact_event(category: "db.sql.query", title: "Load User"),
-            started_at: 0,
-            duration:   10_000
-          )
-        ])
+        expect(t.spans).to match(
+          [
+            a_span_including(event: an_exact_event(category: "app.rack"), started_at: 0, duration: 10_000),
+            a_span_including(
+              parent: 0,
+              event: an_exact_event(category: "db.sql.query", title: "Load User"),
+              started_at: 0,
+              duration: 10_000
+            )
+          ]
+        )
       end
 
       it "handles invalid string encodings" do
@@ -325,19 +309,17 @@ describe "Skylight::Instrumenter", :http, :agent do
         t = ep.traces[0]
         expect(t.uuid).to eq("test-uuid")
 
-        expect(t.spans).to match([
-          a_span_including(
-            event:      an_exact_event(category: "app.rack"),
-            started_at: 0,
-            duration:   10_000
-          ),
-          a_span_including(
-            parent:     0,
-            event:      an_exact_event(category: "db.sql.query", title: "Load User"),
-            started_at: 0,
-            duration:   10_000
-          )
-        ])
+        expect(t.spans).to match(
+          [
+            a_span_including(event: an_exact_event(category: "app.rack"), started_at: 0, duration: 10_000),
+            a_span_including(
+              parent: 0,
+              event: an_exact_event(category: "db.sql.query", title: "Load User"),
+              started_at: 0,
+              duration: 10_000
+            )
+          ]
+        )
       end
 
       it "ignores endpoints" do
@@ -380,7 +362,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
       it "ignores multiple endpoints" do
         config[:ignored_endpoint] = "foo#heartbeat"
-        config[:ignored_endpoints] = ["bar#heartbeat", "baz#heartbeat"]
+        config[:ignored_endpoints] = %w[bar#heartbeat baz#heartbeat]
 
         Skylight.trace "foo#bar", "app.rack" do
           clock.skip 1
@@ -449,9 +431,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
               # Here we are unmuting the instrumenter, so we
               # expect the 'wubble' span to be added
-              f = Skylight.unmute do
-                trace.instrument "wubble"
-              end
+              f = Skylight.unmute { trace.instrument "wubble" }
 
               clock.skip 0.1
               [f, e, d].each { |span| trace.done(span) }
@@ -462,7 +442,7 @@ describe "Skylight::Instrumenter", :http, :agent do
             server.wait resource: "/report"
 
             expect(spans.count).to eq(3)
-            expect(spans.map { |x| x.event.category }).to eq(["app.rack.request", "foo", "wubble"])
+            expect(spans.map { |x| x.event.category }).to eq(%w[app.rack.request foo wubble])
             expect(b).to be_nil
             expect(c).to be_nil
           end
@@ -476,11 +456,7 @@ describe "Skylight::Instrumenter", :http, :agent do
                   Skylight.mute do
                     clock.skip 0.1
                     Skylight.instrument(title: "baz") do
-                      Skylight.unmute do
-                        Skylight.instrument(title: "wibble") do
-                          clock.skip 0.1
-                        end
-                      end
+                      Skylight.unmute { Skylight.instrument(title: "wibble") { clock.skip 0.1 } }
                     end
                   end
 
@@ -493,11 +469,7 @@ describe "Skylight::Instrumenter", :http, :agent do
                   Skylight.unmute do
                     clock.skip 0.1
                     Skylight.instrument(title: "wubble") do
-                      Skylight.mute do
-                        Skylight.instrument(title: "flob") do
-                          clock.skip(0.1)
-                        end
-                      end
+                      Skylight.mute { Skylight.instrument(title: "flob") { clock.skip(0.1) } }
                     end
                   end
                 end
@@ -529,7 +501,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
             server.wait resource: "/report"
 
-            expect(spans.map { |x| x.event.category }).to eq(["app.rack.request", "foo"])
+            expect(spans.map { |x| x.event.category }).to eq(%w[app.rack.request foo])
             expect(logger_out.string.lines.grep(/tried to set endpoint/).count).to eq(1)
             expect(logger_out.string.lines.grep(/tried to set segment/).count).to eq(1)
           end
@@ -542,14 +514,12 @@ describe "Skylight::Instrumenter", :http, :agent do
             raise Skylight::InstrumenterUnrecoverableError, "instrumenter is not running"
           end
 
-          has_subscribers = lambda do
-            %i[@subscriber @subscribers].reduce(Skylight.instrumenter) do |m, n|
-              m.instance_variable_get(n)
-            end.present?
-          end
+          has_subscribers =
+            lambda do
+              %i[@subscriber @subscribers].reduce(Skylight.instrumenter) { |m, n| m.instance_variable_get(n) }.present?
+            end
 
-          Skylight.trace("Rack", "app.rack.request") do
-          end
+          Skylight.trace("Rack", "app.rack.request") {}
 
           expect(Skylight.instrumenter).to be_poisoned
 
