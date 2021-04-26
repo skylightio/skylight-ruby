@@ -99,6 +99,7 @@ instrumentation
 * [BUGFIX] Require http formatters for Faraday (thanks, @serkin!)
 * [BREAKING] Drop support for Ruby 2.2 since it is EOL
 * [BREAKING] New method for assigning 'segment' to a trace endpoint name
+* [BREAKING] Requires GLIBC 2.18 at minimum
 
 ## 3.1.4 (January 24, 2019)
 
