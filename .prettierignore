@@ -1,0 +1,15 @@
+# generated files
+/tmp/
+.rubocop_todo.yml
+.github/workflows/build.yml
+ext/libskylight.yml
+
+# dependencies
+/node_modules/
+/vendor/
+/lib/skylight/vendor/
+
+# misc
+/coverage/
+/.vscode/
+/spec/fixtures/

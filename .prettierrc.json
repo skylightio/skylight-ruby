@@ -1,0 +1,24 @@
+{
+  "rubySingleQuote": false,
+  "overrides": [
+    {
+      "files": [
+        "**/*.rb",
+        "tasks/**/*.rake",
+        ".pryrc",
+        "config.ru",
+        "Rakefile",
+        "Gemfile"
+      ],
+      "options": {
+        "printWidth": 120
+      }
+    },
+    {
+      "files": ["*.js", "*.es6"],
+      "options": {
+        "singleQuote": true
+      }
+    }
+  ]
+}
