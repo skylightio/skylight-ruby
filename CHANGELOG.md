@@ -1,3 +1,13 @@
+## 5.1.0 (April 26 2021)
+* [FEATURE] Add experimental tcp-based `skylightd` (may be enabled with `SKYLIGHT_ENABLE_TCP=true`)
+
+* [IMPROVEMENT] Support aarch64-darwin targets (Apple M1)
+* [IMPROVEMENT] Support aarch64-linux-gnu targets
+* [IMPROVEMENT] Support aarch64-linux-musl targets
+
+* [BREAKING] Remove `SKYLIGHT_SSL_CERT_DIR` config
+* [BREAKING] Drop support for Ruby 2.5
+
 ## 5.0.1 (March 11, 2021)
 * [IMPROVEMENT] Use argument-forwarding (...) where available in custom instrumentation
 

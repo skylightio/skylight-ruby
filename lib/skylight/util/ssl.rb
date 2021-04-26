@@ -18,36 +18,14 @@ module Skylight
         end
       end
 
-      def self.detect_ca_cert_dir!
-        return nil if ENV["SKYLIGHT_FORCE_OWN_CERTS"]
-
-        @ca_cert_dir = false
-        if defined?(OpenSSL::X509::DEFAULT_CERT_DIR)
-          d = OpenSSL::X509::DEFAULT_CERT_DIR
-
-          if d && File.exist?(d)
-            @ca_cert_dir = d
-          end
-        end
-      end
-
       detect_ca_cert_file!
-      detect_ca_cert_dir!
 
       def self.ca_cert_file?
         !!@ca_cert_file
       end
 
-      def self.ca_cert_dir?
-        !!@ca_cert_dir
-      end
-
       def self.ca_cert_file_or_default
         @ca_cert_file || DEFAULT_CA_FILE
-      end
-
-      class << self
-        attr_reader :ca_cert_dir
       end
     end
   end
