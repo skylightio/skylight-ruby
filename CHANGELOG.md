@@ -21,11 +21,11 @@
 * [IMPROVEMENT] Better logging config. `SKYLIGHT_NATIVE_LOG_LEVEL` now defaults to `warn`.
 
 * [BREAKING] Rename `environment` keyword argument to `priority_key`. Note `env` has not changed.
-* [BREAKING] Drop support for Ruby 2.4
 * [BREAKING] Merge skylight-core into skylight. All classes previously namespaced under `Skylight::Core` have been moved to `Skylight`.
 * [BREAKING] Remove `Skylight::Util::Inflector`
 * [BREAKING] Drop support for Rails 4
-* [BREAKING] Drop support for Ruby 2.3
+* [BREAKING] Drop support for Ruby 2.3 and 2.4
+* [BREAKING] Drop support for glibc < 2.23
 
 * [BUGFIX] Fix issue with missing metadata in MongoDB probe
 * [BUGFIX] Resolve an inability to parse certain SQL queries containing arrays
