@@ -97,7 +97,6 @@ module Skylight
       -"CLIENT_QUEUE_DEPTH"           => :'daemon.client_queue_depth',
       -"CLIENT_WRITE_TIMEOUT"         => :'daemon.client_write_timeout',
       -"SSL_CERT_PATH"                => :'daemon.ssl_cert_path',
-      -"SSL_CERT_DIR"                 => :'daemon.ssl_cert_dir',
       -"ENABLE_TCP"                   => :'daemon.enable_tcp',
       -"TCP_PORT"                     => :'daemon.tcp_port',
 
@@ -168,7 +167,6 @@ module Skylight
 
           unless Util::Platform::OS == -"darwin"
             ret[:'daemon.ssl_cert_path'] = Util::SSL.ca_cert_file_or_default
-            ret[:'daemon.ssl_cert_dir'] = Util::SSL.ca_cert_dir
           end
 
           if Skylight.native?

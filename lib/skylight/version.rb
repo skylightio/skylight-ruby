@@ -3,5 +3,5 @@ module Skylight
   # for compatibility with semver when it is parsed by the rust agent.
   # This string will be transformed in the gemspec to "5.0.0.alpha"
   # to conform with rubygems.
-  VERSION = "5.0.1".freeze
+  VERSION = "5.1.0-beta".freeze
 end
