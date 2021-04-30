@@ -75,7 +75,9 @@ GEM
     marcel (0.3.3)
       mimemagic (~> 0.3.2)
     method_source (1.0.0)
-    mimemagic (0.3.5)
+    mimemagic (0.3.10)
+      nokogiri (~> 1)
+      rake
     mini_mime (1.0.2)
     minitest (5.14.4)
     mongo (2.14.0)
@@ -86,8 +88,10 @@ GEM
     nio4r (2.5.5)
     nokogiri (1.11.1-x86_64-darwin)
       racc (~> 1.4)
+    nokogiri (1.11.1-x86_64-linux)
+      racc (~> 1.4)
     parallel (1.20.1)
-    parser (3.0.0.0)
+    parser (3.0.1.0)
       ast (~> 2.4.1)
     public_suffix (4.0.6)
     puma (5.2.2)
@@ -125,7 +129,7 @@ GEM
     rake-compiler (1.1.1)
       rake
     regexp_parser (2.1.1)
-    rexml (3.2.4)
+    rexml (3.2.5)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
       rspec-expectations (~> 3.10.0)
@@ -141,7 +145,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.2)
-    rubocop (1.11.0)
+    rubocop (1.13.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -184,6 +188,7 @@ GEM
 PLATFORMS
   x86_64-darwin-19
   x86_64-darwin-20
+  x86_64-linux
 
 DEPENDENCIES
   beefcake (~> 1.0)
@@ -197,7 +202,7 @@ DEPENDENCIES
   rake-compiler (~> 1.1.1)
   rspec (~> 3.7)
   rspec-collection_matchers (~> 1.1)
-  rubocop (~> 1.11.0)
+  rubocop (~> 1.13.0)
   simplecov (~> 0.21.2)
   skylight!
   sqlite3
