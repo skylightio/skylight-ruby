@@ -78,7 +78,7 @@ module Skylight
         sl ||= source_location(payload, meta, cache_key: opts[:cache_key])
 
         if sl
-          debug("normalizer source_location=#{sl}")
+          trace("normalizer source_location=#{sl}")
           meta[:source_file], meta[:source_line] = sl
         end
 
@@ -105,7 +105,7 @@ module Skylight
           warn "Ignoring source_line without source_file; source_line=#{source_line}"
         end
 
-        debug("source_location=#{meta[:source_location]}") if meta[:source_location]
+        trace("source_location=#{meta[:source_location]}") if meta[:source_location]
       end
 
       def allowed_meta_keys
