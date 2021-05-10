@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/sinatra/sinatra
-  revision: cf404526373298f06a59e1a129b6cdf8282ae216
+  revision: 5513eb3c7969dc3d15b3c704df63a3ccce9ac9cb
   specs:
     rack-protection (2.1.0)
       rack
@@ -42,7 +42,7 @@ GEM
       ruby2_keywords (~> 0.0.1)
     nio4r (2.5.5)
     parallel (1.20.1)
-    parser (3.0.0.0)
+    parser (3.0.1.1)
       ast (~> 2.4.1)
     public_suffix (4.0.6)
     puma (5.2.2)
@@ -71,7 +71,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.2)
-    rubocop (1.11.0)
+    rubocop (1.13.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -80,8 +80,8 @@ GEM
       rubocop-ast (>= 1.2.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.4.1)
-      parser (>= 2.7.1.5)
+    rubocop-ast (1.5.0)
+      parser (>= 3.0.1.1)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.4)
     simplecov (0.21.2)
@@ -113,7 +113,7 @@ DEPENDENCIES
   rake-compiler (~> 1.1.1)
   rspec (~> 3.7)
   rspec-collection_matchers (~> 1.1)
-  rubocop (~> 1.11.0)
+  rubocop (~> 1.13.0)
   simplecov (~> 0.21.2)
   sinatra!
   skylight!
