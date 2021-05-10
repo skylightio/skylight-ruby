@@ -1,5 +1,6 @@
 inherit_from:
-  - node_modules/@prettier/plugin-ruby/rubocop.yml
+  # Use this instead of node_modules/@prettier/plugin-ruby/rubocop.yml so CodeClimate can handle it
+  - .rubocop_prettier.yml
   - .rubocop_todo.yml
 
 AllCops:
