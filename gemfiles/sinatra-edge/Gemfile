@@ -2,4 +2,5 @@ source "https://rubygems.org"
 
 gemspec path: "../.."
 
+gem "haml"
 gem "sinatra", git: "https://github.com/sinatra/sinatra"

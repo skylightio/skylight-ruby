@@ -2,6 +2,17 @@ require "spec_helper"
 
 describe "Tilt integration", :tilt_probe, :agent do
   it "instruments Tilt templates that have a sky_virtual_path" do
+    tilt = ::Tilt::ERBTemplate.new(nil, 1) { "hello" }
+    tilt.instance_variable_set(:@__sky_virtual_path, "template")
+
+    expected = { category: "view.render.template", title: "template" }
+
+    expect(Skylight).to receive(:instrument).with(expected).and_call_original
+
+    expect(tilt.render).to eq("hello")
+  end
+
+  it "instruments Tilt templates that are given a sky_virtual_path option" do
     tilt = ::Tilt::ERBTemplate.new(nil, 1, sky_virtual_path: "template") { "hello" }
 
     expected = { category: "view.render.template", title: "template" }

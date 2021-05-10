@@ -6,7 +6,7 @@ module Skylight
         def render(*args, &block)
           opts = {
             category: "view.render.template",
-            title: options[:sky_virtual_path] || basename || "Unknown template name"
+            title: @__sky_virtual_path || options[:sky_virtual_path] || basename || "Unknown template name"
           }
 
           Skylight.instrument(opts) { super(*args, &block) }
