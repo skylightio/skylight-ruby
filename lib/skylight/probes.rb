@@ -26,31 +26,35 @@ module Skylight
 
       private
 
-        def log_install_exception(err)
-          description = err.class.to_s
-          description << ": #{err.message}" unless err.message.empty?
+      def log_install_exception(err)
+        description = err.class.to_s
+        description << ": #{err.message}" unless err.message.empty?
 
-          backtrace = err.backtrace.map { |l| "  #{l}" }.join("\n")
+        backtrace = err.backtrace.map { |l| "  #{l}" }.join("\n")
 
-          gems =
-            begin
-              Bundler.locked_gems.dependencies.map { |d| [d.name, d.requirement.to_s] }
-            rescue # rubocop:disable Lint/SuppressedException
-            end
-
-          error = "[SKYLIGHT] [#{Skylight::VERSION}] Encountered an error while installing the " \
-                          "probe for #{const_name}. Please notify support@skylight.io with the debugging " \
-                          "information below. It's recommended that you disable this probe until the " \
-                          "issue is resolved." \
-                          "\n\nERROR: #{description}\n\n#{backtrace}\n\n"
-
-          if gems
-            gems_string = gems.map { |g| "  #{g[0]}   #{g[1]}" }.join("\n")
-            error << "GEMS:\n\n#{gems_string}\n\n"
+        # rubocop:disable Lint/SuppressedException
+        gems =
+          begin
+            Bundler.locked_gems.dependencies.map { |d| [d.name, d.requirement.to_s] }
+          rescue StandardError
           end
 
-          $stderr.puts(error)
+        # rubocop:enable Lint/SuppressedException
+
+        error =
+          "[SKYLIGHT] [#{Skylight::VERSION}] Encountered an error while installing the " \
+            "probe for #{const_name}. Please notify support@skylight.io with the debugging " \
+            "information below. It's recommended that you disable this probe until the " \
+            "issue is resolved." \
+            "\n\nERROR: #{description}\n\n#{backtrace}\n\n"
+
+        if gems
+          gems_string = gems.map { |g| "  #{g[0]}   #{g[1]}" }.join("\n")
+          error << "GEMS:\n\n#{gems_string}\n\n"
         end
+
+        $stderr.puts(error)
+      end
     end
 
     class << self
@@ -62,11 +66,7 @@ module Skylight
         pending = registered.values - installed.values
 
         pending.each do |registration|
-          if registration.constant_available?
-            install_probe(registration)
-          else
-            register_require_hook(registration)
-          end
+          registration.constant_available? ? install_probe(registration) : register_require_hook(registration)
         end
       end
 
@@ -79,14 +79,14 @@ module Skylight
 
       def add_path(path)
         root = Pathname.new(path)
-        Pathname.glob(root.join("./**/*.rb")).each do |f|
-          name = f.relative_path_from(root).sub_ext("").to_s
-          if available.key?(name)
-            raise "duplicate probe name: #{name}; original=#{available[name]}; new=#{f}"
-          end
+        Pathname
+          .glob(root.join("./**/*.rb"))
+          .each do |f|
+            name = f.relative_path_from(root).sub_ext("").to_s
+            raise "duplicate probe name: #{name}; original=#{available[name]}; new=#{f}" if available.key?(name)
 
-          available[name] = f
-        end
+            available[name] = f
+          end
       end
 
       def available
@@ -95,13 +95,9 @@ module Skylight
 
       def probe(*probes)
         unknown = probes.map(&:to_s) - available.keys
-        unless unknown.empty?
-          raise ArgumentError, "unknown probes: #{unknown.join(', ')}"
-        end
+        raise ArgumentError, "unknown probes: #{unknown.join(", ")}" unless unknown.empty?
 
-        probes.each do |p|
-          require available[p.to_s]
-        end
+        probes.each { |p| require available[p.to_s] }
       end
 
       def registered
@@ -117,9 +113,7 @@ module Skylight
       end
 
       def register(name, *args)
-        if registered.key?(name)
-          raise "already registered: #{name}"
-        end
+        raise "already registered: #{name}" if registered.key?(name)
 
         registered[name] = ProbeRegistration.new(name, *args)
 
@@ -156,9 +150,7 @@ module Skylight
         return unless require_hooks.key?(require_path)
 
         # dup because we may be mutating the array
-        require_hooks[require_path].dup.each do |registration|
-          yield registration
-        end
+        require_hooks[require_path].dup.each { |registration| yield registration }
       end
     end
 

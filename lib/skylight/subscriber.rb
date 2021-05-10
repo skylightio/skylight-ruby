@@ -6,17 +6,15 @@ module Skylight
     attr_reader :config, :normalizers
 
     def initialize(config, instrumenter)
-      @config       = config
-      @normalizers  = Normalizers.build(config)
+      @config = config
+      @normalizers = Normalizers.build(config)
       @instrumenter = instrumenter
-      @subscribers  = []
+      @subscribers = []
     end
 
     def register!
       unregister!
-      @normalizers.keys.each do |key| # rubocop:disable Style/HashEachMethods
-        @subscribers << ActiveSupport::Notifications.subscribe(key, self)
-      end
+      @normalizers.each_key { |key| @subscribers << ActiveSupport::Notifications.subscribe(key, self) }
     end
 
     def unregister!
@@ -74,37 +72,37 @@ module Skylight
 
     private
 
-      def normalize(*args)
-        @normalizers.normalize(*args)
-      end
+    def normalize(*args)
+      @normalizers.normalize(*args)
+    end
 
-      def normalize_after(*args)
-        @normalizers.normalize_after(*args)
-      end
+    def normalize_after(*args)
+      @normalizers.normalize_after(*args)
+    end
 
-      def _start(trace, name, payload)
-        result = normalize(trace, name, payload)
+    def _start(trace, name, payload)
+      result = normalize(trace, name, payload)
 
-        unless result == :skip
-          case result.size
-          when 3, 4
-            cat, title, desc, meta = result
-          else
-            raise "Invalid normalizer result: #{result.inspect}"
-          end
-
-          span = trace.instrument(cat, title, desc, meta)
+      unless result == :skip
+        case result.size
+        when 3, 4
+          cat, title, desc, meta = result
+        else
+          raise "Invalid normalizer result: #{result.inspect}"
         end
-      rescue Exception => e
-        error "Subscriber#start error; msg=%s", e.message
-        debug "trace=%s", trace.inspect
-        debug "in:  name=%s", name.inspect
-        debug "in:  payload=%s", payload.inspect
-        debug "out: cat=%s, title=%s, desc=%s", cat.inspect, name.inspect, desc.inspect
-        t { e.backtrace.join("\n") }
-        nil
-      ensure
-        trace.notifications << Notification.new(name, span)
+
+        span = trace.instrument(cat, title, desc, meta)
       end
+    rescue Exception => e
+      error "Subscriber#start error; msg=%s", e.message
+      debug "trace=%s", trace.inspect
+      debug "in:  name=%s", name.inspect
+      debug "in:  payload=%s", payload.inspect
+      debug "out: cat=%s, title=%s, desc=%s", cat.inspect, name.inspect, desc.inspect
+      t { e.backtrace.join("\n") }
+      nil
+    ensure
+      trace.notifications << Notification.new(name, span)
+    end
   end
 end

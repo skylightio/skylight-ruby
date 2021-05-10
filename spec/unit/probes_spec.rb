@@ -4,8 +4,8 @@ require "spec_helper"
 module Skylight
   describe "Probes", :probes, :agent do
     before :each do
-      @registered       = Probes.registered.dup
-      @require_hooks    = Probes.require_hooks.dup
+      @registered = Probes.registered.dup
+      @require_hooks = Probes.require_hooks.dup
       @installed_probes = Probes.installed.dup
       Probes.registered.clear
       Probes.require_hooks.clear

@@ -48,9 +48,7 @@ module Skylight
 
         def initialize(*)
           super
-          if description && !id
-            warn "The configured deploy will be ignored as an id or git_sha must be provided."
-          end
+          warn "The configured deploy will be ignored as an id or git_sha must be provided." if description && !id
         end
 
         def id
@@ -86,13 +84,13 @@ module Skylight
 
         private
 
-          def get_info
-            info_path = config[:'heroku.dyno_info_path']
+        def get_info
+          info_path = config[:'heroku.dyno_info_path']
 
-            if File.exist?(info_path) && (info = JSON.parse(File.read(info_path)))
-              info["release"]
-            end
+          if File.exist?(info_path) && (info = JSON.parse(File.read(info_path)))
+            info["release"]
           end
+        end
       end
 
       class GitDeploy < EmptyDeploy
@@ -105,12 +103,12 @@ module Skylight
 
         private
 
-          def get_info
-            Dir.chdir(config.root) do
-              info = `git log -1 --pretty="%H %s" 2>&1`
-              info.split(" ", 2).map(&:strip) if $CHILD_STATUS.success?
-            end
+        def get_info
+          Dir.chdir(config.root) do
+            info = `git log -1 --pretty="%H %s" 2>&1`
+            info.split(" ", 2).map(&:strip) if $CHILD_STATUS.success?
           end
+        end
       end
 
       DEPLOY_TYPES = [DefaultDeploy, HerokuDeploy, GitDeploy].freeze

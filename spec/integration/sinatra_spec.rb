@@ -40,10 +40,7 @@ if enable
     end
 
     let :app do
-      Rack::URLMap.new(
-        "/"               => MyApp,
-        "/url_prefix/api" => MyApp
-      )
+      Rack::URLMap.new("/" => MyApp, "/url_prefix/api" => MyApp)
     end
 
     context "with agent", :http, :agent do

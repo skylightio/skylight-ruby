@@ -1,35 +1,34 @@
 require "spec_helper"
 
 if defined?(ActionDispatch)
-
   describe "ActionDispatch::RequestId integration", :'action_dispatch/request_id_probe', :agent do
-    before do
-      Skylight.mock!
-    end
+    before { Skylight.mock! }
 
-    after do
-      Skylight.stop!
-    end
+    after { Skylight.stop! }
 
-    use_request_id = lambda do
-      if ActionPack.version >= Gem::Version.new("6.1")
-        use ActionDispatch::RequestId, header: "X-Request-Id"
-      else
-        use ActionDispatch::RequestId
+    use_request_id =
+      lambda do
+        if ActionPack.version >= Gem::Version.new("6.1")
+          use ActionDispatch::RequestId, header: "X-Request-Id"
+        else
+          use ActionDispatch::RequestId
+        end
       end
-    end
 
     it "uses skylight.request_id" do
       final_env = nil
 
-      app = Rack::Builder.new do
-        use Skylight::Middleware
-        instance_exec(&use_request_id)
-        run(lambda do |env|
-          final_env = env
-          [200, {}, ["OK"]]
-        end)
-      end
+      app =
+        Rack::Builder.new do
+          use Skylight::Middleware
+          instance_exec(&use_request_id)
+          run(
+            lambda do |env|
+              final_env = env
+              [200, {}, ["OK"]]
+            end
+          )
+        end
 
       env = Rack::MockRequest.env_for("/")
       app.call(env)
@@ -41,13 +40,16 @@ if defined?(ActionDispatch)
     it "generates own without skylight.request_id" do
       final_env = nil
 
-      app = Rack::Builder.new do
-        instance_exec(&use_request_id)
-        run(lambda do |env|
-          final_env = env
-          [200, {}, ["OK"]]
-        end)
-      end
+      app =
+        Rack::Builder.new do
+          instance_exec(&use_request_id)
+          run(
+            lambda do |env|
+              final_env = env
+              [200, {}, ["OK"]]
+            end
+          )
+        end
 
       env = Rack::MockRequest.env_for("/")
       app.call(env)

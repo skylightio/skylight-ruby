@@ -5,9 +5,7 @@ describe Skylight::Util::Component do
     allow_any_instance_of(described_class).to receive(:program_name) { name }
   end
 
-  let(:config) do
-    Config.new
-  end
+  let(:config) { Config.new }
 
   let(:env) { nil }
   let(:name) { nil }
@@ -41,8 +39,6 @@ describe Skylight::Util::Component do
   context "invalid given name" do
     let(:name) { "hello, world!" }
 
-    specify do
-      expect { component.to_s }.to raise_error(ArgumentError)
-    end
+    specify { expect { component.to_s }.to raise_error(ArgumentError) }
   end
 end

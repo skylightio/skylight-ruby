@@ -26,11 +26,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "instruments basic requests" do
-    expected = {
-      category: "api.http.get",
-      title:    "GET 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.get", title: "GET 127.0.0.1", internal: true }
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     response = Net::HTTP.get_response(uri)
@@ -39,11 +35,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "instruments verbose requests" do
-    expected = {
-      category: "api.http.get",
-      title:    "GET 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.get", title: "GET 127.0.0.1", internal: true }
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
@@ -53,11 +45,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "instruments basic auth requests" do
-    expected = {
-      category: "api.http.get",
-      title:    "GET 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.get", title: "GET 127.0.0.1", internal: true }
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
     http = Net::HTTP.new(uri.host, uri.port)
@@ -69,11 +57,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "instruments post_form requests" do
-    expected = {
-      category: "api.http.post",
-      title:    "POST 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.post", title: "POST 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
@@ -83,11 +67,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "instruments post requests" do
-    expected = {
-      category: "api.http.post",
-      title:    "POST 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.post", title: "POST 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
@@ -118,11 +98,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "instruments PUT requests" do
-    expected = {
-      category: "api.http.put",
-      title:    "PUT 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.put", title: "PUT 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
@@ -135,11 +111,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "instruments DELETE requests" do
-    expected = {
-      category: "api.http.delete",
-      title:    "DELETE 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.delete", title: "DELETE 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
@@ -160,11 +132,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
 
     uri = URI.parse("#{server_uri}/slow.html")
 
-    expected = {
-      category: "api.http.get",
-      title:    "GET 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.get", title: "GET 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
@@ -172,17 +140,13 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
     http.open_timeout = 0.1 # in seconds
     http.read_timeout = 0.1 # in seconds
 
-    expect do
-      http.request(Net::HTTP::Get.new(uri.request_uri))
-    end.to raise_error(defined?(Net::ReadTimeout) ? Net::ReadTimeout : Timeout::Error)
+    expect { http.request(Net::HTTP::Get.new(uri.request_uri)) }.to raise_error(
+      defined?(Net::ReadTimeout) ? Net::ReadTimeout : Timeout::Error
+    )
   end
 
   it "instruments non-URI requests" do
-    expected = {
-      category: "api.http.get",
-      title:    "GET 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.get", title: "GET 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
@@ -193,11 +157,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "instruments custom verbs" do
-    expected = {
-      category: "api.http.custom",
-      title:    "CUSTOM 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.custom", title: "CUSTOM 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
@@ -208,11 +168,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "instruments basic auth" do
-    expected = {
-      category: "api.http.get",
-      title:    "GET 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.get", title: "GET 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).and_call_original
 
@@ -225,11 +181,7 @@ describe "Net::HTTP integration", :net_http_probe, :http, :agent do
   end
 
   it "instruments multiple requests with the same socket" do
-    expected = {
-      category: "api.http.get",
-      title:    "GET 127.0.0.1",
-      internal: true
-    }
+    expected = { category: "api.http.get", title: "GET 127.0.0.1", internal: true }
 
     expect(Skylight).to receive(:instrument).with(expected).twice.and_call_original
 

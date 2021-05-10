@@ -26,11 +26,7 @@ describe "Faraday integration", :faraday_probe, :http, :agent, :instrumenter do
     expect(response.status).to eq(200)
 
     expect(current_trace.mock_spans).to include(
-      a_hash_including(
-        cat:   "api.http.get",
-        title: "Faraday",
-        desc:  "GET 127.0.0.1"
-      )
+      a_hash_including(cat: "api.http.get", title: "Faraday", desc: "GET 127.0.0.1")
     )
   end
 
@@ -40,33 +36,35 @@ describe "Faraday integration", :faraday_probe, :http, :agent, :instrumenter do
     expect(response.status).to eq(200)
 
     expect(current_trace.mock_spans).to include(
-      a_hash_including(
-        cat:   "api.http.post",
-        title: "Faraday",
-        desc:  "POST 127.0.0.1"
-      )
+      a_hash_including(cat: "api.http.post", title: "Faraday", desc: "POST 127.0.0.1")
     )
   end
 
   it "instruments multipart post requests" do
-    response = client.post(uri, header: { "Content-Type" => "multipart/form-data" }, body: [{
-      "Content-Type"        => "text/plain; charset=UTF-8",
-      "Content-Disposition" => 'form-data; name="name"',
-      :content              => "Barry"
-    }, {
-      "Content-Type"        => "text/plain; charset=UTF-8",
-      "Content-Disposition" => 'form-data; name="department"',
-      :content              => "Accounting"
-    }])
+    response =
+      client.post(
+        uri,
+        header: {
+          "Content-Type" => "multipart/form-data"
+        },
+        body: [
+          {
+            "Content-Type" => "text/plain; charset=UTF-8",
+            "Content-Disposition" => "form-data; name=\"name\"",
+            :content => "Barry"
+          },
+          {
+            "Content-Type" => "text/plain; charset=UTF-8",
+            "Content-Disposition" => "form-data; name=\"department\"",
+            :content => "Accounting"
+          }
+        ]
+      )
     expect(response).to be_a(Faraday::Response)
     expect(response.status).to eq(200)
 
     expect(current_trace.mock_spans).to include(
-      a_hash_including(
-        cat:   "api.http.post",
-        title: "Faraday",
-        desc:  "POST 127.0.0.1"
-      )
+      a_hash_including(cat: "api.http.post", title: "Faraday", desc: "POST 127.0.0.1")
     )
   end
 
@@ -76,11 +74,7 @@ describe "Faraday integration", :faraday_probe, :http, :agent, :instrumenter do
     expect(response.status).to eq(200)
 
     expect(current_trace.mock_spans).to include(
-      a_hash_including(
-        cat:   "api.http.head",
-        title: "Faraday",
-        desc:  "HEAD 127.0.0.1"
-      )
+      a_hash_including(cat: "api.http.head", title: "Faraday", desc: "HEAD 127.0.0.1")
     )
   end
 
@@ -90,11 +84,7 @@ describe "Faraday integration", :faraday_probe, :http, :agent, :instrumenter do
     expect(response.status).to eq(200)
 
     expect(current_trace.mock_spans).to include(
-      a_hash_including(
-        cat:   "api.http.get",
-        title: "Faraday",
-        desc:  "GET 127.0.0.1"
-      )
+      a_hash_including(cat: "api.http.get", title: "Faraday", desc: "GET 127.0.0.1")
     )
   end
 end

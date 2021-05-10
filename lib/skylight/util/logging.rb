@@ -14,9 +14,7 @@ module Skylight
         # Try to avoid writing to STDOUT/STDERR twice
         logger_logdev = @logger.instance_variable_get(:@logdev)
         logger_out = logger_logdev.respond_to?(:dev) ? logger_logdev.dev : nil
-        if logger_out != $stdout && logger_out != $stderr
-          @logger.<<(*args)
-        end
+        @logger.<<(*args) if logger_out != $stdout && logger_out != $stderr
       end
 
       def close; end
@@ -85,8 +83,8 @@ module Skylight
 
       alias log_trace trace
       alias log_debug debug
-      alias log_info  info
-      alias log_warn  warn
+      alias log_info info
+      alias log_warn warn
       alias log_error error
 
       # Alias for `Kernel#sprintf`
@@ -123,7 +121,7 @@ module Skylight
           else
             Kernel.warn "Invalid logger"
           end
-        # Fallback to stderr for warn and error levels
+          # Fallback to stderr for warn and error levels
         elsif %i[warn error].include?(level)
           $stderr.puts format("[SKYLIGHT] #{msg}", *args)
         end

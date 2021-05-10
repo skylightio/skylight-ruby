@@ -28,23 +28,17 @@ module Skylight
         config_path = File.join(dir, "skylight_user_config_path")
         FileUtils.touch(config_path)
         Dir.chdir(dir) do
-          with_env("SKYLIGHT_USER_CONFIG_PATH" => config_path) do
-            expect(config.file_path).to eq(config_path)
-          end
+          with_env("SKYLIGHT_USER_CONFIG_PATH" => config_path) { expect(config.file_path).to eq(config_path) }
         end
       end
 
       it "uses HOME if available" do
-        with_env("HOME" => "/users/tester") do
-          expect(config.file_path).to eq("/users/tester/.skylight")
-        end
+        with_env("HOME" => "/users/tester") { expect(config.file_path).to eq("/users/tester/.skylight") }
       end
 
       it "uses Etc.getpwuid if no HOME" do
         allow(Etc).to receive(:getpwuid).and_return(double(dir: "/users/other-tester"))
-        with_env("HOME" => nil) do
-          expect(config.file_path).to eq("/users/other-tester/.skylight")
-        end
+        with_env("HOME" => nil) { expect(config.file_path).to eq("/users/other-tester/.skylight") }
       end
 
       it "uses USER if no HOME or Etc.getpwuid information" do
@@ -61,10 +55,11 @@ module Skylight
         # Not 100% sure this stub is correct
         allow(Etc).to receive(:getpwuid).and_return(double(dir: nil))
         with_env("HOME" => nil, "USER" => nil) do
-          expect do
-            config.file_path
-          end.to raise_error(ConfigError, "The Skylight `user_config_path` must be defined since the home directory " \
-                                          "cannot be inferred")
+          expect { config.file_path }.to raise_error(
+            ConfigError,
+            "The Skylight `user_config_path` must be defined since the home directory " \
+              "cannot be inferred"
+          )
         end
       end
     end
@@ -73,9 +68,7 @@ module Skylight
       set_file_path "missing"
 
       # SKYLIGHT_DISABLE_DEV_WARNING is set for normal specs
-      with_env("SKYLIGHT_DISABLE_DEV_WARNING" => nil) do
-        expect(config.disable_dev_warning?).to be_falsy
-      end
+      with_env("SKYLIGHT_DISABLE_DEV_WARNING" => nil) { expect(config.disable_dev_warning?).to be_falsy }
     end
 
     it "loads from file" do

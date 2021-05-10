@@ -13,6 +13,7 @@ Makefile
 mkmf.log
 skylight_dlopen.c
 /lib/skylight_native.*
+/node_modules
 
 # Ignore OS artifacts
 .DS_Store

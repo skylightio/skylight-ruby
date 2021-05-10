@@ -33,29 +33,21 @@ module Skylight
       end
 
       def process_trace_meta(meta)
-        extensions.each do |ext|
-          ext.process_trace_meta(meta)
-        end
+        extensions.each { |ext| ext.process_trace_meta(meta) }
       end
 
       # meta is a mutable hash that will be passed to the instrumenter.
       # This method bridges Skylight.instrument and instrumenter.instrument.
       def process_instrument_options(opts, meta)
-        extensions.each do |ext|
-          ext.process_instrument_options(opts, meta)
-        end
+        extensions.each { |ext| ext.process_instrument_options(opts, meta) }
       end
 
       def process_normalizer_meta(payload, meta, **opts)
-        extensions.each do |ext|
-          ext.process_normalizer_meta(payload, meta, **opts)
-        end
+        extensions.each { |ext| ext.process_normalizer_meta(payload, meta, **opts) }
       end
 
       def trace_preprocess_meta(meta)
-        extensions.each do |ext|
-          ext.trace_preprocess_meta(meta)
-        end
+        extensions.each { |ext| ext.trace_preprocess_meta(meta) }
       end
 
       def allowed_meta_keys
@@ -64,24 +56,20 @@ module Skylight
 
       private
 
-        attr_reader :extensions, :config
+      attr_reader :extensions, :config
 
-        def find_by_name(ext_name)
-          begin
-            Skylight::Extensions.const_get(
-              ActiveSupport::Inflector.classify(ext_name)
-            )
-          rescue NameError
-            return nil
-          end.tap do |const|
-            yield const if block_given?
-          end
-        end
+      def find_by_name(ext_name)
+        begin
+          Skylight::Extensions.const_get(ActiveSupport::Inflector.classify(ext_name))
+        rescue NameError
+          return nil
+        end.tap { |const| yield const if block_given? }
+      end
 
-        def rememoize!
-          @allowed_meta_keys = nil
-          allowed_meta_keys
-        end
+      def rememoize!
+        @allowed_meta_keys = nil
+        allowed_meta_keys
+      end
     end
 
     class Extension

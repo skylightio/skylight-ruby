@@ -10,16 +10,15 @@ rescue LoadError
 end
 
 if enable
-
   describe "Grape integration" do
     before :each do
-      ENV["SKYLIGHT_AUTHENTICATION"]       = "lulz"
+      ENV["SKYLIGHT_AUTHENTICATION"] = "lulz"
       ENV["SKYLIGHT_BATCH_FLUSH_INTERVAL"] = "10ms"
-      ENV["SKYLIGHT_REPORT_URL"]           = "http://127.0.0.1:#{port}/report"
-      ENV["SKYLIGHT_REPORT_HTTP_DEFLATE"]  = "false"
-      ENV["SKYLIGHT_AUTH_URL"]             = "http://127.0.0.1:#{port}/agent"
-      ENV["SKYLIGHT_VALIDATION_URL"]       = "http://127.0.0.1:#{port}/agent/config"
-      ENV["SKYLIGHT_AUTH_HTTP_DEFLATE"]    = "false"
+      ENV["SKYLIGHT_REPORT_URL"] = "http://127.0.0.1:#{port}/report"
+      ENV["SKYLIGHT_REPORT_HTTP_DEFLATE"] = "false"
+      ENV["SKYLIGHT_AUTH_URL"] = "http://127.0.0.1:#{port}/agent"
+      ENV["SKYLIGHT_VALIDATION_URL"] = "http://127.0.0.1:#{port}/agent/config"
+      ENV["SKYLIGHT_AUTH_HTTP_DEFLATE"] = "false"
 
       Skylight.start!
 
@@ -99,25 +98,27 @@ if enable
       paths = MyApp.routes.map(&:path)
 
       # sanity check
-      expect(paths).to eq([
-        # main app
-        "/test(.:format)",
-        "/ns/test(.:format)",
-        # sub app
-        "/sub_ns/test(.:format)",
-        "/test(.:format)",
-        "/inherited/inherited_ns/test(.:format)"
-      ])
+      expect(paths).to eq(
+        [
+          # main app
+          "/test(.:format)",
+          "/ns/test(.:format)",
+          # sub app
+          "/sub_ns/test(.:format)",
+          "/test(.:format)",
+          "/inherited/inherited_ns/test(.:format)"
+        ]
+      )
     end
 
     after :each do
-      ENV["SKYLIGHT_AUTHENTICATION"]       = nil
+      ENV["SKYLIGHT_AUTHENTICATION"] = nil
       ENV["SKYLIGHT_BATCH_FLUSH_INTERVAL"] = nil
-      ENV["SKYLIGHT_REPORT_URL"]           = nil
-      ENV["SKYLIGHT_REPORT_HTTP_DEFLATE"]  = nil
-      ENV["SKYLIGHT_AUTH_URL"]             = nil
-      ENV["SKYLIGHT_VALIDATION_URL"]       = nil
-      ENV["SKYLIGHT_AUTH_HTTP_DEFLATE"]    = nil
+      ENV["SKYLIGHT_REPORT_URL"] = nil
+      ENV["SKYLIGHT_REPORT_HTTP_DEFLATE"] = nil
+      ENV["SKYLIGHT_AUTH_URL"] = nil
+      ENV["SKYLIGHT_VALIDATION_URL"] = nil
+      ENV["SKYLIGHT_AUTH_HTTP_DEFLATE"] = nil
 
       Skylight.stop!
     end

@@ -40,8 +40,7 @@ module Skylight
     end
 
     it "Processes uncached queries" do
-      name, title, desc =
-        normalize(name: "Foo Load", sql: "select * from foo")
+      name, title, desc = normalize(name: "Foo Load", sql: "select * from foo")
 
       expect(name).to eq("db.sql.query")
       expect(title).to eq("Foo Load")

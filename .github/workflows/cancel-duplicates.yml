@@ -1,12 +1,12 @@
 name: Cancelling Duplicates
 on:
   workflow_run:
-    workflows: ['Skylight Agent']
-    types: ['requested']
+    workflows: ["Skylight Agent"]
+    types: ["requested"]
 
 jobs:
   cancel-duplicate-ci-runs:
-    name: 'Cancel duplicate CI runs'
+    name: "Cancel duplicate CI runs"
     runs-on: ubuntu-latest
     outputs:
       sourceHeadRepo: ${{ steps.cancel.outputs.sourceHeadRepo }}
@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: potiuk/cancel-workflow-runs@master
         id: cancel
-        name: 'Cancel duplicate CI runs'
+        name: "Cancel duplicate CI runs"
         with:
           cancelMode: duplicates
           cancelFutureDuplicates: true
@@ -24,7 +24,7 @@ jobs:
           sourceRunId: ${{ github.event.workflow_run.id }}
           notifyPRCancel: true
       - uses: potiuk/cancel-workflow-runs@master
-        name: 'Cancel duplicate Cancelling runs'
+        name: "Cancel duplicate Cancelling runs"
         with:
           cancelMode: namedJobs
           token: ${{ secrets.GITHUB_TOKEN }}

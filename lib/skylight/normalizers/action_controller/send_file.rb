@@ -32,17 +32,18 @@ module Skylight
 
           private
 
-            OCTET_STREAM = "application/octet-stream".freeze
-            ATTACHMENT = "attachment".freeze
+          OCTET_STREAM = "application/octet-stream".freeze
+          ATTACHMENT = "attachment".freeze
 
-            def initialize(*)
-              super
+          def initialize(*)
+            super
 
-              @mimes = Mime::SET.each_with_object({}) do |mime, hash|
+            @mimes =
+              Mime::SET.each_with_object({}) do |mime, hash|
                 hash[mime.symbol] = mime.to_s.dup.freeze
                 hash
               end
-            end
+          end
         end
       end
     end

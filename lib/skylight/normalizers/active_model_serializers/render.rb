@@ -14,9 +14,13 @@ module Skylight
           title = title.sub(/^ActiveModel::(Serializer::)?/, "")
 
           if (adapter_instance = payload[:adapter])
-            adapter_name = adapter_instance.class.name.to_s.
-                           sub(/^ActiveModel::Serializer::Adapter::/, "").
-                           sub(/^ActiveModelSerializers::Adapter::/, "")
+            adapter_name =
+              adapter_instance
+                .class
+                .name
+                .to_s
+                .sub(/^ActiveModel::Serializer::Adapter::/, "")
+                .sub(/^ActiveModelSerializers::Adapter::/, "")
             desc = "Adapter: #{adapter_name}"
           end
 

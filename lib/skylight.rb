@@ -23,13 +23,12 @@ require "active_support/notifications"
 
 # Specifically check for Railtie since we've had at least one case of a
 #   customer having Rails defined without having all of Rails loaded.
-if defined?(Rails::Railtie)
-  require "skylight/railtie"
-end
+require "skylight/railtie" if defined?(Rails::Railtie)
 
 module Skylight
   # Used from the CLI
   autoload :CLI, "skylight/cli"
+
   # Is this autoload even useful?
   autoload :Normalizers, "skylight/normalizers"
 
@@ -38,18 +37,10 @@ module Skylight
   LOCK = Mutex.new
 
   # @api private
-  TIERS = %w[
-    rack
-    api
-    app
-    view
-    db
-    noise
-    other
-  ].freeze
+  TIERS = %w[rack api app view db noise other].freeze
 
   # @api private
-  TIER_REGEX = /^(?:#{TIERS.join('|')})(?:\.|$)/u.freeze
+  TIER_REGEX = /^(?:#{TIERS.join("|")})(?:\.|$)/u.freeze
 
   # @api private
   CATEGORY_REGEX = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*$/iu.freeze
@@ -91,14 +82,15 @@ module Skylight
 
         @instrumenter = Instrumenter.new(config).start!
       end
-    rescue => e
+    rescue StandardError => e
       level, message =
         if e.is_a?(ConfigError)
-          [:warn, format("Unable to start Instrumenter due to a configuration error: %<message>s",
-                         message: e.message)]
+          [:warn, format("Unable to start Instrumenter due to a configuration error: %<message>s", message: e.message)]
         else
-          [:error, format("Unable to start Instrumenter; msg=%<message>s; class=%<klass>s",
-                          message: e.message, klass: e.class)]
+          [
+            :error,
+            format("Unable to start Instrumenter; msg=%<message>s; class=%<klass>s", message: e.message, klass: e.class)
+          ]
         end
 
       if config.respond_to?("log_#{level}") && config.respond_to?(:log_trace)
@@ -182,16 +174,16 @@ module Skylight
       end
 
       if opts.is_a?(Hash)
-        category    = opts[:category] || DEFAULT_CATEGORY
-        title       = opts[:title]
-        desc        = opts[:description]
-        meta        = opts[:meta]
+        category = opts[:category] || DEFAULT_CATEGORY
+        title = opts[:title]
+        desc = opts[:description]
+        meta = opts[:meta]
       else
-        category    = DEFAULT_CATEGORY
-        title       = opts.to_s
-        desc        = nil
-        meta        = nil
-        opts        = {}
+        category = DEFAULT_CATEGORY
+        title = opts.to_s
+        desc = nil
+        meta = nil
+        opts = {}
       end
 
       # NOTE: unless we have `:internal` (indicating a built-in Skylight instrument block),
@@ -225,9 +217,7 @@ module Skylight
     # Runs the shutdown procedure in the background.
     # This should do little more than unsubscribe from all ActiveSupport::Notifications
     def spawn_shutdown_thread!
-      @shutdown_thread || const_get(:LOCK).synchronize do
-        @shutdown_thread ||= Thread.new { @instrumenter&.shutdown }
-      end
+      @shutdown_thread || const_get(:LOCK).synchronize { @shutdown_thread ||= Thread.new { @instrumenter&.shutdown } }
     end
   end
 end

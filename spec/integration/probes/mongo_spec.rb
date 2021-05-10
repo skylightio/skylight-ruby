@@ -11,10 +11,7 @@ describe "Mongo integration with official driver", :mongo_probe, :instrumenter, 
     client[:artists].insert_one(name: "Peter")
 
     # No details on the insert because the documents aren't guaranteed to follow any pattern
-    expected = {
-      cat:   "db.mongo.command",
-      title: "echo_test.insert artists"
-    }
+    expected = { cat: "db.mongo.command", title: "echo_test.insert artists" }
     expect(current_trace.mock_spans[1]).to include(expected)
   end
 
@@ -53,8 +50,7 @@ describe "Mongo integration with official driver", :mongo_probe, :instrumenter, 
 
   it "instruments update_one" do
     client[:artists].find(name: "Goldie").update_one("$inc" => { plays: 1 })
-    description = { updates: [{ "q" => { name: "?" },
-                                "u" => { "$inc" => { plays: "?" } } }] }.to_json
+    description = { updates: [{ "q" => { name: "?" }, "u" => { "$inc" => { plays: "?" } } }] }.to_json
     expected = { cat: "db.mongo.command", title: "echo_test.update artists", desc: description }
     expect(current_trace.mock_spans[1]).to include(expected)
   end
@@ -62,9 +58,7 @@ describe "Mongo integration with official driver", :mongo_probe, :instrumenter, 
   it "instruments update_many" do
     client[:artists].update_many({ label: "Hospital" }, "$inc" => { plays: 1 })
 
-    description = { updates: [{ "q"     => { label: "?" },
-                                "u"     => { "$inc" => { plays: "?" } },
-                                "multi" => true }] }.to_json
+    description = { updates: [{ "q" => { label: "?" }, "u" => { "$inc" => { plays: "?" } }, "multi" => true }] }.to_json
     expected = { cat: "db.mongo.command", title: "echo_test.update artists", desc: description }
     expect(current_trace.mock_spans[1]).to include(expected)
   end
@@ -72,8 +66,7 @@ describe "Mongo integration with official driver", :mongo_probe, :instrumenter, 
   it "instruments replace_one" do
     client[:artists].find(name: "Aphex Twin").replace_one(name: "Richard James")
 
-    description = { updates: [{ "q" => { name: "?" },
-                                "u" => { "name" => "?" } }] }.to_json
+    description = { updates: [{ "q" => { name: "?" }, "u" => { "name" => "?" } }] }.to_json
     expected = { cat: "db.mongo.command", title: "echo_test.update artists", desc: description }
     expect(current_trace.mock_spans[1]).to include(expected)
   end
@@ -119,12 +112,14 @@ describe "Mongo integration with official driver", :mongo_probe, :instrumenter, 
   end
 
   it "instruments bulk_write" do
-    client[:artists].bulk_write([
-      { insert_one: { x: 1 } },
-      { update_one: { filter: { x: 1 },
-                      update: { "$set" => { x: 2 } } } },
-      { delete_one: { filter: { x: 1 } } }
-    ], ordered: true)
+    client[:artists].bulk_write(
+      [
+        { insert_one: { x: 1 } },
+        { update_one: { filter: { x: 1 }, update: { "$set" => { x: 2 } } } },
+        { delete_one: { filter: { x: 1 } } }
+      ],
+      ordered: true
+    )
 
     expected = { cat: "db.mongo.command", title: "echo_test.insert artists" }
     expect(current_trace.mock_spans[1]).to include(expected)
@@ -137,48 +132,66 @@ describe "Mongo integration with official driver", :mongo_probe, :instrumenter, 
   end
 
   it "instruments aggregate" do
-    client[:artists].aggregate([
-      { "$match" => { x: 2 } },
-      { "$group" => { _id: "$artist_id", "accumulator" => { "$max" => "$x" } } }
-    ]).to_a
+    client[:artists].aggregate(
+      [{ "$match" => { x: 2 } }, { "$group" => { :_id => "$artist_id", "accumulator" => { "$max" => "$x" } } }]
+    ).to_a
 
     expected = {
-      cat:   "db.mongo.command",
+      cat: "db.mongo.command",
       title: "echo_test.aggregate artists",
-      desc:  %({"pipeline":[{"$match":{"x":"?"}},{"$group":{"_id":"?","accumulator":{"$max":"?"}}}]})
+      desc: "{\"pipeline\":[{\"$match\":{\"x\":\"?\"}},{\"$group\":{\"_id\":\"?\",\"accumulator\":{\"$max\":\"?\"}}}]}"
     }
     expect(current_trace.mock_spans[1]).to include(expected)
   end
 
   it "instruments more complex aggregates" do
-    client[:artists].aggregate([
-      { "$match" => { likes: { "$gte" => 1000, "$lt" => 5000 } } },
-      { "$unwind" => { path: "$homeCities", includeArrayIndex: "arrayIndex" } },
-      { "$group" => {
-        _id:           nil,
-        total:         { "$sum" => "$likes" },
-        average_likes: { "$avg" => "$likes" },
-        min_likes:     { "$min" => "$likes" },
-        max_likes:     { "$max" => "$amount" }
-      } }
-    ]).to_a
+    client[:artists].aggregate(
+      [
+        { "$match" => { likes: { "$gte" => 1000, "$lt" => 5000 } } },
+        { "$unwind" => { path: "$homeCities", includeArrayIndex: "arrayIndex" } },
+        {
+          "$group" => {
+            _id: nil,
+            total: {
+              "$sum" => "$likes"
+            },
+            average_likes: {
+              "$avg" => "$likes"
+            },
+            min_likes: {
+              "$min" => "$likes"
+            },
+            max_likes: {
+              "$max" => "$amount"
+            }
+          }
+        }
+      ]
+    ).to_a
 
-    expected = {
-      cat:   "db.mongo.command",
-      title: "echo_test.aggregate artists"
-    }
+    expected = { cat: "db.mongo.command", title: "echo_test.aggregate artists" }
 
     expected_desc = {
       "pipeline" => [
         { "$match" => { "likes" => { "$gte" => "?", "$lt" => "?" } } },
         { "$unwind" => { "path" => "?", "includeArrayIndex" => "?" } },
-        { "$group" => {
-          "_id"           => "?",
-          "total"         => { "$sum" => "?" },
-          "average_likes" => { "$avg" => "?" },
-          "min_likes"     => { "$min" => "?" },
-          "max_likes"     => { "$max" => "?" }
-        } }
+        {
+          "$group" => {
+            "_id" => "?",
+            "total" => {
+              "$sum" => "?"
+            },
+            "average_likes" => {
+              "$avg" => "?"
+            },
+            "min_likes" => {
+              "$min" => "?"
+            },
+            "max_likes" => {
+              "$max" => "?"
+            }
+          }
+        }
       ]
     }
 

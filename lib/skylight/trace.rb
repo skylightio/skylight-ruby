@@ -123,14 +123,14 @@ module Skylight
       t { "instrument: #{cat}, #{title}" }
 
       title.freeze if title.is_a?(String)
-      desc.freeze  if desc.is_a?(String)
+      desc.freeze if desc.is_a?(String)
 
       now = Skylight::Util::Clock.nanos
 
       preprocess_meta(meta) if meta
 
       start(now - gc_time, cat, title, desc, meta)
-    rescue => e
+    rescue StandardError => e
       maybe_broken(e)
       nil
     end
@@ -151,7 +151,7 @@ module Skylight
       end
 
       stop(span, Skylight::Util::Clock.nanos - gc_time)
-    rescue => e
+    rescue StandardError => e
       error "failed to close span; msg=%s; endpoint=%s", e.message, endpoint
       log_trace "Original Backtrace:\n#{e.backtrace.join("\n")}"
       broken!
@@ -176,8 +176,12 @@ module Skylight
 
     def traced
       if too_many_spans?
-        error("[E%04d] The request exceeded the maximum number of spans allowed. It will still " \
-              "be tracked but with reduced information. endpoint=%s", Skylight::MaximumTraceSpansError.code, endpoint)
+        error(
+          "[E%04d] The request exceeded the maximum number of spans allowed. It will still " \
+            "be tracked but with reduced information. endpoint=%s",
+          Skylight::MaximumTraceSpansError.code,
+          endpoint
+        )
       end
 
       gc = gc_time
@@ -214,153 +218,155 @@ module Skylight
 
     private
 
-      def track_gc(time, now)
-        # This attempts to log another span which will fail if we have too many
-        return if too_many_spans?
+    def track_gc(time, now)
+      # This attempts to log another span which will fail if we have too many
+      return if too_many_spans?
 
-        if time > 0
-          t { fmt "tracking GC time; duration=%d", time }
-          meta = { source_location: SYNTHETIC }
-          stop(start(now - time, GC_CAT, nil, nil, meta), now)
+      if time > 0
+        t { fmt "tracking GC time; duration=%d", time }
+        meta = { source_location: SYNTHETIC }
+        stop(start(now - time, GC_CAT, nil, nil, meta), now)
+      end
+    end
+
+    def start(time, cat, title, desc, meta, opts = {})
+      time = self.class.normalize_time(time) unless opts[:normalize] == false
+
+      mute_children = meta&.delete(:mute_children)
+
+      sp = native_start_span(time, cat.to_s)
+      native_span_set_title(sp, title.to_s) if title
+      native_span_set_description(sp, desc.to_s) if desc
+      native_span_set_meta(sp, meta) if meta
+      native_span_started(sp)
+
+      @spans << sp
+      t { "started span: #{sp} - #{cat}, #{title}" }
+
+      if mute_children
+        t { "muting child instrumentation for span=#{sp}" }
+        mute_child_instrumentation(sp)
+      end
+
+      sp
+    end
+
+    def mute_child_instrumentation(span)
+      @child_instrumentation_muted_by = span
+    end
+
+    # Middleware spans that were interrupted by a throw/catch should be cached here.
+    # keys: span ids
+    # values: nsec timestamp at which the span was cached here.
+    def deferred_spans
+      @deferred_spans ||= {}
+    end
+
+    def stop(span, time)
+      t { "stopping span: #{span}" }
+
+      # If `stop` is called for a span that is not the last item in the stack,
+      # check to see if the last item has been marked as deferred. If so, close
+      # that span first, then try to close the original.
+      while deferred_spans[expected = @spans.pop]
+        normalized_stop(expected, deferred_spans.delete(expected))
+      end
+
+      handle_unexpected_stop(expected, span) unless span == expected
+
+      normalized_stop(span, time)
+      nil
+    end
+
+    def normalized_stop(span, time)
+      time = self.class.normalize_time(time)
+      native_stop_span(span, time)
+
+      if @child_instrumentation_muted_by == span
+        @child_instrumentation_muted_by = nil # restart instrumenting
+      end
+    end
+
+    # Originally extracted from `stop`.
+    # If we attempt to close spans out of order, and it appears to be a middleware issue,
+    # disable the middleware probe and mark trace as broken.
+    def handle_unexpected_stop(expected, span)
+      message =
+        "[E0001] Spans were closed out of order. Expected to see '#{native_span_get_title(expected)}', " \
+          "but got '#{native_span_get_title(span)}' instead."
+
+      if native_span_get_category(span) == "rack.middleware" && Skylight::Probes.installed.key?(:middleware)
+        if Skylight::Probes::Middleware::Probe.disabled?
+          message << "\nWe disabled the Middleware probe but unfortunately, this didn't solve the issue."
+        else
+          Skylight::Probes::Middleware::Probe.disable!
+          message <<
+            "\n#{native_span_get_title(span)} may be a Middleware that doesn't fully conform " \
+              "to the Rack SPEC. We've disabled the Middleware probe to see if that resolves the issue."
         end
       end
 
-      def start(time, cat, title, desc, meta, opts = {})
-        time = self.class.normalize_time(time) unless opts[:normalize] == false
+      message << "\nThis request will not be tracked. Please contact support@skylight.io for more information."
 
-        mute_children = meta&.delete(:mute_children)
+      error message
 
-        sp = native_start_span(time, cat.to_s)
-        native_span_set_title(sp, title.to_s) if title
-        native_span_set_description(sp, desc.to_s) if desc
-        native_span_set_meta(sp, meta) if meta
-        native_span_started(sp)
+      t { "expected=#{expected}, actual=#{span}" }
 
-        @spans << sp
-        t { "started span: #{sp} - #{cat}, #{title}" }
+      broken!
+    end
 
-        if mute_children
-          t { "muting child instrumentation for span=#{sp}" }
-          mute_child_instrumentation(sp)
-        end
+    def gc_time
+      return 0 unless @gc
 
-        sp
+      @gc.update
+      @gc.time
+    end
+
+    def use_pruning?
+      config.get(:prune_large_traces)
+    end
+
+    def resolve_component(component)
+      config.components[component].to_encoded_s
+    end
+
+    def component=(component)
+      resolve_component(component).tap do |c|
+        # Would it be better for the component getter to get from native?
+        @component = c
+        native_set_component(c)
       end
+    end
 
-      def mute_child_instrumentation(span)
-        @child_instrumentation_muted_by = span
-      end
+    def preprocess_meta(meta)
+      validate_meta(meta)
+      instrumenter.extensions.trace_preprocess_meta(meta)
+    end
 
-      # Middleware spans that were interrupted by a throw/catch should be cached here.
-      # keys: span ids
-      # values: nsec timestamp at which the span was cached here.
-      def deferred_spans
-        @deferred_spans ||= {}
-      end
-
-      def stop(span, time)
-        t { "stopping span: #{span}" }
-
-        # If `stop` is called for a span that is not the last item in the stack,
-        # check to see if the last item has been marked as deferred. If so, close
-        # that span first, then try to close the original.
-        while deferred_spans[expected = @spans.pop]
-          normalized_stop(expected, deferred_spans.delete(expected))
-        end
-
-        handle_unexpected_stop(expected, span) unless span == expected
-
-        normalized_stop(span, time)
-        nil
-      end
-
-      def normalized_stop(span, time)
-        time = self.class.normalize_time(time)
-        native_stop_span(span, time)
-
-        if @child_instrumentation_muted_by == span
-          @child_instrumentation_muted_by = nil # restart instrumenting
+    def validate_meta(meta)
+      unknown_keys = meta.keys - allowed_meta_keys
+      if unknown_keys.any?
+        unknown_keys.each do |key|
+          maybe_warn("unknown_meta:#{key}", "Unknown meta key will be ignored; key=#{key.inspect}")
+          meta.delete(key)
         end
       end
+    end
 
-      # Originally extracted from `stop`.
-      # If we attempt to close spans out of order, and it appears to be a middleware issue,
-      # disable the middleware probe and mark trace as broken.
-      def handle_unexpected_stop(expected, span)
-        message = "[E0001] Spans were closed out of order. Expected to see '#{native_span_get_title(expected)}', " \
-                    "but got '#{native_span_get_title(span)}' instead."
+    def allowed_meta_keys
+      META_KEYS | instrumenter.extensions.allowed_meta_keys
+    end
 
-        if native_span_get_category(span) == "rack.middleware" && Skylight::Probes.installed.key?(:middleware)
-          if Skylight::Probes::Middleware::Probe.disabled?
-            message << "\nWe disabled the Middleware probe but unfortunately, this didn't solve the issue."
-          else
-            Skylight::Probes::Middleware::Probe.disable!
-            message << "\n#{native_span_get_title(span)} may be a Middleware that doesn't fully conform " \
-                        "to the Rack SPEC. We've disabled the Middleware probe to see if that resolves the issue."
-          end
-        end
+    def maybe_warn(context, msg)
+      return if warnings_silenced?(context)
 
-        message << "\nThis request will not be tracked. Please contact support@skylight.io for more information."
+      instrumenter.silence_warnings(context)
 
-        error message
+      warn(msg)
+    end
 
-        t { "expected=#{expected}, actual=#{span}" }
-
-        broken!
-      end
-
-      def gc_time
-        return 0 unless @gc
-
-        @gc.update
-        @gc.time
-      end
-
-      def use_pruning?
-        config.get(:prune_large_traces)
-      end
-
-      def resolve_component(component)
-        config.components[component].to_encoded_s
-      end
-
-      def component=(component)
-        resolve_component(component).tap do |c|
-          # Would it be better for the component getter to get from native?
-          @component = c
-          native_set_component(c)
-        end
-      end
-
-      def preprocess_meta(meta)
-        validate_meta(meta)
-        instrumenter.extensions.trace_preprocess_meta(meta)
-      end
-
-      def validate_meta(meta)
-        unknown_keys = meta.keys - allowed_meta_keys
-        if unknown_keys.any?
-          unknown_keys.each do |key|
-            maybe_warn("unknown_meta:#{key}", "Unknown meta key will be ignored; key=#{key.inspect}")
-            meta.delete(key)
-          end
-        end
-      end
-
-      def allowed_meta_keys
-        META_KEYS | instrumenter.extensions.allowed_meta_keys
-      end
-
-      def maybe_warn(context, msg)
-        return if warnings_silenced?(context)
-
-        instrumenter.silence_warnings(context)
-
-        warn(msg)
-      end
-
-      def warnings_silenced?(context)
-        instrumenter.warnings_silenced?(context)
-      end
+    def warnings_silenced?(context)
+      instrumenter.warnings_silenced?(context)
+    end
   end
 end

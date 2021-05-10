@@ -8,11 +8,14 @@ module Skylight
 
     attr_reader :config
 
-    class Error < StandardError; end
+    class Error < StandardError
+    end
 
-    class Unauthorized < Error; end
+    class Unauthorized < Error
+    end
 
-    class Conflict < Error; end
+    class Conflict < Error
+    end
 
     class CreateFailed < Error
       attr_reader :res
@@ -71,6 +74,7 @@ module Skylight
       def token_valid?
         # Don't prevent boot if it's an error response, so assume token is valid
         return true if error_response?
+
         # A 2xx response means everything is good!
         return true if raw_response.success?
         return false if status == 401
@@ -139,22 +143,22 @@ module Skylight
 
     private
 
-      # TODO: Improve handling here: https://github.com/tildeio/direwolf-agent/issues/274
-      def http_request(service, method, *args)
-        http = Util::HTTP.new(config, service)
-        uri = URI.parse(config.get("#{service}_url"))
-        http.send(method, uri.path, *args)
-      end
+    # TODO: Improve handling here: https://github.com/tildeio/direwolf-agent/issues/274
+    def http_request(service, method, *args)
+      http = Util::HTTP.new(config, service)
+      uri = URI.parse(config.get("#{service}_url"))
+      http.send(method, uri.path, *args)
+    end
 
-      def error_for_status(code)
-        case code
-        when 401
-          Unauthorized
-        when 409
-          Conflict
-        else
-          Error
-        end
+    def error_for_status(code)
+      case code
+      when 401
+        Unauthorized
+      when 409
+        Conflict
+      else
+        Error
       end
+    end
   end
 end

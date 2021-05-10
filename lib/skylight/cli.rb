@@ -28,12 +28,13 @@ module Skylight
             Visit your app at https://www.skylight.io/app or remove config/skylight.yml
             to set it up as a new app in Skylight.
           OUT
+
           return
         end
 
         res = api.create_app(app_name, token)
 
-        config[:application]    = res.get("app.id")
+        config[:application] = res.get("app.id")
         config[:authentication] = res.get("app.token")
         config.write(config_path)
 
@@ -71,8 +72,9 @@ module Skylight
         say "Development mode warning disabled", :green
       end
 
-      desc "disable_env_warning", "Disables warning about running Skylight in environments not defined in " \
-                                  "config.skylight.environments"
+      desc "disable_env_warning",
+           "Disables warning about running Skylight in environments not defined in " \
+             "config.skylight.environments"
       def disable_env_warning
         user_config.disable_env_warning = true
         user_config.save
@@ -82,57 +84,56 @@ module Skylight
 
       private
 
-        def app_name
-          @app_name ||=
-            begin
-              name = nil
+      def app_name
+        @app_name ||=
+          begin
+            name = nil
 
-              if rails?
-                # Get the name in a process so that we don't pollute our environment here
-                # This is especially important since users may have things like WebMock that
-                # will prevent us from communicating with the Skylight API
-                begin
-                  namefile = Tempfile.new("skylight-app-name")
-                  # Windows appears to need double quotes for `rails runner`
-                  `rails runner "File.open('#{namefile.path}', 'w') {|f| f.write(Rails.application.class.name) rescue '' }"` # rubocop:disable Layout/LineLength
-                  name = namefile.read.split("::").first.underscore.titleize
-                  name = nil if name.empty?
-                rescue => e
-                  if ENV["DEBUG"]
-                    puts e.class.name
-                    puts e.to_s
-                    puts e.backtrace.join("\n")
-                  end
-                ensure
-                  namefile.close
-                  namefile.unlink
-                end
+            if rails?
+              # Get the name in a process so that we don't pollute our environment here
+              # This is especially important since users may have things like WebMock that
+              # will prevent us from communicating with the Skylight API
+              begin
+                namefile = Tempfile.new("skylight-app-name")
 
-                unless name
-                  warn "Unable to determine Rails application name. Using directory name."
+                # Windows appears to need double quotes for `rails runner`
+                `rails runner "File.open('#{namefile.path}', 'w') {|f| f.write(Rails.application.class.name) rescue '' }"`
+                name = namefile.read.split("::").first.underscore.titleize
+                name = nil if name.empty?
+              rescue StandardError => e
+                if ENV["DEBUG"]
+                  puts e.class.name
+                  puts e.to_s
+                  puts e.backtrace.join("\n")
                 end
+              ensure
+                namefile.close
+                namefile.unlink
               end
 
-              name || File.basename(File.expand_path(".")).titleize
+              warn "Unable to determine Rails application name. Using directory name." unless name
             end
-        end
 
-        # Is this duplicated?
-        def relative_config_path
-          "config/skylight.yml"
-        end
+            name || File.basename(File.expand_path(".")).titleize
+          end
+      end
 
-        def config_path
-          File.expand_path(relative_config_path)
-        end
+      # Is this duplicated?
+      def relative_config_path
+        "config/skylight.yml"
+      end
 
-        def api
-          @api ||= Api.new(config)
-        end
+      def config_path
+        File.expand_path(relative_config_path)
+      end
 
-        def user_config
-          config.user_config
-        end
+      def api
+        @api ||= Api.new(config)
+      end
+
+      def user_config
+        config.user_config
+      end
     end
   end
 end

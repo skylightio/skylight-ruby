@@ -25,7 +25,8 @@ module Skylight
                   say "Alternatively, try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your environment.", :yellow
                 else
                   say "Please update your local certificates or try setting `SKYLIGHT_FORCE_OWN_CERTS=1` in your " \
-                      "environment.", :yellow
+                        "environment.",
+                      :yellow
                 end
               end
             else
@@ -66,9 +67,7 @@ module Skylight
             indent do
               install_log = File.expand_path("../../ext/install.log", __dir__)
               if File.exist?(install_log)
-                File.readlines(install_log).each do |line|
-                  say line, :red
-                end
+                File.readlines(install_log).each { |line| say line, :red }
               else
                 say "Reason unknown", :red
               end
@@ -108,13 +107,16 @@ module Skylight
         indent do
           # Set this after we validate. It will give us more detailed information on start.
           logger = Logger.new("/dev/null") # Rely on `say` in the formatter instead
+
           # Log everything
           logger.level = Logger::DEBUG
+
           # Remove excess formatting
-          logger.formatter = proc { |severity, _datetime, _progname, msg|
-            msg = msg.sub("[SKYLIGHT] [#{Skylight::VERSION}] ", "")
-            say "#{severity} - #{msg}" # Definitely non-standard
-          }
+          logger.formatter =
+            proc do |severity, _datetime, _progname, msg|
+              msg = msg.sub("[SKYLIGHT] [#{Skylight::VERSION}] ", "")
+              say "#{severity} - #{msg}" # Definitely non-standard
+            end
           config.logger = logger
 
           config.set(:'daemon.lazy_start', false)
@@ -165,57 +167,55 @@ module Skylight
 
       private
 
-        # Overwrite the default helper method to load from Rails
-        def config
-          return @config if @config
+      # Overwrite the default helper method to load from Rails
+      def config
+        return @config if @config
 
-          # MEGAHAX
-          if rails?
-            # Normally auto-loaded, but we haven't loaded Rails by the time Skylight is loaded
-            require "skylight/railtie"
-            require rails_rb
+        # MEGAHAX
+        if rails?
+          # Normally auto-loaded, but we haven't loaded Rails by the time Skylight is loaded
+          require "skylight/railtie"
+          require rails_rb
 
-            railtie = Skylight::Railtie.send(:new)
-            @config = railtie.send(:load_skylight_config, Rails.application)
-          else
-            super
-          end
+          railtie = Skylight::Railtie.send(:new)
+          @config = railtie.send(:load_skylight_config, Rails.application)
+        else
+          super
         end
+      end
 
-        def mac?
-          Util::Platform::OS == "darwin"
+      def mac?
+        Util::Platform::OS == "darwin"
+      end
+
+      # NOTE: This check won't work correctly on Windows
+      def rvm_present?
+        @has_rvm = system("which rvm > /dev/null") if @has_rvm.nil?
+        @has_rvm
+      end
+
+      def encountered_error!
+        @has_errors = true
+      end
+
+      def has_errors?
+        @has_errors
+      end
+
+      def done!
+        shell.padding = 0
+        say "\n\n"
+
+        if has_errors?
+          say "Skylight Doctor found some errors. Please review the output above.", :red
+          say "If you have any further questions, please contact support@skylight.io.", :yellow
+          exit 1
+        else
+          say "All checks passed!", :green
+          say "If you're still having trouble, please contact support@skylight.io.", :yellow
+          exit 0
         end
-
-        # NOTE: This check won't work correctly on Windows
-        def rvm_present?
-          if @has_rvm.nil?
-            @has_rvm = system("which rvm > /dev/null")
-          end
-          @has_rvm
-        end
-
-        def encountered_error!
-          @has_errors = true
-        end
-
-        def has_errors?
-          @has_errors
-        end
-
-        def done!
-          shell.padding = 0
-          say "\n\n"
-
-          if has_errors?
-            say "Skylight Doctor found some errors. Please review the output above.", :red
-            say "If you have any further questions, please contact support@skylight.io.", :yellow
-            exit 1
-          else
-            say "All checks passed!", :green
-            say "If you're still having trouble, please contact support@skylight.io.", :yellow
-            exit 0
-          end
-        end
+      end
     end
   end
 end

@@ -99,16 +99,14 @@ module Skylight
     end
 
     def current_trace=(trace)
-      t { "setting current_trace=#{trace ? trace.uuid : 'nil'}; thread=#{Thread.current.object_id}" }
+      t { "setting current_trace=#{trace ? trace.uuid : "nil"}; thread=#{Thread.current.object_id}" }
       @trace_info.current = trace
     end
 
     def validate_installation
       # Warn if there was an error installing Skylight.
 
-      if defined?(Skylight.check_install_errors)
-        Skylight.check_install_errors(config)
-      end
+      Skylight.check_install_errors(config) if defined?(Skylight.check_install_errors)
 
       if !Skylight.native? && defined?(Skylight.warn_skylight_native_missing)
         Skylight.warn_skylight_native_missing(config)
@@ -143,9 +141,7 @@ module Skylight
     end
 
     def silence_warnings(context)
-      @warnings_silenced || @mutex.synchronize do
-        @warnings_silenced ||= {}
-      end
+      @warnings_silenced || @mutex.synchronize { @warnings_silenced ||= {} }
 
       @warnings_silenced[context] = true
     end
@@ -203,8 +199,18 @@ module Skylight
       begin
         meta ||= {}
         extensions.process_trace_meta(meta)
-        trace = Trace.new(self, endpoint, Skylight::Util::Clock.nanos, cat, title, desc,
-                          meta: meta, segment: segment, component: component)
+        trace =
+          Trace.new(
+            self,
+            endpoint,
+            Skylight::Util::Clock.nanos,
+            cat,
+            title,
+            desc,
+            meta: meta,
+            segment: segment,
+            component: component
+          )
       rescue Exception => e
         log_error e.message
         t { e.backtrace.join("\n") }
@@ -301,7 +307,7 @@ module Skylight
         finalize_endpoint_segment(trace)
         native_submit_trace(trace)
         true
-      rescue => e
+      rescue StandardError => e
         handle_instrumenter_error(trace, e)
       end
     end
@@ -332,14 +338,15 @@ module Skylight
     def finalize_endpoint_segment(trace)
       return unless (segment = trace.segment)
 
-      segment = case trace.compound_response_error_status
-                when :all
-                  "error"
-                when :partial
-                  "#{segment}+error"
-                else
-                  segment
-                end
+      segment =
+        case trace.compound_response_error_status
+        when :all
+          "error"
+        when :partial
+          "#{segment}+error"
+        else
+          segment
+        end
 
       trace.endpoint += "<sk-segment>#{segment}</sk-segment>"
     end

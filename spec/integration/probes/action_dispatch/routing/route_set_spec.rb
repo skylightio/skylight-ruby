@@ -10,9 +10,7 @@ if defined?(ActionDispatch)
       Skylight.stop!
     end
 
-    before do
-      stub_const("CustomError", Class.new(RuntimeError) {})
-    end
+    before { stub_const("CustomError", Class.new(RuntimeError) {}) }
 
     let(:route_set) do
       ActionDispatch::Routing::RouteSet.new.tap do |routes|
@@ -23,13 +21,14 @@ if defined?(ActionDispatch)
       end
     end
 
-    let(:trace) do
-      Skylight.instrumenter.current_trace
-    end
+    let(:trace) { Skylight.instrumenter.current_trace }
 
     before do
       expect(trace).to receive(:instrument).with(
-        "rack.app", "ActionDispatch::Routing::RouteSet", nil, an_instance_of(Hash)
+        "rack.app",
+        "ActionDispatch::Routing::RouteSet",
+        nil,
+        an_instance_of(Hash)
       )
     end
 
@@ -43,8 +42,6 @@ if defined?(ActionDispatch)
       expect(response.status).to eq(404)
     end
 
-    specify do
-      expect { Rack::MockRequest.new(route_set).get("/error") }.to raise_error(CustomError)
-    end
+    specify { expect { Rack::MockRequest.new(route_set).get("/error") }.to raise_error(CustomError) }
   end
 end

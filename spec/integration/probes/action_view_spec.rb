@@ -8,12 +8,9 @@ if defined?(ActionView)
 
       let(:context) do
         ActionView::Base.with_empty_template_cache.new(
-          ActionView::LookupContext.new([
-            ActionView::FixtureResolver.new(
-              "our-layout.erb"   => "<<%= yield %>>",
-              "our-template.erb" => "Hello World"
-            )
-          ]),
+          ActionView::LookupContext.new(
+            [ActionView::FixtureResolver.new("our-layout.erb" => "<<%= yield %>>", "our-template.erb" => "Hello World")]
+          ),
           {}, # assigns
           nil # controller
         )
@@ -45,29 +42,19 @@ if defined?(ActionView)
         end
       end
 
-      let(:context) do
-        Context.new
-      end
+      let(:context) { Context.new }
 
-      let(:lookup_context) do
-        ::ActionView::LookupContext.new(context)
-      end
+      let(:lookup_context) { ::ActionView::LookupContext.new(context) }
 
-      let(:renderer) do
-        ::ActionView::TemplateRenderer.new(lookup_context)
-      end
+      let(:renderer) { ::ActionView::TemplateRenderer.new(lookup_context) }
     end
 
     let(:events) { [] }
 
     around do |example|
-      callback = lambda do |*args|
-        events << args
-      end
+      callback = lambda { |*args| events << args }
 
-      ::ActiveSupport::Notifications.subscribed(callback, "render_template.action_view") do
-        example.run
-      end
+      ::ActiveSupport::Notifications.subscribed(callback, "render_template.action_view") { example.run }
     end
 
     def render_plain(renderer, context, opts)
@@ -83,60 +70,55 @@ if defined?(ActionView)
     let(:layout_event) do
       # The probe should not be installed for rails versions >= 6.1,
       # so only expect this layout event when necessary.
-      if ActionView.gem_version < Gem::Version.new("6.1.0.alpha")
-        ["render_template.action_view", "our-layout.erb"]
-      end
+      %w[render_template.action_view our-layout.erb] if ActionView.gem_version < Gem::Version.new("6.1.0.alpha")
     end
 
     it "instruments layouts when :text is used with a layout" do
       expect(render_plain(renderer, context, plain: "Hello World", layout: "our-layout")).to eq("<Hello World>")
 
-      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
-        ["render_template.action_view", "text template"],
-        layout_event
-      ].compact)
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq(
+        [["render_template.action_view", "text template"], layout_event].compact
+      )
     end
 
     it "does not instrument layouts when :text is used without a layout" do
       expect(render_plain(renderer, context, plain: "Hello World")).to eq("Hello World")
 
-      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
-        ["render_template.action_view", "text template"]
-      ])
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq(
+        [["render_template.action_view", "text template"]]
+      )
     end
 
     it "instruments layouts when :inline is used with a layout" do
       expect(renderer.render(context, inline: "Hello World", layout: "our-layout")).to eq("<Hello World>")
 
-      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
-        ["render_template.action_view", "inline template"],
-        layout_event
-      ].compact)
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq(
+        [["render_template.action_view", "inline template"], layout_event].compact
+      )
     end
 
     it "does not instrument layouts when :inline is used without a layout" do
       expect(renderer.render(context, inline: "Hello World")).to eq("Hello World")
 
-      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
-        ["render_template.action_view", "inline template"]
-      ])
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq(
+        [["render_template.action_view", "inline template"]]
+      )
     end
 
     it "instruments layouts when :template is used with a layout" do
       expect(renderer.render(context, template: "our-template", layout: "our-layout")).to eq("<Hello World>")
 
-      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
-        ["render_template.action_view", "our-template.erb"],
-        layout_event
-      ].compact)
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq(
+        [%w[render_template.action_view our-template.erb], layout_event].compact
+      )
     end
 
     it "does not instrument layouts when :template is used without a layout" do
       expect(renderer.render(context, template: "our-template")).to eq("Hello World")
 
-      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq([
-        ["render_template.action_view", "our-template.erb"]
-      ])
+      expect(events.map { |e| [e[0], normalize_template_path(e[4][:identifier])] }).to eq(
+        [%w[render_template.action_view our-template.erb]]
+      )
     end
   end
 end

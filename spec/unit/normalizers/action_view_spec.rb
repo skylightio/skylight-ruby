@@ -5,10 +5,7 @@ module Skylight
     let(:project_root) { "/app/src" }
     let(:config) do
       # the second path represents rails root
-      Config.new normalizers: { render: { view_paths: %W[
-        #{project_root}/app/views
-        #{project_root}
-      ] } }
+      Config.new normalizers: { render: { view_paths: %W[#{project_root}/app/views #{project_root}] } }
     end
 
     shared_examples_for "template normalizer" do
@@ -21,10 +18,7 @@ module Skylight
       end
 
       it "normalizes the title to a path relative to view paths" do
-        complete_payload = {
-          identifier: "#{project_root}/app/views/foo/bar",
-          count:      10
-        }
+        complete_payload = { identifier: "#{project_root}/app/views/foo/bar", count: 10 }
         name, title, desc = normalize(complete_payload)
         expect(name).to eq(group_name)
         expect(title).to eq("foo/bar")
@@ -56,9 +50,7 @@ module Skylight
         path = "/some/path/to/ruby/2.5.0"
         allow(Gem).to receive(:path).and_return([path])
 
-        complete_payload = {
-          identifier: "#{path}/gems/blorgh-gem-1.0.0/app/views/monster/blorgh/posts/index.html.erb"
-        }
+        complete_payload = { identifier: "#{path}/gems/blorgh-gem-1.0.0/app/views/monster/blorgh/posts/index.html.erb" }
         name, title, desc = normalize(complete_payload)
         expect(name).to eq(group_name)
         expect(title).to eq("blorgh-gem: monster/blorgh/posts/index.html.erb")
@@ -79,9 +71,7 @@ module Skylight
       end
 
       it "prints Absolute Path if it's outside the root" do
-        complete_payload = {
-          identifier: "/other#{project_root}/stuff"
-        }
+        complete_payload = { identifier: "/other#{project_root}/stuff" }
         name, title, desc = normalize(complete_payload)
         expect(name).to eq(group_name)
         expect(title).to eq("Absolute Path")

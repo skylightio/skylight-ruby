@@ -1,4 +1,5 @@
 # Skylight Ruby Agent
+
 [![Gem Version](https://badge.fury.io/rb/skylight.svg)](https://badge.fury.io/rb/skylight)
 [![SemVer](https://api.dependabot.com/badges/compatibility_score?dependency-name=skylight&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score.html?dependency-name=skylight&package-manager=bundler&version-scheme=semver)
 
@@ -8,7 +9,6 @@ servers.
 Sign up at https://www.skylight.io.
 
 For more documentation see https://www.skylight.io/support.
-
 
 ## Bug Reports and Feature Requests
 

@@ -22,12 +22,7 @@ if defined?(ActiveModel::Serializer)
       # We don't actually support the RCs correctly, requires
       # a release after 0.10.0.rc3
       if version >= Gem::Version.new("0.10.0.rc1")
-        stub_const(
-          "Item",
-          Class.new(ActiveModelSerializers::Model) do
-            attr_accessor :name, :value
-          end
-        )
+        stub_const("Item", Class.new(ActiveModelSerializers::Model) { attr_accessor :name, :value })
 
         @original_adapter = ActiveModelSerializers.config.adapter
         ActiveModelSerializers.config.adapter = :json
@@ -40,9 +35,7 @@ if defined?(ActiveModel::Serializer)
             attr_accessor :name, :value
 
             def initialize(attributes = {})
-              attributes.each do |key, val|
-                send("#{key}=", val)
-              end
+              attributes.each { |key, val| send("#{key}=", val) }
             end
           end
         )
@@ -86,17 +79,15 @@ if defined?(ActiveModel::Serializer)
 
           private
 
-            def items
-              [Item.new(name: "Test", value: 2), Item.new(name: "Other", value: 5)]
-            end
+          def items
+            [Item.new(name: "Test", value: 2), Item.new(name: "Other", value: 5)]
+          end
         end
       )
     end
 
     after do
-      if instance_variable_defined?(:@original_adapter)
-        ActiveModelSerializers.config.adapter = @original_adapter
-      end
+      ActiveModelSerializers.config.adapter = @original_adapter if instance_variable_defined?(:@original_adapter)
     end
 
     let :request do
@@ -121,14 +112,9 @@ if defined?(ActiveModel::Serializer)
       json = { item: { name: "Test", doubled_value: 4 } }.to_json
       expect(response.body).to eq(json)
 
-      opts = {
-        cat:   "view.render.active_model_serializers",
-        title: "ItemSerializer"
-      }
+      opts = { cat: "view.render.active_model_serializers", title: "ItemSerializer" }
 
-      if version >= Gem::Version.new("0.10.0.rc1")
-        opts[:desc] = "Adapter: Json"
-      end
+      opts[:desc] = "Adapter: Json" if version >= Gem::Version.new("0.10.0.rc1")
 
       expect(current_trace.mock_spans[2]).to include(opts)
     end
@@ -136,13 +122,10 @@ if defined?(ActiveModel::Serializer)
     it "instruments array serialization" do
       _status, _header, response = dispatch(:list)
 
-      json = { items: [{ name: "Test", doubled_value: 4 },
-                       { name: "Other", doubled_value: 10 }] }.to_json
+      json = { items: [{ name: "Test", doubled_value: 4 }, { name: "Other", doubled_value: 10 }] }.to_json
       expect(response.body).to eq(json)
 
-      opts = {
-        cat: "view.render.active_model_serializers"
-      }
+      opts = { cat: "view.render.active_model_serializers" }
 
       if version >= Gem::Version.new("0.10.0.rc1")
         opts[:title] = "CollectionSerializer"
@@ -160,14 +143,9 @@ if defined?(ActiveModel::Serializer)
       json = { item: { name: "Test", doubled_value: 4 } }.to_json
       expect(response.body).to eq(json)
 
-      opts = {
-        cat:   "view.render.active_model_serializers",
-        title: "<Anonymous Serializer>"
-      }
+      opts = { cat: "view.render.active_model_serializers", title: "<Anonymous Serializer>" }
 
-      if version >= Gem::Version.new("0.10.0.rc1")
-        opts[:desc] = "Adapter: Json"
-      end
+      opts[:desc] = "Adapter: Json" if version >= Gem::Version.new("0.10.0.rc1")
 
       expect(current_trace.mock_spans[2]).to include(opts)
     end

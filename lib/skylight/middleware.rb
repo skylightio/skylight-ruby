@@ -49,12 +49,16 @@ module Skylight
     def self.with_after_close(resp, debug_identifier: "unknown", &block)
       unless resp.respond_to?(:to_ary)
         if resp.respond_to?(:to_a)
-          Skylight.warn("Rack response from \"#{debug_identifier}\" cannot be implicitly converted to an array. " \
-                        "This is in violation of the Rack SPEC and will raise an error in future versions.")
+          Skylight.warn(
+            "Rack response from \"#{debug_identifier}\" cannot be implicitly converted to an array. " \
+              "This is in violation of the Rack SPEC and will raise an error in future versions."
+          )
           resp = resp.to_a
         else
-          Skylight.error("Rack response from \"#{debug_identifier}\" cannot be converted to an array. This is in " \
-                         "violation of the Rack SPEC and may cause problems with Skylight operation.")
+          Skylight.error(
+            "Rack response from \"#{debug_identifier}\" cannot be converted to an array. This is in " \
+              "violation of the Rack SPEC and may cause problems with Skylight operation."
+          )
           return resp
         end
       end
@@ -91,11 +95,7 @@ module Skylight
 
           resp = @app.call(env)
 
-          if trace
-            Middleware.with_after_close(resp, debug_identifier: "Rack App: #{@app.class}") { trace.submit }
-          else
-            resp
-          end
+          trace ? Middleware.with_after_close(resp, debug_identifier: "Rack App: #{@app.class}") { trace.submit } : resp
         rescue Exception => e
           t { "middleware exception: #{e}\n#{e.backtrace.join("\n")}" }
           trace&.submit
@@ -106,36 +106,32 @@ module Skylight
 
     private
 
-      def log_context
-        # Don't cache this, it will change
-        { request_id: @current_request_id, inst: Skylight.instrumenter&.uuid }
-      end
+    def log_context
+      # Don't cache this, it will change
+      { request_id: @current_request_id, inst: Skylight.instrumenter&.uuid }
+    end
 
-      # Allow for overwriting
-      def endpoint_name(_env)
-        "Rack"
-      end
+    # Allow for overwriting
+    def endpoint_name(_env)
+      "Rack"
+    end
 
-      def endpoint_meta(_env)
-        { source_location: Trace::SYNTHETIC }
-      end
+    def endpoint_meta(_env)
+      { source_location: Trace::SYNTHETIC }
+    end
 
-      # Request ID code based on ActionDispatch::RequestId
-      def set_request_id(env)
-        existing_request_id = env["action_dispatch.request_id"] || env["HTTP_X_REQUEST_ID"]
-        @current_request_id = env["skylight.request_id"] = make_request_id(existing_request_id)
-      end
+    # Request ID code based on ActionDispatch::RequestId
+    def set_request_id(env)
+      existing_request_id = env["action_dispatch.request_id"] || env["HTTP_X_REQUEST_ID"]
+      @current_request_id = env["skylight.request_id"] = make_request_id(existing_request_id)
+    end
 
-      def make_request_id(request_id)
-        if request_id && !request_id.empty?
-          request_id.gsub(/[^\w\-]/, "".freeze)[0...255]
-        else
-          internal_request_id
-        end
-      end
+    def make_request_id(request_id)
+      request_id && !request_id.empty? ? request_id.gsub(/[^\w\-]/, "".freeze)[0...255] : internal_request_id
+    end
 
-      def internal_request_id
-        SecureRandom.uuid
-      end
+    def internal_request_id
+      SecureRandom.uuid
+    end
   end
 end

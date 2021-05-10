@@ -15,6 +15,7 @@ module Skylight
         now = Time.now
         now.to_i * 1_000_000_000 + now.usec * 1_000
       end
+
       # rubocop:enable Lint/DuplicateMethods
 
       # TODO: rename to secs

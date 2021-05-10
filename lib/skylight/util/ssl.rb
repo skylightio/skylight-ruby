@@ -12,9 +12,7 @@ module Skylight
         if defined?(OpenSSL::X509::DEFAULT_CERT_FILE)
           f = OpenSSL::X509::DEFAULT_CERT_FILE
 
-          if f && File.exist?(f)
-            @ca_cert_file = f
-          end
+          @ca_cert_file = f if f && File.exist?(f)
         end
       end
 

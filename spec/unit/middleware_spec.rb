@@ -19,17 +19,19 @@ module Skylight
     end
 
     let :app do
-      Skylight::Middleware.new(lambda do |env|
-        clock.skip 0.1
+      Skylight::Middleware.new(
+        lambda do |env|
+          clock.skip 0.1
 
-        Skylight.instrument "hello" do
-          clock.skip 0.2
+          Skylight.instrument "hello" do
+            clock.skip 0.2
+          end
+
+          env.hello
+
+          [200, {}, []]
         end
-
-        env.hello
-
-        [200, {}, []]
-      end)
+      )
     end
 
     it "tracks traces" do
@@ -50,19 +52,17 @@ module Skylight
       expect(ep.traces.count).to eq(1)
 
       t = ep.traces[0]
-      expect(t.spans).to match([
-        a_span_including(
-          event:      an_exact_event(category: "app.rack.request"),
-          started_at: 0,
-          duration:   3_000
-        ),
-        a_span_including(
-          parent:     0,
-          event:      an_exact_event(category: "app.block", title: "hello"),
-          started_at: 1_000,
-          duration:   2_000
-        )
-      ])
+      expect(t.spans).to match(
+        [
+          a_span_including(event: an_exact_event(category: "app.rack.request"), started_at: 0, duration: 3_000),
+          a_span_including(
+            parent: 0,
+            event: an_exact_event(category: "app.block", title: "hello"),
+            started_at: 1_000,
+            duration: 2_000
+          )
+        ]
+      )
     end
 
     it "skips HEAD" do
@@ -74,10 +74,7 @@ module Skylight
     end
 
     it "can handle frozen arrays" do
-      expect do
-        Skylight::Middleware.
-          with_after_close([200, {}, []].freeze) { true }
-      end.to_not raise_error
+      expect { Skylight::Middleware.with_after_close([200, {}, []].freeze) { true } }.to_not raise_error
     end
   end
 end

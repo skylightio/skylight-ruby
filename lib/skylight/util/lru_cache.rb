@@ -19,15 +19,11 @@ module Skylight
         found = true
         value = @data.delete(key) { found = false }
 
-        if !found && block_given?
-          value = yield
-        end
+        value = yield if !found && block_given?
 
         @data[key] = value if value
 
-        if !found && value && @data.length > @max_size
-          @data.shift
-        end
+        @data.shift if !found && value && @data.length > @max_size
 
         value
       end

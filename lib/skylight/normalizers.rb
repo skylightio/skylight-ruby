@@ -79,18 +79,18 @@ module Skylight
 
       private
 
-        def process_meta(trace, _name, payload, meta, cache_key: nil)
-          trace.instrumenter.extensions.process_normalizer_meta(
-            payload,
-            meta,
-            cache_key: cache_key,
-            **process_meta_options(payload)
-          )
-        end
+      def process_meta(trace, _name, payload, meta, cache_key: nil)
+        trace.instrumenter.extensions.process_normalizer_meta(
+          payload,
+          meta,
+          cache_key: cache_key,
+          **process_meta_options(payload)
+        )
+      end
 
-        def process_meta_options(_payload)
-          {}
-        end
+      def process_meta_options(_payload)
+        {}
+      end
     end
 
     require "skylight/normalizers/default"
@@ -103,6 +103,10 @@ module Skylight
 
       def keys
         @normalizers.keys
+      end
+
+      def each_key(&block)
+        @normalizers.each_key(&block)
       end
 
       def normalize(trace, name, payload)
@@ -121,33 +125,33 @@ module Skylight
       end
     end
 
-    %w[ action_controller/process_action
-        action_controller/send_file
-        action_dispatch/process_middleware
-        action_dispatch/route_set
-        action_view/render_collection
-        action_view/render_partial
-        action_view/render_template
-        action_view/render_layout
-        active_job/perform
-        active_model_serializers/render
-        active_record/instantiation
-        active_record/sql
-        active_storage
-        active_support/cache
-        coach/handler_finish
-        coach/middleware_finish
-        couch_potato/query
-        data_mapper/sql
-        elasticsearch/request
-        faraday/request
-        grape/endpoint
-        graphiti/resolve
-        graphiti/render
-        graphql/base
-        sequel/sql
-        shrine].each do |file|
-      require "skylight/normalizers/#{file}"
-    end
+    %w[
+      action_controller/process_action
+      action_controller/send_file
+      action_dispatch/process_middleware
+      action_dispatch/route_set
+      action_view/render_collection
+      action_view/render_partial
+      action_view/render_template
+      action_view/render_layout
+      active_job/perform
+      active_model_serializers/render
+      active_record/instantiation
+      active_record/sql
+      active_storage
+      active_support/cache
+      coach/handler_finish
+      coach/middleware_finish
+      couch_potato/query
+      data_mapper/sql
+      elasticsearch/request
+      faraday/request
+      grape/endpoint
+      graphiti/resolve
+      graphiti/render
+      graphql/base
+      sequel/sql
+      shrine
+    ].each { |file| require "skylight/normalizers/#{file}" }
   end
 end

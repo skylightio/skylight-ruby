@@ -5,9 +5,7 @@ describe Skylight::Extensions::Collection do
   let(:collection) { described_class.new(config) }
 
   describe "#allowed_meta_keys" do
-    specify do
-      expect(collection.allowed_meta_keys).to eq([])
-    end
+    specify { expect(collection.allowed_meta_keys).to eq([]) }
 
     context "with source_location enabled" do
       specify do
@@ -19,9 +17,9 @@ describe Skylight::Extensions::Collection do
     context "with source_location disabled" do
       specify do
         collection.enable!(:source_location)
-        expect { collection.disable!(:source_location) }.to change {
-          collection.allowed_meta_keys
-        }.from(%i[source_location source_file source_line]).to([])
+        expect { collection.disable!(:source_location) }.to change { collection.allowed_meta_keys }.from(
+          %i[source_location source_file source_line]
+        ).to([])
       end
     end
   end

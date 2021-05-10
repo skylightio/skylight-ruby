@@ -13,7 +13,6 @@ rescue LoadError
 end
 
 if enable
-
   describe "Rails integration" do
     # spec/support/http.rb uses these to locate the
     # expected agent reports.
@@ -80,9 +79,9 @@ if enable
 
           private
 
-            def query_parameters(env)
-              ActionDispatch::Request.new(env).query_parameters
-            end
+          def query_parameters(env)
+            ActionDispatch::Request.new(env).query_parameters
+          end
         end
       )
 
@@ -91,9 +90,7 @@ if enable
         "CustomMiddleware",
         Class.new(SkTestMiddleware) do
           def call(env)
-            if env["PATH_INFO"] == "/middleware"
-              return [200, {}, ["CustomMiddleware"]]
-            end
+            return 200, {}, ["CustomMiddleware"] if env["PATH_INFO"] == "/middleware"
 
             super
           end
@@ -107,9 +104,7 @@ if enable
             super.tap do
               # NOTE: We are intentionally throwing away the response without calling close
               # This is to emulate a non-conforming Middleware
-              if env["PATH_INFO"] == "/non-closing"
-                return [200, {}, ["NonClosing"]]
-              end
+              return 200, {}, ["NonClosing"] if env["PATH_INFO"] == "/non-closing"
             end
           end
         end
@@ -119,9 +114,7 @@ if enable
         "NonArrayMiddleware",
         Class.new(SkTestMiddleware) do
           def call(env)
-            if env["PATH_INFO"] == "/non-array"
-              return Rack::Response.new(["NonArray"])
-            end
+            return Rack::Response.new(["NonArray"]) if env["PATH_INFO"] == "/non-array"
 
             super
           end
@@ -132,9 +125,7 @@ if enable
         "InvalidMiddleware",
         Class.new(SkTestMiddleware) do
           def call(env)
-            if env["PATH_INFO"] == "/invalid"
-              return "InvalidMiddlewareResponse"
-            end
+            return "InvalidMiddlewareResponse" if env["PATH_INFO"] == "/invalid"
 
             super
           end
@@ -152,9 +143,9 @@ if enable
 
           private
 
-            def assertion_hook
-              # override in rspec
-            end
+          def assertion_hook
+            # override in rspec
+          end
         end
       )
 
@@ -187,9 +178,7 @@ if enable
           def call(env)
             catch(thrown_response[0]) { super }.tap do |r|
               # start a new span here; helps ensure traces/instrumenters are unmuted
-              if r == thrown_response[1]
-                Skylight.instrument("post-catch") { SpecHelper.clock.skip 1 }
-              end
+              Skylight.instrument("post-catch") { SpecHelper.clock.skip 1 } if r == thrown_response[1]
             end
           end
 
@@ -204,9 +193,7 @@ if enable
         Class.new(SkTestMiddleware) do
           def call(env)
             if should_mute?(env)
-              Skylight.instrument(title: "banana", meta: { mute_children: true }) do
-                super
-              end
+              Skylight.instrument(title: "banana", meta: { mute_children: true }) { super }
             else
               super
             end
@@ -214,9 +201,9 @@ if enable
 
           private
 
-            def should_mute?(env)
-              query_parameters(env)[:mute] == "true"
-            end
+          def should_mute?(env)
+            query_parameters(env)[:mute] == "true"
+          end
         end
       )
 
@@ -232,33 +219,36 @@ if enable
 
           private
 
-            def should_throw?(env)
-              query_parameters(env)[:middleware_throws] == "true"
-            end
+          def should_throw?(env)
+            query_parameters(env)[:middleware_throws] == "true"
+          end
 
-            def should_raise?(env)
-              query_parameters(env)[:middleware_raises] == "true"
-            end
+          def should_raise?(env)
+            query_parameters(env)[:middleware_raises] == "true"
+          end
         end
       )
 
       stub_const("EngineNamespace", Module.new)
 
-      EngineNamespace.module_eval <<-RUBY, __FILE__, __LINE__ + 1
-        class MyEngine < ::Rails::Engine
-          isolate_namespace EngineNamespace
-        end
-
-        class ApplicationController < ActionController::Base
-          def error
-            raise ActiveRecord::RecordNotFound
+      # prettier-ignore
+      begin # rubocop:disable Style/RedundantBegin
+        EngineNamespace.module_eval <<~RUBY, __FILE__, __LINE__ + 1
+          class MyEngine < ::Rails::Engine
+            isolate_namespace EngineNamespace
           end
 
-          def show
-            render json: {}
+          class ApplicationController < ActionController::Base
+            def error
+              raise ActiveRecord::RecordNotFound
+            end
+
+            def show
+              render json: {}
+            end
           end
-        end
-      RUBY
+        RUBY
+      end
 
       stub_const(
         "SkMutingNormalizer",
@@ -277,10 +267,76 @@ if enable
 
       # stub_const doesn't work well for this. We do manual cleanup afterwards.
       class ::MyApp < Rails::Application # rubocop:disable Lint/ConstantDefinitionInBlock
-        PNG = [137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82,
-               0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 0, 0, 0, 58, 126, 155, 85, 0,
-               0, 0, 10, 73, 68, 65, 84, 120, 156, 99, 250, 15, 0, 1, 5, 1,
-               2, 207, 160, 46, 205, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130].pack("C*")
+        PNG =
+          [
+            137,
+            80,
+            78,
+            71,
+            13,
+            10,
+            26,
+            10,
+            0,
+            0,
+            0,
+            13,
+            73,
+            72,
+            68,
+            82,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            8,
+            0,
+            0,
+            0,
+            0,
+            58,
+            126,
+            155,
+            85,
+            0,
+            0,
+            0,
+            10,
+            73,
+            68,
+            65,
+            84,
+            120,
+            156,
+            99,
+            250,
+            15,
+            0,
+            1,
+            5,
+            1,
+            2,
+            207,
+            160,
+            46,
+            205,
+            0,
+            0,
+            0,
+            0,
+            73,
+            69,
+            78,
+            68,
+            174,
+            66,
+            96,
+            130
+          ].pack("C*")
 
         config.secret_key_base = "095f674153982a9ce59914b561f4522a"
 
@@ -306,20 +362,20 @@ if enable
         end
 
         # This class has no name
-        ANONYMOUS_MIDDLEWARE_LINE = __LINE__ + 6
-        config.middleware.use(Class.new do
-          def initialize(app) # rubocop:disable Lint/MissingSuper
-            @app = app
-          end
-
-          def call(env)
-            if env["PATH_INFO"] == "/anonymous"
-              return [200, {}, ["Anonymous"]]
+        ANONYMOUS_MIDDLEWARE_LINE = __LINE__ + 7
+        config.middleware.use(
+          Class.new do
+            def initialize(app) # rubocop:disable Lint/MissingSuper
+              @app = app
             end
 
-            @app.call(env)
+            def call(env)
+              return 200, {}, ["Anonymous"] if env["PATH_INFO"] == "/anonymous"
+
+              @app.call(env)
+            end
           end
-        end)
+        )
 
         config.middleware.use NonClosingMiddleware
         config.middleware.use NonArrayMiddleware
@@ -398,11 +454,9 @@ if enable
           respond_to do |format|
             format.json do |json|
               json.tablet { render json: { hola_tablet: params[:id] } }
-              json.none   { render json: { hola: params[:id] } }
+              json.none { render json: { hola: params[:id] } }
             end
-            format.html do
-              render plain: "Hola: #{params[:id]}"
-            end
+            format.html { render plain: "Hola: #{params[:id]}" }
           end
         end
 
@@ -461,17 +515,25 @@ if enable
 
         def too_many_spans
           # Max is 2048
-          Rails.application.config.many.times do
-            Skylight.instrument category: "app.zomg.level-1" do
-              Skylight.instrument category: "app.zomg.should-prune-below-here" do
-                Rails.application.config.very_many.times do
-                  Skylight.instrument category: "app.zomg.level-2" do
-                    # nothing
-                  end
+          Rails
+            .application
+            .config
+            .many
+            .times do
+              Skylight.instrument category: "app.zomg.level-1" do
+                Skylight.instrument category: "app.zomg.should-prune-below-here" do
+                  Rails
+                    .application
+                    .config
+                    .very_many
+                    .times do
+                      Skylight.instrument category: "app.zomg.level-2" do
+                        # nothing
+                      end
+                    end
                 end
               end
             end
-          end
 
           if Rails.version =~ /^4\./
             render text: "There's too many of them!"
@@ -504,23 +566,23 @@ if enable
 
         private
 
-          const_set(:AUTHORIZED_LINE, __LINE__ + 1)
-          def authorized?
-            true
-          end
+        const_set(:AUTHORIZED_LINE, __LINE__ + 1)
+        def authorized?
+          true
+        end
 
-          # It's important for us to test a method ending in a special char
-          instrument_method :authorized?, title: "Check authorization"
+        # It's important for us to test a method ending in a special char
+        instrument_method :authorized?, title: "Check authorization"
 
-          def set_variant
-            request.variant = :tablet if params[:tablet]
-          end
+        def set_variant
+          request.variant = :tablet if params[:tablet]
+        end
 
         protected
 
-          # For checking visibilty only
-          instrument_method
-          def unused; end
+        # For checking visibilty only
+        instrument_method
+        def unused; end
       end
 
       stub_const(
@@ -529,10 +591,7 @@ if enable
           include ActionController::Instrumentation
 
           def show
-            render(
-              status: 200,
-              text:   "Zomg!"
-            )
+            render(status: 200, text: "Zomg!")
           end
 
           def render(options = {})
@@ -579,14 +638,16 @@ if enable
         trace = endpoint.traces[0]
 
         app_spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
-        expect(app_spans).to eq([
-          ["app.rack.request", nil],
-          ["app.controller.request", "UsersController#index"],
-          ["app.method", "Check authorization"],
-          ["app.method", "UsersController#index"],
-          ["app.inside", nil],
-          ["app.zomg", nil]
-        ])
+        expect(app_spans).to eq(
+          [
+            ["app.rack.request", nil],
+            %w[app.controller.request UsersController#index],
+            ["app.method", "Check authorization"],
+            %w[app.method UsersController#index],
+            ["app.inside", nil],
+            ["app.zomg", nil]
+          ]
+        )
       end
     end
 
@@ -633,20 +694,12 @@ if enable
         source_locations = report.source_locations
         trace = report.dig(:endpoints, 0, :traces, 0)
 
-        app_and_rack_spans = trace.
-                             spans.
-                             select { |s| s.event.category =~ /^(app|rack)./ }
+        app_and_rack_spans = trace.spans.select { |s| s.event.category =~ /^(app|rack)./ }
 
         # We know the first one
-        expect(app_and_rack_spans[0]).to match(
-          a_span_including(
-            event: an_exact_event(category: "app.rack.request")
-          )
-        )
+        expect(app_and_rack_spans[0]).to match(a_span_including(event: an_exact_event(category: "app.rack.request")))
 
-        router_index = app_and_rack_spans.index do |span|
-          span.event.title == "ActionDispatch::Routing::RouteSet"
-        end
+        router_index = app_and_rack_spans.index { |span| span.event.title == "ActionDispatch::Routing::RouteSet" }
 
         # We should have at least 2 middlewares in addition
         # to the root request span, but in reality should be a lot more
@@ -662,56 +715,46 @@ if enable
         # These ones should be in all versions
         expect(middleware_spans).to include(
           a_span_including(
-            event:       an_exact_event(category: "rack.middleware", title: "Anonymous Middleware"),
-            annotations: include(
-              an_annotation(:SourceLocation, "#{source_file_index}:#{::MyApp::ANONYMOUS_MIDDLEWARE_LINE}")
-            )
+            event: an_exact_event(category: "rack.middleware", title: "Anonymous Middleware"),
+            annotations:
+              include(an_annotation(:SourceLocation, "#{source_file_index}:#{::MyApp::ANONYMOUS_MIDDLEWARE_LINE}"))
           )
         )
 
         expect(middleware_spans).to include(
           a_span_including(
-            event:       an_exact_event(category: "rack.middleware", title: "CustomMiddleware"),
-            annotations: include(
-              an_annotation(:SourceLocation, "#{source_file_index}:#{@custom_middleware_line}")
-            )
+            event: an_exact_event(category: "rack.middleware", title: "CustomMiddleware"),
+            annotations: include(an_annotation(:SourceLocation, "#{source_file_index}:#{@custom_middleware_line}"))
           )
         )
 
         # Check the rest
         post_middleware_spans = app_and_rack_spans[router_index..-1]
-        expect(post_middleware_spans).to match([
-          a_span_including(
-            event:       an_exact_event(category: "rack.app", title: router_name),
-            annotations: include(
-              an_annotation(:SourceLocation, action_pack_source_location_index.to_s)
-            )
-          ),
-          a_span_including(
-            event:       an_exact_event(category: "app.controller.request", title: "UsersController#index"),
-            annotations: include(
-              an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}")
-            )
-          ),
-          a_span_including(
-            event:       an_exact_event(category: "app.method", title: "Check authorization"),
-            annotations: include(
-              an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::AUTHORIZED_LINE}")
-            )
-          ),
-          a_span_including(
-            event:       an_exact_event(category: "app.method", title: "UsersController#index"),
-            annotations: include(
-              an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}")
-            )
-          ),
-          a_span_including(
-            event: an_exact_event(category: "app.inside")
-          ),
-          a_span_including(
-            event: an_exact_event(category: "app.zomg")
-          )
-        ])
+        expect(post_middleware_spans).to match(
+          [
+            a_span_including(
+              event: an_exact_event(category: "rack.app", title: router_name),
+              annotations: include(an_annotation(:SourceLocation, action_pack_source_location_index.to_s))
+            ),
+            a_span_including(
+              event: an_exact_event(category: "app.controller.request", title: "UsersController#index"),
+              annotations:
+                include(an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}"))
+            ),
+            a_span_including(
+              event: an_exact_event(category: "app.method", title: "Check authorization"),
+              annotations:
+                include(an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::AUTHORIZED_LINE}"))
+            ),
+            a_span_including(
+              event: an_exact_event(category: "app.method", title: "UsersController#index"),
+              annotations:
+                include(an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}"))
+            ),
+            a_span_including(event: an_exact_event(category: "app.inside")),
+            a_span_including(event: an_exact_event(category: "app.zomg"))
+          ]
+        )
       end
 
       context "with template rendering" do
@@ -745,16 +788,15 @@ if enable
 
           expect(endpoint.name).to eq("UsersController#template_index<sk-segment>html</sk-segment>")
 
-          *_spans, layout_span, template_span = endpoint.traces[0].filter_spans.map do |span|
-            [span.event.category, span.event.title]
-          end
+          *_spans, layout_span, template_span =
+            endpoint.traces[0].filter_spans.map { |span| [span.event.category, span.event.title] }
 
-          expect(template_span).to eq(["view.render.template", "users/index.html.erb"])
+          expect(template_span).to eq(%w[view.render.template users/index.html.erb])
 
           if ::ActionView.gem_version >= Gem::Version.new("6.1.0.alpha")
-            expect(layout_span).to eq(["view.render.layout", "layouts/app.html.erb"])
+            expect(layout_span).to eq(%w[view.render.layout layouts/app.html.erb])
           else
-            expect(layout_span).to eq(["view.render.template", "layouts/app.html.erb"])
+            expect(layout_span).to eq(%w[view.render.template layouts/app.html.erb])
           end
         end
       end
@@ -879,12 +921,14 @@ if enable
           trace = endpoint.dig(:traces, 0)
           spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
-          expect(spans).to eq([
-            ["app.rack.request", nil],
-            ["app.controller.request", "UsersController#muted_index"],
-            ["app.method", "Check authorization"],
-            ["app.method", "muted-index"]
-          ])
+          expect(spans).to eq(
+            [
+              ["app.rack.request", nil],
+              %w[app.controller.request UsersController#muted_index],
+              ["app.method", "Check authorization"],
+              %w[app.method muted-index]
+            ]
+          )
         end
 
         it "handles thrown messages" do
@@ -898,13 +942,15 @@ if enable
 
           spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
-          expect(spans).to eq([
-            ["app.rack.request", nil],
-            ["app.controller.request", "UsersController#muted_index"],
-            ["app.method", "Check authorization"],
-            ["app.method", "muted-index"],
-            ["app.block", "post-catch"]
-          ])
+          expect(spans).to eq(
+            [
+              ["app.rack.request", nil],
+              %w[app.controller.request UsersController#muted_index],
+              ["app.method", "Check authorization"],
+              %w[app.method muted-index],
+              %w[app.block post-catch]
+            ]
+          )
         end
 
         it "handles errors" do
@@ -917,13 +963,15 @@ if enable
           trace = endpoint.dig(:traces, 0)
           spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
-          expect(spans).to eq([
-            ["app.rack.request", nil],
-            ["app.controller.request", "UsersController#muted_index"],
-            ["app.method", "Check authorization"],
-            ["app.method", "muted-index"],
-            ["app.block", "post-rescue"]
-          ])
+          expect(spans).to eq(
+            [
+              ["app.rack.request", nil],
+              %w[app.controller.request UsersController#muted_index],
+              ["app.method", "Check authorization"],
+              %w[app.method muted-index],
+              %w[app.block post-rescue]
+            ]
+          )
         end
       end
 
@@ -940,13 +988,15 @@ if enable
           trace = endpoint.dig(:traces, 0)
 
           spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
-          expect(spans).to eq([
-            ["app.rack.request", nil],
-            ["app.controller.request", "UsersController#normalizer_muted_index"],
-            ["app.method", "Check authorization"],
-            ["app.method", "normalizer-muted-index"],
-            ["app.mute", nil]
-          ])
+          expect(spans).to eq(
+            [
+              ["app.rack.request", nil],
+              %w[app.controller.request UsersController#normalizer_muted_index],
+              ["app.method", "Check authorization"],
+              %w[app.method normalizer-muted-index],
+              ["app.mute", nil]
+            ]
+          )
         end
 
         it "handles thrown messages" do
@@ -959,14 +1009,16 @@ if enable
           trace = endpoint.dig(:traces, 0)
           spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
-          expect(spans).to eq([
-            ["app.rack.request", nil],
-            ["app.controller.request", "UsersController#normalizer_muted_index"],
-            ["app.method", "Check authorization"],
-            ["app.method", "normalizer-muted-index"],
-            ["app.mute", nil],
-            ["app.block", "post-catch"]
-          ])
+          expect(spans).to eq(
+            [
+              ["app.rack.request", nil],
+              %w[app.controller.request UsersController#normalizer_muted_index],
+              ["app.method", "Check authorization"],
+              %w[app.method normalizer-muted-index],
+              ["app.mute", nil],
+              %w[app.block post-catch]
+            ]
+          )
         end
 
         it "handles errors" do
@@ -979,14 +1031,16 @@ if enable
           trace = endpoint.dig(:traces, 0)
           spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }.select { |s| s[0] =~ /^app./ }
 
-          expect(spans).to eq([
-            ["app.rack.request", nil],
-            ["app.controller.request", "UsersController#normalizer_muted_index"],
-            ["app.method", "Check authorization"],
-            ["app.method", "normalizer-muted-index"],
-            ["app.mute", nil],
-            ["app.block", "post-rescue"]
-          ])
+          expect(spans).to eq(
+            [
+              ["app.rack.request", nil],
+              %w[app.controller.request UsersController#normalizer_muted_index],
+              ["app.method", "Check authorization"],
+              %w[app.method normalizer-muted-index],
+              ["app.mute", nil],
+              %w[app.block post-rescue]
+            ]
+          )
         end
       end
 
@@ -1055,21 +1109,21 @@ if enable
           expect(endpoint.name).to eq("UsersController#throw_something")
           trace = endpoint.traces[0]
 
-          reverse_spans = trace.filter_spans.reverse_each.map do |span|
-            [span.event.category, span.event.title]
-          end
+          reverse_spans = trace.filter_spans.reverse_each.map { |span| [span.event.category, span.event.title] }
 
           # it closes all spans between the throw and the catch
-          expect(reverse_spans.take(8)).to eq([
-            ["app.block", "post-catch"],
-            ["app.method", "Check authorization"],
-            ["app.controller.request", "UsersController#throw_something"],
-            ["rack.app", router_name],
-            ["rack.middleware", "ThrowingMiddleware"],
-            ["rack.middleware", "AssertionHookB"],
-            ["rack.middleware", "MonkeyInTheMiddleware"],
-            ["rack.middleware", "CatchingMiddleware"]
-          ])
+          expect(reverse_spans.take(8)).to eq(
+            [
+              %w[app.block post-catch],
+              ["app.method", "Check authorization"],
+              %w[app.controller.request UsersController#throw_something],
+              ["rack.app", router_name],
+              %w[rack.middleware ThrowingMiddleware],
+              %w[rack.middleware AssertionHookB],
+              %w[rack.middleware MonkeyInTheMiddleware],
+              %w[rack.middleware CatchingMiddleware]
+            ]
+          )
         end
 
         it "unmutes instrumentation even when the disabled span was deferred" do
@@ -1093,17 +1147,17 @@ if enable
           expect(endpoint.name).to eq("MonkeyInTheMiddleware")
           trace = endpoint.traces[0]
 
-          reverse_spans = trace.filter_spans.reverse_each.map do |span|
-            [span.event.category, span.event.title]
-          end
+          reverse_spans = trace.filter_spans.reverse_each.map { |span| [span.event.category, span.event.title] }
 
           # it closes all spans between the throw and the catch
-          expect(reverse_spans.take(4)).to eq([
-            ["app.block", "post-catch"],
-            ["app.block", "banana"],
-            ["rack.middleware", "MonkeyInTheMiddleware"],
-            ["rack.middleware", "CatchingMiddleware"]
-          ])
+          expect(reverse_spans.take(4)).to eq(
+            [
+              %w[app.block post-catch],
+              %w[app.block banana],
+              %w[rack.middleware MonkeyInTheMiddleware],
+              %w[rack.middleware CatchingMiddleware]
+            ]
+          )
         end
       end
 
@@ -1117,8 +1171,11 @@ if enable
           it "handles too many spans" do
             segment = Rails.version =~ /^4\./ ? "html" : "text"
 
-            expect_any_instance_of(Skylight::Trace).to receive(:error).
-              with(/\[E%04d\].+endpoint=%s/, 3, "UsersController#too_many_spans")
+            expect_any_instance_of(Skylight::Trace).to receive(:error).with(
+              /\[E%04d\].+endpoint=%s/,
+              3,
+              "UsersController#too_many_spans"
+            )
 
             call MyApp, env("/users/too_many_spans")
 
@@ -1135,8 +1192,7 @@ if enable
 
             spans = trace.filter_spans.map { |s| [s.event.category, s.event.title] }
 
-            expect(spans).to eq([["app.rack.request", nil],
-                                 ["agent.error.E0003", nil]])
+            expect(spans).to eq([["app.rack.request", nil], ["agent.error.E0003", nil]])
           end
         end
 
@@ -1166,9 +1222,7 @@ if enable
             batch = server.reports[0]
             spans = batch.endpoints[0].traces[0].spans
 
-            categories = spans.each_with_object(Hash.new(0)) do |span, counts|
-              counts[span.event.category] += 1
-            end
+            categories = spans.each_with_object(Hash.new(0)) { |span, counts| counts[span.event.category] += 1 }
 
             expect(categories["app.zomg.level-1"]).to eq(MyApp.config.many)
 
@@ -1230,6 +1284,7 @@ if enable
         expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>error</sk-segment>")
         trace = endpoint.traces.first
         spans = trace.filter_spans.last(3)
+
         # Should include the routers from both the main app and the engine
         expect(spans.map { |s| s.event.title }).to eq([router_name, router_name, endpoint_name])
       end
@@ -1242,6 +1297,7 @@ if enable
         expect(endpoint.name).to eq(router_name)
         trace = endpoint.traces.first
         spans = trace.filter_spans.last(2)
+
         # Should include the routers from both the main app and the engine
         expect(spans.map { |s| s.event.title }).to eq([router_name, router_name])
       end
@@ -1267,13 +1323,11 @@ if enable
         # NOTE: This tests handling by the Subscriber. The Middleware probe may catch the exception again.
         args = [anything]
         args << (Rails::VERSION::MAJOR >= 5 ? an_instance_of(RuntimeError) : nil)
-        args << ["RuntimeError", "Fail!"]
+        args << %w[RuntimeError Fail!]
 
-        allow_any_instance_of(Skylight::Trace).to \
-          receive(:native_span_set_exception).and_call_original
+        allow_any_instance_of(Skylight::Trace).to receive(:native_span_set_exception).and_call_original
 
-        expect_any_instance_of(Skylight::Trace).to \
-          receive(:native_span_set_exception).with(*args).and_call_original
+        expect_any_instance_of(Skylight::Trace).to receive(:native_span_set_exception).with(*args).and_call_original
 
         res = call MyApp, env("/users/failure")
         expect(res).to be_empty
@@ -1430,12 +1484,9 @@ if enable
         trace = endpoint.traces.first
         spans = trace.filter_spans.last(4)
 
-        expect(spans.map { |s| s.event.title }).to eq([
-          router_name,
-          endpoint_name,
-          "Check authorization",
-          "MyApplicationJob"
-        ])
+        expect(spans.map { |s| s.event.title }).to eq(
+          [router_name, endpoint_name, "Check authorization", "MyApplicationJob"]
+        )
       end
 
       it "sets correct segment and endpoint for before_action redirects" do
@@ -1445,7 +1496,7 @@ if enable
         endpoint = server.reports[0].endpoints[0]
 
         endpoint_name = "UsersController#before_action_redirect"
-        segment       = "redirect"
+        segment = "redirect"
         expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>#{segment}</sk-segment>")
       end
 
@@ -1456,7 +1507,7 @@ if enable
         endpoint = server.reports[0].endpoints[0]
 
         endpoint_name = "UsersController#action_redirect"
-        segment       = "redirect"
+        segment = "redirect"
         expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>#{segment}</sk-segment>")
       end
 
@@ -1467,7 +1518,7 @@ if enable
         endpoint = server.reports[0].endpoints[0]
 
         endpoint_name = "UsersController#send_png"
-        segment       = "png"
+        segment = "png"
         expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>#{segment}</sk-segment>")
       end
 
@@ -1478,14 +1529,12 @@ if enable
         endpoint = server.reports[0].endpoints[0]
 
         endpoint_name = "UsersController#not_modified"
-        segment       = "not modified"
+        segment = "not modified"
         expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>#{segment}</sk-segment>")
       end
 
       context "source location" do
-        before do
-          use_spec_root!
-        end
+        before { use_spec_root! }
 
         it "sets source_location for action" do
           call MyApp, env("/users")
@@ -1502,10 +1551,9 @@ if enable
 
           expect(trace.spans).to include(
             a_span_including(
-              event:       an_exact_event(category: "app.controller.request", title: "UsersController#index"),
-              annotations: array_including(
-                an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}")
-              )
+              event: an_exact_event(category: "app.controller.request", title: "UsersController#index"),
+              annotations:
+                array_including(an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}"))
             )
           )
         end
@@ -1529,9 +1577,7 @@ if enable
             end
           end
 
-          around do |example|
-            with_sqlite(migration: user_migration, &example)
-          end
+          around { |example| with_sqlite(migration: user_migration, &example) }
 
           it "finds multiple source_locations for repeated queries" do
             call MyApp, env("/users?active_record=true")
@@ -1541,13 +1587,9 @@ if enable
             report = server.reports.first
             trace = report.dig(:endpoints, 0, :traces, 0)
 
-            spans = trace.spans.select do |span|
-              span.event.category == "db.sql.query"
-            end
+            spans = trace.spans.select { |span| span.event.category == "db.sql.query" }
 
-            source_locations = spans.map do |span|
-              report.source_location(span)
-            end
+            source_locations = spans.map { |span| report.source_location(span) }
 
             source_file = Pathname.new(__FILE__).relative_path_from(spec_root).to_s
             base_line = ::UsersController::INDEX_DB_LINE

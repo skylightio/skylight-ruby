@@ -23,9 +23,7 @@ module Skylight
         def normalize(_trace, _name, payload)
           uri = payload[:url]
 
-          if disabled?
-            return :skip
-          end
+          return :skip if disabled?
 
           opts = Formatters::HTTP.build_opts(payload[:method], uri.scheme, uri.host, uri.port, uri.path, uri.query)
           description = opts[:title]

@@ -10,9 +10,9 @@ module Skylight
 
           private
 
-            def internal_request_id
-              @skylight_request_id || super
-            end
+          def internal_request_id
+            @skylight_request_id || super
+          end
         end
 
         class Probe
@@ -23,7 +23,11 @@ module Skylight
       end
     end
 
-    register(:action_dispatch, "ActionDispatch::RequestId", "action_dispatch/middleware/request_id",
-             ActionDispatch::RequestId::Probe.new)
+    register(
+      :action_dispatch,
+      "ActionDispatch::RequestId",
+      "action_dispatch/middleware/request_id",
+      ActionDispatch::RequestId::Probe.new
+    )
   end
 end

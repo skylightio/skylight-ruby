@@ -27,13 +27,9 @@ describe "Sequel integration", :sequel_probe, :agent do
     Skylight.trace("Rack") { example.run }
   end
 
-  after do
-    Skylight.stop!
-  end
+  after { Skylight.stop! }
 
-  let(:trace) do
-    Skylight.instrumenter.current_trace
-  end
+  let(:trace) { Skylight.instrumenter.current_trace }
 
   it "instruments SQL queries" do
     db = Sequel.sqlite
@@ -45,12 +41,14 @@ describe "Sequel integration", :sequel_probe, :agent do
     db[:items].count
 
     # SQL parsing happens in the daemon
-    expect(trace).to receive(:instrument).with(
-      "db.sql.query",
-      "SQL",
-      "<sk-sql>SELECT count(*) AS 'count' FROM `items` LIMIT 1</sk-sql>",
-      hash_including({})
-    ).and_call_original
+    expect(trace).to receive(:instrument)
+      .with(
+        "db.sql.query",
+        "SQL",
+        "<sk-sql>SELECT count(*) AS 'count' FROM `items` LIMIT 1</sk-sql>",
+        hash_including({})
+      )
+      .and_call_original
 
     db[:items].count
   end

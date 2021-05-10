@@ -105,20 +105,18 @@ module Skylight
     install_log = File.expand_path("../../ext/install.log", __dir__)
 
     if File.exist?(install_log) && File.read(install_log) =~ /ERROR/
-      config.alert_logger.error \
-        "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension failed to install. " \
-        "Please check #{install_log} and notify support@skylight.io. " \
-        "The missing extension will not affect the functioning of your application."
+      config.alert_logger.error "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension failed to install. " \
+                                  "Please check #{install_log} and notify support@skylight.io. " \
+                                  "The missing extension will not affect the functioning of your application."
     end
   end
 
   # @api private
   def self.warn_skylight_native_missing(config)
-    config.alert_logger.error \
-      "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for " \
-      "your platform wasn't found. Supported operating systems are " \
-      "Linux 2.6.18+ and Mac OS X 10.8+. The missing extension will not " \
-      "affect the functioning of your application. If you are on a " \
-      "supported platform, please contact support at support@skylight.io."
+    config.alert_logger.error "[SKYLIGHT] [#{Skylight::VERSION}] The Skylight native extension for " \
+                                "your platform wasn't found. Supported operating systems are " \
+                                "Linux 2.6.18+ and Mac OS X 10.8+. The missing extension will not " \
+                                "affect the functioning of your application. If you are on a " \
+                                "supported platform, please contact support at support@skylight.io."
   end
 end

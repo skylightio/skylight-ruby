@@ -14,9 +14,7 @@ module SpecHelpers
     end
 
     def flush
-      @shell.test_line(@current_line).tap do
-        @current_line = ""
-      end
+      @shell.test_line(@current_line).tap { @current_line = "" }
     end
 
     def current_line
@@ -48,10 +46,9 @@ module SpecHelpers
 
       out, reply = Array(expectations.next)
       @expector.call(line.strip, out)
+
       # raise 'no match' unless out === line
-      if reply && ENV["DEBUG"]
-        puts "[IN]: #{reply}"
-      end
+      puts "[IN]: #{reply}" if reply && ENV["DEBUG"]
       reply
     rescue StopIteration
       raise "expectation list ended before output did; out=#{line.inspect}"
@@ -70,17 +67,13 @@ module SpecHelpers
 
       result = result.to_s.strip
 
-      if default && result == ""
-        default
-      else
-        result
-      end
+      default && result == "" ? default : result
     end
 
     private
 
-      def readline(message, _options)
-        test_line(message) || raise("no reply from readline; prompt=#{message.inspect}")
-      end
+    def readline(message, _options)
+      test_line(message) || raise("no reply from readline; prompt=#{message.inspect}")
+    end
   end
 end

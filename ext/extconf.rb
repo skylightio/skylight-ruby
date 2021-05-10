@@ -27,13 +27,13 @@ end
 include Skylight::Util
 
 SKYLIGHT_INSTALL_LOG = File.expand_path("install.log", __dir__)
-SKYLIGHT_REQUIRED   = ENV.key?("SKYLIGHT_REQUIRED") && ENV["SKYLIGHT_REQUIRED"] !~ /^false$/i
-SKYLIGHT_FETCH_LIB  = !ENV.key?("SKYLIGHT_FETCH_LIB") || ENV["SKYLIGHT_FETCH_LIB"] !~ /^false$/i
+SKYLIGHT_REQUIRED = ENV.key?("SKYLIGHT_REQUIRED") && ENV["SKYLIGHT_REQUIRED"] !~ /^false$/i
+SKYLIGHT_FETCH_LIB = !ENV.key?("SKYLIGHT_FETCH_LIB") || ENV["SKYLIGHT_FETCH_LIB"] !~ /^false$/i
 
 # Directory where skylight.h exists
 SKYLIGHT_HDR_PATH = ENV["SKYLIGHT_HDR_PATH"] || ENV["SKYLIGHT_LIB_PATH"] || "."
-SKYLIGHT_LIB_PATH = ENV["SKYLIGHT_LIB_PATH"] ||
-                    File.expand_path("../../lib/skylight/native/#{Platform.tuple}", __FILE__)
+SKYLIGHT_LIB_PATH =
+  ENV["SKYLIGHT_LIB_PATH"] || File.expand_path("../../lib/skylight/native/#{Platform.tuple}", __FILE__)
 
 SKYLIGHT_SOURCE_URL = ENV["SKYLIGHT_SOURCE_URL"]
 SKYLIGHT_VERSION = ENV["SKYLIGHT_VERSION"]
@@ -66,26 +66,26 @@ end
 # Check that Xcode license has been approved
 # Based on Homebrew's implementation
 # https://github.com/Homebrew/homebrew/blob/03708b016755847facc4f19a43ee9f7a44141ed7/Library/Homebrew/cmd/doctor.rb#L1183
-if Platform::OS == "darwin"
-  # If the user installs Xcode-only, they have to approve the
-  # license or no "xc*" tool will work.
-  if `/usr/bin/xcrun clang 2>&1` =~ /license/ && !$CHILD_STATUS.success? # rubocop:disable Style/SoleNestedConditional
-    fail <<~MESSAGE
-      You have not agreed to the Xcode license and so we are unable to build the native agent.
-      To resolve this, you can agree to the license by opening Xcode.app or running:
-          sudo xcodebuild -license
-    MESSAGE
-  end
+# If the user installs Xcode-only, they have to approve the
+# license or no "xc*" tool will work.
+
+# prettier-ignore
+if Platform::OS == "darwin" && (`/usr/bin/xcrun clang 2>&1` =~ /license/ && !$CHILD_STATUS.success?)
+  fail <<~MESSAGE
+    You have not agreed to the Xcode license and so we are unable to build the native agent.
+    To resolve this, you can agree to the license by opening Xcode.app or running:
+        sudo xcodebuild -license
+  MESSAGE
 end
 
 #
 # === Setup paths
 #
-root              = File.expand_path(__dir__)
-hdrpath           = File.expand_path(SKYLIGHT_HDR_PATH)
-libpath           = File.expand_path(SKYLIGHT_LIB_PATH)
-libskylight       = File.expand_path("libskylight.#{Platform.libext}", libpath)
-libskylight_yml   = File.expand_path("libskylight.yml", root)
+root = File.expand_path(__dir__)
+hdrpath = File.expand_path(SKYLIGHT_HDR_PATH)
+libpath = File.expand_path(SKYLIGHT_LIB_PATH)
+libskylight = File.expand_path("libskylight.#{Platform.libext}", libpath)
+libskylight_yml = File.expand_path("libskylight.yml", root)
 skylight_dlopen_h = File.expand_path("skylight_dlopen.h", hdrpath)
 skylight_dlopen_c = File.expand_path("skylight_dlopen.c", hdrpath)
 
@@ -97,14 +97,10 @@ LOG.info "file exists; path=#{skylight_dlopen_h}" if File.exist?(skylight_dlopen
 
 # If libskylight is not present, fetch it
 if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(skylight_dlopen_h)
-  unless SKYLIGHT_FETCH_LIB
-    fail "libskylight.#{LIBEXT} not found -- remote download disabled; aborting install"
-  end
+  fail "libskylight.#{LIBEXT} not found -- remote download disabled; aborting install" unless SKYLIGHT_FETCH_LIB
 
   # Ensure that libskylight.yml is present and load it
-  unless File.exist?(libskylight_yml)
-    fail "`#{libskylight_yml}` does not exist"
-  end
+  fail "`#{libskylight_yml}` does not exist" unless File.exist?(libskylight_yml)
 
   unless (libskylight_info = YAML.load_file(libskylight_yml))
     fail "`#{libskylight_yml}` does not contain data"
@@ -133,26 +129,26 @@ if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(
 
     unless (checksum = checksums[Platform.tuple])
       fail "no checksum entry for requested architecture -- " \
-              "this probably means the requested architecture is not supported; " \
-              "platform=#{Platform.tuple}; available=#{checksums.keys}", :info
+             "this probably means the requested architecture is not supported; " \
+             "platform=#{Platform.tuple}; available=#{checksums.keys}",
+           :info
     end
   end
 
   begin
-    res = Skylight::NativeExtFetcher.fetch(
-      source:   SKYLIGHT_SOURCE_URL,
-      version:  version,
-      target:   hdrpath,
-      checksum: checksum,
-      arch:     Platform.tuple,
-      required: SKYLIGHT_REQUIRED,
-      platform: Platform.tuple,
-      logger:   LOG
-    )
+    res =
+      Skylight::NativeExtFetcher.fetch(
+        source: SKYLIGHT_SOURCE_URL,
+        version: version,
+        target: hdrpath,
+        checksum: checksum,
+        arch: Platform.tuple,
+        required: SKYLIGHT_REQUIRED,
+        platform: Platform.tuple,
+        logger: LOG
+      )
 
-    unless res
-      fail "could not fetch archive -- aborting skylight native extension build"
-    end
+    fail "could not fetch archive -- aborting skylight native extension build" unless res
 
     # Move skylightd & libskylight to appropriate directory
     if hdrpath != libpath
@@ -160,15 +156,11 @@ if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(
       FileUtils.mkdir_p libpath
 
       # Move
-      FileUtils.mv "#{hdrpath}/libskylight.#{Platform.libext}",
-                   "#{libpath}/libskylight.#{Platform.libext}",
-                   force: true
+      FileUtils.mv "#{hdrpath}/libskylight.#{Platform.libext}", "#{libpath}/libskylight.#{Platform.libext}", force: true
 
-      FileUtils.mv "#{hdrpath}/skylightd",
-                   "#{libpath}/skylightd",
-                   force: true
+      FileUtils.mv "#{hdrpath}/skylightd", "#{libpath}/skylightd", force: true
     end
-  rescue => e
+  rescue StandardError => e
     fail "unable to fetch native extension; msg=#{e.message}\n#{e.backtrace.join("\n")}"
   end
 end
@@ -182,9 +174,7 @@ end
 def find_file(file, root = nil)
   path = File.expand_path(file, root || ".")
 
-  unless File.exist?(path)
-    fail "#{file} missing; path=#{root}"
-  end
+  fail "#{file} missing; path=#{root}" unless File.exist?(path)
 end
 
 $VPATH << libpath
@@ -218,9 +208,7 @@ end
 #   flag can cause issues for some customers we're turning it off by default. However,
 #   in development and CI, we still have the option of turning it back on to help catch
 #   potential issues.
-if SKYLIGHT_EXT_STRICT
-  $CFLAGS << " -Werror"
-end
+$CFLAGS << " -Werror" if SKYLIGHT_EXT_STRICT
 
 checking_for "fast thread local storage" do
   if try_compile("__thread int foo;")

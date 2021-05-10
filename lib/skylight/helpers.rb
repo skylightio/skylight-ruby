@@ -130,47 +130,47 @@ module Skylight
 
       private
 
-        HAS_ARGUMENT_FORWARDING = Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7.0")
+      HAS_ARGUMENT_FORWARDING = Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7.0")
 
-        def __sk_instrument_method_on(klass, name, title, **opts)
-          category = (opts[:category] || "app.method").to_s
-          title    = (opts[:title] || title).to_s
-          desc     = opts[:description].to_s if opts[:description]
+      def __sk_instrument_method_on(klass, name, title, **opts)
+        category = (opts[:category] || "app.method").to_s
+        title = (opts[:title] || title).to_s
+        desc = opts[:description].to_s if opts[:description]
 
-          # NOTE: The source location logic happens before we have have a config so we can'
-          # check if source locations are enabled. However, it only happens once so the potential impact
-          # should be minimal. This would more appropriately belong to Extensions::SourceLocation,
-          # but as that is a runtime concern, and this happens at compile time, there isn't currently
-          # a clean way to turn this on and off. The absence of the extension will cause the
-          # source_file and source_line to be removed from the trace span before it is submitted.
-          source_file, source_line = klass.instance_method(name).source_location
+        # NOTE: The source location logic happens before we have have a config so we can'
+        # check if source locations are enabled. However, it only happens once so the potential impact
+        # should be minimal. This would more appropriately belong to Extensions::SourceLocation,
+        # but as that is a runtime concern, and this happens at compile time, there isn't currently
+        # a clean way to turn this on and off. The absence of the extension will cause the
+        # source_file and source_line to be removed from the trace span before it is submitted.
+        source_file, source_line = klass.instance_method(name).source_location
 
-          # We should strongly prefer using the new argument-forwarding syntax (...) where available.
-          # In Ruby 2.7, the following are known to be syntax errors:
-          #
-          # - mixing positional arguments with argument forwarding (e.g., send(:method_name, ...))
-          # - calling a setter method with multiple arguments, unless dispatched via send or public_send.
-          #
-          # So it is possible, though not recommended, to define setter methods that take multiple arguments,
-          # keywords, and/or blocks. Unfortunately, this means that for setters, we still need to explicitly
-          # forward the different argument types.
-          is_setter_method = name.to_s.end_with?("=")
+        # We should strongly prefer using the new argument-forwarding syntax (...) where available.
+        # In Ruby 2.7, the following are known to be syntax errors:
+        #
+        # - mixing positional arguments with argument forwarding (e.g., send(:method_name, ...))
+        # - calling a setter method with multiple arguments, unless dispatched via send or public_send.
+        #
+        # So it is possible, though not recommended, to define setter methods that take multiple arguments,
+        # keywords, and/or blocks. Unfortunately, this means that for setters, we still need to explicitly
+        # forward the different argument types.
+        is_setter_method = name.to_s.end_with?("=")
 
-          arg_string =
-            if HAS_ARGUMENT_FORWARDING
-              is_setter_method ? "*args, **kwargs, &blk" : "..."
-            else
-              "*args, &blk"
-            end
+        arg_string =
+          if HAS_ARGUMENT_FORWARDING
+            is_setter_method ? "*args, **kwargs, &blk" : "..."
+          else
+            "*args, &blk"
+          end
 
-          original_method_dispatch =
-            if is_setter_method
-              "self.send(:before_instrument_#{name}, #{arg_string})"
-            else
-              "before_instrument_#{name}(#{arg_string})"
-            end
+        original_method_dispatch =
+          if is_setter_method
+            "self.send(:before_instrument_#{name}, #{arg_string})"
+          else
+            "before_instrument_#{name}(#{arg_string})"
+          end
 
-          klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
+        klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
             alias_method :"before_instrument_#{name}", :"#{name}"       # alias_method :"before_instrument_process", :"process"
             def #{name}(#{arg_string})                                  # def process(*args, **kwargs, &blk)
               span = Skylight.instrument(                               #   span = Skylight.instrument(
@@ -198,15 +198,17 @@ module Skylight
               private :"#{name}"                                        #   private :"process"
             end                                                         # end
           RUBY
-        end
+      end
 
-        if respond_to?(:singleton_class)
-          alias __sk_singleton_class singleton_class
-        else
-          def __sk_singleton_class
-            class << self; self; end
+      if respond_to?(:singleton_class)
+        alias __sk_singleton_class singleton_class
+      else
+        def __sk_singleton_class
+          class << self
+            self
           end
         end
+      end
     end
 
     # @api private

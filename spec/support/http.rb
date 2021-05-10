@@ -46,8 +46,8 @@ module SpecHelper
               puts "seeking auth: #{opts[:authentication]}"
               puts "requests:"
               @requests.each do |request|
-                puts "[auth: #{request['HTTP_AUTHORIZATION']}] #{Rack::Request.new(request).url}: " \
-                     "#{!!filter.call(request)}"
+                puts "[auth: #{request["HTTP_AUTHORIZATION"]}] #{Rack::Request.new(request).url}: " \
+                       "#{!!filter.call(request)}"
               end
               puts "*************"
               raise "Server.wait timeout: got #{filter_requests(opts).count(&filter)} not #{count}"
@@ -66,29 +66,21 @@ module SpecHelper
       end
 
       def mock(path = nil, method = nil, &blk)
-        LOCK.synchronize do
-          @mocks << { path: path, method: method, blk: blk }
-        end
+        LOCK.synchronize { @mocks << { path: path, method: method, blk: blk } }
       end
 
       def requests(opts = {})
-        LOCK.synchronize do
-          filter_requests(opts)
-        end
+        LOCK.synchronize { filter_requests(opts) }
       end
 
       def reports(opts = {})
-        requests(opts).
-          select { |env| env["PATH_INFO"] == "/report" }.
-          map { |env| SpecHelper::Messages::Batch.decode(env["rack.input"].dup) }
+        requests(opts).select { |env| env["PATH_INFO"] == "/report" }.map do |env|
+          SpecHelper::Messages::Batch.decode(env["rack.input"].dup)
+        end
       end
 
       def call(env)
-        trace "%s http://%s:%s%s",
-              env["REQUEST_METHOD"],
-              env["SERVER_NAME"],
-              env["SERVER_PORT"],
-              env["PATH_INFO"]
+        trace "%s http://%s:%s%s", env["REQUEST_METHOD"], env["SERVER_NAME"], env["SERVER_PORT"], env["PATH_INFO"]
 
         ret = handle(env)
 
@@ -100,74 +92,71 @@ module SpecHelper
 
       private
 
-        def handle(env)
-          if (input = env.delete("rack.input"))
-            str = input.read.dup
-            str.freeze
+      def handle(env)
+        if (input = env.delete("rack.input"))
+          str = input.read.dup
+          str.freeze
 
-            if env["CONTENT_TYPE"] == "application/json"
-              str = JSON.parse(str)
-            end
+          str = JSON.parse(str) if env["CONTENT_TYPE"] == "application/json"
 
-            env["rack.input"] = str
-          end
+          env["rack.input"] = str
+        end
 
-          json = ["application/json", "application/json; charset=UTF-8"].sample
+        json = ["application/json", "application/json; charset=UTF-8"].sample
 
-          LOCK.synchronize do
-            @requests << env
-            COND.broadcast
+        LOCK.synchronize do
+          @requests << env
+          COND.broadcast
 
-            mock = @mocks.find do |m|
+          mock =
+            @mocks.find do |m|
               (!m[:path] || m[:path] == env["PATH_INFO"]) &&
                 (!m[:method] || m[:method].to_s.upcase == env["REQUEST_METHOD"])
             end
 
-            if mock
-              @mocks.delete(mock)
+          if mock
+            @mocks.delete(mock)
 
-              ret =
-                begin
-                  mock[:blk].call(env)
-                rescue => e
-                  trace "#{e.inspect}\n#{e.backtrace.map { |l| "  #{l}" }.join("\n")}"
-                  [500, { "content-type" => "text/plain", "content-length" => "4" }, ["Fail"]]
-                end
-
-              if ret.is_a?(Array)
-                return ret if ret.length == 3
-
-                body = ret.last
-                body = body.to_json if body.is_a?(Hash)
-
-                return [ret[0], { "content-type" => json, "content-length" => body.bytesize.to_s }, [body]]
-              elsif respond_to?(:to_str)
-                return [200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret]]
-              else
-                ret = ret.to_json
-                return [200, { "content-type" => json, "content-length" => ret.bytesize.to_s }, [ret]]
+            ret =
+              begin
+                mock[:blk].call(env)
+              rescue StandardError => e
+                trace "#{e.inspect}\n#{e.backtrace.map { |l| "  #{l}" }.join("\n")}"
+                [500, { "content-type" => "text/plain", "content-length" => "4" }, ["Fail"]]
               end
+
+            if ret.is_a?(Array)
+              return ret if ret.length == 3
+
+              body = ret.last
+              body = body.to_json if body.is_a?(Hash)
+
+              return ret[0], { "content-type" => json, "content-length" => body.bytesize.to_s }, [body]
+            elsif respond_to?(:to_str)
+              return 200, { "content-type" => "text/plain", "content-length" => ret.bytesize.to_s }, [ret]
+            else
+              ret = ret.to_json
+              return 200, { "content-type" => json, "content-length" => ret.bytesize.to_s }, [ret]
             end
           end
-
-          [200, { "content-type" => "text/plain", "content-length" => "7" }, ["Thanks!"]]
         end
 
-        def trace(line, *args)
-          if ENV["SKYLIGHT_ENABLE_TRACE_LOGS"]
-            printf("[HTTP Server] #{line}\n", *args)
-          end
-        end
+        [200, { "content-type" => "text/plain", "content-length" => "7" }, ["Thanks!"]]
+      end
 
-        def monotonic_time
-          Process.clock_gettime(Process::CLOCK_MONOTONIC)
-        end
+      def trace(line, *args)
+        printf("[HTTP Server] #{line}\n", *args) if ENV["SKYLIGHT_ENABLE_TRACE_LOGS"]
+      end
 
-        def filter_requests(opts = {})
-          @requests.select do |x|
-            opts[:authentication] ? x["HTTP_AUTHORIZATION"].start_with?(opts[:authentication]) : true
-          end
+      def monotonic_time
+        Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      end
+
+      def filter_requests(opts = {})
+        @requests.select do |x|
+          opts[:authentication] ? x["HTTP_AUTHORIZATION"].start_with?(opts[:authentication]) : true
         end
+      end
     end
   end
 
@@ -177,9 +166,7 @@ module SpecHelper
     # from a previous test could be made after a reset was requested.
 
     def wait(opts = {})
-      if opts.is_a?(Numeric)
-        opts = { timeout: opts }
-      end
+      opts = { timeout: opts } if opts.is_a?(Numeric)
 
       __getobj__.wait(default_opts.merge(opts))
     end
@@ -198,16 +185,13 @@ module SpecHelper
 
     private
 
-      def default_opts
-        { authentication: @authentication }
-      end
+    def default_opts
+      { authentication: @authentication }
+    end
   end
 
   def server
-    auth =
-      if token
-        [token, report_component, report_environment].join(":")
-      end
+    auth = ([token, report_component, report_environment].join(":") if token)
 
     ServerDelegate.new(Server).set_authentication(auth)
   end
@@ -225,10 +209,10 @@ module SpecHelper
   end
 
   def start_server(opts = {})
-    opts[:Port]        ||= port
+    opts[:Port] ||= port
     opts[:environment] ||= "test"
-    opts[:AccessLog]   ||= []
-    opts[:debug]       ||= ENV["DEBUG"]
+    opts[:AccessLog] ||= []
+    opts[:debug] ||= ENV["DEBUG"]
 
     server.start(opts)
     server.reset
@@ -258,7 +242,7 @@ module SpecHelper
       _token, meta = env.fetch("HTTP_AUTHORIZATION").split("|")
       meta = URI.decode_www_form(meta).to_h
       component = meta.fetch("component")
-      { auth: { session: { token: "#{token}:#{component}", expiry_ttl: 10800 } } }
+      { auth: { session: { token: "#{token}:#{component}", expiry_ttl: 10_800 } } }
     end
   end
 end

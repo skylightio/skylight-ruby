@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    skylight (5.0.1)
+    skylight (5.1.0.beta)
       activesupport (>= 5.2.0)
 
 GEM
@@ -329,4 +329,4 @@ DEPENDENCIES
   yard (~> 0.9.26)
 
 BUNDLED WITH
-   2.2.12
+   2.2.15

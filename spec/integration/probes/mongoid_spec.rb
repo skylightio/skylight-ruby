@@ -29,9 +29,9 @@ describe "Mongo integration with Mongoid", :mongo_probe, :mongoid_probe, :instru
 
     # Mongo Ruby Driver
     expected = {
-      cat:   "db.mongo.command",
+      cat: "db.mongo.command",
       title: "echo_test.find artists",
-      desc:  { filter: { signed_at: "?" }, sort: { "_id" => 1 } }.to_json
+      desc: { filter: { signed_at: "?" }, sort: { "_id" => 1 } }.to_json
     }
 
     expect(current_trace.mock_spans[1]).to include(expected)

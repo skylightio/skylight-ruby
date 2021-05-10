@@ -38,30 +38,26 @@ module SpecHelper
   end
 
   def test_config_values
-    @test_config_values ||= {
-      authentication:              SecureRandom.uuid,
-      log_file:                    log_path,
-      log_level:                   ENV["DEBUG"] ? :debug : :fatal,
-      user_config_path:            tmp("user_config.yml"),
-      report_url:                  "http://127.0.0.1:#{port}/report",
-      report_http_deflate:         false,
-      report_http_disabled:        false,
-      report_http_connect_timeout: "1sec",
-      report_http_read_timeout:    "1sec",
-      auth_url:                    "http://127.0.0.1:#{port}/agent",
-      app_create_url:              "http://127.0.0.1:#{port}/apps",
-      validation_url:              "http://127.0.0.1:#{port}/agent/config",
-      auth_http_deflate:           false,
-      auth_http_connect_timeout:   "2sec",
-      auth_http_read_timeout:      "2sec",
-      gc:                          {
-        profiler: gc
-      }.freeze,
-      daemon:                      {
-        sockdir_path:         sockdir_path,
-        batch_flush_interval: "1sec"
+    @test_config_values ||=
+      {
+        authentication: SecureRandom.uuid,
+        log_file: log_path,
+        log_level: ENV["DEBUG"] ? :debug : :fatal,
+        user_config_path: tmp("user_config.yml"),
+        report_url: "http://127.0.0.1:#{port}/report",
+        report_http_deflate: false,
+        report_http_disabled: false,
+        report_http_connect_timeout: "1sec",
+        report_http_read_timeout: "1sec",
+        auth_url: "http://127.0.0.1:#{port}/agent",
+        app_create_url: "http://127.0.0.1:#{port}/apps",
+        validation_url: "http://127.0.0.1:#{port}/agent/config",
+        auth_http_deflate: false,
+        auth_http_connect_timeout: "2sec",
+        auth_http_read_timeout: "2sec",
+        gc: { profiler: gc }.freeze,
+        daemon: { sockdir_path: sockdir_path, batch_flush_interval: "1sec" }.freeze
       }.freeze
-    }.freeze
   end
 
   def gc
@@ -81,20 +77,20 @@ module SpecHelper
   def set_agent_env
     @_original_env = ENV.to_hash
 
-    ENV["SKYLIGHT_AUTHENTICATION"]       = test_config_values[:authentication]
+    ENV["SKYLIGHT_AUTHENTICATION"] = test_config_values[:authentication]
     ENV["SKYLIGHT_BATCH_FLUSH_INTERVAL"] = "10ms"
-    ENV["SKYLIGHT_REPORT_URL"]           = "http://127.0.0.1:#{port}/report"
-    ENV["SKYLIGHT_REPORT_HTTP_DEFLATE"]  = "false"
-    ENV["SKYLIGHT_AUTH_URL"]             = "http://127.0.0.1:#{port}/agent"
-    ENV["SKYLIGHT_VALIDATION_URL"]       = "http://127.0.0.1:#{port}/agent/config"
-    ENV["SKYLIGHT_AUTH_HTTP_DEFLATE"]    = "false"
+    ENV["SKYLIGHT_REPORT_URL"] = "http://127.0.0.1:#{port}/report"
+    ENV["SKYLIGHT_REPORT_HTTP_DEFLATE"] = "false"
+    ENV["SKYLIGHT_AUTH_URL"] = "http://127.0.0.1:#{port}/agent"
+    ENV["SKYLIGHT_VALIDATION_URL"] = "http://127.0.0.1:#{port}/agent/config"
+    ENV["SKYLIGHT_AUTH_HTTP_DEFLATE"] = "false"
 
     # Experimental features
     ENV["SKYLIGHT_ENABLE_SOURCE_LOCATIONS"] = "true"
 
     if ENV["DEBUG"]
-      ENV["SKYLIGHT_ENABLE_TRACE_LOGS"]    = "true"
-      ENV["SKYLIGHT_LOG_FILE"]             = "-"
+      ENV["SKYLIGHT_ENABLE_TRACE_LOGS"] = "true"
+      ENV["SKYLIGHT_LOG_FILE"] = "-"
     else
       ENV["SKYLIGHT_DISABLE_DEV_WARNING"] = "true"
     end
@@ -119,12 +115,13 @@ module SpecHelper
     # rubocop:disable Security/Eval
     begin
       stream = stream.to_s
-      eval "$#{stream} = StringIO.new", nil, __FILE__, __LINE__      # $stdout = StringIO.new
+      eval "$#{stream} = StringIO.new", nil, __FILE__, __LINE__ # $stdout = StringIO.new
       yield
-      result = eval("$#{stream}", nil, __FILE__, __LINE__).string    # $stdout.string
+      result = eval("$#{stream}", nil, __FILE__, __LINE__).string # $stdout.string
     ensure
       eval("$#{stream} = #{stream.upcase}", nil, __FILE__, __LINE__) # $stdout = STDOUT;
     end
+
     # rubocop:enable Security/Eval
 
     result
@@ -134,10 +131,7 @@ module SpecHelper
     require "active_record"
     require "sqlite3"
 
-    ActiveRecord::Base.establish_connection(
-      adapter:  "sqlite3",
-      database: database || "file::memory:?cache=shared"
-    )
+    ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: database || "file::memory:?cache=shared")
 
     yield
   ensure

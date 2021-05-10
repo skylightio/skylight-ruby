@@ -38,11 +38,10 @@ module Skylight
       end
     end
 
-    ActiveSupport::Notifications.subscribe("started_instrumenter.skylight") \
-        do |_name, _started, _finished, _unique_id, payload|
-      if payload[:instrumenter].config.enable_sidekiq?
-        add_middleware
-      end
+    ActiveSupport::Notifications.subscribe(
+      "started_instrumenter.skylight"
+    ) do |_name, _started, _finished, _unique_id, payload|
+      add_middleware if payload[:instrumenter].config.enable_sidekiq?
     end
   end
 end

@@ -25,12 +25,7 @@ module Skylight::Normalizers::GraphQL
 
     def self.inherited(klass)
       super
-      klass.const_set(
-        :KEY,
-        ActiveSupport::Inflector.underscore(
-          ActiveSupport::Inflector.demodulize(klass.name)
-        ).freeze
-      )
+      klass.const_set(:KEY, ActiveSupport::Inflector.underscore(ActiveSupport::Inflector.demodulize(klass.name)).freeze)
     end
 
     def self.key
@@ -43,15 +38,13 @@ module Skylight::Normalizers::GraphQL
 
     private
 
-      def key
-        self.class.key
-      end
+    def key
+      self.class.key
+    end
 
-      def extract_query_name(query)
-        query&.context&.[](:skylight_endpoint) ||
-          query&.operation_name ||
-          ANONYMOUS
-      end
+    def extract_query_name(query)
+      query&.context&.[](:skylight_endpoint) || query&.operation_name || ANONYMOUS
+    end
   end
 
   class Lex < Base
@@ -82,17 +75,21 @@ module Skylight::Normalizers::GraphQL
       # In graphql-ruby's case, the calculation of the operation name is lazy, and
       # has not been done yet at the point where execute_multiplex starts.
       # [1] https://graphql.org/learn/serving-over-http/#post-request
-      queries, has_errors = payload[:multiplex].queries.each_with_object([Set.new, Set.new]) do |query, (names, errors)|
-        names << extract_query_name(query)
-        errors << query.static_errors.any?
-      end
+      queries, has_errors =
+        payload[:multiplex]
+          .queries
+          .each_with_object([Set.new, Set.new]) do |query, (names, errors)|
+            names << extract_query_name(query)
+            errors << query.static_errors.any?
+          end
 
-      trace.endpoint = "graphql:#{queries.sort.join('+')}"
-      trace.compound_response_error_status = if has_errors.all?
-                                               :all
-                                             elsif has_errors.any?
-                                               :partial
-                                             end
+      trace.endpoint = "graphql:#{queries.sort.join("+")}"
+      trace.compound_response_error_status =
+        if has_errors.all?
+          :all
+        elsif has_errors.any?
+          :partial
+        end
     end
   end
 
@@ -106,9 +103,7 @@ module Skylight::Normalizers::GraphQL
     def normalize(trace, _name, payload)
       query_name = extract_query_name(payload[:query])
 
-      if query_name == ANONYMOUS
-        meta = { mute_children: true }
-      end
+      meta = { mute_children: true } if query_name == ANONYMOUS
 
       # This is probably always overriden by execute_multiplex#normalize_after,
       # but in the case of a single query, it will be the same value anyway.

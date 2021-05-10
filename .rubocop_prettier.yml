@@ -1,0 +1,29 @@
+# Disabling all Layout/* rules, as they're unnecessary when the user is using
+# prettier to handle all of the formatting.
+
+Layout:
+  Enabled: false
+
+# Disabling all of the following options because they could conflict with a
+# prettier configuration setting.
+
+Style/MultilineIfModifier: # rubyModifier
+  Enabled: false
+
+Style/SymbolArray: # rubyArrayLiteral
+  Enabled: false
+
+Style/WordArray: # rubyArrayLiteral
+  Enabled: false
+
+Style/TrailingCommaInArguments: # trailingComma
+  Enabled: false
+
+Style/TrailingCommaInArrayLiteral: # trailingComma
+  Enabled: false
+
+Style/TrailingCommaInHashLiteral: # trailingComma
+  Enabled: false
+
+Style/Lambda:
+  Enabled: false

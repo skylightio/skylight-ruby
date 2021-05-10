@@ -5,9 +5,7 @@ describe Skylight::CLI::Merger do
   def run_shell(token: "token", success: true)
     status =
       begin
-        shell = SpecHelpers::TestShell.new(yield) do |line, expected|
-          expect(line).to match(expected)
-        end
+        shell = SpecHelpers::TestShell.new(yield) { |line, expected| expect(line).to match(expected) }
 
         described_class.new([token], {}, shell: shell).invoke_all
 
@@ -20,11 +18,7 @@ describe Skylight::CLI::Merger do
   end
 
   def generate_component(attrs = {})
-    {
-      "name"        => "web",
-      "environment" => "production",
-      "guid"        => SecureRandom.hex(4)
-    }.merge(attrs)
+    { "name" => "web", "environment" => "production", "guid" => SecureRandom.hex(4) }.merge(attrs)
   end
 
   before do
@@ -35,12 +29,12 @@ describe Skylight::CLI::Merger do
 
   let(:matchers) do
     {
-      intro:             /Hello! Welcome to the `skylight merge` CLI!/,
-      explanation:       /This CLI is for/,
-      fetch:             /Fetching your apps/,
+      intro: /Hello! Welcome to the `skylight merge` CLI!/,
+      explanation: /This CLI is for/,
+      fetch: /Fetching your apps/,
       further_questions: /If you have any questions, please contact/,
-      app_not_found:     /Sorry, `skylight merge` is only able to merge apps that you own/,
-      unlisted_app:      /\d\. My app isn't listed here/
+      app_not_found: /Sorry, `skylight merge` is only able to merge apps that you own/,
+      unlisted_app: /\d\. My app isn't listed here/
     }.freeze
   end
 
@@ -65,24 +59,12 @@ describe Skylight::CLI::Merger do
   context "has apps" do
     let(:app2) { { guid: "abcedf124", name: "app2", components: [generate_component] } }
     let(:app3) do
-      {
-        guid:       "abcedf124",
-        name:       "app3",
-        components: [generate_component, generate_component(environment: "staging")]
-      }
+      { guid: "abcedf124", name: "app3", components: [generate_component, generate_component(environment: "staging")] }
     end
     let(:mergeable_apps) { [app1, app2, app3] }
-    let(:app_list) do
-      mergeable_apps.map.with_index { |a, i| /#{i + 1}\. #{a[:name]}/ }.push(matchers[:unlisted_app])
-    end
+    let(:app_list) { mergeable_apps.map.with_index { |a, i| /#{i + 1}\. #{a[:name]}/ }.push(matchers[:unlisted_app]) }
     let(:preamble_sequence) do
-      [
-        matchers[:intro],
-        matchers[:explanation],
-        matchers[:fetch],
-        /Please specify the "parent" app/,
-        *app_list
-      ]
+      [matchers[:intro], matchers[:explanation], matchers[:fetch], /Please specify the "parent" app/, *app_list]
     end
     let(:success_sequence) do
       [
@@ -102,12 +84,10 @@ describe Skylight::CLI::Merger do
     end
 
     before do
-      allow_any_instance_of(Skylight::Api).to receive(:merge_apps!).with(
-        "token",
-        app_guid:       app1[:guid],
-        component_guid: app2[:components][0]["guid"],
-        environment:    child_env
-      ) { merge_response }
+      allow_any_instance_of(Skylight::Api).to receive(:merge_apps!)
+        .with("token", app_guid: app1[:guid], component_guid: app2[:components][0]["guid"], environment: child_env) {
+          merge_response
+        }
     end
 
     let(:merge_response) { OpenStruct.new(status: 204) }
@@ -155,7 +135,6 @@ describe Skylight::CLI::Merger do
           *preamble_sequence,
           [/Which number\?/, "banana"],
           /Hmm/,
-
           # asks for app again
           *app_list,
           [/Which number\?/, mergeable_apps.count + 1],

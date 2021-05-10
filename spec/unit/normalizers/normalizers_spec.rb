@@ -5,13 +5,9 @@ module Skylight
     before :each do
       @original_registry = Normalizers.instance_variable_get(:@registry)
 
-      stub_const("TestNormalizer", Class.new(Normalizers::Normalizer) do
-        register "basic.test"
-      end)
+      stub_const("TestNormalizer", Class.new(Normalizers::Normalizer) { register "basic.test" })
 
-      stub_const("DisabledNormalizer", Class.new(Normalizers::Normalizer) do
-        register "disabled.test", enabled: false
-      end)
+      stub_const("DisabledNormalizer", Class.new(Normalizers::Normalizer) { register "disabled.test", enabled: false })
     end
 
     after :each do
@@ -35,9 +31,7 @@ module Skylight
 
     it "will not enable a bad match" do
       %w[tes est disabled].each do |key|
-        expect do
-          Normalizers.enable(key)
-        end.to raise_error(ArgumentError, "no normalizers match #{key}")
+        expect { Normalizers.enable(key) }.to raise_error(ArgumentError, "no normalizers match #{key}")
       end
 
       expect(subject.registry["disabled.test"][1]).to eq(false)

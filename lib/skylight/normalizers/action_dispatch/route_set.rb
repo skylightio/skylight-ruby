@@ -13,14 +13,14 @@ module Skylight
 
         private
 
-          def router_class_name
-            "ActionDispatch::Routing::RouteSet"
-          end
+        def router_class_name
+          "ActionDispatch::Routing::RouteSet"
+        end
 
-          def process_meta_options(_payload)
-            # provide hints to override default source_location behavior
-            super.merge(source_location_hint: [:own_instance_method, router_class_name, "call"])
-          end
+        def process_meta_options(_payload)
+          # provide hints to override default source_location behavior
+          super.merge(source_location_hint: [:own_instance_method, router_class_name, "call"])
+        end
       end
     end
   end

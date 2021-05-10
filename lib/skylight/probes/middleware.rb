@@ -16,7 +16,7 @@ module Skylight
               elsif middleware.respond_to?(:call)
                 middleware.method(:call).source_location
               end
-            rescue
+            rescue StandardError
               nil
             end
         end
@@ -72,8 +72,13 @@ module Skylight
 
               source_file, source_line = method(__method__).super_method.source_location
 
-              spans = Skylight.instrument(title: name, category: __sk_category,
-                                          source_file: source_file, source_line: source_line)
+              spans =
+                Skylight.instrument(
+                  title: name,
+                  category: __sk_category,
+                  source_file: source_file,
+                  source_line: source_line
+                )
 
               proxied_response =
                 Skylight::Middleware.with_after_close(super(*args), debug_identifier: "Middleware: #{name}") do
@@ -120,7 +125,11 @@ module Skylight
       end
     end
 
-    register(:middleware, "ActionDispatch::MiddlewareStack::Middleware", "actionpack/action_dispatch",
-             Middleware::Probe.new)
+    register(
+      :middleware,
+      "ActionDispatch::MiddlewareStack::Middleware",
+      "actionpack/action_dispatch",
+      Middleware::Probe.new
+    )
   end
 end

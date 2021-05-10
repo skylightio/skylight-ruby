@@ -55,9 +55,7 @@ module Skylight
     end
 
     def count_sk_subscribers(collection = all_asn_subscribers)
-      collection.count do |subscriber|
-        subscriber.instance_variable_get(:@delegate).is_a?(Skylight::Subscriber)
-      end
+      collection.count { |subscriber| subscriber.instance_variable_get(:@delegate).is_a?(Skylight::Subscriber) }
     end
 
     def all_asn_subscribers
@@ -78,9 +76,7 @@ module Skylight
       # (ensure that we're not unsubscribing *all* skylight listeners)
       expect(original_count).to be > 1
 
-      expect do
-        ActiveSupport::Notifications.unsubscribe(unsub_key)
-      end.to change {
+      expect { ActiveSupport::Notifications.unsubscribe(unsub_key) }.to change {
         count_sk_subscribers(ActiveSupport::Notifications.notifier.listeners_for(unsub_key))
       }.from(1).to(0)
 
@@ -98,21 +94,16 @@ module Skylight
 
       expect(trace.test_spans).to contain_exactly(
         {
-          id:        1,
-          done:      true,
+          id: 1,
+          done: true,
           done_meta: {},
-          args:      [
-            "spec.skylight",
-            "normalized",
-            nil,
-            { source_file: source_file, source_line: 1 }
-          ]
+          args: ["spec.skylight", "normalized", nil, { source_file: source_file, source_line: 1 }]
         },
         {
-          id:        2,
-          done:      true,
+          id: 2,
+          done: true,
           done_meta: {},
-          args:      [
+          args: [
             "spec_source_location.skylight",
             "normalized",
             nil,
