@@ -620,7 +620,6 @@ module CITasks
         [
           checkout_step,
           *setup_commit_metadata_steps,
-          install_aws_cli_step,
           install_codeclimate_step,
           download_coverage_data_step,
           prepare_and_upload_coverage_data_step
@@ -654,14 +653,6 @@ module CITasks
             RUN
           }
         ]
-      end
-
-      def install_aws_cli_step
-        { name: "Install AWS CLI", run: <<~RUN }
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-          RUN
       end
 
       def install_codeclimate_step
