@@ -41,3 +41,6 @@ skylight_dlopen.c
 # Coverage
 cc-test-reporter
 coverage
+
+Gemfile.lock
+gemfiles/**/Gemfile.lock
