@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 237cf3b925ffcce6170f8fdc9a9e8d77cc4b6cb1fd82b7fd4368c71a3eb74e5f
+  CONFIG_DIGEST: d3df83e1fc532e3c33fedd92c9edf717e6be9bb13416aa58ec15981373688f43
 'on':
   push:
     branches:
@@ -1343,11 +1343,6 @@ jobs:
       run: |
         echo "GIT_COMMIT_SHA=${GIT_COMMIT_SHA}" >> $GITHUB_ENV
         echo "GIT_BRANCH=${GIT_BRANCH}" >> $GITHUB_ENV
-    - name: Install AWS CLI
-      run: |
-        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-        unzip awscliv2.zip
-        sudo ./aws/install
     - name: Install Codeclimate test reporter
       run: |
         curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
