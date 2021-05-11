@@ -2,14 +2,14 @@ require "spec_helper"
 
 begin
   require "active_model/serializer"
+  require "action_controller"
+  require "action_controller/serialization"
+  requirements_loaded = true
 rescue LoadError
 end
 
-if defined?(ActiveModel::Serializer)
+if requirements_loaded
   describe "ActiveModel::Serializer", :active_model_serializers_probe, :agent, :instrumenter do
-    require "action_controller"
-    require "action_controller/serialization"
-
     # File changed name between versions
     %w[serializer serializers].each do |dir|
       require "active_model/#{dir}/version"
