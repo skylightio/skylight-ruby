@@ -4,5 +4,4 @@ gemspec path: "../.."
 
 gem "sinatra", "~> 1"
 
-# Ideally we'd test with the additional gems, but this ends up timing out Bundler
-# eval_gemfile "../Gemfile.additional"
+eval_gemfile "../Gemfile.additional"

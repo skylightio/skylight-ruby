@@ -28,6 +28,12 @@ if defined?(Sinatra)
           get "/inline-template" do
             erb "Hello from inline template"
           end
+
+          get "/haml-template" do
+            haml :hello
+          end
+
+          set :raise_errors, true
         end
       )
     end
@@ -53,6 +59,14 @@ if defined?(Sinatra)
       get "/named-template"
 
       expect(@current_trace.endpoint).to eq("GET /named-template")
+    end
+
+    it "instruments haml templates" do
+      expect(Skylight).to receive(:instrument).with(category: "view.render.template", title: "hello").and_call_original
+
+      get "/haml-template"
+
+      expect(@current_trace.endpoint).to eq("GET /haml-template")
     end
 
     it "instruments inline templates" do

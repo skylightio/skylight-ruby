@@ -12,6 +12,7 @@ gem "sequel", "> 0"
 gem "sidekiq"
 gem "sqlite3", "~> 1.4.1"
 gem "tilt"
+gem "haml"
 
 gem "fakeredis"
 gem "redis"

@@ -37,11 +37,14 @@ module Skylight
         end
 
         def compile_template(engine, data, options, *)
-          # Pass along a useful "virtual path" to Tilt. The Tilt probe will handle
-          # instrumenting correctly.
-          options[:sky_virtual_path] = data.is_a?(Symbol) ? data.to_s : "Inline template (#{engine})"
-
-          super
+          super.tap do |template|
+            if defined?(::Tilt::Template) && template.is_a?(::Tilt::Template)
+              # Pass along a useful "virtual path" to Tilt. The Tilt probe will handle
+              # instrumenting correctly.
+              virtual_path = data.is_a?(Symbol) ? data.to_s : "Inline template (#{engine})"
+              template.instance_variable_set(:@__sky_virtual_path, virtual_path)
+            end
+          end
         end
       end
 
