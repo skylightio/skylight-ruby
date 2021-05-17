@@ -1,4 +1,9 @@
-## 5.1.0 (April 26 2021)
+## 5.1.0-beta2 (May 17, 2021)
+
+- [IMPROVEMENT] Avoid 'invalid option' warnings when instrumenting certain Tilt templates in Sinatra
+- [IMPROVEMENT] Decrease verbosity of source locations logs in the debug level.
+
+## 5.1.0-beta (April 26, 2021)
 
 - [FEATURE] Add experimental tcp-based `skylightd` (may be enabled with `SKYLIGHT_ENABLE_TCP=true`)
 
