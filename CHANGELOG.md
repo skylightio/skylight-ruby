@@ -1,3 +1,7 @@
+## 5.1.0-beta3 (May 21, 2021)
+
+- [IMPROVEMENT] Prevent large traces from shutting down the instrumenter
+
 ## 5.1.0-beta2 (May 17, 2021)
 
 - [IMPROVEMENT] Avoid 'invalid option' warnings when instrumenting certain Tilt templates in Sinatra
