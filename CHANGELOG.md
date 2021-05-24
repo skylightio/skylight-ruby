@@ -1,19 +1,13 @@
-## 5.1.0-beta3 (May 21, 2021)
-
-- [IMPROVEMENT] Prevent large traces from shutting down the instrumenter
-
-## 5.1.0-beta2 (May 17, 2021)
-
-- [IMPROVEMENT] Avoid 'invalid option' warnings when instrumenting certain Tilt templates in Sinatra
-- [IMPROVEMENT] Decrease verbosity of source locations logs in the debug level.
-
-## 5.1.0-beta (April 26, 2021)
+## 5.1.0 (May 24, 2021)
 
 - [FEATURE] Add experimental tcp-based `skylightd` (may be enabled with `SKYLIGHT_ENABLE_TCP=true`)
 
 - [IMPROVEMENT] Support aarch64-darwin targets (Apple M1)
 - [IMPROVEMENT] Support aarch64-linux-gnu targets
 - [IMPROVEMENT] Support aarch64-linux-musl targets
+- [IMPROVEMENT] Prevent large traces from shutting down the instrumenter
+- [IMPROVEMENT] Avoid 'invalid option' warnings when instrumenting certain Tilt templates in Sinatra
+- [IMPROVEMENT] Decrease verbosity of source locations logs in the debug level.
 
 - [BREAKING] Remove `SKYLIGHT_SSL_CERT_DIR` config
 - [BREAKING] Drop support for Ruby 2.5
