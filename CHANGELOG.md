@@ -1,3 +1,7 @@
+## 5.1.1 (May 27, 2021)
+
+- [BUGFIX] Correct ruby version requirement in skylight.gemspec
+
 ## 5.1.0 (May 24, 2021)
 
 - [FEATURE] Add experimental tcp-based `skylightd` (may be enabled with `SKYLIGHT_ENABLE_TCP=true`)
