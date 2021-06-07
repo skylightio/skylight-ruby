@@ -52,8 +52,8 @@ module Skylight
       end
 
       it "looks keys up with symbols" do
-        expect(config[:'one.foo']).to eq("hello")
-        expect(config[:'one.bar']).to eq("omg")
+        expect(config[:"one.foo"]).to eq("hello")
+        expect(config[:"one.bar"]).to eq("omg")
       end
     end
 
@@ -68,8 +68,8 @@ module Skylight
       end
 
       it "looks keys up with symbols" do
-        expect(config[:'one.two.foo']).to eq("hello")
-        expect(config[:'one.two.bar']).to eq("omg")
+        expect(config[:"one.two.foo"]).to eq("hello")
+        expect(config[:"one.two.bar"]).to eq("omg")
       end
     end
 
@@ -604,7 +604,7 @@ module Skylight
       end
 
       it "detects Heroku" do
-        config = Config.new 'heroku.dyno_info_path': File.expand_path("../support/heroku_dyno_info_sample", __dir__)
+        config = Config.new "heroku.dyno_info_path": File.expand_path("../support/heroku_dyno_info_sample", __dir__)
         expect(config.deploy.id).to eq(123)
         expect(config.deploy.git_sha).to eq("19a8cfc47c10d8069916ae8adba0c9cb4c6c572d")
         expect(config.deploy.description).to eq("Deploy 19a8cfc")
@@ -690,7 +690,7 @@ module Skylight
       context "permissions" do
         it "requires the pidfile_path file to be writeable if it exists" do
           with_file(writable: false) do |f|
-            config.set(:'daemon.pidfile_path', f.path)
+            config.set(:"daemon.pidfile_path", f.path)
 
             expect { config.validate! }.to raise_error(
               ConfigError,
@@ -702,7 +702,7 @@ module Skylight
 
         it "requires the pidfile_path directory to be writeable if file doesn't exist" do
           with_dir(writable: false) do |d|
-            config.set(:'daemon.pidfile_path', "#{d}/bar")
+            config.set(:"daemon.pidfile_path", "#{d}/bar")
 
             expect { config.validate! }.to raise_error(
               ConfigError,
@@ -714,8 +714,8 @@ module Skylight
 
         it "requires the sockdir_path to be writeable" do
           with_dir(writable: false) do |d|
-            config.set(:'daemon.sockdir_path', d)
-            config.set(:'daemon.pidfile_path', "~/skylight.pid") # Otherwise based on sockdir_path and will error first
+            config.set(:"daemon.sockdir_path", d)
+            config.set(:"daemon.pidfile_path", "~/skylight.pid") # Otherwise based on sockdir_path and will error first
 
             expect { config.validate! }.to raise_error(
               ConfigError,
@@ -764,7 +764,7 @@ module Skylight
       end
 
       it "includes deploy info if available" do
-        config[:'deploy.id'] = "d456"
+        config[:"deploy.id"] = "d456"
 
         Timecop.freeze do
           expect(get_env["SKYLIGHT_AUTHENTICATION"]).to eq(
@@ -813,8 +813,8 @@ module Skylight
     context "legacy settings" do
       it "remaps agent.sockfile_path" do
         c = Config.new(agent: { sockfile_path: "/foo/bar" })
-        expect(c[:'agent.sockfile_path']).to eq("/foo/bar")
-        expect(c[:'daemon.sockdir_path']).to eq("/foo/bar")
+        expect(c[:"agent.sockfile_path"]).to eq("/foo/bar")
+        expect(c[:"daemon.sockdir_path"]).to eq("/foo/bar")
 
         env = Hash[*c.to_native_env]
         expect(env["SKYLIGHT_AGENT_SOCKFILE_PATH"]).to be_nil

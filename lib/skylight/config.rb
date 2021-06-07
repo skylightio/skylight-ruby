@@ -32,9 +32,9 @@ module Skylight
       -"COMPONENT" => :component,
       -"REPORT_RAILS_ENV" => :report_rails_env,
       # == Deploy settings ==
-      -"DEPLOY_ID" => :'deploy.id',
-      -"DEPLOY_GIT_SHA" => :'deploy.git_sha',
-      -"DEPLOY_DESCRIPTION" => :'deploy.description',
+      -"DEPLOY_ID" => :"deploy.id",
+      -"DEPLOY_GIT_SHA" => :"deploy.git_sha",
+      -"DEPLOY_DESCRIPTION" => :"deploy.description",
       # == Logging ==
       -"LOG_FILE" => :log_file,
       -"LOG_LEVEL" => :log_level,
@@ -69,35 +69,35 @@ module Skylight
       -"REPORT_HTTP_DISABLED" => :report_http_disabled,
       # == Native agent settings ==
       #
-      -"LAZY_START" => :'daemon.lazy_start',
-      -"DAEMON_EXEC_PATH" => :'daemon.exec_path',
-      -"DAEMON_LIB_PATH" => :'daemon.lib_path',
-      -"PIDFILE_PATH" => :'daemon.pidfile_path',
-      -"SOCKDIR_PATH" => :'daemon.sockdir_path',
-      -"BATCH_QUEUE_DEPTH" => :'daemon.batch_queue_depth',
-      -"BATCH_SAMPLE_SIZE" => :'daemon.batch_sample_size',
-      -"BATCH_FLUSH_INTERVAL" => :'daemon.batch_flush_interval',
-      -"DAEMON_TICK_INTERVAL" => :'daemon.tick_interval',
-      -"DAEMON_LOCK_CHECK_INTERVAL" => :'daemon.lock_check_interval',
-      -"DAEMON_INACTIVITY_TIMEOUT" => :'daemon.inactivity_timeout',
-      -"CLIENT_MAX_TRIES" => :'daemon.max_connect_tries',
-      -"CLIENT_CONN_TRY_WIN" => :'daemon.connect_try_window',
-      -"MAX_PRESPAWN_JITTER" => :'daemon.max_prespawn_jitter',
-      -"DAEMON_WAIT_TIMEOUT" => :'daemon.wait_timeout',
-      -"CLIENT_CHECK_INTERVAL" => :'daemon.client_check_interval',
-      -"CLIENT_QUEUE_DEPTH" => :'daemon.client_queue_depth',
-      -"CLIENT_WRITE_TIMEOUT" => :'daemon.client_write_timeout',
-      -"SSL_CERT_PATH" => :'daemon.ssl_cert_path',
-      -"ENABLE_TCP" => :'daemon.enable_tcp',
-      -"TCP_PORT" => :'daemon.tcp_port',
+      -"LAZY_START" => :"daemon.lazy_start",
+      -"DAEMON_EXEC_PATH" => :"daemon.exec_path",
+      -"DAEMON_LIB_PATH" => :"daemon.lib_path",
+      -"PIDFILE_PATH" => :"daemon.pidfile_path",
+      -"SOCKDIR_PATH" => :"daemon.sockdir_path",
+      -"BATCH_QUEUE_DEPTH" => :"daemon.batch_queue_depth",
+      -"BATCH_SAMPLE_SIZE" => :"daemon.batch_sample_size",
+      -"BATCH_FLUSH_INTERVAL" => :"daemon.batch_flush_interval",
+      -"DAEMON_TICK_INTERVAL" => :"daemon.tick_interval",
+      -"DAEMON_LOCK_CHECK_INTERVAL" => :"daemon.lock_check_interval",
+      -"DAEMON_INACTIVITY_TIMEOUT" => :"daemon.inactivity_timeout",
+      -"CLIENT_MAX_TRIES" => :"daemon.max_connect_tries",
+      -"CLIENT_CONN_TRY_WIN" => :"daemon.connect_try_window",
+      -"MAX_PRESPAWN_JITTER" => :"daemon.max_prespawn_jitter",
+      -"DAEMON_WAIT_TIMEOUT" => :"daemon.wait_timeout",
+      -"CLIENT_CHECK_INTERVAL" => :"daemon.client_check_interval",
+      -"CLIENT_QUEUE_DEPTH" => :"daemon.client_queue_depth",
+      -"CLIENT_WRITE_TIMEOUT" => :"daemon.client_write_timeout",
+      -"SSL_CERT_PATH" => :"daemon.ssl_cert_path",
+      -"ENABLE_TCP" => :"daemon.enable_tcp",
+      -"TCP_PORT" => :"daemon.tcp_port",
       # == Legacy env vars ==
       #
-      -"AGENT_LOCKFILE" => :'agent.lockfile',
-      -"AGENT_SOCKFILE_PATH" => :'agent.sockfile_path',
+      -"AGENT_LOCKFILE" => :"agent.lockfile",
+      -"AGENT_SOCKFILE_PATH" => :"agent.sockfile_path",
       # == User config settings ==
       -"USER_CONFIG_PATH" => :user_config_path,
       # == Heroku settings ==
-      -"HEROKU_DYNO_INFO_PATH" => :'heroku.dyno_info_path',
+      -"HEROKU_DYNO_INFO_PATH" => :"heroku.dyno_info_path",
       # == Source Location ==
       -"SOURCE_LOCATION_IGNORED_GEMS" => :source_location_ignored_gems,
       -"SOURCE_LOCATION_CACHE_SIZE" => :source_location_cache_size
@@ -135,22 +135,22 @@ module Skylight
             sinatra_route_prefixes: false,
             enable_source_locations: true,
             # Deploys
-            'heroku.dyno_info_path': -"/etc/heroku/dyno",
+            "heroku.dyno_info_path": -"/etc/heroku/dyno",
             report_rails_env: true,
             # Daemon
-            'daemon.lazy_start': true,
+            "daemon.lazy_start": true,
             hostname: Util::Hostname.default_hostname,
             report_max_spans_exceeded: false,
             prune_large_traces: true
           }
 
-          ret[:'daemon.ssl_cert_path'] = Util::SSL.ca_cert_file_or_default unless Util::Platform::OS == -"darwin"
+          ret[:"daemon.ssl_cert_path"] = Util::SSL.ca_cert_file_or_default unless Util::Platform::OS == -"darwin"
 
           if Skylight.native?
             native_path = Skylight.libskylight_path
 
-            ret[:'daemon.lib_path'] = native_path
-            ret[:'daemon.exec_path'] = File.join(native_path, "skylightd")
+            ret[:"daemon.lib_path"] = native_path
+            ret[:"daemon.exec_path"] = File.join(native_path, "skylightd")
           end
 
           ret
@@ -211,12 +211,12 @@ module Skylight
 
     # Maps legacy config keys to new config keys
     def self.legacy_keys
-      @legacy_keys ||= { 'agent.sockfile_path': :'daemon.sockdir_path', 'agent.lockfile': :'daemon.pidfile_path' }
+      @legacy_keys ||= { "agent.sockfile_path": :"daemon.sockdir_path", "agent.lockfile": :"daemon.pidfile_path" }
     end
 
     def self.validators
       @validators ||=
-        { 'agent.interval': [->(v, _c) { v.is_a?(Integer) && v > 0 }, "must be an integer greater than 0"] }
+        { "agent.interval": [->(v, _c) { v.is_a?(Integer) && v > 0 }, "must be an integer greater than 0"] }
     end
 
     # @api private
@@ -334,8 +334,8 @@ module Skylight
       # TODO: Move this out of the validate! method: https://github.com/tildeio/direwolf-agent/issues/273
       # FIXME: Why not set the sockdir_path and pidfile_path explicitly?
       # That way we don't have to keep this in sync with the Rust repo.
-      sockdir_path = File.expand_path(self[:'daemon.sockdir_path'] || ".", root)
-      pidfile_path = File.expand_path(self[:'daemon.pidfile_path'] || "skylight.pid", sockdir_path)
+      sockdir_path = File.expand_path(self[:"daemon.sockdir_path"] || ".", root)
+      pidfile_path = File.expand_path(self[:"daemon.pidfile_path"] || "skylight.pid", sockdir_path)
 
       check_file_permissions(pidfile_path, "daemon.pidfile_path or daemon.sockdir_path")
       check_sockdir_permissions(sockdir_path)
@@ -588,7 +588,7 @@ module Skylight
     end
 
     def on_heroku?
-      File.exist?(get(:'heroku.dyno_info_path'))
+      File.exist?(get(:"heroku.dyno_info_path"))
     end
 
     private

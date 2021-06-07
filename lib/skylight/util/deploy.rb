@@ -52,15 +52,15 @@ module Skylight
         end
 
         def id
-          config.get(:'deploy.id') || git_sha
+          config.get(:"deploy.id") || git_sha
         end
 
         def git_sha
-          config.get(:'deploy.git_sha')
+          config.get(:"deploy.git_sha")
         end
 
         def description
-          config.get(:'deploy.description')
+          config.get(:"deploy.description")
         end
       end
 
@@ -85,7 +85,7 @@ module Skylight
         private
 
         def get_info
-          info_path = config[:'heroku.dyno_info_path']
+          info_path = config[:"heroku.dyno_info_path"]
 
           if File.exist?(info_path) && (info = JSON.parse(File.read(info_path)))
             info["release"]

@@ -729,7 +729,7 @@ if enable
         )
 
         # Check the rest
-        post_middleware_spans = app_and_rack_spans[router_index..-1]
+        post_middleware_spans = app_and_rack_spans[router_index..]
         expect(post_middleware_spans).to match(
           [
             a_span_including(

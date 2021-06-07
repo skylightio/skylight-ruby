@@ -119,7 +119,7 @@ module Skylight
             end
           config.logger = logger
 
-          config.set(:'daemon.lazy_start', false)
+          config.set(:"daemon.lazy_start", false)
 
           started = Skylight.start!(config)
 
