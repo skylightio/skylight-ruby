@@ -20,7 +20,7 @@ module Skylight
 
         def get_namespace(endpoint)
           # slice off preceding slash for data continuity
-          ::Grape::Namespace.joined_space_path(endpoint.namespace_stackable(:namespace)).to_s[1..-1]
+          ::Grape::Namespace.joined_space_path(endpoint.namespace_stackable(:namespace)).to_s[1..]
         end
       end
     end

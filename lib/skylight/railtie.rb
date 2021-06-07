@@ -99,8 +99,8 @@ module Skylight
 
       configure_logging(config, app)
 
-      config[:'daemon.sockdir_path'] ||= tmp
-      config[:'normalizers.render.view_paths'] = existent_paths(app.config.paths["app/views"]) + [Rails.root.to_s]
+      config[:"daemon.sockdir_path"] ||= tmp
+      config[:"normalizers.render.view_paths"] = existent_paths(app.config.paths["app/views"]) + [Rails.root.to_s]
 
       config[:env] ||= Rails.env.to_s if config[:report_rails_env]
 

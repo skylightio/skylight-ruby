@@ -1,7 +1,7 @@
 require "spec_helper"
 
 if defined?(ActionDispatch)
-  describe "ActionDispatch::RequestId integration", :'action_dispatch/request_id_probe', :agent do
+  describe "ActionDispatch::RequestId integration", :"action_dispatch/request_id_probe", :agent do
     before { Skylight.mock! }
 
     after { Skylight.stop! }
