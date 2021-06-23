@@ -67,6 +67,8 @@ module Skylight
       -"REPORT_HTTP_CONNECT_TIMEOUT" => :report_http_connect_timeout,
       -"REPORT_HTTP_READ_TIMEOUT" => :report_http_read_timeout,
       -"REPORT_HTTP_DISABLED" => :report_http_disabled,
+      -"REPORT_USE_GRPC" => :report_use_grpc,
+      -"REPORT_GRPC_URL" => :report_grpc_url,
       # == Native agent settings ==
       #
       -"LAZY_START" => :"daemon.lazy_start",
@@ -184,6 +186,8 @@ module Skylight
           report_http_connect_timeout
           report_http_read_timeout
           report_http_disabled
+          report_use_grpc
+          report_grpc_url
           daemon.lazy_start
           daemon.exec_path
           daemon.lib_path

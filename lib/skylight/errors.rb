@@ -68,5 +68,8 @@ module Skylight
 
     # E0006
     register(6, "InvalidUtf8", "Invalid UTF-8")
+
+    # E0007
+    register(7, "GrpcConnect", "Failed to connect to gRPC server.")
   end
 end
