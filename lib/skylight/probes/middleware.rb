@@ -25,10 +25,10 @@ module Skylight
       # for Rails <= 5.2 ActionDispatch::MiddlewareStack::Middleware
       module Instrumentation
         def build(*)
-          sk_instrument_middleware(super)
+          Instrumentation.sk_instrument_middleware(super)
         end
 
-        def sk_instrument_middleware(middleware)
+        def self.sk_instrument_middleware(middleware)
           return middleware if middleware.is_a?(Skylight::Middleware)
 
           # Not sure how this would actually happen
