@@ -19,8 +19,19 @@ if enable
       Skylight.start!
 
       stub_const(
+        "HelloController",
+        Class.new(::Sinatra::Base) do
+          get "/hello" do
+            erb "Hello"
+          end
+        end
+      )
+
+      stub_const(
         "MyApp",
         Class.new(::Sinatra::Base) do
+          use HelloController
+
           get "/test" do
             Skylight.instrument category: "app.inside" do
               Skylight.instrument category: "app.zomg" do
@@ -68,8 +79,8 @@ if enable
           titles = trace.spans.map { |s| s.event.title }
 
           expect(categories.length).to be >= 3
-          expect(categories).to include("app.zomg")
-          expect(categories).to include("app.inside")
+          expect(categories).to include("app.zomg") unless modular
+          expect(categories).to include("app.inside") unless modular
           expect(categories).to include("rack.middleware")
           expect(categories[0]).to eq("app.rack.request")
 
@@ -77,6 +88,8 @@ if enable
           expect(titles[1]).to eq("Sinatra::ExtendedRack")
         end
       end
+
+      let(:modular) { false }
 
       it_behaves_like :sinatra do
         let(:req_path) { "/test" }
@@ -87,6 +100,14 @@ if enable
         it_behaves_like :sinatra do
           let(:req_path) { "/url_prefix/api/test" }
           let(:endpoint_name) { "GET /test" }
+        end
+
+        context :modular_app do
+          it_behaves_like :sinatra do
+            let(:modular) { true }
+            let(:req_path) { "/url_prefix/api/hello" }
+            let(:endpoint_name) { "GET /hello" }
+          end
         end
       end
 
@@ -99,6 +120,14 @@ if enable
         it_behaves_like :sinatra do
           let(:req_path) { "/url_prefix/api/test" }
           let(:endpoint_name) { "GET [/url_prefix/api]/test" }
+        end
+
+        context :modular_app do
+          it_behaves_like :sinatra do
+            let(:modular) { true }
+            let(:req_path) { "/url_prefix/api/hello" }
+            let(:endpoint_name) { "GET [/url_prefix/api]/hello" }
+          end
         end
       end
     end

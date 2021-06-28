@@ -78,11 +78,12 @@ module Skylight
     end
 
     def call(env)
-      set_request_id(env)
-
       if Skylight.tracing?
-        error "Already instrumenting. Make sure the Skylight Rack Middleware hasn't been added more than once."
+        debug "Already instrumenting. Make sure the Skylight Rack Middleware hasn't been added more than once."
+        return @app.call(env)
       end
+
+      set_request_id(env)
 
       if env["REQUEST_METHOD"] == "HEAD"
         t { "middleware skipping HEAD" }
