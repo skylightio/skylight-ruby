@@ -5,7 +5,8 @@ module Skylight
         module Instrumentation
           def use(middleware, *args, &block)
             if @map
-              mapping, @map = @map, nil
+              mapping = @map
+              @map = nil
               @use << proc { |app| generate_map(app, mapping) }
             end
             @use << proc do |app|
