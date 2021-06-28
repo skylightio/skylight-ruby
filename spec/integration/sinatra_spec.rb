@@ -64,12 +64,17 @@ if enable
           expect(endpoint.traces.count).to eq(1)
           trace = endpoint.traces[0]
 
-          names = trace.spans.map { |s| s.event.category }
+          categories = trace.spans.map { |s| s.event.category }
+          titles = trace.spans.map { |s| s.event.title }
 
-          expect(names.length).to be >= 3
-          expect(names).to include("app.zomg")
-          expect(names).to include("app.inside")
-          expect(names[0]).to eq("app.rack.request")
+          expect(categories.length).to be >= 3
+          expect(categories).to include("app.zomg")
+          expect(categories).to include("app.inside")
+          expect(categories).to include("rack.middleware")
+          expect(categories[0]).to eq("app.rack.request")
+
+          # first Sinatra middleware
+          expect(titles[1]).to eq("Sinatra::ExtendedRack")
         end
       end
 
