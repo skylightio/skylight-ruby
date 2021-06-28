@@ -22,7 +22,7 @@ module Skylight
 
         class Probe
           def install
-            if defined?(::Rack.release) && Gem::Version.new(::Rack.release) >= ::Gem::Version.new("2.0") &&
+            if defined?(::Rack.release) && Gem::Version.new(::Rack.release) >= ::Gem::Version.new("1.4") &&
                  defined?(::Rack::Builder)
               ::Rack::Builder.prepend(Instrumentation)
             end
