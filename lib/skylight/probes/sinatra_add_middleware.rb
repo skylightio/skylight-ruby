@@ -2,8 +2,8 @@ module Skylight
   module Probes
     module Sinatra
       module Instrumentation
-        def build(*)
-          use Skylight::Middleware
+        def setup_default_middleware(builder)
+          builder.use Skylight::Middleware
           super
         end
       end
