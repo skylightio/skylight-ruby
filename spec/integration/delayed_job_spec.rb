@@ -141,7 +141,7 @@ if enable
 
     let(:dj_migration) do
       base = ActiveRecord::Migration
-      base = defined?(base::Current) ? base::Current : base
+      base = base::Current if defined?(base::Current)
 
       Class.new(base) do
         # Copied from delayed_job_active_record's generator template

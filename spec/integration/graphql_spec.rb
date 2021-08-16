@@ -55,7 +55,7 @@ if enable
 
     let(:migration) do
       base = ActiveRecord::Migration
-      base = defined?(base::Current) ? base::Current : base
+      base = base::Current if defined?(base::Current)
 
       Class.new(base) do
         def self.up
