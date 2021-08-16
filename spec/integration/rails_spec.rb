@@ -1561,7 +1561,7 @@ if enable
         context "with active_record" do
           def user_migration
             base = ActiveRecord::Migration
-            base = defined?(base::Current) ? base::Current : base
+            base = base::Current if defined?(base::Current)
 
             Class.new(base) do
               def self.up
