@@ -3,6 +3,8 @@ require "securerandom"
 module Skylight
   # @api private
   class Middleware
+    SKYLIGHT_REQUEST_ID = "skylight.request_id".freeze
+
     class BodyProxy
       def initialize(body, &block)
         @body = body
@@ -78,12 +80,12 @@ module Skylight
     end
 
     def call(env)
+      set_request_id(env)
+
       if Skylight.tracing?
         debug "Already instrumenting. Make sure the Skylight Rack Middleware hasn't been added more than once."
         return @app.call(env)
       end
-
-      set_request_id(env)
 
       if env["REQUEST_METHOD"] == "HEAD"
         t { "middleware skipping HEAD" }
@@ -109,7 +111,7 @@ module Skylight
 
     def log_context
       # Don't cache this, it will change
-      { request_id: @current_request_id, inst: Skylight.instrumenter&.uuid }
+      { request_id: current_request_id, inst: Skylight.instrumenter&.uuid }
     end
 
     # Allow for overwriting
@@ -123,8 +125,10 @@ module Skylight
 
     # Request ID code based on ActionDispatch::RequestId
     def set_request_id(env)
+      return if env[SKYLIGHT_REQUEST_ID]
+
       existing_request_id = env["action_dispatch.request_id"] || env["HTTP_X_REQUEST_ID"]
-      @current_request_id = env["skylight.request_id"] = make_request_id(existing_request_id)
+      self.current_request_id = env[SKYLIGHT_REQUEST_ID] = make_request_id(existing_request_id)
     end
 
     def make_request_id(request_id)
@@ -133,6 +137,14 @@ module Skylight
 
     def internal_request_id
       SecureRandom.uuid
+    end
+
+    def current_request_id
+      Thread.current[SKYLIGHT_REQUEST_ID]
+    end
+
+    def current_request_id=(request_id)
+      Thread.current[SKYLIGHT_REQUEST_ID] = request_id
     end
   end
 end
