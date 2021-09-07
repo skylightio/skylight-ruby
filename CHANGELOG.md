@@ -1,4 +1,7 @@
-# UNRELEASED
+## 5.2.0-beta (7 September 2021)
+
+- [IMPROVEMENT] Add Rack::Builder probe to better instrument middlewares in Sinatra and other Builder-based apps
+- [BUGFIX] Fix an issue in which trace logging could output the incorrect request ID.
 - [BUGFIX] fix native extension configuration for arm64 hosts
 
 ## 5.1.1 (May 27, 2021)
