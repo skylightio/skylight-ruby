@@ -1,3 +1,6 @@
+# UNRELEASED
+- [BUGFIX] fix native extension configuration for arm64 hosts
+
 ## 5.1.1 (May 27, 2021)
 
 - [BUGFIX] Correct ruby version requirement in skylight.gemspec
