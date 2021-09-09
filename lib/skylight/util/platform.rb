@@ -38,8 +38,8 @@ module Skylight
           "x86"
         when /ppc|powerpc/
           "powerpc"
-        when /^arm/
-          "arm"
+        when /arm64|aarch64/
+          "aarch64"
         else
           cpu
         end
