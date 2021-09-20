@@ -13,7 +13,7 @@ module Skylight
       # rubocop:disable Lint/DuplicateMethods
       def tick
         now = Time.now
-        now.to_i * 1_000_000_000 + now.usec * 1_000
+        (now.to_i * 1_000_000_000) + (now.usec * 1_000)
       end
 
       # rubocop:enable Lint/DuplicateMethods

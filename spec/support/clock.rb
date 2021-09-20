@@ -9,7 +9,7 @@ module SpecHelper
     end
 
     def absolute_secs
-      (@absolute_secs || __absolute_secs) + @skew / 1_000_000_000
+      (@absolute_secs || __absolute_secs) + (@skew / 1_000_000_000)
     end
 
     def tick
