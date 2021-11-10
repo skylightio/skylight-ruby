@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "skylight/util/lru_cache"
-require "active_support/dependencies"
+require "active_support/inflector"
 
 module Skylight
   module Extensions
@@ -163,7 +163,7 @@ module Skylight
 
       def instance_method_source_location(constant_name, method_name, source_name: :instance_method)
         @instance_method_source_location_cache.fetch([constant_name, method_name, source_name]) do
-          if (constant = ::ActiveSupport::Dependencies.safe_constantize(constant_name))
+          if (constant = ::ActiveSupport::Inflector.safe_constantize(constant_name))
             if constant.instance_methods.include?(:"before_instrument_#{method_name}")
               method_name = :"before_instrument_#{method_name}"
             end
