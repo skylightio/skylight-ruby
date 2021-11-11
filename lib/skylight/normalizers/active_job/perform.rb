@@ -55,26 +55,26 @@ module Skylight
 
           # Always assign the endpoint if it has not yet been assigned by the ActiveJob probe.
           if !trace.endpoint ||
-          (defined?(Skylight::Probes::ActiveJob::TITLE) && trace.endpoint == Skylight::Probes::ActiveJob::TITLE) ||
-          (defined?(Skylight::Probes::DelayedJob::Probe::UNKNOWN) && trace.endpoint == Skylight::Probes::DelayedJob::Probe::UNKNOWN) ||
-          # If a job is called using #perform_now inside a controller action
-          # or within another job's #perform method, we do not want this to
-          # overwrite the existing endpoint name (unless it is the default from ActiveJob).
-          #
-          # If the current endpoint name matches this payload, return true to allow the
-          # segment to be assigned by normalize_after.
-          trace.endpoint =~ DELIVERY_JOB ||
-            # This adapter wrapper needs to be handled specifically due to interactions with the
-            # standalone Delayed::Job probe, as there is no consistent way to get the wrapped
-            # job name among all Delayed::Job backends.
-            trace.endpoint == DELAYED_JOB_WRAPPER
-
+               (defined?(Skylight::Probes::ActiveJob::TITLE) && trace.endpoint == Skylight::Probes::ActiveJob::TITLE) ||
+               (
+                 defined?(Skylight::Probes::DelayedJob::Probe::UNKNOWN) &&
+                   trace.endpoint == Skylight::Probes::DelayedJob::Probe::UNKNOWN
+               ) ||
+               # If a job is called using #perform_now inside a controller action
+               # or within another job's #perform method, we do not want this to
+               # overwrite the existing endpoint name (unless it is the default from ActiveJob).
+               #
+               # If the current endpoint name matches this payload, return true to allow the
+               # segment to be assigned by normalize_after.
+               trace.endpoint =~ DELIVERY_JOB ||
+               # This adapter wrapper needs to be handled specifically due to interactions with the
+               # standalone Delayed::Job probe, as there is no consistent way to get the wrapped
+               # job name among all Delayed::Job backends.
+               trace.endpoint == DELAYED_JOB_WRAPPER
             trace.endpoint = endpoint
           end
 
-          if trace.endpoint == endpoint && config.enable_segments?
-            trace.segment = payload[:job].queue_name
-          end
+          trace.segment = payload[:job].queue_name if trace.endpoint == endpoint && config.enable_segments?
         end
 
         def normalize_title(job_instance)
