@@ -15,7 +15,7 @@ module Skylight
             .tap do |str|
               if str.match(DELIVERY_JOB)
                 mailer_class, mailer_method, * = job_instance.arguments
-                return "#{mailer_class}##{mailer_method}", str
+                return "#{mailer_class}##{mailer_method}", str if mailer_class && mailer_method
               end
             end
         end
@@ -33,9 +33,7 @@ module Skylight
         end
 
         def normalize_after(trace, _span, _name, payload)
-          return unless config.enable_segments? && assign_endpoint?(trace, payload)
-
-          trace.segment = payload[:job].queue_name
+          maybe_set_endpoint(trace, payload)
         end
 
         private
@@ -53,31 +51,30 @@ module Skylight
         end
 
         def maybe_set_endpoint(trace, payload)
-          trace.endpoint = normalize_title(payload[:job]) if assign_endpoint?(trace, payload)
-        end
+          endpoint = normalize_title(payload[:job])
 
-        def assign_endpoint?(trace, payload)
           # Always assign the endpoint if it has not yet been assigned by the ActiveJob probe.
-          return true unless trace.endpoint
-          if defined?(Skylight::Probes::ActiveJob::TITLE) && trace.endpoint == Skylight::Probes::ActiveJob::TITLE
-            return true
-          end
-          if defined?(SKylight::Probes::DelayedJob::Probe::UNKNOWN) &&
-               trace.endpoint == Skylight::Probes::DelayedJob::Probe::UNKNOWN
-            return true
+          if !trace.endpoint ||
+               (defined?(Skylight::Probes::ActiveJob::TITLE) && trace.endpoint == Skylight::Probes::ActiveJob::TITLE) ||
+               (
+                 defined?(Skylight::Probes::DelayedJob::Probe::UNKNOWN) &&
+                   trace.endpoint == Skylight::Probes::DelayedJob::Probe::UNKNOWN
+               ) ||
+               # If a job is called using #perform_now inside a controller action
+               # or within another job's #perform method, we do not want this to
+               # overwrite the existing endpoint name (unless it is the default from ActiveJob).
+               #
+               # If the current endpoint name matches this payload, return true to allow the
+               # segment to be assigned by normalize_after.
+               trace.endpoint =~ DELIVERY_JOB ||
+               # This adapter wrapper needs to be handled specifically due to interactions with the
+               # standalone Delayed::Job probe, as there is no consistent way to get the wrapped
+               # job name among all Delayed::Job backends.
+               trace.endpoint == DELAYED_JOB_WRAPPER
+            trace.endpoint = endpoint
           end
 
-          # If a job is called using #perform_now inside a controller action
-          # or within another job's #perform method, we do not want this to
-          # overwrite the existing endpoint name (unless it is the default from ActiveJob).
-          #
-          # If the current endpoint name matches this payload, return true to allow the
-          # segment to be assigned by normalize_after.
-          trace.endpoint == DELIVERY_JOB || trace.endpoint == normalize_title(payload[:job]) ||
-            # This adapter wrapper needs to be handled specifically due to interactions with the
-            # standalone Delayed::Job probe, as there is no consistent way to get the wrapped
-            # job name among all Delayed::Job backends.
-            trace.endpoint == DELAYED_JOB_WRAPPER
+          trace.segment = payload[:job].queue_name if trace.endpoint == endpoint && config.enable_segments?
         end
 
         def normalize_title(job_instance)

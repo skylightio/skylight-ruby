@@ -616,6 +616,11 @@ if enable
       Object.send(:remove_const, :User)
       Rails::Railtie::Configuration.class_variable_set(:@@app_middleware, nil) # rubocop:disable Style/ClassVars
       Rails.application = nil
+
+      # For Rails 7, which freezes these in an initializer.
+      # Can't start a new instance of the application when these are frozen.
+      ActiveSupport::Dependencies.autoload_paths = []
+      ActiveSupport::Dependencies.autoload_once_paths = []
     end
 
     let(:router_name) { "ActionDispatch::Routing::RouteSet" }
