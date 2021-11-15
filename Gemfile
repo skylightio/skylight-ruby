@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "grape", "~> 1.5.3"
+gem "grape", "~> 1.6.0"
 gem "rails", "~> 6.1.3"
 gem "sinatra", "~> 2.1.0"
 
