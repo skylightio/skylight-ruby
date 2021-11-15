@@ -1,4 +1,6 @@
-inherit_from: .rubocop_cc.yml
+inherit_from:
+  - .rubocop_todo.yml
+  - .rubocop_cc.yml
 
 # We want these to run on CodeClimate, but not in regular checks
 
