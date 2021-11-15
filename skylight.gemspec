@@ -47,4 +47,5 @@ Gem::Specification.new do |spec|
 
   # Extensions
   spec.extensions << "ext/extconf.rb"
+  spec.metadata = { "rubygems_mfa_required" => "true" }
 end
