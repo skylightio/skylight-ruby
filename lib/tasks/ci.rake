@@ -401,7 +401,7 @@ module CITasks
       def setup_bundle_cache_step
         {
           name: "Setup cache (bundler)",
-          uses: "actions/cache@v2.1.5",
+          uses: "actions/cache@v2.1.7",
           with: {
             :path => "${{ github.workspace }}/vendor/bundle",
             :key =>
@@ -422,7 +422,7 @@ module CITasks
           },
           {
             name: "Setup cache (yarn)",
-            uses: "actions/cache@v2.1.5",
+            uses: "actions/cache@v2.1.7",
             with: {
               path: "${{ steps.yarn-cache-dir-path.outputs.dir }}",
               key: "${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}",
