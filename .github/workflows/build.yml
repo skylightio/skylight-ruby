@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: ccbfa39e1903ae63c3885457121b43fa5626d9e604b38c358b10164b65b8c72e
+  CONFIG_DIGEST: fd1dd239f6f8d553712cde898e118a914becaad23a93e601ad2ab723722065f0
 'on':
   push:
     branches:
@@ -25,6 +25,9 @@ env:
     - opened
     - reopened
     - synchronize
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   ruby-3-0-default:
     name: ruby 3.0, default
