@@ -50,6 +50,6 @@ class Pathname
 
   def write(content)
     dirname.mkdir_p
-    File.open(self, "w") { |f| f.write(content) }
+    File.write(self, content)
   end
 end
