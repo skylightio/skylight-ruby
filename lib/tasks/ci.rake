@@ -239,6 +239,10 @@ module CITasks
             types: %w[labeled opened reopened synchronize]
           }
         },
+        concurrency: {
+          group: "ci-${{ github.ref }}",
+          "cancel-in-progress": true
+        },
         jobs: job_defs
       }
 
