@@ -36,7 +36,7 @@ module Skylight
       end
     end
 
-    attr_reader :uuid, :config, :gc, :extensions
+    attr_reader :uuid, :config, :gc, :extensions, :subscriber
 
     def self.native_new(_uuid, _config_env)
       raise "not implemented"

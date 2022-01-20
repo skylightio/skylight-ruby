@@ -62,6 +62,7 @@ enable_probe(:redis, %w[redis fakeredis/rspec])
 enable_probe(:action_view, %w[action_dispatch action_view])
 enable_probe(:"action_dispatch/request_id", "action_dispach/middleware/request_id")
 enable_probe(%i[active_job active_job_enqueue], "active_job")
+enable_probe(:active_record_async, "active_record")
 
 if ENV["TEST_MONGO_INTEGRATION"]
   enable_probe("mongo")

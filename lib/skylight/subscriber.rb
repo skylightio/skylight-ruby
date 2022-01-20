@@ -36,16 +36,30 @@ module Skylight
       end
     end
 
+    # cargo-culted from Rails's ConnectionAdapter
+    EXCEPTION_NEVER = { Exception => :never }.freeze # :nodoc:
+    EXCEPTION_IMMEDIATE = { Exception => :immediate }.freeze # :nodoc:
+    private_constant :EXCEPTION_NEVER, :EXCEPTION_IMMEDIATE
+    def with_trace(trace, &block) # :nodoc:
+      Thread.handle_interrupt(EXCEPTION_NEVER) do
+        previous_trace = @trace
+        @trace = trace
+        Thread.handle_interrupt(EXCEPTION_IMMEDIATE, &block)
+      ensure
+        @trace = previous_trace
+      end
+    end
+
     def start(name, _id, payload)
       return if @instrumenter.disabled?
-      return unless (trace = @instrumenter.current_trace)
+      return unless (trace = current_trace)
 
       _start(trace, name, payload)
     end
 
     def finish(name, _id, payload)
       return if @instrumenter.disabled?
-      return unless (trace = @instrumenter.current_trace)
+      return unless (trace = current_trace)
 
       while (curr = trace.notifications.pop)
         next unless curr.name == name
@@ -70,7 +84,15 @@ module Skylight
       # Ignored for now because nothing in rails uses it
     end
 
+    def publish_event(event)
+      # Ignored for now because only ActiveRecord::FutureResult uses it and we handle that with probes
+    end
+
     private
+
+    def current_trace
+      @trace || @instrumenter.current_trace
+    end
 
     def normalize(*args)
       @normalizers.normalize(*args)
