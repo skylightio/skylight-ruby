@@ -14,14 +14,10 @@ module Skylight
       # @option payload [String] [:name] The SQL operation
       # @option payload [Hash] [:binds] The bound parameters
       # @return [Array]
-      def normalize(_trace, name, payload)
-        case payload[:name]
-        when "SCHEMA", "CACHE"
-          return :skip
-        else
-          name = CAT
-          title = payload[:name] || "SQL"
-        end
+      def normalize(_trace, _name, payload)
+        return :skip if payload[:name] == "SCHEMA" || payload[:name] == "CACHE"
+
+        title = payload[:name] || "SQL"
 
         # We can only handle UTF-8 encoded strings.
         # (Construction method here avoids extra allocations)
@@ -38,7 +34,7 @@ module Skylight
           sql = nil
         end
 
-        [name, title, sql]
+        [CAT, title, sql]
       end
     end
   end
