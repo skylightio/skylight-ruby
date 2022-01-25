@@ -6,8 +6,8 @@ require "active_support/inflector"
 require "digest"
 
 OLDEST_RUBY = "2.6"
-NEWEST_RUBY = "3.0"
-HEAD_RUBY = "3.1"
+NEWEST_RUBY = "3.1"
+HEAD_RUBY = "3.2"
 
 module CITasks
   def self.mongo
