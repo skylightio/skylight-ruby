@@ -4,7 +4,9 @@ gem "delayed_job", require: false
 gem "delayed_job_active_record", require: false
 gem "excon"
 gem "faraday"
-gem "graphiti"
+gem "graphiti",
+    git: "https://github.com/nulldotpro/graphiti.git",
+    branch: "nulldotpro/remove-ruby-version-upper-bound"
 gem "graphql", "~> 1.13.0"
 gem "httpclient"
 gem "rexml"
