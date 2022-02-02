@@ -1,12 +1,9 @@
-## 5.2.0-beta2 (10 November 2021)
+## 5.2.0
 
 - [FEATURE] Experimental gRPC transport
 - [IMPROVEMENT] Internal native client refactors
-- [BUGFIX] Fix some internal errors related to Rails 7 alpha
-
-## 5.2.0-beta (7 September 2021)
-
 - [IMPROVEMENT] Add Rack::Builder probe to better instrument middlewares in Sinatra and other Builder-based apps
+- [BUGFIX] Fix some internal errors related to Rails 7
 - [BUGFIX] Fix an issue in which trace logging could output the incorrect request ID.
 - [BUGFIX] fix native extension configuration for arm64 hosts
 
