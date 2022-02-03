@@ -7,3 +7,5 @@ gem "rails", "~> 6.1.0"
 gem "sqlite3"
 
 gem "elasticsearch"
+
+gem "net-smtp", require: "false" if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1")

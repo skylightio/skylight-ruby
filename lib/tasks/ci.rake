@@ -6,8 +6,8 @@ require "active_support/inflector"
 require "digest"
 
 OLDEST_RUBY = "2.6"
-NEWEST_RUBY = "3.0"
-HEAD_RUBY = "3.1"
+NEWEST_RUBY = "3.1"
+HEAD_RUBY = "3.2"
 
 module CITasks
   def self.mongo
@@ -562,6 +562,10 @@ module CITasks
       def ruby_version
         # Use oldest version to make sure our lints aren't too new
         OLDEST_RUBY
+      end
+
+      def gemfile
+        "rails-6.1.x"
       end
 
       def to_template_hash

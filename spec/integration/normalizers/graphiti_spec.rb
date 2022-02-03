@@ -14,7 +14,7 @@ if defined?(Graphiti)
   describe "Graphiti integration", :agent do
     around do |example|
       Skylight.mock!
-      Skylight.trace { example.run }
+      Skylight.trace("graphiti") { example.run }
     ensure
       Skylight.stop!
     end
