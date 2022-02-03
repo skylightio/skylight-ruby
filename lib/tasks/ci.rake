@@ -560,8 +560,7 @@ module CITasks
       end
 
       def ruby_version
-        # Use oldest version to make sure our lints aren't too new
-        OLDEST_RUBY
+        "2.7" # Oldest version that works with Rails 7
       end
 
       def gemfile

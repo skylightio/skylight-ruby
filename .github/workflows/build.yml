@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 35b5217b21c79505119156404475e62112aa5a104ec9f5d43f964eeca9327579
+  CONFIG_DIGEST: 6c1eae0bafb827fa1dbfc670dcdefbc37836ec8eb445ddbbcbba669f485ecbfc
 'on':
   push:
     branches:
@@ -1291,18 +1291,18 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.6'
+        ruby-version: '2.7'
     - name: Setup volta
       uses: volta-cli/action@v1
     - name: Setup cache (bundler)
       uses: actions/cache@v2.1.7
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.6-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-2.7-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.6-rails-6.1.x-
-          ${{ runner.os }}-gems-2.6-
+          ${{ runner.os }}-gems-2.7-rails-6.1.x-
+          ${{ runner.os }}-gems-2.7-
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
       run: echo "::set-output name=dir::$(yarn cache dir)"
