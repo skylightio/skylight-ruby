@@ -18,3 +18,7 @@ gem "haml"
 
 gem "fakeredis"
 gem "redis"
+
+if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1")
+  gem "net-smtp", require: "false"
+end

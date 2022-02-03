@@ -4,3 +4,7 @@ gemspec path: "../.."
 
 gem "rails", "~> 6.0.3"
 gem "sqlite3"
+
+if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1")
+  gem "net-smtp", require: "false"
+end
