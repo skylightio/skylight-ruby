@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 957d8ef806a0d1be378f90eb58c431f351d5d018779fd05863101589ea463e26
+  CONFIG_DIGEST: 35b5217b21c79505119156404475e62112aa5a104ec9f5d43f964eeca9327579
 'on':
   push:
     branches:
@@ -1283,6 +1283,8 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     if: always()
+    env:
+      BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -1296,9 +1298,10 @@ jobs:
       uses: actions/cache@v2.1.7
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.6-default-${{ hashFiles('Gemfile.lock') }}"
+        key: "${{ runner.os }}-gems-2.6-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
+          }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.6-default-
+          ${{ runner.os }}-gems-2.6-rails-6.1.x-
           ${{ runner.os }}-gems-2.6-
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path

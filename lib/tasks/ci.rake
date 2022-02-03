@@ -564,6 +564,10 @@ module CITasks
         OLDEST_RUBY
       end
 
+      def gemfile
+        "rails-6.1.x"
+      end
+
       def to_template_hash
         super.merge(if: "always()")
       end
