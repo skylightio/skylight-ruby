@@ -25,10 +25,6 @@ module Skylight
                   "Mocked Instrumenter"
                 end
 
-                def self.native_new(*)
-                  allocate
-                end
-
                 def native_start
                   true
                 end
@@ -47,7 +43,7 @@ module Skylight
               :Trace,
               Class.new(OriginalTrace) do
                 def self.native_new(start, _uuid, endpoint, meta)
-                  inst = allocate
+                  inst = super 
                   inst.instance_variable_set(:@start, start)
                   inst.instance_variable_set(:@endpoint, endpoint)
                   inst.instance_variable_set(:@starting_endpoint, endpoint)
