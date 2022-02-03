@@ -520,6 +520,7 @@ void Init_skylight_native() {
 
   rb_cTrace = rb_const_get(rb_mSkylight, rb_intern("Trace"));
   rb_define_singleton_method(rb_cTrace, "native_new", trace_new, 4);
+  rb_undef_alloc_func(rb_cTrace);
   rb_define_method(rb_cTrace, "native_get_started_at", trace_get_started_at, 0);
   rb_define_method(rb_cTrace, "native_get_endpoint", trace_get_endpoint, 0);
   rb_define_method(rb_cTrace, "native_set_endpoint", trace_set_endpoint, 1);
@@ -540,6 +541,7 @@ void Init_skylight_native() {
 
   rb_cInstrumenter = rb_const_get(rb_mSkylight, rb_intern("Instrumenter"));
   rb_define_singleton_method(rb_cInstrumenter, "native_new", instrumenter_new, 2);
+  rb_undef_alloc_func(rb_cInstrumenter);
   rb_define_method(rb_cInstrumenter, "native_start", instrumenter_start, 0);
   rb_define_method(rb_cInstrumenter, "native_stop", instrumenter_stop, 0);
   rb_define_method(rb_cInstrumenter, "native_submit_trace", instrumenter_submit_trace, 1);
