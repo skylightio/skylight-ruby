@@ -8,6 +8,4 @@ gem "sqlite3"
 
 gem "elasticsearch"
 
-if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1")
-  gem "net-smtp", require: "false"
-end
+gem "net-smtp", require: "false" if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1")
