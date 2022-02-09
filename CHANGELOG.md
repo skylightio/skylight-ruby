@@ -1,11 +1,17 @@
-## 5.2.0
+## 5.3.0 (February, 9, 2022)
+
+- [FEATURE] Support for Rails 7's `load_async`.
+- [IMPROVEMENT] `skylight doctor` now checks glibc compatibility.
+- [BUGFIX] Fix an issue where `skylight doctor` wouldn't correctly log installation errors.
+
+## 5.2.0 (February 3, 2022)
 
 - [FEATURE] Experimental gRPC transport
 - [IMPROVEMENT] Internal native client refactors
 - [IMPROVEMENT] Add Rack::Builder probe to better instrument middlewares in Sinatra and other Builder-based apps
 - [BUGFIX] Fix some internal errors related to Rails 7
 - [BUGFIX] Fix an issue in which trace logging could output the incorrect request ID.
-- [BUGFIX] fix native extension configuration for arm64 hosts
+- [BUGFIX] Fix native extension configuration for arm64 hosts
 
 ## 5.1.1 (May 27, 2021)
 
