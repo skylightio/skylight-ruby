@@ -9,6 +9,15 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "skylight/native_ext_fetcher"
 require "skylight/util/platform"
 
+GLIBC_MIN = 2.23
+GLIBC_V4_MIN = 2.15
+
+if `ldd --version` =~ /GLIBC (\d+(\.\d+)+)/ && ($1.to_f < GLIBC_MIN)
+  message = "glibc #{GLIBC_MIN}+ is required but you have #{$1} installed."
+  message << "\nYou may be able to use Skylight v4 instead." if $1.to_f >= GLIBC_V4_MIN
+  fail message
+end
+
 # Util allowing proxying writes to multiple location
 class MultiIO
   def initialize(*targets)
