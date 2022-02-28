@@ -8,6 +8,8 @@ module Skylight
               ::Elasticsearch::Transport::Transport::Base
             elsif defined?(::Elastic::Transport::Transport::Base)
               ::Elastic::Transport::Transport::Base
+            else
+              return false
             end
 
           # Prepending doesn't work here since this a module that's already been included

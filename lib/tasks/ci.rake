@@ -139,7 +139,10 @@ module CITasks
         elasticsearch: {
           image: "elasticsearch:8.0.0",
           ports: %w[9200:9200 9300:9300],
-          options: "-e \"discovery.type=single-node\""
+          options: [
+            '-e "discovery.type=single-node"',
+            '-e "xpack.security.enabled=false"'
+          ]
         }
       },
       env: {
