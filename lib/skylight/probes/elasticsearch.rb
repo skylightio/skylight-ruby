@@ -3,7 +3,7 @@ module Skylight
     module Elasticsearch
       class Probe
         def install
-          const = 
+          const =
             if defined?(::Elasticsearch::Transport::Transport::Base)
               ::Elasticsearch::Transport::Transport::Base
             elsif defined?(::Elastic::Transport::Transport::Base)

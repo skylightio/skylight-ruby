@@ -21,13 +21,13 @@ describe "Elasticsearch integration", :elasticsearch_probe, :instrumenter, :agen
         a_hash_including(cat: "db.elasticsearch.request", title: "PUT skylight-test")
       )
 
-      client.index(index: "skylight-test", type: "person", id: "1", body: { name: "Joe" })
+      client.index(index: "skylight-test", id: "1", body: { name: "Joe" })
 
       expect(current_trace.mock_spans).to include(
         a_hash_including(
           cat: "db.elasticsearch.request",
           title: "PUT skylight-test",
-          desc: { type: "person", id: "?" }.to_json
+          desc: { type: "_doc", id: "?" }.to_json
         )
       )
     end

@@ -140,8 +140,9 @@ module CITasks
           image: "elasticsearch:8.0.0",
           ports: %w[9200:9200 9300:9300],
           options: [
-            '-e "discovery.type=single-node"',
-            '-e "xpack.security.enabled=false"'
+            "-e \"discovery.type=single-node\"",
+            "-e \"xpack.security.enabled=false\"",
+            "-e \"cluster.routing.allocation.disk.threshold_enabled=false\""
           ]
         }
       },
