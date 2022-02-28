@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 6c1eae0bafb827fa1dbfc670dcdefbc37836ec8eb445ddbbcbba669f485ecbfc
+  CONFIG_DIGEST: 1e3e986b6d07ffc3670cdcd8cf218dc23b3387ebb340d464523f4a86e99ba4de
 'on':
   push:
     branches:
@@ -202,7 +202,7 @@ jobs:
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'elasticsearch')
     services:
       elasticsearch:
-        image: elasticsearch:6.8.6
+        image: elasticsearch:8.0.0
         ports:
         - 9200:9200
         - 9300:9300

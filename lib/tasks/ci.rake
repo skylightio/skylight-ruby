@@ -137,7 +137,7 @@ module CITasks
       gemfile: "elasticsearch",
       services: {
         elasticsearch: {
-          image: "elasticsearch:6.8.6",
+          image: "elasticsearch:8.0.0",
           ports: %w[9200:9200 9300:9300],
           options: "-e \"discovery.type=single-node\""
         }
