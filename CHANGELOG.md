@@ -1,3 +1,7 @@
+## 5.3.1 (February 28, 2022)
+
+- [BUGFIX] Fix Elasticsearch integration for gem versions >= 8.
+
 ## 5.3.0 (February, 9, 2022)
 
 - [FEATURE] Support for Rails 7's `load_async`.

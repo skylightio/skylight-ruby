@@ -137,9 +137,17 @@ module CITasks
       gemfile: "elasticsearch",
       services: {
         elasticsearch: {
-          image: "elasticsearch:6.8.6",
+          image: "elasticsearch:8.0.0",
           ports: %w[9200:9200 9300:9300],
-          options: "-e \"discovery.type=single-node\""
+          options:
+            [
+              "-e \"discovery.type=single-node\"",
+              "-e \"xpack.security.enabled=false\"",
+              "-e \"cluster.routing.allocation.disk.threshold_enabled=false\"",
+              "--health-cmd \"curl --fail http://localhost:9200\"",
+              "--health-interval 5s",
+              "--health-retries 20"
+            ].join(" ")
         }
       },
       env: {

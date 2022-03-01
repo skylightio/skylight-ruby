@@ -3,8 +3,17 @@ module Skylight
     module Elasticsearch
       class Probe
         def install
+          const =
+            if defined?(::Elasticsearch::Transport::Transport::Base)
+              ::Elasticsearch::Transport::Transport::Base
+            elsif defined?(::Elastic::Transport::Transport::Base)
+              ::Elastic::Transport::Transport::Base
+            else
+              return false
+            end
+
           # Prepending doesn't work here since this a module that's already been included
-          ::Elasticsearch::Transport::Transport::Base.class_eval do
+          const.class_eval do
             alias_method :perform_request_without_sk, :perform_request
             def perform_request(method, path, *args, &block)
               ActiveSupport::Notifications.instrument(
