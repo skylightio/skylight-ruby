@@ -14,7 +14,7 @@ env:
   COVERAGE: 'true'
   COVERAGE_DIR: "${{ github.workspace }}/coverage"
   DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 54e6f499844e47afd9d48ca94cb72c8737ac31b677257e4f5b4e64205cf2a734
+  CONFIG_DIGEST: 695aa6188d684e4da0d55aa932803ecbc9417967be9244544b34fc629179cc39
 'on':
   push:
     branches:
@@ -206,10 +206,8 @@ jobs:
         ports:
         - 9200:9200
         - 9300:9300
-        options:
-        - -e "discovery.type=single-node"
-        - -e "xpack.security.enabled=false"
-        - -e "cluster.routing.allocation.disk.threshold_enabled=false"
+        options: "-e 'discovery.type=single-node' -e 'xpack.security.enabled=false'
+          -e 'cluster.routing.allocation.disk.threshold_enabled=false'"
     env:
       BUNDLE_GEMFILE: gemfiles/elasticsearch/Gemfile
       TEST_ELASTICSEARCH_INTEGRATION: 'true'
