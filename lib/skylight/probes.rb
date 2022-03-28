@@ -83,6 +83,7 @@ module Skylight
           .glob(root.join("./**/*.rb"))
           .each do |f|
             name = f.relative_path_from(root).sub_ext("").to_s
+            name = name.gsub(/.*skylight\/core\/probes\//, "")
             raise "duplicate probe name: #{name}; original=#{available[name]}; new=#{f}" if available.key?(name)
 
             available[name] = f
