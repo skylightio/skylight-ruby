@@ -233,7 +233,6 @@ module CITasks
       required = jobs.select(&:required?).map(&:id)
 
       job_defs.merge!(LintJob.new.to_template)
-      job_defs.merge!(UploadCoverageJob.new({ needs: required }).to_template)
       job_defs.merge!(FinalizeJob.new({ needs: required }).to_template)
 
       template = {
@@ -284,10 +283,7 @@ module CITasks
       "SKYLIGHT_TEST_DIR" => "/tmp",
       "RAILS_ENV" => "development",
       "EMBEDDED_HTTP_SERVER_TIMEOUT" => "30",
-      "WORKER_SPAWN_TIMEOUT" => "15",
-      "COVERAGE" => "true",
-      "COVERAGE_DIR" => "${{ github.workspace }}/coverage",
-      "DISABLED_COVERAGE_DIR" => "${{ github.workspace }}/coverage-disabled"
+      "WORKER_SPAWN_TIMEOUT" => "15"
     }.freeze
 
     class BaseJob
@@ -466,31 +462,9 @@ module CITasks
         {
           name: "Run tests (agent disabled)",
           env: {
-            "COVERAGE_DIR" => DEFAULT_ENV.fetch("DISABLED_COVERAGE_DIR"),
             "SKYLIGHT_DISABLE_AGENT" => "true"
           },
           run: "bundle exec rake"
-        }
-      end
-
-      def prepare_coverage_step
-        # FIXME: replace uuidgen with static job id?
-        { name: "Prepare coverage files for upload", run: <<~RUN }
-              mkdir -p coverage-sync
-              cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-              cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-            RUN
-      end
-
-      def upload_coverage_step
-        {
-          name: "Upload coverage files",
-          if: "success()",
-          uses: "actions/upload-artifact@v2",
-          with: {
-            name: "coverage",
-            path: "coverage-sync"
-          }
         }
       end
 
@@ -537,9 +511,7 @@ module CITasks
           setup_bundle_cache_step,
           install_bundler_dependencies_step,
           run_tests_step,
-          run_tests_disabled_agent_step,
-          prepare_coverage_step,
-          upload_coverage_step
+          run_tests_disabled_agent_step
         ].flatten.compact
       end
     end
@@ -615,92 +587,6 @@ module CITasks
               bundle exec rubocop -v
               bundle exec rubocop
             RUN
-      end
-    end
-
-    class UploadCoverageJob < BaseJob
-      def name
-        "upload-coverage"
-      end
-
-      def always_run?
-        true
-      end
-
-      def to_template_hash
-        super.merge(if: "always()")
-      end
-
-      def steps
-        [
-          checkout_step,
-          *setup_commit_metadata_steps,
-          install_codeclimate_step,
-          download_coverage_data_step,
-          prepare_and_upload_coverage_data_step
-        ].flatten.compact
-      end
-
-      def setup_commit_metadata_steps
-        [
-          {
-            name: "Set up commit metadata (push)",
-            if: "github.event_name == 'push'",
-            env: {
-              GIT_COMMIT_SHA: "${{ github.sha }}",
-              GIT_BRANCH: "${{ github.ref }}"
-            },
-            run: <<~RUN
-              echo "GIT_COMMIT_SHA=${GIT_COMMIT_SHA}" >> $GITHUB_ENV
-              echo "GIT_BRANCH=${GIT_BRANCH/refs\/heads\//}" >> $GITHUB_ENV
-            RUN
-          },
-          {
-            name: "Set up commit metadata (pull_request)",
-            if: "github.event_name == 'pull_request'",
-            env: {
-              GIT_COMMIT_SHA: "${{ github.event.pull_request.head.sha }}",
-              GIT_BRANCH: "${{ github.event.pull_request.head.ref }}"
-            },
-            run: <<~RUN
-              echo "GIT_COMMIT_SHA=${GIT_COMMIT_SHA}" >> $GITHUB_ENV
-              echo "GIT_BRANCH=${GIT_BRANCH}" >> $GITHUB_ENV
-            RUN
-          }
-        ]
-      end
-
-      def install_codeclimate_step
-        { name: "Install Codeclimate test reporter", run: <<~RUN }
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-            chmod +x ./cc-test-reporter
-          RUN
-      end
-
-      def download_coverage_data_step
-        {
-          name: "Download coverage data",
-          uses: "actions/download-artifact@v2",
-          with: {
-            name: "coverage",
-            path: "coverage"
-          }
-        }
-      end
-
-      def prepare_and_upload_coverage_data_step
-        {
-          name: "Prepare and upload coverage",
-          env: {
-            CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"
-          },
-          run: <<~RUN
-            mkdir -p formatted_coverage
-            find coverage -name '*.json' | xargs -I % ./cc-test-reporter format-coverage -t simplecov -o formatted_coverage/% %
-            ./cc-test-reporter sum-coverage formatted_coverage/**/*.json
-            ./cc-test-reporter upload-coverage
-          RUN
-        }
       end
     end
 
