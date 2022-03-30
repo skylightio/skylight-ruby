@@ -11,10 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  COVERAGE: 'true'
-  COVERAGE_DIR: "${{ github.workspace }}/coverage"
-  DISABLED_COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
-  CONFIG_DIGEST: 5a4768f29a63b2d3bf4b6ecc3f8c0c75de5be8a5cab05e48d9ad6172aaef56ef
+  CONFIG_DIGEST: 94411571c5c52147a334bc95fd804501f4a1bd66e20da74f0b2efc944cb4b34a
 'on':
   push:
     branches:
@@ -61,20 +58,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
   ruby-3-1-rails-6-1-x-mongo:
     name: ruby 3.1, rails-6.1.x, mongo
     runs-on: ubuntu-latest
@@ -119,20 +104,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-2-7-mongoid-6-x-mongoid-6:
@@ -179,20 +152,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-3-1-elasticsearch-elasticsearch:
@@ -243,20 +204,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-2-6-sidekiq-4-x-graphql-1-7-x:
@@ -296,20 +245,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-2-7-graphql-1-9-x:
@@ -349,20 +286,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-2-6-rails-5-2-x:
@@ -403,20 +328,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-3-1-rails-6-0-x:
@@ -457,20 +370,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-3-1-rails-6-1-x:
@@ -511,20 +412,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-3-1-rails-edge:
@@ -566,20 +455,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-2-6-sinatra-1-x:
@@ -619,20 +496,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-3-1-sinatra-2-x:
@@ -673,20 +538,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-3-1-sinatra-edge:
@@ -727,20 +580,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-2-6-grape-1-x:
@@ -780,20 +621,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-3-1-grape-1-x:
@@ -834,20 +663,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-2-7-grape-1-2-x:
@@ -887,20 +704,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-3-1-grape-edge:
@@ -941,20 +746,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-3-1-sequel-4-34-0:
@@ -994,20 +787,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-2-7-ams-0-8-x:
@@ -1047,20 +828,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-2-7-ams-0-9-x:
@@ -1100,20 +869,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-3-1-ams-0-10-x:
@@ -1153,20 +910,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-head-rails-6-1-x:
@@ -1209,20 +954,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   ruby-head-rails-edge:
@@ -1266,20 +999,8 @@ jobs:
         bundle exec rake
     - name: Run tests (agent disabled)
       env:
-        COVERAGE_DIR: "${{ github.workspace }}/coverage-disabled"
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    - name: Prepare coverage files for upload
-      run: |
-        mkdir -p coverage-sync
-        cp coverage/coverage.json coverage-sync/coverage.$(uuidgen).json
-        cp coverage-disabled/coverage.json coverage-sync/coverage.disabled.$(uuidgen).json
-    - name: Upload coverage files
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage-sync
     needs:
     - ruby-3-1-default
   lint:
@@ -1329,65 +1050,6 @@ jobs:
       run: |
         bundle exec rubocop -v
         bundle exec rubocop
-  upload-coverage:
-    name: upload-coverage
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Set up commit metadata (push)
-      if: github.event_name == 'push'
-      env:
-        GIT_COMMIT_SHA: "${{ github.sha }}"
-        GIT_BRANCH: "${{ github.ref }}"
-      run: |
-        echo "GIT_COMMIT_SHA=${GIT_COMMIT_SHA}" >> $GITHUB_ENV
-        echo "GIT_BRANCH=${GIT_BRANCH/refs/heads//}" >> $GITHUB_ENV
-    - name: Set up commit metadata (pull_request)
-      if: github.event_name == 'pull_request'
-      env:
-        GIT_COMMIT_SHA: "${{ github.event.pull_request.head.sha }}"
-        GIT_BRANCH: "${{ github.event.pull_request.head.ref }}"
-      run: |
-        echo "GIT_COMMIT_SHA=${GIT_COMMIT_SHA}" >> $GITHUB_ENV
-        echo "GIT_BRANCH=${GIT_BRANCH}" >> $GITHUB_ENV
-    - name: Install Codeclimate test reporter
-      run: |
-        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-        chmod +x ./cc-test-reporter
-    - name: Download coverage data
-      uses: actions/download-artifact@v2
-      with:
-        name: coverage
-        path: coverage
-    - name: Prepare and upload coverage
-      env:
-        CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"
-      run: |
-        mkdir -p formatted_coverage
-        find coverage -name '*.json' | xargs -I % ./cc-test-reporter format-coverage -t simplecov -o formatted_coverage/% %
-        ./cc-test-reporter sum-coverage formatted_coverage/**/*.json
-        ./cc-test-reporter upload-coverage
-    needs:
-    - ruby-3-1-default
-    - ruby-3-1-rails-6-1-x-mongo
-    - ruby-2-7-mongoid-6-x-mongoid-6
-    - ruby-3-1-elasticsearch-elasticsearch
-    - ruby-2-6-sidekiq-4-x-graphql-1-7-x
-    - ruby-2-7-graphql-1-9-x
-    - ruby-2-6-rails-5-2-x
-    - ruby-3-1-rails-6-0-x
-    - ruby-3-1-rails-6-1-x
-    - ruby-2-6-sinatra-1-x
-    - ruby-3-1-sinatra-2-x
-    - ruby-2-6-grape-1-x
-    - ruby-3-1-grape-1-x
-    - ruby-2-7-grape-1-2-x
-    - ruby-3-1-sequel-4-34-0
-    - ruby-2-7-ams-0-8-x
-    - ruby-2-7-ams-0-9-x
-    - ruby-3-1-ams-0-10-x
   required-tests-passed:
     name: Required Tests Passed
     runs-on: ubuntu-latest
