@@ -78,15 +78,14 @@ module Skylight
       end
 
       def add_path(path)
-        root = Pathname.new(path)
-        Pathname
-          .glob(root.join("./**/*.rb"))
-          .each do |f|
-            name = f.relative_path_from(root).sub_ext("").to_s
-            raise "duplicate probe name: #{name}; original=#{available[name]}; new=#{f}" if available.key?(name)
+        Dir.glob("**/*.rb", base: path) do |f|
+          name = Pathname.new(f).sub_ext("").to_s
+          full_path = File.expand_path(f, path)
 
-            available[name] = f
-          end
+          raise "duplicate probe name: #{name}; original=#{available[name]}; new=#{full_path}" if available.key?(name)
+
+          available[name] = full_path
+        end
       end
 
       def available
