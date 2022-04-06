@@ -1,8 +1,12 @@
+## 5.3.2 (April 6, 2022)
+
+- [BUGFIX] Fix case-sensitivity issue when computing relative paths
+
 ## 5.3.1 (February 28, 2022)
 
 - [BUGFIX] Fix Elasticsearch integration for gem versions >= 8.
 
-## 5.3.0 (February, 9, 2022)
+## 5.3.0 (February 9, 2022)
 
 - [FEATURE] Support for Rails 7's `load_async`.
 - [IMPROVEMENT] `skylight doctor` now checks glibc compatibility.
