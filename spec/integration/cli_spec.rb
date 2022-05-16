@@ -71,7 +71,7 @@ describe "CLI integration", :http do
     prompt
   end
 
-  def fill_prompt(io, str, echo = ENV["DEBUG"])
+  def fill_prompt(io, str, echo = ENV.fetch("DEBUG", nil))
     io.puts str
     puts str if echo
   end

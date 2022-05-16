@@ -87,6 +87,9 @@ Style/DoubleNegation:
 Style/Documentation:
   Enabled: false
 
+Style/EnvHome:
+  Enabled: false
+
 Style/GlobalVars:
   Exclude:
     - "ext/extconf.rb"

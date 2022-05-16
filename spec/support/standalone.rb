@@ -50,7 +50,7 @@ module SpecHelper
     opts[:port] ||= 9292
 
     # This also resets other ENV vars that are set in the block
-    rails_edge = ENV["RAILS_EDGE"]
+    rails_edge = ENV.fetch("RAILS_EDGE", nil)
     UNBUNDLED_METHOD.call do
       Standalone.with_dummy opts[:dir] do
         Standalone.set_env(opts[:rails_version], opts[:port])

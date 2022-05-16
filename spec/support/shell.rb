@@ -48,7 +48,7 @@ module SpecHelpers
       @expector.call(line.strip, out)
 
       # raise 'no match' unless out === line
-      puts "[IN]: #{reply}" if reply && ENV["DEBUG"]
+      puts "[IN]: #{reply}" if reply && ENV.fetch("DEBUG", nil)
       reply
     rescue StopIteration
       raise "expectation list ended before output did; out=#{line.inspect}"

@@ -16,7 +16,7 @@ class ExtensionTask < Rake::ExtensionTask
   def sh(*cmd)
     original_env = ENV.to_hash
     ENV["SKYLIGHT_REQUIRED"] = "true"
-    ENV["SKYLIGHT_EXT_STRICT"] = ENV["SKYLIGHT_EXT_STRICT"] =~ /^false$/i ? nil : "true"
+    ENV["SKYLIGHT_EXT_STRICT"] = ENV.fetch("SKYLIGHT_EXT_STRICT", nil) =~ /^false$/i ? nil : "true"
     super
   ensure
     ENV.replace(original_env)
@@ -27,7 +27,7 @@ ExtensionTask.new do |ext|
   ext.name = "skylight_native"
   ext.ext_dir = "ext"
   ext.source_pattern = "*.{c,h}"
-  ext.native_lib_path = ENV["SKYLIGHT_LIB_PATH"]
+  ext.native_lib_path = ENV.fetch("SKYLIGHT_LIB_PATH", nil)
 end
 
 CLEAN << File.expand_path("ext/install.log", __dir__)

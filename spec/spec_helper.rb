@@ -9,7 +9,7 @@ begin
   require "simplecov_json_formatter"
   SimpleCov.formatter = SimpleCov::Formatter::JSONFormatter
   SimpleCov.start do
-    coverage_dir(ENV["COVERAGE_DIR"] || "coverage")
+    coverage_dir(ENV.fetch("COVERAGE_DIR", "coverage"))
     add_filter %r{/spec/}
     add_filter %r{/vendor/}
   end
@@ -118,7 +118,7 @@ end
 # receive requests. The HTTP server is used to mock out the Skylight hosted
 # service.
 def get_embedded_http_server_timeout
-  if (timeout = ENV["EMBEDDED_HTTP_SERVER_TIMEOUT"])
+  if (timeout = ENV.fetch("EMBEDDED_HTTP_SERVER_TIMEOUT", nil))
     puts "EMBEDDED_HTTP_SERVER_TIMEOUT=#{timeout}"
     timeout.to_i
   else
@@ -128,7 +128,7 @@ end
 
 # Similar to above, but this is for waiting for the worker to spawn.
 def get_worker_spawn_timeout
-  if (timeout = ENV["WORKER_SPAWN_TIMEOUT"])
+  if (timeout = ENV.fetch("WORKER_SPAWN_TIMEOUT", nil))
     puts "WORKER_SPAWN_TIMEOUT=#{timeout}"
     timeout.to_i
   else
@@ -213,7 +213,7 @@ RSpec.configure do |config|
   end
 
   original_wd = Dir.pwd
-  original_home = ENV["HOME"]
+  original_home = ENV.fetch("HOME", nil)
 
   config.around :each do |example|
     FileUtils.rm_rf tmp if File.exist?(tmp)

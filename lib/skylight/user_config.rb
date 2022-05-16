@@ -18,7 +18,9 @@ module Skylight
         @config[:user_config_path] ||
           begin
             require "etc"
-            home_dir = ENV["HOME"] || Etc.getpwuid.dir || (ENV["USER"] && File.expand_path("~#{ENV["USER"]}"))
+            home_dir =
+              ENV.fetch("HOME", nil) || Etc.getpwuid.dir ||
+                (ENV.fetch("USER", nil) && File.expand_path("~#{ENV.fetch("USER", nil)}"))
             if home_dir
               File.join(home_dir, ".skylight")
             else
@@ -31,7 +33,7 @@ module Skylight
     end
 
     def disable_dev_warning?
-      disable_dev_warning || ENV["SKYLIGHT_DISABLE_DEV_WARNING"] =~ /^true$/i
+      disable_dev_warning || ENV.fetch("SKYLIGHT_DISABLE_DEV_WARNING", nil) =~ /^true$/i
     end
 
     def disable_env_warning?

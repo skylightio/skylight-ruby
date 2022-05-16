@@ -30,7 +30,7 @@ module Skylight
       end
 
       it "works with a proxy" do
-        original_proxy = ENV["HTTP_PROXY"]
+        original_proxy = ENV.fetch("HTTP_PROXY", nil)
         ENV["HTTP_PROXY"] = "foo:bar@127.0.0.1:123"
 
         expect(Net::HTTP).to receive(:start)

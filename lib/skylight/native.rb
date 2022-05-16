@@ -59,13 +59,13 @@ module Skylight
   end
 
   def self.libskylight_path
-    ENV["SKYLIGHT_LIB_PATH"] || File.expand_path("../native/#{Util::Platform.tuple}", __FILE__)
+    ENV.fetch("SKYLIGHT_LIB_PATH") { File.expand_path("../native/#{Util::Platform.tuple}", __FILE__) }
   end
 
-  skylight_required = ENV.key?("SKYLIGHT_REQUIRED") && ENV["SKYLIGHT_REQUIRED"] !~ /^false$/i
+  skylight_required = ENV.key?("SKYLIGHT_REQUIRED") && ENV.fetch("SKYLIGHT_REQUIRED", nil) !~ /^false$/i
 
   begin
-    unless ENV.key?("SKYLIGHT_DISABLE_AGENT") && ENV["SKYLIGHT_DISABLE_AGENT"] !~ /^false$/i
+    unless ENV.key?("SKYLIGHT_DISABLE_AGENT") && ENV.fetch("SKYLIGHT_DISABLE_AGENT", nil) !~ /^false$/i
       lib = "#{libskylight_path}/libskylight.#{Util::Platform.libext}"
 
       if File.exist?(lib)

@@ -153,7 +153,7 @@ module Skylight
       return false unless sk_config
 
       key = "SKYLIGHT_ENABLED"
-      activate = ENV.key?(key) ? ENV[key] !~ /^false$/i : environments.include?(Rails.env.to_s)
+      activate = ENV.key?(key) ? ENV.fetch(key, nil) !~ /^false$/i : environments.include?(Rails.env.to_s)
 
       show_worker_activation_warning(sk_config) if activate
 

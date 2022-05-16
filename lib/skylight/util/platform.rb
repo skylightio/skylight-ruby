@@ -12,7 +12,7 @@ module Skylight
           #   Ruby doesn't know that it's on a musl-based platform. `ldd` is the
           #   only reliable way to detect musl that we've found.
           # See https://github.com/skylightio/skylight-ruby/issues/92
-          ENV["SKYLIGHT_MUSL"] || `ldd --version 2>&1` =~ /musl/ ? "linux-musl" : "linux"
+          ENV.fetch("SKYLIGHT_MUSL") { `ldd --version 2>&1` =~ /musl/ } ? "linux-musl" : "linux"
         when /darwin/
           "darwin"
         when /freebsd/

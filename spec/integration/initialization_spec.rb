@@ -48,7 +48,7 @@ describe "Initialization integration", :http do
     FileUtils.rm_rf "log"
     FileUtils.mkdir "log"
 
-    original_trace = ENV["SKYLIGHT_ENABLE_TRACE_LOGS"]
+    original_trace = ENV.fetch("SKYLIGHT_ENABLE_TRACE_LOGS", nil)
     ENV.delete("SKYLIGHT_ENABLE_TRACE_LOGS")
 
     env = { "RAILS_ENV" => rails_env }
