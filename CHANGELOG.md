@@ -1,3 +1,5 @@
+- [IMPROVEMENT] Track the original class/method name for Sidekiq delayed object proxies
+
 ## 5.3.2 (April 6, 2022)
 
 - [BUGFIX] Fix case-sensitivity issue when computing relative paths

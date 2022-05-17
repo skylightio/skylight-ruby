@@ -4,6 +4,7 @@ require "skylight/instrumenter"
 enable = false
 begin
   require "sidekiq/testing"
+  Sidekiq::Extensions.enable_delay!
   enable = true
 rescue LoadError
   puts "[INFO] Skipping Sidekiq integration specs"
@@ -60,6 +61,19 @@ if enable
             err = { "runtime_error" => RuntimeError, "shutdown" => Sidekiq::Shutdown }.fetch(key)
 
             raise err
+          end
+        end
+      )
+
+      stub_const(
+        "MyClass",
+        Class.new do
+          def self.delayable_method
+            Skylight.instrument category: "app.inside" do
+              Skylight.instrument category: "app.delayed" do
+                SpecHelper.clock.skip 1
+              end
+            end
           end
         end
       )
@@ -144,6 +158,27 @@ if enable
 
         perform_line = MyWorker.instance_method(:perform).source_location[1]
         expect(batch.source_location(trace.spans[0])).to end_with("sidekiq_spec.rb:#{perform_line}")
+      end
+
+      it "records the proxied method for DelayedClass" do
+        MyClass.delay.delayable_method
+
+        server.wait resource: "/report"
+
+        batch = server.reports[0]
+        expect(batch).to_not be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("MyClass.delayable_method<sk-segment>default</sk-segment>")
+        expect(endpoint.traces.count).to eq(1)
+        trace = endpoint.traces[0]
+
+        names = trace.filter_spans.map { |s| s.event.category }
+
+        expect(names).to eq(%w[app.sidekiq.worker app.inside app.delayed])
+
+        # This is not ideal, but we're tracking Sidekiq's internal Proxy
+        expect(batch.source_location(trace.spans[0])).to end_with("sidekiq")
       end
     end
   end
