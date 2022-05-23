@@ -2,6 +2,7 @@ require "spec_helper"
 require "skylight/instrumenter"
 enable = false
 begin
+  require "active_support/core_ext/kernel"
   require "delayed_job"
   require "delayed_job_active_record"
   enable = true

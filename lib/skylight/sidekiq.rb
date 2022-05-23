@@ -21,7 +21,7 @@ module Skylight
 
       def call(worker, job, queue)
         t { "Sidekiq middleware beginning trace" }
-        title = job["wrapped"] || job["class"]
+        title = job["display_class"] || job["wrapped"] || job["class"]
 
         # TODO: Using hints here would be ideal but requires further refactoring
         meta =
