@@ -4,17 +4,24 @@ require "rubygems"
 require "bundler/setup"
 
 # Do this at the start
-begin
-  require "simplecov"
-  require "simplecov_json_formatter"
+coverage = false
+if ENV["COVERAGE"]
+  begin
+    require "simplecov"
+    require "simplecov_json_formatter"
+    coverage = true
+  rescue LoadError
+    puts "Skipping CodeClimate coverage reporting"
+  end
+end
+
+if coverage
   SimpleCov.formatter = SimpleCov::Formatter::JSONFormatter
   SimpleCov.start do
     coverage_dir(ENV.fetch("COVERAGE_DIR", "coverage"))
     add_filter %r{/spec/}
     add_filter %r{/vendor/}
   end
-rescue LoadError
-  puts "Skipping CodeClimate coverage reporting"
 end
 
 # Sidekiq 4 added a `Delay` extension to `Module` by default;
@@ -60,7 +67,7 @@ end
 
 enable_probe(:redis, %w[redis fakeredis/rspec])
 enable_probe(:action_view, %w[action_dispatch action_view])
-enable_probe(:"action_dispatch/request_id", "action_dispach/middleware/request_id")
+enable_probe(:"action_dispatch/request_id", "action_dispatch/middleware/request_id")
 enable_probe(%i[active_job active_job_enqueue], "active_job")
 enable_probe(:active_record_async, %w[active_record active_record/future_result])
 
@@ -216,7 +223,7 @@ RSpec.configure do |config|
   original_home = ENV.fetch("HOME", nil)
 
   config.around :each do |example|
-    FileUtils.rm_rf tmp if File.exist?(tmp)
+    FileUtils.rm_rf tmp
 
     begin
       FileUtils.mkdir_p(tmp)
