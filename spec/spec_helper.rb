@@ -223,7 +223,7 @@ RSpec.configure do |config|
   original_home = ENV.fetch("HOME", nil)
 
   config.around :each do |example|
-    FileUtils.rm_rf tmp if File.exist?(tmp)
+    FileUtils.rm_rf tmp
 
     begin
       FileUtils.mkdir_p(tmp)
