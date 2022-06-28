@@ -82,7 +82,7 @@ module Skylight
     end
 
     it "force closes any open span on build" do
-      original_raise_on_error = ENV["SKYLIGHT_RAISE_ON_ERROR"]
+      original_raise_on_error = ENV.fetch("SKYLIGHT_RAISE_ON_ERROR", nil)
       ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
 
       trace = Skylight.trace "Rack", "app.rack.request"
@@ -103,7 +103,7 @@ module Skylight
     end
 
     it "marks broken for invalid span nesting" do
-      original_raise_on_error = ENV["SKYLIGHT_RAISE_ON_ERROR"]
+      original_raise_on_error = ENV.fetch("SKYLIGHT_RAISE_ON_ERROR", nil)
       ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
 
       trace = Skylight.trace "Rack", "app.rack.request"
@@ -119,7 +119,7 @@ module Skylight
     end
 
     it "closes any spans that were not properly closed" do
-      original_raise_on_error = ENV["SKYLIGHT_RAISE_ON_ERROR"]
+      original_raise_on_error = ENV.fetch("SKYLIGHT_RAISE_ON_ERROR", nil)
       ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
 
       trace = Skylight.trace "Rack", "app.rack.request"
@@ -180,7 +180,7 @@ module Skylight
     end
 
     it "cleans up current_trace when broken" do
-      original_raise_on_error = ENV["SKYLIGHT_RAISE_ON_ERROR"]
+      original_raise_on_error = ENV.fetch("SKYLIGHT_RAISE_ON_ERROR", nil)
       ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
 
       trace = Skylight.trace "Rack", "app.rack.request"

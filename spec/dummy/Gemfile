@@ -3,7 +3,7 @@ source "http://rubygems.org"
 if ENV["RAILS_EDGE"]
   gem "rails", git: "https://github.com/rails/rails", branch: "main"
 else
-  gem "rails", ENV["RAILS_VERSION"]
+  gem "rails", ENV.fetch("RAILS_VERSION", nil)
 end
 
-gem "skylight", path: ENV["SKYLIGHT_GEM_PATH"] || "../../"
+gem "skylight", path: ENV.fetch("SKYLIGHT_GEM_PATH", "../../")

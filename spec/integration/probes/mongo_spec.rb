@@ -2,7 +2,7 @@ require "spec_helper"
 
 # Requires mongodb instance to be running
 describe "Mongo integration with official driver", :mongo_probe, :instrumenter, :agent do
-  let(:mongo_host) { ENV["MONGO_HOST"] || "127.0.0.1" }
+  let(:mongo_host) { ENV.fetch("MONGO_HOST", "127.0.0.1") }
   let :client do
     Mongo::Client.new(["#{mongo_host}:27017"], database: "echo_test")
   end

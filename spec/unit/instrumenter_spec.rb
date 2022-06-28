@@ -24,7 +24,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
   context "boot" do
     before :each do
-      @original_raise_on_error = ENV["SKYLIGHT_RAISE_ON_ERROR"]
+      @original_raise_on_error = ENV.fetch("SKYLIGHT_RAISE_ON_ERROR", nil)
       ENV["SKYLIGHT_RAISE_ON_ERROR"] = nil
     end
 

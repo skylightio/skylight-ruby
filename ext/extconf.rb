@@ -43,19 +43,19 @@ end
 include Skylight::Util
 
 SKYLIGHT_INSTALL_LOG = File.expand_path("install.log", __dir__)
-SKYLIGHT_REQUIRED = ENV.key?("SKYLIGHT_REQUIRED") && ENV["SKYLIGHT_REQUIRED"] !~ /^false$/i
-SKYLIGHT_FETCH_LIB = !ENV.key?("SKYLIGHT_FETCH_LIB") || ENV["SKYLIGHT_FETCH_LIB"] !~ /^false$/i
+SKYLIGHT_REQUIRED = ENV.key?("SKYLIGHT_REQUIRED") && ENV.fetch("SKYLIGHT_REQUIRED", nil) !~ /^false$/i
+SKYLIGHT_FETCH_LIB = !ENV.key?("SKYLIGHT_FETCH_LIB") || ENV.fetch("SKYLIGHT_FETCH_LIB", nil) !~ /^false$/i
 
 # Directory where skylight.h exists
-SKYLIGHT_HDR_PATH = ENV["SKYLIGHT_HDR_PATH"] || ENV["SKYLIGHT_LIB_PATH"] || "."
+SKYLIGHT_HDR_PATH = ENV.fetch("SKYLIGHT_HDR_PATH") { ENV.fetch("SKYLIGHT_LIB_PATH", ".") }
 SKYLIGHT_LIB_PATH =
-  ENV["SKYLIGHT_LIB_PATH"] || File.expand_path("../../lib/skylight/native/#{Platform.tuple}", __FILE__)
+  ENV.fetch("SKYLIGHT_LIB_PATH") { File.expand_path("../../lib/skylight/native/#{Platform.tuple}", __FILE__) }
 
-SKYLIGHT_SOURCE_URL = ENV["SKYLIGHT_SOURCE_URL"]
-SKYLIGHT_VERSION = ENV["SKYLIGHT_VERSION"]
-SKYLIGHT_CHECKSUM = ENV["SKYLIGHT_CHECKSUM"]
+SKYLIGHT_SOURCE_URL = ENV.fetch("SKYLIGHT_SOURCE_URL", nil)
+SKYLIGHT_VERSION = ENV.fetch("SKYLIGHT_VERSION", nil)
+SKYLIGHT_CHECKSUM = ENV.fetch("SKYLIGHT_CHECKSUM", nil)
 
-SKYLIGHT_EXT_STRICT = ENV.key?("SKYLIGHT_EXT_STRICT") && ENV["SKYLIGHT_EXT_STRICT"] =~ /^true$/i
+SKYLIGHT_EXT_STRICT = ENV.key?("SKYLIGHT_EXT_STRICT") && ENV.fetch("SKYLIGHT_EXT_STRICT", nil) =~ /^true$/i
 
 # Setup logger
 LOG = Logger.new(MultiIO.new($stdout, File.open(SKYLIGHT_INSTALL_LOG, "a")))

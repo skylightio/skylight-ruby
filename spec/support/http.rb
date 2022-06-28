@@ -212,7 +212,7 @@ module SpecHelper
     opts[:Port] ||= port
     opts[:environment] ||= "test"
     opts[:AccessLog] ||= []
-    opts[:debug] ||= ENV["DEBUG"]
+    opts[:debug] ||= ENV.fetch("DEBUG", nil)
 
     server.start(opts)
     server.reset
