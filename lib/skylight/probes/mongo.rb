@@ -5,7 +5,20 @@ module Skylight
 
       class Probe
         def install
-          ::Mongo::Monitoring::Global.subscribe(::Mongo::Monitoring::COMMAND, Subscriber.new)
+          subscriber = Subscriber.new
+
+          # From the mongo driver:
+          #
+          # > Global subscriptions must be established prior to creating
+          # > clients. When a client is constructed it copies subscribers from
+          # > the Global module; subsequent subscriptions or unsubscriptions
+          # > on the Global module have no effect on already created clients.
+          #
+          # So, for existing clients created before the Skylight initializer
+          # runs, we'll have to subscribe to those individually.
+          ::Mongoid::Clients.clients.each { |_name, client| client.subscribe(::Mongo::Monitoring::COMMAND, subscriber) }
+
+          ::Mongo::Monitoring::Global.subscribe(::Mongo::Monitoring::COMMAND, subscriber)
         end
       end
 
