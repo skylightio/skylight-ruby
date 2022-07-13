@@ -146,7 +146,7 @@ if enable
         expect(batch.source_location(trace.spans[0])).to end_with("sidekiq_spec.rb:#{perform_line}")
       end
 
-      if defined?(Sidekiq::Extensions) && defined?(::Rails)
+      if defined?(Sidekiq::Extensions::PsychAutoload) && defined?(::Rails)
         # Sidekiq::Extensions will be removed in Sidekiq 7
         # The !defined?(::Rails) is used internally in sidekiq
         # to determine whether extensions should be applied to all objects,
