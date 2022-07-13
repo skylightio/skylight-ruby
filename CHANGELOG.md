@@ -1,4 +1,8 @@
+## 5.3.3 (July 13, 2022)
+
 - [IMPROVEMENT] Track the original class/method name for Sidekiq delayed object proxies
+- [BUGFIX] Fix `mongoid` probe not activating correctly
+- [BUGFIX] Fix `mongo` probe not instrumenting clients created before Skylight initialization
 
 ## 5.3.2 (April 6, 2022)
 
