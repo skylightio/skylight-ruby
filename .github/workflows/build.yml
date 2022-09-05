@@ -1017,7 +1017,7 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Setup volta
-      uses: volta-cli/action@v1
+      uses: volta-cli/action@v3
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
