@@ -14,6 +14,16 @@ module CITasks
     { mongo: { image: "mongo:4.0", ports: ["27017:27017"] } }
   end
 
+  def self.redis
+    {
+      redis: {
+        image: "redis",
+        ports: ["6379:6379"],
+        options: "--entrypoint redis-server"
+      }
+    }
+  end
+
   GEMFILES_UPDATES = {
     "ams-0.8.x" => {
       allow: [{ "dependency-name": "active_model_serializers" }],
@@ -330,7 +340,7 @@ module CITasks
           h[:if] = conditions.join(" || ")
         end
 
-        h[:services] = config[:services] if config[:services]
+        h[:services] = (config[:services] || {}).merge(CITasks.redis)
         h[:env] = env if env
         h[:steps] = steps
         h[:needs] = config[:needs] if config[:needs]

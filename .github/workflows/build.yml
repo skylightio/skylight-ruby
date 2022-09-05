@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: 94411571c5c52147a334bc95fd804501f4a1bd66e20da74f0b2efc944cb4b34a
+  CONFIG_DIGEST: 74ef300adde3950db163f156ff485c48c837cb1e0a61e06ca71a3cc80911b3bd
 'on':
   push:
     branches:
@@ -29,6 +29,12 @@ jobs:
   ruby-3-1-default:
     name: ruby 3.1, default
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -70,6 +76,11 @@ jobs:
         image: mongo:4.0
         ports:
         - 27017:27017
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
       TEST_MONGO_INTEGRATION: 'true'
@@ -118,6 +129,11 @@ jobs:
         image: mongo:4.0
         ports:
         - 27017:27017
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/mongoid-6.x/Gemfile
       TEST_MONGO_INTEGRATION: 'true'
@@ -171,6 +187,11 @@ jobs:
           -e "cluster.routing.allocation.disk.threshold_enabled=false" --health-cmd
           "curl --fail http://localhost:9200" --health-interval 5s --health-retries
           20
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/elasticsearch/Gemfile
       TEST_ELASTICSEARCH_INTEGRATION: 'true'
@@ -213,6 +234,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sidekiq-4.x-graphql-1.7.x')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/sidekiq-4.x-graphql-1.7.x/Gemfile
     steps:
@@ -254,6 +281,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'graphql-1.9.x')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/graphql-1.9.x/Gemfile
     steps:
@@ -296,6 +329,12 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
     steps:
@@ -338,6 +377,12 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.0.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-6.0.x/Gemfile
     steps:
@@ -380,6 +425,12 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
@@ -422,6 +473,12 @@ jobs:
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
       RAILS_EDGE: true
@@ -464,6 +521,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-1.x')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/sinatra-1.x/Gemfile
     steps:
@@ -506,6 +569,12 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-2.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/sinatra-2.x/Gemfile
     steps:
@@ -548,6 +617,12 @@ jobs:
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-edge')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/sinatra-edge/Gemfile
     steps:
@@ -589,6 +664,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.x')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/grape-1.x/Gemfile
     steps:
@@ -631,6 +712,12 @@ jobs:
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/grape-1.x/Gemfile
     steps:
@@ -672,6 +759,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.2.x')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/grape-1.2.x/Gemfile
     steps:
@@ -714,6 +807,12 @@ jobs:
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-edge')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/grape-edge/Gemfile
     steps:
@@ -755,6 +854,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sequel-4.34.0')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/sequel-4.34.0/Gemfile
     steps:
@@ -796,6 +901,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.8.x')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/ams-0.8.x/Gemfile
     steps:
@@ -837,6 +948,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.9.x')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/ams-0.9.x/Gemfile
     steps:
@@ -878,6 +995,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.10.x')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/ams-0.10.x/Gemfile
     steps:
@@ -920,6 +1043,12 @@ jobs:
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
@@ -964,6 +1093,12 @@ jobs:
     continue-on-error: true
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-edge/Gemfile
       RAILS_EDGE: true
@@ -1007,6 +1142,12 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     if: always()
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
     steps:
@@ -1054,6 +1195,12 @@ jobs:
     name: Required Tests Passed
     runs-on: ubuntu-latest
     if: always()
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
     steps:
     - name: Mark tests failed
       run: 'false'

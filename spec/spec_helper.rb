@@ -65,7 +65,7 @@ end
 
 %w[excon tilt sinatra sequel faraday active_model_serializers httpclient].each { |probe| enable_probe(probe) }
 
-enable_probe(:redis, %w[redis fakeredis/rspec])
+enable_probe(:redis, %w[redis])
 enable_probe(:action_view, %w[action_dispatch action_view])
 enable_probe(:"action_dispatch/request_id", "action_dispatch/middleware/request_id")
 enable_probe(%i[active_job active_job_enqueue], "active_job")
