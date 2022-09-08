@@ -13,8 +13,6 @@ gem "sidekiq"
 gem "sqlite3", "~> 1.4.1"
 gem "tilt"
 gem "haml"
-
-gem "fakeredis"
 gem "redis"
 
 if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1")

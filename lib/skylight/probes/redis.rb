@@ -20,6 +20,18 @@ module Skylight
         end
       end
 
+      module ClientInstrumentationV5
+        def call_v(command)
+          command_name = command[0]
+
+          return super if command_name == :auth
+
+          opts = { category: "db.redis.command", title: command_name.upcase.to_s, internal: true }
+
+          Skylight.instrument(opts) { super }
+        end
+      end
+
       module Instrumentation
         def pipelined(*)
           Skylight.instrument(PIPELINED_OPTS) { super }
@@ -40,7 +52,12 @@ module Skylight
             return
           end
 
-          ::Redis::Client.prepend(ClientInstrumentation)
+          if ::Redis::Client.method_defined?(:call_v)
+            ::Redis::Client.prepend(ClientInstrumentationV5)
+          else
+            ::Redis::Client.prepend(ClientInstrumentation)
+          end
+
           ::Redis.prepend(Instrumentation)
         end
       end
