@@ -10,7 +10,7 @@ gem "httpclient"
 gem "rexml"
 gem "sequel", "> 0"
 gem "sidekiq"
-gem "sqlite3", "~> 1.4.1"
+gem "sqlite3", "~> 1.5.3"
 gem "tilt"
 gem "haml"
 
