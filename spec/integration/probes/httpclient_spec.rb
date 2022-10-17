@@ -93,7 +93,8 @@ describe "HTTPClient integration", :httpclient_probe, :http, :agent do
 
     response = client.request("CUSTOM", uri)
     expect(response).to be_a(HTTP::Message)
-    expect(response).to be_ok
+    # Later versions of puma (>= 6) hardcode this to return a 501 response.
+    # expect(response).to be_ok
   end
 
   it "instruments HTTPClient.methodname static methods" do

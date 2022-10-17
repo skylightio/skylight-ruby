@@ -1,3 +1,8 @@
+## 5.3.4 (October 17, 2022)
+
+- [BUGFIX] Fix a middleware response method that was incompatible with Puma >= 6.
+- [IMPROVEMENT] Improved support for Redis v5
+
 ## 5.3.3 (July 13, 2022)
 
 - [IMPROVEMENT] Track the original class/method name for Sidekiq delayed object proxies

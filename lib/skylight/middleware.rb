@@ -13,7 +13,7 @@ module Skylight
       end
 
       def respond_to_missing?(name, include_all = false)
-        return false if name.to_s !~ /^to_ary$/
+        return false if name.to_s =~ /^to_ary$/
 
         @body.respond_to?(name, include_all)
       end

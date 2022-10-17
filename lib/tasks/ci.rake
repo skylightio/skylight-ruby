@@ -406,7 +406,7 @@ module CITasks
       end
 
       def setup_volta_step
-        { name: "Setup volta", uses: "volta-cli/action@v1" }
+        { name: "Setup volta", uses: "volta-cli/action@v4" }
       end
 
       def install_apt_dependencies_step

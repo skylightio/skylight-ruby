@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: 74ef300adde3950db163f156ff485c48c837cb1e0a61e06ca71a3cc80911b3bd
+  CONFIG_DIGEST: 79a6878d0f58e3f565276f70d4ab9bb4b64e1fcfe0db31aec45cb14647c922fb
 'on':
   push:
     branches:
@@ -1158,7 +1158,7 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Setup volta
-      uses: volta-cli/action@v1
+      uses: volta-cli/action@v4
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
