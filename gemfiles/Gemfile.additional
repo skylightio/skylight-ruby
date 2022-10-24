@@ -5,7 +5,7 @@ gem "delayed_job_active_record", require: false
 gem "excon"
 gem "faraday"
 gem "graphiti", git: "https://github.com/graphiti-api/graphiti.git"
-gem "graphql", "~> 1.13.0"
+gem "graphql", "~> 2.0.15"
 gem "httpclient"
 gem "rexml"
 gem "sequel", "> 0"
