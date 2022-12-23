@@ -24,8 +24,20 @@ end
 if enable
   module Skylight
     describe "Sidekiq" do
+      def server_middleware
+        if sidekiq_7?
+          ::Sidekiq.default_configuration.server_middleware
+        else
+          ::Sidekiq.server_middleware
+        end
+      end
+
+      def sidekiq_7?
+        ::Sidekiq::VERSION =~ /\A7/
+      end
+
       after :each do
-        ::Sidekiq.server_middleware.clear
+        server_middleware.clear
       end
 
       it "adds server middleware" do
@@ -38,7 +50,7 @@ if enable
         expect(Skylight::Sidekiq::ServerMiddleware).to receive(:new).and_return(middleware)
 
         # Force the Sidekiq Middleware to get built
-        ::Sidekiq.server_middleware.retrieve
+        server_middleware.retrieve
       end
 
       context "instrumenting worker", :agent do
@@ -78,7 +90,7 @@ if enable
           Skylight.stop!
 
           ::Sidekiq::Testing.disable!
-          ::Sidekiq.server_middleware.clear
+          server_middleware.clear
         end
 
         it "works" do
