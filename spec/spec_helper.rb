@@ -30,6 +30,7 @@ end
 #
 # If Sidekiq.remove_delay! exists, call it, but otherwise don't worry too much about it.
 begin
+  require "sidekiq"
   require "sidekiq/rails"
   Sidekiq.remove_delay!
 rescue Exception # rubocop:disable Lint/SuppressedException
