@@ -1,5 +1,4 @@
 # TODO: We should revisit whether we want to test all these libraries
-gem "active_model_serializers"
 gem "delayed_job", require: false
 gem "delayed_job_active_record", require: false
 gem "excon"
