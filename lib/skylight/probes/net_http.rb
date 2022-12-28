@@ -32,15 +32,15 @@ module Skylight
         DISABLED_KEY = :__skylight_net_http_disabled
 
         def self.disable
-          state_was = Thread.current[DISABLED_KEY]
-          Thread.current[DISABLED_KEY] = true
+          state_was = Thread.current.thread_variable_get(DISABLED_KEY)
+          Thread.current.thread_variable_set(DISABLED_KEY, true)
           yield
         ensure
-          Thread.current[DISABLED_KEY] = state_was
+          Thread.current.thread_variable_set(DISABLED_KEY, state_was)
         end
 
         def self.disabled?
-          !!Thread.current[DISABLED_KEY]
+          !!Thread.current.thread_variable_get(DISABLED_KEY)
         end
 
         def install
