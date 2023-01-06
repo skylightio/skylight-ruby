@@ -2,7 +2,7 @@ require "spec_helper"
 
 # Tested here since it requires native
 # FIXME: Switch to use mocking
-# NOTE: there are several overrides for prettier/rubocop with respect to argument forwarding;
+# NOTE: there are several overrides for stree/rubocop with respect to argument forwarding;
 # we want to test all of these cases explicitly so please leave as-is.
 # rubocop:disable Style/ArgumentsForwarding
 describe Skylight::Instrumenter, :http, :agent do
@@ -95,52 +95,52 @@ describe Skylight::Instrumenter, :http, :agent do
           #   `receiver` means a method we are delegating to; not instrumented
           #   `control` is a copy of the instrumented method
 
-          # prettier-ignore
+          # stree-ignore
           ruby2_keywords def ruby2_keywords_method(*args, &block)
             delegated_splat_receiver(*args, &block)
           end
 
           instrument_method :ruby2_keywords_method
 
-          # prettier-ignore
+          # stree-ignore
           ruby2_keywords def ruby2_keywords_control(*args, &block)
             delegated_splat_receiver(*args, &block)
           end
 
           instrument_method
-          # prettier-ignore
+          # stree-ignore
           ruby2_keywords def ruby2_keywords_method_with_deferred_instrumentation(*args, &block)
             delegated_splat_receiver(*args, &block)
           end
 
           instrument_method
-          # prettier-ignore
+          # stree-ignore
           def delegated_splat(*args, **kwargs, &block)
             delegated_splat_receiver(*args, **kwargs, &block)
           end
 
           instrument_method
-          # prettier-ignore
+          # stree-ignore
           def delegated_single_splat(*args, &block)
             delegated_single_splat_receiver(*args, &block)
           end
 
-          # prettier-ignore
+          # stree-ignore
           def delegated_splat_control(*args, **kwargs, &block)
             delegated_splat_receiver(*args, **kwargs, &block)
           end
 
-          # prettier-ignore
+          # stree-ignore
           def delegated_single_splat_control(*args, &block)
             delegated_single_splat_receiver(*args, &block)
           end
 
-          # prettier-ignore
+          # stree-ignore
           def delegated_splat_receiver(*args, **kwargs)
             { args: args, kwargs: kwargs }
           end
 
-          # prettier-ignore
+          # stree-ignore
           def delegated_single_splat_receiver(*args)
             args
           end

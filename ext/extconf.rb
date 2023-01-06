@@ -85,7 +85,7 @@ end
 # If the user installs Xcode-only, they have to approve the
 # license or no "xc*" tool will work.
 
-# prettier-ignore
+# stree-ignore
 if Platform::OS == "darwin" && (`/usr/bin/xcrun clang 2>&1` =~ /license/ && !$CHILD_STATUS.success?)
   fail <<~MESSAGE
     You have not agreed to the Xcode license and so we are unable to build the native agent.

@@ -86,7 +86,7 @@ if enable
     before :each do
       stub_const("TestApp", Module.new {})
 
-      # prettier-ignore
+      # stree-ignore
       begin # rubocop:disable Style/RedundantBegin
         TestApp.module_eval <<~RUBY, __FILE__, __LINE__ + 1
           mattr_accessor :current_schema

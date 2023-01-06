@@ -231,7 +231,7 @@ if enable
 
       stub_const("EngineNamespace", Module.new)
 
-      # prettier-ignore
+      # stree-ignore
       begin # rubocop:disable Style/RedundantBegin
         EngineNamespace.module_eval <<~RUBY, __FILE__, __LINE__ + 1
           class MyEngine < ::Rails::Engine
