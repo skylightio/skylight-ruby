@@ -5,8 +5,8 @@ require "json"
 require "active_support/inflector"
 require "digest"
 
-OLDEST_RUBY = "2.6"
-NEWEST_RUBY = "3.1"
+OLDEST_RUBY = "2.7"
+NEWEST_RUBY = "3.2"
 HEAD_RUBY = "3.2"
 
 module CITasks
