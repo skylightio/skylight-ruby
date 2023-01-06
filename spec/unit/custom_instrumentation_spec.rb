@@ -2,12 +2,13 @@ require "spec_helper"
 
 # Tested here since it requires native
 # FIXME: Switch to use mocking
+# NOTE: there are several overrides for prettier/rubocop with respect to argument forwarding;
+# we want to test all of these cases explicitly so please leave as-is.
+# rubocop:disable Style/ArgumentsForwarding
 describe Skylight::Instrumenter, :http, :agent do
   let :hello do
     double("hello")
   end
-
-  ruby_gte27 = Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7")
 
   context "when the instrumenter is running" do
     def test_config_values
@@ -77,69 +78,69 @@ describe Skylight::Instrumenter, :http, :agent do
             block.call(arg1) if opt2
           end
 
-          # prettier-ignore
-          if ruby_gte27
-            # use class_eval to avoid syntax error on older rubies
-            class_eval <<~RUBY, __FILE__, __LINE__ + 1
-              instrument_method
-              def method_with_ellipsis(...)
-                ellipsis_receiver(...)
-              end
+          instrument_method
+          def method_with_ellipsis(...)
+            ellipsis_receiver(...)
+          end
 
-              def method_with_ellipsis_control(...)
-                ellipsis_receiver(...)
-              end
+          def method_with_ellipsis_control(...)
+            ellipsis_receiver(...)
+          end
 
-              def ellipsis_receiver(arg1, opt1:, opt2:, **kw)
-                [arg1, opt1, opt2, kw]
-              end
-            RUBY
+          def ellipsis_receiver(arg1, opt1:, opt2:, **keywords)
+            [arg1, opt1, opt2, keywords]
           end
 
           # below:
           #   `receiver` means a method we are delegating to; not instrumented
           #   `control` is a copy of the instrumented method
 
-          # ruby2_keywords
-          def self.ruby2_keywords(*); end unless ruby_gte27
-
+          # prettier-ignore
           ruby2_keywords def ruby2_keywords_method(*args, &block)
             delegated_splat_receiver(*args, &block)
           end
 
           instrument_method :ruby2_keywords_method
 
+          # prettier-ignore
           ruby2_keywords def ruby2_keywords_control(*args, &block)
             delegated_splat_receiver(*args, &block)
           end
 
           instrument_method
+          # prettier-ignore
           ruby2_keywords def ruby2_keywords_method_with_deferred_instrumentation(*args, &block)
             delegated_splat_receiver(*args, &block)
           end
 
           instrument_method
+          # prettier-ignore
           def delegated_splat(*args, **kwargs, &block)
             delegated_splat_receiver(*args, **kwargs, &block)
           end
 
           instrument_method
+          # prettier-ignore
           def delegated_single_splat(*args, &block)
             delegated_single_splat_receiver(*args, &block)
           end
 
+          # prettier-ignore
           def delegated_splat_control(*args, **kwargs, &block)
             delegated_splat_receiver(*args, **kwargs, &block)
           end
 
+          # prettier-ignore
           def delegated_single_splat_control(*args, &block)
             delegated_single_splat_receiver(*args, &block)
           end
 
+          # prettier-ignore
           def delegated_splat_receiver(*args, **kwargs)
             { args: args, kwargs: kwargs }
           end
 
+          # prettier-ignore
           def delegated_single_splat_receiver(*args)
             args
           end
@@ -549,3 +550,4 @@ describe Skylight::Instrumenter, :http, :agent do
     end
   end
 end
+# rubocop:enable Style/ArgumentsForwarding
