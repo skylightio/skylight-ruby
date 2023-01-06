@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: a7a15bd0b3e38bf2f66a288b4aff2a534dffd50778dd82971743502308f4acbd
+  CONFIG_DIGEST: f1bbe574d162875ead2a1c58884b00a4d20f06819b9281a9af7dcbe7f68a4be4
 'on':
   push:
     branches:
@@ -1157,8 +1157,6 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7'
-    - name: Setup volta
-      uses: volta-cli/action@v4
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -1168,25 +1166,14 @@ jobs:
         restore-keys: |-
           ${{ runner.os }}-gems-2.7-rails-6.1.x-
           ${{ runner.os }}-gems-2.7-
-    - name: Get yarn cache directory path
-      id: yarn-cache-dir-path
-      run: echo "::set-output name=dir::$(yarn cache dir)"
-    - name: Setup cache (yarn)
-      uses: actions/cache@v3
-      with:
-        path: "${{ steps.yarn-cache-dir-path.outputs.dir }}"
-        key: "${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}"
-        restore-keys: "${{ runner.os }}-yarn-"
     - name: bundle install
       run: |
         gem install bundler
         bundle install
-    - name: yarn install
-      run: yarn install --frozen-lockfile
     - name: Set up Rubocop problem matcher
       run: echo "::add-matcher::${GITHUB_WORKSPACE}/.github/rubocop.json"
-    - name: Run Prettier
-      run: yarn lint:prettier
+    - name: Run SyntaxTree
+      run: bundle exec rake stree:check
     - name: Run Rubocop
       run: |
         bundle exec rubocop -v

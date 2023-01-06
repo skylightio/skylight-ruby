@@ -66,6 +66,7 @@ describe Skylight::CLI::Merger do
     let(:preamble_sequence) do
       [matchers[:intro], matchers[:explanation], matchers[:fetch], /Please specify the "parent" app/, *app_list]
     end
+    # rubocop:disable Style/RegexpLiteral
     let(:success_sequence) do
       [
         /Merging.../,
@@ -82,6 +83,7 @@ describe Skylight::CLI::Merger do
         %r{=========================}
       ]
     end
+    # rubocop:enable Style/RegexpLiteral
 
     before do
       allow_any_instance_of(Skylight::Api).to receive(:merge_apps!).with(

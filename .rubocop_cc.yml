@@ -1,6 +1,4 @@
 inherit_from:
-  # Use this instead of node_modules/@prettier/plugin-ruby/rubocop.yml so CodeClimate can handle it
-  - .rubocop_prettier.yml
   - .rubocop_todo.yml
 
 AllCops:
@@ -38,7 +36,7 @@ Layout/FirstHashElementIndentation:
 
 # Longer lines can be ok at times
 Layout/LineLength:
-  Max: 120
+  Max: 121
 
 Lint/DuplicateBranch:
   IgnoreConstantBranches: true

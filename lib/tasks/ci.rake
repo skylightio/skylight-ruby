@@ -405,10 +405,6 @@ module CITasks
         { name: "Check ruby", run: "ruby -v | grep \"#{ruby_version}\" -q" }
       end
 
-      def setup_volta_step
-        { name: "Setup volta", uses: "volta-cli/action@v4" }
-      end
-
       def install_apt_dependencies_step
         { name: "Install APT dependencies", run: <<~RUN }
               sudo apt-get update
@@ -431,34 +427,11 @@ module CITasks
         }
       end
 
-      def setup_yarn_cache_step
-        [
-          {
-            name: "Get yarn cache directory path",
-            id: "yarn-cache-dir-path",
-            run: "echo \"::set-output name=dir::$(yarn cache dir)\""
-          },
-          {
-            name: "Setup cache (yarn)",
-            uses: "actions/cache@v3",
-            with: {
-              path: "${{ steps.yarn-cache-dir-path.outputs.dir }}",
-              key: "${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}",
-              "restore-keys": "${{ runner.os }}-yarn-"
-            }
-          }
-        ]
-      end
-
       def install_bundler_dependencies_step
         { name: "bundle install", run: <<~RUN }
               gem install bundler
               bundle install
             RUN
-      end
-
-      def install_yarn_dependencies_step
-        { name: "yarn install", run: "yarn install --frozen-lockfile" }
       end
 
       def run_tests_step
@@ -565,13 +538,10 @@ module CITasks
         [
           checkout_step,
           setup_ruby_step,
-          setup_volta_step,
           setup_bundle_cache_step,
-          setup_yarn_cache_step,
           install_bundler_dependencies_step,
-          install_yarn_dependencies_step,
           setup_lint_matchers,
-          run_prettier_step,
+          run_syntax_tree_step,
           run_rubocop_step
         ].flatten.compact
       end
@@ -588,8 +558,8 @@ module CITasks
         }
       end
 
-      def run_prettier_step
-        { name: "Run Prettier", run: "yarn lint:prettier" }
+      def run_syntax_tree_step
+        { name: "Run SyntaxTree", run: "bundle exec rake stree:check" }
       end
 
       def run_rubocop_step
