@@ -75,7 +75,8 @@ Rake.add_rakelib "lib/tasks"
 [SyntaxTree::Rake::WriteTask, SyntaxTree::Rake::CheckTask].each do |stree|
   stree.new do |t|
     # NOTE: additional configuration is found in .streerc
-    t.source_files = FileList[%w[**/*.rb tasks/**/*.rake .pryrc config.ru Rakefile Gemfile]]
+    t.source_files = FileList[%w[lib/**/*.rb tasks/**/*.rake .pryrc config.ru Rakefile Gemfile]]
+    t.ignore_files = "lib/skylight/vendor/**/*"
   end
 end
 

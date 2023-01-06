@@ -441,15 +441,13 @@ describe Skylight::Instrumenter, :http, :agent do
     end
 
     context "method delegation" do
-      if ruby_gte27
-        it "works with ellipsis delegation" do
-          obj = MyClass.new
-          control = obj.method_with_ellipsis_control(:foo, opt1: 1, opt2: 2, opt3: 3)
-          result = obj.method_with_ellipsis(:foo, opt1: 1, opt2: 2, opt3: 3)
+      it "works with ellipsis delegation" do
+        obj = MyClass.new
+        control = obj.method_with_ellipsis_control(:foo, opt1: 1, opt2: 2, opt3: 3)
+        result = obj.method_with_ellipsis(:foo, opt1: 1, opt2: 2, opt3: 3)
 
-          expect(control).to eq([:foo, 1, 2, { opt3: 3 }])
-          expect(result).to eq(control)
-        end
+        expect(control).to eq([:foo, 1, 2, { opt3: 3 }])
+        expect(result).to eq(control)
       end
 
       it "works with ruby2_keywords (explicit instrument_method)" do
