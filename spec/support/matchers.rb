@@ -47,10 +47,9 @@ module SpecHelper
       if @env
         lines = []
         @fails.each do |f|
-          lines <<
-            "expected env[#{f[:key]}] " \
-              "=~ #{f[:expected].inspect}, " \
-              "but was #{f[:actual].inspect}"
+          lines << "expected env[#{f[:key]}] " \
+            "=~ #{f[:expected].inspect}, " \
+            "but was #{f[:actual].inspect}"
         end
 
         lines.join("\n")

@@ -267,76 +267,75 @@ if enable
 
       # stub_const doesn't work well for this. We do manual cleanup afterwards.
       class ::MyApp < Rails::Application # rubocop:disable Lint/ConstantDefinitionInBlock
-        PNG =
-          [
-            137,
-            80,
-            78,
-            71,
-            13,
-            10,
-            26,
-            10,
-            0,
-            0,
-            0,
-            13,
-            73,
-            72,
-            68,
-            82,
-            0,
-            0,
-            0,
-            1,
-            0,
-            0,
-            0,
-            1,
-            8,
-            0,
-            0,
-            0,
-            0,
-            58,
-            126,
-            155,
-            85,
-            0,
-            0,
-            0,
-            10,
-            73,
-            68,
-            65,
-            84,
-            120,
-            156,
-            99,
-            250,
-            15,
-            0,
-            1,
-            5,
-            1,
-            2,
-            207,
-            160,
-            46,
-            205,
-            0,
-            0,
-            0,
-            0,
-            73,
-            69,
-            78,
-            68,
-            174,
-            66,
-            96,
-            130
-          ].pack("C*")
+        PNG = [
+          137,
+          80,
+          78,
+          71,
+          13,
+          10,
+          26,
+          10,
+          0,
+          0,
+          0,
+          13,
+          73,
+          72,
+          68,
+          82,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          8,
+          0,
+          0,
+          0,
+          0,
+          58,
+          126,
+          155,
+          85,
+          0,
+          0,
+          0,
+          10,
+          73,
+          68,
+          65,
+          84,
+          120,
+          156,
+          99,
+          250,
+          15,
+          0,
+          1,
+          5,
+          1,
+          2,
+          207,
+          160,
+          46,
+          205,
+          0,
+          0,
+          0,
+          0,
+          73,
+          69,
+          78,
+          68,
+          174,
+          66,
+          96,
+          130
+        ].pack("C*")
 
         config.secret_key_base = "095f674153982a9ce59914b561f4522a"
 
@@ -515,25 +514,17 @@ if enable
 
         def too_many_spans
           # Max is 2048
-          Rails
-            .application
-            .config
-            .many
-            .times do
-              Skylight.instrument category: "app.zomg.level-1" do
-                Skylight.instrument category: "app.zomg.should-prune-below-here" do
-                  Rails
-                    .application
-                    .config
-                    .very_many
-                    .times do
-                      Skylight.instrument category: "app.zomg.level-2" do
-                        # nothing
-                      end
-                    end
+          Rails.application.config.many.times do
+            Skylight.instrument category: "app.zomg.level-1" do
+              Skylight.instrument category: "app.zomg.should-prune-below-here" do
+                Rails.application.config.very_many.times do
+                  Skylight.instrument category: "app.zomg.level-2" do
+                    # nothing
+                  end
                 end
               end
             end
+          end
 
           if Rails.version =~ /^4\./
             render text: "There's too many of them!"
@@ -558,7 +549,8 @@ if enable
           redirect_to "/"
         end
 
-        def before_action_redirect; end
+        def before_action_redirect
+        end
 
         def action_redirect
           redirect_to "/"
@@ -582,7 +574,8 @@ if enable
 
         # For checking visibilty only
         instrument_method
-        def unused; end
+        def unused
+        end
       end
 
       stub_const(
@@ -1606,7 +1599,8 @@ if enable
     end
 
     context "activated from application.rb", :http, :agent do
-      def pre_boot; end
+      def pre_boot
+      end
 
       before :each do
         @original_environments = MyApp.config.skylight.environments.clone
@@ -1627,7 +1621,8 @@ if enable
     end
 
     context "activated from ENV", :http, :agent do
-      def pre_boot; end
+      def pre_boot
+      end
 
       before :each do
         ENV["SKYLIGHT_ENABLED"] = "true"
@@ -1666,7 +1661,8 @@ if enable
     end
 
     context "deactivated from ENV" do
-      def pre_boot; end
+      def pre_boot
+      end
 
       before :each do
         ENV["SKYLIGHT_ENABLED"] = "false"

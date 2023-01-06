@@ -565,13 +565,15 @@ if enable
                 ["app.rack.request", nil],
                 %w[app.graphql graphql.execute_multiplex],
                 *expected_analysis_events(3),
-                *%w[query-0 query-1 query-2].map do |qn|
-                  [
-                    ["app.graphql", "graphql.execute_query: #{qn}"],
-                    ["db.sql.query", "SELECT FROM species"],
-                    ["db.active_record.instantiation", "Species Instantiation"]
-                  ]
-                end.flatten(1),
+                *%w[query-0 query-1 query-2]
+                  .map do |qn|
+                    [
+                      ["app.graphql", "graphql.execute_query: #{qn}"],
+                      ["db.sql.query", "SELECT FROM species"],
+                      ["db.active_record.instantiation", "Species Instantiation"]
+                    ]
+                  end
+                  .flatten(1),
                 %w[app.graphql graphql.execute_query_lazy.multiplex]
               ]
             )

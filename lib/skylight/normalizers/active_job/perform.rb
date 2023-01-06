@@ -8,16 +8,12 @@ module Skylight
         DELAYED_JOB_WRAPPER = "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper".freeze
 
         def self.normalize_title(job_instance)
-          job_instance
-            .class
-            .name
-            .to_s
-            .tap do |str|
-              if str.match(DELIVERY_JOB)
-                mailer_class, mailer_method, * = job_instance.arguments
-                return "#{mailer_class}##{mailer_method}", str if mailer_class && mailer_method
-              end
+          job_instance.class.name.to_s.tap do |str|
+            if str.match(DELIVERY_JOB)
+              mailer_class, mailer_method, * = job_instance.arguments
+              return "#{mailer_class}##{mailer_method}", str if mailer_class && mailer_method
             end
+          end
         end
 
         CAT = "app.job.perform".freeze

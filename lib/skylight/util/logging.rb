@@ -17,7 +17,8 @@ module Skylight
         @logger.<<(*args) if logger_out != $stdout && logger_out != $stderr
       end
 
-      def close; end
+      def close
+      end
     end
 
     module Logging

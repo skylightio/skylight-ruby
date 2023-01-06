@@ -167,50 +167,49 @@ module Skylight
     }.freeze
 
     def self.native_env_keys
-      @native_env_keys ||=
-        %i[
-          native_log_level
-          native_log_file
-          log_sql_parse_errors
-          version
-          root
-          proxy_url
-          hostname
-          session_token
-          auth_url
-          auth_http_deflate
-          auth_http_connect_timeout
-          auth_http_read_timeout
-          report_url
-          report_http_deflate
-          report_http_connect_timeout
-          report_http_read_timeout
-          report_http_disabled
-          report_use_grpc
-          report_grpc_url
-          daemon.lazy_start
-          daemon.exec_path
-          daemon.lib_path
-          daemon.pidfile_path
-          daemon.sockdir_path
-          daemon.batch_queue_depth
-          daemon.batch_sample_size
-          daemon.batch_flush_interval
-          daemon.tick_interval
-          daemon.lock_check_interval
-          daemon.inactivity_timeout
-          daemon.max_connect_tries
-          daemon.connect_try_window
-          daemon.max_prespawn_jitter
-          daemon.wait_timeout
-          daemon.client_check_interval
-          daemon.client_queue_depth
-          daemon.client_write_timeout
-          daemon.ssl_cert_path
-          daemon.ssl_cert_dir
-          daemon.enable_tcp
-          daemon.tcp_port
-        ]
+      @native_env_keys ||= %i[
+        native_log_level
+        native_log_file
+        log_sql_parse_errors
+        version
+        root
+        proxy_url
+        hostname
+        session_token
+        auth_url
+        auth_http_deflate
+        auth_http_connect_timeout
+        auth_http_read_timeout
+        report_url
+        report_http_deflate
+        report_http_connect_timeout
+        report_http_read_timeout
+        report_http_disabled
+        report_use_grpc
+        report_grpc_url
+        daemon.lazy_start
+        daemon.exec_path
+        daemon.lib_path
+        daemon.pidfile_path
+        daemon.sockdir_path
+        daemon.batch_queue_depth
+        daemon.batch_sample_size
+        daemon.batch_flush_interval
+        daemon.tick_interval
+        daemon.lock_check_interval
+        daemon.inactivity_timeout
+        daemon.max_connect_tries
+        daemon.connect_try_window
+        daemon.max_prespawn_jitter
+        daemon.wait_timeout
+        daemon.client_check_interval
+        daemon.client_queue_depth
+        daemon.client_write_timeout
+        daemon.ssl_cert_path
+        daemon.ssl_cert_dir
+        daemon.enable_tcp
+        daemon.tcp_port
+      ]
     end
 
     # Maps legacy config keys to new config keys
@@ -219,8 +218,9 @@ module Skylight
     end
 
     def self.validators
-      @validators ||=
-        { "agent.interval": [->(v, _c) { v.is_a?(Integer) && v > 0 }, "must be an integer greater than 0"] }
+      @validators ||= {
+        "agent.interval": [->(v, _c) { v.is_a?(Integer) && v > 0 }, "must be an integer greater than 0"]
+      }
     end
 
     # @api private
@@ -301,21 +301,20 @@ module Skylight
         next unless k =~ /^(?:SK|SKYLIGHT)_(.+)$/
         next unless (key = ENV_TO_KEY[$1])
 
-        ret[key] =
-          case val
-          when /^false$/i
-            false
-          when /^true$/i
-            true
-          when /^(nil|null)$/i
-            nil
-          when /^\d+$/
-            val.to_i
-          when /^\d+\.\d+$/
-            val.to_f
-          else
-            val
-          end
+        ret[key] = case val
+        when /^false$/i
+          false
+        when /^true$/i
+          true
+        when /^(nil|null)$/i
+          nil
+        when /^\d+$/
+          val.to_i
+        when /^\d+\.\d+$/
+          val.to_f
+        else
+          val
+        end
       end
 
       ret
@@ -450,16 +449,13 @@ module Skylight
     def to_native_env
       ret = []
 
-      self
-        .class
-        .native_env_keys
-        .each do |key|
-          value = send_or_get(key)
-          unless value.nil?
-            env_key = KEY_TO_NATIVE_ENV[key] || ENV_TO_KEY.key(key) || key.upcase
-            ret << "SKYLIGHT_#{env_key}" << cast_for_env(value)
-          end
+      self.class.native_env_keys.each do |key|
+        value = send_or_get(key)
+        unless value.nil?
+          env_key = KEY_TO_NATIVE_ENV[key] || ENV_TO_KEY.key(key) || key.upcase
+          ret << "SKYLIGHT_#{env_key}" << cast_for_env(value)
         end
+      end
 
       ret << "SKYLIGHT_AUTHENTICATION" << authentication_with_meta
       ret << "SKYLIGHT_VALIDATE_AUTHENTICATION" << "false"
@@ -737,11 +733,10 @@ module Skylight
     end
 
     def components
-      @components ||=
-        {
-          web: Util::Component.new(get(:env), Util::Component::DEFAULT_NAME),
-          worker: Util::Component.new(get(:env), get(:component) || get(:worker_component), force_worker: true)
-        }
+      @components ||= {
+        web: Util::Component.new(get(:env), Util::Component::DEFAULT_NAME),
+        worker: Util::Component.new(get(:env), get(:component) || get(:worker_component), force_worker: true)
+      }
     rescue ArgumentError => e
       raise ConfigError, e.message
     end

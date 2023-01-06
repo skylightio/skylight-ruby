@@ -115,9 +115,9 @@ describe "Initialization integration", :http do
           boot
 
           expect(File.read("log/development.log")).to_not include "[SKYLIGHT] [#{Skylight::VERSION}] Unable to " \
-                                                                    "start, see the Skylight logs for more details"
+                    "start, see the Skylight logs for more details"
           expect(File.read("log/skylight.log")).to_not include "Skylight: Unable to start Instrumenter due to a " \
-                                                                 "configuration error: authentication token required"
+                    "configuration error: authentication token required"
         end
 
         it "doesn't warn in development mode if disable_dev_warning has been set" do

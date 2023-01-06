@@ -96,13 +96,15 @@ module Skylight
         {
           id: 1,
           done: true,
-          done_meta: {},
+          done_meta: {
+          },
           args: ["spec.skylight", "normalized", nil, { source_file: source_file, source_line: 1 }]
         },
         {
           id: 2,
           done: true,
-          done_meta: {},
+          done_meta: {
+          },
           args: [
             "spec_source_location.skylight",
             "normalized",

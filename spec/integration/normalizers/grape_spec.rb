@@ -84,15 +84,24 @@ if defined?(Grape)
     def expect_endpoint_instrument(title)
       allow_any_instance_of(Skylight::Trace).to receive(:instrument)
 
-      expect_any_instance_of(Skylight::Trace).to receive(:instrument)
-        .with("app.grape.endpoint", title, nil, hash_including({}))
-        .once
+      expect_any_instance_of(Skylight::Trace).to receive(:instrument).with(
+        "app.grape.endpoint",
+        title,
+        nil,
+        hash_including({})
+      ).once
     end
 
     it "creates a Trace for a Grape app" do
-      expect(Skylight).to receive(:trace)
-        .with("Rack", "app.rack.request", nil, meta: { source_location: Skylight::Trace::SYNTHETIC }, component: :web)
-        .and_wrap_original do |method, *args|
+      expect(Skylight).to receive(:trace).with(
+        "Rack",
+        "app.rack.request",
+        nil,
+        meta: {
+          source_location: Skylight::Trace::SYNTHETIC
+        },
+        component: :web
+      ).and_wrap_original do |method, *args|
         # NOTE: rspec-mocks 3.10 is not fully compatible with Ruby 3. This `and_wrap_original` should
         # be replaced by `and_call_original` in future versions.
         *positional, kwargs = args
@@ -163,13 +172,19 @@ if defined?(Grape)
       expect_endpoint_instrument("GET admin secret")
 
       # TODO: Attempt to verify order
-      expect_any_instance_of(Skylight::Trace).to receive(:instrument)
-        .with("app.grape.filters", "Before Filters", nil, an_instance_of(Hash))
-        .once
+      expect_any_instance_of(Skylight::Trace).to receive(:instrument).with(
+        "app.grape.filters",
+        "Before Filters",
+        nil,
+        an_instance_of(Hash)
+      ).once
 
-      expect_any_instance_of(Skylight::Trace).to receive(:instrument)
-        .with("app.block", "verifying admin", nil, an_instance_of(Hash))
-        .once
+      expect_any_instance_of(Skylight::Trace).to receive(:instrument).with(
+        "app.block",
+        "verifying admin",
+        nil,
+        an_instance_of(Hash)
+      ).once
 
       get "/app/admin/secret"
 

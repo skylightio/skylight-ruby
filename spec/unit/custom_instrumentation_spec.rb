@@ -108,18 +108,21 @@ describe Skylight::Instrumenter, :http, :agent do
           end
 
           instrument_method
+
           # stree-ignore
           ruby2_keywords def ruby2_keywords_method_with_deferred_instrumentation(*args, &block)
             delegated_splat_receiver(*args, &block)
           end
 
           instrument_method
+
           # stree-ignore
           def delegated_splat(*args, **kwargs, &block)
             delegated_splat_receiver(*args, **kwargs, &block)
           end
 
           instrument_method
+
           # stree-ignore
           def delegated_single_splat(*args, &block)
             delegated_single_splat_receiver(*args, &block)

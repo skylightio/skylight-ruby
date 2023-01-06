@@ -300,9 +300,8 @@ module Skylight
           message << "\nWe disabled the Middleware probe but unfortunately, this didn't solve the issue."
         else
           Skylight::Probes::Middleware::Probe.disable!
-          message <<
-            "\n#{native_span_get_title(span)} may be a Middleware that doesn't fully conform " \
-              "to the Rack SPEC. We've disabled the Middleware probe to see if that resolves the issue."
+          message << "\n#{native_span_get_title(span)} may be a Middleware that doesn't fully conform " \
+            "to the Rack SPEC. We've disabled the Middleware probe to see if that resolves the issue."
         end
       end
 

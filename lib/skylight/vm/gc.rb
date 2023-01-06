@@ -49,7 +49,8 @@ module Skylight
     # Fallback
     unless defined?(VM::GC)
       class GC
-        def enable; end
+        def enable
+        end
 
         def total_time
           0

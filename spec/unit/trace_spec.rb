@@ -274,10 +274,9 @@ module Skylight
         before { Skylight.instrumenter.enable_extension!(:source_location) }
 
         let(:extension) do
-          Skylight
-            .instrumenter
-            .extensions
-            .instance_exec { @extensions.detect { |x| x.is_a?(Skylight::Extensions::SourceLocation) } }
+          Skylight.instrumenter.extensions.instance_exec do
+            @extensions.detect { |x| x.is_a?(Skylight::Extensions::SourceLocation) }
+          end
         end
 
         it "allows only source_file to be set" do
