@@ -177,7 +177,7 @@ RSpec.configure do |config|
     config.filter_run_excluding args
   end
 
-  e = ENV.clone
+  e = ENV.to_h
 
   config.before(:all) do
     if defined?(ActiveJob)

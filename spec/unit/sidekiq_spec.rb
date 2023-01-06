@@ -25,11 +25,7 @@ if enable
   module Skylight
     describe "Sidekiq" do
       def server_middleware
-        if sidekiq_7?
-          ::Sidekiq.default_configuration.server_middleware
-        else
-          ::Sidekiq.server_middleware
-        end
+        sidekiq_7? ? ::Sidekiq.default_configuration.server_middleware : ::Sidekiq.server_middleware
       end
 
       def sidekiq_7?
