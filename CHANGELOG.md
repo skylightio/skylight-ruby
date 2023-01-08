@@ -1,3 +1,7 @@
+## 5.4.0 (prerelease)
+- End support for Ruby 2.6
+- End support for Sinatra 1.x
+
 ## 5.3.4 (October 17, 2022)
 
 - [BUGFIX] Fix a middleware response method that was incompatible with Puma >= 6.

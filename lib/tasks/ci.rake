@@ -103,10 +103,6 @@ module CITasks
         { "dependency-name": "graphql", versions: [">= 1.8"] }
       ]
     },
-    "sinatra-1.x" => {
-      allow: [{ "dependency-name": "sinatra" }],
-      ignore: [{ "dependency-name": "sinatra", versions: [">= 1.5"] }]
-    },
     "sinatra-2.x" => {
       allow: [{ "dependency-name": "sinatra" }]
       # We don't limit this so that we're aware when new versions are released
@@ -185,7 +181,6 @@ module CITasks
         RAILS_EDGE: true
       }
     },
-    { ruby_version: OLDEST_RUBY, gemfile: "sinatra-1.x" },
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "sinatra-2.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "sinatra-edge" },
     { ruby_version: OLDEST_RUBY, gemfile: "grape-1.x" },
