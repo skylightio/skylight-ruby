@@ -17,13 +17,7 @@ describe Skylight::Instrumenter, :http, :agent do
       # rubocop:enable Naming/MemoizedInstanceVariableName
     end
 
-    before :each do
-      start!
-      clock.freeze
-      use_spec_root!
-
-      my_class =
-        Class.new do
+        class MyClass 
           include Skylight::Helpers
 
           const_set(:ONE_LINE, __LINE__ + 2)
@@ -107,22 +101,20 @@ describe Skylight::Instrumenter, :http, :agent do
             delegated_splat_receiver(*args, &block)
           end
 
-          instrument_method
 
+          instrument_method
           # stree-ignore
           ruby2_keywords def ruby2_keywords_method_with_deferred_instrumentation(*args, &block)
             delegated_splat_receiver(*args, &block)
           end
 
           instrument_method
-
           # stree-ignore
           def delegated_splat(*args, **kwargs, &block)
             delegated_splat_receiver(*args, **kwargs, &block)
           end
 
           instrument_method
-
           # stree-ignore
           def delegated_single_splat(*args, &block)
             delegated_single_splat_receiver(*args, &block)
@@ -157,13 +149,23 @@ describe Skylight::Instrumenter, :http, :agent do
           def optional_argument_default_hash_kwargs(options = {}, **_kwargs)
             options[:arg1]
           end
+
+          ruby2_keywords def pre_alias_ruby2_keywords_method(*args, &block)
+            delegated_splat_receiver(*args, &block)
+          end
+
+          alias :aliased_ruby2_keywords_method :pre_alias_ruby2_keywords_method
+          alias_method :"aliased_method_ruby2_keywords_method", :"pre_alias_ruby2_keywords_method"
+
+          # __sk_singleton_class.class_eval <<~RUBY
+          #   alias_method :"class_eval_alias_ruby2_keywords_method", :"pre_alias_ruby2_keywords_method"       # alias_method :"before_instrument_process", :"process"
+          # RUBY
         end
 
-      # The original name has to be used because that's what gets cached by the instrumentation code since it isn't
-      # yet assigned to a constant when we define the class.
-      my_class.const_set(:ORIGINAL_NAME, my_class.to_s)
-
-      stub_const("MyClass", my_class)
+    before :each do
+      start!
+      clock.freeze
+      use_spec_root!
     end
 
     after :each do
@@ -377,14 +379,14 @@ describe Skylight::Instrumenter, :http, :agent do
           a_span_including(event: an_exact_event(category: "app.rack.request"), started_at: 0, duration: 15_000),
           a_span_including(
             parent: 0,
-            event: an_exact_event(category: "app.method", title: "#{MyClass::ORIGINAL_NAME}#one"),
+            event: an_exact_event(category: "app.method", title: "MyClass#one"),
             started_at: 1_000,
             duration: 1_000,
             annotations: array_including(an_annotation(:SourceLocation, "#{source_file_index}:#{MyClass::ONE_LINE}"))
           ),
           a_span_including(
             parent: 0,
-            event: an_exact_event(category: "app.method", title: "#{MyClass::ORIGINAL_NAME}#three"),
+            event: an_exact_event(category: "app.method", title: "MyClass#three"),
             started_at: 5_000,
             duration: 1_000,
             annotations: array_including(an_annotation(:SourceLocation, "#{source_file_index}:#{MyClass::THREE_LINE}"))
@@ -398,7 +400,7 @@ describe Skylight::Instrumenter, :http, :agent do
           ),
           a_span_including(
             parent: 0,
-            event: an_exact_event(category: "app.method", title: "#{MyClass::ORIGINAL_NAME}.singleton_method"),
+            event: an_exact_event(category: "app.method", title: "MyClass.singleton_method"),
             started_at: 9_000,
             duration: 1_000,
             annotations:
@@ -409,7 +411,7 @@ describe Skylight::Instrumenter, :http, :agent do
             event:
               an_exact_event(
                 category: "app.method",
-                title: "#{MyClass::ORIGINAL_NAME}.singleton_method_without_options"
+                title: "MyClass.singleton_method_without_options"
               ),
             started_at: 11_000,
             duration: 1_000,
@@ -430,7 +432,7 @@ describe Skylight::Instrumenter, :http, :agent do
           ),
           a_span_including(
             parent: 0,
-            event: an_exact_event(category: "app.method", title: "#{MyClass::ORIGINAL_NAME}#myvar="),
+            event: an_exact_event(category: "app.method", title: "MyClass#myvar="),
             started_at: 15_000,
             duration: 0,
             annotations:
@@ -459,7 +461,11 @@ describe Skylight::Instrumenter, :http, :agent do
         expect(result).to eq(control)
       end
 
-      it "works with ruby2_keywords (deferred instrument_method)" do
+      # NOTE: There is a difference in the order of application of ruby2_keywords and the method_added
+      # hooks. In Ruby 3.2, Skylight's method patcher only sees the method _before_ ruby2_keywords is applied,
+      # meaning the aliased method never gets this flag set (only the outer, Skylight-defined wrapper gets it,
+      # which is not what we really want).
+      send(RUBY_VERSION.start_with?("3.2") ? :pending: :it, "works with ruby2_keywords (deferred instrument_method)") do
         obj = MyClass.new
         control = obj.ruby2_keywords_control(:positional, kw1: 1, kw2: 2)
         result = obj.ruby2_keywords_method_with_deferred_instrumentation(:positional, kw1: 1, kw2: 2)
