@@ -90,9 +90,6 @@ module CITasks
     "rails-edge" => {
       allow: [{ "dependency-name": "rails" }]
     },
-    "sequel-4.34.0" => {
-      ignore: [{ "dependency-name": "*" }]
-    },
     "sidekiq-4.x-graphql-1.7.x" => {
       allow: [
         { "dependency-name": "sidekiq" },
@@ -188,7 +185,8 @@ module CITasks
     # Oldest supported grape version. Doesn't support 3.0.
     { ruby_version: "2.7", gemfile: "grape-1.2.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "grape-edge" },
-    { ruby_version: NEWEST_RUBY, gemfile: "sequel-4.34.0" },
+    { ruby_version: "3.1", gemfile: "sequel-4" },
+    { ruby_version: NEWEST_RUBY, gemfile: "sequel-5" },
     { ruby_version: "2.7", gemfile: "ams-0.8.x" },
     { ruby_version: "2.7", gemfile: "ams-0.9.x" },
     { ruby_version: NEWEST_RUBY, gemfile: "ams-0.10.x" },

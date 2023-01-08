@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: a969d7052e34e6d796ca67636a31f0e0162404801a9f5cf464826293f9cad2ed
+  CONFIG_DIGEST: 5302f9c2801475873be3b90af1b470c5e89b988502907af1e2ba1d5b78110f65
 'on':
   push:
     branches:
@@ -802,11 +802,11 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-3-2-default
-  ruby-3-2-sequel-4-34-0:
-    name: ruby 3.2, sequel-4.34.0
+  ruby-3-1-sequel-4:
+    name: ruby 3.1, sequel-4
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sequel-4.34.0')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sequel-4')
     services:
       redis:
         image: redis
@@ -814,7 +814,54 @@ jobs:
         - 6379:6379
         options: "--entrypoint redis-server"
     env:
-      BUNDLE_GEMFILE: gemfiles/sequel-4.34.0/Gemfile
+      BUNDLE_GEMFILE: gemfiles/sequel-4/Gemfile
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.1'
+    - name: Install APT dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache (bundler)
+      uses: actions/cache@v3
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-3.1-sequel-4-${{ hashFiles('gemfiles/sequel-4/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.1-sequel-4-
+          ${{ runner.os }}-gems-3.1-
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    needs:
+    - ruby-3-2-default
+  ruby-3-2-sequel-5:
+    name: ruby 3.2, sequel-5
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sequel-5')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
+    env:
+      BUNDLE_GEMFILE: gemfiles/sequel-5/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -830,10 +877,10 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.2-sequel-4.34.0-${{ hashFiles('gemfiles/sequel-4.34.0/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.2-sequel-5-${{ hashFiles('gemfiles/sequel-5/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.2-sequel-4.34.0-
+          ${{ runner.os }}-gems-3.2-sequel-5-
           ${{ runner.os }}-gems-3.2-
     - name: bundle install
       run: |
@@ -1162,7 +1209,8 @@ jobs:
     - ruby-2-7-grape-1-x
     - ruby-3-2-grape-1-x
     - ruby-2-7-grape-1-2-x
-    - ruby-3-2-sequel-4-34-0
+    - ruby-3-1-sequel-4
+    - ruby-3-2-sequel-5
     - ruby-2-7-ams-0-8-x
     - ruby-2-7-ams-0-9-x
     - ruby-3-2-ams-0-10-x

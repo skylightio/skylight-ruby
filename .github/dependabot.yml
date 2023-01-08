@@ -136,21 +136,6 @@ updates:
   allow:
   - dependency-name: rails
 - package-ecosystem: bundler
-  directory: gemfiles/sinatra-1.x
-  schedule:
-    interval: weekly
-    time: '13:00'
-  labels:
-  - dependencies
-  - sinatra-1.x
-  open-pull-requests-limit: 10
-  allow:
-  - dependency-name: sinatra
-  ignore:
-  - dependency-name: sinatra
-    versions:
-    - ">= 1.5"
-- package-ecosystem: bundler
   directory: gemfiles/sinatra-2.x
   schedule:
     interval: weekly

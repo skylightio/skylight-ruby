@@ -1,0 +1,9 @@
+source "https://rubygems.org"
+
+gemspec path: "../.."
+
+gem "haml"
+gem "sinatra", "~> 3"
+gem "sqlite3"
+
+gem "sequel", "4.41.0" # There was an incompatibility with ruby 3 in versions 4.42 - 5.29.
