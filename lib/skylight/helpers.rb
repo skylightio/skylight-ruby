@@ -130,8 +130,6 @@ module Skylight
 
       private
 
-      HAS_ARGUMENT_FORWARDING = Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7.0")
-
       def __sk_instrument_method_on(klass, name, title, **opts)
         category = (opts[:category] || "app.method").to_s
         title = (opts[:title] || title).to_s
@@ -156,12 +154,7 @@ module Skylight
         # forward the different argument types.
         is_setter_method = name.to_s.end_with?("=")
 
-        arg_string =
-          if HAS_ARGUMENT_FORWARDING
-            is_setter_method ? "*args, **kwargs, &blk" : "..."
-          else
-            "*args, &blk"
-          end
+        arg_string = is_setter_method ? "*args, **kwargs, &blk" : "..."
 
         original_method_dispatch =
           if is_setter_method
