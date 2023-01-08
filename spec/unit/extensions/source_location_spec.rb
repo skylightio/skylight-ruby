@@ -6,7 +6,7 @@ describe Skylight::Extensions::SourceLocation do
   end
 
   before do
-    @instance_method_line = __LINE__ + 1
+    @instance_method_line = __LINE__ + 4
     stub_const(
       "MyConstant",
       Class.new do

@@ -177,8 +177,6 @@ RSpec.configure do |config|
     config.filter_run_excluding args
   end
 
-  e = ENV.to_h
-
   config.before(:all) do
     if defined?(ActiveJob)
       ActiveJob::Base.logger.level = ENV["DEBUG"] ? Logger::DEBUG : Logger::FATAL
@@ -192,12 +190,6 @@ RSpec.configure do |config|
   end
 
   config.before do
-    Skylight::Config::ENV_TO_KEY.each_key do |key|
-      # TODO: It would be good to test other prefixes as well
-      key = "SKYLIGHT_#{key}"
-      ENV[key] = e[key]
-    end
-
     Skylight::Probes::Middleware::Probe.instance_exec { @disabled = nil }
 
     mock_clock!
