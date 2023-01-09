@@ -149,17 +149,6 @@ describe Skylight::Instrumenter, :http, :agent do
           def optional_argument_default_hash_kwargs(options = {}, **_kwargs)
             options[:arg1]
           end
-
-          ruby2_keywords def pre_alias_ruby2_keywords_method(*args, &block)
-            delegated_splat_receiver(*args, &block)
-          end
-
-          alias :aliased_ruby2_keywords_method :pre_alias_ruby2_keywords_method
-          alias_method :"aliased_method_ruby2_keywords_method", :"pre_alias_ruby2_keywords_method"
-
-          # __sk_singleton_class.class_eval <<~RUBY
-          #   alias_method :"class_eval_alias_ruby2_keywords_method", :"pre_alias_ruby2_keywords_method"       # alias_method :"before_instrument_process", :"process"
-          # RUBY
         end
 
     before :each do
