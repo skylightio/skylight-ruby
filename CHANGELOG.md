@@ -1,6 +1,8 @@
 ## 5.4.0 (prerelease)
 - End support for Ruby 2.6
 - End support for Sinatra 1.x
+- End support for GraphQL 1.7 and 1.8
+- End support for Sidekiq 4
 
 ## 5.3.4 (October 17, 2022)
 
