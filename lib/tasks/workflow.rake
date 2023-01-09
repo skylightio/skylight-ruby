@@ -56,10 +56,6 @@ module CITasks
     "grape-edge" => {
       allow: [{ "dependency-name": "grape" }]
     },
-    "graphql-1.8.x" => {
-      allow: [{ "dependency-name": "graphql" }],
-      ignore: [{ "dependency-name": "graphql", versions: [">= 1.9"] }]
-    },
     "graphql-1.9.x" => {
       allow: [{ "dependency-name": "graphql" }],
       ignore: [{ "dependency-name": "graphql", versions: [">= 1.10"] }]
@@ -90,14 +86,14 @@ module CITasks
     "rails-edge" => {
       allow: [{ "dependency-name": "rails" }]
     },
-    "sidekiq-4.x-graphql-1.7.x" => {
+    "sidekiq-5.x" => {
       allow: [
         { "dependency-name": "sidekiq" },
         { "dependency-name": "graphql" }
       ],
       ignore: [
-        { "dependency-name": "sidekiq", versions: [">= 5"] },
-        { "dependency-name": "graphql", versions: [">= 1.8"] }
+        { "dependency-name": "sidekiq", versions: [">= 6"] },
+        { "dependency-name": "graphql", versions: [">= 1.9"] }
       ]
     },
     "sinatra-2.x" => {
@@ -126,7 +122,7 @@ module CITasks
     # Oldest mongoid we support
     {
       name: "mongoid-6",
-      ruby_version: "2.7",
+      ruby_version: OLDEST_RUBY,
       gemfile: "mongoid-6.x",
       services: mongo,
       env: {
@@ -159,10 +155,10 @@ module CITasks
     },
     # GraphQL 1.7 is the oldest version that we support.
     # We also have some special handling for it.
-    { ruby_version: OLDEST_RUBY, gemfile: "sidekiq-4.x-graphql-1.7.x" },
+    { ruby_version: OLDEST_RUBY, gemfile: "sidekiq-5.x" },
     # We need to test either 1.8 or 1.9 since there are more changes in 1.10.
     # We probably don't need to test both
-    { ruby_version: "2.7", gemfile: "graphql-1.9.x" },
+    { ruby_version: OLDEST_RUBY, gemfile: "graphql-1.9.x" },
     # GraphQL 1.11 is tested as part of our default additional gems
     # TODO: We should test 1.12+
 
@@ -183,12 +179,12 @@ module CITasks
     { ruby_version: OLDEST_RUBY, gemfile: "grape-1.x" },
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "grape-1.x" },
     # Oldest supported grape version. Doesn't support 3.0.
-    { ruby_version: "2.7", gemfile: "grape-1.2.x" },
+    { ruby_version: OLDEST_RUBY, gemfile: "grape-1.2.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "grape-edge" },
     { ruby_version: "3.1", gemfile: "sequel-4" },
     { ruby_version: NEWEST_RUBY, gemfile: "sequel-5" },
-    { ruby_version: "2.7", gemfile: "ams-0.8.x" },
-    { ruby_version: "2.7", gemfile: "ams-0.9.x" },
+    { ruby_version: OLDEST_RUBY, gemfile: "ams-0.8.x" },
+    { ruby_version: OLDEST_RUBY, gemfile: "ams-0.9.x" },
     { ruby_version: NEWEST_RUBY, gemfile: "ams-0.10.x" },
     {
       gemfile: "rails-6.1.x",
@@ -516,7 +512,7 @@ module CITasks
       end
 
       def ruby_version
-        "2.7" # Oldest version that works with Rails 7
+         OLDEST_RUBY# Oldest version that works with Rails 7
       end
 
       def gemfile
@@ -819,8 +815,6 @@ namespace :audit do
           outdated_outputs[[ruby, gemfile_path]] = parse_bundle_outdated(outdated_info)
           parsed_lockfile = Bundler::LockfileParser.new(Bundler.read_file(gemfile_lock_path))
           parsed_lockfiles[[ruby, gemfile_path]] = parsed_lockfile
-
-          if gemfile == ""
         end
       end
     end

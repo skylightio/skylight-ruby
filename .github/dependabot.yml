@@ -63,18 +63,14 @@ updates:
     time: '13:00'
   labels:
   - dependencies
-  - sidekiq-4.x-graphql-1.7.x
+  - sidekiq-5.x
   open-pull-requests-limit: 10
   allow:
   - dependency-name: sidekiq
-  - dependency-name: graphql
   ignore:
   - dependency-name: sidekiq
     versions:
     - ">= 5"
-  - dependency-name: graphql
-    versions:
-    - ">= 1.8"
 - package-ecosystem: bundler
   directory: gemfiles/graphql-1.9.x
   schedule:

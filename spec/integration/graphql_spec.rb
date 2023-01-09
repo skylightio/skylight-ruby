@@ -91,190 +91,108 @@ if enable
         TestApp.module_eval <<~RUBY, __FILE__, __LINE__ + 1
           mattr_accessor :current_schema
 
-          def self.graphql17?
-            return @graphql17 if defined?(@graphql17)
-
-            @graphql17 = Gem::Version.new(GraphQL::VERSION) < Gem::Version.new("1.8")
-          end
-
           def self.format_field_name(field)
-            # As of graphql 1.8, client-side queries are expected to have camel-cased keys
-            # (these are converted to snake-case server-side).
-            # In 1.7 and earlier, they used whatever format was used to define the schema.
-            graphql17? ? field.underscore : field.camelize(:lower)
+            field.camelize(:lower)
           end
 
-          if graphql17?
-            module Types
-              SpeciesType =
-                GraphQL::ObjectType.define do
-                  name "Species"
-                  field :name, !types.String
-                  field :common_name, !types.String
-                  field :scientific_name, !types.String
-                end
-
-              GenusType =
-                GraphQL::ObjectType.define do
-                  name "Genus"
-                  field :species, !types[SpeciesType]
-                end
-
-              FamilyType =
-                GraphQL::ObjectType.define do
-                  name "Family"
-                  field :genera, !types[GenusType]
-                  field :species, !types[SpeciesType]
-                end
-
-              QueryType =
-                GraphQL::ObjectType.define do
-                  name "Query"
-                  field :some_dragonflies,
-                        !types[Types::SpeciesType],
-                        description: "A list of some of the dragonflies" do
-                    resolve lambda { |_obj, _args, _ctx| Species.all }
-                  end
-
-                  field :families, !types[Types::FamilyType], description: "A list of families"
-
-                  field :family, Types::FamilyType, description: "A specific family" do
-                    argument :name, !types.String
-                  end
-
-                  def family(name:)
-                    ::Family.find_by!(name: name)
-                  end
-                end
+          module Types
+            class BaseObject < GraphQL::Schema::Object
+            end
+            class SpeciesType < BaseObject
+              field :name, String, null: false
+              field :common_name, String, null: false
+              field :scientific_name, String, null: false
             end
 
-            module Mutations
-              CreateSpeciesResult =
-                GraphQL::ObjectType.define do
-                  name "CreateSpeciesResult"
-                  field :species, !Types::SpeciesType
-                end
-
-              MutationType =
-                GraphQL::ObjectType.define do
-                  name "Mutation"
-                  field :createSpecies, CreateSpeciesResult do
-                    argument :genus, !types.String
-                    argument :species, !types.String
-
-                    resolve lambda { |_, args, _|
-                              genus = Genus.find_by!(name: args[:genus])
-                              species = genus.species.new(name: args[:species])
-                              OpenStruct.new(species: species) if species.save
-                            }
-                  end
-                end
+            class GenusType < BaseObject
+              field :species, [SpeciesType], null: false
             end
 
-            TestAppSchema =
-              GraphQL::Schema.define do
-                # This tracer should be added by the probe
-                # tracer(GraphQL::Tracing::ActiveSupportNotificationsTracing)
-                mutation(Mutations::MutationType)
-                query(Types::QueryType)
-              end
-          else
-            module Types
-              class BaseObject < GraphQL::Schema::Object
-              end
-              class SpeciesType < BaseObject
-                field :name, String, null: false
-                field :common_name, String, null: false
-                field :scientific_name, String, null: false
-              end
+            class FamilyType < BaseObject
+              field :genera, [GenusType], null: false
+              field :species, [SpeciesType], null: false
+            end
 
-              class GenusType < BaseObject
-                field :species, [SpeciesType], null: false
+            class QueryType < BaseObject
+              field :some_dragonflies,
+                    [Types::SpeciesType],
+                    null: false,
+                    description: "A list of some of the dragonflies"
+
+              field :families, [Types::FamilyType], null: false, description: "A list of families"
+
+              field :family, Types::FamilyType, null: false, description: "A specific family" do
+                argument :name, String, required: true
               end
 
-              class FamilyType < BaseObject
-                field :genera, [GenusType], null: false
-                field :species, [SpeciesType], null: false
+              def some_dragonflies
+                Species.all
               end
 
-              class QueryType < BaseObject
-                field :some_dragonflies,
-                      [Types::SpeciesType],
-                      null: false,
-                      description: "A list of some of the dragonflies"
+              def family(name:)
+                ::Family.find_by!(name: name)
+              end
+            end
+          end
 
-                field :families, [Types::FamilyType], null: false, description: "A list of families"
+          module Mutations
+            class BaseMutation < GraphQL::Schema::Mutation
+              # Add your custom classes if you have them:
+              # This is used for generating payload types
+              object_class Types::BaseObject
+              # This is used for return fields on the mutation's payload
+              # field_class Types::BaseField
+              # This is used for generating the `input: { ... }` object type
+              # input_object_class Types::BaseInputObject
+            end
 
-                field :family, Types::FamilyType, null: false, description: "A specific family" do
-                  argument :name, String, required: true
-                end
+            class CreateSpecies < BaseMutation
+              null true
 
-                def some_dragonflies
-                  Species.all
-                end
+              argument :genus, String, required: true
+              argument :species, String, required: true
 
-                def family(name:)
-                  ::Family.find_by!(name: name)
+              field :species, Types::SpeciesType, null: true
+              field :errors, [String], null: false
+
+              def resolve(genus:, species:)
+                genus = Genus.find_by!(name: genus)
+                species = genus.species.new(name: species)
+                if species.save
+                  # Successful creation, return the created object with no errors
+                  { species: species, errors: [] }
+                else
+                  # Failed save, return the errors to the client
+                  { species: nil, errors: species.errors.full_messages }
                 end
               end
             end
+          end
 
-            module Mutations
-              class BaseMutation < GraphQL::Schema::Mutation
-                # Add your custom classes if you have them:
-                # This is used for generating payload types
-                object_class Types::BaseObject
-                # This is used for return fields on the mutation's payload
-                # field_class Types::BaseField
-                # This is used for generating the `input: { ... }` object type
-                # input_object_class Types::BaseInputObject
+          class Types::MutationType < Types::BaseObject
+            field :create_species, mutation: Mutations::CreateSpecies
+          end
+
+          class TestAppSchema < GraphQL::Schema
+            # tracer(GraphQL::Tracing::ActiveSupportNotificationsTracing)
+
+            mutation(Types::MutationType)
+            query(Types::QueryType)
+          end
+
+          if defined?(GraphQL::Execution::Interpreter)
+            # Uses the new GraphQL::Execution::Interpreter, which changes the order of some
+            # events. This is available under graphql >= 1.9 and (as currently documented)
+            # will eventually become the new default interpreter.
+            class InterpreterSchema < GraphQL::Schema
+              begin
+                use GraphQL::Execution::Interpreter
+                use GraphQL::Analysis::AST if defined?(GraphQL::Analysis::AST)
+              rescue
               end
-
-              class CreateSpecies < BaseMutation
-                null true
-
-                argument :genus, String, required: true
-                argument :species, String, required: true
-
-                field :species, Types::SpeciesType, null: true
-                field :errors, [String], null: false
-
-                def resolve(genus:, species:)
-                  genus = Genus.find_by!(name: genus)
-                  species = genus.species.new(name: species)
-                  if species.save
-                    # Successful creation, return the created object with no errors
-                    { species: species, errors: [] }
-                  else
-                    # Failed save, return the errors to the client
-                    { species: nil, errors: species.errors.full_messages }
-                  end
-                end
-              end
-            end
-
-            class Types::MutationType < Types::BaseObject
-              field :create_species, mutation: Mutations::CreateSpecies
-            end
-
-            class TestAppSchema < GraphQL::Schema
-              # tracer(GraphQL::Tracing::ActiveSupportNotificationsTracing)
 
               mutation(Types::MutationType)
               query(Types::QueryType)
-            end
-
-            if defined?(GraphQL::Execution::Interpreter)
-              # Uses the new GraphQL::Execution::Interpreter, which changes the order of some
-              # events. This is available under graphql >= 1.9 and (as currently documented)
-              # will eventually become the new default interpreter.
-              class InterpreterSchema < GraphQL::Schema
-                use GraphQL::Execution::Interpreter
-                use GraphQL::Analysis::AST if defined?(GraphQL::Analysis::AST)
-
-                mutation(Types::MutationType)
-                query(Types::QueryType)
-              end
             end
           end
         RUBY
@@ -393,13 +311,13 @@ if enable
           call env("/", method: :POST, params: { query: query, variables: variables, **params })
         end
 
-        # Handles expected analysis events for legacy style (GraphQL 1.7.0-1.9.x)
+        # Handles expected analysis events for legacy style (GraphQL 1.9.x)
         # and new interpreter style (GraphQL >= 1.9.x when using GraphQL::Execution::Interpreter).
         def expected_analysis_events(query_count = 1)
           events = [%w[app.graphql graphql.lex], %w[app.graphql graphql.parse], %w[app.graphql graphql.validate]].freeze
 
           analyze_event = %w[app.graphql graphql.analyze_query]
-          event_style = TestApp.graphql17? ? :inline : expectation_event_style
+          event_style = expectation_event_style
           case event_style
           when :grouped
             events.cycle(query_count).to_a.tap { |a| a.concat([analyze_event].cycle(query_count).to_a) }

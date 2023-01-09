@@ -6,6 +6,4 @@ gemspec path: "../.."
 gem "rails", "~> 5.2.0"
 gem "sqlite3"
 
-gem "sidekiq", "~> 4"
-
-gem "graphql", "~> 1.7.0"
+gem "sidekiq", "~> 5"
