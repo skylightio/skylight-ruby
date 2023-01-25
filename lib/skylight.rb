@@ -202,8 +202,8 @@ module Skylight
 
     instrumenter_method :config
 
-    instrumenter_method :mute, block: true
-    instrumenter_method :unmute, block: true
+    instrumenter_method :mute, wrapped_block: true
+    instrumenter_method :unmute, wrapped_block: true
     instrumenter_method :tracing_muted?
     instrumenter_method :endpoint_assignment_muted?
 
@@ -213,7 +213,7 @@ module Skylight
     instrumenter_method :broken!
 
     # Temporarily disable
-    instrumenter_method :disable, block: true
+    instrumenter_method :disable, wrapped_block: true
 
     # Runs the shutdown procedure in the background.
     # This should do little more than unsubscribe from all ActiveSupport::Notifications
