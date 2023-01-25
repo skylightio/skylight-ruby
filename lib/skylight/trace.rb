@@ -77,17 +77,13 @@ module Skylight
     end
 
     def endpoint=(value)
-      if endpoint_assignment_muted?
-        return
-      end
+      return if endpoint_assignment_muted?
       @endpoint = value
       native_set_endpoint(value)
     end
 
     def segment=(value)
-      if endpoint_assignment_muted?
-        return
-      end
+      return if endpoint_assignment_muted?
       @segment = value
     end
 

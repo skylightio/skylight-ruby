@@ -9,12 +9,11 @@ module Skylight
             super
 
             exceptions_app = @exceptions_app
-            @exceptions_app = lambda do |env|
-              Skylight.instrumenter&.current_trace&.segment = "error"
-              Skylight.mute(ignore: :endpoint_assignment) do
-                exceptions_app.call(env)
+            @exceptions_app =
+              lambda do |env|
+                Skylight.instrumenter&.current_trace&.segment = "error"
+                Skylight.mute(ignore: :endpoint_assignment) { exceptions_app.call(env) }
               end
-            end
           end
         end
 
