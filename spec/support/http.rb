@@ -225,6 +225,7 @@ module SpecHelper
     opts[:debug] ||= ENV.fetch("DEBUG", nil)
 
     server.start(opts)
+
     server.reset
   end
 

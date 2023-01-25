@@ -420,7 +420,7 @@ describe "Skylight::Instrumenter", :http, :agent do
               clock.skip 0.1
               c = trace.instrument "baz"
               clock.skip 0.1
-              expect { trace.done(a) }.to change { trace.muted? }.from(true).to(false)
+              expect { trace.done(a) }.to change { trace.tracing_muted? }.from(true).to(false)
             end
 
             Skylight.mute do
@@ -495,7 +495,7 @@ describe "Skylight::Instrumenter", :http, :agent do
             trace.segment = "my segment name"
             trace.segment = "my segment name 2"
 
-            expect { trace.done(a) }.to change { trace.muted? }.from(true).to(false)
+            expect { trace.done(a) }.to change { trace.tracing_muted? }.from(true).to(false)
 
             trace.submit
 

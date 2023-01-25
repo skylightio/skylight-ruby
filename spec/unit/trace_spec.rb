@@ -161,7 +161,7 @@ module Skylight
       clock.skip 0.1
       c = trace.instrument "baz"
       clock.skip 0.1
-      expect { trace.done(a) }.to change { trace.muted? }.from(true).to(false)
+      expect { trace.done(a) }.to change { trace.tracing_muted? }.from(true).to(false)
       d = trace.instrument "wibble"
       clock.skip 0.1
       e = trace.instrument "wobble"

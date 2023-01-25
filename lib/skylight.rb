@@ -204,7 +204,8 @@ module Skylight
 
     instrumenter_method :mute, block: true
     instrumenter_method :unmute, block: true
-    instrumenter_method :muted?
+    instrumenter_method :tracing_muted?
+    instrumenter_method :endpoint_assignment_muted?
 
     # End a span
     instrumenter_method :done

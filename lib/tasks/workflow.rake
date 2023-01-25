@@ -696,10 +696,10 @@ TARGET_THIRD_PARTY_LIBRARIES = %w[
   sidekiq
   sinatra
   tilt
-]
+].freeze
 
 class CompoundVersionTracker
-  def initialize()
+  def initialize
     @oldest_versions_installed = {}
     @newest_versions_installed = {}
     @newest_versions_available = {}
@@ -757,7 +757,7 @@ namespace :audit do
     @bundler_paths ||= find_bundler_paths_rbenv
 
     segments = Gem::Version.new(ruby_version).canonical_segments
-    _, path = @bundler_paths.detect do |version, path|
+    _, path = @bundler_paths.detect do |version, _path|
       segments.zip(version.canonical_segments).all? { |x, y| x == y }
     end
 
@@ -859,14 +859,13 @@ end
 def parse_bundle_outdated_new(output)
   results = {}
   output.lines.each do |line|
-    if (matches = line.match(/^(?<gem>\S+)\s+(?<current>\S+)\s+(?<latest>\S+)\s*(?<requested>\S+)?\s*$/))
-      results[matches[:gem]] ||= []
-      results[matches[:gem]] << {
-        newest: matches[:latest],
-        installed: matches[:current],
-        requested: matches[:requested]
-      }
-    end
+    next unless (matches = line.match(/^(?<gem>\S+)\s+(?<current>\S+)\s+(?<latest>\S+)\s*(?<requested>\S+)?\s*$/))
+    results[matches[:gem]] ||= []
+    results[matches[:gem]] << {
+      newest: matches[:latest],
+      installed: matches[:current],
+      requested: matches[:requested]
+    }
   end
 
   results
@@ -885,8 +884,8 @@ def parse_bundle_outdated_old(output)
 end
 
 def parse_info_old(info_line)
-  newest, installed, requested = info_line.split(', ').map do |segment|
-    segment.split(' ', 2).last
+  newest, installed, requested = info_line.split(", ").map do |segment|
+    segment.split(" ", 2).last
   end
 
   { newest: newest, installed: installed, requested: requested }

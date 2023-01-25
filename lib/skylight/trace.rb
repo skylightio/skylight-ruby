@@ -77,8 +77,7 @@ module Skylight
     end
 
     def endpoint=(value)
-      if muted?
-        maybe_warn(:endpoint_set_muted, "tried to set endpoint name while muted")
+      if endpoint_assignment_muted?
         return
       end
       @endpoint = value
@@ -86,8 +85,7 @@ module Skylight
     end
 
     def segment=(value)
-      if muted?
-        maybe_warn(:segment_set_muted, "tried to set segment name while muted")
+      if endpoint_assignment_muted?
         return
       end
       @segment = value
@@ -99,8 +97,16 @@ module Skylight
       @instrumenter.config
     end
 
-    def muted?
-      !!@child_instrumentation_muted_by || @instrumenter.muted?
+    def muted
+      @child_instrumentation_muted_by || @instrumenter.muted
+    end
+
+    def tracing_muted?
+      !!@child_instrumentation_muted_by || @instrumenter.tracing_muted?
+    end
+
+    def endpoint_assignment_muted?
+      tracing_muted? || @instrumenter.endpoint_assignment_muted?
     end
 
     def broken?
@@ -117,7 +123,7 @@ module Skylight
     end
 
     def instrument(cat, title = nil, desc = nil, meta = nil)
-      return if muted?
+      return if tracing_muted?
       return if broken?
 
       t { "instrument: #{cat}, #{title}" }
