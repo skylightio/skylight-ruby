@@ -57,6 +57,8 @@ if enable
 
     around { |ex| set_agent_env(&ex) }
 
+    let(:error_segment) { "<sk-segment>error</sk-segment>" }
+
     before :each do
       stub_const("ControllerError", Class.new(StandardError))
       stub_const("MiddlewareError", Class.new(StandardError))
@@ -715,7 +717,7 @@ if enable
           a_span_including(
             event: an_exact_event(category: "rack.middleware", title: "Anonymous Middleware"),
             annotations:
-              include(an_annotation(:SourceLocation, "#{source_file_index}:#{::MyApp::ANONYMOUS_MIDDLEWARE_LINE}"))
+              include(an_annotation(:SourceLocation, "#{source_file_index}:#{MyApp::ANONYMOUS_MIDDLEWARE_LINE}"))
           )
         )
 
@@ -737,17 +739,17 @@ if enable
             a_span_including(
               event: an_exact_event(category: "app.controller.request", title: "UsersController#index"),
               annotations:
-                include(an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}"))
+                include(an_annotation(:SourceLocation, "#{source_file_index}:#{UsersController::INDEX_LINE}"))
             ),
             a_span_including(
               event: an_exact_event(category: "app.method", title: "Check authorization"),
               annotations:
-                include(an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::AUTHORIZED_LINE}"))
+                include(an_annotation(:SourceLocation, "#{source_file_index}:#{UsersController::AUTHORIZED_LINE}"))
             ),
             a_span_including(
               event: an_exact_event(category: "app.method", title: "UsersController#index"),
               annotations:
-                include(an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}"))
+                include(an_annotation(:SourceLocation, "#{source_file_index}:#{UsersController::INDEX_LINE}"))
             ),
             a_span_including(event: an_exact_event(category: "app.inside")),
             a_span_including(event: an_exact_event(category: "app.zomg"))
@@ -791,7 +793,7 @@ if enable
 
           expect(template_span).to eq(%w[view.render.template users/index.html.erb])
 
-          if ::ActionView.gem_version >= Gem::Version.new("6.1.0.alpha")
+          if ActionView.gem_version >= Gem::Version.new("6.1.0.alpha")
             expect(layout_span).to eq(%w[view.render.layout layouts/app.html.erb])
           else
             expect(layout_span).to eq(%w[view.render.template layouts/app.html.erb])
@@ -1054,7 +1056,7 @@ if enable
           batch = server.reports[0]
           expect(batch).to be_present
           endpoint = batch.endpoints[0]
-          expect(endpoint.name).to eq("ThrowingMiddleware")
+          expect(endpoint.name).to eq("ThrowingMiddleware#{error_segment}")
           trace = endpoint.traces[0]
 
           reverse_spans = trace.filter_spans.reverse_each.map { |span| span.event.title }
@@ -1104,7 +1106,7 @@ if enable
           batch = server.reports[0]
           expect(batch).to be_present
           endpoint = batch.endpoints[0]
-          expect(endpoint.name).to eq("UsersController#throw_something")
+          expect(endpoint.name).to eq("UsersController#throw_something#{error_segment}")
           trace = endpoint.traces[0]
 
           reverse_spans = trace.filter_spans.reverse_each.map { |span| [span.event.category, span.event.title] }
@@ -1127,11 +1129,11 @@ if enable
         it "unmutes instrumentation even when the disabled span was deferred" do
           expect_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
             expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
-            expect(Skylight.trace).not_to be_muted
+            expect(Skylight.trace).not_to be_tracing_muted
           end
 
           expect_any_instance_of(AssertionHookB).to receive(:assertion_hook) do
-            expect(Skylight.trace).to be_muted
+            expect(Skylight.trace).to be_tracing_muted
           end
 
           call(MyApp, env("/users?mute=true&middleware_throws=true"))
@@ -1142,7 +1144,7 @@ if enable
           endpoint = batch.endpoints[0]
 
           # This is the last endpoint name that was assigned before instrumentation was disabled
-          expect(endpoint.name).to eq("MonkeyInTheMiddleware")
+          expect(endpoint.name).to eq("MonkeyInTheMiddleware#{error_segment}")
           trace = endpoint.traces[0]
 
           reverse_spans = trace.filter_spans.reverse_each.map { |span| [span.event.category, span.event.title] }
@@ -1265,7 +1267,7 @@ if enable
         expect(res).to eq([])
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
-        expect(endpoint.name).to eq(router_name)
+        expect(endpoint.name).to eq("#{router_name}#{error_segment}")
         trace = endpoint.traces.first
         spans = trace.filter_spans
 
@@ -1279,7 +1281,7 @@ if enable
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
         endpoint_name = "EngineNamespace::ApplicationController#error"
-        expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>error</sk-segment>")
+        expect(endpoint.name).to eq("#{endpoint_name}#{error_segment}")
         trace = endpoint.traces.first
         spans = trace.filter_spans.last(3)
 
@@ -1292,7 +1294,7 @@ if enable
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
-        expect(endpoint.name).to eq(router_name)
+        expect(endpoint.name).to eq("#{router_name}#{error_segment}")
         trace = endpoint.traces.first
         spans = trace.filter_spans.last(2)
 
@@ -1551,7 +1553,7 @@ if enable
             a_span_including(
               event: an_exact_event(category: "app.controller.request", title: "UsersController#index"),
               annotations:
-                array_including(an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}"))
+                array_including(an_annotation(:SourceLocation, "#{source_file_index}:#{UsersController::INDEX_LINE}"))
             )
           )
         end
@@ -1590,7 +1592,7 @@ if enable
             source_locations = spans.map { |span| report.source_location(span) }
 
             source_file = Pathname.new(__FILE__).relative_path_from(spec_root).to_s
-            base_line = ::UsersController::INDEX_DB_LINE
+            base_line = UsersController::INDEX_DB_LINE
             expect(source_locations[0]).to eq("#{source_file}:#{base_line + 1}")
             expect(source_locations[1]).to eq("#{source_file}:#{base_line + 5}")
           end

@@ -15,12 +15,12 @@ module Skylight
         Skylight.trace "Zomg", "app.rack.request" do |t|
           expect(t).to be_nil
 
-          expect(Skylight).not_to be_muted
+          expect(Skylight).not_to be_tracing_muted
 
           ret =
             Skylight.mute do |s|
               # instrumenter is not running
-              expect(Skylight).not_to be_muted
+              expect(Skylight).not_to be_tracing_muted
               expect(s).to be_nil
               hello.hello
               1
