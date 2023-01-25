@@ -20,6 +20,11 @@ if enable
     let(:report_component) { "web" }
 
     def boot
+      MyApp.config.exceptions_app = MyApp.routes
+      MyApp.config.action_dispatch.rescue_responses.merge!(
+        "ActiveRecord::RecordNotFound" => :not_found
+      )
+
       MyApp.initialize!
 
       EngineNamespace::MyEngine.routes.draw do
@@ -48,10 +53,13 @@ if enable
             get :template_index
             get :muted_index
             get :normalizer_muted_index
+            get :not_found
           end
         end
         get "/metal" => "metal#show"
         mount EngineNamespace::MyEngine => "/engine"
+        get "/404" => "errors#not_found"
+        get "/500" => "errors#internal"
       end
     end
 
@@ -413,7 +421,7 @@ if enable
         end
 
         rescue_from "ControllerError" do |exception|
-          render json: { error: exception.message }, status: 500
+          render json: { error: exception.message }, status: 418
         end
 
         const_set(:INDEX_LINE, __LINE__ + 1)
@@ -510,6 +518,10 @@ if enable
           end
         end
 
+        def not_found
+          raise ActiveRecord::RecordNotFound
+        end
+
         def no_template
           # This action has no template to auto-render
         end
@@ -579,6 +591,22 @@ if enable
         def unused
         end
       end
+
+      # It's hard for us to match the naming for this if we use stub_const. We manually remove later.
+      # class ::UsersController < ActionController::Base
+      stub_const(
+        "ErrorsController",
+        Class.new(ActionController::Base) do
+          def not_found
+            render(status: 404, plain: "failsafe response: resource not found")
+          end
+
+          def internal
+            exception = request.env["action_dispatch.exception"]
+            render(status: 500, plain: "failsafe response: #{exception.inspect}")
+          end
+        end
+      )
 
       stub_const(
         "MetalController",
@@ -1059,7 +1087,7 @@ if enable
           expect(endpoint.name).to eq("ThrowingMiddleware#{error_segment}")
           trace = endpoint.traces[0]
 
-          reverse_spans = trace.filter_spans.reverse_each.map { |span| span.event.title }
+          reverse_spans = trace.filter_spans.reverse_each.map { |span| span.event.title }.drop(3)
           post_catch, throwing, _hook_b, middle, catcher = reverse_spans
 
           expect(post_catch).to eq("post-catch")
@@ -1112,8 +1140,11 @@ if enable
           reverse_spans = trace.filter_spans.reverse_each.map { |span| [span.event.category, span.event.title] }
 
           # it closes all spans between the throw and the catch
-          expect(reverse_spans.take(8)).to eq(
+          expect(reverse_spans.take(11)).to eq(
             [
+              ["view.render.template", "text template"],
+              %w[app.controller.request ErrorsController#internal],
+              %w[rack.app ActionDispatch::Routing::RouteSet],
               %w[app.block post-catch],
               ["app.method", "Check authorization"],
               %w[app.controller.request UsersController#throw_something],
@@ -1150,8 +1181,11 @@ if enable
           reverse_spans = trace.filter_spans.reverse_each.map { |span| [span.event.category, span.event.title] }
 
           # it closes all spans between the throw and the catch
-          expect(reverse_spans.take(4)).to eq(
+          expect(reverse_spans.take(7)).to eq(
             [
+              ["view.render.template", "text template"],
+              %w[app.controller.request ErrorsController#internal],
+              %w[rack.app ActionDispatch::Routing::RouteSet],
               %w[app.block post-catch],
               %w[app.block banana],
               %w[rack.middleware MonkeyInTheMiddleware],
@@ -1264,7 +1298,7 @@ if enable
 
       it "sets correct segment for an engine" do
         res = call MyApp, env("/engine/error_from_router")
-        expect(res).to eq([])
+        expect(res).to eq(["failsafe response: #<RuntimeError: cannot even>"])
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
         expect(endpoint.name).to eq("#{router_name}#{error_segment}")
@@ -1272,7 +1306,15 @@ if enable
         spans = trace.filter_spans
 
         # Should include the routers from both the main app and the engine
-        expect(spans.last(2).map { |s| s.event.title }).to eq([router_name, router_name])
+        expect(spans.last(5).map { |s| s.event.title }).to eq(
+          [
+            router_name, # main app
+            router_name, # engine router
+            router_name, # for exceptions app
+            "ErrorsController#internal",
+            "text template"
+          ]
+        )
       end
 
       it "forwards exceptions in the engine to the main app" do
@@ -1283,10 +1325,19 @@ if enable
         endpoint_name = "EngineNamespace::ApplicationController#error"
         expect(endpoint.name).to eq("#{endpoint_name}#{error_segment}")
         trace = endpoint.traces.first
-        spans = trace.filter_spans.last(3)
+        spans = trace.filter_spans.last(6)
 
         # Should include the routers from both the main app and the engine
-        expect(spans.map { |s| s.event.title }).to eq([router_name, router_name, endpoint_name])
+        expect(spans.map { |s| s.event.title }).to eq(
+          [
+            router_name, # main app
+            router_name, # engine router
+            endpoint_name,
+            router_name, # for exceptions app
+            "ErrorsController#not_found",
+            "text template"
+          ]
+        )
       end
 
       it "handles routing errors" do
@@ -1296,10 +1347,18 @@ if enable
         endpoint = server.reports[0].endpoints[0]
         expect(endpoint.name).to eq("#{router_name}#{error_segment}")
         trace = endpoint.traces.first
-        spans = trace.filter_spans.last(2)
+        spans = trace.filter_spans.last(5)
 
         # Should include the routers from both the main app and the engine
-        expect(spans.map { |s| s.event.title }).to eq([router_name, router_name])
+        expect(spans.map { |s| s.event.title }).to eq(
+          [
+            router_name, # main app
+            router_name, # engine router
+            router_name, # for exceptions app
+            "ErrorsController#not_found",
+            "text template"
+          ]
+        )
       end
 
       it "sets rendered segment, not requested" do
@@ -1330,7 +1389,7 @@ if enable
         expect_any_instance_of(Skylight::Trace).to receive(:native_span_set_exception).with(*args).and_call_original
 
         res = call MyApp, env("/users/failure")
-        expect(res).to be_empty
+        expect(res[0]).to start_with("failsafe response:"), "exceptions_app should have handled the response"
 
         server.wait resource: "/report"
 
@@ -1338,12 +1397,14 @@ if enable
         expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("UsersController#failure<sk-segment>error</sk-segment>")
+        expect(endpoint.name).to eq(
+          "UsersController#failure#{error_segment}"
+        ), "the original controller name should persist, despite being handled by exceptions_app"
       end
 
       it "sets correct segment for handled exceptions" do
         status, _headers, body = call_full MyApp, env("/users/handled_failure")
-        expect(status).to eq(500)
+        expect(status).to eq(418)
         expect(body).to eq([{ error: "Handled!" }.to_json])
 
         server.wait resource: "/report"
@@ -1353,7 +1414,7 @@ if enable
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
 
-        expect(endpoint.name).to eq("UsersController#handled_failure<sk-segment>error</sk-segment>")
+        expect(endpoint.name).to eq("UsersController#handled_failure#{error_segment}")
       end
 
       it "sets correct segment for `head`" do
@@ -1380,9 +1441,9 @@ if enable
       end
 
       it "sets correct segment for 4xx responses" do
-        status, _headers, body = call_full MyApp, env("/users/status?status=404")
+        status, _headers, body = call_full MyApp, env("/users/not_found")
+        expect(body).to eq(["failsafe response: resource not found"])
         expect(status).to eq(404)
-        expect(body).to eq(["404"])
 
         server.wait resource: "/report"
 
@@ -1390,7 +1451,7 @@ if enable
         expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("UsersController#status<sk-segment>error</sk-segment>")
+        expect(endpoint.name).to eq("UsersController#not_found#{error_segment}")
       end
 
       it "sets correct segment for 5xx responses" do

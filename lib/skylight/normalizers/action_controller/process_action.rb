@@ -18,8 +18,9 @@ module Skylight
         # @option payload [String] :action Action name
         # @return [Array]
         def normalize(trace, _name, payload)
-          trace.endpoint = controller_action(payload)
-          [CAT, trace.endpoint, nil]
+          endpoint = controller_action(payload)
+          trace.endpoint = endpoint
+          [CAT, endpoint, nil]
         end
 
         def normalize_after(trace, _span, _name, payload)
