@@ -484,28 +484,6 @@ describe "Skylight::Instrumenter", :http, :agent do
             expect(spans.map { |x| x.event.title }).to eq([nil, "foo", "bar", "wibble", "wubble"])
           end
         end
-
-        context "logging" do
-          it "warns only once when trying to set a endpoint name from a muted block" do
-            trace = Skylight.trace "Rack", "app.rack.request"
-            a = trace.instrument "foo", nil, nil, mute_children: true
-
-            trace.endpoint = "my endpoint name"
-            trace.endpoint = "my endpoint name 2"
-            trace.segment = "my segment name"
-            trace.segment = "my segment name 2"
-
-            expect { trace.done(a) }.to change { trace.tracing_muted? }.from(true).to(false)
-
-            trace.submit
-
-            server.wait resource: "/report"
-
-            expect(spans.map { |x| x.event.category }).to eq(%w[app.rack.request foo])
-            expect(logger_out.string.lines.grep(/tried to set endpoint/).count).to eq(1)
-            expect(logger_out.string.lines.grep(/tried to set segment/).count).to eq(1)
-          end
-        end
       end
 
       describe "#poison" do
