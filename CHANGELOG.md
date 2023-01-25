@@ -1,8 +1,12 @@
-## 5.4.0 (prerelease)
-- End support for Ruby 2.6
-- End support for Sinatra 1.x
-- End support for GraphQL 1.7 and 1.8
-- End support for Sidekiq 4
+## 6.0.0-beta (prerelease)
+- [BREAKING] End support for Ruby 2.6
+- The following libraries are no longer tested and are not guaranteed to work with Skylight 6:
+  - Sinatra 1.x
+  - GraphQL 1.7 and 1.8
+  - Sidekiq 4
+- NOTE: There is an inconsistency in the order of application of `ruby2_keywords` and `instrument_method` in
+  Ruby >= 3.2. We recommend not combining these two annotations at all, but if you must, call `instrument_method`
+  after your method has been defined.
 
 ## 5.3.4 (October 17, 2022)
 

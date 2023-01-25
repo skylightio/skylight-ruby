@@ -77,6 +77,11 @@ module Skylight
       #         do_expensive_stuff
       #       end
       #     end
+      #
+      #   NOTE: On Ruby >= 3.2, there is an inconsistency in the order ruby2_keywords is applied
+      #   when combined with instrument_method in the prefix position. We recommend not mixing
+      #   these two annotations, but if you must, call `instrument_method` in the suffix position
+      #   after your method has been defined, e.g. `instrument_method :my_method`
       def instrument_method(*args, **opts)
         if (name = args.pop)
           title = "#{self}##{name}"
