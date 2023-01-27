@@ -960,8 +960,10 @@ if enable
         end
 
         it "handles thrown messages" do
-          call MyApp, env("/users/muted_index?throw_something=true")
+          resp = call MyApp, env("/users/muted_index?throw_something=true")
           server.wait resource: "/report"
+
+          expect_caught_response(resp)
 
           endpoint = server.reports.dig(0, :endpoints, 0)
           expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>#{segment}</sk-segment>")
@@ -1028,8 +1030,10 @@ if enable
         end
 
         it "handles thrown messages" do
-          call MyApp, env("/users/normalizer_muted_index?throw_something=true")
+          resp = call MyApp, env("/users/normalizer_muted_index?throw_something=true")
           server.wait resource: "/report"
+
+          expect_caught_response(resp)
 
           endpoint = server.reports.dig(0, :endpoints, 0)
           expect(endpoint.name).to eq("set-by-muted-normalizer<sk-segment>#{segment}</sk-segment>")
@@ -1074,20 +1078,18 @@ if enable
 
       context "middleware that jumps the stack" do
         it "closes jumped spans" do
-          allow_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
-            expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
-          end
-
-          call(MyApp, env("/foo?middleware_throws=true"))
+          resp = call(MyApp, env("/foo?middleware_throws=true"))
           server.wait(resource: "/report")
+
+          expect_caught_response(resp)
 
           batch = server.reports[0]
           expect(batch).to be_present
           endpoint = batch.endpoints[0]
-          expect(endpoint.name).to eq("ThrowingMiddleware#{error_segment}")
+          expect(endpoint.name).to eq("ThrowingMiddleware")
           trace = endpoint.traces[0]
 
-          reverse_spans = trace.filter_spans.reverse_each.map { |span| span.event.title }.drop(3)
+          reverse_spans = trace.filter_spans.reverse_each.map { |span| span.event.title }
           post_catch, throwing, _hook_b, middle, catcher = reverse_spans
 
           expect(post_catch).to eq("post-catch")
@@ -1097,15 +1099,10 @@ if enable
         end
 
         it "closes spans over rescue blocks" do
-          # By the time the call stack has finished with this middleware, deferrals
-          # should be empty. The rescue block in Probes::Middleware#call
-          # should mark those spans done without needing to defer them.
-          allow_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
-            expect(Skylight.trace.send(:deferred_spans)).to eq({})
-          end
-
-          call(MyApp, env("/foo?middleware_raises=true"))
+          resp = call(MyApp, env("/foo?middleware_raises=true"))
           server.wait(resource: "/report")
+
+          expect(resp[0]).to start_with("error=MiddlewareError")
 
           batch = server.reports[0]
           expect(batch).to be_present
@@ -1124,27 +1121,22 @@ if enable
         end
 
         it "closes spans jumped in the controller" do
-          allow_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
-            expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
-          end
-
-          call(MyApp, env("/users/throw_something"))
+          resp = call(MyApp, env("/users/throw_something"))
           server.wait(resource: "/report")
+
+          expect_caught_response(resp)
 
           batch = server.reports[0]
           expect(batch).to be_present
           endpoint = batch.endpoints[0]
-          expect(endpoint.name).to eq("UsersController#throw_something#{error_segment}")
+          expect(endpoint.name).to eq("UsersController#throw_something")
           trace = endpoint.traces[0]
 
           reverse_spans = trace.filter_spans.reverse_each.map { |span| [span.event.category, span.event.title] }
 
           # it closes all spans between the throw and the catch
-          expect(reverse_spans.take(11)).to eq(
+          expect(reverse_spans.take(8)).to eq(
             [
-              ["view.render.template", "text template"],
-              %w[app.controller.request ErrorsController#internal],
-              %w[rack.app ActionDispatch::Routing::RouteSet],
               %w[app.block post-catch],
               ["app.method", "Check authorization"],
               %w[app.controller.request UsersController#throw_something],
@@ -1159,7 +1151,6 @@ if enable
 
         it "unmutes instrumentation even when the disabled span was deferred" do
           expect_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
-            expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
             expect(Skylight.trace).not_to be_tracing_muted
           end
 
@@ -1167,25 +1158,24 @@ if enable
             expect(Skylight.trace).to be_tracing_muted
           end
 
-          call(MyApp, env("/users?mute=true&middleware_throws=true"))
+          resp = call(MyApp, env("/users?mute=true&middleware_throws=true"))
           server.wait(resource: "/report")
+
+          expect_caught_response(resp)
 
           batch = server.reports[0]
           expect(batch).to be_present
           endpoint = batch.endpoints[0]
 
           # This is the last endpoint name that was assigned before instrumentation was disabled
-          expect(endpoint.name).to eq("MonkeyInTheMiddleware#{error_segment}")
+          expect(endpoint.name).to eq("MonkeyInTheMiddleware")
           trace = endpoint.traces[0]
 
           reverse_spans = trace.filter_spans.reverse_each.map { |span| [span.event.category, span.event.title] }
 
           # it closes all spans between the throw and the catch
-          expect(reverse_spans.take(7)).to eq(
+          expect(reverse_spans.take(4)).to eq(
             [
-              ["view.render.template", "text template"],
-              %w[app.controller.request ErrorsController#internal],
-              %w[rack.app ActionDispatch::Routing::RouteSet],
               %w[app.block post-catch],
               %w[app.block banana],
               %w[rack.middleware MonkeyInTheMiddleware],
@@ -1774,6 +1764,10 @@ if enable
       resp[2].close if resp[2].respond_to?(:close)
       resp[2] = data
       resp
+    end
+
+    def expect_caught_response(body)
+      expect(body).to eq(CatchingMiddleware.thrown_response.last.last)
     end
   end
 end
