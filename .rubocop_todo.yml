@@ -30,3 +30,11 @@ Style/OpenStructUse:
     - 'spec/unit/cli/merger_spec.rb'
     - 'spec/unit/extensions/collection_spec.rb'
     - 'spec/unit/extensions/source_location_spec.rb'
+
+Style/CaseLikeIf:
+  Exclude:
+    - 'lib/tasks/workflow.rake'
+
+Lint/ConstantDefinitionInBlock:
+  Exclude:
+    - 'spec/unit/custom_instrumentation_spec.rb'
