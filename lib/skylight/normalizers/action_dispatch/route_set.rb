@@ -8,7 +8,7 @@ module Skylight
 
         def normalize(trace, _name, _payload)
           trace.endpoint = router_class_name
-          [CAT, trace.endpoint, nil]
+          [CAT, router_class_name, nil]
         end
 
         private

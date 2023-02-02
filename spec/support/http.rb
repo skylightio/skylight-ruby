@@ -13,13 +13,23 @@ module SpecHelper
     COND = ConditionVariable.new
 
     class << self
+      attr_reader :port
+
       def start(opts)
-        return if @started
+        if @started
+          if opts[:Port] && opts[:Port] != port
+            raise "requested server start with port #{opts[:Port]}, but a server is already running on #{port}"
+          end
+
+          return
+        end
 
         LOCK.synchronize do
+          return if @started
           @started = true
           @server = Puma::Server.new(self)
-          @server.add_tcp_listener("127.0.0.1", opts.fetch(:Port))
+          listener = @server.add_tcp_listener("127.0.0.1", opts.fetch(:Port))
+          _, @port, = listener.addr
           @server_thread = @server.run
         end
       end
@@ -215,11 +225,12 @@ module SpecHelper
     opts[:debug] ||= ENV.fetch("DEBUG", nil)
 
     server.start(opts)
+
     server.reset
   end
 
   def port
-    9292
+    Server.port
   end
 
   def server_uri

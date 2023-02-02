@@ -47,7 +47,7 @@ module SpecHelper
       return
     end
 
-    opts[:port] ||= 9292
+    opts[:port] ||= SpecHelper::Server.port
 
     # This also resets other ENV vars that are set in the block
     rails_edge = ENV.fetch("RAILS_EDGE", nil)
