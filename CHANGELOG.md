@@ -11,6 +11,8 @@
   responder (like a Rails router), Skylight will not set the endpoint name after exception processing has started.
   This means that error traces will now be aggregated under the original endpoint that generated the error (but with
   the 'error' segment), rather than under the exception handler's controller and action name.
+- [IMPROVEMENT] (Once again) Provide native support for FreeBSD.
+- [BUGFIX] Fix an issue in which the daemon could time out if the processes file descriptor count was set very high (e.g. on Heroku's Performance dynos)
 
 ## 5.3.4 (October 17, 2022)
 
