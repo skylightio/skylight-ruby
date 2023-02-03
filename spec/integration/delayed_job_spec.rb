@@ -154,7 +154,7 @@ if enable
             table.text :last_error # reason for last failure (See Note below)
             table.datetime :run_at # When to run. Could be Time.zone.now for immediately, or sometime in the future.
             table.datetime :locked_at # Set when a client is working on this object
-            table.datetime :failed_at # Set when all retries have failed (actually, by default, the record is deleted instead)
+            table.datetime :failed_at # Set when all retries have failed (by default, the record is deleted instead)
             table.string :locked_by # Who is working on this object (if locked)
             table.string :queue # The name of the queue this job is in
             table.timestamps null: true
@@ -297,119 +297,122 @@ if enable
       worker.work_off
     end
 
-    enable_active_job && describe("ActiveJob", :http, :agent) do
-      # Tests Delayed::Job via ActiveJob
+    enable_active_job &&
+      describe("ActiveJob", :http, :agent) do
+        # Tests Delayed::Job via ActiveJob
 
-      before do
-        stub_const(
-          "SkDelayedActiveJobWorker",
-          Class.new(ActiveJob::Base) do
-            self.queue_adapter = :delayed_job
-            self.queue_name = "my-queue"
+        before do
+          stub_const(
+            "SkDelayedActiveJobWorker",
+            Class.new(ActiveJob::Base) do
+              self.queue_adapter = :delayed_job
+              self.queue_name = "my-queue"
 
-            def perform(*args)
-              Skylight.instrument(category: "app.zomg") do
-                SpecHelper.clock.skip 1
-                raise "bad_method" if args.include?("bad_method")
+              def perform(*args)
+                Skylight.instrument(category: "app.zomg") do
+                  SpecHelper.clock.skip 1
+                  raise "bad_method" if args.include?("bad_method")
+                end
               end
             end
+          )
+
+          stub_config_validation
+          stub_session_request
+        end
+
+        def enqueue_job(*args)
+          SkDelayedActiveJobWorker.perform_later(*args.map(&:to_s))
+        end
+
+        context "both probes installed" do
+          def probes
+            %w[active_job delayed_job]
           end
-        )
 
-        stub_config_validation
-        stub_session_request
-      end
+          specify do
+            enqueue_and_process_job(:good_method)
 
-      def enqueue_job(*args)
-        SkDelayedActiveJobWorker.perform_later(*args.map(&:to_s))
-      end
+            server.wait resource: "/report"
+            report = server.reports[0].to_simple_report
 
-      context "both probes installed" do
-        def probes
-          %w[active_job delayed_job]
-        end
-
-        specify do
-          enqueue_and_process_job(:good_method)
-
-          server.wait resource: "/report"
-          report = server.reports[0].to_simple_report
-
-          expect(report.endpoint.name).to eq("SkDelayedActiveJobWorker<sk-segment>my-queue</sk-segment>")
-          expect(report.mapped_spans).to eq(
-            [
-              ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
+            expect(report.endpoint.name).to eq("SkDelayedActiveJobWorker<sk-segment>my-queue</sk-segment>")
+            expect(report.mapped_spans).to eq(
               [
-                "app.delayed_job.job",
-                "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform",
-                nil,
-                "activejob"
-              ],
+                ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
+                [
+                  "app.delayed_job.job",
+                  "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform",
+                  nil,
+                  "activejob"
+                ],
+                [
+                  "app.job.perform",
+                  "SkDelayedActiveJobWorker",
+                  "{ adapter: 'delayed_job', queue: 'my-queue' }",
+                  sl_aj_worker_perform
+                ],
+                ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
+                ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
+                [
+                  "db.sql.query",
+                  "DELETE FROM delayed_jobs",
+                  "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
+                  "delayed_job"
+                ],
+                ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
+              ]
+            )
+          end
+
+          it "reports problems to the error segment" do
+            enqueue_and_process_job(:bad_method)
+
+            server.wait resource: "/report"
+            report = server.reports[0].to_simple_report
+            spans = report.mapped_spans
+
+            expect(report.endpoint.name).to eq("SkDelayedActiveJobWorker<sk-segment>error</sk-segment>")
+            expect(spans[0..4]).to eq(
               [
-                "app.job.perform",
-                "SkDelayedActiveJobWorker",
-                "{ adapter: 'delayed_job', queue: 'my-queue' }",
-                sl_aj_worker_perform
-              ],
-              ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
-              ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
+                ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
+                [
+                  "app.delayed_job.job",
+                  "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform",
+                  nil,
+                  "activejob"
+                ],
+                [
+                  "app.job.perform",
+                  "SkDelayedActiveJobWorker",
+                  "{ adapter: 'delayed_job', queue: 'my-queue' }",
+                  sl_aj_worker_perform
+                ],
+                ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
+                ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"]
+              ]
+            )
+
+            expect(spans[5][0]).to eq("db.sql.query")
+
+            # column order can differ between ActiveRecord versions
+            r = /UPDATE "delayed_jobs" SET (?<columns>(?:"\w+" = \?,?\s?)+) WHERE "delayed_jobs"\."id" = \?/
+            columns = spans[5][2].match(r)[:columns].split(", ")
+            expect(columns).to match_array(
               [
-                "db.sql.query",
-                "DELETE FROM delayed_jobs",
-                "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
-                "delayed_job"
-              ],
+                "\"attempts\" = ?",
+                "\"last_error\" = ?",
+                "\"run_at\" = ?",
+                "\"updated_at\" = ?",
+                "\"locked_at\" = ?",
+                "\"locked_by\" = ?"
+              ]
+            )
+            expect(spans[6]).to eq(
               ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
-            ]
-          )
-        end
-
-        it "reports problems to the error segment" do
-          enqueue_and_process_job(:bad_method)
-
-          server.wait resource: "/report"
-          report = server.reports[0].to_simple_report
-          spans = report.mapped_spans
-
-          expect(report.endpoint.name).to eq("SkDelayedActiveJobWorker<sk-segment>error</sk-segment>")
-          expect(spans[0..4]).to eq(
-            [
-              ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
-              [
-                "app.delayed_job.job",
-                "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform",
-                nil,
-                "activejob"
-              ],
-              [
-                "app.job.perform",
-                "SkDelayedActiveJobWorker",
-                "{ adapter: 'delayed_job', queue: 'my-queue' }",
-                sl_aj_worker_perform
-              ],
-              ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
-              ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"]
-            ]
-          )
-
-          expect(spans[5][0]).to eq("db.sql.query")
-
-          # column order can differ between ActiveRecord versions
-          r = /UPDATE "delayed_jobs" SET (?<columns>(?:"\w+" = \?,?\s?)+) WHERE "delayed_jobs"\."id" = \?/
-          columns = spans[5][2].match(r)[:columns].split(", ")
-          expect(columns).to match_array(
-            [
-              "\"attempts\" = ?",
-              "\"last_error\" = ?",
-              "\"run_at\" = ?",
-              "\"updated_at\" = ?",
-              "\"locked_at\" = ?",
-              "\"locked_by\" = ?"
-            ]
-          )
-          expect(spans[6]).to eq(["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"])
+            )
+          end
         end
       end
-    end
   end
 end

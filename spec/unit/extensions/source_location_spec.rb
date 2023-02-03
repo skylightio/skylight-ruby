@@ -6,8 +6,14 @@ describe Skylight::Extensions::SourceLocation do
   end
 
   before do
-    @instance_method_line = __LINE__ + 1
-    stub_const("MyConstant", Class.new { def an_instance_method; end })
+    @instance_method_line = __LINE__ + 4
+    stub_const(
+      "MyConstant",
+      Class.new do
+        def an_instance_method
+        end
+      end
+    )
   end
 
   let(:config) { OpenStruct.new(source_location_ignored_gems: %w[skylight], root: Pathname.new(project_root)) }

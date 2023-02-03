@@ -54,9 +54,9 @@ if defined?(Sinatra)
     end
 
     it "instruments named templates" do
-      expect(Skylight).to receive(:instrument)
-        .with({ category: "view.render.template", title: "hello" })
-        .and_call_original
+      expect(Skylight).to receive(:instrument).with(
+        { category: "view.render.template", title: "hello" }
+      ).and_call_original
       allow(Skylight).to receive(:instrument).and_call_original
 
       get "/named-template"
@@ -65,9 +65,9 @@ if defined?(Sinatra)
     end
 
     it "instruments haml templates" do
-      expect(Skylight).to receive(:instrument)
-        .with({ category: "view.render.template", title: "hello" })
-        .and_call_original
+      expect(Skylight).to receive(:instrument).with(
+        { category: "view.render.template", title: "hello" }
+      ).and_call_original
       allow(Skylight).to receive(:instrument).and_call_original
 
       get "/haml-template"
@@ -76,9 +76,9 @@ if defined?(Sinatra)
     end
 
     it "instruments inline templates" do
-      expect(Skylight).to receive(:instrument)
-        .with({ category: "view.render.template", title: "Inline template (erb)" })
-        .and_call_original
+      expect(Skylight).to receive(:instrument).with(
+        { category: "view.render.template", title: "Inline template (erb)" }
+      ).and_call_original
       allow(Skylight).to receive(:instrument).and_call_original
 
       get "/inline-template"

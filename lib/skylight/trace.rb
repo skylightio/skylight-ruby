@@ -77,19 +77,13 @@ module Skylight
     end
 
     def endpoint=(value)
-      if muted?
-        maybe_warn(:endpoint_set_muted, "tried to set endpoint name while muted")
-        return
-      end
+      return if endpoint_assignment_muted?
       @endpoint = value
       native_set_endpoint(value)
     end
 
     def segment=(value)
-      if muted?
-        maybe_warn(:segment_set_muted, "tried to set segment name while muted")
-        return
-      end
+      return if endpoint_assignment_muted?
       @segment = value
     end
 
@@ -99,8 +93,16 @@ module Skylight
       @instrumenter.config
     end
 
-    def muted?
-      !!@child_instrumentation_muted_by || @instrumenter.muted?
+    def muted
+      @child_instrumentation_muted_by || @instrumenter.muted
+    end
+
+    def tracing_muted?
+      !!@child_instrumentation_muted_by || @instrumenter.tracing_muted?
+    end
+
+    def endpoint_assignment_muted?
+      tracing_muted? || @instrumenter.endpoint_assignment_muted?
     end
 
     def broken?
@@ -117,7 +119,7 @@ module Skylight
     end
 
     def instrument(cat, title = nil, desc = nil, meta = nil)
-      return if muted?
+      return if tracing_muted?
       return if broken?
 
       t { "instrument: #{cat}, #{title}" }
@@ -300,9 +302,8 @@ module Skylight
           message << "\nWe disabled the Middleware probe but unfortunately, this didn't solve the issue."
         else
           Skylight::Probes::Middleware::Probe.disable!
-          message <<
-            "\n#{native_span_get_title(span)} may be a Middleware that doesn't fully conform " \
-              "to the Rack SPEC. We've disabled the Middleware probe to see if that resolves the issue."
+          message << "\n#{native_span_get_title(span)} may be a Middleware that doesn't fully conform " \
+            "to the Rack SPEC. We've disabled the Middleware probe to see if that resolves the issue."
         end
       end
 

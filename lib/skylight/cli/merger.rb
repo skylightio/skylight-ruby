@@ -245,9 +245,8 @@ module Skylight
         end
 
         if @parent_app && parent_component_fingerprints.include?([child_app.name, child_env])
-          errors <<
-            "Sorry, `#{@parent_app.name}` already has a `#{child_env}` " \
-              "component that conflicts with this merge request. Please choose a new environment."
+          errors << "Sorry, `#{@parent_app.name}` already has a `#{child_env}` " \
+            "component that conflicts with this merge request. Please choose a new environment."
         end
 
         return child_env unless errors.any?

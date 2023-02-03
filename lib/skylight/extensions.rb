@@ -77,13 +77,17 @@ module Skylight
         @config = config
       end
 
-      def process_trace_meta(_meta); end
+      def process_trace_meta(_meta)
+      end
 
-      def process_instrument_options(_opts, _meta); end
+      def process_instrument_options(_opts, _meta)
+      end
 
-      def process_normalizer_meta(_payload, _meta, **opts); end
+      def process_normalizer_meta(_payload, _meta, **opts)
+      end
 
-      def trace_preprocess_meta(_meta); end
+      def trace_preprocess_meta(_meta)
+      end
 
       def allowed_meta_keys
         []

@@ -31,7 +31,16 @@ module Skylight
         Thread.current[@muted_key] = val
       end
 
-      def muted?
+      def muted
+        Thread.current[@muted_key]
+      end
+
+      def tracing_muted?
+        Thread.current[@muted_key] == :all
+      end
+
+      def endpoint_assignment_muted?
+        # all truthy values will mute endpoint assignment.
         !!Thread.current[@muted_key]
       end
     end
@@ -120,20 +129,32 @@ module Skylight
       @trace_info.muted = val
     end
 
-    def muted?
-      @trace_info.muted?
+    def muted
+      @trace_info.muted
     end
 
-    def mute
-      old_muted = muted?
-      self.muted = true
+    def tracing_muted?
+      muted == :all || muted == true
+    end
+
+    def endpoint_assignment_muted?
+      tracing_muted? || muted == :endpoint_assignment
+    end
+
+    # possible values:
+    # ignore: :all
+    # ignore: :endpoint_assignment
+    # ignore: false | nil
+    def mute(ignore: :all)
+      old_muted = muted
+      self.muted = ignore
       yield if block_given?
     ensure
       self.muted = old_muted
     end
 
     def unmute
-      old_muted = muted?
+      old_muted = muted
       self.muted = false
       yield if block_given?
     ensure
@@ -151,7 +172,7 @@ module Skylight
     end
 
     alias disable mute
-    alias disabled? muted?
+    alias disabled? tracing_muted?
 
     def start!
       # We do this here since we can't report these issues via Gem install without stopping install entirely.
@@ -232,7 +253,7 @@ module Skylight
     def instrument(cat, title = nil, desc = nil, meta = nil)
       raise ArgumentError, "cat is required" unless cat
 
-      if muted?
+      if tracing_muted?
         return yield if block_given?
 
         return

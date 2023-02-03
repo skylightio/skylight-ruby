@@ -5,8 +5,8 @@ require "json"
 require "active_support/inflector"
 require "digest"
 
-OLDEST_RUBY = "2.6"
-NEWEST_RUBY = "3.1"
+OLDEST_RUBY = "2.7"
+NEWEST_RUBY = "3.2"
 HEAD_RUBY = "3.2"
 
 module CITasks
@@ -56,10 +56,6 @@ module CITasks
     "grape-edge" => {
       allow: [{ "dependency-name": "grape" }]
     },
-    "graphql-1.8.x" => {
-      allow: [{ "dependency-name": "graphql" }],
-      ignore: [{ "dependency-name": "graphql", versions: [">= 1.9"] }]
-    },
     "graphql-1.9.x" => {
       allow: [{ "dependency-name": "graphql" }],
       ignore: [{ "dependency-name": "graphql", versions: [">= 1.10"] }]
@@ -90,22 +86,15 @@ module CITasks
     "rails-edge" => {
       allow: [{ "dependency-name": "rails" }]
     },
-    "sequel-4.34.0" => {
-      ignore: [{ "dependency-name": "*" }]
-    },
-    "sidekiq-4.x-graphql-1.7.x" => {
+    "sidekiq-5.x" => {
       allow: [
         { "dependency-name": "sidekiq" },
         { "dependency-name": "graphql" }
       ],
       ignore: [
-        { "dependency-name": "sidekiq", versions: [">= 5"] },
-        { "dependency-name": "graphql", versions: [">= 1.8"] }
+        { "dependency-name": "sidekiq", versions: [">= 6"] },
+        { "dependency-name": "graphql", versions: [">= 1.9"] }
       ]
-    },
-    "sinatra-1.x" => {
-      allow: [{ "dependency-name": "sinatra" }],
-      ignore: [{ "dependency-name": "sinatra", versions: [">= 1.5"] }]
     },
     "sinatra-2.x" => {
       allow: [{ "dependency-name": "sinatra" }]
@@ -133,7 +122,7 @@ module CITasks
     # Oldest mongoid we support
     {
       name: "mongoid-6",
-      ruby_version: "2.7",
+      ruby_version: OLDEST_RUBY,
       gemfile: "mongoid-6.x",
       services: mongo,
       env: {
@@ -166,10 +155,10 @@ module CITasks
     },
     # GraphQL 1.7 is the oldest version that we support.
     # We also have some special handling for it.
-    { ruby_version: OLDEST_RUBY, gemfile: "sidekiq-4.x-graphql-1.7.x" },
+    { ruby_version: OLDEST_RUBY, gemfile: "sidekiq-5.x" },
     # We need to test either 1.8 or 1.9 since there are more changes in 1.10.
     # We probably don't need to test both
-    { ruby_version: "2.7", gemfile: "graphql-1.9.x" },
+    { ruby_version: OLDEST_RUBY, gemfile: "graphql-1.9.x" },
     # GraphQL 1.11 is tested as part of our default additional gems
     # TODO: We should test 1.12+
 
@@ -185,17 +174,17 @@ module CITasks
         RAILS_EDGE: true
       }
     },
-    { ruby_version: OLDEST_RUBY, gemfile: "sinatra-1.x" },
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "sinatra-2.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "sinatra-edge" },
     { ruby_version: OLDEST_RUBY, gemfile: "grape-1.x" },
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "grape-1.x" },
     # Oldest supported grape version. Doesn't support 3.0.
-    { ruby_version: "2.7", gemfile: "grape-1.2.x" },
+    { ruby_version: OLDEST_RUBY, gemfile: "grape-1.2.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "grape-edge" },
-    { ruby_version: NEWEST_RUBY, gemfile: "sequel-4.34.0" },
-    { ruby_version: "2.7", gemfile: "ams-0.8.x" },
-    { ruby_version: "2.7", gemfile: "ams-0.9.x" },
+    { ruby_version: "3.1", gemfile: "sequel-4" },
+    { ruby_version: NEWEST_RUBY, gemfile: "sequel-5" },
+    { ruby_version: OLDEST_RUBY, gemfile: "ams-0.8.x" },
+    { ruby_version: OLDEST_RUBY, gemfile: "ams-0.9.x" },
     { ruby_version: NEWEST_RUBY, gemfile: "ams-0.10.x" },
     {
       gemfile: "rails-6.1.x",
@@ -405,10 +394,6 @@ module CITasks
         { name: "Check ruby", run: "ruby -v | grep \"#{ruby_version}\" -q" }
       end
 
-      def setup_volta_step
-        { name: "Setup volta", uses: "volta-cli/action@v4" }
-      end
-
       def install_apt_dependencies_step
         { name: "Install APT dependencies", run: <<~RUN }
               sudo apt-get update
@@ -431,34 +416,11 @@ module CITasks
         }
       end
 
-      def setup_yarn_cache_step
-        [
-          {
-            name: "Get yarn cache directory path",
-            id: "yarn-cache-dir-path",
-            run: "echo \"::set-output name=dir::$(yarn cache dir)\""
-          },
-          {
-            name: "Setup cache (yarn)",
-            uses: "actions/cache@v3",
-            with: {
-              path: "${{ steps.yarn-cache-dir-path.outputs.dir }}",
-              key: "${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}",
-              "restore-keys": "${{ runner.os }}-yarn-"
-            }
-          }
-        ]
-      end
-
       def install_bundler_dependencies_step
         { name: "bundle install", run: <<~RUN }
               gem install bundler
               bundle install
             RUN
-      end
-
-      def install_yarn_dependencies_step
-        { name: "yarn install", run: "yarn install --frozen-lockfile" }
       end
 
       def run_tests_step
@@ -550,7 +512,7 @@ module CITasks
       end
 
       def ruby_version
-        "2.7" # Oldest version that works with Rails 7
+         OLDEST_RUBY# Oldest version that works with Rails 7
       end
 
       def gemfile
@@ -565,13 +527,10 @@ module CITasks
         [
           checkout_step,
           setup_ruby_step,
-          setup_volta_step,
           setup_bundle_cache_step,
-          setup_yarn_cache_step,
           install_bundler_dependencies_step,
-          install_yarn_dependencies_step,
           setup_lint_matchers,
-          run_prettier_step,
+          run_syntax_tree_step,
           run_rubocop_step
         ].flatten.compact
       end
@@ -588,8 +547,8 @@ module CITasks
         }
       end
 
-      def run_prettier_step
-        { name: "Run Prettier", run: "yarn lint:prettier" }
+      def run_syntax_tree_step
+        { name: "Run SyntaxTree", run: "bundle exec rake stree:check" }
       end
 
       def run_rubocop_step
@@ -718,3 +677,216 @@ end
 
 desc "Generate the .github/workflow/build.yml config"
 task workflow: ["workflow:generate", :dependabot]
+
+TARGET_THIRD_PARTY_LIBRARIES = %w[
+  active_model_serializers
+  delayed_job
+  elasticsearch
+  excon
+  faraday
+  grape
+  graphql
+  httpclient
+  mongo
+  mongoid
+  rack
+  rails
+  redis
+  sequel
+  sidekiq
+  sinatra
+  tilt
+].freeze
+
+class CompoundVersionTracker
+  def initialize
+    @oldest_versions_installed = {}
+    @newest_versions_installed = {}
+    @newest_versions_available = {}
+    @prerelease = []
+  end
+
+  def track_installed(gemname:, version:)
+    version = Gem::Version.new(version)
+
+    if version.prerelease?
+      @prerelease << [gemname, version]
+      return
+    end
+
+    unless @oldest_versions_installed[gemname]&.< version
+      @oldest_versions_installed[gemname] = version
+    end
+
+    unless @newest_versions_installed[gemname]&.> version
+      @newest_versions_installed[gemname] = version
+    end
+  end
+
+  def track_newest(gemname:, version:)
+    version = Gem::Version.new(version)
+    unless @newest_versions_available[gemname]&.> version
+      @newest_versions_available[gemname] = version
+    end
+  end
+
+  def fire_outdated_dependency_warnings
+    puts "Newest dependencies installed:\n==================="
+    @newest_versions_installed.each do |name, version|
+      puts "#{name}: #{version}"
+    end
+
+    puts "\n\nWARNINGS:\n====================="
+
+    @newest_versions_available.each do |name, version|
+      if @newest_versions_installed[name]&.< version
+        warn("Dependency #{name} is not tested on latest version #{version}" \
+             "[newest=#{@newest_versions_installed[name]}, oldest=#{@oldest_versions_installed[name]}]")
+      end
+    end
+
+    warn("Prelease versions tested:")
+    @prerelease.each do |name, version|
+      puts "#{name}: #{version}"
+    end
+  end
+end
+
+namespace :audit do
+  def bundler_path(ruby_version)
+    @bundler_paths ||= find_bundler_paths_rbenv
+
+    segments = Gem::Version.new(ruby_version).canonical_segments
+    _, path = @bundler_paths.detect do |version, _path|
+      segments.zip(version.canonical_segments).all? { |x, y| x == y }
+    end
+
+    path.to_s or raise "bundler path not found for Ruby #{ruby_version}"
+  end
+
+  def gemfile_path(gemfile)
+    gemfile == "default" ? "Gemfile" : "gemfiles/#{gemfile}/Gemfile"
+  end
+
+  def find_bundler_paths_rbenv
+    rbenv_root = File.expand_path("~/.rbenv")
+    unless File.directory?(rbenv_root)
+      raise "cannot find rbenv installation; please implement path search for your ruby version manager."
+    end
+
+    paths = Dir[File.join(rbenv_root, "versions/*/bin/bundle")].map do |bundler_path|
+      path = Pathname.new(bundler_path)
+      version = Gem::Version.new(path.parent.parent.basename.to_s)
+
+      [version, path]
+    end
+
+    paths.sort_by!(&:first).reverse!
+    paths
+  end
+
+  # Given the list of CI jobs, run `bundle update` and analyze the results.
+  # Each dependency is tracked, and `bundle outdated` is run to find versions that may not be tested at all.
+  # Note that this can't really run on CI, as it requires every ruby version under test to be installed via a
+  # ruby version manager (rbenv is supported currently).
+  task :check_deps do
+    outdated_outputs = {}
+    parsed_lockfiles = {}
+    CITasks::TEST_JOBS.group_by {|job| job.fetch(:ruby_version) }.each do |ruby, jobs|
+      puts ruby
+      puts bundler_path(ruby)
+
+      jobs.each do |job|
+        gemfile = job.fetch(:gemfile)
+        gemfile_path = File.expand_path(gemfile_path(gemfile))
+        gemfile_lock_path = Pathname.new(gemfile_path).parent.join("Gemfile.lock")
+
+        Bundler.with_unbundled_env do
+          bundle = bundler_path(ruby)
+          bundle_update_proc = Process.spawn({ "BUNDLE_GEMFILE" => gemfile_path.to_s }, bundle, "update")
+          _, status = Process.wait2(bundle_update_proc)
+          if status != 0
+            raise "error updating gemfile=#{gemfile_path} for ruby #{ruby}; status=#{status}"
+          end
+
+          # Unfortunately the `outdated` CLI command isn't implemented in a way
+          # to make it useable programatically.
+          outdated_info = `BUNDLE_GEMFILE="#{gemfile_path}" #{bundle} outdated`
+          outdated_outputs[[ruby, gemfile_path]] = parse_bundle_outdated(outdated_info)
+          parsed_lockfile = Bundler::LockfileParser.new(Bundler.read_file(gemfile_lock_path))
+          parsed_lockfiles[[ruby, gemfile_path]] = parsed_lockfile
+        end
+      end
+    end
+
+    tracker = CompoundVersionTracker.new
+
+    parsed_lockfiles.each do |_, lockfile|
+      lockfile.specs.each do |spec|
+        tracker.track_installed(gemname: spec.name, version: spec.version)
+      end
+    end
+
+    outdated_outputs.each do |_, specs|
+      specs.each do |gemname, versions|
+        versions.each do |version|
+          tracker.track_newest(gemname: gemname, version: version[:newest])
+        end
+      end
+    end
+
+    tracker.fire_outdated_dependency_warnings
+  end
+end
+
+def parse_bundle_outdated(output)
+  if output =~ /Gem\s+Current\s+Latest\s+Requested/
+    parse_bundle_outdated_new(output)
+  elsif output =~ /Outdated gems included in the bundle/
+    parse_bundle_outdated_old(output)
+  else
+    warn("Unrecognized output (or nothing was outdated): #{output}")
+    {}
+  end
+end
+
+# EX:
+# Gem        Current  Latest  Requested  Groups
+# rack       2.2.5    3.0.3
+# rubocop    1.31.2   1.42.0  ~> 1.31.0  development
+# sequel     4.41.0   5.64.0  = 4.41.0   default
+# simplecov  0.21.2   0.22.0  ~> 0.21.2  development
+def parse_bundle_outdated_new(output)
+  results = {}
+  output.lines.each do |line|
+    next unless (matches = line.match(/^(?<gem>\S+)\s+(?<current>\S+)\s+(?<latest>\S+)\s*(?<requested>\S+)?\s*$/))
+    results[matches[:gem]] ||= []
+    results[matches[:gem]] << {
+      newest: matches[:latest],
+      installed: matches[:current],
+      requested: matches[:requested]
+    }
+  end
+
+  results
+end
+
+def parse_bundle_outdated_old(output)
+  results = {}
+  output.lines.each do |line|
+    if (matches = line.match(/^\s*\* (?<gem>.*) \((?<info>.*)\).*$/))
+      results[matches[:gem]] ||= []
+      results[matches[:gem]] << parse_info_old(matches[:info])
+    end
+  end
+
+  results
+end
+
+def parse_info_old(info_line)
+  newest, installed, requested = info_line.split(", ").map do |segment|
+    segment.split(" ", 2).last
+  end
+
+  { newest: newest, installed: installed, requested: requested }
+end

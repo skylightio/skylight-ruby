@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.homepage = "https://www.skylight.io"
   spec.license = "Nonstandard"
 
-  spec.required_ruby_version = ">= 2.6"
+  spec.required_ruby_version = ">= 2.7"
 
   files =
     begin
@@ -39,6 +39,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec-collection_matchers", "~> 1.1"
   spec.add_development_dependency "rubocop", "~> 1.31.0"
   spec.add_development_dependency "simplecov", "~> 0.21.2"
+  spec.add_development_dependency "syntax_tree"
   spec.add_development_dependency "timecop", "~> 0.9"
   spec.add_development_dependency "webmock"
 

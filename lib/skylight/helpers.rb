@@ -77,6 +77,11 @@ module Skylight
       #         do_expensive_stuff
       #       end
       #     end
+      #
+      #   NOTE: On Ruby >= 3.2, there is an inconsistency in the order ruby2_keywords is applied
+      #   when combined with instrument_method in the prefix position. We recommend not mixing
+      #   these two annotations, but if you must, call `instrument_method` in the suffix position
+      #   after your method has been defined, e.g. `instrument_method :my_method`
       def instrument_method(*args, **opts)
         if (name = args.pop)
           title = "#{self}##{name}"
@@ -130,8 +135,6 @@ module Skylight
 
       private
 
-      HAS_ARGUMENT_FORWARDING = Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7.0")
-
       def __sk_instrument_method_on(klass, name, title, **opts)
         category = (opts[:category] || "app.method").to_s
         title = (opts[:title] || title).to_s
@@ -156,12 +159,7 @@ module Skylight
         # forward the different argument types.
         is_setter_method = name.to_s.end_with?("=")
 
-        arg_string =
-          if HAS_ARGUMENT_FORWARDING
-            is_setter_method ? "*args, **kwargs, &blk" : "..."
-          else
-            "*args, &blk"
-          end
+        arg_string = is_setter_method ? "*args, **kwargs, &blk" : "..."
 
         original_method_dispatch =
           if is_setter_method

@@ -66,28 +66,32 @@ describe Skylight::CLI::Merger do
     let(:preamble_sequence) do
       [matchers[:intro], matchers[:explanation], matchers[:fetch], /Please specify the "parent" app/, *app_list]
     end
+    # rubocop:disable Style/RegexpLiteral
     let(:success_sequence) do
       [
         /Merging.../,
         /Success!/,
-        /=========================/,
+        %r{=========================},
         %r{If you use a config/skylight.yml},
         /Remove any environment-specific `authentication` configs/,
         /If you're running in Rails and your Rails environment exactly matches `#{child_env}`/,
-        /=========================/,
+        %r{=========================},
         /If you configure Skylight using environment variables/,
         /Deploy the latest agent before updating your environment variables/,
         /Set `SKYLIGHT_AUTHENTICATION`/,
         /If you're running in Rails and your Rails environment exactly matches `#{child_env}`/,
-        /=========================/
+        %r{=========================}
       ]
     end
+    # rubocop:enable Style/RegexpLiteral
 
     before do
-      allow_any_instance_of(Skylight::Api).to receive(:merge_apps!)
-        .with("token", app_guid: app1[:guid], component_guid: app2[:components][0]["guid"], environment: child_env) {
-          merge_response
-        }
+      allow_any_instance_of(Skylight::Api).to receive(:merge_apps!).with(
+        "token",
+        app_guid: app1[:guid],
+        component_guid: app2[:components][0]["guid"],
+        environment: child_env
+      ) { merge_response }
     end
 
     let(:merge_response) { OpenStruct.new(status: 204) }

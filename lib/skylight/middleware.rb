@@ -38,8 +38,8 @@ module Skylight
       # We are applying this special case for #each only. Future bugs of this
       # class will be handled by requesting users to patch their ruby
       # implementation, to save adding too many methods in this class.
-      def each(*args, &block)
-        @body.each(*args, &block)
+      def each(...)
+        @body.each(...)
       end
 
       def method_missing(*args, &block)
@@ -132,7 +132,7 @@ module Skylight
     end
 
     def make_request_id(request_id)
-      request_id && !request_id.empty? ? request_id.gsub(/[^\w\-]/, "".freeze)[0...255] : internal_request_id
+      request_id && !request_id.empty? ? request_id.gsub(/[^\w-]/, "".freeze)[0...255] : internal_request_id
     end
 
     def internal_request_id

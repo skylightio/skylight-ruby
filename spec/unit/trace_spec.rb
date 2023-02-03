@@ -161,7 +161,7 @@ module Skylight
       clock.skip 0.1
       c = trace.instrument "baz"
       clock.skip 0.1
-      expect { trace.done(a) }.to change { trace.muted? }.from(true).to(false)
+      expect { trace.done(a) }.to change { trace.tracing_muted? }.from(true).to(false)
       d = trace.instrument "wibble"
       clock.skip 0.1
       e = trace.instrument "wobble"
@@ -274,10 +274,9 @@ module Skylight
         before { Skylight.instrumenter.enable_extension!(:source_location) }
 
         let(:extension) do
-          Skylight
-            .instrumenter
-            .extensions
-            .instance_exec { @extensions.detect { |x| x.is_a?(Skylight::Extensions::SourceLocation) } }
+          Skylight.instrumenter.extensions.instance_exec do
+            @extensions.detect { |x| x.is_a?(Skylight::Extensions::SourceLocation) }
+          end
         end
 
         it "allows only source_file to be set" do

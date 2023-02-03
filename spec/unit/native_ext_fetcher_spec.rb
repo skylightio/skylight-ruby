@@ -33,9 +33,15 @@ module Skylight
         original_proxy = ENV.fetch("HTTP_PROXY", nil)
         ENV["HTTP_PROXY"] = "foo:bar@127.0.0.1:123"
 
-        expect(Net::HTTP).to receive(:start)
-          .with("s3.amazonaws.com", 443, "127.0.0.1", 123, "foo", "bar", use_ssl: true)
-          .and_return([:success, checksum])
+        expect(Net::HTTP).to receive(:start).with(
+          "s3.amazonaws.com",
+          443,
+          "127.0.0.1",
+          123,
+          "foo",
+          "bar",
+          use_ssl: true
+        ).and_return([:success, checksum])
 
         ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
         expect(ret).to eq(true)
@@ -65,15 +71,13 @@ module Skylight
           an_instance_of(File)
         )
 
-        expect_any_instance_of(NativeExtFetcher).to receive(:http_get)
-          .with(
-            "s3.amazonaws.com",
-            443,
-            true,
-            "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz",
-            an_instance_of(File)
-          )
-          .and_return([:success, checksum])
+        expect_any_instance_of(NativeExtFetcher).to receive(:http_get).with(
+          "s3.amazonaws.com",
+          443,
+          true,
+          "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz",
+          an_instance_of(File)
+        ).and_return([:success, checksum])
 
         ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
         expect(ret).to eq(true)
@@ -82,15 +86,13 @@ module Skylight
 
     context "fetching unsuccessfully" do
       it "verifies the checksum" do
-        expect_any_instance_of(NativeExtFetcher).to receive(:http_get)
-          .with(
-            "s3.amazonaws.com",
-            443,
-            true,
-            "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz",
-            an_instance_of(File)
-          )
-          .and_return([:success, checksum])
+        expect_any_instance_of(NativeExtFetcher).to receive(:http_get).with(
+          "s3.amazonaws.com",
+          443,
+          true,
+          "/skylight-agent-packages/skylight-native/1.0.0/skylight_linux-x86_64.tar.gz",
+          an_instance_of(File)
+        ).and_return([:success, checksum])
 
         ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: "abcdefghijklmnop"
 

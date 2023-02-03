@@ -50,8 +50,8 @@ module Skylight
 
       class Probe
         def install
-          if ::Sinatra::VERSION < "1.4.0"
-            Skylight.error "Sinatra must be version 1.4.0 or greater."
+          if ::Sinatra::VERSION < "2.0.0"
+            Skylight.error "Sinatra must be version 2.0.0 or greater."
             return
           end
 

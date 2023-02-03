@@ -75,7 +75,8 @@ module Skylight
         [cat, title, desc, meta]
       end
 
-      def normalize_after(trace, span, name, payload); end
+      def normalize_after(trace, span, name, payload)
+      end
 
       private
 

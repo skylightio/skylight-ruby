@@ -26,7 +26,7 @@ if defined?(Graphiti)
 
       stub_const("GraphitiTests", Module.new)
 
-      # prettier-ignore
+      # stree-ignore
       begin # rubocop:disable Style/RedundantBegin
         GraphitiTests.module_eval <<~RUBY, __FILE__, __LINE__ + 1
           class Author

@@ -2,19 +2,6 @@ require "spec_helper"
 
 enable = false
 begin
-  # Sidekiq 4.2 checks for the Rails constant but not for whether it responds to
-  # `#env`. (This is fixed in Sidekiq 5+) When we use ActionView in the
-  # ActionView Probe spec, it causes the Rails constant to be defined without the
-  # `#env` method. This is a hack to make it not crash.
-  if defined?(Rails) && !Rails.respond_to?(:env) && (spec = Gem.loaded_specs["sidekiq"]) &&
-       Gem::Dependency.new("sidekiq", "~> 4.2").match?(spec)
-    def Rails.env
-      # rubocop:disable Naming/MemoizedInstanceVariableName
-      @_env ||= ActiveSupport::StringInquirer.new("")
-      # rubocop:enable Naming/MemoizedInstanceVariableName
-    end
-  end
-
   require "sidekiq/testing"
   enable = true
 rescue LoadError
@@ -24,8 +11,16 @@ end
 if enable
   module Skylight
     describe "Sidekiq" do
+      def server_middleware
+        sidekiq_7? ? ::Sidekiq.default_configuration.server_middleware : ::Sidekiq.server_middleware
+      end
+
+      def sidekiq_7?
+        ::Sidekiq::VERSION =~ /\A7/
+      end
+
       after :each do
-        ::Sidekiq.server_middleware.clear
+        server_middleware.clear
       end
 
       it "adds server middleware" do
@@ -38,7 +33,7 @@ if enable
         expect(Skylight::Sidekiq::ServerMiddleware).to receive(:new).and_return(middleware)
 
         # Force the Sidekiq Middleware to get built
-        ::Sidekiq.server_middleware.retrieve
+        server_middleware.retrieve
       end
 
       context "instrumenting worker", :agent do
@@ -78,7 +73,7 @@ if enable
           Skylight.stop!
 
           ::Sidekiq::Testing.disable!
-          ::Sidekiq.server_middleware.clear
+          server_middleware.clear
         end
 
         it "works" do

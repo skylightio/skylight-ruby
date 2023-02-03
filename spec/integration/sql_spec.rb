@@ -240,8 +240,9 @@ if enable
     end
 
     it "works for load_async with errors" do
-      allow_any_instance_of(ActiveRecord::ConnectionAdapters::SQLite3Adapter).to receive(:materialize_transactions)
-        .and_raise("AAAHHH")
+      allow_any_instance_of(ActiveRecord::ConnectionAdapters::SQLite3Adapter).to receive(
+        :materialize_transactions
+      ).and_raise("AAAHHH")
 
       users = User.all.load_async
       sleep 1

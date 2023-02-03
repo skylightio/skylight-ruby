@@ -38,26 +38,28 @@ module SpecHelper
   end
 
   def test_config_values
-    @test_config_values ||=
-      {
-        authentication: SecureRandom.uuid,
-        log_file: log_path,
-        log_level: ENV["DEBUG"] ? :debug : :fatal,
-        user_config_path: tmp("user_config.yml"),
-        report_url: "http://127.0.0.1:#{port}/report",
-        report_http_deflate: false,
-        report_http_disabled: false,
-        report_http_connect_timeout: "1sec",
-        report_http_read_timeout: "1sec",
-        auth_url: "http://127.0.0.1:#{port}/agent",
-        app_create_url: "http://127.0.0.1:#{port}/apps",
-        validation_url: "http://127.0.0.1:#{port}/agent/config",
-        auth_http_deflate: false,
-        auth_http_connect_timeout: "2sec",
-        auth_http_read_timeout: "2sec",
-        gc: { profiler: gc }.freeze,
-        daemon: { sockdir_path: sockdir_path, batch_flush_interval: "1sec" }.freeze
-      }.freeze
+    @test_config_values ||= {
+      auth_http_connect_timeout: "2sec",
+      auth_http_deflate: false,
+      auth_http_read_timeout: "2sec",
+      authentication: SecureRandom.uuid,
+      daemon: { sockdir_path: sockdir_path, batch_flush_interval: "1sec" }.freeze,
+      gc: { profiler: gc }.freeze,
+      log_file: log_path,
+      log_level: ENV["DEBUG"] ? :debug : :fatal,
+      report_http_connect_timeout: "1sec",
+      report_http_deflate: false,
+      report_http_disabled: false,
+      report_http_read_timeout: "1sec",
+      user_config_path: tmp("user_config.yml")
+    }.freeze
+
+    @test_config_values.merge({
+      report_url: "http://127.0.0.1:#{port}/report",
+      auth_url: "http://127.0.0.1:#{port}/agent",
+      app_create_url: "http://127.0.0.1:#{port}/apps",
+      validation_url: "http://127.0.0.1:#{port}/agent/config",
+    })
   end
 
   def gc

@@ -1,3 +1,17 @@
+## 6.0.0-beta (prerelease)
+- [BREAKING] End support for Ruby 2.6
+- The following libraries are no longer tested and are not guaranteed to work with Skylight 6:
+  - Sinatra 1.x
+  - GraphQL 1.7 and 1.8
+  - Sidekiq 4
+- NOTE: There is an inconsistency in the order of application of `ruby2_keywords` and `instrument_method` in
+  Ruby >= 3.2. We recommend not combining these two annotations at all, but if you must, call `instrument_method`
+  after your method has been defined.
+- [IMPROVEMENT] When Rails's `exceptions_app` (used by ActionDispatch::ShowExceptions) is set to another instrumented
+  responder (like a Rails router), Skylight will not set the endpoint name after exception processing has started.
+  This means that error traces will now be aggregated under the original endpoint that generated the error (but with
+  the 'error' segment), rather than under the exception handler's controller and action name.
+
 ## 5.3.4 (October 17, 2022)
 
 - [BUGFIX] Fix a middleware response method that was incompatible with Puma >= 6.

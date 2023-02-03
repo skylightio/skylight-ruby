@@ -20,6 +20,11 @@ if enable
     let(:report_component) { "web" }
 
     def boot
+      MyApp.config.exceptions_app = MyApp.routes
+      MyApp.config.action_dispatch.rescue_responses.merge!(
+        "ActiveRecord::RecordNotFound" => :not_found
+      )
+
       MyApp.initialize!
 
       EngineNamespace::MyEngine.routes.draw do
@@ -48,14 +53,19 @@ if enable
             get :template_index
             get :muted_index
             get :normalizer_muted_index
+            get :not_found
           end
         end
         get "/metal" => "metal#show"
         mount EngineNamespace::MyEngine => "/engine"
+        get "/404" => "errors#not_found"
+        get "/500" => "errors#internal"
       end
     end
 
     around { |ex| set_agent_env(&ex) }
+
+    let(:error_segment) { "<sk-segment>error</sk-segment>" }
 
     before :each do
       stub_const("ControllerError", Class.new(StandardError))
@@ -231,7 +241,7 @@ if enable
 
       stub_const("EngineNamespace", Module.new)
 
-      # prettier-ignore
+      # stree-ignore
       begin # rubocop:disable Style/RedundantBegin
         EngineNamespace.module_eval <<~RUBY, __FILE__, __LINE__ + 1
           class MyEngine < ::Rails::Engine
@@ -267,76 +277,75 @@ if enable
 
       # stub_const doesn't work well for this. We do manual cleanup afterwards.
       class ::MyApp < Rails::Application # rubocop:disable Lint/ConstantDefinitionInBlock
-        PNG =
-          [
-            137,
-            80,
-            78,
-            71,
-            13,
-            10,
-            26,
-            10,
-            0,
-            0,
-            0,
-            13,
-            73,
-            72,
-            68,
-            82,
-            0,
-            0,
-            0,
-            1,
-            0,
-            0,
-            0,
-            1,
-            8,
-            0,
-            0,
-            0,
-            0,
-            58,
-            126,
-            155,
-            85,
-            0,
-            0,
-            0,
-            10,
-            73,
-            68,
-            65,
-            84,
-            120,
-            156,
-            99,
-            250,
-            15,
-            0,
-            1,
-            5,
-            1,
-            2,
-            207,
-            160,
-            46,
-            205,
-            0,
-            0,
-            0,
-            0,
-            73,
-            69,
-            78,
-            68,
-            174,
-            66,
-            96,
-            130
-          ].pack("C*")
+        PNG = [
+          137,
+          80,
+          78,
+          71,
+          13,
+          10,
+          26,
+          10,
+          0,
+          0,
+          0,
+          13,
+          73,
+          72,
+          68,
+          82,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          8,
+          0,
+          0,
+          0,
+          0,
+          58,
+          126,
+          155,
+          85,
+          0,
+          0,
+          0,
+          10,
+          73,
+          68,
+          65,
+          84,
+          120,
+          156,
+          99,
+          250,
+          15,
+          0,
+          1,
+          5,
+          1,
+          2,
+          207,
+          160,
+          46,
+          205,
+          0,
+          0,
+          0,
+          0,
+          73,
+          69,
+          78,
+          68,
+          174,
+          66,
+          96,
+          130
+        ].pack("C*")
 
         config.secret_key_base = "095f674153982a9ce59914b561f4522a"
 
@@ -412,7 +421,7 @@ if enable
         end
 
         rescue_from "ControllerError" do |exception|
-          render json: { error: exception.message }, status: 500
+          render json: { error: exception.message }, status: 418
         end
 
         const_set(:INDEX_LINE, __LINE__ + 1)
@@ -509,31 +518,27 @@ if enable
           end
         end
 
+        def not_found
+          raise ActiveRecord::RecordNotFound
+        end
+
         def no_template
           # This action has no template to auto-render
         end
 
         def too_many_spans
           # Max is 2048
-          Rails
-            .application
-            .config
-            .many
-            .times do
-              Skylight.instrument category: "app.zomg.level-1" do
-                Skylight.instrument category: "app.zomg.should-prune-below-here" do
-                  Rails
-                    .application
-                    .config
-                    .very_many
-                    .times do
-                      Skylight.instrument category: "app.zomg.level-2" do
-                        # nothing
-                      end
-                    end
+          Rails.application.config.many.times do
+            Skylight.instrument category: "app.zomg.level-1" do
+              Skylight.instrument category: "app.zomg.should-prune-below-here" do
+                Rails.application.config.very_many.times do
+                  Skylight.instrument category: "app.zomg.level-2" do
+                    # nothing
+                  end
                 end
               end
             end
+          end
 
           if Rails.version =~ /^4\./
             render text: "There's too many of them!"
@@ -558,7 +563,8 @@ if enable
           redirect_to "/"
         end
 
-        def before_action_redirect; end
+        def before_action_redirect
+        end
 
         def action_redirect
           redirect_to "/"
@@ -582,8 +588,25 @@ if enable
 
         # For checking visibilty only
         instrument_method
-        def unused; end
+        def unused
+        end
       end
+
+      # It's hard for us to match the naming for this if we use stub_const. We manually remove later.
+      # class ::UsersController < ActionController::Base
+      stub_const(
+        "ErrorsController",
+        Class.new(ActionController::Base) do
+          def not_found
+            render(status: 404, plain: "failsafe response: resource not found")
+          end
+
+          def internal
+            exception = request.env["action_dispatch.exception"]
+            render(status: 500, plain: "failsafe response: #{exception.inspect}")
+          end
+        end
+      )
 
       stub_const(
         "MetalController",
@@ -722,7 +745,7 @@ if enable
           a_span_including(
             event: an_exact_event(category: "rack.middleware", title: "Anonymous Middleware"),
             annotations:
-              include(an_annotation(:SourceLocation, "#{source_file_index}:#{::MyApp::ANONYMOUS_MIDDLEWARE_LINE}"))
+              include(an_annotation(:SourceLocation, "#{source_file_index}:#{MyApp::ANONYMOUS_MIDDLEWARE_LINE}"))
           )
         )
 
@@ -744,17 +767,17 @@ if enable
             a_span_including(
               event: an_exact_event(category: "app.controller.request", title: "UsersController#index"),
               annotations:
-                include(an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}"))
+                include(an_annotation(:SourceLocation, "#{source_file_index}:#{UsersController::INDEX_LINE}"))
             ),
             a_span_including(
               event: an_exact_event(category: "app.method", title: "Check authorization"),
               annotations:
-                include(an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::AUTHORIZED_LINE}"))
+                include(an_annotation(:SourceLocation, "#{source_file_index}:#{UsersController::AUTHORIZED_LINE}"))
             ),
             a_span_including(
               event: an_exact_event(category: "app.method", title: "UsersController#index"),
               annotations:
-                include(an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}"))
+                include(an_annotation(:SourceLocation, "#{source_file_index}:#{UsersController::INDEX_LINE}"))
             ),
             a_span_including(event: an_exact_event(category: "app.inside")),
             a_span_including(event: an_exact_event(category: "app.zomg"))
@@ -798,7 +821,7 @@ if enable
 
           expect(template_span).to eq(%w[view.render.template users/index.html.erb])
 
-          if ::ActionView.gem_version >= Gem::Version.new("6.1.0.alpha")
+          if ActionView.gem_version >= Gem::Version.new("6.1.0.alpha")
             expect(layout_span).to eq(%w[view.render.layout layouts/app.html.erb])
           else
             expect(layout_span).to eq(%w[view.render.template layouts/app.html.erb])
@@ -937,8 +960,10 @@ if enable
         end
 
         it "handles thrown messages" do
-          call MyApp, env("/users/muted_index?throw_something=true")
+          resp = call MyApp, env("/users/muted_index?throw_something=true")
           server.wait resource: "/report"
+
+          expect_caught_response(resp)
 
           endpoint = server.reports.dig(0, :endpoints, 0)
           expect(endpoint.name).to eq("UsersController#muted_index<sk-segment>#{segment}</sk-segment>")
@@ -1005,8 +1030,10 @@ if enable
         end
 
         it "handles thrown messages" do
-          call MyApp, env("/users/normalizer_muted_index?throw_something=true")
+          resp = call MyApp, env("/users/normalizer_muted_index?throw_something=true")
           server.wait resource: "/report"
+
+          expect_caught_response(resp)
 
           endpoint = server.reports.dig(0, :endpoints, 0)
           expect(endpoint.name).to eq("set-by-muted-normalizer<sk-segment>#{segment}</sk-segment>")
@@ -1051,12 +1078,10 @@ if enable
 
       context "middleware that jumps the stack" do
         it "closes jumped spans" do
-          allow_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
-            expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
-          end
-
-          call(MyApp, env("/foo?middleware_throws=true"))
+          resp = call(MyApp, env("/foo?middleware_throws=true"))
           server.wait(resource: "/report")
+
+          expect_caught_response(resp)
 
           batch = server.reports[0]
           expect(batch).to be_present
@@ -1074,15 +1099,10 @@ if enable
         end
 
         it "closes spans over rescue blocks" do
-          # By the time the call stack has finished with this middleware, deferrals
-          # should be empty. The rescue block in Probes::Middleware#call
-          # should mark those spans done without needing to defer them.
-          allow_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
-            expect(Skylight.trace.send(:deferred_spans)).to eq({})
-          end
-
-          call(MyApp, env("/foo?middleware_raises=true"))
+          resp = call(MyApp, env("/foo?middleware_raises=true"))
           server.wait(resource: "/report")
+
+          expect(resp[0]).to start_with("error=MiddlewareError")
 
           batch = server.reports[0]
           expect(batch).to be_present
@@ -1101,12 +1121,10 @@ if enable
         end
 
         it "closes spans jumped in the controller" do
-          allow_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
-            expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
-          end
-
-          call(MyApp, env("/users/throw_something"))
+          resp = call(MyApp, env("/users/throw_something"))
           server.wait(resource: "/report")
+
+          expect_caught_response(resp)
 
           batch = server.reports[0]
           expect(batch).to be_present
@@ -1133,16 +1151,17 @@ if enable
 
         it "unmutes instrumentation even when the disabled span was deferred" do
           expect_any_instance_of(AssertionHookA).to receive(:assertion_hook) do
-            expect(Skylight.trace.send(:deferred_spans)).not_to be_empty
-            expect(Skylight.trace).not_to be_muted
+            expect(Skylight.trace).not_to be_tracing_muted
           end
 
           expect_any_instance_of(AssertionHookB).to receive(:assertion_hook) do
-            expect(Skylight.trace).to be_muted
+            expect(Skylight.trace).to be_tracing_muted
           end
 
-          call(MyApp, env("/users?mute=true&middleware_throws=true"))
+          resp = call(MyApp, env("/users?mute=true&middleware_throws=true"))
           server.wait(resource: "/report")
+
+          expect_caught_response(resp)
 
           batch = server.reports[0]
           expect(batch).to be_present
@@ -1269,15 +1288,23 @@ if enable
 
       it "sets correct segment for an engine" do
         res = call MyApp, env("/engine/error_from_router")
-        expect(res).to eq([])
+        expect(res).to eq(["failsafe response: #<RuntimeError: cannot even>"])
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
-        expect(endpoint.name).to eq(router_name)
+        expect(endpoint.name).to eq("#{router_name}#{error_segment}")
         trace = endpoint.traces.first
         spans = trace.filter_spans
 
         # Should include the routers from both the main app and the engine
-        expect(spans.last(2).map { |s| s.event.title }).to eq([router_name, router_name])
+        expect(spans.last(5).map { |s| s.event.title }).to eq(
+          [
+            router_name, # main app
+            router_name, # engine router
+            router_name, # for exceptions app
+            "ErrorsController#internal",
+            "text template"
+          ]
+        )
       end
 
       it "forwards exceptions in the engine to the main app" do
@@ -1286,12 +1313,21 @@ if enable
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
         endpoint_name = "EngineNamespace::ApplicationController#error"
-        expect(endpoint.name).to eq("#{endpoint_name}<sk-segment>error</sk-segment>")
+        expect(endpoint.name).to eq("#{endpoint_name}#{error_segment}")
         trace = endpoint.traces.first
-        spans = trace.filter_spans.last(3)
+        spans = trace.filter_spans.last(6)
 
         # Should include the routers from both the main app and the engine
-        expect(spans.map { |s| s.event.title }).to eq([router_name, router_name, endpoint_name])
+        expect(spans.map { |s| s.event.title }).to eq(
+          [
+            router_name, # main app
+            router_name, # engine router
+            endpoint_name,
+            router_name, # for exceptions app
+            "ErrorsController#not_found",
+            "text template"
+          ]
+        )
       end
 
       it "handles routing errors" do
@@ -1299,12 +1335,20 @@ if enable
 
         server.wait(resource: "/report")
         endpoint = server.reports[0].endpoints[0]
-        expect(endpoint.name).to eq(router_name)
+        expect(endpoint.name).to eq("#{router_name}#{error_segment}")
         trace = endpoint.traces.first
-        spans = trace.filter_spans.last(2)
+        spans = trace.filter_spans.last(5)
 
         # Should include the routers from both the main app and the engine
-        expect(spans.map { |s| s.event.title }).to eq([router_name, router_name])
+        expect(spans.map { |s| s.event.title }).to eq(
+          [
+            router_name, # main app
+            router_name, # engine router
+            router_name, # for exceptions app
+            "ErrorsController#not_found",
+            "text template"
+          ]
+        )
       end
 
       it "sets rendered segment, not requested" do
@@ -1335,7 +1379,7 @@ if enable
         expect_any_instance_of(Skylight::Trace).to receive(:native_span_set_exception).with(*args).and_call_original
 
         res = call MyApp, env("/users/failure")
-        expect(res).to be_empty
+        expect(res[0]).to start_with("failsafe response:"), "exceptions_app should have handled the response"
 
         server.wait resource: "/report"
 
@@ -1343,12 +1387,14 @@ if enable
         expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("UsersController#failure<sk-segment>error</sk-segment>")
+        expect(endpoint.name).to eq(
+          "UsersController#failure#{error_segment}"
+        ), "the original controller name should persist, despite being handled by exceptions_app"
       end
 
       it "sets correct segment for handled exceptions" do
         status, _headers, body = call_full MyApp, env("/users/handled_failure")
-        expect(status).to eq(500)
+        expect(status).to eq(418)
         expect(body).to eq([{ error: "Handled!" }.to_json])
 
         server.wait resource: "/report"
@@ -1358,7 +1404,7 @@ if enable
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
 
-        expect(endpoint.name).to eq("UsersController#handled_failure<sk-segment>error</sk-segment>")
+        expect(endpoint.name).to eq("UsersController#handled_failure#{error_segment}")
       end
 
       it "sets correct segment for `head`" do
@@ -1385,9 +1431,9 @@ if enable
       end
 
       it "sets correct segment for 4xx responses" do
-        status, _headers, body = call_full MyApp, env("/users/status?status=404")
+        status, _headers, body = call_full MyApp, env("/users/not_found")
+        expect(body).to eq(["failsafe response: resource not found"])
         expect(status).to eq(404)
-        expect(body).to eq(["404"])
 
         server.wait resource: "/report"
 
@@ -1395,7 +1441,7 @@ if enable
         expect(batch).not_to be nil
         expect(batch.endpoints.count).to eq(1)
         endpoint = batch.endpoints[0]
-        expect(endpoint.name).to eq("UsersController#status<sk-segment>error</sk-segment>")
+        expect(endpoint.name).to eq("UsersController#not_found#{error_segment}")
       end
 
       it "sets correct segment for 5xx responses" do
@@ -1558,7 +1604,7 @@ if enable
             a_span_including(
               event: an_exact_event(category: "app.controller.request", title: "UsersController#index"),
               annotations:
-                array_including(an_annotation(:SourceLocation, "#{source_file_index}:#{::UsersController::INDEX_LINE}"))
+                array_including(an_annotation(:SourceLocation, "#{source_file_index}:#{UsersController::INDEX_LINE}"))
             )
           )
         end
@@ -1597,7 +1643,7 @@ if enable
             source_locations = spans.map { |span| report.source_location(span) }
 
             source_file = Pathname.new(__FILE__).relative_path_from(spec_root).to_s
-            base_line = ::UsersController::INDEX_DB_LINE
+            base_line = UsersController::INDEX_DB_LINE
             expect(source_locations[0]).to eq("#{source_file}:#{base_line + 1}")
             expect(source_locations[1]).to eq("#{source_file}:#{base_line + 5}")
           end
@@ -1606,7 +1652,8 @@ if enable
     end
 
     context "activated from application.rb", :http, :agent do
-      def pre_boot; end
+      def pre_boot
+      end
 
       before :each do
         @original_environments = MyApp.config.skylight.environments.clone
@@ -1627,7 +1674,8 @@ if enable
     end
 
     context "activated from ENV", :http, :agent do
-      def pre_boot; end
+      def pre_boot
+      end
 
       before :each do
         ENV["SKYLIGHT_ENABLED"] = "true"
@@ -1666,7 +1714,8 @@ if enable
     end
 
     context "deactivated from ENV" do
-      def pre_boot; end
+      def pre_boot
+      end
 
       before :each do
         ENV["SKYLIGHT_ENABLED"] = "false"
@@ -1715,6 +1764,10 @@ if enable
       resp[2].close if resp[2].respond_to?(:close)
       resp[2] = data
       resp
+    end
+
+    def expect_caught_response(body)
+      expect(body).to eq(CatchingMiddleware.thrown_response.last.last)
     end
   end
 end
