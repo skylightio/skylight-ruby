@@ -7,7 +7,7 @@ require "digest"
 
 OLDEST_RUBY = "2.7"
 NEWEST_RUBY = "3.2"
-HEAD_RUBY = "3.2"
+HEAD_RUBY = "3.3"
 
 module CITasks
   def self.mongo
@@ -187,7 +187,7 @@ module CITasks
     { ruby_version: OLDEST_RUBY, gemfile: "ams-0.9.x" },
     { ruby_version: NEWEST_RUBY, gemfile: "ams-0.10.x" },
     {
-      gemfile: "rails-6.1.x",
+      gemfile: "default",
       ruby_version: HEAD_RUBY,
       ruby_install_version: "head",
       allow_failure: true
