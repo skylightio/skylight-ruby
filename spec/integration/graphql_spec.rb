@@ -174,8 +174,6 @@ if enable
           end
 
           class TestAppSchema < GraphQL::Schema
-            # tracer(GraphQL::Tracing::ActiveSupportNotificationsTracing)
-
             mutation(Types::MutationType)
             query(Types::QueryType)
           end
