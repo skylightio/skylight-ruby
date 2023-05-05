@@ -15,6 +15,10 @@ module SpecHelper
     class << self
       attr_reader :port
 
+      def started?
+        !!@started
+      end
+
       def start(opts)
         if @started
           if opts[:Port] && opts[:Port] != port
@@ -28,8 +32,9 @@ module SpecHelper
           return if @started
           @started = true
           @server = Puma::Server.new(self)
-          listener = @server.add_tcp_listener("127.0.0.1", opts.fetch(:Port))
+          listener = @server.add_tcp_listener("127.0.0.1", opts[:Port])
           _, @port, = listener.addr
+
           @server_thread = @server.run
         end
       end
@@ -219,17 +224,18 @@ module SpecHelper
   end
 
   def start_server(opts = {})
-    opts[:Port] ||= port
     opts[:environment] ||= "test"
     opts[:AccessLog] ||= []
     opts[:debug] ||= ENV.fetch("DEBUG", nil)
 
-    server.start(opts)
+    Server.start(opts)
 
-    server.reset
+    Server.reset
   end
 
   def port
+    start_server unless Server.started?
+
     Server.port
   end
 
