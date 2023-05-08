@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: 717893199685d608b3344488549d189c17b8e76c07f2b31bb81ffafda8e5dca8
+  CONFIG_DIGEST: de849583dc16173af4bee6fd30e354d66b559cbc32d5730b998c9f5d42c76f70
 'on':
   push:
     branches:
@@ -309,6 +309,53 @@ jobs:
         restore-keys: |-
           ${{ runner.os }}-gems-2.7-graphql-1.9.x-
           ${{ runner.os }}-gems-2.7-
+    - name: bundle install
+      run: |
+        gem install bundler
+        bundle install
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    needs:
+    - ruby-3-2-default
+  ruby-3-2-graphql-2-0-17:
+    name: ruby 3.2, graphql-2.0.17
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'graphql-2.0.17')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
+    env:
+      BUNDLE_GEMFILE: gemfiles/graphql-2.0.17/Gemfile
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+    - name: Install APT dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite libsqlite3-dev
+    - name: Setup cache (bundler)
+      uses: actions/cache@v3
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-3.2-graphql-2.0.17-${{ hashFiles('gemfiles/graphql-2.0.17/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.2-graphql-2.0.17-
+          ${{ runner.os }}-gems-3.2-
     - name: bundle install
       run: |
         gem install bundler
@@ -1199,6 +1246,7 @@ jobs:
     - ruby-3-2-elasticsearch-elasticsearch
     - ruby-2-7-sidekiq-5-x
     - ruby-2-7-graphql-1-9-x
+    - ruby-3-2-graphql-2-0-17
     - ruby-2-7-rails-5-2-x
     - ruby-3-2-rails-6-0-x
     - ruby-3-2-rails-6-1-x

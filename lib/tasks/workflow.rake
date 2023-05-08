@@ -60,6 +60,10 @@ module CITasks
       allow: [{ "dependency-name": "graphql" }],
       ignore: [{ "dependency-name": "graphql", versions: [">= 1.10"] }]
     },
+    "graphql-2.0.17" => {
+      allow: [{ "dependency-name": "graphql" }],
+      ignore: [{ "dependency-name": "graphql", versions: [">= 2.0.18"] }]
+    },
     "mongoid-6.x" => {
       allow: [{ "dependency-name": "mongoid" }],
       ignore: [{ "dependency-name": "mongoid", versions: [">= 7"] }]
@@ -162,6 +166,8 @@ module CITasks
     # GraphQL 1.11 is tested as part of our default additional gems
     # TODO: We should test 1.12+
 
+    # Latest version of graphql with legacy instrumentation
+    { ruby_version: NEWEST_RUBY, gemfile: "graphql-2.0.17" },
     { gemfile: "rails-5.2.x", ruby_version: OLDEST_RUBY, always_run: true },
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "rails-6.0.x" },
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "rails-6.1.x" },

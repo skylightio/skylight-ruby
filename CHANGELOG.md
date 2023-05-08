@@ -1,3 +1,6 @@
+## 6.0.0-beta2 (prerelease)
+- [IMPROVEMENT] Better support for GraphQL versions >= 2.0.18.
+
 ## 6.0.0-beta (prerelease)
 - [BREAKING] End support for Ruby 2.6
 - The following libraries are no longer tested and are not guaranteed to work with Skylight 6:
