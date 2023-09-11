@@ -1,7 +1,4 @@
-## 6.0.0-beta2 (prerelease)
-- [IMPROVEMENT] Better support for GraphQL versions >= 2.0.18.
-
-## 6.0.0-beta (prerelease)
+## 6.0.0 (September 11, 2023)
 - [BREAKING] End support for Ruby 2.6
 - The following libraries are no longer tested and are not guaranteed to work with Skylight 6:
   - Sinatra 1.x
@@ -16,6 +13,7 @@
   the 'error' segment), rather than under the exception handler's controller and action name.
 - [IMPROVEMENT] (Once again) Provide native support for FreeBSD.
 - [BUGFIX] Fix an issue in which the daemon could time out if the processes file descriptor count was set very high (e.g. on Heroku's Performance dynos)
+- [IMPROVEMENT] Better support for GraphQL versions >= 2.0.18.
 
 ## 5.3.4 (October 17, 2022)
 
