@@ -45,7 +45,7 @@ module Skylight
 
       return if reasons.empty?
 
-      sk_config.logger.warn("Activating Skylight for Background Jobs because #{reasons.to_sentence}")
+      sk_config.logger.warn("Activating Skylight for Background Jobs because #{reasons.to_sentence(locale: false)}")
     end
 
     def log_prefix
