@@ -1,5 +1,6 @@
 ## 6.0.1 (September 12, 2023)
 - [BUGFIX] Fix a logger message that could raise an error when I18n is misconfigured or unconfigured.
+- [BUGFIX] Fix an issue with proxy config in skylightd.
 
 ## 6.0.0 (September 11, 2023)
 - [BREAKING] End support for Ruby 2.6
