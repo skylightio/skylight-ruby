@@ -1,6 +1,5 @@
 require "rbconfig"
 require "mkmf"
-require "yaml"
 require "logger"
 require "fileutils"
 
@@ -11,6 +10,20 @@ require "skylight/util/platform"
 
 GLIBC_MIN = 2.23
 GLIBC_V4_MIN = 2.15
+
+LIBSKYLIGHT_INFO = {
+  "version" => "5.2.0-15d2f2b",
+  "checksums" => {
+    "x86-linux" => "ae972e44ac926411971c7c2161f7b63d885108818bcdb9b67a34aef72650a01e",
+    "x86_64-linux" => "385369da7811b7ab9a71990c873858a21fd0c44b2b44c480c269a5632d886e5f",
+    "x86_64-linux-musl" => "a3404b9d02fd82dfc20bfa06889da79122626099a1aca0e3c009fe3724ba94b1",
+    "x86_64-darwin" => "779198627e376d4bf281f484a8b5ed818a500439ffe57f965b3797c4eac0c096",
+    "x86_64-freebsd" => "40fd09224f2ccd8d49c87eb9f27f6c4aa3b5e7d982f6c1c87de9b1038188e7ff",
+    "aarch64-linux" => "855e3ac01054b35a7eefbfd764ee87b07b54055a9397b969f7c25d442e514319",
+    "aarch64-linux-musl" => "59295e2a8183258aabaa9af7dbab222d3cd3fd2b22c287c3adf85f0d1669cb83",
+    "aarch64-darwin" => "adc070c71413520afb7186b6c6c04e1149120965c1609a60fa2b427615b51cf9"
+  }.freeze
+}.freeze
 
 ldd_output =
   begin
@@ -100,8 +113,8 @@ end
 root = File.expand_path(__dir__)
 hdrpath = File.expand_path(SKYLIGHT_HDR_PATH)
 libpath = File.expand_path(SKYLIGHT_LIB_PATH)
+extconf = __FILE__
 libskylight = File.expand_path("libskylight.#{Platform.libext}", libpath)
-libskylight_yml = File.expand_path("libskylight.yml", root)
 skylight_dlopen_h = File.expand_path("skylight_dlopen.h", hdrpath)
 skylight_dlopen_c = File.expand_path("skylight_dlopen.c", hdrpath)
 
@@ -115,32 +128,25 @@ LOG.info "file exists; path=#{skylight_dlopen_h}" if File.exist?(skylight_dlopen
 if !File.exist?(libskylight) && !File.exist?(skylight_dlopen_c) && !File.exist?(skylight_dlopen_h)
   fail "libskylight.#{LIBEXT} not found -- remote download disabled; aborting install" unless SKYLIGHT_FETCH_LIB
 
-  # Ensure that libskylight.yml is present and load it
-  fail "`#{libskylight_yml}` does not exist" unless File.exist?(libskylight_yml)
-
-  unless (libskylight_info = YAML.load_file(libskylight_yml))
-    fail "`#{libskylight_yml}` does not contain data"
-  end
-
   if (version = SKYLIGHT_VERSION)
     unless (checksum = SKYLIGHT_CHECKSUM)
       fail "no checksum provided when using custom version"
     end
-  elsif (platform_info = libskylight_info[Platform.tuple])
+  elsif (platform_info = LIBSKYLIGHT_INFO[Platform.tuple])
     unless (version = platform_info["version"])
-      fail "libskylight version missing from `#{libskylight_yml}`; platform=#{Platform.tuple}"
+      fail "libskylight version missing from `#{extconf}`; platform=#{Platform.tuple}"
     end
 
     unless (checksum = platform_info["checksum"])
-      fail "checksum missing from `#{libskylight_yml}`; platform=#{Platform.tuple}"
+      fail "checksum missing from `#{extconf}`; platform=#{Platform.tuple}"
     end
   else
-    unless (version = libskylight_info["version"])
-      fail "libskylight version missing from `#{libskylight_yml}`"
+    unless (version = LIBSKYLIGHT_INFO["version"])
+      fail "libskylight version missing from `#{extconf}`"
     end
 
-    unless (checksums = libskylight_info["checksums"])
-      fail "libskylight checksums missing from `#{libskylight_yml}`"
+    unless (checksums = LIBSKYLIGHT_INFO["checksums"])
+      fail "libskylight checksums missing from `#{extconf}`"
     end
 
     unless (checksum = checksums[Platform.tuple])
