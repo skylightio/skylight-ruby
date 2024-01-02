@@ -110,7 +110,6 @@ end
 #
 # === Setup paths
 #
-root = File.expand_path(__dir__)
 hdrpath = File.expand_path(SKYLIGHT_HDR_PATH)
 libpath = File.expand_path(SKYLIGHT_LIB_PATH)
 extconf = __FILE__
