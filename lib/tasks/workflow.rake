@@ -424,9 +424,15 @@ module CITasks
 
       def install_bundler_dependencies_step
         { name: "bundle install", run: <<~RUN }
-              gem install bundler
+              gem install bundler #{bundler_version_requirement}
               bundle install
             RUN
+      end
+
+      def bundler_version_requirement
+        if ruby_version == "2.7"
+          "-v 2.4.22"
+        end
       end
 
       def run_tests_step
