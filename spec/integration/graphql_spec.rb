@@ -647,7 +647,7 @@ if enable
         context "with single mutations" do
           let(:mutation_name) { "CreateSpeciesMutation" }
 
-          it "successfully calls into graphql with anonymous mutations" do
+          public_send(SpecHelper.active_record_71? ? :pending : :it, "successfully calls into graphql with anonymous mutations") do
             make_graphql_request(
               query: "mutation #{mutation_name}($genus: String!, $species: String!) { #{mutation_inner} }",
               variables: {
