@@ -494,7 +494,7 @@ describe "Skylight::Instrumenter", :http, :agent do
 
           has_subscribers =
             lambda do
-              %i[@subscriber @subscribers].reduce(Skylight.instrumenter) { |m, n| m.instance_variable_get(n) }.present?
+              !%i[@subscriber @subscribers].reduce(Skylight.instrumenter) { |m, n| m.instance_variable_get(n) }.empty?
             end
 
           Skylight.trace("Rack", "app.rack.request") {}

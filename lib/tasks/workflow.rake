@@ -6,8 +6,8 @@ require "active_support/inflector"
 require "digest"
 
 OLDEST_RUBY = "2.7"
-NEWEST_RUBY = "3.2"
-HEAD_RUBY = "3.3"
+NEWEST_RUBY = "3.3"
+HEAD_RUBY = "3.4"
 
 module CITasks
   def self.mongo
@@ -115,7 +115,7 @@ module CITasks
     { primary: true, ruby_version: NEWEST_RUBY, gemfile: "default" },
     {
       name: "mongo",
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "3.2",
       gemfile: "rails-6.1.x",
       services: mongo,
       env: {
@@ -136,7 +136,7 @@ module CITasks
     },
     {
       name: "elasticsearch",
-      ruby_version: NEWEST_RUBY,
+      ruby_version: "3.2",
       gemfile: "elasticsearch",
       services: {
         elasticsearch: {
@@ -167,10 +167,10 @@ module CITasks
     # TODO: We should test 1.12+
 
     # Latest version of graphql with legacy instrumentation
-    { ruby_version: NEWEST_RUBY, gemfile: "graphql-2.0.17" },
+    { ruby_version: "3.2", gemfile: "graphql-2.0.17" },
     { gemfile: "rails-5.2.x", ruby_version: OLDEST_RUBY, always_run: true },
-    { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "rails-6.0.x" },
-    { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "rails-6.1.x" },
+    { always_run: true, ruby_version: "3.2", gemfile: "rails-6.0.x" },
+    { always_run: true, ruby_version: "3.2", gemfile: "rails-6.1.x" },
     {
       ruby_version: NEWEST_RUBY,
       allow_failure: true,
@@ -424,9 +424,15 @@ module CITasks
 
       def install_bundler_dependencies_step
         { name: "bundle install", run: <<~RUN }
-              gem install bundler
+              gem install bundler #{bundler_version_requirement}
               bundle install
             RUN
+      end
+
+      def bundler_version_requirement
+        if ruby_version == "2.7"
+          "-v 2.4.22"
+        end
       end
 
       def run_tests_step

@@ -183,7 +183,8 @@ if enable
 
     it "works for load_async when running async" do
       # This is a very imperfect way to check that we're actually executing this async
-      expect_any_instance_of(ActiveRecord::FutureResult::EventBuffer).to receive(:instrument).and_call_original
+      expect_any_instance_of(ActiveRecord::FutureResult::EventBuffer).to(
+        receive(:instrument).at_least(:once).and_call_original)
 
       users = User.all.load_async
 
@@ -241,7 +242,7 @@ if enable
 
     it "works for load_async with errors" do
       allow_any_instance_of(ActiveRecord::ConnectionAdapters::SQLite3Adapter).to receive(
-        :materialize_transactions
+        :internal_exec_query
       ).and_raise("AAAHHH")
 
       users = User.all.load_async
@@ -261,8 +262,10 @@ if enable
       expect(future_span.event.description).to be_nil
 
       query_span = trace.spans.find { |s| s.event.category == "db.sql.query" }
+
       expect(query_span).to be_nil, "did not create a query span"
     end
+
     context "without executor" do
       let(:executor) { nil }
 

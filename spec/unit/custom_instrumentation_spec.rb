@@ -17,7 +17,7 @@ describe Skylight::Instrumenter, :http, :agent do
       # rubocop:enable Naming/MemoizedInstanceVariableName
     end
 
-        class MyClass 
+        class MyClass
           include Skylight::Helpers
 
           const_set(:ONE_LINE, __LINE__ + 2)
@@ -454,7 +454,7 @@ describe Skylight::Instrumenter, :http, :agent do
       # hooks. In Ruby 3.2, Skylight's method patcher only sees the method _before_ ruby2_keywords is applied,
       # meaning the aliased method never gets this flag set (only the outer, Skylight-defined wrapper gets it,
       # which is not what we really want).
-      send(RUBY_VERSION.start_with?("3.2") ? :pending: :it, "works with ruby2_keywords (deferred instrument_method)") do
+      send(Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.2") ? :pending: :it, "works with ruby2_keywords (deferred instrument_method)") do
         obj = MyClass.new
         control = obj.ruby2_keywords_control(:positional, kw1: 1, kw2: 2)
         result = obj.ruby2_keywords_method_with_deferred_instrumentation(:positional, kw1: 1, kw2: 2)

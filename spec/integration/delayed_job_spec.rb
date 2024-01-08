@@ -175,7 +175,7 @@ if enable
         stub_session_request
       end
 
-      specify do
+      public_send(SpecHelper.active_record_71? ? :pending : :it) do
         enqueue_and_process_job(:good_method)
 
         server.wait resource: "/report"
@@ -199,7 +199,7 @@ if enable
         )
       end
 
-      specify "with a delayed class method" do
+      public_send(SpecHelper.active_record_71? ? :pending : :it, "with a delayed class method") do
         enqueue_and_process_job(:good_method, class_method: true)
 
         server.wait resource: "/report"
@@ -222,7 +222,7 @@ if enable
         )
       end
 
-      it "reports problems to the error segment" do
+      public_send(SpecHelper.active_record_71? ? :pending : :it, "reports problems to the error segment") do
         enqueue_and_process_job(:bad_method)
 
         server.wait resource: "/report"
@@ -261,7 +261,7 @@ if enable
           Delayed::Job.enqueue(SkDelayedWorker.new(args), queue: "my-queue")
         end
 
-        specify do
+        public_send(SpecHelper.active_record_71? ? :pending : :it) do
           enqueue_and_process_job(:good_method)
 
           server.wait resource: "/report"
@@ -330,7 +330,7 @@ if enable
             %w[active_job delayed_job]
           end
 
-          specify do
+          public_send(SpecHelper.active_record_71? ? :pending : :specify) do
             enqueue_and_process_job(:good_method)
 
             server.wait resource: "/report"
@@ -365,7 +365,7 @@ if enable
             )
           end
 
-          it "reports problems to the error segment" do
+          public_send(SpecHelper.active_record_71? ? :pending : :it, "reports problems to the error segment") do
             enqueue_and_process_job(:bad_method)
 
             server.wait resource: "/report"

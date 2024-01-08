@@ -77,6 +77,29 @@ describe "Initialization integration", :http do
     # This deprecation is not our fault
     output.reject! { |l| l.include?("Rack::File is deprecated") }
 
+    _, i = output.to_enum.with_index.find do |l, _|
+      # In rails 7.1, This is both a default value set on ActiveSupport::Cache, and is deprecated
+      # (requires a positive opt-in for the newer version). It's better for us not to set it
+      # to anything other than the default, so we can just ignore this multi-line deprecation warning.
+      l.include?("Support for `config.active_support.cache_format_version = 6.1") ||
+        l.include?("upgrading_ruby_on_rails.html#new-activesupport-cache-serialization-format")
+    end
+
+    if i
+      a, b, c, d, e = output.slice!(i, 5)
+
+      matches_expected =
+        a.include?("Support for `config.active_support.cache_format_version = 6.1") &&
+        b == "" &&
+        c =~ /Check the Rails upgrade guide/ &&
+        d =~ /for more information on how to upgrade/ &&
+        e =~ /\(called from <top \(required\)> at/
+
+      unless matches_expected
+        raise "unexpected output removed: #{matches_expected.inspect} #{[a, b, c, d, e].inspect}"
+      end
+    end
+
     # Ruby 2.7 has deprecated some keyword behaviors
     if RUBY_VERSION =~ /^2\.7/
       filtered_output = []

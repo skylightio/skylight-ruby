@@ -98,7 +98,7 @@ if enable
       paths = MyApp.routes.map(&:path)
 
       # sanity check
-      expect(paths).to eq(
+      expect(paths.sort).to eq(
         [
           # main app
           "/test(.:format)",
@@ -107,7 +107,7 @@ if enable
           "/sub_ns/test(.:format)",
           "/test(.:format)",
           "/inherited/inherited_ns/test(.:format)"
-        ]
+        ].sort
       )
     end
 
