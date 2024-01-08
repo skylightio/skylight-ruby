@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: ccd4dcc20e4d283ab9ef54e7bdd4a475d71ce0e60b26dd53b7a294c9bc4981a9
+  CONFIG_DIGEST: c5e29b20d90847abb28ea061d1e270e0fe31ccbab612e6a721c5575403a4a46c
 'on':
   push:
     branches:
@@ -64,8 +64,8 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-  ruby-3-3-rails-6-1-x-mongo:
-    name: ruby 3.3, rails-6.1.x, mongo
+  ruby-3-2-rails-6-1-x-mongo:
+    name: ruby 3.2, rails-6.1.x, mongo
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
@@ -89,7 +89,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
+        ruby-version: '3.2'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -98,11 +98,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.3-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.2-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.3-rails-6.1.x-
-          ${{ runner.os }}-gems-3.3-
+          ${{ runner.os }}-gems-3.2-rails-6.1.x-
+          ${{ runner.os }}-gems-3.2-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -168,8 +168,8 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-3-3-default
-  ruby-3-3-elasticsearch-elasticsearch:
-    name: ruby 3.3, elasticsearch, elasticsearch
+  ruby-3-2-elasticsearch-elasticsearch:
+    name: ruby 3.2, elasticsearch, elasticsearch
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'elasticsearch')
@@ -197,7 +197,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
+        ruby-version: '3.2'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -206,11 +206,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.3-elasticsearch-${{ hashFiles('gemfiles/elasticsearch/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.2-elasticsearch-${{ hashFiles('gemfiles/elasticsearch/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.3-elasticsearch-
-          ${{ runner.os }}-gems-3.3-
+          ${{ runner.os }}-gems-3.2-elasticsearch-
+          ${{ runner.os }}-gems-3.2-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -317,8 +317,8 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-3-3-default
-  ruby-3-3-graphql-2-0-17:
-    name: ruby 3.3, graphql-2.0.17
+  ruby-3-2-graphql-2-0-17:
+    name: ruby 3.2, graphql-2.0.17
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'graphql-2.0.17')
@@ -336,7 +336,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
+        ruby-version: '3.2'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -345,11 +345,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.3-graphql-2.0.17-${{ hashFiles('gemfiles/graphql-2.0.17/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.2-graphql-2.0.17-${{ hashFiles('gemfiles/graphql-2.0.17/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.3-graphql-2.0.17-
-          ${{ runner.os }}-gems-3.3-
+          ${{ runner.os }}-gems-3.2-graphql-2.0.17-
+          ${{ runner.os }}-gems-3.2-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -410,8 +410,8 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-3-3-default
-  ruby-3-3-rails-6-0-x:
-    name: ruby 3.3, rails-6.0.x
+  ruby-3-2-rails-6-0-x:
+    name: ruby 3.2, rails-6.0.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.0.x')
@@ -430,7 +430,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
+        ruby-version: '3.2'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -439,11 +439,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.3-rails-6.0.x-${{ hashFiles('gemfiles/rails-6.0.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.2-rails-6.0.x-${{ hashFiles('gemfiles/rails-6.0.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.3-rails-6.0.x-
-          ${{ runner.os }}-gems-3.3-
+          ${{ runner.os }}-gems-3.2-rails-6.0.x-
+          ${{ runner.os }}-gems-3.2-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -456,8 +456,8 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-3-3-default
-  ruby-3-3-rails-6-1-x:
-    name: ruby 3.3, rails-6.1.x
+  ruby-3-2-rails-6-1-x:
+    name: ruby 3.2, rails-6.1.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
@@ -476,7 +476,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
+        ruby-version: '3.2'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -485,11 +485,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.3-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.2-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.3-rails-6.1.x-
-          ${{ runner.os }}-gems-3.3-
+          ${{ runner.os }}-gems-3.2-rails-6.1.x-
+          ${{ runner.os }}-gems-3.2-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -1209,15 +1209,15 @@ jobs:
       if: "!contains(needs.*.result, 'failure')"
     needs:
     - ruby-3-3-default
-    - ruby-3-3-rails-6-1-x-mongo
+    - ruby-3-2-rails-6-1-x-mongo
     - ruby-2-7-mongoid-6-x-mongoid-6
-    - ruby-3-3-elasticsearch-elasticsearch
+    - ruby-3-2-elasticsearch-elasticsearch
     - ruby-2-7-sidekiq-5-x
     - ruby-2-7-graphql-1-9-x
-    - ruby-3-3-graphql-2-0-17
+    - ruby-3-2-graphql-2-0-17
     - ruby-2-7-rails-5-2-x
-    - ruby-3-3-rails-6-0-x
-    - ruby-3-3-rails-6-1-x
+    - ruby-3-2-rails-6-0-x
+    - ruby-3-2-rails-6-1-x
     - ruby-3-3-sinatra-2-x
     - ruby-2-7-grape-1-x
     - ruby-3-3-grape-1-x

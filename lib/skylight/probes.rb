@@ -59,7 +59,7 @@ module Skylight
 
     class << self
       def constant_available?(const_name)
-        ::ActiveSupport::Inflector.safe_constantize(const_name).present?
+        !::ActiveSupport::Inflector.safe_constantize(const_name).nil?
       end
 
       def install!
