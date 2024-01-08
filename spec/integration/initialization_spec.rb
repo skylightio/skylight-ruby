@@ -77,7 +77,7 @@ describe "Initialization integration", :http do
     # This deprecation is not our fault
     output.reject! { |l| l.include?("Rack::File is deprecated") }
 
-    _, i = cache_deprecation_warning = output.to_enum.with_index.find do |l, _|
+    _, i = output.to_enum.with_index.find do |l, _|
       # In rails 7.1, This is both a default value set on ActiveSupport::Cache, and is deprecated
       # (requires a positive opt-in for the newer version). It's better for us not to set it
       # to anything other than the default, so we can just ignore this multi-line deprecation warning.
