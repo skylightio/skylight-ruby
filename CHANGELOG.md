@@ -1,3 +1,7 @@
+## 6.0.2 (January 9, 2024)
+
+- [IMPROVEMENT] When using certain versions of Rubygems (< 3.4.9), some users experienced a Rubygems bug in which the wrong version of Psych native extensions were loaded during Skylight's native extension building. We have inlined the data needed to download libskylight, so YAML is no longer required during installation. Note that for existing versions of Skylight, this issue may also be corrected by updating Rubygems to at least 3.4.9.
+
 ## 6.0.1 (September 12, 2023)
 - [BUGFIX] Fix a logger message that could raise an error when I18n is misconfigured or unconfigured.
 - [BUGFIX] Fix an issue with proxy config in skylightd.
