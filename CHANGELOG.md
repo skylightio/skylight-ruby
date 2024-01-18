@@ -1,3 +1,6 @@
+## 5.3.5 (January 18, 2024)
+- [IMPROVEMENT] Remove an outdated 'abbrev' requirement
+
 ## 5.3.4 (October 17, 2022)
 
 - [BUGFIX] Fix a middleware response method that was incompatible with Puma >= 6.

@@ -10,7 +10,6 @@
 require "erb"
 require "optparse"
 require "stringio"
-require "abbrev"
 require "highline/system_extensions"
 require "highline/question"
 require "highline/menu"
