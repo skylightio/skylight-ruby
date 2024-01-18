@@ -1,3 +1,6 @@
+## 6.0.3 (January 18, 2024)
+- [IMPROVEMENT] Remove an outdated "abbrev" requirement
+
 ## 6.0.2 (January 9, 2024)
 
 - [IMPROVEMENT] When using certain versions of Rubygems (< 3.4.9), some users experienced a Rubygems bug in which the wrong version of Psych native extensions were loaded during Skylight's native extension building. We have inlined the data needed to download libskylight, so YAML is no longer required during installation. Note that for existing versions of Skylight, this issue may also be corrected by updating Rubygems to at least 3.4.9.
@@ -22,6 +25,9 @@
 - [IMPROVEMENT] (Once again) Provide native support for FreeBSD.
 - [BUGFIX] Fix an issue in which the daemon could time out if the processes file descriptor count was set very high (e.g. on Heroku's Performance dynos)
 - [IMPROVEMENT] Better support for GraphQL versions >= 2.0.18.
+
+## 5.3.5 (January 18, 2024)
+- [IMPROVEMENT] Remove an outdated "abbrev" requirement
 
 ## 5.3.4 (October 17, 2022)
 
