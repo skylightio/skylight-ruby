@@ -27,7 +27,9 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Dependencies
+  spec.add_dependency "abbrev"
   spec.add_dependency "activesupport", ">= 5.2.0"
+  spec.add_dependency "base64"
 
   spec.add_development_dependency "beefcake", "~> 1.0"
   spec.add_development_dependency "bundler", ">= 1.17.3"
