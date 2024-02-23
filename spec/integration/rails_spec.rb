@@ -1505,6 +1505,20 @@ if enable
         expect(endpoint.name).to eq("UsersController#header<sk-segment>json+tablet</sk-segment>")
       end
 
+      it "sets correct segment for turbo-frame requests" do
+        status, _headers, body = call_full MyApp, env("/users/1.html?tablet=1", "HTTP_TURBO_FRAME" => "default-frame")
+        expect(status).to eq(200)
+        expect(body[0].strip).to eq("Hola: 1")
+
+        server.wait resource: "/report"
+
+        batch = server.reports[0]
+        expect(batch).not_to be nil
+        expect(batch.endpoints.count).to eq(1)
+        endpoint = batch.endpoints[0]
+        expect(endpoint.name).to eq("UsersController#show<sk-segment>html+turbo-frame+tablet</sk-segment>")
+      end
+
       it "can instrument metal controllers" do
         call MyApp, env("/metal")
 
