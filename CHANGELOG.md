@@ -1,3 +1,6 @@
+## 6.0.4 (February 23, 2024)
+- [IMPROVEMENT] Set "turbo-frame" in the request segment when making a Turbo-Frame request
+
 ## 6.0.3 (January 18, 2024)
 - [IMPROVEMENT] Remove an outdated "abbrev" requirement
 

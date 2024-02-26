@@ -11,7 +11,14 @@ module Skylight
             def append_info_to_payload(payload)
               append_info_to_payload_without_sk(payload)
 
-              payload[:sk_rendered_format] = sk_rendered_mime.try(:ref)
+              mime = sk_rendered_mime.try(:ref)
+
+              payload[:sk_rendered_format] = if request&.headers&.[]("Turbo-Frame")
+                [mime, "turbo-frame"].compact.join("+")
+              else
+                mime
+              end
+
               payload[:sk_variant] = request.respond_to?(:variant) ? request.variant : nil
             end
 
