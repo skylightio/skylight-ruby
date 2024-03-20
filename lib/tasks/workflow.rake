@@ -245,7 +245,7 @@ module CITasks
         env: DEFAULT_ENV,
         on: {
           push: {
-            branches: ["master"]
+            branches: ["main"]
           },
           pull_request: {
             types: %w[labeled opened reopened synchronize]
@@ -318,8 +318,8 @@ module CITasks
         # If we're primary, really always run
         unless primary?
           conditions = [
-            # On master
-            "github.ref == 'refs/heads/master'",
+            # On the main branch
+            "github.ref == 'refs/heads/main'",
             # Labeled with 'full-ci'
             "contains(github.event.pull_request.labels.*.name, 'full-ci')",
             # Labeled for dependency updates
