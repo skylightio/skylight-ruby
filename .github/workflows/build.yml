@@ -47,7 +47,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.3-default-${{ hashFiles('Gemfile.lock') }}"
@@ -95,7 +95,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.2-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
@@ -146,7 +146,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-2.7-mongoid-6.x-${{ hashFiles('gemfiles/mongoid-6.x/Gemfile.lock')
@@ -203,7 +203,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.2-elasticsearch-${{ hashFiles('gemfiles/elasticsearch/Gemfile.lock')
@@ -248,7 +248,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-2.7-sidekiq-5.x-${{ hashFiles('gemfiles/sidekiq-5.x/Gemfile.lock')
@@ -295,7 +295,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-2.7-graphql-1.9.x-${{ hashFiles('gemfiles/graphql-1.9.x/Gemfile.lock')
@@ -342,7 +342,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.2-graphql-2.0.17-${{ hashFiles('gemfiles/graphql-2.0.17/Gemfile.lock')
@@ -388,7 +388,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-2.7-rails-5.2.x-${{ hashFiles('gemfiles/rails-5.2.x/Gemfile.lock')
@@ -436,7 +436,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.2-rails-6.0.x-${{ hashFiles('gemfiles/rails-6.0.x/Gemfile.lock')
@@ -482,7 +482,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.2-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
@@ -529,7 +529,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.3-rails-edge-${{ hashFiles('gemfiles/rails-edge/Gemfile.lock')
@@ -575,7 +575,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.3-sinatra-2.x-${{ hashFiles('gemfiles/sinatra-2.x/Gemfile.lock')
@@ -621,7 +621,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.3-sinatra-edge-${{ hashFiles('gemfiles/sinatra-edge/Gemfile.lock')
@@ -666,7 +666,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-2.7-grape-1.x-${{ hashFiles('gemfiles/grape-1.x/Gemfile.lock')
@@ -714,7 +714,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.3-grape-1.x-${{ hashFiles('gemfiles/grape-1.x/Gemfile.lock')
@@ -759,7 +759,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-2.7-grape-1.2.x-${{ hashFiles('gemfiles/grape-1.2.x/Gemfile.lock')
@@ -807,7 +807,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.3-grape-edge-${{ hashFiles('gemfiles/grape-edge/Gemfile.lock')
@@ -852,7 +852,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.1-sequel-4-${{ hashFiles('gemfiles/sequel-4/Gemfile.lock')
@@ -897,7 +897,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.3-sequel-5-${{ hashFiles('gemfiles/sequel-5/Gemfile.lock')
@@ -942,7 +942,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-2.7-ams-0.8.x-${{ hashFiles('gemfiles/ams-0.8.x/Gemfile.lock')
@@ -989,7 +989,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-2.7-ams-0.9.x-${{ hashFiles('gemfiles/ams-0.9.x/Gemfile.lock')
@@ -1036,7 +1036,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.3-ams-0.10.x-${{ hashFiles('gemfiles/ams-0.10.x/Gemfile.lock')
@@ -1082,7 +1082,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.4-default-${{ hashFiles('Gemfile.lock') }}"
@@ -1130,7 +1130,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq sqlite libsqlite3-dev
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-3.4-rails-edge-${{ hashFiles('gemfiles/rails-edge/Gemfile.lock')
@@ -1170,7 +1170,7 @@ jobs:
       with:
         ruby-version: '2.7'
     - name: Setup cache (bundler)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/vendor/bundle"
         key: "${{ runner.os }}-gems-2.7-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
