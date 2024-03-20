@@ -67,7 +67,7 @@ jobs:
   ruby-3-2-rails-6-1-x-mongo:
     name: ruby 3.2, rails-6.1.x, mongo
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
     services:
       mongo:
@@ -118,7 +118,7 @@ jobs:
   ruby-2-7-mongoid-6-x-mongoid-6:
     name: ruby 2.7, mongoid-6.x, mongoid-6
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'mongoid-6.x')
     services:
       mongo:
@@ -171,7 +171,7 @@ jobs:
   ruby-3-2-elasticsearch-elasticsearch:
     name: ruby 3.2, elasticsearch, elasticsearch
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'elasticsearch')
     services:
       elasticsearch:
@@ -226,7 +226,7 @@ jobs:
   ruby-2-7-sidekiq-5-x:
     name: ruby 2.7, sidekiq-5.x
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sidekiq-5.x')
     services:
       redis:
@@ -273,7 +273,7 @@ jobs:
   ruby-2-7-graphql-1-9-x:
     name: ruby 2.7, graphql-1.9.x
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'graphql-1.9.x')
     services:
       redis:
@@ -320,7 +320,7 @@ jobs:
   ruby-3-2-graphql-2-0-17:
     name: ruby 3.2, graphql-2.0.17
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'graphql-2.0.17')
     services:
       redis:
@@ -365,7 +365,7 @@ jobs:
   ruby-2-7-rails-5-2-x:
     name: ruby 2.7, rails-5.2.x
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     services:
@@ -413,7 +413,7 @@ jobs:
   ruby-3-2-rails-6-0-x:
     name: ruby 3.2, rails-6.0.x
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.0.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     services:
@@ -459,7 +459,7 @@ jobs:
   ruby-3-2-rails-6-1-x:
     name: ruby 3.2, rails-6.1.x
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     services:
@@ -506,7 +506,7 @@ jobs:
     name: "[allowed to fail] ruby 3.3, rails-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge')
     services:
       redis:
@@ -552,7 +552,7 @@ jobs:
   ruby-3-3-sinatra-2-x:
     name: ruby 3.3, sinatra-2.x
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-2.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     services:
@@ -599,7 +599,7 @@ jobs:
     name: "[allowed to fail] ruby 3.3, sinatra-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-edge')
     services:
       redis:
@@ -644,7 +644,7 @@ jobs:
   ruby-2-7-grape-1-x:
     name: ruby 2.7, grape-1.x
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.x')
     services:
       redis:
@@ -691,7 +691,7 @@ jobs:
   ruby-3-3-grape-1-x:
     name: ruby 3.3, grape-1.x
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     services:
@@ -737,7 +737,7 @@ jobs:
   ruby-2-7-grape-1-2-x:
     name: ruby 2.7, grape-1.2.x
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.2.x')
     services:
       redis:
@@ -785,7 +785,7 @@ jobs:
     name: "[allowed to fail] ruby 3.3, grape-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-edge')
     services:
       redis:
@@ -830,7 +830,7 @@ jobs:
   ruby-3-1-sequel-4:
     name: ruby 3.1, sequel-4
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sequel-4')
     services:
       redis:
@@ -875,7 +875,7 @@ jobs:
   ruby-3-3-sequel-5:
     name: ruby 3.3, sequel-5
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sequel-5')
     services:
       redis:
@@ -920,7 +920,7 @@ jobs:
   ruby-2-7-ams-0-8-x:
     name: ruby 2.7, ams-0.8.x
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.8.x')
     services:
       redis:
@@ -967,7 +967,7 @@ jobs:
   ruby-2-7-ams-0-9-x:
     name: ruby 2.7, ams-0.9.x
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.9.x')
     services:
       redis:
@@ -1014,7 +1014,7 @@ jobs:
   ruby-3-3-ams-0-10-x:
     name: ruby 3.3, ams-0.10.x
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.10.x')
     services:
       redis:
@@ -1060,7 +1060,7 @@ jobs:
     name: "[allowed to fail] ruby head, default"
     runs-on: ubuntu-latest
     continue-on-error: true
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'default')
     services:
       redis:
@@ -1105,7 +1105,7 @@ jobs:
     name: "[allowed to fail] ruby head, rails-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
-    if: github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name,
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-edge')
     services:
       redis:
