@@ -37,7 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake-compiler", "~> 1.2.0"
   spec.add_development_dependency "rspec", "~> 3.7"
   spec.add_development_dependency "rspec-collection_matchers", "~> 1.1"
-  spec.add_development_dependency "rubocop", "~> 1.31.0"
+  spec.add_development_dependency "rubocop", "~> 1.63.4"
   spec.add_development_dependency "simplecov", "~> 0.21.2"
   spec.add_development_dependency "syntax_tree"
   spec.add_development_dependency "timecop", "~> 0.9"
