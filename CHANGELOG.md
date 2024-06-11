@@ -1,7 +1,13 @@
+## 6.1.0.beta (June 11, 2024)
+
+- [IMPROVEMENT] Initial support for parsing queries from activerecord-sqlserver-adapter
+
 ## 6.0.4 (February 23, 2024)
+
 - [IMPROVEMENT] Set "turbo-frame" in the request segment when making a Turbo-Frame request
 
 ## 6.0.3 (January 18, 2024)
+
 - [IMPROVEMENT] Remove an outdated "abbrev" requirement
 
 ## 6.0.2 (January 9, 2024)
@@ -9,10 +15,12 @@
 - [IMPROVEMENT] When using certain versions of Rubygems (< 3.4.9), some users experienced a Rubygems bug in which the wrong version of Psych native extensions were loaded during Skylight's native extension building. We have inlined the data needed to download libskylight, so YAML is no longer required during installation. Note that for existing versions of Skylight, this issue may also be corrected by updating Rubygems to at least 3.4.9.
 
 ## 6.0.1 (September 12, 2023)
+
 - [BUGFIX] Fix a logger message that could raise an error when I18n is misconfigured or unconfigured.
 - [BUGFIX] Fix an issue with proxy config in skylightd.
 
 ## 6.0.0 (September 11, 2023)
+
 - [BREAKING] End support for Ruby 2.6
 - The following libraries are no longer tested and are not guaranteed to work with Skylight 6:
   - Sinatra 1.x
@@ -30,6 +38,7 @@
 - [IMPROVEMENT] Better support for GraphQL versions >= 2.0.18.
 
 ## 5.3.5 (January 18, 2024)
+
 - [IMPROVEMENT] Remove an outdated "abbrev" requirement
 
 ## 5.3.4 (October 17, 2022)
