@@ -4,7 +4,7 @@ gemspec path: "../.."
 
 # TODO: Check if we need Rails
 gem "rails", "~> 5.2.0"
-gem "sqlite3"
+gem "sqlite3", "~> 1.4"
 
 gem "mongo"
 gem "mongoid", "~> 7"

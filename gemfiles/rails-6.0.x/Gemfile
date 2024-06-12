@@ -3,6 +3,6 @@ source "https://rubygems.org"
 gemspec path: "../.."
 
 gem "rails", "~> 6.0.3"
-gem "sqlite3"
+gem "sqlite3", "~> 1.4"
 
 gem "net-smtp", require: "false" if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1")

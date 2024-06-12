@@ -2,6 +2,7 @@ APP_ROOT = File.expand_path("..", __dir__)
 
 require "rubygems"
 require "bundler/setup"
+require "ostruct"
 
 # Do this at the start
 coverage = false
