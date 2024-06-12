@@ -5,4 +5,4 @@ gemspec path: "../.."
 # TODO: Check if we need Rails
 gem "rails", "~> 6.1.0"
 gem "sidekiq", "~> 5"
-gem "sqlite3"
+gem "sqlite3", "~> 1.4"

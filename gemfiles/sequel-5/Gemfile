@@ -4,6 +4,6 @@ gemspec path: "../.."
 
 gem "haml"
 gem "sinatra", "~> 3"
-gem "sqlite3"
+gem "sqlite3", "~> 1.4"
 
 gem "sequel", "~> 5.0"

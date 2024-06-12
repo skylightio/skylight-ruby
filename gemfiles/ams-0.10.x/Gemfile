@@ -4,7 +4,7 @@ gemspec path: "../.."
 
 # TODO: Check if we need Rails
 gem "rails", "~> 7.1.0"
-gem "sqlite3"
+gem "sqlite3", "~> 1.4"
 
 gem "active_model_serializers", "~> 0.10.12"
 
