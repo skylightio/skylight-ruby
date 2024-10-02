@@ -12,16 +12,16 @@ GLIBC_MIN = 2.23
 GLIBC_V4_MIN = 2.15
 
 LIBSKYLIGHT_INFO = {
-  "version" => "5.2.1-0a9bfee",
+  "version" => "6.0.0-alpha-5724b40",
   "checksums" => {
-    "x86-linux" => "af118eee2d41a0b989ec7620c7ee090cd1b75d5bb515cf09213fb977b9018fc7",
-    "x86_64-linux" => "26e752796a4b6c6e22668903a056958743b234d1c43973bc427c41280b2da0ec",
-    "x86_64-linux-musl" => "d082c465b48b8ac8c4149ecd052588bd7c65d8c9593de61c86996aa5a4cbc060",
-    "x86_64-darwin" => "bc0eb0f5aa45ab0dd1a85f446fa4533977ba5b9607c77c81fc81b1a4763a1888",
-    "x86_64-freebsd" => "a4328e817928650b50f1e011c048c45dcecbcad094e3bc63f2a06ad24ad8868b",
-    "aarch64-linux" => "d365c375d3de478d27d08c947bedee9377127bc8bd311e220372cfc0fe8e2ad4",
-    "aarch64-linux-musl" => "de66e234540e6af734d678bec49b0c1fdb23bc925b9e051e605e559e0a97e981",
-    "aarch64-darwin" => "f747dd6a934869a4a5865a3051b1ade9588ef3a73026376c043ac114876c0b12"
+    "x86-linux" => "b5f4577664b151ca3e9cc5a65947aed74bfbd15b4430ee6c1756fcb198e172ff",
+    "x86_64-linux" => "4a77130fc2d92e9c873049674bd82d00afd24902cab0da90121152e81862235a",
+    "x86_64-linux-musl" => "3cf522358a6e4448f26266ee726d4bbb067b44ec0c728701440daab4e320b84d",
+    "x86_64-darwin" => "4471197664adf4185d338a6901c1ca1273daf39f3b115e149ce3c9c955d10d78",
+    "x86_64-freebsd" => "03a4daa298b016e093647e8f1a4f608ffbb27a2cb9e7032e6538d04da71c97c3",
+    "aarch64-linux" => "905d632aaa6929fea65a1de426a31436cec78e31a7ecbacf91df5e57c535cc43",
+    "aarch64-linux-musl" => "9be10d90a15626dda4c672dbb9f38f53d7835af89eb8f075b32fa816649be273",
+    "aarch64-darwin" => "6f624f1ba9e1ea35e5da76c6b89a482e4c6df4fe1a4d767dea174373dd594f64"
   }.freeze
 }.freeze
 

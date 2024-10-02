@@ -328,7 +328,7 @@ module Skylight
     end
 
     def resolve_component(component)
-      config.components[component].to_encoded_s
+      config.components[component].to_s
     end
 
     def component=(component)

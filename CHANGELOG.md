@@ -1,3 +1,7 @@
+## 7.0.0.alpha (October 2, 2024)
+
+- IMPROVEMENT Initial support for AWS Lambda
+
 ## 6.1.0.beta (June 11, 2024)
 
 - [IMPROVEMENT] Initial support for parsing queries from activerecord-sqlserver-adapter
