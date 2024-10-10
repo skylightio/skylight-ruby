@@ -9,6 +9,10 @@ rescue LoadError
 end
 
 if enable
+  def rails_8?
+    ActiveRecord::VERSION::MAJOR >= 8
+  end
+
   describe "SQL partial integration", :http, :agent do
     before :each do
       start!
@@ -162,9 +166,14 @@ if enable
       original_executor = ActiveRecord.async_query_executor
       ActiveRecord.async_query_executor = executor
 
+      if rails_8?
+        @_async_queries_session = ActiveRecord::Base.asynchronous_queries_tracker.start_session
+      end
+
       # Use a database file to avoid threading issues
       with_sqlite(migration: users_migration, database: "sql-test.sqlite") { example.run }
     ensure
+      ActiveRecord::Base.asynchronous_queries_tracker.finalize_session(true) if @_async_queries_session
       ActiveRecord.async_query_executor = original_executor
     end
 
@@ -242,7 +251,7 @@ if enable
 
     it "works for load_async with errors" do
       allow_any_instance_of(ActiveRecord::ConnectionAdapters::SQLite3Adapter).to receive(
-        :internal_exec_query
+        rails_8? ? :raw_execute : :internal_exec_query
       ).and_raise("AAAHHH")
 
       users = User.all.load_async

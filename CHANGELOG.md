@@ -1,4 +1,4 @@
-## 7.0.0.alpha (October 2, 2024)
+## 6.2.0.alpha (October 10, 2024)
 
 - IMPROVEMENT Initial support for AWS Lambda
 

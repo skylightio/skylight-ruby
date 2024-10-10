@@ -117,6 +117,19 @@ describe "Initialization integration", :http do
       output = filtered_output
     end
 
+    %w[logger ostruct].each do |lib|
+      (_, i), = output.to_enum.with_index.each_cons(2).find do |(l0, _i0), (l1, _i1)|
+        l0 =~ /#{lib} was loaded from the standard library/ &&
+        l1 =~ /You can add #{lib} to your Gemfile or gemspec to silence this warning./
+      end
+
+      output.slice!(i, 2) if i
+    end
+
+    output.reject! do |line| 
+      line =~ /DEPRECATION WARNING: `to_time` will always preserve the receiver timezone rather than system local time in Rails 8.0/
+    end
+
     output.join("\n")
   rescue Timeout::Error
     Process.kill("TERM", cmd_pid)
