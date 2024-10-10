@@ -1,4 +1,3 @@
-require "ostruct"
 require "skylight/util/http"
 require "thor"
 require "highline"
@@ -51,7 +50,7 @@ module Skylight
         @parents ||=
           begin
             a = (@apps + [{ name: STRINGS[:unlisted], components: [], unlisted: true }])
-            a.each_with_object({}).with_index { |(app, h), i| h[i + 1] = OpenStruct.new(app) }
+            a.each_with_object({}).with_index { |(app, h), i| h[i + 1] = wrap_hash(app) }
           end
 
         say "\nLet's begin!\n\n" \
@@ -175,6 +174,12 @@ module Skylight
 
       private
 
+      def wrap_hash(hash)
+        hash.each_with_object(ActiveSupport::OrderedOptions.new) do |(key, value), result|
+          result[key] = value
+        end
+      end
+
       def do_merge
         say "Merging..."
 
@@ -274,10 +279,12 @@ module Skylight
             @parents.each do |_, app|
               next if app == @parent_app
 
-              app.components.each { |component| yielder << OpenStruct.new({ app_name: app.name }.merge(component)) }
+              app.components.each do |component|
+                yielder << wrap_hash({ app_name: app.name }.merge(component)) 
+              end
             end
 
-            yielder << OpenStruct.new(app_name: STRINGS[:unlisted], unlisted: true)
+            yielder << wrap_hash(app_name: STRINGS[:unlisted], unlisted: true)
           end
 
         ret = ret.each_with_object({}).with_index { |(c, r), i| r[i + 1] = c }

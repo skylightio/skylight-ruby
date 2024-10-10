@@ -2,7 +2,6 @@ APP_ROOT = File.expand_path("..", __dir__)
 
 require "rubygems"
 require "bundler/setup"
-require "ostruct"
 
 # Do this at the start
 coverage = false
@@ -173,7 +172,7 @@ RSpec.configure do |config|
   unless skipped_probes.empty?
     args = {}
 
-    skipped_probes.each { |p| args["#{p}_probe".to_sym] = true }
+    skipped_probes.each { |p| args[:"#{p}_probe"] = true }
 
     config.filter_run_excluding args
   end

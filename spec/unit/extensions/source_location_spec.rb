@@ -16,7 +16,14 @@ describe Skylight::Extensions::SourceLocation do
     )
   end
 
-  let(:config) { OpenStruct.new(source_location_ignored_gems: %w[skylight], root: Pathname.new(project_root)) }
+  let(:config) do
+    instance_double(
+      "Skylight::Config", 
+      source_location_ignored_gems: %w[skylight], 
+      root: Pathname.new(project_root), 
+      :[] => nil
+    ) 
+  end
 
   let(:extension) { described_class.new(config) }
 
