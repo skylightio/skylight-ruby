@@ -144,7 +144,8 @@ module Skylight
             "daemon.lazy_start": true,
             hostname: Util::Hostname.default_hostname,
             report_max_spans_exceeded: false,
-            prune_large_traces: true
+            prune_large_traces: true,
+            standalone_daemon: false
           }
 
           ret[:"daemon.ssl_cert_path"] = Util::SSL.ca_cert_file_or_default unless Util::Platform::OS == -"darwin"
