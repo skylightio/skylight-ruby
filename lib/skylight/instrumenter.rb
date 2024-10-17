@@ -95,6 +95,10 @@ module Skylight
       raise "not implemented"
     end
 
+    def native_flush
+      raise "not implemented"
+    end
+
     def native_track_desc(_endpoint, _description)
       raise "not implemented"
     end
