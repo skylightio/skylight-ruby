@@ -8,7 +8,7 @@ begin
 rescue LoadError
 end
 
-if defined?(::AwsLambdaRuntimeInterfaceClient::LambdaRunner)
+if defined?(AwsLambdaRuntimeInterfaceClient::LambdaRunner)
   class LambdaSkylightTest
     def self.lambda_handler(*_args)
       { ok: true }
@@ -18,11 +18,11 @@ if defined?(::AwsLambdaRuntimeInterfaceClient::LambdaRunner)
   describe "Lambda integration", :lambda_probe, :agent do
     before do
       Skylight.mock!(enable_source_locations: true) { |trace| @current_trace = trace }
-      ENV[Skylight::Probes::Lambda::Instrumentation::AWS_LAMBDA_FUNCTION_NAME] ||= "lambda-integration-test"
+      ENV[Skylight::Probes::Lambda::AWS_LAMBDA_FUNCTION_NAME] ||= "lambda-integration-test"
     end
 
     specify do
-      runner = ::AwsLambdaRuntimeInterfaceClient::LambdaRunner.new("", "skylight-test-ua")
+      runner = AwsLambdaRuntimeInterfaceClient::LambdaRunner.new("", "skylight-test-ua")
       lambda_server = runner.instance_variable_get(:@lambda_server)
       responses = [] 
       allow(lambda_server).to receive(:send_response) {|*args| responses << args }
@@ -37,7 +37,7 @@ LambdaHandler.new(env_handler: "this.LambdaSkylightTest.lambda_handler"))
       allow(raw_request).to receive(:[]) { nil }
 
       request = AwsLambda::Marshaller.marshall_request(raw_request)
-      req = ::AwsLambdaRuntimeInterfaceClient::LambdaInvocationRequest.new("request-id", raw_request, request, 
+      req = AwsLambdaRuntimeInterfaceClient::LambdaInvocationRequest.new("request-id", raw_request, request, 
 "x-amzn-trace-id")
       runner.send(:run_user_code, req)
 
