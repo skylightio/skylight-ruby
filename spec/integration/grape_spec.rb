@@ -188,10 +188,9 @@ if enable
     end
 
     def consume(resp)
-      data = []
-      resp[2].each { |p| data << p }
+      resp[2].to_a
+    ensure
       resp[2].close
-      data
     end
   end
 end

@@ -32,3 +32,10 @@ Metrics/ParameterLists:
 
 Metrics/PerceivedComplexity:
   Enabled: false
+
+# we have too many gemfiles to move rspec-related deps out of the gemspec.
+Gemspec/DevelopmentDependencies:
+  Enabled: false
+
+Style/RedundantConstantBase:
+  Enabled: false
