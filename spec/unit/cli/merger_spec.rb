@@ -23,7 +23,7 @@ describe Skylight::CLI::Merger do
 
   before do
     allow_any_instance_of(Skylight::Api).to receive(:fetch_mergeable_apps) do
-      OpenStruct.new(body: mergeable_apps)
+      double("response", body: mergeable_apps)
     end
   end
 
@@ -94,7 +94,7 @@ describe Skylight::CLI::Merger do
       ) { merge_response }
     end
 
-    let(:merge_response) { OpenStruct.new(status: 204) }
+    let(:merge_response) { double("merge_response", status: 204) }
     let(:child_env) { "staging" }
 
     let(:choose_app1_child_sequence) do

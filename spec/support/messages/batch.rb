@@ -7,6 +7,7 @@ module SpecHelper
       repeated :endpoints, Endpoint, 2
       optional :hostname, :string, 3
       repeated :source_locations, :string, 4
+      optional :offset_seconds, :uint32, 5
 
       def source_location(span)
         if (val = span.annotation_val(:SourceLocation)&.string_val)

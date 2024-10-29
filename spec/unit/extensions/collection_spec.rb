@@ -1,7 +1,7 @@
 require "spec_helper"
 
 describe Skylight::Extensions::Collection do
-  let(:config) { OpenStruct.new }
+  let(:config) { instance_double("Skylight::Config", :[] => nil, source_location_ignored_gems: []) }
   let(:collection) { described_class.new(config) }
 
   describe "#allowed_meta_keys" do

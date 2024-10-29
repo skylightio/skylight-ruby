@@ -102,7 +102,8 @@ module Skylight
       -"HEROKU_DYNO_INFO_PATH" => :"heroku.dyno_info_path",
       # == Source Location ==
       -"SOURCE_LOCATION_IGNORED_GEMS" => :source_location_ignored_gems,
-      -"SOURCE_LOCATION_CACHE_SIZE" => :source_location_cache_size
+      -"SOURCE_LOCATION_CACHE_SIZE" => :source_location_cache_size,
+      -"STANDALONE_DAEMON" => :standalone_daemon,
     }.freeze
 
     KEY_TO_NATIVE_ENV = {
@@ -143,7 +144,8 @@ module Skylight
             "daemon.lazy_start": true,
             hostname: Util::Hostname.default_hostname,
             report_max_spans_exceeded: false,
-            prune_large_traces: true
+            prune_large_traces: true,
+            standalone_daemon: false
           }
 
           ret[:"daemon.ssl_cert_path"] = Util::SSL.ca_cert_file_or_default unless Util::Platform::OS == -"darwin"
@@ -209,6 +211,7 @@ module Skylight
         daemon.ssl_cert_dir
         daemon.enable_tcp
         daemon.tcp_port
+        standalone_daemon
       ]
     end
 
