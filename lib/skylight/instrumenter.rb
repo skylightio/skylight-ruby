@@ -343,7 +343,26 @@ module Skylight
     end
 
     def ignore?(trace)
-      config.ignored_endpoints.include?(trace.endpoint)
+      endpoint_with_duration = "#{trace.endpoint}:"
+      config.ignored_endpoints.each do |ignored_endpoint|
+        # Check for full match
+        return true if ignored_endpoint == trace.endpoint
+        # Check for match with duration suffix
+        next unless ignored_endpoint.start_with?(endpoint_with_duration)
+
+        # trace endpoint matches configured endpoint. Check min and max durations and return
+        ignored_endpoint.match(/:(?<min_duration>\d*)(:(?<max_duration>\d*))?$/) do |m|
+          min_duration = m[:min_duration].to_i
+          max_duration = m[:max_duration].to_i
+
+          # Do not ignore if trace duration is within the configured min/max range
+          return false if trace.duration >= min_duration && (!max_duration.positive? || trace.duration <= max_duration)
+        end
+
+        return true
+      end
+
+      false
     end
 
     # Because GraphQL can return multiple results, each of which
