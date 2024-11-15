@@ -44,6 +44,7 @@ module Skylight
 
       # create the root node
       @root = start(native_get_started_at, cat, title, desc, meta, normalize: false)
+      @duration = 0
 
       # Also store meta for later access
       @meta = meta
@@ -70,6 +71,10 @@ module Skylight
 
     def too_many_spans?
       !!@too_many_spans
+    end
+
+    def duration
+      @duration
     end
 
     def log_context
@@ -188,6 +193,7 @@ module Skylight
 
       gc = gc_time
       now = Skylight::Util::Clock.nanos
+      @duration = self.class.normalize_time(now) - native_get_started_at
       track_gc(gc, now)
       stop(@root, now)
     end
