@@ -1,3 +1,7 @@
+## UNRELEASED
+
+- [IMPROVEMENT] Support for configuring optional min/max duration thresholds values with ignored endpoints
+
 ## 6.1.0.beta (June 11, 2024)
 
 - [IMPROVEMENT] Initial support for parsing queries from activerecord-sqlserver-adapter
