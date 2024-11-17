@@ -352,8 +352,9 @@ module Skylight
 
         # trace endpoint matches configured endpoint. Check min and max durations and return
         ignored_endpoint.match(/:(?<min_duration>\d*)(:(?<max_duration>\d*))?$/) do |m|
-          min_duration = m[:min_duration].to_i
-          max_duration = m[:max_duration].to_i
+          # note: trace duration is in tenths of milliseconds while config is in milliseconds
+          min_duration = m[:min_duration].to_i * 10
+          max_duration = m[:max_duration].to_i * 10
 
           # Do not ignore if trace duration is within the configured min/max range
           return false if trace.duration >= min_duration && (!max_duration.positive? || trace.duration <= max_duration)
