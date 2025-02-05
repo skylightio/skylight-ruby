@@ -55,22 +55,22 @@ STR2BUF(VALUE str) {
     }                                             \
   } while(0)
 
-#define My_Struct(name, Type, msg)                \
-  Get_Struct(name, self, Type, msg);              \
+#define Get_Struct(name, obj, Type, data_type, msg)   \
+  TypedData_Get_Struct((obj), Type, data_type, name); \
+  if (name == NULL) {                                 \
+    rb_raise(rb_eRuntimeError, "%s", msg);            \
+  }                                                   \
 
-#define Transfer_My_Struct(name, Type, msg)       \
-  My_Struct(name, Type, msg);                     \
-  DATA_PTR(self) = NULL;                          \
+#define My_Struct(name, Type, data_type, msg)   \
+  Get_Struct(name, self, Type, data_type, msg); \
 
-#define Transfer_Struct(name, obj, Type, msg)     \
-  Get_Struct(name, obj, Type, msg);               \
-  DATA_PTR(obj) = NULL;                           \
+#define Transfer_My_Struct(name, Type, data_type, msg) \
+  My_Struct(name, Type, data_type, msg);               \
+  DATA_PTR(self) = NULL;                               \
 
-#define Get_Struct(name, obj, Type, msg)          \
-  Data_Get_Struct(obj, Type, name);               \
-  if (name == NULL) {                             \
-    rb_raise(rb_eRuntimeError, "%s", msg);        \
-  }
+#define Transfer_Struct(name, obj, Type, data_type, msg) \
+  Get_Struct(name, obj, Type, data_type, msg);           \
+  DATA_PTR(obj) = NULL;                                  \
 
 /**
  * Ruby GVL helpers
@@ -106,6 +106,40 @@ static const char* no_instrumenter_msg =
 static const char* consumed_trace_msg =
   "Trace objects cannot be used once it has been submitted to the instrumenter";
 
+size_t sky_trace_dsize(const void *ptr) {
+    const sky_trace_t *trace = ptr;
+    return sizeof(trace);
+}
+
+size_t sky_instrumenter_dsize(const void *ptr) {
+    const sky_instrumenter_t *instrumenter = ptr;
+    return sizeof(instrumenter);
+}
+
+static void local_sky_trace_free(void *ptr) {
+    sky_trace_free(ptr);
+}
+
+static void local_sky_instrumenter_free(void *ptr) {
+  sky_instrumenter_free(ptr);
+}
+
+static const rb_data_type_t sky_rb_trace_t = {
+    .wrap_struct_name = "sk_rb_trace",
+    .function = {
+      .dfree = local_sky_trace_free, // free
+      .dsize = sky_trace_dsize, // memsize
+    },
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
+static const rb_data_type_t sky_rb_instrumenter_t = {
+    .wrap_struct_name = "sk_rb_instrumenter",
+    .function = {
+      .dfree = local_sky_instrumenter_free,
+      .dsize = sky_instrumenter_dsize
+    },
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 static VALUE
 load_libskylight(VALUE klass, VALUE path) {
@@ -176,7 +210,7 @@ instrumenter_new(VALUE klass, VALUE rb_uuid, VALUE rb_env) {
       sky_instrumenter_new(STR2BUF(rb_uuid), env, envc, &instrumenter),
       "Instrumenter#native_new");
 
-  return Data_Wrap_Struct(klass, NULL, sky_instrumenter_free, instrumenter);
+  return TypedData_Wrap_Struct(klass, &sky_rb_instrumenter_t, instrumenter);
 }
 
 static void*
@@ -199,7 +233,7 @@ static VALUE
 instrumenter_start(VALUE self) {
   sky_instrumenter_t* instrumenter;
 
-  My_Struct(instrumenter, sky_instrumenter_t, no_instrumenter_msg);
+  My_Struct(instrumenter, sky_instrumenter_t, &sky_rb_instrumenter_t, no_instrumenter_msg);
 
   return (VALUE) WITHOUT_GVL(instrumenter_start_nogvl, instrumenter);
 }
@@ -208,7 +242,7 @@ static VALUE
 instrumenter_stop(VALUE self) {
   sky_instrumenter_t* instrumenter;
 
-  My_Struct(instrumenter, sky_instrumenter_t, no_instrumenter_msg);
+  My_Struct(instrumenter, sky_instrumenter_t, &sky_rb_instrumenter_t, no_instrumenter_msg);
 
   CHECK_FFI(
       sky_instrumenter_stop(instrumenter),
@@ -224,8 +258,8 @@ instrumenter_submit_trace(VALUE self, VALUE rb_trace) {
   sky_instrumenter_t* instrumenter;
   sky_trace_t* trace;
 
-  My_Struct(instrumenter, sky_instrumenter_t, no_instrumenter_msg);
-  Transfer_Struct(trace, rb_trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(instrumenter, sky_instrumenter_t, &sky_rb_instrumenter_t, no_instrumenter_msg);
+  Transfer_Struct(trace, rb_trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_FFI(
       sky_instrumenter_submit_trace(instrumenter, trace),
@@ -238,7 +272,7 @@ static VALUE
 instrumenter_flush(VALUE self) {
   sky_instrumenter_t* instrumenter;
 
-  My_Struct(instrumenter, sky_instrumenter_t, no_instrumenter_msg);
+  My_Struct(instrumenter, sky_instrumenter_t, &sky_rb_instrumenter_t, no_instrumenter_msg);
 
   CHECK_FFI(
       sky_instrumenter_flush(instrumenter),
@@ -269,7 +303,7 @@ trace_new(VALUE klass, VALUE start, VALUE uuid, VALUE endpoint, VALUE meta) {
 
   sky_clear_allocation_count();
 
-  return Data_Wrap_Struct(klass, NULL, sky_trace_free, trace);
+  return TypedData_Wrap_Struct(klass, &sky_rb_trace_t, trace);
 }
 
 static VALUE
@@ -277,7 +311,7 @@ trace_get_started_at(VALUE self) {
   uint64_t start;
   sky_trace_t* trace;
 
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_FFI(
       sky_trace_start(trace, &start),
@@ -291,7 +325,7 @@ trace_get_endpoint(VALUE self) {
   sky_trace_t* trace;
   sky_buf_t endpoint;
 
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_FFI(
       sky_trace_endpoint(trace, &endpoint),
@@ -305,7 +339,7 @@ trace_set_endpoint(VALUE self, VALUE endpoint) {
   sky_trace_t* trace;
 
   CHECK_TYPE(endpoint, T_STRING);
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_FFI(
       sky_trace_set_endpoint(trace, STR2BUF(endpoint)),
@@ -319,7 +353,7 @@ trace_get_component(VALUE self) {
   sky_trace_t* trace;
   sky_buf_t component;
 
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_FFI(
       sky_trace_component(trace, &component),
@@ -333,7 +367,7 @@ trace_set_component(VALUE self, VALUE component) {
   sky_trace_t* trace;
 
   CHECK_TYPE(component, T_STRING);
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_FFI(
       sky_trace_set_component(trace, STR2BUF(component)),
@@ -346,7 +380,7 @@ static VALUE
 trace_use_pruning(VALUE self) {
   sky_trace_t* trace;
 
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_FFI(
       sky_trace_use_pruning(trace),
@@ -367,7 +401,7 @@ trace_get_uuid(VALUE self) {
   sky_trace_t* trace;
   sky_buf_t uuid;
 
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_FFI(
       sky_trace_uuid(trace, &uuid),
@@ -381,7 +415,7 @@ trace_start_span(VALUE self, VALUE time, VALUE category) {
   sky_trace_t* trace;
   uint32_t span;
 
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_NUMERIC(time);
   CHECK_TYPE(category, T_STRING);
@@ -401,7 +435,7 @@ static VALUE
 trace_stop_span(VALUE self, VALUE span, VALUE time) {
   sky_trace_t* trace;
 
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_NUMERIC(time);
   CHECK_TYPE(span, T_FIXNUM);
@@ -422,7 +456,7 @@ trace_span_get_category(VALUE self, VALUE span) {
   sky_trace_t* trace;
   sky_buf_t category;
 
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_TYPE(span, T_FIXNUM);
 
@@ -437,7 +471,7 @@ static VALUE
 trace_span_set_title(VALUE self, VALUE span, VALUE title) {
   sky_trace_t* trace;
 
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_TYPE(span, T_FIXNUM);
   CHECK_TYPE(title, T_STRING);
@@ -454,7 +488,7 @@ trace_span_get_title(VALUE self, VALUE span) {
   sky_trace_t* trace;
   sky_buf_t title;
 
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_TYPE(span, T_FIXNUM);
 
@@ -469,7 +503,7 @@ static VALUE
 trace_span_set_description(VALUE self, VALUE span, VALUE desc) {
   sky_trace_t* trace;
 
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_TYPE(span, T_FIXNUM);
   CHECK_TYPE(desc, T_STRING);
@@ -486,7 +520,7 @@ trace_span_set_meta(VALUE self, VALUE span, VALUE meta) {
   sky_trace_t* trace;
   VALUE rb_source_location;
 
-  My_Struct(trace, sky_trace_t, consumed_trace_msg);
+  My_Struct(trace, sky_trace_t, &sky_rb_trace_t, consumed_trace_msg);
 
   CHECK_TYPE(span, T_FIXNUM);
   CHECK_TYPE(meta, T_HASH);
