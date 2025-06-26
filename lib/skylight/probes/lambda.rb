@@ -2,7 +2,7 @@
 
 module Skylight
   module Probes
-    module Lambda 
+    module Lambda
       AWS_LAMBDA_FUNCTION_NAME = "AWS_LAMBDA_FUNCTION_NAME"
 
       module Common
@@ -11,7 +11,6 @@ module Skylight
         def sk_lambda_function_name
           ENV.fetch(AWS_LAMBDA_FUNCTION_NAME, "<unknown>")
         end
-
       end
 
       # NOTE: there are two modalities to probing the lambda wrappers:
@@ -32,11 +31,8 @@ module Skylight
         end
 
         module Instrumentation
-
           def run_user_code(request)
-            Skylight.trace(sk_lambda_function_name, "other", "lambda handler") do
-              super
-            end
+            Skylight.trace(sk_lambda_function_name, "other", "lambda handler") { super }
           ensure
             Skylight.instrumenter&.native_flush
           end
@@ -48,23 +44,17 @@ module Skylight
       module Handler
         class Probe
           def install
-            if defined?(LambdaHandler)
-              LambdaHandler.prepend(Instrumentation)
-            end
+            LambdaHandler.prepend(Instrumentation) if defined?(LambdaHandler)
           end
         end
 
         module Instrumentation
           def call_handler(request:, **)
             if Skylight.trace
-              Skylight.instrument(sk_instrument_opts(request)) do
-                super
-              end
+              Skylight.instrument(sk_instrument_opts(request)) { super }
             else
               Skylight.trace(sk_lambda_function_name, "other", "lambda handler") do
-                Skylight.instrument(sk_instrument_opts(request)) do
-                  super
-                end
+                Skylight.instrument(sk_instrument_opts(request)) { super }
               end
             end
           end
@@ -92,13 +82,17 @@ module Skylight
           end
         end
       end
-
     end
 
-    register(:lambda_runner, "AwsLambdaRuntimeInterfaceClient::LambdaRunner", "aws_lambda_ric", Lambda::Runner::Probe.new)
+    register(
+      :lambda_runner,
+      "AwsLambdaRuntimeInterfaceClient::LambdaRunner",
+      "aws_lambda_ric",
+      Lambda::Runner::Probe.new
+    )
 
-      # NOTE: this require hook is unlikely to be invoked; the actual default lambda runtime loads this file 
-      # via a require_relative.
+    # NOTE: this require hook is unlikely to be invoked; the actual default lambda runtime loads this file
+    # via a require_relative.
     register(:lambda_handler, "LambdaHandler", "lambda_handler", Lambda::Handler::Probe.new)
   end
 end
