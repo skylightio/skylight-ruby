@@ -403,7 +403,7 @@ module CITasks
       def install_apt_dependencies_step
         { name: "Install APT dependencies", run: <<~RUN }
               sudo apt-get update
-              sudo apt-get install -yq sqlite libsqlite3-dev
+              sudo apt-get install -yq sqlite3 libsqlite3-dev
             RUN
       end
 

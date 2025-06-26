@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: 6851428e6e34d42a09530e597c2a03822e88ea516b6d723f86ef51dcc3c24a2a
+  CONFIG_DIGEST: d7e874cf8eb7863c2aff5e93c1ba0bf799ceb23cdedd68676b32fb97069a5ee7
 'on':
   push:
     branches:
@@ -45,7 +45,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -93,7 +93,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -144,7 +144,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -201,7 +201,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -246,7 +246,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -293,7 +293,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -340,7 +340,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -386,7 +386,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -434,7 +434,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -480,7 +480,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -527,7 +527,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -573,7 +573,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -619,7 +619,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -664,7 +664,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -712,7 +712,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -757,7 +757,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -805,7 +805,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -850,7 +850,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -895,7 +895,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -940,7 +940,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -987,7 +987,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -1034,7 +1034,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -1080,7 +1080,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
@@ -1128,7 +1128,7 @@ jobs:
     - name: Install APT dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq sqlite libsqlite3-dev
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
