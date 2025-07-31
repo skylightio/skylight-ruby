@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: 45def4a46d400279b65699c706c5c4c0eca6fba6fb035922b5290782e0914276
+  CONFIG_DIGEST: c06b8266cb879ab99a2f649a9740b555eff40cdf258c65a28e145defae26d73d
 'on':
   push:
     branches:
@@ -64,11 +64,11 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-  ruby-3-2-rails-6-1-x-mongo:
-    name: ruby 3.2, rails-6.1.x, mongo
+  ruby-3-2-rails-7-1-x-mongo:
+    name: ruby 3.2, rails-7.1.x, mongo
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-7.1.x')
     services:
       mongo:
         image: mongo:4.0
@@ -80,7 +80,7 @@ jobs:
         - 6379:6379
         options: "--entrypoint redis-server"
     env:
-      BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
+      BUNDLE_GEMFILE: gemfiles/rails-7.1.x/Gemfile
       TEST_MONGO_INTEGRATION: 'true'
       MONGO_HOST: localhost
     steps:
@@ -98,10 +98,10 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.2-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.2-rails-7.1.x-${{ hashFiles('gemfiles/rails-7.1.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.2-rails-6.1.x-
+          ${{ runner.os }}-gems-3.2-rails-7.1.x-
           ${{ runner.os }}-gems-3.2-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
@@ -356,11 +356,11 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-3-4-default
-  ruby-3-0-rails-5-2-x:
-    name: ruby 3.0, rails-5.2.x
+  ruby-3-0-rails-7-1-x:
+    name: ruby 3.0, rails-7.1.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-7.1.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     services:
       redis:
@@ -369,7 +369,7 @@ jobs:
         - 6379:6379
         options: "--entrypoint redis-server"
     env:
-      BUNDLE_GEMFILE: gemfiles/rails-5.2.x/Gemfile
+      BUNDLE_GEMFILE: gemfiles/rails-7.1.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -385,10 +385,10 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.0-rails-5.2.x-${{ hashFiles('gemfiles/rails-5.2.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.0-rails-7.1.x-${{ hashFiles('gemfiles/rails-7.1.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.0-rails-5.2.x-
+          ${{ runner.os }}-gems-3.0-rails-7.1.x-
           ${{ runner.os }}-gems-3.0-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
@@ -402,11 +402,11 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-3-4-default
-  ruby-3-2-rails-6-0-x:
-    name: ruby 3.2, rails-6.0.x
+  ruby-3-2-rails-7-1-x:
+    name: ruby 3.2, rails-7.1.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.0.x')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-7.1.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     services:
       redis:
@@ -415,7 +415,7 @@ jobs:
         - 6379:6379
         options: "--entrypoint redis-server"
     env:
-      BUNDLE_GEMFILE: gemfiles/rails-6.0.x/Gemfile
+      BUNDLE_GEMFILE: gemfiles/rails-7.1.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -431,10 +431,10 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.2-rails-6.0.x-${{ hashFiles('gemfiles/rails-6.0.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.2-rails-7.1.x-${{ hashFiles('gemfiles/rails-7.1.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.2-rails-6.0.x-
+          ${{ runner.os }}-gems-3.2-rails-7.1.x-
           ${{ runner.os }}-gems-3.2-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
@@ -448,11 +448,11 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-3-4-default
-  ruby-3-2-rails-6-1-x:
-    name: ruby 3.2, rails-6.1.x
+  ruby-3-2-rails-7-2-x:
+    name: ruby 3.2, rails-7.2.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-6.1.x')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-7.2.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     services:
       redis:
@@ -461,7 +461,7 @@ jobs:
         - 6379:6379
         options: "--entrypoint redis-server"
     env:
-      BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
+      BUNDLE_GEMFILE: gemfiles/rails-7.2.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -477,10 +477,10 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.2-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.2-rails-7.2.x-${{ hashFiles('gemfiles/rails-7.2.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.2-rails-6.1.x-
+          ${{ runner.os }}-gems-3.2-rails-7.2.x-
           ${{ runner.os }}-gems-3.2-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
@@ -1145,7 +1145,7 @@ jobs:
         - 6379:6379
         options: "--entrypoint redis-server"
     env:
-      BUNDLE_GEMFILE: gemfiles/rails-6.1.x/Gemfile
+      BUNDLE_GEMFILE: gemfiles/rails-7.1.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -1157,10 +1157,10 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.0-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.0-rails-7.1.x-${{ hashFiles('gemfiles/rails-7.1.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.0-rails-6.1.x-
+          ${{ runner.os }}-gems-3.0-rails-7.1.x-
           ${{ runner.os }}-gems-3.0-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
@@ -1191,15 +1191,15 @@ jobs:
       if: "!contains(needs.*.result, 'failure')"
     needs:
     - ruby-3-4-default
-    - ruby-3-2-rails-6-1-x-mongo
+    - ruby-3-2-rails-7-1-x-mongo
     - ruby-3-0-mongoid-6-x-mongoid-6
     - ruby-3-2-elasticsearch-elasticsearch
     - ruby-3-0-sidekiq-5-x
     - ruby-3-0-graphql-1-9-x
     - ruby-3-2-graphql-2-0-17
-    - ruby-3-0-rails-5-2-x
-    - ruby-3-2-rails-6-0-x
-    - ruby-3-2-rails-6-1-x
+    - ruby-3-0-rails-7-1-x
+    - ruby-3-2-rails-7-1-x
+    - ruby-3-2-rails-7-2-x
     - ruby-3-4-sinatra-2-x
     - ruby-3-0-grape-1-x
     - ruby-3-4-grape-1-x
