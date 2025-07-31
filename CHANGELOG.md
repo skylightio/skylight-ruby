@@ -2,6 +2,7 @@
 
 - IMPROVEMENT Initial support for AWS Lambda
 - BREAKING end support for Ruby 2.7
+- BREAKING end support for Rails < 7.1
 
 ## 6.1.0.beta (June 11, 2024)
 

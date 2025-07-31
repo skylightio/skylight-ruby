@@ -72,20 +72,15 @@ module CITasks
       allow: [{ "dependency-name": "mongoid" }, { "dependency-name": "mongo" }]
       # We don't limit this so that we're aware when new versions are released
     },
-    "rails-5.2.x" => {
-      allow: [{ "dependency-name": "rails" }, { "dependency-name": "sqlite" }],
+    "rails-7.1.x" => {
+      allow: [{ "dependency-name": "rails" }],
       ignore: [
-        { "dependency-name": "rails", versions: [">= 5.3"] },
-        { "dependency-name": "sqlite", versions: [">= 1.5"] }
+        { "dependency-name": "rails", versions: [">= 7.2"] },
       ]
     },
-    "rails-6.0.x" => {
+    "rails-7.2.x" => {
       allow: [{ "dependency-name": "rails" }],
-      ignore: [{ "dependency-name": "rails", versions: [">= 6.1"] }]
-    },
-    "rails-6.1.x" => {
-      allow: [{ "dependency-name": "rails" }]
-      # We don't limit this so that we're aware when new versions are released
+      ignore: { "dependency-name": "rails", versions: [">= 7.3"] },
     },
     "rails-edge" => {
       allow: [{ "dependency-name": "rails" }]
@@ -116,7 +111,7 @@ module CITasks
     {
       name: "mongo",
       ruby_version: "3.2",
-      gemfile: "rails-6.1.x",
+      gemfile: "rails-7.1.x",
       services: mongo,
       env: {
         TEST_MONGO_INTEGRATION: "true",
@@ -168,9 +163,9 @@ module CITasks
 
     # Latest version of graphql with legacy instrumentation
     { ruby_version: "3.2", gemfile: "graphql-2.0.17" },
-    { gemfile: "rails-5.2.x", ruby_version: OLDEST_RUBY, always_run: true },
-    { always_run: true, ruby_version: "3.2", gemfile: "rails-6.0.x" },
-    { always_run: true, ruby_version: "3.2", gemfile: "rails-6.1.x" },
+    { gemfile: "rails-7.1.x", ruby_version: OLDEST_RUBY, always_run: true },
+    { always_run: true, ruby_version: "3.2", gemfile: "rails-7.1.x" },
+    { always_run: true, ruby_version: "3.2", gemfile: "rails-7.2.x" },
     {
       ruby_version: NEWEST_RUBY,
       allow_failure: true,
@@ -528,7 +523,7 @@ module CITasks
       end
 
       def gemfile
-        "rails-6.1.x"
+        "rails-7.1.x"
       end
 
       def to_template_hash
