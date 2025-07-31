@@ -1,6 +1,7 @@
-## 6.2.0.alpha (October 10, 2024)
+## 7.0.0.beta (July 31, 2025)
 
 - IMPROVEMENT Initial support for AWS Lambda
+- BREAKING end support for Ruby 2.7
 
 ## 6.1.0.beta (June 11, 2024)
 

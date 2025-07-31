@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: d7e874cf8eb7863c2aff5e93c1ba0bf799ceb23cdedd68676b32fb97069a5ee7
+  CONFIG_DIGEST: 45def4a46d400279b65699c706c5c4c0eca6fba6fb035922b5290782e0914276
 'on':
   push:
     branches:
@@ -26,8 +26,8 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  ruby-3-3-default:
-    name: ruby 3.3, default
+  ruby-3-4-default:
+    name: ruby 3.4, default
     runs-on: ubuntu-latest
     services:
       redis:
@@ -41,7 +41,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
+        ruby-version: '3.4'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -50,10 +50,10 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.3-default-${{ hashFiles('Gemfile.lock') }}"
+        key: "${{ runner.os }}-gems-3.4-default-${{ hashFiles('Gemfile.lock') }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.3-default-
-          ${{ runner.os }}-gems-3.3-
+          ${{ runner.os }}-gems-3.4-default-
+          ${{ runner.os }}-gems-3.4-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -114,9 +114,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-2-7-mongoid-6-x-mongoid-6:
-    name: ruby 2.7, mongoid-6.x, mongoid-6
+    - ruby-3-4-default
+  ruby-3-0-mongoid-6-x-mongoid-6:
+    name: ruby 3.0, mongoid-6.x, mongoid-6
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'mongoid-6.x')
@@ -140,7 +140,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.7'
+        ruby-version: '3.0'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -149,15 +149,13 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-mongoid-6.x-${{ hashFiles('gemfiles/mongoid-6.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.0-mongoid-6.x-${{ hashFiles('gemfiles/mongoid-6.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.7-mongoid-6.x-
-          ${{ runner.os }}-gems-2.7-
+          ${{ runner.os }}-gems-3.0-mongoid-6.x-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
-      run: |
-        gem install bundler -v 2.4.22
-        bundle install
+      run: "gem install bundler \nbundle install\n"
     - name: Run tests
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
@@ -167,7 +165,7 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
+    - ruby-3-4-default
   ruby-3-2-elasticsearch-elasticsearch:
     name: ruby 3.2, elasticsearch, elasticsearch
     runs-on: ubuntu-latest
@@ -222,9 +220,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-2-7-sidekiq-5-x:
-    name: ruby 2.7, sidekiq-5.x
+    - ruby-3-4-default
+  ruby-3-0-sidekiq-5-x:
+    name: ruby 3.0, sidekiq-5.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sidekiq-5.x')
@@ -242,7 +240,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.7'
+        ruby-version: '3.0'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -251,15 +249,13 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-sidekiq-5.x-${{ hashFiles('gemfiles/sidekiq-5.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.0-sidekiq-5.x-${{ hashFiles('gemfiles/sidekiq-5.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.7-sidekiq-5.x-
-          ${{ runner.os }}-gems-2.7-
+          ${{ runner.os }}-gems-3.0-sidekiq-5.x-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
-      run: |
-        gem install bundler -v 2.4.22
-        bundle install
+      run: "gem install bundler \nbundle install\n"
     - name: Run tests
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
@@ -269,9 +265,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-2-7-graphql-1-9-x:
-    name: ruby 2.7, graphql-1.9.x
+    - ruby-3-4-default
+  ruby-3-0-graphql-1-9-x:
+    name: ruby 3.0, graphql-1.9.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'graphql-1.9.x')
@@ -289,7 +285,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.7'
+        ruby-version: '3.0'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -298,15 +294,13 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-graphql-1.9.x-${{ hashFiles('gemfiles/graphql-1.9.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.0-graphql-1.9.x-${{ hashFiles('gemfiles/graphql-1.9.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.7-graphql-1.9.x-
-          ${{ runner.os }}-gems-2.7-
+          ${{ runner.os }}-gems-3.0-graphql-1.9.x-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
-      run: |
-        gem install bundler -v 2.4.22
-        bundle install
+      run: "gem install bundler \nbundle install\n"
     - name: Run tests
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
@@ -316,7 +310,7 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
+    - ruby-3-4-default
   ruby-3-2-graphql-2-0-17:
     name: ruby 3.2, graphql-2.0.17
     runs-on: ubuntu-latest
@@ -361,9 +355,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-2-7-rails-5-2-x:
-    name: ruby 2.7, rails-5.2.x
+    - ruby-3-4-default
+  ruby-3-0-rails-5-2-x:
+    name: ruby 3.0, rails-5.2.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-5.2.x')
@@ -382,7 +376,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.7'
+        ruby-version: '3.0'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -391,15 +385,13 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-5.2.x-${{ hashFiles('gemfiles/rails-5.2.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.0-rails-5.2.x-${{ hashFiles('gemfiles/rails-5.2.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.7-rails-5.2.x-
-          ${{ runner.os }}-gems-2.7-
+          ${{ runner.os }}-gems-3.0-rails-5.2.x-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
-      run: |
-        gem install bundler -v 2.4.22
-        bundle install
+      run: "gem install bundler \nbundle install\n"
     - name: Run tests
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
@@ -409,7 +401,7 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
+    - ruby-3-4-default
   ruby-3-2-rails-6-0-x:
     name: ruby 3.2, rails-6.0.x
     runs-on: ubuntu-latest
@@ -455,7 +447,7 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
+    - ruby-3-4-default
   ruby-3-2-rails-6-1-x:
     name: ruby 3.2, rails-6.1.x
     runs-on: ubuntu-latest
@@ -501,9 +493,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-3-3-rails-edge:
-    name: "[allowed to fail] ruby 3.3, rails-edge"
+    - ruby-3-4-default
+  ruby-3-4-rails-edge:
+    name: "[allowed to fail] ruby 3.4, rails-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
@@ -523,7 +515,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
+        ruby-version: '3.4'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -532,11 +524,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.3-rails-edge-${{ hashFiles('gemfiles/rails-edge/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.4-rails-edge-${{ hashFiles('gemfiles/rails-edge/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.3-rails-edge-
-          ${{ runner.os }}-gems-3.3-
+          ${{ runner.os }}-gems-3.4-rails-edge-
+          ${{ runner.os }}-gems-3.4-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -548,9 +540,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-3-3-sinatra-2-x:
-    name: ruby 3.3, sinatra-2.x
+    - ruby-3-4-default
+  ruby-3-4-sinatra-2-x:
+    name: ruby 3.4, sinatra-2.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sinatra-2.x')
@@ -569,7 +561,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
+        ruby-version: '3.4'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -578,11 +570,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.3-sinatra-2.x-${{ hashFiles('gemfiles/sinatra-2.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.4-sinatra-2.x-${{ hashFiles('gemfiles/sinatra-2.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.3-sinatra-2.x-
-          ${{ runner.os }}-gems-3.3-
+          ${{ runner.os }}-gems-3.4-sinatra-2.x-
+          ${{ runner.os }}-gems-3.4-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -594,9 +586,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-3-3-sinatra-edge:
-    name: "[allowed to fail] ruby 3.3, sinatra-edge"
+    - ruby-3-4-default
+  ruby-3-4-sinatra-edge:
+    name: "[allowed to fail] ruby 3.4, sinatra-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
@@ -615,7 +607,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
+        ruby-version: '3.4'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -624,11 +616,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.3-sinatra-edge-${{ hashFiles('gemfiles/sinatra-edge/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.4-sinatra-edge-${{ hashFiles('gemfiles/sinatra-edge/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.3-sinatra-edge-
-          ${{ runner.os }}-gems-3.3-
+          ${{ runner.os }}-gems-3.4-sinatra-edge-
+          ${{ runner.os }}-gems-3.4-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -640,9 +632,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-2-7-grape-1-x:
-    name: ruby 2.7, grape-1.x
+    - ruby-3-4-default
+  ruby-3-0-grape-1-x:
+    name: ruby 3.0, grape-1.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.x')
@@ -660,7 +652,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.7'
+        ruby-version: '3.0'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -669,15 +661,13 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-grape-1.x-${{ hashFiles('gemfiles/grape-1.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.0-grape-1.x-${{ hashFiles('gemfiles/grape-1.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.7-grape-1.x-
-          ${{ runner.os }}-gems-2.7-
+          ${{ runner.os }}-gems-3.0-grape-1.x-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
-      run: |
-        gem install bundler -v 2.4.22
-        bundle install
+      run: "gem install bundler \nbundle install\n"
     - name: Run tests
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
@@ -687,9 +677,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-3-3-grape-1-x:
-    name: ruby 3.3, grape-1.x
+    - ruby-3-4-default
+  ruby-3-4-grape-1-x:
+    name: ruby 3.4, grape-1.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.x')
@@ -708,7 +698,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
+        ruby-version: '3.4'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -717,11 +707,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.3-grape-1.x-${{ hashFiles('gemfiles/grape-1.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.4-grape-1.x-${{ hashFiles('gemfiles/grape-1.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.3-grape-1.x-
-          ${{ runner.os }}-gems-3.3-
+          ${{ runner.os }}-gems-3.4-grape-1.x-
+          ${{ runner.os }}-gems-3.4-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -733,9 +723,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-2-7-grape-1-2-x:
-    name: ruby 2.7, grape-1.2.x
+    - ruby-3-4-default
+  ruby-3-0-grape-1-2-x:
+    name: ruby 3.0, grape-1.2.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.2.x')
@@ -753,7 +743,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.7'
+        ruby-version: '3.0'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -762,15 +752,13 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-grape-1.2.x-${{ hashFiles('gemfiles/grape-1.2.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.0-grape-1.2.x-${{ hashFiles('gemfiles/grape-1.2.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.7-grape-1.2.x-
-          ${{ runner.os }}-gems-2.7-
+          ${{ runner.os }}-gems-3.0-grape-1.2.x-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
-      run: |
-        gem install bundler -v 2.4.22
-        bundle install
+      run: "gem install bundler \nbundle install\n"
     - name: Run tests
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
@@ -780,9 +768,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-3-3-grape-edge:
-    name: "[allowed to fail] ruby 3.3, grape-edge"
+    - ruby-3-4-default
+  ruby-3-4-grape-edge:
+    name: "[allowed to fail] ruby 3.4, grape-edge"
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
@@ -801,7 +789,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
+        ruby-version: '3.4'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -810,11 +798,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.3-grape-edge-${{ hashFiles('gemfiles/grape-edge/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.4-grape-edge-${{ hashFiles('gemfiles/grape-edge/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.3-grape-edge-
-          ${{ runner.os }}-gems-3.3-
+          ${{ runner.os }}-gems-3.4-grape-edge-
+          ${{ runner.os }}-gems-3.4-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -826,7 +814,7 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
+    - ruby-3-4-default
   ruby-3-1-sequel-4:
     name: ruby 3.1, sequel-4
     runs-on: ubuntu-latest
@@ -871,9 +859,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-3-3-sequel-5:
-    name: ruby 3.3, sequel-5
+    - ruby-3-4-default
+  ruby-3-4-sequel-5:
+    name: ruby 3.4, sequel-5
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'sequel-5')
@@ -891,7 +879,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
+        ruby-version: '3.4'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -900,11 +888,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.3-sequel-5-${{ hashFiles('gemfiles/sequel-5/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.4-sequel-5-${{ hashFiles('gemfiles/sequel-5/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.3-sequel-5-
-          ${{ runner.os }}-gems-3.3-
+          ${{ runner.os }}-gems-3.4-sequel-5-
+          ${{ runner.os }}-gems-3.4-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -916,9 +904,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-2-7-ams-0-8-x:
-    name: ruby 2.7, ams-0.8.x
+    - ruby-3-4-default
+  ruby-3-0-ams-0-8-x:
+    name: ruby 3.0, ams-0.8.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.8.x')
@@ -936,7 +924,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.7'
+        ruby-version: '3.0'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -945,15 +933,13 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-ams-0.8.x-${{ hashFiles('gemfiles/ams-0.8.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.0-ams-0.8.x-${{ hashFiles('gemfiles/ams-0.8.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.7-ams-0.8.x-
-          ${{ runner.os }}-gems-2.7-
+          ${{ runner.os }}-gems-3.0-ams-0.8.x-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
-      run: |
-        gem install bundler -v 2.4.22
-        bundle install
+      run: "gem install bundler \nbundle install\n"
     - name: Run tests
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
@@ -963,9 +949,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-2-7-ams-0-9-x:
-    name: ruby 2.7, ams-0.9.x
+    - ruby-3-4-default
+  ruby-3-0-ams-0-9-x:
+    name: ruby 3.0, ams-0.9.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.9.x')
@@ -983,7 +969,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.7'
+        ruby-version: '3.0'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -992,15 +978,13 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-ams-0.9.x-${{ hashFiles('gemfiles/ams-0.9.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.0-ams-0.9.x-${{ hashFiles('gemfiles/ams-0.9.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.7-ams-0.9.x-
-          ${{ runner.os }}-gems-2.7-
+          ${{ runner.os }}-gems-3.0-ams-0.9.x-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
-      run: |
-        gem install bundler -v 2.4.22
-        bundle install
+      run: "gem install bundler \nbundle install\n"
     - name: Run tests
       run: |
         bundle exec rake workflow:verify[$CONFIG_DIGEST]
@@ -1010,9 +994,9 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
-  ruby-3-3-ams-0-10-x:
-    name: ruby 3.3, ams-0.10.x
+    - ruby-3-4-default
+  ruby-3-4-ams-0-10-x:
+    name: ruby 3.4, ams-0.10.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.10.x')
@@ -1030,7 +1014,7 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
+        ruby-version: '3.4'
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -1039,11 +1023,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.3-ams-0.10.x-${{ hashFiles('gemfiles/ams-0.10.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.4-ams-0.10.x-${{ hashFiles('gemfiles/ams-0.10.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.3-ams-0.10.x-
-          ${{ runner.os }}-gems-3.3-
+          ${{ runner.os }}-gems-3.4-ams-0.10.x-
+          ${{ runner.os }}-gems-3.4-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -1055,7 +1039,7 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
+    - ruby-3-4-default
   ruby-head-default:
     name: "[allowed to fail] ruby head, default"
     runs-on: ubuntu-latest
@@ -1076,7 +1060,7 @@ jobs:
       with:
         ruby-version: head
     - name: Check ruby
-      run: ruby -v | grep "3.4" -q
+      run: ruby -v | grep "3.5" -q
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -1085,10 +1069,10 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.4-default-${{ hashFiles('Gemfile.lock') }}"
+        key: "${{ runner.os }}-gems-3.5-default-${{ hashFiles('Gemfile.lock') }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.4-default-
-          ${{ runner.os }}-gems-3.4-
+          ${{ runner.os }}-gems-3.5-default-
+          ${{ runner.os }}-gems-3.5-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -1100,7 +1084,7 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
+    - ruby-3-4-default
   ruby-head-rails-edge:
     name: "[allowed to fail] ruby head, rails-edge"
     runs-on: ubuntu-latest
@@ -1124,7 +1108,7 @@ jobs:
       with:
         ruby-version: head
     - name: Check ruby
-      run: ruby -v | grep "3.4" -q
+      run: ruby -v | grep "3.5" -q
     - name: Install APT dependencies
       run: |
         sudo apt-get update
@@ -1133,11 +1117,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.4-rails-edge-${{ hashFiles('gemfiles/rails-edge/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.5-rails-edge-${{ hashFiles('gemfiles/rails-edge/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.4-rails-edge-
-          ${{ runner.os }}-gems-3.4-
+          ${{ runner.os }}-gems-3.5-rails-edge-
+          ${{ runner.os }}-gems-3.5-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -1149,7 +1133,7 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs:
-    - ruby-3-3-default
+    - ruby-3-4-default
   lint:
     name: lint
     runs-on: ubuntu-latest
@@ -1168,20 +1152,18 @@ jobs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.7'
+        ruby-version: '3.0'
     - name: Setup cache (bundler)
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-2.7-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.0-rails-6.1.x-${{ hashFiles('gemfiles/rails-6.1.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-2.7-rails-6.1.x-
-          ${{ runner.os }}-gems-2.7-
+          ${{ runner.os }}-gems-3.0-rails-6.1.x-
+          ${{ runner.os }}-gems-3.0-
     - name: bundle install
-      run: |
-        gem install bundler -v 2.4.22
-        bundle install
+      run: "gem install bundler \nbundle install\n"
     - name: Set up Rubocop problem matcher
       run: echo "::add-matcher::${GITHUB_WORKSPACE}/.github/rubocop.json"
     - name: Run SyntaxTree
@@ -1208,22 +1190,22 @@ jobs:
       run: 'true'
       if: "!contains(needs.*.result, 'failure')"
     needs:
-    - ruby-3-3-default
+    - ruby-3-4-default
     - ruby-3-2-rails-6-1-x-mongo
-    - ruby-2-7-mongoid-6-x-mongoid-6
+    - ruby-3-0-mongoid-6-x-mongoid-6
     - ruby-3-2-elasticsearch-elasticsearch
-    - ruby-2-7-sidekiq-5-x
-    - ruby-2-7-graphql-1-9-x
+    - ruby-3-0-sidekiq-5-x
+    - ruby-3-0-graphql-1-9-x
     - ruby-3-2-graphql-2-0-17
-    - ruby-2-7-rails-5-2-x
+    - ruby-3-0-rails-5-2-x
     - ruby-3-2-rails-6-0-x
     - ruby-3-2-rails-6-1-x
-    - ruby-3-3-sinatra-2-x
-    - ruby-2-7-grape-1-x
-    - ruby-3-3-grape-1-x
-    - ruby-2-7-grape-1-2-x
+    - ruby-3-4-sinatra-2-x
+    - ruby-3-0-grape-1-x
+    - ruby-3-4-grape-1-x
+    - ruby-3-0-grape-1-2-x
     - ruby-3-1-sequel-4
-    - ruby-3-3-sequel-5
-    - ruby-2-7-ams-0-8-x
-    - ruby-2-7-ams-0-9-x
-    - ruby-3-3-ams-0-10-x
+    - ruby-3-4-sequel-5
+    - ruby-3-0-ams-0-8-x
+    - ruby-3-0-ams-0-9-x
+    - ruby-3-4-ams-0-10-x

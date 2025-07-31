@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.homepage = "https://www.skylight.io"
   spec.license = "Nonstandard"
 
-  spec.required_ruby_version = ">= 2.7"
+  spec.required_ruby_version = ">= 3.0"
 
   files =
     begin

@@ -5,9 +5,9 @@ require "json"
 require "active_support/inflector"
 require "digest"
 
-OLDEST_RUBY = "2.7"
-NEWEST_RUBY = "3.3"
-HEAD_RUBY = "3.4"
+OLDEST_RUBY = "3.0"
+NEWEST_RUBY = "3.4"
+HEAD_RUBY = "3.5"
 
 module CITasks
   def self.mongo
