@@ -175,9 +175,7 @@ module Skylight
       private
 
       def wrap_hash(hash)
-        hash.each_with_object(ActiveSupport::OrderedOptions.new) do |(key, value), result|
-          result[key] = value
-        end
+        hash.each_with_object(ActiveSupport::OrderedOptions.new) { |(key, value), result| result[key] = value }
       end
 
       def do_merge
@@ -279,9 +277,7 @@ module Skylight
             @parents.each do |_, app|
               next if app == @parent_app
 
-              app.components.each do |component|
-                yielder << wrap_hash({ app_name: app.name }.merge(component)) 
-              end
+              app.components.each { |component| yielder << wrap_hash({ app_name: app.name }.merge(component)) }
             end
 
             yielder << wrap_hash(app_name: STRINGS[:unlisted], unlisted: true)

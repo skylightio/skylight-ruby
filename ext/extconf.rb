@@ -10,18 +10,17 @@ require "skylight/util/platform"
 
 GLIBC_MIN = 2.23
 GLIBC_V4_MIN = 2.15
-
 LIBSKYLIGHT_INFO = {
-  "version" => "6.0.0-alpha-dfe732b",
+  "version" => "6.0.0-beta-ec1a887",
   "checksums" => {
-    "x86-linux" => "829f0e14eab4caae57ab44e13656f9b170f039a4ca612b52f5ac78538b88f794",
-    "x86_64-linux" => "e8f73f91f874ceaa34bb464c1cc123c6ad5f8a1f427a25c755604b0c3cb962c0",
-    "x86_64-linux-musl" => "b80a6d33d2a18f7cbf3b047a9c0d43a05ca96e1bac95f9534143e80464fd0615",
-    "x86_64-darwin" => "7025bd96af1be13b8aa25cdf698c6a12bf5cb87b94b48ce85a68834a5b75d23e",
-    "x86_64-freebsd" => "164094358ab65234a8246ce4efd346d101c4d7bcfc2a736affc6b1989d1a66ee",
-    "aarch64-linux" => "37ffbbe453e9a8bc13e4836e36c18b3b2c286b616eb83a1553471ff56a04e3a0",
-    "aarch64-linux-musl" => "da360199441b5d1d94255ba99742aa08d77ba73ad29d43741b80974a60ff568b",
-    "aarch64-darwin" => "6c920d9d85480360978a53560e2a8c25893fa2dfc1c8e4a1e30d3eca5201d3d9"
+    "x86-linux" => "0690d63cb7e249e3d74ad66a86bd886d75fb98650e3e2b029345c9b69d0931b2",
+    "x86_64-linux" => "dc97213f8f2aa86278dd8d239db3253ecd95d5daaafa5e825d8dfffa52033177",
+    "x86_64-linux-musl" => "963fc2515e3d91b80e2066d28c60ceabf40b88eec976eefa9c57f6be02e75b82",
+    "x86_64-darwin" => "79c16cfe98a5c0088175df8936eeeb46ee13fec2c9ecb0294d2622cb3c838666",
+    "x86_64-freebsd" => "be2e6d29f343a4c3dc90fc7d4a945fca67eaa062d35bcbca32ce130b022a2ba1",
+    "aarch64-linux" => "a3e5c72bbed189138c4350884cb59420deb9b68d0337340b6c2a7e4154e8d41a",
+    "aarch64-linux-musl" => "58282d7a638c8144aaee9ad5cb96ae667ea6f981a8ddbef566c8a618d7b82f8c",
+    "aarch64-darwin" => "fc4135413cda6130610e7a9c72b2a7af3e9db37107839b0bce7929b2ba55264b"
   }.freeze
 }.freeze
 

@@ -759,7 +759,8 @@ module Skylight
           "SKYLIGHT_VALIDATE_AUTHENTICATION" => "false",
           "SKYLIGHT_LOG_LEVEL" => "warn",
           "SKYLIGHT_LOG_FILE" => "-",
-          "SKYLIGHT_LOG_SQL_PARSE_ERRORS" => "true"
+          "SKYLIGHT_LOG_SQL_PARSE_ERRORS" => "true",
+          "SKYLIGHT_STANDALONE_DAEMON" => "false"
         )
       end
 

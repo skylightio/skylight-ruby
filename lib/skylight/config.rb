@@ -103,7 +103,7 @@ module Skylight
       # == Source Location ==
       -"SOURCE_LOCATION_IGNORED_GEMS" => :source_location_ignored_gems,
       -"SOURCE_LOCATION_CACHE_SIZE" => :source_location_cache_size,
-      -"STANDALONE_DAEMON" => :standalone_daemon,
+      -"STANDALONE_DAEMON" => :standalone_daemon
     }.freeze
 
     KEY_TO_NATIVE_ENV = {

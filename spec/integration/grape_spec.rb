@@ -32,7 +32,7 @@ if enable
               end
             end
 
-            { hello: true }
+            "hello"
           end
         end
       )
@@ -136,7 +136,7 @@ if enable
       shared_examples_for :grape_instrumentation do
         it "successfully calls into grape" do
           res = call env(request_path)
-          expect(res).to eq(["{:hello=>true}"])
+          expect(res).to eq(["hello"])
 
           server.wait resource: "/report"
 

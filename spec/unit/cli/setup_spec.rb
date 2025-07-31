@@ -90,12 +90,15 @@ describe "skylight setup", :http, :agent do
         [403, { errors: { request: "token is invalid" } }]
       end
 
-      expect(cli).to receive(:say).with(
+      expect(cli).to receive(:say).ordered.with(
         "Could not create the application. Please run `bundle exec skylight doctor` " \
           "for diagnostics.",
         :red
       ).ordered
-      expect(cli).to receive(:say).with("{\"request\"=>\"token is invalid\"}", :yellow).ordered
+      expect(cli).to receive(:say).ordered do |string, color|
+        expect(string).to match(/\{\"request\"\s?=>\s?\"token is invalid\"\}/)
+        expect(color).to eq(:yellow)
+      end
 
       cli.setup("foobar")
     end
