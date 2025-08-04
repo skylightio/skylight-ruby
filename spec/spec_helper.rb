@@ -253,3 +253,4 @@ RSpec.configure do |config|
     Test::Unit::AutoRunner.need_auto_run = false if defined?(Test::Unit::AutoRunner)
   end
 end
+
