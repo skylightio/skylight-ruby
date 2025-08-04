@@ -175,7 +175,7 @@ if enable
         stub_session_request
       end
 
-      public_send(SpecHelper.active_record_71? ? :pending : :it) do
+      specify do
         enqueue_and_process_job(:good_method)
 
         server.wait resource: "/report"
@@ -187,19 +187,21 @@ if enable
             ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
             ["app.delayed_job.job", "SkDelayedObject#good_method", nil, sl_good_method],
             ["app.zomg", nil, nil, sl_good_method_inner],
-            ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
             [
               "db.sql.query",
               "DELETE FROM delayed_jobs",
               "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
               "delayed_job"
             ],
-            ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
+            # NOTE: There is a bug in Rails about the order of these messages; fixes have
+            # been proposed but it has not been deemed a high enough priority to actually merge.
+            ["db.sql.query", "TRANSACTION", "begin transaction", "delayed_job"],
+            ["db.sql.query", "TRANSACTION", "commit transaction", "delayed_job"]
           ]
         )
       end
 
-      public_send(SpecHelper.active_record_71? ? :pending : :it, "with a delayed class method") do
+      specify "with a delayed class method" do
         enqueue_and_process_job(:good_method, class_method: true)
 
         server.wait resource: "/report"
@@ -210,50 +212,40 @@ if enable
             ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
             ["app.delayed_job.job", "SkDelayedObject.good_method", nil, sl_good_class_method],
             ["app.zomg", nil, nil, sl_good_method_inner],
-            ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
             [
               "db.sql.query",
               "DELETE FROM delayed_jobs",
               "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
               "delayed_job"
             ],
-            ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
+            ["db.sql.query", "TRANSACTION", "begin transaction", "delayed_job"],
+            ["db.sql.query", "TRANSACTION", "commit transaction", "delayed_job"]
           ]
         )
       end
 
-      public_send(SpecHelper.active_record_71? ? :pending : :it, "reports problems to the error segment") do
+      it "reports problems to the error segment" do
         enqueue_and_process_job(:bad_method)
 
         server.wait resource: "/report"
         report = server.reports[0].to_simple_report
         expect(report.endpoint.name).to eq("SkDelayedObject#bad_method<sk-segment>error</sk-segment>")
         spans = report.mapped_spans
-        expect(spans[0..3]).to eq(
+        expect(spans).to eq(
           [
             ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
             ["app.delayed_job.job", "SkDelayedObject#bad_method", nil, sl_bad_method],
             ["app.zomg", nil, nil, sl_good_method_inner],
-            ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"]
+            [
+              "db.sql.query", 
+              "UPDATE delayed_jobs", 
+              "UPDATE \"delayed_jobs\" SET \"attempts\" = ?, \"last_error\" = ?, \"run_at\" = ?, \"locked_at\" = ?, \"locked_by\" = ?, \"updated_at\" = ? WHERE \"delayed_jobs\".\"id\" = ?",
+              "delayed_job"
+            ],
+            ["db.sql.query", "TRANSACTION", "begin transaction", nil],
+            ["db.sql.query", "TRANSACTION", "commit transaction", "delayed_job"]
           ]
         )
-
-        expect(spans[4][0]).to eq("db.sql.query")
-
-        # column order can differ between ActiveRecord versions
-        r = /UPDATE "delayed_jobs" SET (?<columns>(?:"\w+" = \?,?\s?)+) WHERE "delayed_jobs"\."id" = \?/
-        columns = spans[4][2].match(r)[:columns].split(", ")
-        expect(columns).to match_array(
-          [
-            "\"attempts\" = ?",
-            "\"last_error\" = ?",
-            "\"run_at\" = ?",
-            "\"updated_at\" = ?",
-            "\"locked_at\" = ?",
-            "\"locked_by\" = ?"
-          ]
-        )
-        expect(spans[5]).to eq(["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"])
       end
 
       context "with a job class" do
@@ -261,7 +253,7 @@ if enable
           Delayed::Job.enqueue(SkDelayedWorker.new(args), queue: "my-queue")
         end
 
-        public_send(SpecHelper.active_record_71? ? :pending : :it) do
+        specify do
           enqueue_and_process_job(:good_method)
 
           server.wait resource: "/report"
@@ -272,14 +264,14 @@ if enable
               ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
               ["app.delayed_job.job", "SkDelayedWorker#perform", nil, sl_worker_perform],
               ["app.zomg", nil, nil, sl_worker_perform_inner],
-              ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
               [
                 "db.sql.query",
                 "DELETE FROM delayed_jobs",
                 "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
                 "delayed_job"
               ],
-              ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
+              ["db.sql.query", "TRANSACTION", "begin transaction", "delayed_job"],
+              ["db.sql.query", "TRANSACTION", "commit transaction", "delayed_job"]
             ]
           )
         end
@@ -330,7 +322,7 @@ if enable
             %w[active_job delayed_job]
           end
 
-          public_send(SpecHelper.active_record_71? ? :pending : :specify) do
+          specify do
             enqueue_and_process_job(:good_method)
 
             server.wait resource: "/report"
@@ -353,19 +345,19 @@ if enable
                   sl_aj_worker_perform
                 ],
                 ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
-                ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"],
                 [
                   "db.sql.query",
                   "DELETE FROM delayed_jobs",
                   "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
                   "delayed_job"
                 ],
-                ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
+                ["db.sql.query", "TRANSACTION", "begin transaction", "delayed_job"],
+                ["db.sql.query", "TRANSACTION", "commit transaction", "delayed_job"]
               ]
             )
           end
 
-          public_send(SpecHelper.active_record_71? ? :pending : :it, "reports problems to the error segment") do
+          it "reports problems to the error segment" do
             enqueue_and_process_job(:bad_method)
 
             server.wait resource: "/report"
@@ -373,7 +365,7 @@ if enable
             spans = report.mapped_spans
 
             expect(report.endpoint.name).to eq("SkDelayedActiveJobWorker<sk-segment>error</sk-segment>")
-            expect(spans[0..4]).to eq(
+            expect(spans).to eq(
               [
                 ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
                 [
@@ -389,27 +381,15 @@ if enable
                   sl_aj_worker_perform
                 ],
                 ["app.zomg", nil, nil, sl_aj_worker_perform_inner],
-                ["db.sql.query", active_record_transaction_title, "begin transaction", "delayed_job"]
+                [
+                  "db.sql.query",
+                  "UPDATE delayed_jobs",
+                  "UPDATE \"delayed_jobs\" SET \"attempts\" = ?, \"last_error\" = ?, \"run_at\" = ?, \"locked_at\" = ?, \"locked_by\" = ?, \"updated_at\" = ? WHERE \"delayed_jobs\".\"id\" = ?",
+                  "delayed_job"
+                ],
+                ["db.sql.query", "TRANSACTION", "begin transaction", nil],
+                ["db.sql.query", "TRANSACTION", "commit transaction", "delayed_job"]
               ]
-            )
-
-            expect(spans[5][0]).to eq("db.sql.query")
-
-            # column order can differ between ActiveRecord versions
-            r = /UPDATE "delayed_jobs" SET (?<columns>(?:"\w+" = \?,?\s?)+) WHERE "delayed_jobs"\."id" = \?/
-            columns = spans[5][2].match(r)[:columns].split(", ")
-            expect(columns).to match_array(
-              [
-                "\"attempts\" = ?",
-                "\"last_error\" = ?",
-                "\"run_at\" = ?",
-                "\"updated_at\" = ?",
-                "\"locked_at\" = ?",
-                "\"locked_by\" = ?"
-              ]
-            )
-            expect(spans[6]).to eq(
-              ["db.sql.query", active_record_transaction_title, "commit transaction", "delayed_job"]
             )
           end
         end

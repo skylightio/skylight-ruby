@@ -155,10 +155,6 @@ module SpecHelper
     defined?(ActiveRecord) && ActiveRecord.gem_version >= Gem::Version.new("6.1")
   end
 
-  def self.active_record_71?
-    defined?(ActiveRecord) && [ActiveRecord::VERSION::MAJOR, ActiveRecord::VERSION::MINOR] == [7, 1]
-  end
-
   def active_record_transaction_title
     active_record_gte_61? ? "TRANSACTION" : "SQL"
   end
