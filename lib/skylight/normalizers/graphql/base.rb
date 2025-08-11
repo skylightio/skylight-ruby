@@ -65,9 +65,9 @@ module Skylight::Normalizers::GraphQL
     # This is a new, combined normalizer for execute_query and execute_multiplex,
     # to be used for graphql >= 2.5
     #
-    def normalize(trace, _name, payload)
+    def normalize(trace, name, payload)
       if payload[:query]
-        _execute_query_normalize
+        _execute_query_normalize(trace, name, payload)
       else
         [CAT, "graphql.#{key}", nil]
       end
@@ -123,7 +123,7 @@ module Skylight::Normalizers::GraphQL
     end
   end
 
-  class ExecuteQuery < Base
+  class ExecuteQuery < Execute
     register_graphql
   end
 

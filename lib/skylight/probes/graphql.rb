@@ -35,6 +35,48 @@ module Skylight
           end
         end
 
+        # GraphQL versions >= 2.5 are missing this notification
+        module ExecuteQueryNotification
+          def execute_query(**metadata, &blk)
+            if @notifications_engine
+              @notifications_engine.instrument("execute_query.graphql", metadata, &blk)
+            elsif @notifications
+              @notifications.instrument("execute_query.graphql", metadata, &blk)
+            else
+              # safety fallback in case graphql's authors unexpectedly rename @notifications_engine or @notifications
+              super
+            end
+          end
+        end
+
+        # GraphQL versions >= 2.5 are missing this notification
+        module ExecuteQueryLazyNotification
+          def execute_query_lazy(**metadata, &blk)
+            if @notifications_engine
+              @notifications_engine.instrument("execute_query_lazy.graphql", metadata, &blk)
+            elsif @notifications
+              @notifications.instrument("execute_query_lazy.graphql", metadata, &blk)
+            else
+              # safety fallback in case graphql's authors unexpectedly rename @notifications_engine or @notifications
+              super
+            end
+          end
+        end
+
+        # GraphQL versions >= 2.5 are missing this notification
+        module AnalyzeQueryNotification 
+          def analyze_query(**metadata, &blk)
+            if @notifications_engine
+              @notifications_engine.instrument("analyze_query.graphql", metadata, &blk)
+            elsif @notifications
+              @notifications.instrument("analyze_query.graphql", metadata, &blk)
+            else
+              # safety fallback in case graphql's authors unexpectedly rename @notifications_engine or @notifications
+              super
+            end
+          end
+        end
+        
         module ClassMethods
           def new_trace(*, **)
             unless @__sk_instrumentation_installed
@@ -42,6 +84,18 @@ module Skylight
 
               unless ::GraphQL::Tracing::ActiveSupportNotificationsTrace.instance_methods.include?(:execute_multiplex)
                 trace_with(ExecuteMultiplexNotification)
+              end
+
+              unless ::GraphQL::Tracing::ActiveSupportNotificationsTrace.instance_methods.include?(:execute_query)
+                trace_with(ExecuteQueryNotification)
+              end
+
+              unless ::GraphQL::Tracing::ActiveSupportNotificationsTrace.instance_methods.include?(:execute_query_lazy)
+                trace_with(ExecuteQueryLazyNotification)
+              end
+
+              unless ::GraphQL::Tracing::ActiveSupportNotificationsTrace.instance_methods.include?(:analyze_query)
+                trace_with(AnalyzeQueryNotification)
               end
 
               @__sk_instrumentation_installed = true
