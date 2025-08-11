@@ -59,10 +59,40 @@ module Skylight::Normalizers::GraphQL
     register_graphql
   end
 
-  class ExecuteMultiplex < Base
+  class Execute < Base
     register_graphql
 
-    def normalize_after(trace, _span, _name, payload)
+    # This is a new, combined normalizer for execute_query and execute_multiplex,
+    # to be used for graphql >= 2.5
+    #
+    def normalize(trace, _name, payload)
+      if payload[:query]
+        _execute_query_normalize
+      else
+        [CAT, "graphql.#{key}", nil]
+      end
+    end
+
+    def normalize_after(trace, span, name, payload)
+      if payload[:multiplex]
+        _execute_multiplex_normalize_after(trace, span, name, payload)
+      end
+    end
+
+    private
+
+    def _execute_query_normalize(trace, _name, payload)
+      query_name = extract_query_name(payload[:query])
+
+      meta = { mute_children: true } if query_name == ANONYMOUS
+      # This is probably always overriden by execute_multiplex#normalize_after,
+      # but in the case of a single query, it will be the same value anyway.
+      trace.endpoint = "graphql:#{query_name}"
+
+      [CAT, "graphql.#{key}: #{query_name}", nil, meta]
+    end
+
+    def _execute_multiplex_normalize_after(trace, _span, _name, payload)
       # This is in normalize_after because the queries may not have
       # an assigned operation name before they are executed.
       # For example, if you send a single query with a defined operation name, e.g.:
@@ -93,24 +123,18 @@ module Skylight::Normalizers::GraphQL
     end
   end
 
-  class AnalyzeQuery < Base
+  class ExecuteQuery < Base
     register_graphql
   end
 
-  class ExecuteQuery < Base
+  class ExecuteMultiplex < Execute
     register_graphql
 
-    def normalize(trace, _name, payload)
-      query_name = extract_query_name(payload[:query])
+    # see behavior in Execute#_multiplex_normalize_after
+  end
 
-      meta = { mute_children: true } if query_name == ANONYMOUS
-
-      # This is probably always overriden by execute_multiplex#normalize_after,
-      # but in the case of a single query, it will be the same value anyway.
-      trace.endpoint = "graphql:#{query_name}"
-
-      [CAT, "graphql.#{key}: #{query_name}", nil, meta]
-    end
+  class AnalyzeQuery < Base
+    register_graphql
   end
 
   class ExecuteQueryLazy < ExecuteQuery
