@@ -39,10 +39,6 @@ module CITasks
       allow: [{ "dependency-name": "elasticsearch" }]
       # We don't limit this so that we're aware when new versions are released
     },
-    "grape-1.2.x" => {
-      allow: [{ "dependency-name": "grape" }],
-      ignore: [{ "dependency-name": "grape", versions: [">= 1.3"] }]
-    },
     "grape-1.x" => {
       allow: [{ "dependency-name": "grape" }]
       # We don't limit this so that we're aware when new versions are released
@@ -104,7 +100,7 @@ module CITasks
       gemfile: "elasticsearch",
       services: {
         elasticsearch: {
-          image: "elasticsearch:8.0.0",
+          image: "elasticsearch:9.1.1",
           ports: %w[9200:9200 9300:9300],
           options:
             [
@@ -144,7 +140,6 @@ module CITasks
     { ruby_version: OLDEST_RUBY, gemfile: "grape-1.x" },
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "grape-1.x" },
     # Oldest supported grape version. Doesn't support 3.0.
-    { ruby_version: OLDEST_RUBY, gemfile: "grape-1.2.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "grape-edge" },
     { ruby_version: "3.1", gemfile: "sequel-4" },
     { ruby_version: NEWEST_RUBY, gemfile: "sequel-5" },

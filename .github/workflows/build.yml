@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: 620de6e675383893a07c3c5fce80790ea839c341a8cb56dac8e632d9f3dc3857
+  CONFIG_DIGEST: e500b1b4be39299c9fa148dcb173df7eeb5394eaa5b6fece3f223a8e72c386ee
 'on':
   push:
     branches:
@@ -121,7 +121,7 @@ jobs:
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'elasticsearch')
     services:
       elasticsearch:
-        image: elasticsearch:8.0.0
+        image: elasticsearch:9.1.1
         ports:
         - 9200:9200
         - 9300:9300
@@ -616,50 +616,6 @@ jobs:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
     needs: []
-  ruby-3-1-grape-1-2-x:
-    name: ruby 3.1, grape-1.2.x
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.2.x')
-    services:
-      redis:
-        image: redis
-        ports:
-        - 6379:6379
-        options: "--entrypoint redis-server"
-    env:
-      BUNDLE_GEMFILE: gemfiles/grape-1.2.x/Gemfile
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Setup ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.1'
-    - name: Install APT dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -yq sqlite3 libsqlite3-dev
-    - name: Setup cache (bundler)
-      uses: actions/cache@v3
-      with:
-        path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.1-grape-1.2.x-${{ hashFiles('gemfiles/grape-1.2.x/Gemfile.lock')
-          }}"
-        restore-keys: |-
-          ${{ runner.os }}-gems-3.1-grape-1.2.x-
-          ${{ runner.os }}-gems-3.1-
-    - name: bundle install
-      run: "gem install bundler \nbundle install\n"
-    - name: Run tests
-      run: |
-        bundle exec rake workflow:verify[$CONFIG_DIGEST]
-        bundle exec rake
-    - name: Run tests (agent disabled)
-      env:
-        SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
-    needs: []
   ruby-3-4-grape-edge:
     name: "[allowed to fail] ruby 3.4, grape-edge"
     runs-on: ubuntu-latest
@@ -1040,7 +996,6 @@ jobs:
     - ruby-3-4-sinatra-2-x
     - ruby-3-1-grape-1-x
     - ruby-3-4-grape-1-x
-    - ruby-3-1-grape-1-2-x
     - ruby-3-1-sequel-4
     - ruby-3-4-sequel-5
     - ruby-3-1-ams-0-9-x
