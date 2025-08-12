@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: 32b11f299f6671a88688aab874aa98b54de801d99727efb140b83fb6e7efcfb0
+  CONFIG_DIGEST: 1e684f36febed4a86458ae58bc3416d32ca5c88568630282fe3960d6c930165c
 'on':
   push:
     branches:
@@ -113,8 +113,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-1-mongoid-7-x-mongoid-7:
     name: ruby 3.1, mongoid-7.x, mongoid-7
     runs-on: ubuntu-latest
@@ -164,8 +163,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-2-elasticsearch-elasticsearch:
     name: ruby 3.2, elasticsearch, elasticsearch
     runs-on: ubuntu-latest
@@ -219,8 +217,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-1-sidekiq-5-x:
     name: ruby 3.1, sidekiq-5.x
     runs-on: ubuntu-latest
@@ -264,8 +261,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-2-graphql-2-0-17:
     name: ruby 3.2, graphql-2.0.17
     runs-on: ubuntu-latest
@@ -309,8 +305,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-1-rails-7-1-x:
     name: ruby 3.1, rails-7.1.x
     runs-on: ubuntu-latest
@@ -355,8 +350,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-2-rails-7-1-x:
     name: ruby 3.2, rails-7.1.x
     runs-on: ubuntu-latest
@@ -401,8 +395,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-2-rails-7-2-x:
     name: ruby 3.2, rails-7.2.x
     runs-on: ubuntu-latest
@@ -447,8 +440,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-4-rails-edge:
     name: "[allowed to fail] ruby 3.4, rails-edge"
     runs-on: ubuntu-latest
@@ -494,8 +486,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-4-sinatra-2-x:
     name: ruby 3.4, sinatra-2.x
     runs-on: ubuntu-latest
@@ -540,8 +531,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-4-sinatra-edge:
     name: "[allowed to fail] ruby 3.4, sinatra-edge"
     runs-on: ubuntu-latest
@@ -586,8 +576,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-1-grape-1-x:
     name: ruby 3.1, grape-1.x
     runs-on: ubuntu-latest
@@ -631,8 +620,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-4-grape-1-x:
     name: ruby 3.4, grape-1.x
     runs-on: ubuntu-latest
@@ -677,8 +665,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-1-grape-1-2-x:
     name: ruby 3.1, grape-1.2.x
     runs-on: ubuntu-latest
@@ -722,8 +709,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-4-grape-edge:
     name: "[allowed to fail] ruby 3.4, grape-edge"
     runs-on: ubuntu-latest
@@ -768,8 +754,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-1-sequel-4:
     name: ruby 3.1, sequel-4
     runs-on: ubuntu-latest
@@ -813,8 +798,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-4-sequel-5:
     name: ruby 3.4, sequel-5
     runs-on: ubuntu-latest
@@ -858,8 +842,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-1-ams-0-9-x:
     name: ruby 3.1, ams-0.9.x
     runs-on: ubuntu-latest
@@ -903,8 +886,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-3-4-ams-0-10-x:
     name: ruby 3.4, ams-0.10.x
     runs-on: ubuntu-latest
@@ -948,8 +930,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-head-default:
     name: "[allowed to fail] ruby head, default"
     runs-on: ubuntu-latest
@@ -993,8 +974,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   ruby-head-rails-edge:
     name: "[allowed to fail] ruby head, rails-edge"
     runs-on: ubuntu-latest
@@ -1042,8 +1022,7 @@ jobs:
       env:
         SKYLIGHT_DISABLE_AGENT: 'true'
       run: bundle exec rake
-    needs:
-    - ruby-3-4-default
+    needs: []
   lint:
     name: lint
     runs-on: ubuntu-latest
