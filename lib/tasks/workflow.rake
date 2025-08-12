@@ -56,10 +56,6 @@ module CITasks
     "grape-edge" => {
       allow: [{ "dependency-name": "grape" }]
     },
-    "graphql-1.9.x" => {
-      allow: [{ "dependency-name": "graphql" }],
-      ignore: [{ "dependency-name": "graphql", versions: [">= 1.10"] }]
-    },
     "graphql-2.0.17" => {
       allow: [{ "dependency-name": "graphql" }],
       ignore: [{ "dependency-name": "graphql", versions: [">= 2.0.18"] }]
@@ -84,11 +80,9 @@ module CITasks
     "sidekiq-5.x" => {
       allow: [
         { "dependency-name": "sidekiq" },
-        { "dependency-name": "graphql" }
       ],
       ignore: [
         { "dependency-name": "sidekiq", versions: [">= 6"] },
-        { "dependency-name": "graphql", versions: [">= 1.9"] }
       ]
     },
     "sinatra-2.x" => {
@@ -148,14 +142,9 @@ module CITasks
         TEST_ELASTICSEARCH_INTEGRATION: "true"
       }
     },
-    # GraphQL 1.7 is the oldest version that we support.
-    # We also have some special handling for it.
     { ruby_version: OLDEST_RUBY, gemfile: "sidekiq-5.x" },
     # We need to test either 1.8 or 1.9 since there are more changes in 1.10.
     # We probably don't need to test both
-    { ruby_version: OLDEST_RUBY, gemfile: "graphql-1.9.x" },
-    # GraphQL 1.11 is tested as part of our default additional gems
-    # TODO: We should test 1.12+
 
     # Latest version of graphql with legacy instrumentation
     { ruby_version: "3.2", gemfile: "graphql-2.0.17" },
