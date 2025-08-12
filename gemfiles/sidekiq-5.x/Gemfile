@@ -3,6 +3,6 @@ source "https://rubygems.org"
 gemspec path: "../.."
 
 # TODO: Check if we need Rails
-gem "rails", "~> 6.1.0"
+gem "rails", "~> 7.1.0"
 gem "sidekiq", "~> 5"
-gem "sqlite3", "~> 1.4"
+gem "sqlite3", "~> 2"

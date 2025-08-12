@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.homepage = "https://www.skylight.io"
   spec.license = "Nonstandard"
 
-  spec.required_ruby_version = ">= 2.7"
+  spec.required_ruby_version = ">= 3.1"
 
   files =
     begin
@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Dependencies
-  spec.add_dependency "activesupport", ">= 5.2.0"
+  spec.add_dependency "activesupport", ">= 7.1.0"
 
   spec.add_development_dependency "beefcake", "~> 1.0"
   spec.add_development_dependency "bundler", ">= 1.17.3"
@@ -37,7 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake-compiler", "~> 1.2.0"
   spec.add_development_dependency "rspec", "~> 3.7"
   spec.add_development_dependency "rspec-collection_matchers", "~> 1.1"
-  spec.add_development_dependency "rubocop", "~> 1.66.1"
+  spec.add_development_dependency "rubocop", "~> 1.70.0"
   spec.add_development_dependency "simplecov", "~> 0.21.2"
   spec.add_development_dependency "syntax_tree"
   spec.add_development_dependency "timecop", "~> 0.9"

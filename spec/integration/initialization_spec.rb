@@ -56,8 +56,8 @@ describe "Initialization integration", :http do
       env["SKYLIGHT_ENABLE_TRACE_LOGS"] = "1"
       env["DEBUG"] = "1"
     end
-    cmd = "ruby bin/rails runner 'exit(1) if Skylight.native? && !Skylight.started?'"
-    cmd_pid = Process.spawn(env, cmd, out: pipe_cmd_out, err: pipe_cmd_out)
+    cmd = %w[ruby bin/rails runner lib/validate_skylight.rb]
+    cmd_pid = Process.spawn(env, *cmd, out: pipe_cmd_out, err: pipe_cmd_out)
 
     ENV["SKYLIGHT_ENABLE_TRACE_LOGS"] = original_trace
 
@@ -65,7 +65,7 @@ describe "Initialization integration", :http do
 
     pipe_cmd_out.close
 
-    output = pipe_cmd_in.read.strip.split("\n")
+    output = pipe_cmd_in.read.strip.lines.map(&:strip)
 
     Kernel.warn(output) unless $CHILD_STATUS.success? == @expect_success
 
@@ -76,6 +76,7 @@ describe "Initialization integration", :http do
 
     # This deprecation is not our fault
     output.reject! { |l| l.include?("Rack::File is deprecated") }
+    output.reject! { |l| l.include?("`to_time` will always preserve the receiver")}
 
     _, i = output.to_enum.with_index.find do |l, _|
       # In rails 7.1, This is both a default value set on ActiveSupport::Cache, and is deprecated
@@ -139,6 +140,8 @@ describe "Initialization integration", :http do
   if Skylight.native?
     context "native" do
       context "development", expect_success: false do
+        let(:rails_env) { "development" }
+
         it "warns development mode" do
           expect(boot).to include "[SKYLIGHT] [#{Skylight::VERSION}] Running Skylight in development mode. No data " \
                     "will be reported until you deploy your app."

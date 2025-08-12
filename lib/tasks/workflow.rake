@@ -5,9 +5,9 @@ require "json"
 require "active_support/inflector"
 require "digest"
 
-OLDEST_RUBY = "2.7"
-NEWEST_RUBY = "3.3"
-HEAD_RUBY = "3.4"
+OLDEST_RUBY = "3.1"
+NEWEST_RUBY = "3.4"
+HEAD_RUBY = "3.5"
 
 module CITasks
   def self.mongo
@@ -25,12 +25,6 @@ module CITasks
   end
 
   GEMFILES_UPDATES = {
-    "ams-0.8.x" => {
-      allow: [{ "dependency-name": "active_model_serializers" }],
-      ignore: [
-        { "dependency-name": "active_model_serializers", versions: [">= 0.9"] }
-      ]
-    },
     "ams-0.9.x" => {
       allow: [{ "dependency-name": "active_model_serializers" }],
       ignore: [
@@ -45,10 +39,6 @@ module CITasks
       allow: [{ "dependency-name": "elasticsearch" }]
       # We don't limit this so that we're aware when new versions are released
     },
-    "grape-1.2.x" => {
-      allow: [{ "dependency-name": "grape" }],
-      ignore: [{ "dependency-name": "grape", versions: [">= 1.3"] }]
-    },
     "grape-1.x" => {
       allow: [{ "dependency-name": "grape" }]
       # We don't limit this so that we're aware when new versions are released
@@ -56,36 +46,19 @@ module CITasks
     "grape-edge" => {
       allow: [{ "dependency-name": "grape" }]
     },
-    "graphql-1.9.x" => {
-      allow: [{ "dependency-name": "graphql" }],
-      ignore: [{ "dependency-name": "graphql", versions: [">= 1.10"] }]
-    },
     "graphql-2.0.17" => {
       allow: [{ "dependency-name": "graphql" }],
       ignore: [{ "dependency-name": "graphql", versions: [">= 2.0.18"] }]
     },
-    "mongoid-6.x" => {
-      allow: [{ "dependency-name": "mongoid" }],
-      ignore: [{ "dependency-name": "mongoid", versions: [">= 7"] }]
-    },
-    "mongoid-7.x" => {
-      allow: [{ "dependency-name": "mongoid" }, { "dependency-name": "mongo" }]
-      # We don't limit this so that we're aware when new versions are released
-    },
-    "rails-5.2.x" => {
-      allow: [{ "dependency-name": "rails" }, { "dependency-name": "sqlite" }],
+    "rails-7.1.x" => {
+      allow: [{ "dependency-name": "rails" }],
       ignore: [
-        { "dependency-name": "rails", versions: [">= 5.3"] },
-        { "dependency-name": "sqlite", versions: [">= 1.5"] }
+        { "dependency-name": "rails", versions: [">= 7.2"] },
       ]
     },
-    "rails-6.0.x" => {
+    "rails-7.2.x" => {
       allow: [{ "dependency-name": "rails" }],
-      ignore: [{ "dependency-name": "rails", versions: [">= 6.1"] }]
-    },
-    "rails-6.1.x" => {
-      allow: [{ "dependency-name": "rails" }]
-      # We don't limit this so that we're aware when new versions are released
+      ignore: { "dependency-name": "rails", versions: [">= 7.3"] },
     },
     "rails-edge" => {
       allow: [{ "dependency-name": "rails" }]
@@ -93,11 +66,9 @@ module CITasks
     "sidekiq-5.x" => {
       allow: [
         { "dependency-name": "sidekiq" },
-        { "dependency-name": "graphql" }
       ],
       ignore: [
         { "dependency-name": "sidekiq", versions: [">= 6"] },
-        { "dependency-name": "graphql", versions: [">= 1.9"] }
       ]
     },
     "sinatra-2.x" => {
@@ -116,18 +87,7 @@ module CITasks
     {
       name: "mongo",
       ruby_version: "3.2",
-      gemfile: "rails-6.1.x",
-      services: mongo,
-      env: {
-        TEST_MONGO_INTEGRATION: "true",
-        MONGO_HOST: "localhost"
-      }
-    },
-    # Oldest mongoid we support
-    {
-      name: "mongoid-6",
-      ruby_version: OLDEST_RUBY,
-      gemfile: "mongoid-6.x",
+      gemfile: "rails-7.1.x",
       services: mongo,
       env: {
         TEST_MONGO_INTEGRATION: "true",
@@ -140,7 +100,7 @@ module CITasks
       gemfile: "elasticsearch",
       services: {
         elasticsearch: {
-          image: "elasticsearch:8.0.0",
+          image: "elasticsearch:9.1.1",
           ports: %w[9200:9200 9300:9300],
           options:
             [
@@ -157,20 +117,15 @@ module CITasks
         TEST_ELASTICSEARCH_INTEGRATION: "true"
       }
     },
-    # GraphQL 1.7 is the oldest version that we support.
-    # We also have some special handling for it.
     { ruby_version: OLDEST_RUBY, gemfile: "sidekiq-5.x" },
     # We need to test either 1.8 or 1.9 since there are more changes in 1.10.
     # We probably don't need to test both
-    { ruby_version: OLDEST_RUBY, gemfile: "graphql-1.9.x" },
-    # GraphQL 1.11 is tested as part of our default additional gems
-    # TODO: We should test 1.12+
 
     # Latest version of graphql with legacy instrumentation
     { ruby_version: "3.2", gemfile: "graphql-2.0.17" },
-    { gemfile: "rails-5.2.x", ruby_version: OLDEST_RUBY, always_run: true },
-    { always_run: true, ruby_version: "3.2", gemfile: "rails-6.0.x" },
-    { always_run: true, ruby_version: "3.2", gemfile: "rails-6.1.x" },
+    { gemfile: "rails-7.1.x", ruby_version: OLDEST_RUBY, always_run: true },
+    { always_run: true, ruby_version: "3.2", gemfile: "rails-7.1.x" },
+    { always_run: true, ruby_version: "3.2", gemfile: "rails-7.2.x" },
     {
       ruby_version: NEWEST_RUBY,
       allow_failure: true,
@@ -185,11 +140,9 @@ module CITasks
     { ruby_version: OLDEST_RUBY, gemfile: "grape-1.x" },
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "grape-1.x" },
     # Oldest supported grape version. Doesn't support 3.0.
-    { ruby_version: OLDEST_RUBY, gemfile: "grape-1.2.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "grape-edge" },
     { ruby_version: "3.1", gemfile: "sequel-4" },
     { ruby_version: NEWEST_RUBY, gemfile: "sequel-5" },
-    { ruby_version: OLDEST_RUBY, gemfile: "ams-0.8.x" },
     { ruby_version: OLDEST_RUBY, gemfile: "ams-0.9.x" },
     { ruby_version: NEWEST_RUBY, gemfile: "ams-0.10.x" },
     {
@@ -528,7 +481,7 @@ module CITasks
       end
 
       def gemfile
-        "rails-6.1.x"
+        "rails-7.1.x"
       end
 
       def to_template_hash
