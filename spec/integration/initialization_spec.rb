@@ -65,7 +65,7 @@ describe "Initialization integration", :http do
 
     pipe_cmd_out.close
 
-    output = pipe_cmd_in.read.strip.lines
+    output = pipe_cmd_in.read.strip.lines.map(&:strip)
 
     Kernel.warn(output) unless $CHILD_STATUS.success? == @expect_success
 
@@ -87,7 +87,7 @@ describe "Initialization integration", :http do
     end
 
     if i
-      a, b, c, d, e = output.slice!(i, 5).map(&:strip)
+      a, b, c, d, e = output.slice!(i, 5)
 
       matches_expected =
         a.include?("Support for `config.active_support.cache_format_version = 6.1") &&
