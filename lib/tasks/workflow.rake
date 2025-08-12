@@ -5,7 +5,7 @@ require "json"
 require "active_support/inflector"
 require "digest"
 
-OLDEST_RUBY = "3.0"
+OLDEST_RUBY = "3.1"
 NEWEST_RUBY = "3.4"
 HEAD_RUBY = "3.5"
 

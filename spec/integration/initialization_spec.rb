@@ -87,7 +87,7 @@ describe "Initialization integration", :http do
     end
 
     if i
-      a, b, c, d, e = output.slice!(i, 5)
+      a, b, c, d, e = output.slice!(i, 5).map(&:strip)
 
       matches_expected =
         a.include?("Support for `config.active_support.cache_format_version = 6.1") &&
