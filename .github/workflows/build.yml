@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: 1e684f36febed4a86458ae58bc3416d32ca5c88568630282fe3960d6c930165c
+  CONFIG_DIGEST: 620de6e675383893a07c3c5fce80790ea839c341a8cb56dac8e632d9f3dc3857
 'on':
   push:
     branches:
@@ -103,56 +103,6 @@ jobs:
         restore-keys: |-
           ${{ runner.os }}-gems-3.2-rails-7.1.x-
           ${{ runner.os }}-gems-3.2-
-    - name: bundle install
-      run: "gem install bundler \nbundle install\n"
-    - name: Run tests
-      run: |
-        bundle exec rake workflow:verify[$CONFIG_DIGEST]
-        bundle exec rake
-    - name: Run tests (agent disabled)
-      env:
-        SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
-    needs: []
-  ruby-3-1-mongoid-7-x-mongoid-7:
-    name: ruby 3.1, mongoid-7.x, mongoid-7
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'mongoid-7.x')
-    services:
-      mongo:
-        image: mongo:4.0
-        ports:
-        - 27017:27017
-      redis:
-        image: redis
-        ports:
-        - 6379:6379
-        options: "--entrypoint redis-server"
-    env:
-      BUNDLE_GEMFILE: gemfiles/mongoid-7.x/Gemfile
-      TEST_MONGO_INTEGRATION: 'true'
-      MONGO_HOST: localhost
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Setup ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.1'
-    - name: Install APT dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -yq sqlite3 libsqlite3-dev
-    - name: Setup cache (bundler)
-      uses: actions/cache@v3
-      with:
-        path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.1-mongoid-7.x-${{ hashFiles('gemfiles/mongoid-7.x/Gemfile.lock')
-          }}"
-        restore-keys: |-
-          ${{ runner.os }}-gems-3.1-mongoid-7.x-
-          ${{ runner.os }}-gems-3.1-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -1081,7 +1031,6 @@ jobs:
     needs:
     - ruby-3-4-default
     - ruby-3-2-rails-7-1-x-mongo
-    - ruby-3-1-mongoid-7-x-mongoid-7
     - ruby-3-2-elasticsearch-elasticsearch
     - ruby-3-1-sidekiq-5-x
     - ruby-3-2-graphql-2-0-17
