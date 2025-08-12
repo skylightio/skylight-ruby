@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 gemspec path: "../.."
 
-gem "rails", "~> 6.1"
-gem "sqlite3", "~> 1.4"
+gem "rails", "~> 7.1"
+gem "sqlite3", "~> 2"
 
 gem "graphql", "2.0.17.2"
