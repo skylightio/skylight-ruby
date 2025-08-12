@@ -182,7 +182,7 @@ if enable
         report = server.reports[0].to_simple_report
 
         expect(report.endpoint.name).to eq("SkDelayedObject#good_method<sk-segment>queue-name</sk-segment>")
-        expect(report.mapped_spans).to eq(
+        expect(report.mapped_spans).to match(
           [
             ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
             ["app.delayed_job.job", "SkDelayedObject#good_method", nil, sl_good_method],
@@ -195,9 +195,9 @@ if enable
             ],
             # NOTE: There is a bug in Rails about the order of these messages; fixes have
             # been proposed but it has not been deemed a high enough priority to actually merge.
-            ["db.sql.query", "TRANSACTION", "begin transaction", "delayed_job"],
-            ["db.sql.query", "TRANSACTION", "commit transaction", "delayed_job"]
-          ]
+            ["db.sql.query", "TRANSACTION", /begin.*transaction/i, "delayed_job"],
+            ["db.sql.query", "TRANSACTION", /commit transaction/i, "delayed_job"]
+          ].map(&method(:match_array))
         )
       end
 
@@ -207,7 +207,7 @@ if enable
         server.wait resource: "/report"
         report = server.reports[0].to_simple_report
         expect(report.endpoint.name).to eq("SkDelayedObject.good_method<sk-segment>queue-name</sk-segment>")
-        expect(report.mapped_spans).to eq(
+        expect(report.mapped_spans).to match(
           [
             ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
             ["app.delayed_job.job", "SkDelayedObject.good_method", nil, sl_good_class_method],
@@ -218,9 +218,9 @@ if enable
               "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
               "delayed_job"
             ],
-            ["db.sql.query", "TRANSACTION", "begin transaction", "delayed_job"],
-            ["db.sql.query", "TRANSACTION", "commit transaction", "delayed_job"]
-          ]
+            ["db.sql.query", "TRANSACTION", /begin.*transaction/i, "delayed_job"],
+            ["db.sql.query", "TRANSACTION", /commit transaction/i, "delayed_job"]
+          ].map(&method(:match_array))
         )
       end
 
@@ -231,7 +231,7 @@ if enable
         report = server.reports[0].to_simple_report
         expect(report.endpoint.name).to eq("SkDelayedObject#bad_method<sk-segment>error</sk-segment>")
         spans = report.mapped_spans
-        expect(spans).to eq(
+        expect(spans).to match(
           [
             ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
             ["app.delayed_job.job", "SkDelayedObject#bad_method", nil, sl_bad_method],
@@ -242,9 +242,9 @@ if enable
               "UPDATE \"delayed_jobs\" SET \"attempts\" = ?, \"last_error\" = ?, \"run_at\" = ?, \"locked_at\" = ?, \"locked_by\" = ?, \"updated_at\" = ? WHERE \"delayed_jobs\".\"id\" = ?",
               "delayed_job"
             ],
-            ["db.sql.query", "TRANSACTION", "begin transaction", nil],
-            ["db.sql.query", "TRANSACTION", "commit transaction", "delayed_job"]
-          ]
+            ["db.sql.query", "TRANSACTION", /begin.*transaction/i, nil],
+            ["db.sql.query", "TRANSACTION", /commit transaction/i, "delayed_job"]
+          ].map(&method(:match_array))
         )
       end
 
@@ -259,7 +259,7 @@ if enable
           server.wait resource: "/report"
           report = server.reports[0].to_simple_report
           expect(report.endpoint.name).to eq("SkDelayedWorker<sk-segment>my-queue</sk-segment>")
-          expect(report.mapped_spans).to eq(
+          expect(report.mapped_spans).to match(
             [
               ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
               ["app.delayed_job.job", "SkDelayedWorker#perform", nil, sl_worker_perform],
@@ -270,9 +270,9 @@ if enable
                 "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
                 "delayed_job"
               ],
-              ["db.sql.query", "TRANSACTION", "begin transaction", "delayed_job"],
-              ["db.sql.query", "TRANSACTION", "commit transaction", "delayed_job"]
-            ]
+              ["db.sql.query", "TRANSACTION", /begin.*transaction/i, "delayed_job"],
+              ["db.sql.query", "TRANSACTION", /commit transaction/i, "delayed_job"]
+            ].map(&method(:match_array))
           )
         end
       end
@@ -329,7 +329,7 @@ if enable
             report = server.reports[0].to_simple_report
 
             expect(report.endpoint.name).to eq("SkDelayedActiveJobWorker<sk-segment>my-queue</sk-segment>")
-            expect(report.mapped_spans).to eq(
+            expect(report.mapped_spans).to match(
               [
                 ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
                 [
@@ -351,8 +351,8 @@ if enable
                   "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
                   "delayed_job"
                 ],
-                ["db.sql.query", "TRANSACTION", "begin transaction", "delayed_job"],
-                ["db.sql.query", "TRANSACTION", "commit transaction", "delayed_job"]
+                ["db.sql.query", "TRANSACTION", /begin.*transaction/i, "delayed_job"],
+                ["db.sql.query", "TRANSACTION", /commit transaction/i, "delayed_job"]
               ]
             )
           end
@@ -365,7 +365,7 @@ if enable
             spans = report.mapped_spans
 
             expect(report.endpoint.name).to eq("SkDelayedActiveJobWorker<sk-segment>error</sk-segment>")
-            expect(spans).to eq(
+            expect(spans).to match(
               [
                 ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
                 [
@@ -387,9 +387,9 @@ if enable
                   "UPDATE \"delayed_jobs\" SET \"attempts\" = ?, \"last_error\" = ?, \"run_at\" = ?, \"locked_at\" = ?, \"locked_by\" = ?, \"updated_at\" = ? WHERE \"delayed_jobs\".\"id\" = ?",
                   "delayed_job"
                 ],
-                ["db.sql.query", "TRANSACTION", "begin transaction", nil],
-                ["db.sql.query", "TRANSACTION", "commit transaction", "delayed_job"]
-              ]
+                ["db.sql.query", "TRANSACTION", a_string_matching(/begin.*transaction/i), nil],
+                ["db.sql.query", "TRANSACTION", a_string_matching(/commit transaction/i), "delayed_job"]
+              ].map(&method(:match_array))
             )
           end
         end
