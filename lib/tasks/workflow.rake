@@ -64,10 +64,6 @@ module CITasks
       allow: [{ "dependency-name": "graphql" }],
       ignore: [{ "dependency-name": "graphql", versions: [">= 2.0.18"] }]
     },
-    "mongoid-6.x" => {
-      allow: [{ "dependency-name": "mongoid" }],
-      ignore: [{ "dependency-name": "mongoid", versions: [">= 7"] }]
-    },
     "mongoid-7.x" => {
       allow: [{ "dependency-name": "mongoid" }, { "dependency-name": "mongo" }]
       # We don't limit this so that we're aware when new versions are released
@@ -120,9 +116,9 @@ module CITasks
     },
     # Oldest mongoid we support
     {
-      name: "mongoid-6",
+      name: "mongoid-7",
       ruby_version: OLDEST_RUBY,
-      gemfile: "mongoid-6.x",
+      gemfile: "mongoid-7.x",
       services: mongo,
       env: {
         TEST_MONGO_INTEGRATION: "true",
