@@ -11,8 +11,12 @@ rescue LoadError
 end
 
 if enable
-  def test_interpreter_schema?
-    defined?(GraphQL::Execution::Interpreter)
+  def graphql_2_5?
+    GraphQL::VERSION >= Gem::Version.new("2.5.0")
+  end
+
+  def multiplex_event
+    graphql_2_5? ? "graphql.execute" : "graphql.execute_multiplex"
   end
 
   describe "graphql integration" do
@@ -309,21 +313,15 @@ if enable
           call env("/", method: :POST, params: { query: query, variables: variables, **params })
         end
 
-        # Handles expected analysis events for legacy style (GraphQL 1.9.x)
-        # and new interpreter style (GraphQL >= 1.9.x when using GraphQL::Execution::Interpreter).
         def expected_analysis_events(query_count = 1)
-          events = [%w[app.graphql graphql.lex], %w[app.graphql graphql.parse], %w[app.graphql graphql.validate]].freeze
+          events = graphql_2_5? ? [] : [%w[app.graphql graphql.lex]]
+          events |= [
+            %w[app.graphql graphql.parse], 
+            %w[app.graphql graphql.validate],
+            %w[app.graphql graphql.analyze_query]
+          ]
 
-          analyze_event = %w[app.graphql graphql.analyze_query]
-          event_style = expectation_event_style
-          case event_style
-          when :grouped
-            events.cycle(query_count).to_a.tap { |a| a.concat([analyze_event].cycle(query_count).to_a) }
-          when :inline
-            [*events, analyze_event].cycle(query_count)
-          else
-            raise "Unexpected expectation_event_style: #{event_style}"
-          end.to_a
+          events.cycle(query_count).to_a
         end
 
         let(:query_inner) { "#{TestApp.format_field_name("someDragonflies")} { name }" }
@@ -349,7 +347,7 @@ if enable
             expect(data).to eq(
               [
                 ["app.rack.request", nil],
-                %w[app.graphql graphql.execute_multiplex],
+                ["app.graphql", multiplex_event],
                 *expected_analysis_events,
                 ["app.graphql", "graphql.execute_query: #{query_name}"],
                 ["app.graphql", "graphql.execute_query_lazy: #{query_name}"]
@@ -377,7 +375,7 @@ if enable
             expect(data).to eq(
               [
                 ["app.rack.request", nil],
-                %w[app.graphql graphql.execute_multiplex],
+                ["app.graphql", multiplex_event],
                 *expected_analysis_events,
                 ["app.graphql", "graphql.execute_query: #{query_name}"],
                 ["db.sql.query", "SELECT FROM species"],
@@ -414,7 +412,7 @@ if enable
             expect(data).to eq(
               [
                 ["app.rack.request", nil],
-                %w[app.graphql graphql.execute_multiplex],
+                ["app.graphql", multiplex_event],
                 *expected_analysis_events,
                 ["app.graphql", "graphql.execute_query: #{query_name}"],
                 ["db.sql.query", "SELECT FROM species"],
@@ -448,7 +446,7 @@ if enable
             expect(data).to eq(
               [
                 ["app.rack.request", nil],
-                %w[app.graphql graphql.execute_multiplex],
+                ["app.graphql", multiplex_event],
                 *expected_analysis_events(3),
                 ["app.graphql", "graphql.execute_query: #{query_name}"],
                 ["app.graphql", "graphql.execute_query: #{query_name}"],
@@ -479,7 +477,7 @@ if enable
             expect(data).to eq(
               [
                 ["app.rack.request", nil],
-                %w[app.graphql graphql.execute_multiplex],
+                ["app.graphql", multiplex_event],
                 *expected_analysis_events(3),
                 *%w[query-0 query-1 query-2]
                   .map do |qn|
@@ -518,7 +516,7 @@ if enable
             expect(data).to eq(
               [
                 ["app.rack.request", nil],
-                %w[app.graphql graphql.execute_multiplex],
+                ["app.graphql", multiplex_event],
                 *expected_analysis_events(4),
                 ["app.graphql", "graphql.execute_query: #{query_name}"],
                 ["app.graphql", "graphql.execute_query: #{query_name}"],
@@ -557,7 +555,7 @@ if enable
             expect(data).to eq(
               [
                 ["app.rack.request", nil],
-                %w[app.graphql graphql.execute_multiplex],
+                ["app.graphql", multiplex_event],
                 *expected_analysis_events(2),
                 ["app.graphql", "graphql.execute_query: myFavoriteDragonflies"],
                 ["db.sql.query", "SELECT FROM species"],
@@ -595,7 +593,7 @@ if enable
             expect(data).to eq(
               [
                 ["app.rack.request", nil],
-                %w[app.graphql graphql.execute_multiplex],
+                ["app.graphql", multiplex_event],
                 *expected_analysis_events(2)[0..-2],
                 ["app.graphql", "graphql.execute_query: myFavoriteDragonflies"],
                 ["db.sql.query", "SELECT FROM species"],
@@ -630,7 +628,7 @@ if enable
             expect(data).to eq(
               [
                 ["app.rack.request", nil],
-                %w[app.graphql graphql.execute_multiplex],
+                ["app.graphql", multiplex_event],
                 *expected_analysis_events(2).reject { |_, e| e["graphql.analyze"] },
                 %w[app.graphql graphql.execute_query_lazy.multiplex]
               ]
@@ -672,7 +670,7 @@ if enable
             expect(data).to eq(
               [
                 ["app.rack.request", nil],
-                %w[app.graphql graphql.execute_multiplex],
+                ["app.graphql", multiplex_event],
                 *expected_analysis_events,
                 ["app.graphql", "graphql.execute_query: #{mutation_name}"],
                 ["db.sql.query", "SELECT FROM genera"],
@@ -688,14 +686,7 @@ if enable
       end
 
       configs = []
-
-      configs << { schema: :InterpreterSchema, expectation_event_style: :inline } if test_interpreter_schema?
-
-      # GraphQL::Execution::Interpreter became the default as of 1.12, so we do not need to
-      # test an additional schema for versions >= 1.12.
-      if Gem::Version.new(GraphQL::VERSION) < Gem::Version.new("1.12")
-        configs << { schema: :TestAppSchema, expectation_event_style: :grouped }
-      end
+      configs << { schema: :InterpreterSchema, expectation_event_style: :inline }
 
       configs.each do |config|
         context config[:schema].to_s do
