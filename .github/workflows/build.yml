@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: fbf13a9527209a8dfc0377db886831ccd0ad8c5dcaafbc02cebaf70007e5fb10
+  CONFIG_DIGEST: 32b11f299f6671a88688aab874aa98b54de801d99727efb140b83fb6e7efcfb0
 'on':
   push:
     branches:
@@ -860,51 +860,6 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-3-4-default
-  ruby-3-1-ams-0-8-x:
-    name: ruby 3.1, ams-0.8.x
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'ams-0.8.x')
-    services:
-      redis:
-        image: redis
-        ports:
-        - 6379:6379
-        options: "--entrypoint redis-server"
-    env:
-      BUNDLE_GEMFILE: gemfiles/ams-0.8.x/Gemfile
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Setup ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.1'
-    - name: Install APT dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -yq sqlite3 libsqlite3-dev
-    - name: Setup cache (bundler)
-      uses: actions/cache@v3
-      with:
-        path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.1-ams-0.8.x-${{ hashFiles('gemfiles/ams-0.8.x/Gemfile.lock')
-          }}"
-        restore-keys: |-
-          ${{ runner.os }}-gems-3.1-ams-0.8.x-
-          ${{ runner.os }}-gems-3.1-
-    - name: bundle install
-      run: "gem install bundler \nbundle install\n"
-    - name: Run tests
-      run: |
-        bundle exec rake workflow:verify[$CONFIG_DIGEST]
-        bundle exec rake
-    - name: Run tests (agent disabled)
-      env:
-        SKYLIGHT_DISABLE_AGENT: 'true'
-      run: bundle exec rake
-    needs:
-    - ruby-3-4-default
   ruby-3-1-ams-0-9-x:
     name: ruby 3.1, ams-0.9.x
     runs-on: ubuntu-latest
@@ -1160,6 +1115,5 @@ jobs:
     - ruby-3-1-grape-1-2-x
     - ruby-3-1-sequel-4
     - ruby-3-4-sequel-5
-    - ruby-3-1-ams-0-8-x
     - ruby-3-1-ams-0-9-x
     - ruby-3-4-ams-0-10-x

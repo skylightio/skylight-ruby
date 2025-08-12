@@ -25,12 +25,6 @@ module CITasks
   end
 
   GEMFILES_UPDATES = {
-    "ams-0.8.x" => {
-      allow: [{ "dependency-name": "active_model_serializers" }],
-      ignore: [
-        { "dependency-name": "active_model_serializers", versions: [">= 0.9"] }
-      ]
-    },
     "ams-0.9.x" => {
       allow: [{ "dependency-name": "active_model_serializers" }],
       ignore: [
@@ -169,7 +163,6 @@ module CITasks
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "grape-edge" },
     { ruby_version: "3.1", gemfile: "sequel-4" },
     { ruby_version: NEWEST_RUBY, gemfile: "sequel-5" },
-    { ruby_version: OLDEST_RUBY, gemfile: "ams-0.8.x" },
     { ruby_version: OLDEST_RUBY, gemfile: "ams-0.9.x" },
     { ruby_version: NEWEST_RUBY, gemfile: "ams-0.10.x" },
     {
