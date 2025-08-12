@@ -176,7 +176,7 @@ module CITasks
       primary = primary.first
 
       (jobs - [primary]).each do |j|
-        needs = (j.config[:needs] || []) #.concat([primary.id])
+        needs = (j.config[:needs] || []).concat([primary.id])
         j.update(needs: needs)
       end
 
