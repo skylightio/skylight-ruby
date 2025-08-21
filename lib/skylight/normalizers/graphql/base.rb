@@ -66,17 +66,11 @@ module Skylight::Normalizers::GraphQL
     # to be used for graphql >= 2.5
     #
     def normalize(trace, name, payload)
-      if payload[:query]
-        _execute_query_normalize(trace, name, payload)
-      else
-        [CAT, "graphql.#{key}", nil]
-      end
+      payload[:query] ? _execute_query_normalize(trace, name, payload) : [CAT, "graphql.#{key}", nil]
     end
 
     def normalize_after(trace, span, name, payload)
-      if payload[:multiplex]
-        _execute_multiplex_normalize_after(trace, span, name, payload)
-      end
+      _execute_multiplex_normalize_after(trace, span, name, payload) if payload[:multiplex]
     end
 
     private
