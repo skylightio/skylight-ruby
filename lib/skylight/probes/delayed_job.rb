@@ -8,21 +8,36 @@ module Skylight
       begin
         require "delayed/plugin"
 
+        UNKNOWN = "<Delayed::Job Unknown>"
+
         class Plugin < ::Delayed::Plugin
           callbacks do |lifecycle|
             lifecycle.around(:perform) { |worker, job, &block| sk_instrument(worker, job, &block) }
-
             lifecycle.after(:error) { |_worker, _job| Skylight.trace&.segment = "error" }
+            lifecycle.after(:failure) { |_worker, _job| Skylight.trace&.segment = "error" }
           end
 
           class << self
             include Skylight::Util::Logging
 
+            # This is called quite early in Delayed::Worker
+            #
+            # Typically, the `:perform` lifecycle hook is called before the
+            # `payload_object` has been deserialized, so we can't name the
+            # trace yet.
+            #
+            # If we call `payload_object` here, we would move the work of
+            # loading the object ahead of where it naturally happens, which
+            # means the database load time won't be instrumented. On the other
+            # hand, should the deserialization fail, we would have moved the
+            # timing of the error as well. Crucially – it would have moved it
+            # outside of the spot where these errors are normally caught and
+            # reported by the worker.
+            #
+            # See https://github.com/skylightio/skylight-ruby/issues/491
             def sk_instrument(_worker, job)
-              endpoint = Skylight::Probes::DelayedJob.handler_name(job)
-
               Skylight.trace(
-                endpoint,
+                UNKNOWN,
                 "app.delayed_job.worker",
                 "Delayed::Worker#run",
                 component: :worker,
@@ -39,15 +54,6 @@ module Skylight
         end
       rescue LoadError
         $stderr.puts "[SKYLIGHT] The delayed_job probe was requested, but Delayed::Plugin was not defined."
-      end
-
-      UNKNOWN = "<Delayed::Job Unknown>"
-
-      def self.handler_name(job)
-        payload_object =
-          job.respond_to?(:payload_object_without_sk) ? job.payload_object_without_sk : job.payload_object
-
-        payload_object_name(payload_object)
       end
 
       def self.payload_object_name(payload_object)
@@ -77,18 +83,27 @@ module Skylight
 
       class InstrumentationProxy < SimpleDelegator
         def perform
-          source_meta = Skylight::Probes::DelayedJob.payload_object_source_meta(__getobj__)
+          if (trace = Skylight.instrumenter&.current_trace)
+            if trace.endpoint == UNKNOWN
+              # At this point, deserialization was, by definition, successful.
+              # So it'd be safe to set the endpoint name based on the payload
+              # object here.
+              trace.endpoint = Skylight::Probes::DelayedJob.payload_object_name(__getobj__)
+            end
 
-          opts = {
-            category: "app.delayed_job.job",
-            title: format_source(*source_meta),
-            meta: {
-              source_location_hint: source_meta
-            },
-            internal: true
-          }
+            source_meta = Skylight::Probes::DelayedJob.payload_object_source_meta(__getobj__)
 
-          Skylight.instrument(opts) { __getobj__.perform }
+            opts = {
+              category: "app.delayed_job.job",
+              title: format_source(*source_meta),
+              meta: {
+                source_location_hint: source_meta
+              },
+              internal: true
+            }
+
+            Skylight.instrument(opts) { __getobj__.perform }
+          end
         end
 
         # Used by Delayed::Backend::Base to determine Job#name

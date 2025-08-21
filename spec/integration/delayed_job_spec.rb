@@ -276,6 +276,88 @@ if enable
           )
         end
       end
+
+      context "with ActiveRecord model" do
+        let(:users_migration) do
+          base = ActiveRecord::Migration
+          base = base::Current if defined?(base::Current)
+
+          Class.new(base) do
+            def self.up
+              create_table :users, force: true do |table|
+                table.string :name, null: false
+                table.timestamps null: true
+              end
+            end
+
+            def self.down
+              drop_table :users
+            end
+          end
+        end
+
+        around do |example|
+          with_sqlite(migration: users_migration) do
+            example.call
+          end
+        end
+
+        before do
+          stub_const("SkDelayedRecord", Class.new(ActiveRecord::Base) do
+            self.table_name = "users"
+            
+            def good_method
+              Skylight.instrument(category: "app.zomg") do
+                SpecHelper.clock.skip 1
+              end
+            end
+
+            def self.good_method
+              new.good_method
+            end
+          end)
+        end
+
+        # overrides enqueue_job on the outer context
+        def enqueue_job(_method_name, *, class_method: false)
+          if class_method
+            SkDelayedRecord.delay(queue: "queue-name").good_method
+          else
+            SkDelayedRecord.create!(name: "test-record").tap do |record|
+              record.delay(queue: "queue-name").good_method
+            end
+          end
+        end
+
+        specify "instance method" do
+          enqueue_and_process_job(:good_method)
+
+          server.wait resource: "/report"
+          report = server.reports[0].to_simple_report
+          expect(report.endpoint.name).to eq("SkDelayedRecord#good_method<sk-segment>queue-name</sk-segment>")
+        end
+
+        specify "class method" do
+          enqueue_and_process_job(:good_method, class_method: true)
+
+          server.wait resource: "/report"
+          report = server.reports[0].to_simple_report
+          expect(report.endpoint.name).to eq("SkDelayedRecord.good_method<sk-segment>queue-name</sk-segment>")
+        end
+
+        specify "instance method on a deleted record" do
+          SkDelayedRecord.create!(name: "test-record").tap do |record|
+            record.delay(queue: "queue-name").good_method
+            record.destroy!
+          end
+
+          expect { worker.work_off }.not_to raise_error
+          
+          server.wait resource: "/report"
+          report = server.reports[0].to_simple_report
+          expect(report.endpoint.name).to eq("<Delayed::Job Unknown><sk-segment>error</sk-segment>")
+        end
+      end
     end
 
     def enqueue_job(method_name, *, class_method: false)
