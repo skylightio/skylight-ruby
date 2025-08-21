@@ -12,7 +12,7 @@ end
 
 if enable
   def graphql_2_5?
-    GraphQL::VERSION >= Gem::Version.new("2.5.0")
+    Gem::Version.new("2.5.0") <= GraphQL::VERSION
   end
 
   def multiplex_event

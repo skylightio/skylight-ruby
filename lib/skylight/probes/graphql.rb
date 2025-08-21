@@ -64,7 +64,7 @@ module Skylight
         end
 
         # GraphQL versions >= 2.5 are missing this notification
-        module AnalyzeQueryNotification 
+        module AnalyzeQueryNotification
           def analyze_query(**metadata, &blk)
             if @notifications_engine
               @notifications_engine.instrument("analyze_query.graphql", metadata, &blk)
@@ -76,7 +76,7 @@ module Skylight
             end
           end
         end
-        
+
         module ClassMethods
           def new_trace(*, **)
             unless @__sk_instrumentation_installed
