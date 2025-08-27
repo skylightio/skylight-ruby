@@ -12,11 +12,15 @@ if enable
   module Skylight
     describe "Sidekiq" do
       def server_middleware
-        sidekiq_7? ? ::Sidekiq.default_configuration.server_middleware : ::Sidekiq.server_middleware
+        sidekiq_gte_7? ? ::Sidekiq.default_configuration.server_middleware : ::Sidekiq.server_middleware
       end
 
-      def sidekiq_7?
-        ::Sidekiq::VERSION =~ /\A7/
+      def sidekiq_gte_7?
+        sidekiq_version >= Gem::Version.new("7")
+      end
+
+      def sidekiq_version
+        Gem::Version.new(::Sidekiq::VERSION)
       end
 
       after :each do

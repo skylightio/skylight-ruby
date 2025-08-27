@@ -16,6 +16,7 @@ if defined?(Sinatra)
         "SinatraTest",
         Class.new(::Sinatra::Base) do
           disable :show_exceptions
+          set :host_authorization, { permitted_hosts: [] }
 
           template :hello do
             "Hello from named template"
