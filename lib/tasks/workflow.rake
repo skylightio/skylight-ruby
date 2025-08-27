@@ -147,8 +147,7 @@ module CITasks
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "sinatra-2.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "sinatra-edge" },
     { ruby_version: OLDEST_RUBY, gemfile: "grape-1.x" },
-    { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "grape-1.x" },
-    # Oldest supported grape version. Doesn't support 3.0.
+    { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "grape-2.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "grape-edge" },
     { ruby_version: "3.1", gemfile: "sequel-4" },
     { ruby_version: NEWEST_RUBY, gemfile: "sequel-5" },

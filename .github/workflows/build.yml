@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: ded80c0391f5fdf2954ab0fc646368b60605a3474cc0a719ed96c62e07792a5a
+  CONFIG_DIGEST: 444c64919a840b6bbeded52d4d4bcc6285b3e6e6e0da9e09158aa4d0d87d201d
 'on':
   push:
     branches:
@@ -627,11 +627,11 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-3-4-default
-  ruby-3-4-grape-1-x:
-    name: ruby 3.4, grape-1.x
+  ruby-3-4-grape-2-x:
+    name: ruby 3.4, grape-2.x
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
-      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-1.x')
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-2.x')
       || !contains(github.event.pull_request.labels.*.name, 'dependencies')
     services:
       redis:
@@ -640,7 +640,7 @@ jobs:
         - 6379:6379
         options: "--entrypoint redis-server"
     env:
-      BUNDLE_GEMFILE: gemfiles/grape-1.x/Gemfile
+      BUNDLE_GEMFILE: gemfiles/grape-2.x/Gemfile
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -656,10 +656,10 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "${{ github.workspace }}/vendor/bundle"
-        key: "${{ runner.os }}-gems-3.4-grape-1.x-${{ hashFiles('gemfiles/grape-1.x/Gemfile.lock')
+        key: "${{ runner.os }}-gems-3.4-grape-2.x-${{ hashFiles('gemfiles/grape-2.x/Gemfile.lock')
           }}"
         restore-keys: |-
-          ${{ runner.os }}-gems-3.4-grape-1.x-
+          ${{ runner.os }}-gems-3.4-grape-2.x-
           ${{ runner.os }}-gems-3.4-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
@@ -1060,7 +1060,7 @@ jobs:
     - ruby-3-2-rails-7-2-x
     - ruby-3-4-sinatra-2-x
     - ruby-3-1-grape-1-x
-    - ruby-3-4-grape-1-x
+    - ruby-3-4-grape-2-x
     - ruby-3-1-sequel-4
     - ruby-3-4-sequel-5
     - ruby-3-1-ams-0-9-x
