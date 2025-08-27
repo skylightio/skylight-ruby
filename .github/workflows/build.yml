@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: d02685daad5f72653e1a4cb618d0e01ce9c0e801e03a3b76109e0d200e373cca
+  CONFIG_DIGEST: ded80c0391f5fdf2954ab0fc646368b60605a3474cc0a719ed96c62e07792a5a
 'on':
   push:
     branches:
@@ -203,6 +203,51 @@ jobs:
         restore-keys: |-
           ${{ runner.os }}-gems-3.1-sidekiq-5.x-
           ${{ runner.os }}-gems-3.1-
+    - name: bundle install
+      run: "gem install bundler \nbundle install\n"
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    needs:
+    - ruby-3-4-default
+  ruby-3-4-sidekiq-7-x:
+    name: ruby 3.4, sidekiq-7.x
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'sidekiq-7.x')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
+    env:
+      BUNDLE_GEMFILE: gemfiles/sidekiq-7.x/Gemfile
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.4'
+    - name: Install APT dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
+    - name: Setup cache (bundler)
+      uses: actions/cache@v3
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-3.4-sidekiq-7.x-${{ hashFiles('gemfiles/sidekiq-7.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-3.4-sidekiq-7.x-
+          ${{ runner.os }}-gems-3.4-
     - name: bundle install
       run: "gem install bundler \nbundle install\n"
     - name: Run tests
@@ -1008,6 +1053,7 @@ jobs:
     - ruby-3-2-rails-7-1-x-mongo
     - ruby-3-2-elasticsearch-elasticsearch
     - ruby-3-1-sidekiq-5-x
+    - ruby-3-4-sidekiq-7-x
     - ruby-3-2-graphql-2-0-17
     - ruby-3-1-rails-7-1-x
     - ruby-3-2-rails-7-1-x
