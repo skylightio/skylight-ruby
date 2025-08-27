@@ -4,5 +4,6 @@ gemspec path: "../.."
 
 gem "sinatra", "~> 2"
 
+ENV['SIDEKIQ_VERSION'] = "~> 7"
 # Test additional libraries with oldest and newest versions of Sintra
 eval_gemfile "../Gemfile.additional"
