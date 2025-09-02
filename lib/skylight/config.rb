@@ -19,6 +19,10 @@ module Skylight
     # @api private
     MUTEX = Mutex.new
 
+    DEFAULT_IGNORED_ENDPOINTS = %w[
+      Rails::HealthController#show
+    ].freeze
+
     # Map environment variable keys with Skylight configuration keys
     ENV_TO_KEY = {
       # == Authentication ==
@@ -493,7 +497,7 @@ module Skylight
 
           val = Array(get(:ignored_endpoint))
           val.concat(Array(ignored_endpoints))
-          val
+          val | DEFAULT_IGNORED_ENDPOINTS
         end
     end
 
