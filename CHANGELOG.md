@@ -1,9 +1,11 @@
-## 7.0.0.beta (July 31, 2025)
+## 7.0.0.beta (September 3, 2025)
 
 - IMPROVEMENT Initial support for AWS Lambda
 - BREAKING end support for Ruby 2.7 and 3.0
 - BREAKING end support for Rails < 7.1
 - BUGFIX Fix an issue handling deserialization errors in Delayed::Job
+- IMPROVEMENT Support GraphQL >= 2.5
+- IMPROVEMENT Ignore `Rails::HealthController` by default
 
 ## 6.1.0.beta (June 11, 2024)
 
