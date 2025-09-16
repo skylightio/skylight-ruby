@@ -1,6 +1,6 @@
-## 7.0.0.beta (September 3, 2025)
+## 7.0.0 (September 16, 2025)
 
-- IMPROVEMENT Initial support for AWS Lambda
+- IMPROVEMENT Initial (beta) support for AWS Lambda
 - BREAKING end support for Ruby 2.7 and 3.0
 - BREAKING end support for Rails < 7.1
 - BUGFIX Fix an issue handling deserialization errors in Delayed::Job
