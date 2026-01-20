@@ -40,13 +40,49 @@ module Skylight
           123,
           "foo",
           "bar",
-          use_ssl: true
+          use_ssl: true,
+          cert_store: an_instance_of(OpenSSL::X509::Store),
+          verify_mode: OpenSSL::SSL::VERIFY_PEER
         ).and_return([:success, checksum])
 
         ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
         expect(ret).to eq(true)
       ensure
         ENV["HTTP_PROXY"] = original_proxy
+      end
+
+      it "configures SSL cert store without CRL checking" do
+        stub_ext_request
+
+        cert_store = instance_double(OpenSSL::X509::Store)
+        expect(OpenSSL::X509::Store).to receive(:new).and_return(cert_store)
+        expect(cert_store).to receive(:set_default_paths)
+        expect(cert_store).to receive(:add_file).with(Skylight::Util::SSL.ca_cert_file_or_default)
+
+        ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
+        expect(ret).to eq(true)
+      end
+
+      it "falls back to defaults when cert store setup fails" do
+        stub_ext_request
+
+        cert_store = instance_double(OpenSSL::X509::Store)
+        expect(OpenSSL::X509::Store).to receive(:new).and_return(cert_store)
+        expect(cert_store).to receive(:set_default_paths).and_raise(OpenSSL::X509::StoreError, "test error")
+
+        expect(Net::HTTP).to receive(:start).with(
+          "s3.amazonaws.com",
+          443,
+          nil,
+          nil,
+          nil,
+          nil,
+          use_ssl: true,
+          verify_mode: OpenSSL::SSL::VERIFY_PEER
+        ).and_call_original
+
+        ret = fetch version: "1.0.0", target: @target, arch: "linux-x86_64", checksum: checksum
+        expect(ret).to eq(true)
       end
 
       it "follows redirects" do
