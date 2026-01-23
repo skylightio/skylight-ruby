@@ -20,20 +20,20 @@ updates:
     time: '13:00'
   open-pull-requests-limit: 10
 - package-ecosystem: bundler
-  directory: gemfiles/rails-7.1.x
+  directory: gemfiles/rails-7.2.x
   schedule:
     interval: weekly
     time: '13:00'
   labels:
   - dependencies
-  - rails-7.1.x
+  - rails-7.2.x
   open-pull-requests-limit: 10
   allow:
   - dependency-name: rails
   ignore:
   - dependency-name: rails
     versions:
-    - ">= 7.2"
+    - ">= 7.3"
 - package-ecosystem: bundler
   directory: gemfiles/elasticsearch
   schedule:
@@ -91,21 +91,6 @@ updates:
     versions:
     - ">= 2.0.18"
 - package-ecosystem: bundler
-  directory: gemfiles/rails-7.2.x
-  schedule:
-    interval: weekly
-    time: '13:00'
-  labels:
-  - dependencies
-  - rails-7.2.x
-  open-pull-requests-limit: 10
-  allow:
-  - dependency-name: rails
-  ignore:
-    dependency-name: rails
-    versions:
-    - ">= 7.3"
-- package-ecosystem: bundler
   directory: gemfiles/rails-8.0.x
   schedule:
     interval: weekly
@@ -117,7 +102,7 @@ updates:
   allow:
   - dependency-name: rails
   ignore:
-    dependency-name: rails
+  - dependency-name: rails
     versions:
     - ">= 8.1"
 - package-ecosystem: bundler
@@ -154,17 +139,6 @@ updates:
   allow:
   - dependency-name: sinatra
 - package-ecosystem: bundler
-  directory: gemfiles/grape-1.x
-  schedule:
-    interval: weekly
-    time: '13:00'
-  labels:
-  - dependencies
-  - grape-1.x
-  open-pull-requests-limit: 10
-  allow:
-  - dependency-name: grape
-- package-ecosystem: bundler
   directory: gemfiles/grape-2.x
   schedule:
     interval: weekly
@@ -173,6 +147,17 @@ updates:
   - dependencies
   - grape-2.x
   open-pull-requests-limit: 10
+- package-ecosystem: bundler
+  directory: gemfiles/grape-3.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - grape-3.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: grape
 - package-ecosystem: bundler
   directory: gemfiles/grape-edge
   schedule:
