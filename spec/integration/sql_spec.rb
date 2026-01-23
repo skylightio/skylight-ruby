@@ -13,6 +13,46 @@ if enable
     ActiveRecord::VERSION::MAJOR >= 8
   end
 
+  # Rails 8.2+ uses QueryIntent instead of storing state directly on FutureResult
+  def query_intent?
+    defined?(ActiveRecord::ConnectionAdapters::QueryIntent)
+  end
+
+  def ran_async?(future_result)
+    if (intent = future_result.instance_variable_get(:@intent))
+      # Rails 8.2+ stores state in QueryIntent
+      intent.ran_async
+    else
+      !future_result.instance_variable_get(:@event_buffer).nil?
+    end
+  end
+
+  # Block all async executor threads to force synchronous execution.
+  # Returns a proc that unblocks the threads when called.
+  def block_async_executor
+    mutex = Mutex.new
+    cv = ConditionVariable.new
+    blocked = true
+
+    executor = ActiveRecord.global_thread_pool_async_query_executor
+    max_threads = executor.max_length
+
+    max_threads.times do
+      executor.post do
+        mutex.synchronize { cv.wait(mutex) while blocked }
+      end
+    end
+
+    sleep 0.1
+
+    -> {
+      mutex.synchronize do
+        blocked = false
+        cv.broadcast
+      end
+    }
+  end
+
   describe "SQL partial integration", :http, :agent do
     before :each do
       start!
@@ -191,15 +231,14 @@ if enable
     end
 
     it "works for load_async when running async" do
-      # This is a very imperfect way to check that we're actually executing this async
-      expect_any_instance_of(ActiveRecord::FutureResult::EventBuffer).to(
-        receive(:instrument).at_least(:once).and_call_original)
-
-      users = User.all.load_async
+      relation = User.all.load_async
+      future_result = relation.instance_variable_get(:@future_result)
 
       # This sleep before the `to_a` ensures that it happens async
       sleep 1
-      users.to_a
+      relation.to_a
+
+      expect(ran_async?(future_result)).to be(true)
 
       current_trace.submit
 
@@ -223,10 +262,17 @@ if enable
     end
 
     it "works for load_async when not actually async" do
-      # This is a very imperfect way to check that we're not executing this async
-      expect_any_instance_of(ActiveRecord::FutureResult::EventBuffer).not_to receive(:instrument)
+      unblock = block_async_executor
 
-      User.all.load_async.to_a
+      begin
+        relation = User.all.load_async
+        future_result = relation.instance_variable_get(:@future_result)
+        relation.load.to_a
+
+        expect(ran_async?(future_result)).to be(false)
+      ensure
+        unblock.call
+      end
 
       current_trace.submit
 
@@ -250,8 +296,21 @@ if enable
     end
 
     it "works for load_async with errors" do
+      # The method to stub varies by Rails version:
+      # - Rails 7.x: internal_exec_query
+      # - Rails 8.0-8.1: raw_execute
+      # - Rails 8.2+: perform_query
+      method_to_stub =
+        if query_intent?
+          :perform_query
+        elsif rails_8?
+          :raw_execute
+        else
+          :internal_exec_query
+        end
+
       allow_any_instance_of(ActiveRecord::ConnectionAdapters::SQLite3Adapter).to receive(
-        rails_8? ? :raw_execute : :internal_exec_query
+        method_to_stub
       ).and_raise("AAAHHH")
 
       users = User.all.load_async
@@ -272,7 +331,13 @@ if enable
 
       query_span = trace.spans.find { |s| s.event.category == "db.sql.query" }
 
-      expect(query_span).to be_nil, "did not create a query span"
+      # In Rails 8.2+, events are recorded even when queries fail (with exception info in payload).
+      # In earlier versions, no event was recorded on error.
+      if query_intent?
+        expect(query_span).to_not be_nil, "created a query span (Rails 8.2+ records events even on error)"
+      else
+        expect(query_span).to be_nil, "did not create a query span"
+      end
     end
 
     context "without executor" do
