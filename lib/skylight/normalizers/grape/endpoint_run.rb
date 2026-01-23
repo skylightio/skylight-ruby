@@ -31,7 +31,12 @@ module Skylight
           ep = endpoint.options[:for]
           return ep.name if ep.name
 
-          ep.base.name if ep.respond_to?(:base) && ep.base.respond_to?(:name)
+          if ep.respond_to?(:base) && ep.base.respond_to?(:name)
+            ep.base.name
+          elsif ep.respond_to?(:to_s)
+            # grape >= 3.1 removes the `base` attr_reader but delegates to_s to :@base
+            ep.to_s
+          end
         end
       end
     end
