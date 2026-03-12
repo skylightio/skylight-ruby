@@ -1,3 +1,8 @@
+## 7.1.0 (January 20, 2025)
+- BREAKING end support for Rails < 7.2.
+- IMPROVEMENT better support for Grape 3.x
+- IMPROVEMENT better ActiveRecord instrumentation for async queries in Rails 8.2
+
 ## 7.0.0 (September 16, 2025)
 
 - IMPROVEMENT Initial (beta) support for AWS Lambda

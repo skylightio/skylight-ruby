@@ -6,8 +6,8 @@ require "active_support/inflector"
 require "digest"
 
 OLDEST_RUBY = "3.1"
-NEWEST_RUBY = "3.4"
-HEAD_RUBY = "3.5"
+NEWEST_RUBY = "4.0"
+HEAD_RUBY = "4.1"
 
 module CITasks
   def self.mongo
@@ -39,7 +39,7 @@ module CITasks
       allow: [{ "dependency-name": "elasticsearch" }]
       # We don't limit this so that we're aware when new versions are released
     },
-    "grape-1.x" => {
+    "grape-3.x" => {
       allow: [{ "dependency-name": "grape" }]
       # We don't limit this so that we're aware when new versions are released
     },
@@ -50,15 +50,13 @@ module CITasks
       allow: [{ "dependency-name": "graphql" }],
       ignore: [{ "dependency-name": "graphql", versions: [">= 2.0.18"] }]
     },
-    "rails-7.1.x" => {
-      allow: [{ "dependency-name": "rails" }],
-      ignore: [
-        { "dependency-name": "rails", versions: [">= 7.2"] },
-      ]
-    },
     "rails-7.2.x" => {
       allow: [{ "dependency-name": "rails" }],
-      ignore: { "dependency-name": "rails", versions: [">= 7.3"] },
+      ignore: [{ "dependency-name": "rails", versions: [">= 7.3"] }],
+    },
+    "rails-8.0.x" => {
+      allow: [{ "dependency-name": "rails" }],
+      ignore: [{ "dependency-name": "rails", versions: [">= 8.1"] }],
     },
     "rails-edge" => {
       allow: [{ "dependency-name": "rails" }]
@@ -88,6 +86,8 @@ module CITasks
     }
   }.freeze
 
+  SIDEKIQ_7 = { SIDEKIQ_VERSION: "~> 7.0" }.freeze
+
   # FIXME: hash this config and compare in the job
   TEST_JOBS = [
     # Mongo gem with latest mongoid
@@ -95,7 +95,7 @@ module CITasks
     {
       name: "mongo",
       ruby_version: "3.2",
-      gemfile: "rails-7.1.x",
+      gemfile: "rails-7.2.x",
       services: mongo,
       env: {
         TEST_MONGO_INTEGRATION: "true",
@@ -132,9 +132,10 @@ module CITasks
 
     # Latest version of graphql with legacy instrumentation
     { ruby_version: "3.2", gemfile: "graphql-2.0.17" },
-    { gemfile: "rails-7.1.x", ruby_version: OLDEST_RUBY, always_run: true },
-    { always_run: true, ruby_version: "3.2", gemfile: "rails-7.1.x" },
+    { gemfile: "rails-7.2.x", ruby_version: OLDEST_RUBY, always_run: true, env: SIDEKIQ_7 },
     { always_run: true, ruby_version: "3.2", gemfile: "rails-7.2.x" },
+    { ruby_version: "3.3", gemfile: "rails-7.2.x" },
+    { ruby_version: "3.4", gemfile: "rails-8.0.x" },
     {
       ruby_version: NEWEST_RUBY,
       allow_failure: true,
@@ -146,12 +147,13 @@ module CITasks
     },
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "sinatra-2.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "sinatra-edge" },
-    { ruby_version: OLDEST_RUBY, gemfile: "grape-1.x" },
+    { ruby_version: OLDEST_RUBY, gemfile: "grape-2.x", env: SIDEKIQ_7 },
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "grape-2.x" },
+    { ruby_version: NEWEST_RUBY, gemfile: "grape-3.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "grape-edge" },
     { ruby_version: "3.1", gemfile: "sequel-4" },
     { ruby_version: NEWEST_RUBY, gemfile: "sequel-5" },
-    { ruby_version: OLDEST_RUBY, gemfile: "ams-0.9.x" },
+    { ruby_version: OLDEST_RUBY, gemfile: "ams-0.9.x", env: SIDEKIQ_7 },
     { ruby_version: NEWEST_RUBY, gemfile: "ams-0.10.x" },
     {
       gemfile: "default",
@@ -489,7 +491,7 @@ module CITasks
       end
 
       def gemfile
-        "rails-7.1.x"
+        "rails-7.2.x"
       end
 
       def to_template_hash
@@ -506,6 +508,10 @@ module CITasks
           run_syntax_tree_step,
           run_rubocop_step
         ].flatten.compact
+      end
+
+      def env
+        super.merge(SIDEKIQ_7)
       end
 
       private

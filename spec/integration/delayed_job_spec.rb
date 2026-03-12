@@ -237,8 +237,8 @@ if enable
             ["app.delayed_job.job", "SkDelayedObject#bad_method", nil, sl_bad_method],
             ["app.zomg", nil, nil, sl_good_method_inner],
             [
-              "db.sql.query", 
-              "UPDATE delayed_jobs", 
+              "db.sql.query",
+              "UPDATE delayed_jobs",
               "UPDATE \"delayed_jobs\" SET \"attempts\" = ?, \"last_error\" = ?, \"run_at\" = ?, \"locked_at\" = ?, \"locked_by\" = ?, \"updated_at\" = ? WHERE \"delayed_jobs\".\"id\" = ?",
               "delayed_job"
             ],
@@ -305,7 +305,7 @@ if enable
         before do
           stub_const("SkDelayedRecord", Class.new(ActiveRecord::Base) do
             self.table_name = "users"
-            
+
             def good_method
               Skylight.instrument(category: "app.zomg") do
                 SpecHelper.clock.skip 1
@@ -352,7 +352,7 @@ if enable
           end
 
           expect { worker.work_off }.not_to raise_error
-          
+
           server.wait resource: "/report"
           report = server.reports[0].to_simple_report
           expect(report.endpoint.name).to eq("<Delayed::Job Unknown><sk-segment>error</sk-segment>")
@@ -399,6 +399,16 @@ if enable
           SkDelayedActiveJobWorker.perform_later(*args.map(&:to_s))
         end
 
+
+        # NOTE: Rails is moving toward standardizing SolidQueue as the default adapter,
+        # and removing most third-party ActiveJob adapters from their codebase.
+        # See https://github.com/rails/rails/issues/52929. As a result,
+        # the source location attribution for the adapters may change between Rails versions
+        # or delayed_job versions, but should still always be 'delayed_job' or 'activejob'.
+        def source_location_matcher
+          a_string_matching(/\A(delayed_job|activejob)\z/)
+        end
+
         context "both probes installed" do
           def probes
             %w[active_job delayed_job]
@@ -413,12 +423,12 @@ if enable
             expect(report.endpoint.name).to eq("SkDelayedActiveJobWorker<sk-segment>my-queue</sk-segment>")
             expect(report.mapped_spans).to match(
               [
-                ["app.delayed_job.worker", "Delayed::Worker#run", nil, "delayed_job"],
+                ["app.delayed_job.worker", "Delayed::Worker#run", nil, source_location_matcher],
                 [
                   "app.delayed_job.job",
                   "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform",
                   nil,
-                  "activejob"
+                  source_location_matcher
                 ],
                 [
                   "app.job.perform",
@@ -431,10 +441,10 @@ if enable
                   "db.sql.query",
                   "DELETE FROM delayed_jobs",
                   "DELETE FROM \"delayed_jobs\" WHERE \"delayed_jobs\".\"id\" = ?",
-                  "delayed_job"
+                  source_location_matcher
                 ],
-                ["db.sql.query", "TRANSACTION", /begin.*transaction/i, "delayed_job"],
-                ["db.sql.query", "TRANSACTION", /commit transaction/i, "delayed_job"]
+                ["db.sql.query", "TRANSACTION", /begin.*transaction/i, source_location_matcher],
+                ["db.sql.query", "TRANSACTION", /commit transaction/i, source_location_matcher]
               ]
             )
           end
@@ -454,7 +464,7 @@ if enable
                   "app.delayed_job.job",
                   "ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper#perform",
                   nil,
-                  "activejob"
+                  source_location_matcher
                 ],
                 [
                   "app.job.perform",
@@ -467,10 +477,10 @@ if enable
                   "db.sql.query",
                   "UPDATE delayed_jobs",
                   "UPDATE \"delayed_jobs\" SET \"attempts\" = ?, \"last_error\" = ?, \"run_at\" = ?, \"locked_at\" = ?, \"locked_by\" = ?, \"updated_at\" = ? WHERE \"delayed_jobs\".\"id\" = ?",
-                  "delayed_job"
+                  source_location_matcher
                 ],
                 ["db.sql.query", "TRANSACTION", a_string_matching(/begin.*transaction/i), nil],
-                ["db.sql.query", "TRANSACTION", a_string_matching(/commit transaction/i), "delayed_job"]
+                ["db.sql.query", "TRANSACTION", a_string_matching(/commit transaction/i), source_location_matcher]
               ].map(&method(:match_array))
             )
           end

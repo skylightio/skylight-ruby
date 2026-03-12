@@ -148,12 +148,25 @@ module Skylight
         p_user, p_pass = uri.userinfo.split(/:/) if uri.userinfo
       end
 
-      opts = {}
-      opts[:use_ssl] = use_ssl
+      opts = { use_ssl: use_ssl }
 
-      opts[:ca_file] = Util::SSL.ca_cert_file_or_default if use_ssl
+      if use_ssl
+        # Create a cert store that doesn't enable CRL checking.
+        # OpenSSL 3.x may enable CRL checking by default, which fails when
+        # the CRL distribution point is unreachable.
+        begin
+          cert_store = OpenSSL::X509::Store.new
+          cert_store.set_default_paths
+          ca_file = Util::SSL.ca_cert_file_or_default
+          cert_store.add_file(ca_file) if ca_file && File.exist?(ca_file)
+          opts[:cert_store] = cert_store
+        rescue OpenSSL::X509::StoreError => e
+          log "failed to configure cert store: #{e.message}, using defaults"
+        end
+        opts[:verify_mode] = OpenSSL::SSL::VERIFY_PEER
+      end
 
-      Net::HTTP.start(host, port, p_host, p_port, p_user, p_pass, use_ssl: use_ssl) do |http|
+      Net::HTTP.start(host, port, p_host, p_port, p_user, p_pass, **opts) do |http|
         http.request_get path do |resp|
           case resp
           when Net::HTTPSuccess

@@ -3,6 +3,7 @@ require "skylight/instrumenter"
 
 enable = false
 begin
+  require "action_controller" # graphql needs this but does not require it; load order matters on ruby 4.0
   require "graphql"
   require "active_record"
   enable = true
@@ -316,7 +317,7 @@ if enable
         def expected_analysis_events(query_count = 1)
           events = graphql_2_5? ? [] : [%w[app.graphql graphql.lex]]
           events |= [
-            %w[app.graphql graphql.parse], 
+            %w[app.graphql graphql.parse],
             %w[app.graphql graphql.validate],
             %w[app.graphql graphql.analyze_query]
           ]

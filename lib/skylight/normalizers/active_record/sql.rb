@@ -12,7 +12,7 @@ module Skylight
         register "future_result.active_record"
 
         def normalize(_trace, _name, payload)
-          ["db.future_result", "Async #{payload[:args][1] || "Query"}"]
+          ["db.future_result", "Async #{payload[:name] || "Query"}"]
         end
       end
     end

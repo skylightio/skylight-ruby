@@ -21,8 +21,7 @@
 
 #define CHECK_NUMERIC(VAL)                        \
   do {                                            \
-    if (TYPE(VAL) != T_BIGNUM &&                  \
-        TYPE(VAL) != T_FIXNUM) {                  \
+    if (!RB_INTEGER_TYPE_P(VAL)) {                \
       rb_raise(rb_eArgError, "expected " #VAL " to be numeric but was '%s' (%s [%i])", \
                 TO_S(VAL), rb_obj_classname(VAL), TYPE(VAL)); \
       return Qnil;                                \
