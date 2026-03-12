@@ -4,7 +4,7 @@ gemspec
 
 ruby ">= 2.7"
 
-gem "grape", "~> 2.2.0"
+gem "grape", "~> 3.1.1"
 gem "rails", "~> 8.1.0"
 gem "sinatra", "~> 4"
 
