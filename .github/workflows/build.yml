@@ -37,7 +37,7 @@ jobs:
         options: "--entrypoint redis-server"
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -85,7 +85,7 @@ jobs:
       MONGO_HOST: localhost
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -140,7 +140,7 @@ jobs:
       TEST_ELASTICSEARCH_INTEGRATION: 'true'
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -185,7 +185,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/sidekiq-5.x/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -230,7 +230,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/sidekiq-7.x/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -275,7 +275,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/graphql-2.0.17/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -322,7 +322,7 @@ jobs:
       SIDEKIQ_VERSION: "~> 7.0"
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -368,7 +368,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/rails-7.2.x/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -413,7 +413,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/rails-7.2.x/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -458,7 +458,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/rails-8.0.x/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -505,7 +505,7 @@ jobs:
       RAILS_EDGE: true
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -551,7 +551,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/sinatra-2.x/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -597,7 +597,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/sinatra-edge/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -643,7 +643,7 @@ jobs:
       SIDEKIQ_VERSION: "~> 7.0"
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -689,7 +689,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/grape-2.x/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -734,7 +734,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/grape-3.x/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -780,7 +780,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/grape-edge/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -825,7 +825,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/sequel-4/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -870,7 +870,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/sequel-5/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -916,7 +916,7 @@ jobs:
       SIDEKIQ_VERSION: "~> 7.0"
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -961,7 +961,7 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/ams-0.10.x/Gemfile
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -1005,7 +1005,7 @@ jobs:
         options: "--entrypoint redis-server"
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -1053,7 +1053,7 @@ jobs:
       RAILS_EDGE: true
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -1100,7 +1100,7 @@ jobs:
       SIDEKIQ_VERSION: "~> 7.0"
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
