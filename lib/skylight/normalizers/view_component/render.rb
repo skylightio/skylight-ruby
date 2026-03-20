@@ -7,10 +7,13 @@ module Skylight
         CAT = "view.render.component".freeze
 
         def normalize(_trace, _name, payload)
-          title = payload[:name]
-          meta = {}
-          meta[:source_file] = payload[:identifier] if payload[:identifier]
-          [CAT, title, nil, meta]
+          [CAT, payload[:name], nil]
+        end
+
+        private
+
+        def process_meta_options(payload)
+          super.merge(source_location_hint: [:instance_method, payload[:name], "call"])
         end
       end
     end
