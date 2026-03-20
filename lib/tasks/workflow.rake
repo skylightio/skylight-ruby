@@ -87,6 +87,7 @@ module CITasks
   }.freeze
 
   SIDEKIQ_7 = { SIDEKIQ_VERSION: "~> 7.0" }.freeze
+  VIEW_COMPONENT_3 = { VIEW_COMPONENT_VERSION: "~> 3.0" }.freeze
 
   # FIXME: hash this config and compare in the job
   TEST_JOBS = [
@@ -132,9 +133,9 @@ module CITasks
 
     # Latest version of graphql with legacy instrumentation
     { ruby_version: "3.2", gemfile: "graphql-2.0.17" },
-    { gemfile: "rails-7.2.x", ruby_version: OLDEST_RUBY, always_run: true, env: SIDEKIQ_7 },
-    { always_run: true, ruby_version: "3.2", gemfile: "rails-7.2.x" },
-    { ruby_version: "3.3", gemfile: "rails-7.2.x" },
+    { gemfile: "rails-7.2.x", ruby_version: OLDEST_RUBY, always_run: true, env: SIDEKIQ_7.merge(VIEW_COMPONENT_3) },
+    { always_run: true, ruby_version: "3.2", gemfile: "rails-7.2.x", env: VIEW_COMPONENT_3 },
+    { ruby_version: "3.3", gemfile: "rails-7.2.x", env: VIEW_COMPONENT_3 },
     { ruby_version: "3.4", gemfile: "rails-8.0.x" },
     {
       ruby_version: NEWEST_RUBY,

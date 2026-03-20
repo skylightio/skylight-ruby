@@ -153,6 +153,7 @@ module Skylight
       graphql/base
       sequel/sql
       shrine
+      view_component/render
     ].each { |file| require "skylight/normalizers/#{file}" }
   end
 end

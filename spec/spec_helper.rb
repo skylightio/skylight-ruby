@@ -71,6 +71,7 @@ enable_probe(:action_view, %w[action_dispatch action_view])
 enable_probe(:"action_dispatch/request_id", "action_dispatch/middleware/request_id")
 enable_probe(%i[active_job active_job_enqueue], "active_job")
 enable_probe(:active_record_async, %w[active_record active_record/future_result])
+enable_probe(:view_component, %w[view_component])
 
 if ENV["TEST_MONGO_INTEGRATION"]
   enable_probe("mongo")
@@ -105,6 +106,7 @@ all_probes = %i[
   middleware
   active_job
   active_record_async
+  view_component
 ]
 
 # Check probes that could be installed but don't actually install them

@@ -1,5 +1,7 @@
 # Ignore the temporary directory
 tmp
+/docs/*
+CLAUDE.md
 
 # Ignore logs
 /log/

@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: cf1fda79f653e692b4c53f30202916db834b74f98e85838c7ea99b3d0e33cbb2
+  CONFIG_DIGEST: 365e9dab966cbb81532c8f8d22ef038e07cac401eaf6cfe8fa90f691f2c4d73e
 'on':
   push:
     branches:
@@ -305,8 +305,9 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-4-0-default
-  ruby-3-1-rails-7-2-x-sidekiq_version-7-0:
-    name: ruby 3.1, rails-7.2.x, SIDEKIQ_VERSION=~> 7.0
+  ruby-3-1-rails-7-2-x-sidekiq_version-7-0-view_component_version-3-0:
+    name: ruby 3.1, rails-7.2.x, SIDEKIQ_VERSION=~> 7.0 VIEW_COMPONENT_VERSION=~>
+      3.0
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-7.2.x')
@@ -320,6 +321,7 @@ jobs:
     env:
       BUNDLE_GEMFILE: gemfiles/rails-7.2.x/Gemfile
       SIDEKIQ_VERSION: "~> 7.0"
+      VIEW_COMPONENT_VERSION: "~> 3.0"
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -352,8 +354,8 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-4-0-default
-  ruby-3-2-rails-7-2-x:
-    name: ruby 3.2, rails-7.2.x
+  ruby-3-2-rails-7-2-x-view_component_version-3-0:
+    name: ruby 3.2, rails-7.2.x, VIEW_COMPONENT_VERSION=~> 3.0
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-7.2.x')
@@ -366,6 +368,7 @@ jobs:
         options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-7.2.x/Gemfile
+      VIEW_COMPONENT_VERSION: "~> 3.0"
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -398,8 +401,8 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-4-0-default
-  ruby-3-3-rails-7-2-x:
-    name: ruby 3.3, rails-7.2.x
+  ruby-3-3-rails-7-2-x-view_component_version-3-0:
+    name: ruby 3.3, rails-7.2.x, VIEW_COMPONENT_VERSION=~> 3.0
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-7.2.x')
@@ -411,6 +414,7 @@ jobs:
         options: "--entrypoint redis-server"
     env:
       BUNDLE_GEMFILE: gemfiles/rails-7.2.x/Gemfile
+      VIEW_COMPONENT_VERSION: "~> 3.0"
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -1148,9 +1152,9 @@ jobs:
     - ruby-3-1-sidekiq-5-x
     - ruby-4-0-sidekiq-7-x
     - ruby-3-2-graphql-2-0-17
-    - ruby-3-1-rails-7-2-x-sidekiq_version-7-0
-    - ruby-3-2-rails-7-2-x
-    - ruby-3-3-rails-7-2-x
+    - ruby-3-1-rails-7-2-x-sidekiq_version-7-0-view_component_version-3-0
+    - ruby-3-2-rails-7-2-x-view_component_version-3-0
+    - ruby-3-3-rails-7-2-x-view_component_version-3-0
     - ruby-3-4-rails-8-0-x
     - ruby-4-0-sinatra-2-x
     - ruby-3-1-grape-2-x-sidekiq_version-7-0
