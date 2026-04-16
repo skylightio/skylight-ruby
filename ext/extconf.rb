@@ -228,7 +228,7 @@ end
 #   flag can cause issues for some customers we're turning it off by default. However,
 #   in development and CI, we still have the option of turning it back on to help catch
 #   potential issues.
-$CFLAGS << " -Werror" if SKYLIGHT_EXT_STRICT
+append_cflags(["-Werror"]) if SKYLIGHT_EXT_STRICT
 
 checking_for "fast thread local storage" do
   if try_compile("__thread int foo;")
@@ -238,15 +238,15 @@ checking_for "fast thread local storage" do
 end
 
 # Flag -std=c99 required for older build systems
-$CFLAGS << " -std=c99 -Wall -fno-strict-aliasing"
+append_cflags(["-std=c99", "-Wall", "-fno-strict-aliasing"])
 
 # Allow stricter checks to be turned on for development or debugging
 if SKYLIGHT_EXT_STRICT
-  $CFLAGS << " -Wextra"
+  append_cflags(["-Wextra"])
 
   # Enabling unused-parameter causes failures in Ruby 2.6+
   #   ruby/ruby.h:2186:35: error: unused parameter 'allow_transient'
-  $CFLAGS << " -Wno-error=unused-parameter"
+  append_cflags(["-Wno-error=unused-parameter"])
 end
 
 # TODO: Compute the relative path to the location
