@@ -1,3 +1,7 @@
+## 7.1.1 (April 17, 2026)
+- BUGFIX Fix native extension build on GCC 15 by using `append_cflags` instead of mutating `$CFLAGS` directly.
+- BUGFIX Replace K&R-style empty parameter lists (`()`) with `(void)` in C sources to build cleanly under Fedora's `-Werror=old-style-definition`.
+
 ## 7.1.0 (January 20, 2025)
 - BREAKING end support for Rails < 7.2.
 - IMPROVEMENT better support for Grape 3.x
