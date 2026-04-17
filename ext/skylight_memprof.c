@@ -12,7 +12,7 @@ typedef struct {
 // Use the __thread directive
 static __thread sky_allocations_t sky_allocations;
 
-static inline sky_allocations_t* get_allocations() {
+static inline sky_allocations_t* get_allocations(void) {
   return &sky_allocations;
 }
 
@@ -25,11 +25,11 @@ static pthread_key_t ALLOCATIONS_KEY;
 
 static pthread_once_t KEY_INIT_ONCE = PTHREAD_ONCE_INIT;
 
-static void init_allocations_key() {
+static void init_allocations_key(void) {
   pthread_key_create(&ALLOCATIONS_KEY, free);
 }
 
-static sky_allocations_t* get_allocations() {
+static sky_allocations_t* get_allocations(void) {
   sky_allocations_t* ret;
 
   // Initialize the TLS key
@@ -69,7 +69,7 @@ uint64_t sky_allocation_count(void) {
   return get_allocations()->allocations;
 }
 
-uint64_t sky_consume_allocations() {
+uint64_t sky_consume_allocations(void) {
   uint64_t ret = get_allocations()->allocations;
   sky_clear_allocation_count();
   return ret;
@@ -100,7 +100,7 @@ uint64_t sky_allocation_count(void) {
   return 0;
 }
 
-uint64_t sky_consume_allocations() {
+uint64_t sky_consume_allocations(void) {
   return 0;
 }
 

@@ -553,7 +553,7 @@ trace_span_set_exception(VALUE self, VALUE span, VALUE exception, VALUE exceptio
   return Qnil;
 }
 
-void Init_skylight_native() {
+void Init_skylight_native(void) {
   rb_mSkylight = rb_define_module("Skylight");
 
   rb_eNativeError = rb_const_get(rb_mSkylight, rb_intern("NativeError"));
