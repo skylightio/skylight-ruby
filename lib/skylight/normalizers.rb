@@ -65,12 +65,11 @@ module Skylight
 
       def normalize_with_meta(trace, name, payload)
         # If we have a normal response but no meta, add it
-        cat, title, desc, meta = ret = normalize(trace, name, payload)
+        cat, title, desc, meta = normalize(trace, name, payload)
         return cat if cat == :skip
 
         meta ||= {}
-        cache_key = ret.hash
-        process_meta(trace, name, payload, meta, cache_key: cache_key)
+        process_meta(trace, name, payload, meta)
 
         [cat, title, desc, meta]
       end
@@ -80,13 +79,8 @@ module Skylight
 
       private
 
-      def process_meta(trace, _name, payload, meta, cache_key: nil)
-        trace.instrumenter.extensions.process_normalizer_meta(
-          payload,
-          meta,
-          cache_key: cache_key,
-          **process_meta_options(payload)
-        )
+      def process_meta(trace, _name, payload, meta)
+        trace.instrumenter.extensions.process_normalizer_meta(payload, meta, **process_meta_options(payload))
       end
 
       def process_meta_options(_payload)
