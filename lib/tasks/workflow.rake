@@ -676,6 +676,7 @@ TARGET_THIRD_PARTY_LIBRARIES = %w[
   rack
   rails
   redis
+  redis-client
   sequel
   sidekiq
   sinatra

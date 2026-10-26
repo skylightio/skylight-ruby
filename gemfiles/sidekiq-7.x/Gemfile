@@ -6,3 +6,7 @@ gemspec path: "../.."
 gem "rails", "~> 7.2.0"
 gem "sidekiq", "~> 7"
 gem "sqlite3", "~> 2"
+
+# Sidekiq 7+ uses redis-client directly, without the redis gem; this is where the
+# redis probe is tested in that setup.
+gem "redis-client"
