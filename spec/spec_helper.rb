@@ -66,6 +66,8 @@ end
 
 %w[excon tilt sinatra sequel faraday active_model_serializers httpclient].each { |probe| enable_probe(probe) }
 
+# The redis probe also covers redis-client, which may be present without redis (e.g. Sidekiq 7+)
+enable_probe(:redis, %w[redis-client])
 enable_probe(:redis, %w[redis])
 enable_probe(:action_view, %w[action_dispatch action_view])
 enable_probe(:"action_dispatch/request_id", "action_dispatch/middleware/request_id")
@@ -97,6 +99,7 @@ all_probes = %i[
   httpclient
   elasticsearch
   redis
+  redis_client
   action_view
   action_dispatch
   action_dispatch/request_id
