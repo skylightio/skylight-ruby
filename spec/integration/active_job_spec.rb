@@ -4,11 +4,6 @@ enable = false
 begin
   require "skylight/probes/active_job"
   require "active_job/base"
-
-  # This can end up used by active_job/test_helper without being properly required
-  require "active_support/testing/assertions"
-
-  require "active_job/test_helper"
   require "skylight/railtie"
   enable = true
 rescue LoadError
@@ -68,8 +63,6 @@ if enable
         Skylight.stop!
       end
     end
-
-    include ActiveJob::TestHelper
 
     specify do
       4.times { |n| SkTestJob.perform_later(n) }

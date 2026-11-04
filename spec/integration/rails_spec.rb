@@ -13,6 +13,18 @@ rescue LoadError
 end
 
 if enable
+  # Rails 8.2+ freezes inflections in an `after_initialize` hook. Booting an app
+  # per example registers that hook again each time, and every registered hook
+  # runs on each boot, so the inflections get frozen repeatedly. Freezing
+  # Uncountables a second time raises, so make it a no-op like Object#freeze.
+  ActiveSupport::Inflector::Inflections::Uncountables.prepend(
+    Module.new do
+      def freeze
+        frozen? ? self : super
+      end
+    end
+  )
+
   describe "Rails integration" do
     # spec/support/http.rb uses these to locate the
     # expected agent reports.
@@ -644,6 +656,31 @@ if enable
       # Can't start a new instance of the application when these are frozen.
       ActiveSupport::Dependencies.autoload_paths = []
       ActiveSupport::Dependencies.autoload_once_paths = []
+
+      # Rails 8.2+ freezes inflections after the app boots. Swap in unfrozen
+      # copies (the same way Rails' own inflector tests do) so that later
+      # specs, e.g. graphql_spec, can still add inflection rules.
+      unfreeze_inflections
+    end
+
+    def unfreeze_inflections
+      inflections = ActiveSupport::Inflector::Inflections
+
+      en = inflections.instance_variable_get(:@__en_instance__)
+      inflections.instance_variable_set(:@__en_instance__, unfrozen_inflections(en)) if en&.frozen?
+
+      locales = inflections.instance_variable_get(:@__instance__)
+      locales&.keys&.each do |locale|
+        locales[locale] = unfrozen_inflections(locales[locale]) if locales[locale].frozen?
+      end
+    end
+
+    def unfrozen_inflections(frozen)
+      frozen.dup.tap do |copy|
+        # `dup` shares the frozen list of uncountables, so rebuild it
+        copy.clear(:uncountables)
+        copy.uncountable(frozen.uncountables.to_a)
+      end
     end
 
     let(:router_name) { "ActionDispatch::Routing::RouteSet" }
