@@ -28,7 +28,7 @@ module Skylight
         end
 
         def base_app_name(endpoint)
-          ep = endpoint.options[:for]
+          ep = api(endpoint)
           return ep.name if ep.name
 
           if ep.respond_to?(:base) && ep.base.respond_to?(:name)

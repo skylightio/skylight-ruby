@@ -158,6 +158,21 @@ updates:
   open-pull-requests-limit: 10
   allow:
   - dependency-name: grape
+  ignore:
+  - dependency-name: grape
+    versions:
+    - ">= 4"
+- package-ecosystem: bundler
+  directory: gemfiles/grape-4.x
+  schedule:
+    interval: weekly
+    time: '13:00'
+  labels:
+  - dependencies
+  - grape-4.x
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-name: grape
 - package-ecosystem: bundler
   directory: gemfiles/grape-edge
   schedule:
