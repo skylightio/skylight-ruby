@@ -4,6 +4,7 @@
 - IMPROVEMENT Redis connections, including TLS and the connection handshake, are now recorded as their own `CONNECT` span instead of being counted toward the command that opened them.
 - IMPROVEMENT With redis 5+, `PIPELINE` and `MULTI` spans now cover only the round trip to Redis, not the time spent running the block. Empty pipelines are no longer recorded.
 - BUGFIX Don't report a probe installation error when a `Redis` constant is defined by something other than the redis gem.
+- BUGFIX Reduce the overhead of source location tracking. File paths are now classified once and cached, rather than re-processed for every span.
 
 ## 7.1.1 (April 17, 2026)
 - BUGFIX Fix native extension build on GCC 15 by using `append_cflags` instead of mutating `$CFLAGS` directly.

@@ -13,11 +13,23 @@ module Skylight
       META_KEYS = %i[source_location source_file source_line].freeze
       MAX_CALLER_DEPTH = 75
 
+      # Upper bound for each path cache. These are keyed by file path, so in practice they're bounded by
+      # the number of files that show up in backtraces; the limit only guards against pathological growth.
+      PATH_CACHE_MAX_SIZE = 10_000
+
       def initialize(*)
         super
         cache_size = (config[:source_location_cache_size] || 1000).to_i
-        @caller_cache = Util::LruCache.new(cache_size)
         @instance_method_source_location_cache = Util::LruCache.new(cache_size)
+
+        # path (by value) => [sanitized_path, include_line] or false
+        @path_info_cache = {}
+
+        # Same as above, but keyed by object identity. Ruby interns the path of each loaded file,
+        # so every backtrace location in a given file returns the same String object from
+        # `absolute_path`, which makes this a cheap lookup while walking frames.
+        @frame_path_info_cache = {}.compare_by_identity
+
         gem_require_trie # memoize this at startup
       end
 
@@ -53,7 +65,7 @@ module Skylight
           meta[:source_line] = instrument_location.lineno
         else
           warn "Ignoring source_line without source_file" if source_line
-          if (location = find_caller(cache_key: opts.hash))
+          if (location = find_caller)
             meta[:source_file] = location.absolute_path
             meta[:source_line] = location.lineno
           end
@@ -75,10 +87,10 @@ module Skylight
             [opts[:source_file], opts[:source_line]]
           end
 
-        sl ||= source_location(payload, meta, cache_key: opts[:cache_key])
+        sl ||= source_location(payload, meta)
 
         if sl
-          trace("normalizer source_location=#{sl}")
+          t { "normalizer source_location=#{sl}" }
           meta[:source_file], meta[:source_line] = sl
         end
 
@@ -105,7 +117,7 @@ module Skylight
           warn "Ignoring source_line without source_file; source_line=#{source_line}"
         end
 
-        trace("source_location=#{meta[:source_location]}") if meta[:source_location]
+        t { "source_location=#{meta[:source_location]}" } if meta[:source_location]
       end
 
       def allowed_meta_keys
@@ -122,27 +134,21 @@ module Skylight
 
       # from normalizers.rb
       # Returns an array of file and line
-      def source_location(payload, meta, cache_key: nil)
+      def source_location(payload, meta)
         # FIXME: what should precedence be?
         if meta.is_a?(Hash) && meta[:source_location]
           meta.delete(:source_location)
         elsif payload.is_a?(Hash) && payload[:sk_source_location]
           payload[:sk_source_location]
-        elsif (location = find_caller(cache_key: cache_key))
+        elsif (location = find_caller)
           [location.absolute_path, location.lineno]
         end
       end
 
-      def find_caller(cache_key: nil)
-        # starting at 4 to skip Skylight extension processing logic
-        locations = ::Kernel.caller_locations(4..MAX_CALLER_DEPTH)
-
-        if cache_key
-          localized_cache_key = [cache_key, locations.map(&:lineno)].hash
-          @caller_cache.fetch(localized_cache_key) { find_caller_inner(locations) }
-        else
-          find_caller_inner(locations)
-        end
+      # Returns the first location (starting at 4 to skip Skylight extension processing logic)
+      # that is in a non-ignored gem or in the project.
+      def find_caller
+        ::Kernel.caller_locations(4..MAX_CALLER_DEPTH).find { |l| frame_path_info(l.absolute_path) }
       end
 
       def project_path?(path)
@@ -189,22 +195,44 @@ module Skylight
       end
 
       def sanitize_source_location(path, line)
-        # Do this first since gems may be vendored in the app repo. However, it might be slower.
-        # Should we cache matches?
-        if (gem_name = find_source_gem(path))
-          path = gem_name
-          line = nil
-        elsif project_path?(path)
-          # Get relative path to root
-          path = Pathname.new(path).relative_path_from(config.root).to_s
-        else
-          return
-        end
+        return unless (info = path_info(path))
 
-        line ? "#{path}:#{line}" : path
+        sanitized_path, include_line = info
+        include_line && line ? "#{sanitized_path}:#{line}" : sanitized_path
       end
 
       private
+
+      def path_info(path)
+        return false unless path
+
+        @path_info_cache.fetch(path) do
+          @path_info_cache.clear if @path_info_cache.size >= PATH_CACHE_MAX_SIZE
+          @path_info_cache[path] = compute_path_info(path)
+        end
+      end
+
+      def frame_path_info(path)
+        return false unless path
+
+        @frame_path_info_cache.fetch(path) do
+          @frame_path_info_cache.clear if @frame_path_info_cache.size >= PATH_CACHE_MAX_SIZE
+          @frame_path_info_cache[path] = path_info(path)
+        end
+      end
+
+      # Returns [sanitized_path, include_line], or false if the path should not be reported.
+      # Gems are reported by name only; project files relative to the root, with a line number.
+      def compute_path_info(path)
+        # Do this first since gems may be vendored in the app repo.
+        if (gem_name = find_source_gem(path))
+          [gem_name, false].freeze
+        elsif project_path?(path)
+          [Pathname.new(path).relative_path_from(config.root).to_s.freeze, true].freeze
+        else
+          false
+        end
+      end
 
       def gem_require_trie
         @gem_require_trie ||=
@@ -246,15 +274,6 @@ module Skylight
           end
 
         nil
-      end
-
-      def find_caller_inner(locations)
-        # Start at file before this one
-        # NOTE: We could start farther back now to avoid more Skylight files
-        locations.find do |l|
-          absolute_path = l.absolute_path
-          find_source_gem(absolute_path) || project_path?(absolute_path)
-        end
       end
 
       # walks up the inheritance tree until it finds the last method
