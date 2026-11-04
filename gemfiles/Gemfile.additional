@@ -3,7 +3,8 @@ gem "delayed_job", require: false
 gem "delayed_job_active_record", require: false
 gem "excon"
 gem "faraday"
-gem "graphiti", git: "https://github.com/graphiti-api/graphiti.git"
+# Graphiti 2+ requires Ruby 3.2+; Ruby 3.1 jobs set GRAPHITI_VERSION to test 1.x.
+gem "graphiti", ENV["GRAPHITI_VERSION"] || "~> 2"
 gem "graphql", "~> 2.5.0"
 gem "httpclient"
 gem "rexml"

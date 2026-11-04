@@ -70,7 +70,6 @@ if defined?(Graphiti)
           end
 
           class AuthorResource < Graphiti::Resource
-            self.validate_endpoints = false
             self.adapter = Graphiti::Adapters::Null
 
             DATA = [
@@ -92,7 +91,6 @@ if defined?(Graphiti)
           end
 
           class PostResource < Graphiti::Resource
-            self.validate_endpoints = false
             self.adapter = Graphiti::Adapters::Null
 
             DATA = [

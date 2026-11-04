@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: cf1fda79f653e692b4c53f30202916db834b74f98e85838c7ea99b3d0e33cbb2
+  CONFIG_DIGEST: 857717628b1f8a9382b9a016e6b0406fb7f70fe3e4a209ba01e9c7a9845579f2
 'on':
   push:
     branches:
@@ -305,8 +305,8 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-4-0-default
-  ruby-3-1-rails-7-2-x-sidekiq_version-7-0:
-    name: ruby 3.1, rails-7.2.x, SIDEKIQ_VERSION=~> 7.0
+  ruby-3-1-rails-7-2-x-sidekiq_version-7-0-graphiti_version-1-0:
+    name: ruby 3.1, rails-7.2.x, SIDEKIQ_VERSION=~> 7.0 GRAPHITI_VERSION=~> 1.0
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'rails-7.2.x')
@@ -320,6 +320,7 @@ jobs:
     env:
       BUNDLE_GEMFILE: gemfiles/rails-7.2.x/Gemfile
       SIDEKIQ_VERSION: "~> 7.0"
+      GRAPHITI_VERSION: "~> 1.0"
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -627,8 +628,8 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-4-0-default
-  ruby-3-1-grape-2-x-sidekiq_version-7-0:
-    name: ruby 3.1, grape-2.x, SIDEKIQ_VERSION=~> 7.0
+  ruby-3-1-grape-2-x-sidekiq_version-7-0-graphiti_version-1-0:
+    name: ruby 3.1, grape-2.x, SIDEKIQ_VERSION=~> 7.0 GRAPHITI_VERSION=~> 1.0
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
       'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-2.x')
@@ -641,6 +642,7 @@ jobs:
     env:
       BUNDLE_GEMFILE: gemfiles/grape-2.x/Gemfile
       SIDEKIQ_VERSION: "~> 7.0"
+      GRAPHITI_VERSION: "~> 1.0"
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -1098,6 +1100,7 @@ jobs:
     env:
       BUNDLE_GEMFILE: gemfiles/rails-7.2.x/Gemfile
       SIDEKIQ_VERSION: "~> 7.0"
+      GRAPHITI_VERSION: "~> 1.0"
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -1148,12 +1151,12 @@ jobs:
     - ruby-3-1-sidekiq-5-x
     - ruby-4-0-sidekiq-7-x
     - ruby-3-2-graphql-2-0-17
-    - ruby-3-1-rails-7-2-x-sidekiq_version-7-0
+    - ruby-3-1-rails-7-2-x-sidekiq_version-7-0-graphiti_version-1-0
     - ruby-3-2-rails-7-2-x
     - ruby-3-3-rails-7-2-x
     - ruby-3-4-rails-8-0-x
     - ruby-4-0-sinatra-2-x
-    - ruby-3-1-grape-2-x-sidekiq_version-7-0
+    - ruby-3-1-grape-2-x-sidekiq_version-7-0-graphiti_version-1-0
     - ruby-4-0-grape-2-x
     - ruby-4-0-grape-3-x
     - ruby-3-1-sequel-4
