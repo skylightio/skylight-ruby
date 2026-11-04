@@ -194,6 +194,18 @@ if defined?(Grape)
     it "handles detailed descriptions"
 
     # This happens when a path matches but the method does not
-    it "treats 405s correctly"
+    it "treats 405s correctly" do
+      put "/test"
+
+      expect(last_response.status).to eq(405)
+      expect(@called_endpoint).to eq("GrapeTest [GET] test")
+    end
+
+    it "names automatic OPTIONS responses" do
+      options "/test"
+
+      expect(last_response.status).to eq(204)
+      expect(@called_endpoint).to eq("GrapeTest [GET] test")
+    end
   end
 end
