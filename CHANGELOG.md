@@ -1,4 +1,4 @@
-## Unreleased
+## 7.2.0.beta (November 4, 2026)
 - BUGFIX Don't trigger the `Mime::SET` deprecation warning on Rails 8.2.
 - IMPROVEMENT The `redis` probe now instruments redis-client, including when it's used without the redis gem (e.g. by Sidekiq 7+). With redis 5+, which is built on redis-client, blocking commands (e.g. `BLPOP`) are now instrumented too.
 - IMPROVEMENT Redis connections, including TLS and the connection handshake, are now recorded as their own `CONNECT` span instead of being counted toward the command that opened them.
