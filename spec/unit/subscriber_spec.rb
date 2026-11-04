@@ -60,9 +60,14 @@ module Skylight
 
     def all_asn_subscribers
       ActiveSupport::Notifications.notifier.instance_exec do
-        @subscribers ||
-          # Rails > 6.0.0.beta1
-          (@other_subscribers + @string_subscribers.values).flatten
+        if defined?(@registry)
+          # Rails 8.2+ keeps subscriptions in an immutable registry
+          (@registry.other_subscribers + @registry.string_subscribers.values).flatten
+        else
+          @subscribers ||
+            # Rails > 6.0.0.beta1
+            (@other_subscribers + @string_subscribers.values).flatten
+        end
       end
     end
 
