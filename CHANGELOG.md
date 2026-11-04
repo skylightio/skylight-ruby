@@ -1,5 +1,6 @@
 ## Unreleased
 - BUGFIX Don't trigger the `Mime::SET` deprecation warning on Rails 8.2.
+- BUGFIX Reduce the overhead of source location tracking. File paths are now classified once and cached, rather than re-processed for every span.
 
 ## 7.1.1 (April 17, 2026)
 - BUGFIX Fix native extension build on GCC 15 by using `append_cflags` instead of mutating `$CFLAGS` directly.
