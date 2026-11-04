@@ -88,6 +88,10 @@ module CITasks
 
   SIDEKIQ_7 = { SIDEKIQ_VERSION: "~> 7.0" }.freeze
 
+  # Sidekiq 8 and Graphiti 2 both require Ruby 3.2+, so jobs on Ruby 3.1 that
+  # load Gemfile.additional pin the previous major versions.
+  RUBY_3_1_ENV = SIDEKIQ_7.merge(GRAPHITI_VERSION: "~> 1.0").freeze
+
   # FIXME: hash this config and compare in the job
   TEST_JOBS = [
     # Mongo gem with latest mongoid
@@ -132,7 +136,8 @@ module CITasks
 
     # Latest version of graphql with legacy instrumentation
     { ruby_version: "3.2", gemfile: "graphql-2.0.17" },
-    { gemfile: "rails-7.2.x", ruby_version: OLDEST_RUBY, always_run: true, env: SIDEKIQ_7 },
+    # Graphiti 1.x is tested here; other Gemfile.additional jobs get Graphiti 2.x
+    { gemfile: "rails-7.2.x", ruby_version: OLDEST_RUBY, always_run: true, env: RUBY_3_1_ENV },
     { always_run: true, ruby_version: "3.2", gemfile: "rails-7.2.x" },
     { ruby_version: "3.3", gemfile: "rails-7.2.x" },
     { ruby_version: "3.4", gemfile: "rails-8.0.x" },
@@ -147,7 +152,7 @@ module CITasks
     },
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "sinatra-2.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "sinatra-edge" },
-    { ruby_version: OLDEST_RUBY, gemfile: "grape-2.x", env: SIDEKIQ_7 },
+    { ruby_version: OLDEST_RUBY, gemfile: "grape-2.x", env: RUBY_3_1_ENV },
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "grape-2.x" },
     { ruby_version: NEWEST_RUBY, gemfile: "grape-3.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "grape-edge" },
@@ -511,7 +516,7 @@ module CITasks
       end
 
       def env
-        super.merge(SIDEKIQ_7)
+        super.merge(RUBY_3_1_ENV)
       end
 
       private
