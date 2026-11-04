@@ -40,6 +40,10 @@ module CITasks
       # We don't limit this so that we're aware when new versions are released
     },
     "grape-3.x" => {
+      allow: [{ "dependency-name": "grape" }],
+      ignore: [{ "dependency-name": "grape", versions: [">= 4"] }]
+    },
+    "grape-4.x" => {
       allow: [{ "dependency-name": "grape" }]
       # We don't limit this so that we're aware when new versions are released
     },
@@ -155,6 +159,7 @@ module CITasks
     { ruby_version: OLDEST_RUBY, gemfile: "grape-2.x", env: RUBY_3_1_ENV },
     { always_run: true, ruby_version: NEWEST_RUBY, gemfile: "grape-2.x" },
     { ruby_version: NEWEST_RUBY, gemfile: "grape-3.x" },
+    { ruby_version: NEWEST_RUBY, gemfile: "grape-4.x" },
     { ruby_version: NEWEST_RUBY, allow_failure: true, gemfile: "grape-edge" },
     { ruby_version: "3.1", gemfile: "sequel-4" },
     { ruby_version: NEWEST_RUBY, gemfile: "sequel-5" },

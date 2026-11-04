@@ -11,7 +11,7 @@ env:
   RAILS_ENV: development
   EMBEDDED_HTTP_SERVER_TIMEOUT: '30'
   WORKER_SPAWN_TIMEOUT: '15'
-  CONFIG_DIGEST: 857717628b1f8a9382b9a016e6b0406fb7f70fe3e4a209ba01e9c7a9845579f2
+  CONFIG_DIGEST: adbbadeb52063fb6511dd3c4799696fa6df8a2c79de12b3d1b7ea13963c70709
 'on':
   push:
     branches:
@@ -766,6 +766,51 @@ jobs:
       run: bundle exec rake
     needs:
     - ruby-4-0-default
+  ruby-4-0-grape-4-x:
+    name: ruby 4.0, grape-4.x
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name,
+      'full-ci') || contains(github.event.pull_request.labels.*.name, 'grape-4.x')
+    services:
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: "--entrypoint redis-server"
+    env:
+      BUNDLE_GEMFILE: gemfiles/grape-4.x/Gemfile
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '4.0'
+    - name: Install APT dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq sqlite3 libsqlite3-dev
+    - name: Setup cache (bundler)
+      uses: actions/cache@v3
+      with:
+        path: "${{ github.workspace }}/vendor/bundle"
+        key: "${{ runner.os }}-gems-4.0-grape-4.x-${{ hashFiles('gemfiles/grape-4.x/Gemfile.lock')
+          }}"
+        restore-keys: |-
+          ${{ runner.os }}-gems-4.0-grape-4.x-
+          ${{ runner.os }}-gems-4.0-
+    - name: bundle install
+      run: "gem install bundler \nbundle install\n"
+    - name: Run tests
+      run: |
+        bundle exec rake workflow:verify[$CONFIG_DIGEST]
+        bundle exec rake
+    - name: Run tests (agent disabled)
+      env:
+        SKYLIGHT_DISABLE_AGENT: 'true'
+      run: bundle exec rake
+    needs:
+    - ruby-4-0-default
   ruby-4-0-grape-edge:
     name: "[allowed to fail] ruby 4.0, grape-edge"
     runs-on: ubuntu-latest
@@ -1159,6 +1204,7 @@ jobs:
     - ruby-3-1-grape-2-x-sidekiq_version-7-0-graphiti_version-1-0
     - ruby-4-0-grape-2-x
     - ruby-4-0-grape-3-x
+    - ruby-4-0-grape-4-x
     - ruby-3-1-sequel-4
     - ruby-4-0-sequel-5
     - ruby-3-1-ams-0-9-x-sidekiq_version-7-0
