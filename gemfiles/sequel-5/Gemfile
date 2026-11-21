@@ -3,7 +3,7 @@ source "https://rubygems.org"
 gemspec path: "../.."
 
 gem "haml"
-gem "sinatra", "~> 3"
+gem "sinatra", "~> 4"
 gem "sqlite3", "~> 1.4"
 
 gem "sequel", "~> 5.0"
